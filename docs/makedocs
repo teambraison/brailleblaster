@@ -1,2 +1,5 @@
-javadoc -r -sourcepath ../src -cp ../lib org.brailleblaster
+javadoc -sourcepath ../src/main -classpath ../lib org.brailleblaster \
+org.brailleblaster.wordprocessor \
+org.brailleblaster.louisutdml
+
 

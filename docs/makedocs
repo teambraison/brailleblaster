@@ -1,0 +1,2 @@
+javadoc -r -sourcepath ../src -cp ../lib org.brailleblaster
+

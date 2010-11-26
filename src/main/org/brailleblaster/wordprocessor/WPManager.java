@@ -7,5 +7,14 @@ BrailleWindow braille = new BrailleWindow ();
 public WPManager ()
 {
 }
+
+public void normal ()
+{
+}
+
+public void special ()
+{
+TextEditor editor = new TextEditor ();
+}
 }
 

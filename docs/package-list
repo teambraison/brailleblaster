@@ -1,6 +1,7 @@
 org.brailleblaster
 org.brailleblaster.embosserdrivers
 org.brailleblaster.input
+org.brailleblaster.jlouislibs
 org.brailleblaster.louisutdml
 org.brailleblaster.output
 org.brailleblaster.settings

@@ -1,4 +1,4 @@
-package org.brailleblaster.liblouisutdml;
+package org.brailleblaster.louisutdml;
 import org.brailleblaster.jlouislibs.Jliblouisutdml;
 public class CharSize
 {

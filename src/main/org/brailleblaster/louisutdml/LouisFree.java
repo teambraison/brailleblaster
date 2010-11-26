@@ -1,8 +1,8 @@
-package org.brailleblaster.liblouisutdml;
+package org.brailleblaster.louisutdml;
 import org.brailleblaster.jlouislibs.Jliblouisutdml;
 public class LouisFree
 {
-public void louisFree ()
+public static void louisFree ()
 {
 Jliblouisutdml bindings = new Jliblouisutdml ();
 bindings.lbu_free ();

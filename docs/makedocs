@@ -1,5 +1,10 @@
 javadoc -sourcepath ../src/main -classpath ../lib org.brailleblaster \
 org.brailleblaster.wordprocessor \
-org.brailleblaster.louisutdml
+org.brailleblaster.louisutdml \
+org.brailleblaster.settings \
+org.brailleblaster.embosserdrivers \
+org.brailleblaster.input \
+org.brailleblaster.output
+
 
 

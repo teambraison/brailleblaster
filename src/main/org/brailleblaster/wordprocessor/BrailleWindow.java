@@ -1,4 +1,4 @@
-package org.brailleblaster.editor;
+package org.brailleblaster.wordprocessor;
 public class BrailleWindow
 {
 }

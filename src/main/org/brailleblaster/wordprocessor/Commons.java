@@ -1,5 +1,5 @@
 package org.brailleblaster.wordprocessor;
-public class DaisyWindow
+public class Commons
 {
 }
 

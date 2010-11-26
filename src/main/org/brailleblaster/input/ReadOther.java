@@ -1,5 +1,5 @@
 package org.brailleblaster.input;
-public class ReadXmlOrText
+public class ReadOther
 {
 }
 

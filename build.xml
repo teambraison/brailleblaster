@@ -1,3 +1,8 @@
-<project default="package" basedir=".">
+<project name="BrailleBlaster"
+>
+<target name="compile">
+<javac
+/>
+</target>
 </project>
 

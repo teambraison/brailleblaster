@@ -1,8 +1,21 @@
 <project name="BrailleBlaster"
->
-<target name="compile">
-<javac
-/>
+default="compile">
+<property name="src" location="src/main"/>
+<property name="build" location="build"/>
+<property name="dist" location="dist"/>
+<target name="init">
+<tstamp/>
+    <mkdir dir="${build}"/>
+  </target>
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <javac srcdir="${src}" destdir="${build}"/>
+<classpath />
 </target>
+<target name="dist" depends="compile"
+        description="generate the distribution" >
+   <mkdir dir="${dist}/lib"/>
+    <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
+  </target>
 </project>
 

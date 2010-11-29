@@ -1,0 +1,5 @@
+javadoc -sourcepath src/main -classpath lib \
+-subpackages org.brailleblaster >results
+
+
+

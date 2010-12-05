@@ -1,14 +1,14 @@
 package org.brailleblaster;
 import org.brailleblaster.louisutdml.LouisFree;
 import org.brailleblaster.wordprocessor.WPManager;
-public class StartEnd
+public class Main
 {
 WPManager wpManager = new WPManager ();
 
 public static void main (String[] args)
 {
-StartEnd se = new StartEnd ();
-se.processArgs (args);
+Main m = new Main ();
+m.processArgs (args);
 LouisFree.louisFree ();
 }
 

@@ -1,6 +1,8 @@
 package org.brailleblaster;
 import org.brailleblaster.louisutdml.LouisFree;
 import org.brailleblaster.wordprocessor.WPManager;
+import org.brailleblaster.localization.LocaleHandler;
+
 public class Main
 {
 WPManager wpManager = new WPManager ();

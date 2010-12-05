@@ -17,10 +17,8 @@ includeantruntime="false">
 </classpath>
 </javac>
 </target>
-<target name="dist" depends="compile"
-  description="generate the distribution" >
-<mkdir dir="${dist}/lib"/>
-<jar jarfile="${dist}/lib/brailleblaster.jar" 
+<target name="dist" depends="compile">
+<jar jarfile="brailleblaster.jar" 
 basedir="${build}">
 <manifest>
 <attribute name="Main-Class" value="org.brailleblaster.Main"/>

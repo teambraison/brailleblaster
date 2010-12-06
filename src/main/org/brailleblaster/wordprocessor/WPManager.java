@@ -1,4 +1,8 @@
 package org.brailleblaster.wordprocessor;
+/**
+This is the controller for the whole word processing operation.
+*/
+
 import org.brailleblaster.wordprocessor.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.*;
@@ -7,8 +11,6 @@ import org.eclipse.swt.widgets.*;
 
 public class WPManager
 {
-DaisyWindow daisy = new DaisyWindow ();
-BrailleWindow braille = new BrailleWindow ();
 public WPManager ()
 {
 }

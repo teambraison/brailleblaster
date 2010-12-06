@@ -1,5 +1,7 @@
 package org.brailleblaster.wordprocessor;
-public class Commons
+import org.brailleblaster.localization.LocaleHandler;
+
+public class JDOMCommons
 {
 }
 

@@ -1,5 +1,5 @@
 package org.brailleblaster.louisutdml;
-import org.brailleblaster.jlouislibs.Jliblouisutdml;
+import org.brailleblaster.louisutdml.Jliblouisutdml;
 public class LouisFree
 {
 public static void louisFree ()

@@ -24,7 +24,7 @@ String[][] translations =
 {
 // Beginning of key, value pairs.
 {"file", "file"},
-["edit", "edit"},
+{"edit", "edit"},
 // End of key-balue pairs.
 {"zzz", "zzz"} //Just for convenience
 };

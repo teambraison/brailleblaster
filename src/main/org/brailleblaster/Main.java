@@ -3,28 +3,23 @@ import org.brailleblaster.louisutdml.LouisFree;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 
-/* This class contains the main method. It processes any subcommands and 
-* then passes cortrol to WPManager with the appropriate parameters. When 
-* WPManager returns it frees up any memory used by liblouisutdml.
+/*
+* This class contains the main method. If there are no arguments it 
+* passes control directly to the word processor. If there are arguments 
+* it passes them to the constructor of the class Subcommands. It will do more 
+* processing as the project develops.
 */
 
 public class Main
 {
-WPManager wpManager = new WPManager ();
 
 public static void main (String[] args)
 {
-Main m = new Main ();
-m.processArgs (args);
-LouisFree.louisFree ();
-}
-
-private void processArgs (String[] args)
-{
-if (args.length == 0)
-wpManager.normal ();
+if (args.length > 0)
+new Subcommands (args);
 else
-wpManager.special ();
+new WPManager ();
+LouisFree.louisFree ();
 }
 
 }

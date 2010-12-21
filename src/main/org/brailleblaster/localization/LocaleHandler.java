@@ -8,17 +8,16 @@ This class provides the methods used to deal with locales in other
 
 public class LocaleHandler
 {
-private Locale locale;
-private ResourceBundle translations;
-private ListBundle listbun;
+private Locale locale = null;
+//Locale.getDefaultLocale ();
 
 public Locale setLocale (String language, String country, String 
 variant)
 {
-locale = Locale.getInstance (language, country, variant);
-translations = ResourceBundle (MessageTranslations, 
+/*locale = Locale (language, country, variant);
+ResourceBundle ("MessageTranslations", 
 locale);
-listbun = new ListResourceBundle ();
+*/
 return locale;
 }
 
@@ -29,8 +28,10 @@ return locale;
 
 public String localValue (String key)
 {
-Object value = listbun.handleGetObject (key);
+/*Object value = new ListResourceBundle.handleGetObject (key);
 return (String)value;
+*/
+return key;
 }
 
 }

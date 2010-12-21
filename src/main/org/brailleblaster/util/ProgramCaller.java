@@ -1,24 +1,42 @@
 package org.brailleblaster.util;
 
 import org.apache.commons.exec.*;
+import java.io.*;
 
-public class CallCommand
+public class ProgramCaller
 {
-public CallCommand (String command, String[args], int returnValue)
+
+private CommandLine cmdLine;
+private DefaultExecuteResultHandler resultHandler;
+
+public void safeCall (String command, String[] args, 
+int 
+returnValue)
+throws IOException
 {
-CommandLine cmdLine = new CommandLine(command);
+cmdLine = new CommandLine(command);
 for (int i = 0; i < args.length; i++)
 cmdLine.addArgument(args[i]);
 //HashMap map = new HashMap();
 //map.put("file", new File("invoice.pdf"));
 //commandLine.setSubstitutionMap(map);
-DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+resultHandler = new DefaultExecuteResultHandler();
 ExecuteWatchdog watchdog = new ExecuteWatchdog(60*1000);
 Executor executor = new DefaultExecutor();
 executor.setExitValue(returnValue);
 executor.setWatchdog(watchdog);
+try {
 executor.execute(cmdLine, resultHandler);
-int exitValue = resultHandler.waitFor();
+}
+catch (ExecuteException e)
+{
+return;
+}
+}
+
+public void doneYet () throws InterruptedException
+{
+resultHandler.waitFor();
 }
 
 }

@@ -1,8 +1,11 @@
 package org.brailleblaster;
+
 import org.brailleblaster.louisutdml.*;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
-import org.apache.commons.exec.*;
+import org.brailleblaster.util.*;
+import org.eclipse.swt.*;
+immport org.eclipse.swt.printing.*;
 
 public class Subcommands
 {
@@ -12,8 +15,12 @@ private LocaleHandler lh = new LocaleHandler ();
 
 public Subcommands (String[] args)
 {
-if (args[0].equals ("file2brl"))
+String command;
+command = args[0];
+if (command.equals ("file2brl"))
 doFile2brl (args);
+else if (command.equals ("emboss");
+doEmboss (args);
 else
 {
 System.out.println (lh.localValue ("subcommand") + args[0] + 
@@ -23,6 +30,10 @@ return;
 }
 
 private void doFile2brl (String[] args)
+{
+}
+
+private void doEmboss (String[] args)
 {
 }
 

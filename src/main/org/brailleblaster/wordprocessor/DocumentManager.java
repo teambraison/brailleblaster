@@ -6,15 +6,15 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.brailleblaster.localization.LocaleHandler;
 
-/*
+/**
 This class manages each document in an MDI environment. It controls the 
-* braille window and the daisy window.
+* braille View and the daisy View.
 */
 
 public class DocumentManager
 {
-DaisyWindow daisy = new DaisyWindow ();
-BrailleWindow braille = new BrailleWindow ();
+DaisyView daisy = new DaisyView ();
+BrailleView braille = new BrailleView ();
 public DocumentManager ()
 {
 }

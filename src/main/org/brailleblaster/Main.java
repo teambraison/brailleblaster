@@ -15,11 +15,15 @@ public class Main
 
 public static void main (String[] args)
 {
+try {
 if (args.length > 0)
 new Subcommands (args);
 else
 new WPManager ();
 LouisFree.louisFree ();
+} catch (Exception e) {
+e.printStackTrace();
+}
 }
 
 }

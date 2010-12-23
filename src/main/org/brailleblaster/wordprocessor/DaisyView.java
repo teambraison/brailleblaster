@@ -5,7 +5,7 @@ import org.eclipse.swt.layout.*;
 import org.eclipse.swt.widgets.*;
 import org.brailleblaster.localization.LocaleHandler;
 
-public class DaisyWindow
+public class DaisyView
 {
 }
 

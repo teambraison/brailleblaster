@@ -11,8 +11,6 @@ the cross-platform accessibility of BrailleBlaster. It can be invoked
 only by a subcommand on the command line.
 */
 
-Display display = new Display();
-
 public boolean textEditor (String fileName)
 {
 return true;

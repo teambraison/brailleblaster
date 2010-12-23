@@ -34,7 +34,12 @@ return;
 }
 }
 
-public void doneYet () throws InterruptedException
+public boolean doneYet () throws InterruptedException
+{
+return resultHandler.hasResult();
+}
+
+public void waitTillDone () throws InterruptedException
 {
 resultHandler.waitFor();
 }

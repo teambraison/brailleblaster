@@ -24,8 +24,6 @@ public WPManager ()
 
 public WPManager (Object o)
 {
-public void special ()
-{
 TextEditor editor = new TextEditor ();
 }
 

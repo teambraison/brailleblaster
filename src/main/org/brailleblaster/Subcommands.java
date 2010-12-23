@@ -5,7 +5,7 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.*;
 import org.eclipse.swt.*;
-immport org.eclipse.swt.printing.*;
+import org.eclipse.swt.printing.*;
 
 public class Subcommands
 {
@@ -19,7 +19,7 @@ String command;
 command = args[0];
 if (command.equals ("file2brl"))
 doFile2brl (args);
-else if (command.equals ("emboss");
+else if (command.equals ("emboss"))
 doEmboss (args);
 else
 {

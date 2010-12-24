@@ -6,6 +6,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.printing.*;
+import java.util.*;
 
 public class Subcommands
 {
@@ -14,13 +15,15 @@ private WPManager wpManager;
 private LocaleHandler lh = new LocaleHandler ();
 
 public Subcommands (String[] args)
+throws IllegalArgumentException
 {
-String command;
-command = args[0];
-if (command.equals ("file2brl"))
-doFile2brl (args);
-else if (command.equals ("emboss"))
-doEmboss (args);
+String subcommand;
+subcommand = args[0];
+String[] subArgs = Arrays.copyOfRange (args, 1, args.length);
+if (subcommand.equals ("file2brl"))
+doFile2brl (subArgs);
+else if (subcommand.equals ("emboss"))
+doEmboss (subArgs);
 else
 {
 System.out.println (lh.localValue ("subcommand") + args[0] + 

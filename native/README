@@ -3,6 +3,6 @@ libraries and command-line tools. The important subdirectories are bin
 lib and share
 
 Install liblouis and liblouisutdml with the command
-./configure --prefix=xxx/brailleblaster/bin
+./configure --prefix=xxx/brailleblaster/native
 where xxx is the path to the brailleblaster directory.
 

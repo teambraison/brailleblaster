@@ -9,9 +9,8 @@ public class ProgramCaller
 private CommandLine cmdLine;
 private DefaultExecuteResultHandler resultHandler;
 
-public void safeCall (String command, String[] args, 
-int 
-returnValue)
+public ProgramCaller (String command, String[] args, 
+int returnValue)
 throws IOException
 {
 cmdLine = new CommandLine(command);

@@ -1,3 +1,3 @@
 #!/bin/bash
-java -Djava.library.path=bin/lib -jar brailleblaster.jar $*
+java -Djava.library.path=native/lib -jar brailleblaster.jar $*
 

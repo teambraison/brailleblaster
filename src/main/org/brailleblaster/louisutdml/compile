@@ -1,2 +1,0 @@
-javac -d /home/johnb/brailleblaster-java/bin \
--cp /home/johnb/liblouuisutdml/java/bin $1

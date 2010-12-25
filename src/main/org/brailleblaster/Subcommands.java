@@ -1,12 +1,11 @@
 package org.brailleblaster;
 
-import org.brailleblaster.louisutdml.*;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ProgramCaller;
-import org.eclipse.swt.*;
-import org.eclipse.swt.printing.*;
+import org.brailleblaster.embossers.EmbosserManager;
 import java.util.*;
+import java.io.IOException;
 
 public class Subcommands
 {
@@ -17,7 +16,7 @@ private String subcommand;
 private String[] subArgs;
 
 public Subcommands (String[] args)
-throws IllegalArgumentException
+throws IllegalArgumentException, IOException
 {
 subcommand = args[0];
 subArgs = Arrays.copyOfRange (args, 1, args.length);
@@ -34,11 +33,13 @@ lh.localValue ("not recognized"));
 }
 
 private void doFile2brl (String[] args)
+throws IOException
 {
-ProgramCaller pc = new ProgrfamCaller (subcommand, subArgs, 0);
+ProgramCaller pc = new ProgramCaller (subcommand, subArgs, 0);
 }
 
 private void doEmboss (String[] args)
+throws IOException
 {
 }
 

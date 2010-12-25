@@ -2,23 +2,22 @@
 basedir=".">
 <property name="src" location="src/main"/>
 <property name="build" location="classes"/>
-<property name="classpath" location="lib"/>
+<property name="classpath" location="dist/lib"/>
 <target name="init">
 <mkdir dir="${build}"/>
 </target>
-<target name="compile" depends="init"
-description="compile the source " >
+<target name="compile" depends="init">
 <javac srcdir="${src}" destdir="${build}"
 includeantruntime="false">
 <classpath>
-<pathelement path="lib"/>
-<pathelement location="lib/swt.jar"/>
-<pathelement location="lib/commons-exec-1.1.jar"/>
+<pathelement path="dist/lib"/>
+<pathelement location="dist/lib/swt.jar"/>
+<pathelement location="dist/lib/commons-exec-1.1.jar"/>
 </classpath>
 </javac>
 </target>
 <target name="dist" depends="compile">
-<jar jarfile="brailleblaster.jar" 
+<jar jarfile="dist/brailleblaster.jar" 
 basedir="${build}">
 <manifest>
 <attribute name="Main-Class" value="org.brailleblaster.Main"/>

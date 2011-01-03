@@ -1,16 +1,21 @@
 package org.brailleblaster.louisutdml;
 
+/**
+* Handles exceptions that other classes in this package throw when a 
+* call to a method in Jliblouisutdml fails.
+*/
+
 public class LiblouisutdmlException extends RuntimeException
 {
 
-puglic LiblouisException ()
+public LiblouisutdmlException ()
 {
 super();
 }
 
 public LiblouisutdmlException (String message)
 {
-super (message)
+super (message);
 }
 
 }

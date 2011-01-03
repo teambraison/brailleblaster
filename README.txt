@@ -40,6 +40,12 @@ chores such as writing and editing liblouis tables. GUICommons.java
 contains methods used  by the other classes in carrying out complex GUI 
 operations.
 
+The org.brailleblaster.louisutdml package might be better named. It 
+contains classes used to mediate between BrailleBlaster and the 
+liblouisutdml bindings. The bindings have been made as simple as 
+possible. Problems are handled by LiblouisutdmlException.java in this 
+package.
+
 The embossers package contains drivers for various ebossers.
 
 The input package handles reading various types of input and translating 

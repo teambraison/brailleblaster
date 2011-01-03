@@ -1,4 +1,17 @@
-  public native boolean lbu_translateString (String configFileList,
+package org.brailleblaster.louisutdml;
+
+import org.liblouis.Jliblouisutdml;
+
+public class TranslateString
+{
+
+  public TranslateString (String configFileList,
 					     byte[]inbuf,
 					     byte[]outbuf, int[]outlen,
-					     String logFilename,
+					     String logFilename, String 
+configSettings, int mode)
+throws LiblouisutdmlException
+{
+}
+
+}

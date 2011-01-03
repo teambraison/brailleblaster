@@ -20,7 +20,7 @@ if (args.length > 0)
 new Subcommands (args);
 else
 new WPManager ();
-LouisFree.louisFree ();
+//new LouisFree();
 } catch (Exception e) {
 e.printStackTrace();
 }

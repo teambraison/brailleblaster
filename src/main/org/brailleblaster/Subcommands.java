@@ -16,7 +16,7 @@ private String subcommand;
 private String[] subArgs;
 
 public Subcommands (String[] args)
-throws IllegalArgumentException, IOException
+throws IllegalArgumentException, IOException, InterruptedException
 {
 subcommand = args[0];
 subArgs = Arrays.copyOfRange (args, 1, args.length);
@@ -33,13 +33,15 @@ lh.localValue ("not recognized"));
 }
 
 private void doFile2brl (String[] args)
-throws IOException
+throws InterruptedException, IOException
 {
-ProgramCaller pc = new ProgramCaller (subcommand, subArgs, 0);
+ProgramCaller pc = new ProgramCaller ("native/bin/" + subcommand, 
+args, 0);
+pc.waitTillDone ();
 }
 
 private void doEmboss (String[] args)
-throws IOException
+throws InterruptedException, IOException
 {
 }
 

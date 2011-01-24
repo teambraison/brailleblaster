@@ -6,6 +6,11 @@ import org.brailleblaster.util.ProgramCaller;
 import org.brailleblaster.embossers.EmbosserManager;
 import java.util.*;
 import java.io.IOException;
+import org.daisy.printing.PrinterDevice;
+
+/**
+* Process subcommands.
+*/
 
 public class Subcommands
 {

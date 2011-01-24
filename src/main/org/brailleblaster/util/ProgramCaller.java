@@ -1,10 +1,11 @@
 package org.brailleblaster.util;
 
 import org.apache.commons.exec.*;
-import java.io.*;
+import java.io.IOException;
+import org.brailleblaster.BBIni;
 
 /**
-* This class calls any program in a save way
+* This class calls any program in a safe way
 */
 public class ProgramCaller
 {
@@ -16,7 +17,7 @@ public ProgramCaller (String command, String[] args,
 int returnValue)
 throws ExecuteException, IOException
 {
-cmdLine = new CommandLine(command);
+cmdLine = new CommandLine(command + BBIni.getNativeCommandSuffix());
 for (int i = 0; i < args.length; i++)
 cmdLine.addArgument(args[i]);
 resultHandler = new DefaultExecuteResultHandler();

@@ -1,6 +1,6 @@
 package org.brailleblaster.louisutdml;
 
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 public class TranslateTextFile
 {

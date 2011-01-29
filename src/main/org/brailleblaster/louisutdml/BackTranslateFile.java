@@ -1,6 +1,6 @@
 package org.brailleblaster.louisutdml;
 
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 /**
 * This class provides the Java code to enable smooth back-translation of 

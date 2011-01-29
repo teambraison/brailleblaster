@@ -1,6 +1,6 @@
 package org.brailleblaster.louisutdml;
 
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 public class TranslateFile
 {
@@ -13,7 +13,7 @@ public class TranslateFile
 throws LiblouisutdmlException
 {
 boolean result;
-result = Jliblouisutdml.getInstance().translateFile
+result = liblouisutdml.getInstance().translateFile
 (configFileList, inputFileName,
  outputFileName, logFileName,
  settingsString, mode);

@@ -2,7 +2,7 @@ package org.brailleblaster;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.BrailleblasterPath;
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 /**
 * Determine and set initial conditions.
@@ -18,6 +18,7 @@ private static String nativeDataPath;
 private static String nativeCommandSuffix;
 private static String nativeLibrarySuffix;
 private static String settingsPath;
+private static String tempFilesPath;
 private static String osName;
 private static String osVersion;
 
@@ -46,14 +47,15 @@ nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep +
 "lib";
 nativeLibrarySuffix = ".so";
 try {
-Jliblouisutdml.loadLibrary (nativeLibraryPath + fileSep + 
+liblouisutdml.loadLibrary (nativeLibraryPath + fileSep + 
 "liblouisutdml" + nativeLibrarySuffix);
 } catch (Exception e)
 {
+e.printStackTrace();
 }
 nativeDataPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "share";
-Jliblouisutdml louisutdml = Jliblouisutdml.getInstance();
+liblouisutdml louisutdml = liblouisutdml.getInstance();
 louisutdml.setDataPath (nativeDataPath);
 }
 
@@ -95,6 +97,11 @@ return nativeLibrarySuffix;
 public static String getSettingsPath()
 {
 return settingsPath;
+}
+
+public static String getTempFilesPath ()
+{
+return tempFilesPath;
 }
 
 public static String getOsName()

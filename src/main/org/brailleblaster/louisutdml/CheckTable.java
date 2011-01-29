@@ -1,6 +1,6 @@
 package org.brailleblaster.louisutdml;
 
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 /**
 * Checks a liblouis table for correctness.
@@ -13,7 +13,7 @@ public CheckTable (String tableList, String logFile, int mode)
 throws LiblouisutdmlException
 {
 boolean result;
-result = Jliblouisutdml.getInstance().checkTable (tableList, logFile, 
+result = liblouisutdml.getInstance().checkTable (tableList, logFile, 
 mode);
 }
 

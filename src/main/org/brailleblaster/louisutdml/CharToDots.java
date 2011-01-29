@@ -1,20 +1,20 @@
 package org.brailleblaster.louisutdml;
 
-import org.liblouis.Jliblouisutdml;
+import org.liblouis.liblouisutdml;
 
 public class CharToDots
 {
 
-public CharToDots (String trantab, String inbuf, String 
+public CharToDots (String tableList, String inbuf, String 
 outbuf, int mode)
 throws LiblouisutdmlException
 {
 byte[] inbufx = null;
 byte[] outbufx = null;
 String logFile = null;
-Jliblouisutdml bindings = new Jliblouisutdml ();
-bindings.lbu_charToDots (trantab, inbufx, outbufx, logFile, 
-mode);
+//liblouisutdml bindings = liblouisutdml().getInstance();
+//bindings.charToDots (tableList, inbufx, outbufx, logFile, 
+//mode);
 }
 
 }

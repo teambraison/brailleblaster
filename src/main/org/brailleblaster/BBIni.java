@@ -14,7 +14,7 @@ private static String brailleblasterPath;
 private static String fileSep;
 private static String nativeCommandPath;
 private static String nativeLibraryPath;
-private static String nativeDataPath;
+private static String programDataPath;
 private static String nativeCommandSuffix;
 private static String nativeLibrarySuffix;
 private static String settingsPath;
@@ -53,10 +53,9 @@ liblouisutdml.loadLibrary (nativeLibraryPath + fileSep +
 {
 e.printStackTrace();
 }
-nativeDataPath = brailleblasterPath + fileSep + "native" + fileSep + 
-"share";
+programDataPath = brailleblasterPath + fileSep + "programData";
 liblouisutdml louisutdml = liblouisutdml.getInstance();
-louisutdml.setDataPath (nativeDataPath);
+louisutdml.setDataPath (programDataPath);
 }
 
 public static String getBrailleblasterPath()
@@ -79,9 +78,9 @@ public static String getNativeLibraryPath()
 return nativeLibraryPath;
 }
 
-public static String getNativeDataPath()
+public static String getprogramDataPath()
 {
-return nativeDataPath;
+return programDataPath;
 }
 
 public static String getNativeCommandSuffix()

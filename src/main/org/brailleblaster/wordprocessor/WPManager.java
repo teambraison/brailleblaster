@@ -1,21 +1,27 @@
 package org.brailleblaster.wordprocessor;
+
+import org.eclipse.swt.widgets.Display;
+
 /**
 This is the controller for the whole word processing operation.
 */
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.custom.*;
-import org.eclipse.swt.layout.*;
-import org.eclipse.swt.widgets.*;
-
 public class WPManager
 {
+Display display;
+StartupDialogs startup;
+DocumentManager[] documents = new DocumentManager[8];
+int currentDocument = 0;
+
 /**
 * Normal word processor entry poinnt.
 */
 
 public WPManager ()
 {
+display = new Display();
+documents[currentDocument] = new DocumentManager (display);
+display.dispose();
 }
 
 /**

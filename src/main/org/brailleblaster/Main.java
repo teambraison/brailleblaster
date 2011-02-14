@@ -1,7 +1,6 @@
 package org.brailleblaster;
 
 import org.liblouis.liblouisutdml;
-//import org.brailleblaster.louisutdml.LouisFree;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 
@@ -19,12 +18,15 @@ public static void main (String[] args)
 {
 try {
 BBIni initialConditions = BBIni.getInstance();
-if (args.length > 0)
-new Subcommands (args);
-else
+if (args.length == 0)
 new WPManager ();
+else
+{
+//ParseCommandLine.getInstance().parseCommand (args);
+new Subcommands (args);
+}
 liblouisutdml louisutdml = liblouisutdml.getInstance ();
-louisutdml.free ();
+louisutdml.free();
 } catch (Exception e) {
 e.printStackTrace();
 }

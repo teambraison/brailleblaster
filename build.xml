@@ -1,32 +1,41 @@
 <?xml version="1.0"?>
+
 <project name="BrailleBlaster" default="dist"
 basedir=".">
-<property name="src" location="src/main"/>
-<property name="build" location="classes"/>
+
+<property name="srcdir" location="src/main"/>
+<property name="builddir" location="classes"/>
 <property name="classpath" location="dist/lib"/>
+<property name="distdir" location ="dist"/>
+
 <target name="init">
-<mkdir dir="${build}"/>
+<mkdir dir="${builddir}"/>
 </target>
+
 <target name="compile" depends="init">
-<javac srcdir="${src}" destdir="${build}"
+<javac srcdir="${srcdir}" destdir="${builddir}"
 includeantruntime="false">
 <classpath>
-<pathelement path="dist/lib"/>
-<pathelement location="dist/lib/swt.jar"/>
-<pathelement location="dist/lib/commons-exec-1.1.jar"/>
-<pathelement location="dist/lib/jliblouisutdml.jar"/>
+<pathelement path="${classpath}"/>
+<pathelement location="${classpath}/swt.jar"/>
+<pathelement location="${classpath}/commons-exec-1.1.jar"/>
+<pathelement location="${classpath}/jliblouisutdml.jar"/>
+<pathelement location="${classpath}/commons-cli-1.2.jar"/>
 </classpath>
 </javac>
 </target>
+
 <target name="dist" depends="compile">
-<jar jarfile="dist/brailleblaster.jar" 
-basedir="${build}">
+<jar jarfile="${distdir}/brailleblaster.jar" 
+basedir="${builddir}">
 <manifest>
 <attribute name="Main-Class" value="org.brailleblaster.Main"/>
-<attribute name="Class-Path" value="lib/commons-exec-1.1.jar 
-lib/jliblouisutdml.jar lib/swt.jar"/>
+<attribute name="Class-Path" value="${classpath}/commons-exec-1.1.jar 
+${classpath}/jliblouisutdml.jar ${classpath}/swt.jar
+${classpath}commons-cli-1.2.jar"/>
 </manifest>
 </jar>
 </target>
+
 </project>
 

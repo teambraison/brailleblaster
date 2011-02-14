@@ -1,5 +1,6 @@
 package org.brailleblaster;
 
+import org.eclipse.swt.SWT;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.BrailleblasterPath;
 import org.liblouis.liblouisutdml;
@@ -19,8 +20,7 @@ private static String nativeCommandSuffix;
 private static String nativeLibrarySuffix;
 private static String settingsPath;
 private static String tempFilesPath;
-private static String osName;
-private static String osVersion;
+private static String platformName;
 
 /**
   * Single instance created upon class loading.
@@ -41,11 +41,14 @@ private static BBIni singleInstance = new BBIni ();
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 fileSep = System.getProperty ("file.separator");
-osName = System.getProperty("os.name");
-osVersion = System.getProperty("os.version");
+platformName = SWT.getPlatform();
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib";
-nativeLibrarySuffix = ".so";
+if (platformName.equals("win32"))
+nativeLibrarySuffix = ".dll";
+else if (platformName.equals ("cocoa"))
+nativeLibrarySuffix = ".dylib";
+else nativeLibrarySuffix = ".so";
 try {
 liblouisutdml.loadLibrary (nativeLibraryPath + fileSep + 
 "liblouisutdml" + nativeLibrarySuffix);
@@ -103,14 +106,9 @@ public static String getTempFilesPath ()
 return tempFilesPath;
 }
 
-public static String getOsName()
+public static String getplatformName()
 {
-return osName;
-}
-
-public static String getOsVersion()
-{
-return osVersion;
+return platformName;
 }
 
 }

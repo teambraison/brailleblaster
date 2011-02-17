@@ -3,6 +3,7 @@ package org.brailleblaster;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
+import java.io.IOException;
 
 /**
 * This class contains the main method. If there are no arguments it 
@@ -15,9 +16,9 @@ public class Main
 {
 
 public static void main (String[] args)
+throws IOException, javax.print.PrintException
 {
-try {
-BBIni initialConditions = BBIni.getInstance();
+BBIni.haveLiblouisutdml();
 if (args.length == 0)
 new WPManager ();
 else
@@ -25,10 +26,10 @@ else
 //ParseCommandLine.getInstance().parseCommand (args);
 new Subcommands (args);
 }
+if (BBIni.haveLiblouisutdml())
+{
 liblouisutdml louisutdml = liblouisutdml.getInstance ();
 louisutdml.free();
-} catch (Exception e) {
-e.printStackTrace();
 }
 }
 

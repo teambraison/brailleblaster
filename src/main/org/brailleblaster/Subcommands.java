@@ -27,6 +27,13 @@ private String[] subArgs;
 public Subcommands (String[] args)
 throws IllegalArgumentException, IOException, PrintException
 {
+if (!BBIni.haveLiblouisutdml())
+{
+System.out.println ("The Braille translation facility is absent.");
+System.out.println 
+("You can use the word processor on a demonstration basis.");
+return;
+}
 louisutdml = liblouisutdml.getInstance();
 subcommand = args[0];
 subArgs = Arrays.copyOfRange (args, 1, args.length);

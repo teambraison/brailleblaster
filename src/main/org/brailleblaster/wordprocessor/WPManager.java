@@ -1,9 +1,11 @@
 package org.brailleblaster.wordprocessor;
 
+import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
+import org.brailleblaster.BBIni;
 
 /**
-This is the controller for the whole word processing operation.
+* This is the controller for the whole word processing operation.
 */
 
 public class WPManager
@@ -19,7 +21,13 @@ int currentDocument = 0;
 
 public WPManager ()
 {
-display = new Display();
+display = BBIni.getDisplay();
+if (display == null)
+{
+System.out.println ("There is no working GUI environment");
+System.out.println ("You cannot use the word processor.");
+System.exit (1);
+}
 documents[currentDocument] = new DocumentManager (display);
 display.dispose();
 }

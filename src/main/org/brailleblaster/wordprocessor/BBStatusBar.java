@@ -13,6 +13,7 @@ public BBStatusBar (Shell documentWindow)
 {
 statusBar = new Label
     (documentWindow, SWT.NONE);
+statusBar.setText ("This is the status bar.");
 }
 
 }

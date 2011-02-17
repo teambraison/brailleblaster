@@ -5,7 +5,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
-
 public class BBMenu
 {
 Menu menu;

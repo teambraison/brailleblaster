@@ -23,7 +23,7 @@ if (args.length == 0)
 new WPManager ();
 else
 {
-//ParseCommandLine.getInstance().parseCommand (args);
+ParseCommandLine.getInstance().parseCommand (args);
 new Subcommands (args);
 }
 if (BBIni.haveLiblouisutdml())

@@ -14,7 +14,7 @@ import java.lang.UnsatisfiedLinkError;
 
 public final class BBIni {
 
-private static Display display;
+private static final Display display = new Display();
 private static String brailleblasterPath;
 private static String osName;
 private static String osVersion;
@@ -27,7 +27,7 @@ private static String nativeLibrarySuffix;
 private static String settingsPath;
 private static String tempFilesPath;
 private static String platformName;
-private static boolean hLiblouisutdml = true;
+private static boolean hLiblouisutdml = false;
 
   /**
   * Private constructor prevents construction outside this class.
@@ -35,15 +35,6 @@ private static boolean hLiblouisutdml = true;
   private BBIni() 
 throws Exception
 {
-try {
-display = new Display();
-} catch (UnsatisfiedLinkError e)
-{
-e.getMessage();
-System.out.println 
-("The GUI facility is missing.");
-display = null;
-}
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 osName = System.getProperty ("os.name");
@@ -63,9 +54,9 @@ liblouisutdml.loadLibrary (nativeLibraryPath + fileSep +
 "liblouisutdml" + nativeLibrarySuffix);
 liblouisutdml louisutdml = liblouisutdml.getInstance();
 louisutdml.setDataPath (programDataPath);
+hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e)
 {
-hLiblouisutdml = false;
 }
 }
 

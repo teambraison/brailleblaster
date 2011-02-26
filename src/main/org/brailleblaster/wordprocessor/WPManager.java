@@ -22,12 +22,6 @@ int currentDocument = 0;
 public WPManager ()
 {
 display = BBIni.getDisplay();
-if (display == null)
-{
-System.out.println ("There is no working GUI environment");
-System.out.println ("You cannot use the word processor.");
-System.exit (1);
-}
 documents[currentDocument] = new DocumentManager (display);
 display.dispose();
 }

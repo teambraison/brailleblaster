@@ -12,7 +12,7 @@ ToolItem toolItem;
 
 public BBToolBar (Shell documentWindow)
 {
-toolBar = new ToolBar (documentWindow);
+toolBar = new ToolBar (documentWindow, 0);
 }
 
 }

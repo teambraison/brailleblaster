@@ -2,6 +2,8 @@ package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 
 /**
@@ -22,6 +24,17 @@ int currentDocument = 0;
 public WPManager ()
 {
 display = BBIni.getDisplay();
+if (!BBIni.haveLiblouisutdml())
+{
+Shell shell = new Shell (display);
+MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
+mb.setMessage ("The Braille facility is missing."
++ "Do you wish to continue?");
+int result = mb.open();
+shell.dispose();
+if (result == SWT.NO)
+System.exit (1);
+}
 documents[currentDocument] = new DocumentManager (display);
 display.dispose();
 }

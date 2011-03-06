@@ -7,6 +7,8 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.BrailleblasterPath;
 import org.liblouis.liblouisutdml;
 import java.lang.UnsatisfiedLinkError;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
 * Determine and set initial conditions.
@@ -14,6 +16,7 @@ import java.lang.UnsatisfiedLinkError;
 
 public final class BBIni {
 
+private static Logger logger = Logger.getLogger ("BBIni");
 private static final Display display = new Display();
 private static String brailleblasterPath;
 private static String osName;
@@ -57,6 +60,7 @@ louisutdml.setDataPath (programDataPath);
 hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e)
 {
+logger.log (Level.SEVERE, "~Problem with liblouisutdml library", e);
 }
 }
 

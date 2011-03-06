@@ -29,7 +29,7 @@ if (!BBIni.haveLiblouisutdml())
 Shell shell = new Shell (display);
 MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
 mb.setMessage ("The Braille facility is missing."
-+ "Do you wish to continue?");
++ " Do you wish to continue?");
 int result = mb.open();
 shell.dispose();
 if (result == SWT.NO)

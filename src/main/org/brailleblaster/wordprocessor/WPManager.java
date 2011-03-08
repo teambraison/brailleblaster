@@ -24,6 +24,9 @@ int currentDocument = 0;
 public WPManager ()
 {
 display = BBIni.getDisplay();
+if (display == null) {
+System.exit (1);
+}
 if (!BBIni.haveLiblouisutdml())
 {
 Shell shell = new Shell (display);

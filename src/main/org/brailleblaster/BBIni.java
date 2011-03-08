@@ -16,8 +16,19 @@ import java.util.logging.Level;
 
 public final class BBIni {
 
+private static BBIni bbini;
+
+public static BBIni getInstance () {
+if (bbini == null) {
+try {
+bbini = new BBIni();
+} catch (Exception e) {}
+}
+  return bbini;
+}
+
 private static Logger logger = Logger.getLogger ("BBIni");
-private static final Display display = new Display();
+private static Display display = null;
 private static String brailleblasterPath;
 private static String osName;
 private static String osVersion;
@@ -32,12 +43,14 @@ private static String tempFilesPath;
 private static String platformName;
 private static boolean hLiblouisutdml = false;
 
-  /**
-  * Private constructor prevents construction outside this class.
-  */
-  private BBIni() 
+  protected BBIni() 
 throws Exception
 {
+try {
+display = new Display();
+} catch (SWTError e) {
+logger.log (Level.SEVERE, "Can't find GUI", e);
+}
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 osName = System.getProperty ("os.name");
@@ -60,7 +73,7 @@ louisutdml.setDataPath (programDataPath);
 hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e)
 {
-logger.log (Level.SEVERE, "~Problem with liblouisutdml library", e);
+logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);
 }
 }
 

@@ -15,8 +15,7 @@ import javax.print.PrintException;
 * Process subcommands.
 */
 
-public class Subcommands
-{
+public class Subcommands {
 
 private WPManager wpManager;
 private LocaleHandler lh = new LocaleHandler ();
@@ -34,6 +33,7 @@ System.out.println
 ("You can use the word processor on a demonstration basis.");
 return;
 }
+ParseCommandLine.getInstance().parseCommand (args);
 louisutdml = liblouisutdml.getInstance();
 subcommand = args[0];
 subArgs = Arrays.copyOfRange (args, 1, args.length);

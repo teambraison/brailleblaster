@@ -4,15 +4,13 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Shell;
 
-public class BrailleView
-{
+public class BrailleView {
 
 StyledText braille;
 
-public BrailleView (Shell brailleShell)
-{
+public BrailleView (Shell documentWindow) {
 braille = new StyledText 
-    (brailleShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 }
 
 }

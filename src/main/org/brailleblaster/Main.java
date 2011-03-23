@@ -4,6 +4,8 @@ import org.liblouis.liblouisutdml;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import java.io.IOException;
+import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.Display;
 
 /**
 * This class contains the main method. If there are no arguments it 
@@ -23,9 +25,11 @@ if (args.length == 0)
 new WPManager ();
 else
 {
-ParseCommandLine.getInstance().parseCommand (args);
 new Subcommands (args);
 }
+Display display = BBIni.getDisplay();
+if (display != null)
+display.dispose();
 if (BBIni.haveLiblouisutdml())
 {
 liblouisutdml louisutdml = liblouisutdml.getInstance ();

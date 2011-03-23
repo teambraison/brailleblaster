@@ -9,6 +9,9 @@ import org.liblouis.liblouisutdml;
 import java.lang.UnsatisfiedLinkError;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.FileHandler;
+import java.io.IOException;
+import java.io.File;
 
 /**
 * Determine and set initial conditions.
@@ -19,15 +22,12 @@ public final class BBIni {
 private static BBIni bbini;
 
 public static BBIni getInstance () {
-if (bbini == null) {
-try {
+if (bbini == null)
 bbini = new BBIni();
-} catch (Exception e) {}
-}
   return bbini;
 }
 
-private static Logger logger = Logger.getLogger ("BBIni");
+private static Logger logger;
 private static Display display = null;
 private static String brailleblasterPath;
 private static String osName;
@@ -42,15 +42,9 @@ private static String settingsPath;
 private static String tempFilesPath;
 private static String platformName;
 private static boolean hLiblouisutdml = false;
+private static FileHandler logFile;
 
-  protected BBIni() 
-throws Exception
-{
-try {
-display = new Display();
-} catch (SWTError e) {
-logger.log (Level.SEVERE, "Can't find GUI", e);
-}
+  private BBIni() {
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 osName = System.getProperty ("os.name");
@@ -65,15 +59,41 @@ else if (platformName.equals ("cocoa"))
 nativeLibrarySuffix = ".dylib";
 else nativeLibrarySuffix = ".so";
 programDataPath = brailleblasterPath + fileSep + "programData";
+String userHome = System.getProperty ("user.home");
+settingsPath = userHome + fileSep + "bbsettings";
+File settings = new File (settingsPath);
+if (!settings.exists())
+settings.mkdir();
+tempFilesPath = userHome + fileSep + "bbtemp";
+File temps = new File (tempFilesPath);
+if (!temps.exists())
+temps.mkdir();
+logger = Logger.getLogger ("org.brailleblaster");
+try {
+logFile = new FileHandler 
+(tempFilesPath + fileSep + "bblog.log");
+} catch (IOException e) {
+logger.log (Level.SEVERE, "cannot open logfile", e);
+}
+if (logFile != null) {
+logger.addHandler (logFile);
+}
+try {
+display = new Display();
+} catch (SWTError e) {
+logger.log (Level.SEVERE, "Can't find GUI", e);
+}
 try {
 liblouisutdml.loadLibrary (nativeLibraryPath + fileSep + 
 "liblouisutdml" + nativeLibrarySuffix);
 liblouisutdml louisutdml = liblouisutdml.getInstance();
 louisutdml.setDataPath (programDataPath);
 hLiblouisutdml = true;
-} catch (UnsatisfiedLinkError e)
-{
+} catch (UnsatisfiedLinkError e) {
 logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);
+}
+catch (Exception e) {
+logger.log (Level.WARNING, "This shouldn't happen", e);
 }
 }
 
@@ -127,13 +147,11 @@ public static String getSettingsPath()
 return settingsPath;
 }
 
-public static String getTempFilesPath ()
-{
+public static String getTempFilesPath () {
 return tempFilesPath;
 }
 
-public static String getplatformName()
-{
+public static String getplatformName() {
 return platformName;
 }
 

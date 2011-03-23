@@ -9,10 +9,9 @@ public class DaisyView
 
 StyledText daisy;
 
-public DaisyView (Shell daisyShell)
-{
+public DaisyView (Shell documentWindow) {
 daisy = new StyledText
-    (daisyShell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 }
 
 }

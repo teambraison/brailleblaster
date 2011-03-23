@@ -10,10 +10,9 @@ import org.brailleblaster.BBIni;
 * This is the controller for the whole word processing operation.
 */
 
-public class WPManager
-{
+public class WPManager {
 Display display;
-StartupDialogs startup;
+SettingsDialogs settings;
 DocumentManager[] documents = new DocumentManager[8];
 int currentDocument = 0;
 
@@ -21,14 +20,12 @@ int currentDocument = 0;
 * Normal word processor entry poinnt.
 */
 
-public WPManager ()
-{
+public WPManager () {
 display = BBIni.getDisplay();
 if (display == null) {
 System.exit (1);
 }
-if (!BBIni.haveLiblouisutdml())
-{
+if (!BBIni.haveLiblouisutdml()) {
 Shell shell = new Shell (display);
 MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
 mb.setMessage ("The Braille facility is missing."
@@ -39,7 +36,6 @@ if (result == SWT.NO)
 System.exit (1);
 }
 documents[currentDocument] = new DocumentManager (display);
-display.dispose();
 }
 
 /**

@@ -71,7 +71,7 @@ temps.mkdir();
 logger = Logger.getLogger ("org.brailleblaster");
 try {
 logFile = new FileHandler 
-(tempFilesPath + fileSep + "bblog.log");
+(tempFilesPath + fileSep + "bblog.html");
 } catch (IOException e) {
 logger.log (Level.SEVERE, "cannot open logfile", e);
 }
@@ -88,6 +88,7 @@ liblouisutdml.loadLibrary (nativeLibraryPath + fileSep +
 "liblouisutdml" + nativeLibrarySuffix);
 liblouisutdml louisutdml = liblouisutdml.getInstance();
 louisutdml.setDataPath (programDataPath);
+louisutdml.setWriteablePath (tempFilesPath);
 hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e) {
 logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);
@@ -153,6 +154,10 @@ return tempFilesPath;
 
 public static String getplatformName() {
 return platformName;
+}
+
+public static Logger getLogger() {
+return logger;
 }
 
 }

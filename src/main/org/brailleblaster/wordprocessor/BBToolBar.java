@@ -5,13 +5,12 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Shell;
 
-public class BBToolBar
-{
+public class BBToolBar {
+
 ToolBar toolBar;
 ToolItem toolItem;
 
-public BBToolBar (Shell documentWindow)
-{
+public BBToolBar (Shell documentWindow) {
 toolBar = new ToolBar (documentWindow, 0);
 }
 

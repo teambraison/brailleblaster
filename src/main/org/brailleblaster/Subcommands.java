@@ -10,6 +10,8 @@ import java.io.IOException;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
 import javax.print.PrintException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
 * Process subcommands.
@@ -17,18 +19,17 @@ import javax.print.PrintException;
 
 public class Subcommands {
 
+private Logger logger = BBIni.getLogger();
 private WPManager wpManager;
 private LocaleHandler lh = new LocaleHandler ();
 private liblouisutdml louisutdml;
 private String subcommand;
 private String[] subArgs;
 
-public Subcommands (String[] args)
-throws IllegalArgumentException, IOException, PrintException
-{
-if (!BBIni.haveLiblouisutdml())
-{
-System.out.println ("The Braille translation facility is absent.");
+public Subcommands (String[] args) {
+logger = BBIni.getLogger();
+if (!BBIni.haveLiblouisutdml()) {
+logger.log  (Level.SEVERE, "The Braille translation facility is absent.");
 System.out.println 
 ("You can use the word processor on a demonstration basis.");
 return;
@@ -41,10 +42,9 @@ if (subcommand.equals ("translate"))
 doTranslate (subArgs);
 else if (subcommand.equals ("emboss"))
 doEmboss (subArgs);
-else
-{
-throw new IllegalArgumentException
-(lh.localValue ("subcommand") + args[0] + 
+else {
+logger.log (Level.WARNING,
+lh.localValue ("subcommand") + args[0] + 
 lh.localValue ("notRecognized"));
 }
 }
@@ -61,17 +61,19 @@ louisutdml.file2brl (subArgs);
 * can run in this mode.
 */
 
-private void doEmboss (String[] args)
-throws PrintException
-{
+private void doEmboss (String[] args) {
 int outIndex = args.length - 1;
 String transOut = "transout";
 String embosserName = args[outIndex];
 args[outIndex] = transOut;
 louisutdml.file2brl (args);
 File translatedFile = new File (transOut);
+try {
 PrinterDevice embosser = new PrinterDevice (embosserName, true);
 embosser.transmit (translatedFile);
+} catch (PrintException e) {
+logger.log (Level.SEVERE, "Embosser is  not working", e);
+}
 }
 
 }

@@ -7,7 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 public class DaisyView
 {
 
-StyledText daisy;
+private StyledText daisy;
 
 public DaisyView (Shell documentWindow) {
 daisy = new StyledText

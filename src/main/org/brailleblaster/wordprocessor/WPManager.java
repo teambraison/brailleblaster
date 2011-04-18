@@ -11,10 +11,10 @@ import org.brailleblaster.BBIni;
 */
 
 public class WPManager {
-Display display;
-SettingsDialogs settings;
-DocumentManager[] documents = new DocumentManager[8];
-int currentDocument = 0;
+private Display display;
+private SettingsDialogs settings;
+private DocumentManager[] documents = new DocumentManager[8];
+private int currentDocument = 0;
 
 /**
 * Normal word processor entry poinnt.

@@ -71,7 +71,7 @@ temps.mkdir();
 logger = Logger.getLogger ("org.brailleblaster");
 try {
 logFile = new FileHandler 
-(tempFilesPath + fileSep + "bblog.html");
+(tempFilesPath + fileSep + "bblog.xml");
 } catch (IOException e) {
 logger.log (Level.SEVERE, "cannot open logfile", e);
 }

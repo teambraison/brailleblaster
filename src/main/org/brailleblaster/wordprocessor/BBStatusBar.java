@@ -4,13 +4,11 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-public class BBStatusBar
-{
+public class BBStatusBar {
 
-Label statusBar;
+private Label statusBar;
 
-public BBStatusBar (Shell documentWindow)
-{
+public BBStatusBar (Shell documentWindow) {
 statusBar = new Label
     (documentWindow, SWT.NONE);
 statusBar.setText ("This is the status bar.");

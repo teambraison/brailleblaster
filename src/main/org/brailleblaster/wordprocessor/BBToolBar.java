@@ -7,8 +7,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class BBToolBar {
 
-ToolBar toolBar;
-ToolItem toolItem;
+private ToolBar toolBar;
 
 public BBToolBar (Shell documentWindow) {
 toolBar = new ToolBar (documentWindow, 0);

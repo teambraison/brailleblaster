@@ -14,11 +14,11 @@ public class BBMenu {
 private Menu menuBar;
 private boolean exited = false;
 
-public BBMenu (Shell documentWindow) {
+public BBMenu (final DocumentManager dm) {
 LocaleHandler lh = new LocaleHandler();
 
 // Set up menu bar
-menuBar = new Menu (documentWindow, SWT.BAR);
+menuBar = new Menu (dm.documentWindow, SWT.BAR);
 MenuItem fileItem = new MenuItem (menuBar, SWT.CASCADE);
 fileItem.setText (lh.localValue("&file"));
 MenuItem editItem = new MenuItem (menuBar, SWT.CASCADE);
@@ -35,9 +35,14 @@ MenuItem helpItem = new MenuItem (menuBar, SWT.CASCADE);
 helpItem.setText (lh.localValue("&Help"));
 
 // Set up file menu
-Menu fileMenu = new Menu (documentWindow, SWT.DROP_DOWN);
+Menu fileMenu = new Menu (dm.documentWindow, SWT.DROP_DOWN);
 MenuItem newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&new"));
+newItem.addSelectionListener (new SelectionAdapter() {
+public void widgetSelected (SelectionEvent e) {
+dm.fileNew();
+}
+});
 MenuItem exitItem = new MenuItem (fileMenu, SWT.PUSH);
 exitItem.setText (lh.localValue("e&xit"));
 exitItem.addSelectionListener (new SelectionAdapter() {
@@ -60,7 +65,7 @@ fileItem.setMenu (fileMenu);
 // Set up help menu
 
 // Activate menus when documentWindow shell is opened
-documentWindow.setMenuBar (menuBar);
+dm.documentWindow.setMenuBar (menuBar);
 }
 
 public boolean exitSelected() {

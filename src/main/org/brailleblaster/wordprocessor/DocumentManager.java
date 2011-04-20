@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.widgets.FileDialog;
 
 /**
 * This class manages each document in an MDI environment. It controls the 
@@ -14,7 +15,7 @@ import org.eclipse.swt.layout.FormAttachment;
 
 public class DocumentManager {
 
-private Shell documentWindow;
+final Shell documentWindow;
 private String documentName = "untitled";
 private BBToolBar toolBar;
 private BBMenu menu;
@@ -26,7 +27,7 @@ public DocumentManager (Display display) {
 documentWindow = new Shell (display);
 documentWindow.setText ("BrailleBlaster " + documentName);
 toolBar = new BBToolBar (documentWindow);
-menu = new BBMenu (documentWindow);
+menu = new BBMenu (this);
 braille = new BrailleView (documentWindow);
 daisy = new DaisyView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
@@ -37,5 +38,10 @@ display.sleep();
 }
 }
 
+void fileNew() {
+FileDialog dialog = new FileDialog (documentWindow, SWT.OPEN);
+dialog.open();
 }
+
+  }
 

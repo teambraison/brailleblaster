@@ -19,9 +19,9 @@ final Shell documentWindow;
 private String documentName = "untitled";
 private BBToolBar toolBar;
 private BBMenu menu;
-private DaisyView daisy;
-private BrailleView braille;
-private BBStatusBar statusBar;
+final DaisyView daisy;
+final BrailleView braille;
+final BBStatusBar statusBar;
 
 public DocumentManager (Display display) {
 documentWindow = new Shell (display);

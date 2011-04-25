@@ -21,8 +21,8 @@ location.right = new FormAttachment(100);
 location.top = new FormAttachment (8);
 location.bottom = new FormAttachment(13);
 toolBar.setLayoutData (location);
-ToolItem trranslateItem = new ToolItem (toolBar, SWT.PUSH);
-translateItem.setText (lh.localValue ("translate");
+ToolItem translateItem = new ToolItem (toolBar, SWT.PUSH);
+translateItem.setText (lh.localValue ("translate"));
 toolBar.pack();
 }
 

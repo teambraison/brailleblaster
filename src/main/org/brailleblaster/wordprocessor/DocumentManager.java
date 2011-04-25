@@ -23,20 +23,21 @@ private BBMenu menu;
 final DaisyView daisy;
 final BrailleView braille;
 final BBStatusBar statusBar;
+boolean exitSelected = false;
 
 public DocumentManager (Display display) {
 documentWindow = new Shell (display);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
 documentWindow.setText ("BrailleBlaster " + documentName);
-toolBar = new BBToolBar (documentWindow);
 menu = new BBMenu (this);
-braille = new BrailleView (documentWindow);
+toolBar = new BBToolBar (this);
 daisy = new DaisyView (documentWindow);
+braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (800, 600);
 documentWindow.open();
-while (!documentWindow.isDisposed() && !menu.exitSelected()) {
+while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
 }
@@ -47,5 +48,10 @@ FileDialog dialog = new FileDialog (documentWindow, SWT.OPEN);
 dialog.open();
 }
 
-  }
+void fileSave() {
+FileDialog dialog = new FileDialog (documentWindow, SWT.SAVE);
+dialog.open();
+}
+
+}
 

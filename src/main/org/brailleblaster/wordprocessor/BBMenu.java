@@ -68,7 +68,7 @@ MenuItem saveItem = new MenuItem (fileMenu, SWT.PUSH);
 saveItem.setText (lh.localValue("&Save"));
 saveItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileNew();
+dm.fileSave();
 }
 });
 MenuItem saveAsItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -145,7 +145,7 @@ MenuItem exitItem = new MenuItem (fileMenu, SWT.PUSH);
 exitItem.setText (lh.localValue("e&xit"));
 exitItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-exited = true;
+dm.exitSelected = true;
 }
 });
 fileItem.setMenu (fileMenu);
@@ -504,10 +504,6 @@ helpItem.setMenu (helpMenu);
 
 // Activate menus when documentWindow shell is opened
 dm.documentWindow.setMenuBar (menuBar);
-}
-
-public boolean exitSelected() {
-return exited;
 }
 
 }

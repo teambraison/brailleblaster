@@ -11,6 +11,7 @@ private StyledText braille;
 public BrailleView (Shell documentWindow) {
 braille = new StyledText 
     (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+braille.setText ("braille view");
 }
 
 }

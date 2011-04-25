@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.FileDialog;
 public class DocumentManager {
 
 final Shell documentWindow;
+final FormLayout layout;
 private String documentName = "untitled";
 private BBToolBar toolBar;
 private BBMenu menu;
@@ -25,12 +26,15 @@ final BBStatusBar statusBar;
 
 public DocumentManager (Display display) {
 documentWindow = new Shell (display);
+layout = new FormLayout();
+documentWindow.setLayout (layout);
 documentWindow.setText ("BrailleBlaster " + documentName);
 toolBar = new BBToolBar (documentWindow);
 menu = new BBMenu (this);
 braille = new BrailleView (documentWindow);
 daisy = new DaisyView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
+documentWindow.setSize (800, 600);
 documentWindow.open();
 while (!documentWindow.isDisposed() && !menu.exitSelected()) {
 if (!display.readAndDispatch())

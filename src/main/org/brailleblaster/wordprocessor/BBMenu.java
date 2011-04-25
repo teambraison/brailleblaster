@@ -72,7 +72,7 @@ dm.fileNew();
 }
 });
 MenuItem saveAsItem = new MenuItem (fileMenu, SWT.PUSH);
-saveAsItem.setText (lh.localValue("Savf&As"));
+saveAsItem.setText (lh.localValue("Save&As"));
 saveAsItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.fileNew();
@@ -266,7 +266,7 @@ dm.fileNew();
 });
 MenuItem lockSelectionItem = new MenuItem (editMenu, SWT.PUSH);
 lockSelectionItem.setText (lh.localValue("&LockSelection"));
-lockSeletionItem.addSelectionListener (new SelectionAdapter() {
+lockSelectionItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.fileNew();
 }
@@ -370,9 +370,9 @@ viewItem.setMenu (viewMenu);
 
 // Set up translate menu
 Menu translateMenu = new Menu (dm.documentWindow, SWT.DROP_DOWN);
-MenuItem translateItem = new MenuItem (translateMenu, SWT.PUSH);
-translateItem.setText (lh.localValue("&Translate"));
-translateItem.addSelectionListener (new SelectionAdapter() {
+MenuItem xtranslateItem = new MenuItem (translateMenu, SWT.PUSH);
+xtranslateItem.setText (lh.localValue("&Translate"));
+xtranslateItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.fileNew();
 }

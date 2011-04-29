@@ -23,6 +23,15 @@ location.bottom = new FormAttachment(13);
 toolBar.setLayoutData (location);
 ToolItem translateItem = new ToolItem (toolBar, SWT.PUSH);
 translateItem.setText (lh.localValue ("translate"));
+ToolItem embossNow = new ToolItem (toolBar, SWT.PUSH);
+embossNow.setText (lh.localValue ("embossNow"));
+ToolItem embossWithInk = new ToolItem (toolBar, SWT.PUSH);
+embossWithInk.setText (lh.localValue ("EmbossWithInk"));
+ToolItem openItem = new ToolItem (toolBar, SWT.PUSH);
+openItem.setText (lh.localValue ("Open"));
+ToolItem saveItem = new ToolItem (toolBar, SWT.PUSH);
+saveItem.setText (lh.localValue ("Save"));
+
 toolBar.pack();
 }
 

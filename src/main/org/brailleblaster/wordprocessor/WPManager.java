@@ -25,16 +25,6 @@ display = BBIni.getDisplay();
 if (display == null) {
 System.exit (1);
 }
-if (!BBIni.haveLiblouisutdml()) {
-Shell shell = new Shell (display);
-MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
-mb.setMessage ("The Braille facility is missing."
-+ " Do you wish to continue?");
-int result = mb.open();
-shell.dispose();
-if (result == SWT.NO)
-System.exit (1);
-}
 documents[currentDocument] = new DocumentManager (display);
 }
 

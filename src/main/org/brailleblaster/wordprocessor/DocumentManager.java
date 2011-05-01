@@ -7,6 +7,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.FileDialog;
+import org.brailleblaster.BBIni;
+import org.eclipse.swt.widgets.MessageBox;
 
 /**
 * This class manages each document in an MDI environment. It controls the 
@@ -37,10 +39,26 @@ braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (800, 600);
 documentWindow.open();
+checkLiblouisutdml();
 while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
 }
+}
+
+void checkLiblouisutdml () {
+if (BBIni.haveLiblouisutdml()) {
+return;
+}
+Shell shell = new Shell (documentWindow);
+MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
+mb.setMessage ("The Braille facility is missing."
++ " Do you wish to continue?");
+int result = mb.open();
+if (result == SWT.NO) {
+exitSelected = true;
+}
+shell.dispose();
 }
 
 void fileNew() {

@@ -28,7 +28,7 @@ final BBStatusBar statusBar;
 boolean exitSelected = false;
 
 public DocumentManager (Display display) {
-documentWindow = new Shell (display);
+documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
 documentWindow.setText ("BrailleBlaster " + documentName);
@@ -50,7 +50,7 @@ void checkLiblouisutdml () {
 if (BBIni.haveLiblouisutdml()) {
 return;
 }
-Shell shell = new Shell (documentWindow);
+Shell shell = new Shell (documentWindow, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
 mb.setMessage ("The Braille facility is missing."
 + " Do you wish to continue?");

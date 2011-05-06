@@ -39,7 +39,7 @@ braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (800, 600);
 documentWindow.open();
-checkLiblouisutdml();
+//checkLiblouisutdml();
 while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
@@ -61,7 +61,13 @@ exitSelected = true;
 shell.dispose();
 }
 
+void newDocument() {
+}
+
 void fileNew() {
+}
+
+void fileOpen () {
 FileDialog dialog = new FileDialog (documentWindow, SWT.OPEN);
 dialog.open();
 }

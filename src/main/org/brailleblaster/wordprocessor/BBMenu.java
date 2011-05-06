@@ -40,14 +40,14 @@ MenuItem newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&New"));
 newItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileNew();
+dm.newDocument();
 }
 });
 MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileNew();
+dm.fileOpen();
 }
 });
 MenuItem recentItem = new MenuItem (fileMenu, SWT.PUSH);

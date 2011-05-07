@@ -9,6 +9,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.widgets.FileDialog;
 import org.brailleblaster.BBIni;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.printing.*;
 
 /**
 * This class manages each document in an MDI environment. It controls the 

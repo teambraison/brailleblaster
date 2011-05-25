@@ -18,6 +18,7 @@ import org.eclipse.swt.printing.*;
 
 public class DocumentManager {
 
+final Display display;
 final Shell documentWindow;
 final FormLayout layout;
 private String documentName = "untitled";
@@ -29,6 +30,7 @@ final BBStatusBar statusBar;
 boolean exitSelected = false;
 
 public DocumentManager (Display display) {
+this.display = display;
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
@@ -38,7 +40,7 @@ toolBar = new BBToolBar (this);
 daisy = new DaisyView (documentWindow);
 braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
-documentWindow.setSize (800, 600);
+documentWindow.setSize (900, 600);
 documentWindow.open();
 //checkLiblouisutdml();
 while (!documentWindow.isDisposed() && !exitSelected) {
@@ -51,7 +53,7 @@ void checkLiblouisutdml () {
 if (BBIni.haveLiblouisutdml()) {
 return;
 }
-Shell shell = new Shell (documentWindow, SWT.DIALOG_TRIM);
+Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
 mb.setMessage ("The Braille facility is missing."
 + " Do you wish to continue?");
@@ -69,13 +71,17 @@ void fileNew() {
 }
 
 void fileOpen () {
-FileDialog dialog = new FileDialog (documentWindow, SWT.OPEN);
+Shell shell = new Shell (display);
+FileDialog dialog = new FileDialog (shell, SWT.OPEN);
 dialog.open();
+shell.dispose();
 }
 
 void fileSave() {
-FileDialog dialog = new FileDialog (documentWindow, SWT.SAVE);
+Shell shell = new Shell (display);
+FileDialog dialog = new FileDialog (shell, SWT.SAVE);
 dialog.open();
+shell.dispose();
 }
 
 }

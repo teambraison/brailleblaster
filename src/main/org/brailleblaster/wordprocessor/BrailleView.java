@@ -15,10 +15,10 @@ braille = new StyledText
     (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 braille.setText ("braille view");
 FormData location = new FormData();
-location.left = new FormAttachment(0);
+location.left = new FormAttachment(51);
 location.right = new FormAttachment(100);
-location.top = new FormAttachment (15);
-location.bottom = new FormAttachment(95);
+location.top = new FormAttachment (14);
+location.bottom = new FormAttachment(94);
 braille.setLayoutData (location);
 }
 

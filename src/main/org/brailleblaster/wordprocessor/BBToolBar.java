@@ -19,7 +19,6 @@ FormData location = new FormData();
 location.left = new FormAttachment(0);
 location.right = new FormAttachment(100);
 location.top = new FormAttachment (4);
-location.bottom = new FormAttachment(13);
 toolBar.setLayoutData (location);
 ToolItem translateItem = new ToolItem (toolBar, SWT.PUSH);
 translateItem.setText (lh.localValue ("translate"));

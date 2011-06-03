@@ -80,8 +80,23 @@ void fileNew() {
 void fileOpen () {
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.OPEN);
-dialog.open();
+dialog.setFilterExtensions (new String[] {"xml", "utd"});
+dialog.setFilterNames (new String[] {"DAISY xml file", "DAISY file with UTDML"});
+String name = dialog.open();
 shell.dispose();
+if (name == null) return;
+String fileName = "file://" + name;
+/*
+Builder parser = new Builder();
+Document doc;
+try {
+doc = parser.build (fileName);
+}
+catch (ParsingException e) {
+}
+catch (IOException e) {
+}
+*/
 }
 
 void fileSave() {

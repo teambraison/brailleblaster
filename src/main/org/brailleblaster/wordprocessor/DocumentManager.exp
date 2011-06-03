@@ -46,6 +46,7 @@ daisy = new DaisyView (documentWindow);
 braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (1000, 700);
+setListeners();
 documentWindow.layout(true, true);
 documentWindow.open();
 //checkLiblouisutdml();
@@ -54,6 +55,37 @@ if (!display.readAndDispatch())
 display.sleep();
 }
 documentWindow.dispose();
+}
+
+	private ScrollBar vDaisyScroll;
+	private ScrollBar vBrailleScroll;
+	private ScrollBar hDaisyScroll;
+	private ScrollBar hBrailleScroll;
+
+private SelectionListener daisyScrollListener = new SelectionAdapter () {
+		public void widgetSelected (SelectionEvent e) {
+			int x =  hDaisyScroll.getSelection() * (hBrailleScroll.getMaximum() - hBrailleScroll.getThumb()) / Math.max(1, hDaisyScroll.getMaximum() - hDaisyScroll.getThumb());
+			int y =  vDaisyScroll.getSelection() * (vBrailleScroll.getMaximum() - vBrailleScroll.getThumb()) / Math.max(1, vDaisyScroll.getMaximum() - vDaisyScroll.getThumb());
+		braille.view.setOrigin (x, y);
+		}
+	};
+
+	private SelectionListener brailleScrollListener = new SelectionAdapter () {
+		public void widgetSelected (SelectionEvent e) {
+			int x =  hBrailleScroll.getSelection() * (hDaisyScroll.getMaximum() - hDaisyScroll.getThumb()) / Math.max(1, hBrailleScroll.getMaximum() - hBrailleScroll.getThumb());
+			int y =  vBrailleScroll.getSelection() * (vDaisyScroll.getMaximum() - vDaisyScroll.getThumb()) / Math.max(1, vBrailleScroll.getMaximum() - vBrailleScroll.getThumb());
+			daisy.view.setOrigin (x, y);
+		}
+	};
+
+private void setListeners () {
+vDaisyScroll = daisy.view.getVerticalBar ();	vDaisyScroll.addSelectionListener (daisyScrollListener);
+vBrailleScroll = braille.view.getVerticalBar ();
+hDaisyScroll = daisy.view.getHorizontalBar ();
+hBrailleScroll  = braille.view.getHorizontalBar ();
+	hDaisyScroll.addSelectionListener (daisyScrollListener);
+	vBrailleScroll.addSelectionListener (brailleScrollListener);
+	hBrailleScroll.addSelectionListener (brailleScrollListener);
 }
 
 void checkLiblouisutdml () {

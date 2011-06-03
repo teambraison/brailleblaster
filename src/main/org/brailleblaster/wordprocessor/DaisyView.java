@@ -5,24 +5,20 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.widgets.ScrollBar;
 
-public class DaisyView {
+class DaisyView {
 
-private StyledText daisy;
+StyledText view;
 
-public DaisyView (Shell documentWindow) {
-daisy = new StyledText
-    (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-daisy.setText ("DAISY View");
+DaisyView (Shell documentWindow) {
+view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
 FormData location = new FormData();
 location.left = new FormAttachment(0);
-location.right = new FormAttachment(50);
-location.top = new FormAttachment (14);
-location.bottom = new FormAttachment(94);
-daisy.setLayoutData (location);
-ScrollBar bar = daisy.getHorizontalBar();
+location.right = new FormAttachment(55);
+location.top = new FormAttachment (12);
+location.bottom = new FormAttachment(92);
+view.setLayoutData (location);
+view.setText ("DAISY view");
 }
 
 }
-

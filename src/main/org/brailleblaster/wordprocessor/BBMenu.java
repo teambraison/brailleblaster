@@ -8,6 +8,8 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.localization.LocaleHandler;
+import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.Event;
 
 public class BBMenu {
 
@@ -47,7 +49,8 @@ MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileOpen();
+Event event = new Event();
+notifyListeners (SWT.OpenDocument, event);
 }
 });
 MenuItem recentItem = new MenuItem (fileMenu, SWT.PUSH);

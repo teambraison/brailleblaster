@@ -15,13 +15,15 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.custom.StyledText;
+import nu.xom.*;
+import java.io.IOException;
+
+class DocumentManager {
 
 /**
 * This class manages each document in an MDI environment. It controls the 
 * braille View and the daisy View.
 */
-
-class DocumentManager {
 
 final Display display;
 final Shell documentWindow;
@@ -34,7 +36,7 @@ BrailleView braille;
 BBStatusBar statusBar;
 boolean exitSelected = false;
 
-DocumentManager (Display display) {
+DocumentManager (Display display, int action) {
 this.display = display;
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
@@ -48,33 +50,14 @@ statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (1000, 700);
 documentWindow.layout(true, true);
 documentWindow.open();
-//checkLiblouisutdml();
+if (action == WP.OpenDocumentGetFile) {
+fileOpen();
+}
 while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
 }
 documentWindow.dispose();
-}
-
-void checkLiblouisutdml () {
-if (BBIni.haveLiblouisutdml()) {
-return;
-}
-Shell shell = new Shell (display, SWT.DIALOG_TRIM);
-MessageBox mb = new MessageBox (shell, SWT.YES | SWT.NO);
-mb.setMessage ("The Braille facility is missing."
-+ " Do you wish to continue?");
-int result = mb.open();
-if (result == SWT.NO) {
-exitSelected = true;
-}
-shell.dispose();
-}
-
-void newDocument() {
-}
-
-void fileNew() {
 }
 
 void fileOpen () {
@@ -86,7 +69,6 @@ String name = dialog.open();
 shell.dispose();
 if (name == null) return;
 String fileName = "file://" + name;
-/*
 Builder parser = new Builder();
 Document doc;
 try {
@@ -96,7 +78,6 @@ catch (ParsingException e) {
 }
 catch (IOException e) {
 }
-*/
 }
 
 void fileSave() {

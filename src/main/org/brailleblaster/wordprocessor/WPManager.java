@@ -40,6 +40,11 @@ public void handleEvent (Event event) {
 }
 };
 
+Listener closeListener = new Listener() {
+public void handleEvent (Event eveont) {
+}
+};
+
 void setListeners() {
 display.addListener (SWT.OpenDocument, openListener);
 }

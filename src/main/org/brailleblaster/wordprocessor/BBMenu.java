@@ -8,7 +8,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.localization.LocaleHandler;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.swt.widgets.Event;
 
 public class BBMenu {
@@ -42,7 +41,9 @@ MenuItem newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&New"));
 newItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.newDocument();
+Event event = New Event();
+event.detail = WP.OpenDocument;
+notifyListeners (SWT.OpenDocument, event);
 }
 });
 MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -50,6 +51,7 @@ openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 Event event = new Event();
+event.detail = WP.OpenDocumentGetFile;
 notifyListeners (SWT.OpenDocument, event);
 }
 });
@@ -64,7 +66,9 @@ MenuItem importItem = new MenuItem (fileMenu, SWT.PUSH);
 importItem.setText (lh.localValue("&Import"));
 importItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileNew();
+Event event = new Event();
+event.detail = WP.ImportDocument;
+notifyListeners (SWT.OpenDocument, event);
 }
 });
 MenuItem saveItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -78,7 +82,7 @@ MenuItem saveAsItem = new MenuItem (fileMenu, SWT.PUSH);
 saveAsItem.setText (lh.localValue("Save&As"));
 saveAsItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.fileNew();
+dm.fileSaveAs();
 }
 });
 MenuItem embosserSetupItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -148,6 +152,7 @@ MenuItem exitItem = new MenuItem (fileMenu, SWT.PUSH);
 exitItem.setText (lh.localValue("e&xit"));
 exitItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+notifyListeners (SWT.Close, null);
 dm.exitSelected = true;
 }
 });

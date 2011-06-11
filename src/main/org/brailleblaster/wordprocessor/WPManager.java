@@ -18,7 +18,7 @@ public class WPManager {
 private Display display;
 private SettingsDialogs settings;
 private DocumentManager[] documents = new DocumentManager[8];
-private int currentDocument = 0;
+private int documentCount = -1;
 
 /**
 * This constructor method is the entry point to the word prodessor. It gets things set up, 
@@ -32,16 +32,12 @@ System.exit (1);
 }
 checkLiblouisutdml();
 setListeners();
-openDocument (WP.NewDocument);
+addDocument (WP.NewDocument);
 }
 
 Listener openListener = new Listener() {
 public void handleEvent (Event event) {
-}
-};
-
-Listener closeListener = new Listener() {
-public void handleEvent (Event eveont) {
+addDocument (event.detail);
 }
 };
 
@@ -49,8 +45,12 @@ void setListeners() {
 display.addListener (SWT.OpenDocument, openListener);
 }
 
-void openDocument (int action) {
-documents[currentDocument] = new DocumentManager (display, action);
+void addDocument (int action) {
+if (action == WP.NewDocument && documentCount == 0) return;
+documentCount++;
+documents[documentCount] = new DocumentManager (display, action);
+documents[documentCount] = null;
+documentCount--;
 }
 
 void checkLiblouisutdml () {

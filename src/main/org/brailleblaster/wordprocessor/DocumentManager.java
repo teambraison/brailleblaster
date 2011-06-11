@@ -90,5 +90,8 @@ shell.dispose();
 void fileSaveAs () {
 }
 
+void placeholder() {
+}
+
 }
 

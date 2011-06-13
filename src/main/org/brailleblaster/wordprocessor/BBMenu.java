@@ -8,12 +8,10 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.localization.LocaleHandler;
-import org.eclipse.swt.widgets.Event;
 
-public class BBMenu {
+class BBMenu {
 
 private Menu menuBar;
-private boolean exited = false;
 
 public BBMenu (final DocumentManager dm) {
 LocaleHandler lh = new LocaleHandler();
@@ -37,22 +35,18 @@ helpItem.setText (lh.localValue("&Help"));
 
 // Set up file menu
 Menu fileMenu = new Menu (dm.documentWindow, SWT.DROP_DOWN);
-final MenuItem newItem = new MenuItem (fileMenu, SWT.PUSH);
+MenuItem newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&New"));
 newItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-Event event = new Event();
-event.detail = WP.NewDocument;
-newItem.notifyListeners (SWT.OpenDocument, event);
+dm.sendOpenEvent (WP.NewDocument);
 }
 });
-final MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
+MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-Event event = new Event();
-event.detail = WP.OpenDocumentGetFile;
-openItem.notifyListeners (SWT.OpenDocument, event);
+dm.sendOpenEvent (WP.OpenDocumentGetFile);
 }
 });
 MenuItem recentItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -62,13 +56,11 @@ public void widgetSelected (SelectionEvent e) {
 dm.placeholder();
 }
 });
-final MenuItem importItem = new MenuItem (fileMenu, SWT.PUSH);
+MenuItem importItem = new MenuItem (fileMenu, SWT.PUSH);
 importItem.setText (lh.localValue("&Import"));
 importItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-Event event = new Event();
-event.detail = WP.ImportDocument;
-importItem.notifyListeners (SWT.OpenDocument, event);
+dm.sendOpenEvent (WP.ImportDocument);
 }
 });
 MenuItem saveItem = new MenuItem (fileMenu, SWT.PUSH);

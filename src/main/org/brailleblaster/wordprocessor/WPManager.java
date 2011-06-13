@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 import org.eclipse.swt.widgets.Listener;
-  import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Event;
 
 public class WPManager {
 

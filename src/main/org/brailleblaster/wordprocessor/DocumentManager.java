@@ -17,6 +17,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
 import java.io.IOException;
+import org.eclipse.swt.widgets.Event;
 
 class DocumentManager {
 
@@ -78,6 +79,12 @@ catch (ParsingException e) {
 }
 catch (IOException e) {
 }
+}
+
+void sendOpenEvent (int WPEventType) {
+Event event = new Event();
+event.detail = WPEventType;
+documentWindow.notifyListeners (SWT.OpenDocument, event);
 }
 
 void fileSave() {

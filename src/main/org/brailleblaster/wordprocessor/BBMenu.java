@@ -46,6 +46,9 @@ MenuItem openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+if (dm.action == WP.NewDocument)
+dm.fileOpen();
+else
 dm.sendOpenEvent (WP.OpenDocumentGetFile);
 }
 });

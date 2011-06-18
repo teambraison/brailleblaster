@@ -46,7 +46,6 @@ display.addListener (SWT.OpenDocument, openListener);
 }
 
 void addDocument (int action) {
-if (action == WP.NewDocument && documentCount == 0) return;
 documentCount++;
 documents[documentCount] = new DocumentManager (display, action);
 documents[documentCount] = null;

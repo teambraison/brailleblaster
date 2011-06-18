@@ -28,6 +28,7 @@ class DocumentManager {
 
 final Display display;
 final Shell documentWindow;
+final int action;
 FormLayout layout;
 String documentName = "untitled";
 BBToolBar toolBar;
@@ -36,9 +37,11 @@ DaisyView daisy;
 BrailleView braille;
 BBStatusBar statusBar;
 boolean exitSelected = false;
+Document doc = null;
 
 DocumentManager (Display display, int action) {
 this.display = display;
+this.action = action;
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
@@ -71,7 +74,6 @@ shell.dispose();
 if (name == null) return;
 String fileName = "file://" + name;
 Builder parser = new Builder();
-Document doc;
 try {
 doc = parser.build (fileName);
 }

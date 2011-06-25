@@ -22,6 +22,7 @@ MenuItem fileItem = new MenuItem (menuBar, SWT.CASCADE);
 fileItem.setText (lh.localValue("&File"));
 MenuItem editItem = new MenuItem (menuBar, SWT.CASCADE);
 editItem.setText (lh.localValue("&Edit"));
+editItem.setEnabled(false);
 MenuItem viewItem = new MenuItem (menuBar, SWT.CASCADE);
 viewItem.setText (lh.localValue("&View"));
 MenuItem translateItem = new MenuItem (menuBar, SWT.CASCADE);
@@ -59,6 +60,7 @@ public void widgetSelected (SelectionEvent e) {
 dm.placeholder();
 }
 });
+recentItem.setEnabled(false);
 MenuItem importItem = new MenuItem (fileMenu, SWT.PUSH);
 importItem.setText (lh.localValue("&Import"));
 importItem.addSelectionListener (new SelectionAdapter() {

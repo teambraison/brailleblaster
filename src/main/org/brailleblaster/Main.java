@@ -14,8 +14,7 @@ import org.eclipse.swt.widgets.Display;
 * processing as the project develops.
 */
 
-public class Main
-{
+public class Main {
 
 public static void main (String[] args) {
 BBIni initialConditions = BBIni.getInstance();

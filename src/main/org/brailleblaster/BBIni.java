@@ -53,7 +53,6 @@ fileSep = System.getProperty ("file.separator");
 platformName = SWT.getPlatform();
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib";
-System.setProperty ("java.library.path", nativeLibraryPath);
 if (platformName.equals("win32"))
 nativeLibrarySuffix = ".dll";
 else if (platformName.equals ("cocoa"))

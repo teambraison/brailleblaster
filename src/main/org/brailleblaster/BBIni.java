@@ -51,13 +51,13 @@ osName = System.getProperty ("os.name");
 osVersion = System.getProperty ("os.version");
 fileSep = System.getProperty ("file.separator");
 platformName = SWT.getPlatform();
-nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
-"lib";
 if (platformName.equals("win32"))
 nativeLibrarySuffix = ".dll";
 else if (platformName.equals ("cocoa"))
 nativeLibrarySuffix = ".dylib";
 else nativeLibrarySuffix = ".so";
+nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
+"lib" + fileSep + "liblouisutdml." + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
 String userHome = System.getProperty ("user.home");
 settingsPath = userHome + fileSep + "bbsettings";
@@ -84,7 +84,8 @@ display = new Display();
 logger.log (Level.SEVERE, "Can't find GUI", e);
 }
 try {
-liblouisutdml.loadLibrary();
+liblouisutdml.load (nativeLibraryPath);
+//liblouisutdml.loadLibrary();
 liblouisutdml louisutdml = liblouisutdml.getInstance();
 louisutdml.setDataPath (programDataPath);
 louisutdml.setWriteablePath (tempFilesPath);

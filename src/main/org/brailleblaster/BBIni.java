@@ -57,7 +57,7 @@ else if (platformName.equals ("cocoa"))
 nativeLibrarySuffix = ".dylib";
 else nativeLibrarySuffix = ".so";
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
-"lib" + fileSep + "liblouisutdml." + nativeLibrarySuffix;
+"lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
 String userHome = System.getProperty ("user.home");
 settingsPath = userHome + fileSep + "bbsettings";
@@ -86,9 +86,9 @@ logger.log (Level.SEVERE, "Can't find GUI", e);
 try {
 liblouisutdml.load (nativeLibraryPath);
 //liblouisutdml.loadLibrary();
-liblouisutdml louisutdml = liblouisutdml.getInstance();
-louisutdml.setDataPath (programDataPath);
-louisutdml.setWriteablePath (tempFilesPath);
+liblouisutdml.setDataPath (programDataPath);
+liblouisutdml.initialize();
+liblouisutdml.setWriteablePath (tempFilesPath);
 hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e) {
 logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);

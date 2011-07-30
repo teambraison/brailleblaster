@@ -84,8 +84,12 @@ display = new Display();
 logger.log (Level.SEVERE, "Can't find GUI", e);
 }
 try {
+if (platformName.equals ("win32")) {
+liblouisutdml.loadLibrary();
+}
+else {
 liblouisutdml.load (nativeLibraryPath);
-//liblouisutdml.loadLibrary();
+}
 liblouisutdml.setDataPath (programDataPath);
 liblouisutdml.initialize();
 liblouisutdml.setWriteablePath (tempFilesPath);

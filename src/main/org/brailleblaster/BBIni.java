@@ -90,9 +90,7 @@ liblouisutdml.loadLibrary();
 else {
 liblouisutdml.load (nativeLibraryPath);
 }
-liblouisutdml.setDataPath (programDataPath);
-liblouisutdml.initialize();
-liblouisutdml.setWriteablePath (tempFilesPath);
+liblouisutdml.initialize (programDataPath, tempFilesPath);
 hLiblouisutdml = true;
 } catch (UnsatisfiedLinkError e) {
 logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);

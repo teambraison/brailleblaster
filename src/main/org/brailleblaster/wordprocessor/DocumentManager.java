@@ -93,8 +93,12 @@ try {
 doc = parser.build (fileName);
 }
 catch (ParsingException e) {
+new Notify ("Malformed document");
+return;
 }
 catch (IOException e) {
+new Notify ("Could not open file");
+return;
 }
 Element rootElement = doc.getRootElement();
 walkTree (rootElement);

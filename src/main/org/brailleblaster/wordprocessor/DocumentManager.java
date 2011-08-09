@@ -11,7 +11,13 @@ import org.eclipse.swt.printing.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
+import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.IOException;
+import org.liblouis.liblouisutdml;
+import org.brailleblaster.util.Notify;
+import java.io.OutputStream;
 
 class DocumentManager {
 
@@ -32,10 +38,22 @@ BrailleView braille;
 BBStatusBar statusBar;
 boolean exitSelected = false;
 Document doc = null;
+String configFileList = null;
+String openedFile = null;
+String tempPath;
+liblouisutdml louisutdml;
+String logFile;
+String settings;
+int mode = 0;
 
+/**
+* Constructor that sets things up for a new document.
+*/
 DocumentManager (Display display, int action) {
 this.display = display;
 this.action = action;
+tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
+louisutdml = liblouisutdml.getInstance();
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
@@ -58,15 +76,18 @@ display.sleep();
 documentWindow.dispose();
 }
 
-private void fileOpen () {
+void fileOpen () {
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.OPEN);
 dialog.setFilterExtensions (new String[] {"xml", "utd"});
 dialog.setFilterNames (new String[] {"DAISY xml file", "DAISY file with UTDML"});
-String name = dialog.open();
+openedFile = dialog.open();
 shell.dispose();
-if (name == null) return;
-String fileName = "file://" + name;
+if (openedFile == null) {
+new Notify ("Could not open file");
+return;
+}
+String fileName = "file://" + openedFile;
 Builder parser = new Builder();
 try {
 doc = parser.build (fileName);
@@ -100,13 +121,34 @@ documentWindow.notifyListeners (SWT.OpenDocument, event);
 }
 
 void fileSave() {
+}
+
+void fileSaveAs () {
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.SAVE);
 dialog.open();
 shell.dispose();
 }
 
-void fileSaveAs () {
+void translate() {
+configFileList = "preferences.cfg";
+String docFile = tempPath + "tempdoc.xml";
+String outTemp = tempPath + "doc.brl";
+FileOutputStream writer = null;
+try {
+writer = new FileOutputStream (docFile);
+}
+catch (FileNotFoundException e) {
+}
+Serializer outputDoc = new Serializer (writer);
+try {
+outputDoc.write (doc);
+}
+catch (IOException e) {
+}
+logFile = tempPath + "translate.log";
+boolean result = louisutdml.translateFile (configFileList, docFile, 
+outTemp, logFile, settings, mode);
 }
 
 void placeholder() {

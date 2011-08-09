@@ -378,7 +378,7 @@ MenuItem xtranslateItem = new MenuItem (translateMenu, SWT.PUSH);
 xtranslateItem.setText (lh.localValue("&Translate"));
 xtranslateItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+dm.translate();
 }
 });
 MenuItem translationTemplatesItem = new MenuItem (translateMenu, 

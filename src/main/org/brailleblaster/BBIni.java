@@ -130,7 +130,7 @@ public static String getNativeLibraryPath()
 return nativeLibraryPath;
 }
 
-public static String getprogramDataPath()
+public static String getProgramDataPath()
 {
 return programDataPath;
 }
@@ -154,7 +154,7 @@ public static String getTempFilesPath () {
 return tempFilesPath;
 }
 
-public static String getplatformName() {
+public static String getPlatformName() {
 return platformName;
 }
 

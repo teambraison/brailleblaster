@@ -84,10 +84,10 @@ dialog.setFilterNames (new String[] {"DAISY xml file", "DAISY file with UTDML"})
 openedFile = dialog.open();
 shell.dispose();
 if (openedFile == null) {
-new Notify ("Could not open file");
+new Notify ("File not found");
 return;
 }
-String fileName = "file://" + openedFile;
+String fileName = openedFile;
 Builder parser = new Builder();
 try {
 doc = parser.build (fileName);
@@ -143,12 +143,16 @@ try {
 writer = new FileOutputStream (docFile);
 }
 catch (FileNotFoundException e) {
+new Notify ("could not open file for writing");
+return;
 }
 Serializer outputDoc = new Serializer (writer);
 try {
 outputDoc.write (doc);
 }
 catch (IOException e) {
+new Notify ("Could not write to file");
+return;
 }
 logFile = tempPath + "translate.log";
 boolean result = louisutdml.translateFile (configFileList, docFile, 

@@ -164,7 +164,7 @@ Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 PrintDialog embosser = new PrintDialog (shell);
 PrinterData data = embosser.open();
 shell.dispose();
-
+new Notify (data.toString());
 }
 
 void placeholder() {

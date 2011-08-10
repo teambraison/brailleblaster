@@ -107,7 +107,7 @@ MenuItem embossNowItem = new MenuItem (fileMenu, SWT.PUSH);
 embossNowItem.setText (lh.localValue("Emboss&Now!"));
 embossNowItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+dm.fileEmbossNow();
 }
 });
 MenuItem embossInkNowItem = new MenuItem (fileMenu, SWT.PUSH);

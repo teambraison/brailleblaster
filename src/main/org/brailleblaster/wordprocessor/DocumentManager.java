@@ -159,6 +159,14 @@ boolean result = louisutdml.translateFile (configFileList, docFile,
 outTemp, logFile, settings, mode);
 }
 
+void fileEmbossNow () {
+Shell shell = new Shell (display, SWT.DIALOG_TRIM);
+PrintDialog embosser = new PrintDialog (shell);
+PrinterData data = embosser.open();
+shell.dispose();
+
+}
+
 void placeholder() {
 }
 

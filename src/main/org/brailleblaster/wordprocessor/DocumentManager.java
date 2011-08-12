@@ -1,3 +1,31 @@
+/* BrailleBlaster Braille Transcription Application
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
 package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
@@ -11,13 +39,12 @@ import org.eclipse.swt.printing.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.IOException;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
-import java.io.OutputStream;
 
 class DocumentManager {
 
@@ -41,6 +68,8 @@ Document doc = null;
 String configFileList = null;
 String openedFile = null;
 String tempPath;
+String UTDMLTranslation;
+String BRFTranslation;
 liblouisutdml louisutdml;
 String logFile;
 String settings;
@@ -130,14 +159,19 @@ void fileSave() {
 void fileSaveAs () {
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.SAVE);
-dialog.open();
+String saveTo = dialog.open();
 shell.dispose();
+if (saveTo == null) {
+new Notify ("could not write to file.");
+return;
+}
+
 }
 
 void translate() {
 configFileList = "preferences.cfg";
 String docFile = tempPath + "tempdoc.xml";
-String outTemp = tempPath + "doc.brl";
+BRFTranslation = tempPath + "doc.brl";
 FileOutputStream writer = null;
 try {
 writer = new FileOutputStream (docFile);
@@ -156,7 +190,10 @@ return;
 }
 logFile = tempPath + "translate.log";
 boolean result = louisutdml.translateFile (configFileList, docFile, 
-outTemp, logFile, settings, mode);
+BRFTranslation, logFile, settings, mode);
+if (!result) {
+new Notify ("Translation failed.");
+}
 }
 
 void fileEmbossNow () {
@@ -168,6 +205,7 @@ new Notify (data.toString());
 }
 
 void placeholder() {
+new Notify ("This menu item is not yet implemented. Sorry.");
 }
 
 }

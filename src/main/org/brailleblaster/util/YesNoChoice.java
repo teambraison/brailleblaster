@@ -26,40 +26,28 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster;
+package org.brailleblaster.util;
 
-import org.liblouis.liblouisutdml;
-import org.brailleblaster.wordprocessor.WPManager;
-import org.brailleblaster.localization.LocaleHandler;
-import java.io.IOException;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.MessageBox;
+import org.brailleblaster.BBIni;
+
+public class YesNoChoice {
 
 /**
-* This class contains the main method. If there are no arguments it 
-* passes control directly to the word processor. If there are arguments 
-* it passes them to the constructor of the class Subcommands. It will do more 
-* processing as the project develops.
+* Show the user a message and
+* give her a yes/no choice.
 */
-
-public class Main {
-
-public static void main (String[] args) {
-BBIni initialConditions = BBIni.getInstance();
-if (args.length == 0)
-new WPManager ();
-else
-{
-new Subcommands (args);
-}
+public boolean result;
+public YesNoChoice (String message) {
 Display display = BBIni.getDisplay();
-if (display != null)
-display.dispose();
-if (BBIni.haveLiblouisutdml())
-{
-liblouisutdml louisutdml = liblouisutdml.getInstance ();
-louisutdml.free();
-}
+Shell shell = new Shell(display, SWT.DIALOG_TRIM);
+MessageBox mb = new MessageBox(shell, SWT.YES | SWT.NO);
+mb.setMessage (message);
+result = mb.open();
+shell.dispose();
 }
 
 }

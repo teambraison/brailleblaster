@@ -165,7 +165,46 @@ if (saveTo == null) {
 new Notify ("could not write to file.");
 return;
 }
-
+FileInputStream inFile = null;
+FileOutputStream outFile = null;
+try {
+inFile = new FileInputStream (BRFTranslation);
+}
+catch (FileNotFoundException e) {
+new Notify ("Could not open " + BRFTranslation);
+return;
+}
+try {
+outFile = new FileOutputStream (saveTo);
+}
+catch (FileNotFoundException e) {
+new Notify ("Could not open " + saveTo);
+return;
+}
+byte[] buffer = new byte[1024];
+int length = 0;
+while (length != -1) {
+try {
+length = inFile.read (buffer, 0, buffer.length);
+}
+catch (IOException e) {
+new Notify ("Problem reading " + BRFTranslation);
+break;
+}
+try {
+outFile.write (buffer, 0, length);
+}
+catch (IOException e) {
+new Notify ("Problem writing to " + saveTo);
+break;
+}
+}
+try {
+outFile.close();
+}
+catch (IOException e) {
+new Notify (saveTo + " could not be completed");
+}
 }
 
 void translate() {

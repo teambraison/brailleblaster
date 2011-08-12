@@ -40,7 +40,7 @@ public class YesNoChoice {
 * Show the user a message and
 * give her a yes/no choice.
 */
-public boolean result;
+public int result;
 public YesNoChoice (String message) {
 Display display = BBIni.getDisplay();
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);

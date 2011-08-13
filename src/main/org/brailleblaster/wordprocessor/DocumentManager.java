@@ -45,6 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
+import java.io.File;
 
 class DocumentManager {
 
@@ -69,9 +70,9 @@ String configFileList = null;
 String openedFile = null;
 String tempPath;
 String UTDMLTranslation;
-String BRFTranslation;
+String BRFTranslation = null;
 liblouisutdml louisutdml;
-String logFile;
+String logFile = "Translate.log";
 String settings;
 int mode = 0;
 
@@ -82,7 +83,6 @@ DocumentManager (Display display, int action) {
 this.display = display;
 this.action = action;
 tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
-System.out.println (tempPath);
 louisutdml = liblouisutdml.getInstance();
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
@@ -163,8 +163,19 @@ FileDialog dialog = new FileDialog (shell, SWT.SAVE);
 String saveTo = dialog.open();
 shell.dispose();
 if (saveTo == null) {
-new Notify ("could not write to file.");
+new Notify ("could not write to " + saveTo);
 return;
+}
+if (BRFTranslation == null) {
+String docBrl = tempPath + "doc.brl";
+File translatedFile = new File (docBrl);
+if (translatedFile.exists()) {
+BRFTranslation = docBrl;
+}
+else {
+new Notify ("There is no translated file to be saved.");
+return;
+}
 }
 FileInputStream inFile = null;
 FileOutputStream outFile = null;
@@ -228,7 +239,6 @@ catch (IOException e) {
 new Notify ("Could not write to file");
 return;
 }
-logFile = tempPath + "translate.log";
 boolean result = louisutdml.translateFile (configFileList, docFile, 
 BRFTranslation, logFile, settings, mode);
 if (!result) {

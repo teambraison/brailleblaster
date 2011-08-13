@@ -82,6 +82,7 @@ DocumentManager (Display display, int action) {
 this.display = display;
 this.action = action;
 tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
+System.out.println (tempPath);
 louisutdml = liblouisutdml.getInstance();
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();

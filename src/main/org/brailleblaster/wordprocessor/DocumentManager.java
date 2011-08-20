@@ -47,6 +47,7 @@ import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
 import org.daisy.printing.*;
+import javax.print.PrintException;
 
 class DocumentManager {
 
@@ -171,7 +172,6 @@ if (BRFTranslation == null) {
 new Notify ("There is no translated file to be saved.");
 return;
 }
-}
 FileInputStream inFile = null;
 FileOutputStream outFile = null;
 try {
@@ -249,11 +249,12 @@ PrintDialog embosser = new PrintDialog (shell);
 PrinterData data = embosser.open();
 shell.dispose();
 File translatedFile = new File (BRFTranslation);
+PrinterDevice embosserDevice;
 try {
-PrinterDevice embossDevice = new PrinterDevice (data.name, true);
+embosserDevice = new PrinterDevice (data.name, true);
 embosserDevice.transmit (translatedFile);
-} catch (PrinterException e) {
-new Notify ("Could not emboss on " data.name);
+} catch (PrintException e) {
+new Notify ("Could not emboss on "  + data.name);
 }
 }
 

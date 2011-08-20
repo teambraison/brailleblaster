@@ -1,0 +1,34 @@
+To build BrailleBlaster you must have Ant installed on your machine or 
+an IDE that can execute an Ant build.xml file. In addition, you must 
+copy the following .jar files into the directory dist/lib
+
+The swt.jar for your platform
+apache-commons-exec-1.1.jar
+xom.jar
+jeuclid.jar
+jliblouisutdml.jar (bindings)
+hunspell.jar (bindings)
+
+Then run ant. This will place brailleblaster.jar in the dist directory.
+
+You must also compile a number of C and C++ programs and libraries for 
+your platform. Be sure they compile into dist/native
+
+liblouis
+liblouisutdml
+itex2MML (requires flex and bison)
+hunspell (linked with its bindings)
+
+The compilation should place command-line toolls in the bin 
+sibdirectory, libraries in the lib subdirectory and platform-independent 
+files in the programData subdirectory. It may also produce a number of 
+other subdirectories. These are not necessary for BrailleBlaster and 
+should be deleted. The binary components may also be compiled into their 
+default locations and the necessary parts copied into the appropriate 
+BrailleBlaster locations.
+
+Rename the dist directory brailleblaster and package it in a way 
+suitable for your platform. you may want to place a shortcut with the 
+path to brailleblaster.jar on your desktop.
+
+

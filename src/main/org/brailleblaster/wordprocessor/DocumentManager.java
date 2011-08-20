@@ -46,12 +46,13 @@ import java.io.IOException;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
+import org.daisy.printing.*;
 
 class DocumentManager {
 
 /**
-* This class manages each document in an MDI environment. It controls the 
-* braille View and the daisy View.
+ * This class manages each document in an MDI environment. It controls 
+ * the braille View and the daisy View.
 */
 
 final Display display;
@@ -67,9 +68,8 @@ BBStatusBar statusBar;
 boolean exitSelected = false;
 Document doc = null;
 String configFileList = null;
-String openedFile = null;
 String tempPath;
-String UTDMLTranslation;
+String UTDMLTranslation = null;
 String BRFTranslation = null;
 liblouisutdml louisutdml;
 String logFile = "Translate.log";
@@ -77,7 +77,7 @@ String settings;
 int mode = 0;
 
 /**
-* Constructor that sets things up for a new document.
+ * Constructor that sets things up for a new document.
 */
 DocumentManager (Display display, int action) {
 this.display = display;
@@ -111,18 +111,17 @@ Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.OPEN);
 dialog.setFilterExtensions (new String[] {"xml", "utd"});
 dialog.setFilterNames (new String[] {"DAISY xml file", "DAISY file with UTDML"});
-openedFile = dialog.open();
+documentName = dialog.open();
 shell.dispose();
-if (openedFile == null) {
+if (documentName == null) {
 new Notify ("File not found");
 return;
 }
-String fileName = openedFile;
+String fileName = documentName;
 Builder parser = new Builder();
 try {
 doc = parser.build (fileName);
-}
-catch (ParsingException e) {
+} catch (ParsingException e) {
 new Notify ("Malformed document");
 return;
 }
@@ -151,10 +150,12 @@ daisy.view.append (value);
 void sendOpenEvent (int WPEventType) {
 Event event = new Event();
 event.detail = WPEventType;
+event.doit = true;
 documentWindow.notifyListeners (SWT.OpenDocument, event);
 }
 
 void fileSave() {
+placeholder();
 }
 
 void fileSaveAs () {
@@ -167,12 +168,6 @@ new Notify ("could not write to " + saveTo);
 return;
 }
 if (BRFTranslation == null) {
-String docBrl = tempPath + "doc.brl";
-File translatedFile = new File (docBrl);
-if (translatedFile.exists()) {
-BRFTranslation = docBrl;
-}
-else {
 new Notify ("There is no translated file to be saved.");
 return;
 }
@@ -181,15 +176,13 @@ FileInputStream inFile = null;
 FileOutputStream outFile = null;
 try {
 inFile = new FileInputStream (BRFTranslation);
-}
-catch (FileNotFoundException e) {
+} catch (FileNotFoundException e) {
 new Notify ("Could not open " + BRFTranslation);
 return;
 }
 try {
 outFile = new FileOutputStream (saveTo);
-}
-catch (FileNotFoundException e) {
+} catch (FileNotFoundException e) {
 new Notify ("Could not open " + saveTo);
 return;
 }
@@ -198,23 +191,23 @@ int length = 0;
 while (length != -1) {
 try {
 length = inFile.read (buffer, 0, buffer.length);
-}
-catch (IOException e) {
+} catch (IOException e) {
 new Notify ("Problem reading " + BRFTranslation);
+break;
+}
+if (length == -1) {
 break;
 }
 try {
 outFile.write (buffer, 0, length);
-}
-catch (IOException e) {
+} catch (IOException e) {
 new Notify ("Problem writing to " + saveTo);
 break;
 }
 }
 try {
 outFile.close();
-}
-catch (IOException e) {
+} catch (IOException e) {
 new Notify (saveTo + " could not be completed");
 }
 }
@@ -226,16 +219,14 @@ BRFTranslation = tempPath + "doc.brl";
 FileOutputStream writer = null;
 try {
 writer = new FileOutputStream (docFile);
-}
-catch (FileNotFoundException e) {
+} catch (FileNotFoundException e) {
 new Notify ("could not open file for writing");
 return;
 }
 Serializer outputDoc = new Serializer (writer);
 try {
 outputDoc.write (doc);
-}
-catch (IOException e) {
+} catch (IOException e) {
 new Notify ("Could not write to file");
 return;
 }
@@ -247,11 +238,23 @@ new Notify ("Translation failed.");
 }
 
 void fileEmbossNow () {
+if (BRFTranslation == null) {
+translate();
+}
+if (BRFTranslation == null) {
+return;
+}
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 PrintDialog embosser = new PrintDialog (shell);
 PrinterData data = embosser.open();
 shell.dispose();
-new Notify (data.toString());
+File translatedFile = new File (BRFTranslation);
+try {
+PrinterDevice embossDevice = new PrinterDevice (data.name, true);
+embosserDevice.transmit (translatedFile);
+} catch (PrinterException e) {
+new Notify ("Could not emboss on " data.name);
+}
 }
 
 void placeholder() {

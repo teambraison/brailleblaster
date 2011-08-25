@@ -135,6 +135,8 @@ walkTree (rootElement);
 }
 
 private void walkTree (Node node) {
+int maxlines = 20;
+int numlines = 0;
 Node newNode;
 for (int i = 0; i < node.getChildCount(); i++) {
 newNode = node.getChild(i);
@@ -142,6 +144,10 @@ if (newNode instanceof Element) {
 walkTree (newNode);
 }
 else if (newNode instanceof Text) {
+numlines++;
+if (numlines == maxlines) {
+return;
+}
 String value = newNode.getValue();
 daisy.view.append (value);
 }

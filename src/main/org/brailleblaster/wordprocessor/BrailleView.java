@@ -46,7 +46,6 @@ location.right = new FormAttachment(100);
 location.top = new FormAttachment (12);
 location.bottom = new FormAttachment(92);
 view.setLayoutData (location);
-view.setText ("Braille view");
 }
 
 }

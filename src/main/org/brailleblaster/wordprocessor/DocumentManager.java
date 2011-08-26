@@ -40,6 +40,8 @@ import org.eclipse.swt.events.*;
 import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,6 +60,8 @@ class DocumentManager {
 
 final Display display;
 final Shell documentWindow;
+final int documentNumber;
+final String docID;
 final int action;
 FormLayout layout;
 String documentName = "untitled";
@@ -80,8 +84,10 @@ int mode = 0;
 /**
  * Constructor that sets things up for a new document.
 */
-DocumentManager (Display display, int action) {
+DocumentManager (Display display, int documentNumber, int action) {
 this.display = display;
+this.documentNumber = documentNumber;
+docID = new Integer (documentNumber).toString();
 this.action = action;
 tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
 louisutdml = liblouisutdml.getInstance();
@@ -218,10 +224,37 @@ new Notify (saveTo + " could not be completed");
 }
 }
 
+void showBraille() {
+String line;
+BufferedReader translation = null;
+try {
+translation = new BufferedReader (new FileReader 
+(BRFTranslation));
+} catch (FileNotFoundException e) {
+new Notify ("Could not fine " + BRFTranslation);
+}
+for (int i = 0; i < 20; i++) {
+try {
+line = translation.readLine();
+} catch (IOException e) {
+new Notify ("Problem reading " + BRFTranslation);
+return;
+}
+if (line == null) {
+break;
+}
+braille.view.append (line);
+}
+try {
+translation.close();
+} catch (IOException e) {
+}
+}
+
 void translate() {
 configFileList = "preferences.cfg";
-String docFile = tempPath + "tempdoc.xml";
-BRFTranslation = tempPath + "doc.brl";
+String docFile = tempPath + docID + "tempdoc.xml";
+BRFTranslation = tempPath + docID + "doc.brl";
 FileOutputStream writer = null;
 try {
 writer = new FileOutputStream (docFile);
@@ -240,7 +273,9 @@ boolean result = louisutdml.translateFile (configFileList, docFile,
 BRFTranslation, logFile, settings, mode);
 if (!result) {
 new Notify ("Translation failed.");
+return;
 }
+showBraille();
 }
 
 void fileEmbossNow () {

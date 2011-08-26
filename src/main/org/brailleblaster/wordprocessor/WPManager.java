@@ -31,7 +31,6 @@ package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Event;
@@ -55,7 +54,6 @@ private int documentCount = -1;
  */
 
 public WPManager() {
-
 display = BBIni.getDisplay();
 if (display == null) {
 System.out.println ("Could not find graphical interface environment");
@@ -78,7 +76,8 @@ display.addListener(SWT.OpenDocument, openListener);
 
 void addDocument(int action) {
 documentCount++;
-documents[documentCount] = new DocumentManager(display, action);
+documents[documentCount] = new DocumentManager(display, 
+documentCount, action);
 documents[documentCount] = null;
 documentCount--;
 }

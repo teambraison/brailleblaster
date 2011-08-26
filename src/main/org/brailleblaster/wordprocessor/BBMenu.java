@@ -125,7 +125,7 @@ dm.placeholder();
 }
 });
 MenuItem embossInkPreviewItem = new MenuItem (fileMenu, SWT.PUSH);
-embossInkPreviewItem.setText (lh.localValue("Emboss&IncPreview"));
+embossInkPreviewItem.setText (lh.localValue("Emboss&InkPreview"));
 embossInkPreviewItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.placeholder();

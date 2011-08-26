@@ -253,8 +253,8 @@ translation.close();
 
 void translate() {
 configFileList = "preferences.cfg";
-String docFile = tempPath + docID + "tempdoc.xml";
-BRFTranslation = tempPath + docID + "doc.brl";
+String docFile = tempPath + docID + "-tempdoc.xml";
+BRFTranslation = tempPath + docID + "-doc.brl";
 FileOutputStream writer = null;
 try {
 writer = new FileOutputStream (docFile);

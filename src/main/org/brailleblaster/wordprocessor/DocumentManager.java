@@ -62,9 +62,9 @@ final Display display;
 final Shell documentWindow;
 final int documentNumber;
 final String docID;
-final int action;
+int action;
 FormLayout layout;
-String documentName = "untitled";
+String documentName = null;
 BBToolBar toolBar;
 BBMenu menu;
 DaisyView daisy;
@@ -84,17 +84,18 @@ int mode = 0;
 /**
  * Constructor that sets things up for a new document.
 */
-DocumentManager (Display display, int documentNumber, int action) {
+DocumentManager (Display display, int documentNumber, int action, 
+String documentName) {
 this.display = display;
 this.documentNumber = documentNumber;
 docID = new Integer (documentNumber).toString();
 this.action = action;
+this.documentName = documentName;
 tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
 louisutdml = liblouisutdml.getInstance();
 documentWindow = new Shell (display, SWT.SHELL_TRIM);
 layout = new FormLayout();
 documentWindow.setLayout (layout);
-documentWindow.setText ("BrailleBlaster " + documentName);
 menu = new BBMenu (this);
 toolBar = new BBToolBar (this);
 daisy = new DaisyView (documentWindow);
@@ -105,12 +106,50 @@ documentWindow.layout(true, true);
 documentWindow.open();
 if (action == WP.OpenDocumentGetFile) {
 fileOpen();
+} else if (action == WP.DocumentFromCommandLine) {
+openFirstDocument();
 }
 while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
 }
 documentWindow.dispose();
+}
+
+/**
+ * This method is called to resume processing on this document after 
+ * working on another.
+ */
+public void resume() {
+ documentWindow.forceActive();
+ }
+ 
+void openFirstDocument() {
+String fileName = documentName;
+Builder parser = new Builder();
+try {
+doc = parser.build (fileName);
+} catch (ParsingException e) {
+new Notify ("Malformed document");
+return;
+}
+catch (IOException e) {
+new Notify ("Could not open " + documentName);
+return;
+}
+setWindowTitle(documentName);
+Element rootElement = doc.getRootElement();
+walkTree (rootElement);
+}
+
+private void setWindowTitle (String pathName) {
+int index = pathName.lastIndexOf (File.separatorChar);
+if (index == -1) {
+documentWindow.setText ("BrailleBlaster " + pathName);
+} else {
+documentWindow.setText ("BrailleBlaster " + pathName.substring (index + 
+1));
+}
 }
 
 void fileOpen () {
@@ -133,9 +172,10 @@ new Notify ("Malformed document");
 return;
 }
 catch (IOException e) {
-new Notify ("Could not open file");
+new Notify ("Could not open " + documentName);
 return;
 }
+setWindowTitle (documentName);
 Element rootElement = doc.getRootElement();
 walkTree (rootElement);
 }

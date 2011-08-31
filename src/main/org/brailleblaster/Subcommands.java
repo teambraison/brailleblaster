@@ -33,28 +33,28 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ProgramCaller;
 import org.brailleblaster.embossers.EmbosserManager;
 import org.liblouis.liblouisutdml;
-import java.util.*;
 import java.io.IOException;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
 import javax.print.PrintException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.Arrays;
+class Subcommands {
 
 /**
-* Process subcommands.
+ * Process subcommands.
+ * If the first argument is not a recognized subcommand, 
+ * assume it is the name of a file to be opened in the wordprocessor.
 */
 
-public class Subcommands {
-
 private Logger logger = BBIni.getLogger();
-private WPManager wpManager;
 private LocaleHandler lh = new LocaleHandler ();
 private liblouisutdml louisutdml;
 private String subcommand;
 private String[] subArgs;
 
-public Subcommands (String[] args) {
+Subcommands (String[] args) {
 logger = BBIni.getLogger();
 if (!BBIni.haveLiblouisutdml()) {
 logger.log  (Level.SEVERE, "The Braille translation facility is absent.");
@@ -66,14 +66,13 @@ ParseCommandLine.getInstance().parseCommand (args);
 louisutdml = liblouisutdml.getInstance();
 subcommand = args[0];
 subArgs = Arrays.copyOfRange (args, 1, args.length);
-if (subcommand.equals ("translate"))
+if (subcommand.equals ("translate")) {
 doTranslate (subArgs);
-else if (subcommand.equals ("emboss"))
+}
+else if (subcommand.equals ("emboss")) {
 doEmboss (subArgs);
-else {
-logger.log (Level.WARNING,
-lh.localValue ("subcommand") + args[0] + 
-lh.localValue ("notRecognized"));
+} else {
+new WPManager (subcommand);
 }
 }
 

@@ -27,17 +27,19 @@
 */
 
 package org.brailleblaster.wordprocessor;
-class WP {
 
 /**
-* This class provides constnts that are used by various other 
-* wordprocessor classes.
-*/
+ * This class contains constants that are used in other word processor 
+ * classes.
+ */
+
+class WP {
 
 static final int NewDocument = 1;
 static final int OpenDocumentGetFile = 2;
 static final int ImportDocument = 3;
-
+static final int ChangeDocument = 4;
+static final int DocumentFromCommandLine = 5;
 WP() {}
 
 }

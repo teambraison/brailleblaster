@@ -43,17 +43,23 @@ public class WPManager {
  * entry point for the word processor, and therefore the only public class.
  */
 
+String firstDocument = null;
+int action = WP.NewDocument;
 private Display display;
 private SettingsDialogs settings;
 private DocumentManager[] documents = new DocumentManager[8];
 private int documentCount = -1;
 
 /**
- * This constructor method is the entry point to the word prodessor. It gets
+ * This constructor is the entry point to the word prodessor. It gets
  * things set up, handles multiple documents, etc.
  */
 
-public WPManager() {
+public WPManager(String fileName) {
+firstDocument = fileName;
+if (firstDocument != null) {
+action = WP.DocumentFromCommandLine;
+}
 display = BBIni.getDisplay();
 if (display == null) {
 System.out.println ("Could not find graphical interface environment");
@@ -61,7 +67,7 @@ System.exit(1);
 }
 checkLiblouisutdml();
 setListeners();
-addDocument(WP.NewDocument);
+addDocument(action);
 }
 
 Listener openListener = new Listener() {
@@ -77,7 +83,7 @@ display.addListener(SWT.OpenDocument, openListener);
 void addDocument(int action) {
 documentCount++;
 documents[documentCount] = new DocumentManager(display, 
-documentCount, action);
+documentCount, action, firstDocument);
 documents[documentCount] = null;
 documentCount--;
 }

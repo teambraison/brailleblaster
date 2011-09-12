@@ -26,8 +26,7 @@ starting and ending BrailleBlaster. If there are no arguments it passes
 control directly to the word processor. If there are arguments it passes 
 control to the class Subcommands.java. This class processes subcommands 
 like translate, emboss, help, etc. It seemed neater and less confusing 
-to 
-put the handling of subcommands in their own class rather than burdening 
+to put the handling of subcommands in their own class rather than burdening 
 Main.java with handling them.
 
 The most interesting of the subpackages is wordprocessor. This was 

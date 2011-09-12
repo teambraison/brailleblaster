@@ -108,7 +108,10 @@ if (action == WP.OpenDocumentGetFile) {
 fileOpen();
 } else if (action == WP.DocumentFromCommandLine) {
 openFirstDocument();
+} else {
+setWindowTitle ("Untitled");
 }
+
 while (!documentWindow.isDisposed() && !exitSelected) {
 if (!display.readAndDispatch())
 display.sleep();
@@ -283,7 +286,7 @@ return;
 if (line == null) {
 break;
 }
-braille.view.append (line);
+braille.view.append (line + "\n");
 }
 try {
 translation.close();

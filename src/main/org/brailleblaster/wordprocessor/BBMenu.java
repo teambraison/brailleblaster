@@ -36,6 +36,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.BBIni;
 
 class BBMenu {
 
@@ -173,6 +174,7 @@ public void widgetSelected (SelectionEvent e) {
 dm.placeholder();
 }
 });
+if (!BBIni.getPlatformName().equals("cocoa")) {
 MenuItem exitItem = new MenuItem (fileMenu, SWT.PUSH);
 exitItem.setText (lh.localValue("e&xit"));
 exitItem.addSelectionListener (new SelectionAdapter() {
@@ -180,6 +182,7 @@ public void widgetSelected (SelectionEvent e) {
 dm.exitSelected = true;
 }
 });
+}
 fileItem.setMenu (fileMenu);
 
 // Set up edit menu

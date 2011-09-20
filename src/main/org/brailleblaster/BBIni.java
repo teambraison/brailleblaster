@@ -49,9 +49,9 @@ public final class BBIni {
 
 private static BBIni bbini;
 
-public static BBIni getInstance () {
+public static BBIni getInstance (String[] args) {
 if (bbini == null)
-bbini = new BBIni();
+bbini = new BBIni(args);
   return bbini;
 }
 
@@ -72,7 +72,7 @@ private static String platformName;
 private static boolean hLiblouisutdml = false;
 private static FileHandler logFile;
 
-  private BBIni() {
+  private BBIni(String[] args) {
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 osName = System.getProperty ("os.name");
@@ -106,10 +106,12 @@ logger.log (Level.SEVERE, "cannot open logfile", e);
 if (logFile != null) {
 logger.addHandler (logFile);
 }
+if (!args[0].equals ("-nogui")) {
 try {
 display = new Display();
 } catch (SWTError e) {
 logger.log (Level.SEVERE, "Can't find GUI", e);
+}
 }
 try {
 if (platformName.equals ("win32")) {

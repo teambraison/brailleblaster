@@ -295,6 +295,10 @@ translation.close();
 }
 
 void translate() {
+if (doc == null) {
+new Notify ("There is no open file.");
+return;
+}
 configFileList = "preferences.cfg";
 String docFile = tempPath + docID + "-tempdoc.xml";
 BRFTranslation = tempPath + docID + "-doc.brl";

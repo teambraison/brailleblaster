@@ -58,14 +58,15 @@ Subcommands (String[] args) {
 logger = BBIni.getLogger();
 if (!BBIni.haveLiblouisutdml()) {
 logger.log  (Level.SEVERE, "The Braille translation facility is absent.");
-System.out.println 
-("You can use the word processor on a demonstration basis.");
-return;
 }
-ParseCommandLine.getInstance().parseCommand (args);
+// ParseCommandLine.getInstance().parseCommand (args);
 louisutdml = liblouisutdml.getInstance();
-subcommand = args[0];
-subArgs = Arrays.copyOfRange (args, 1, args.length);
+int i = 0;
+if (args[i].equals ("-nogui")) {
+i++;
+}
+subcommand = args[i];
+subArgs = Arrays.copyOfRange (args, i, args.length - i);
 if (subcommand.equals ("translate")) {
 doTranslate (subArgs);
 }

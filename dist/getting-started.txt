@@ -2,23 +2,47 @@ The command to run BrailleBlaster is simply
 
 java -jar brailleblaster.jar 
 
+If you are running a Mac build use the following command:
+
+java -XstartOnFirstThread -jar brailleblaster.jar
+
 This command may be placed in a shortcut with a suitable path. If the 
 shortcut is placed on the desktop it need only include the path to the 
 .jar file. 
 
-BrailleBlaster accepts subcommands and file lnames on the command line. 
+BrailleBlaster accepts subcommands and filenames on the command line. 
 To use them simply type them after a space after the above command, 
 followed by spaces and suitable arguments. File names should simply be 
 typed after brailleblaster.jar and a space. They will be opened in the 
 word processor. The subcommands are:
 
-translate: translate a file into braille
-emboss: translate a file and then emboss it
+translate: translate a file into braille. The simplest usage of this 
+subcommand is:
 
-If no arguments are given after brailleblaster.jar the application 
-enters the wordprocessor. It may display startup dialogs if this is the 
-first time you are using it or you have not disabled these dialogs. You 
-can then proceed to work on doocuments as in most other word processors, 
-and you can also view and edit braille translations of documents in a 
-special window.
+java-jar brailleblaster.jar translate inputfile outputfile
+
+If your system does not have a GUI or it canot be reached for some 
+reason, you will get an error message saying that it could not be found. 
+You can still use the subcommands by putting -nogui as the first 
+argument. For example:
+
+java -jar brailleblaster.jar -nogui translate inputfile outputfile
+
+The translate subcommand has many options. It will handle text, html and 
+xml files. It will even back-translate. To learn about the options look 
+at the section on file2brl in the documentation on liblouisutdml, which 
+is in the helpDocs subdirectory. BrailleBlaster does not run the 
+file2brl program. It emulates it.
+
+emboss: translate a file and then emboss it. This is like the translate 
+subcommand, except that outputfile is replaced by embossername. To find 
+the name of the embosser on your system use the EmbossNow! menu item in 
+the wordprocessor and note the name.
+
+If no arguments are given after brailleblaster.jar, or the argument is a 
+file name, the application enters the wordprocessor. It may display 
+startup dialogs if this is the first time you are using it or you have 
+not disabled these dialogs. You can then proceed to work on doocuments 
+as in most other word processors, and you can also view and edit braille 
+translations of documents in a special window.
 

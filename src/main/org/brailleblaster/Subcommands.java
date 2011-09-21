@@ -66,7 +66,7 @@ if (args[i].equals ("-nogui")) {
 i++;
 }
 subcommand = args[i];
-subArgs = Arrays.copyOfRange (args, i, args.length - i);
+subArgs = Arrays.copyOfRange (args, i + 1, args.length);
 if (subcommand.equals ("translate")) {
 doTranslate (subArgs);
 }
@@ -77,6 +77,10 @@ new WPManager (subcommand);
 }
 }
 
+/**
+* Translate the input file to the output file addording to the options, 
+* if any.
+*/
 private void doTranslate (String[] args)
 {
 louisutdml.file2brl (subArgs);

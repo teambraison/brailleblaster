@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class Main {
 public static void main (String[] args) {
-BBIni initialConditions = BBIni.getInstance(args);
+BBIni.initialize(args);
 if (args.length == 0)
 new WPManager (null);
 else

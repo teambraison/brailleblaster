@@ -49,7 +49,7 @@ public final class BBIni {
 
 private static BBIni bbini;
 
-public static BBIni getInstance (String[] args) {
+public static BBIni initialize (String[] args) {
 if (bbini == null)
 bbini = new BBIni(args);
   return bbini;

@@ -106,7 +106,7 @@ logger.log (Level.SEVERE, "cannot open logfile", e);
 if (logFile != null) {
 logger.addHandler (logFile);
 }
-if (!args[0].equals ("-nogui")) {
+if (!(args.length > 0 && args[0].equals ("-nogui"))) {
 try {
 display = new Display();
 } catch (SWTError e) {

@@ -120,6 +120,13 @@ curDoc = documents[documentIndex] = new DocumentManager(display,
 documentIndex, WP.OpenDocumentGetFile, fileName);
 break;
 case WP.BBClosed:
+for (documentIndex = 0; documentIndex < documents.length; 
+documentIndex++) {
+if (documents[documentIndex] != null) {
+documents[documentIndex].finish();
+}
+documents[documentIndex] = null;
+}
 return;
 default:
 break;

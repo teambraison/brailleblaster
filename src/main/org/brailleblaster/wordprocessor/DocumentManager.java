@@ -63,6 +63,7 @@ final Shell documentWindow;
 final int documentNumber;
 final String docID;
 int action;
+int returnReason = 0;
 FormLayout layout;
 String documentName = null;
 BBToolBar toolBar;
@@ -112,11 +113,17 @@ openFirstDocument();
 setWindowTitle ("Untitled");
 }
 
-while (!documentWindow.isDisposed() && !exitSelected) {
+while (!documentWindow.isDisposed() && returnReason == 0) {
 if (!display.readAndDispatch())
 display.sleep();
 }
+switch (returnReason) {
+case WP.DocumentClosed:
 documentWindow.dispose();
+break;
+default:
+break;
+}
 }
 
 /**
@@ -125,13 +132,13 @@ documentWindow.dispose();
  */
 public void resume() {
  documentWindow.forceActive();
- }
+returnReason = 0;
+}
  
 void openFirstDocument() {
-String fileName = documentName;
 Builder parser = new Builder();
 try {
-doc = parser.build (fileName);
+doc = parser.build (documentName);
 } catch (ParsingException e) {
 new Notify ("Malformed document");
 return;
@@ -140,7 +147,7 @@ catch (IOException e) {
 new Notify ("Could not open " + documentName);
 return;
 }
-setWindowTitle(documentName);
+setWindowTitle (documentName);
 Element rootElement = doc.getRootElement();
 walkTree (rootElement);
 }
@@ -156,6 +163,10 @@ documentWindow.setText ("BrailleBlaster " + pathName.substring (index +
 }
 
 void fileOpen () {
+if (doc != null) {
+returnReason = WP.OpenDocumentGetFile;
+return;
+}
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 FileDialog dialog = new FileDialog (shell, SWT.OPEN);
 dialog.setFilterExtensions (new String[] {"xml", "utd"});
@@ -201,13 +212,6 @@ String value = newNode.getValue();
 daisy.view.append (value);
 }
 }
-}
-
-void sendOpenEvent (int WPEventType) {
-Event event = new Event();
-event.detail = WPEventType;
-event.doit = true;
-documentWindow.notifyListeners (SWT.OpenDocument, event);
 }
 
 void fileSave() {

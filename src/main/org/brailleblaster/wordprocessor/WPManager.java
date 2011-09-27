@@ -32,9 +32,8 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.BBIni;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.util.YesNoChoice;
+import org.brailleblaster.util.Notify;
 
 public class WPManager {
 
@@ -43,12 +42,12 @@ public class WPManager {
  * entry point for the word processor, and therefore the only public class.
  */
 
-String firstDocument = null;
-int action = WP.NewDocument;
+String fileName = null;
+int action;
 private Display display;
 private SettingsDialogs settings;
 private DocumentManager[] documents = new DocumentManager[8];
-private int documentCount = -1;
+private int documentIndex;
 
 /**
  * This constructor is the entry point to the word prodessor. It gets
@@ -56,9 +55,11 @@ private int documentCount = -1;
  */
 
 public WPManager(String fileName) {
-firstDocument = fileName;
-if (firstDocument != null) {
+this.fileName = fileName;
+if (fileName != null) {
 action = WP.DocumentFromCommandLine;
+} else {
+action = WP.NewDocument;
 }
 display = BBIni.getDisplay();
 if (display == null) {
@@ -66,26 +67,64 @@ System.out.println ("Could not find graphical interface environment");
 System.exit(1);
 }
 checkLiblouisutdml();
-setListeners();
-addDocument(action);
+documentIndex = 0;
+DocumentManager curDoc;
+curDoc = documents[documentIndex] = new DocumentManager(display, 
+documentIndex, action, fileName);
+do {
+switch (curDoc.returnReason) {
+case WP.DocumentClosed:
+documents[documentIndex] = null;
+int moveIndex = documentIndex;
+while (documents[moveIndex + 1] != null) {
+documents[documentIndex] = documents[moveIndex++];
 }
-
-Listener openListener = new Listener() {
-public void handleEvent(Event event) {
-addDocument(event.detail);
+if (documents[documentIndex] == null) {
+documentIndex = 0;
 }
-};
-
-void setListeners() {
-display.addListener(SWT.OpenDocument, openListener);
+if (documents[documentIndex] == null) {
+return;
 }
-
-void addDocument(int action) {
-documentCount++;
-documents[documentCount] = new DocumentManager(display, 
-documentCount, action, firstDocument);
-documents[documentCount] = null;
-documentCount--;
+curDoc = documents[documentIndex];
+curDoc.resume();
+break;
+case WP.SwitchDocument:
+documentIndex++;
+if (documents[documentIndex] != null) {
+curDoc = documents[documentIndex];
+curDoc.resume();
+} else {
+documentIndex = 0;
+curDoc = documents[documentIndex];
+curDoc.resume();
+}
+break;
+case WP.NewDocument:
+documentIndex++;
+if (documentIndex >= documents.length) {
+new Notify ("Too many documents");
+curDoc.resume();
+break;
+}
+curDoc = documents[documentIndex] = new DocumentManager(display, 
+documentIndex, WP.NewDocument, fileName);
+break;
+case WP.OpenDocumentGetFile:
+documentIndex++;
+if (documentIndex >= documents.length) {
+new Notify ("Too many documents");
+curDoc.resume();
+break;
+}
+curDoc = documents[documentIndex] = new DocumentManager(display, 
+documentIndex, WP.OpenDocumentGetFile, fileName);
+break;
+case WP.BBClosed:
+return;
+default:
+break;
+}
+} while (curDoc.returnReason != WP.BBClosed);
 }
 
 void checkLiblouisutdml() {

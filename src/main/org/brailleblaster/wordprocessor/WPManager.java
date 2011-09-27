@@ -88,7 +88,7 @@ return;
 curDoc = documents[documentIndex];
 curDoc.resume();
 break;
-case WP.SwitchDocument:
+case WP.SwitchDocuments:
 documentIndex++;
 if (documents[documentIndex] != null) {
 curDoc = documents[documentIndex];

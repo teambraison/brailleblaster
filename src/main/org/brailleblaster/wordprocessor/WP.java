@@ -38,8 +38,11 @@ class WP {
 static final int NewDocument = 1;
 static final int OpenDocumentGetFile = 2;
 static final int ImportDocument = 3;
-static final int ChangeDocument = 4;
+static final int SwitchDocuments = 4;
 static final int DocumentFromCommandLine = 5;
+static final int DocumentClosed = 6;
+static final int BBClosed = 7;
+
 WP() {}
 
 }

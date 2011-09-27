@@ -119,11 +119,18 @@ display.sleep();
 }
 switch (returnReason) {
 case WP.DocumentClosed:
-documentWindow.dispose();
+finish();
 break;
 default:
 break;
 }
+}
+
+/**
+* Clean up before closing the document.
+*/
+void finish() {
+documentWindow.dispose();
 }
 
 /**

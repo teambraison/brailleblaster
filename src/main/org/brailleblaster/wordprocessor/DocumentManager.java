@@ -122,6 +122,7 @@ case WP.DocumentClosed:
 finish();
 break;
 default:
+documentWindow.setVisible (false);
 break;
 }
 }
@@ -137,8 +138,10 @@ documentWindow.dispose();
  * This method is called to resume processing on this document after 
  * working on another.
  */
-public void resume() {
- documentWindow.forceActive();
+void resume() {
+if (documentWindow.isDisposed())
+return;
+documentWindow.forceActive();
 returnReason = 0;
 }
  

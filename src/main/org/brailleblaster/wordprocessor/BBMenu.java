@@ -98,6 +98,7 @@ MenuItem braillePresentationItem;
 MenuItem formatLikeBrailleItem;
 MenuItem showPageBreaksItem;
 MenuItem xtranslateItem;
+MenuItem backTranslateItem;
 MenuItem translationTemplatesItem;
 MenuItem inLineMathItem;
 MenuItem displayedMathItem;
@@ -114,7 +115,7 @@ MenuItem tutorialsItem;
 MenuItem checkUpdatesItem;
 MenuItem aboutItem;
 
-public BBMenu (final DocumentManager dm) {
+BBMenu (final DocumentManager dm) {
 LocaleHandler lh = new LocaleHandler();
 
 // Set up menu bar
@@ -123,7 +124,6 @@ MenuItem fileItem = new MenuItem (menuBar, SWT.CASCADE);
 fileItem.setText (lh.localValue("&File"));
 MenuItem editItem = new MenuItem (menuBar, SWT.CASCADE);
 editItem.setText (lh.localValue("&Edit"));
-editItem.setEnabled(false);
 MenuItem viewItem = new MenuItem (menuBar, SWT.CASCADE);
 viewItem.setText (lh.localValue("&View"));
 MenuItem translateItem = new MenuItem (menuBar, SWT.CASCADE);
@@ -488,6 +488,14 @@ public void widgetSelected (SelectionEvent e) {
 dm.translate();
 }
 });
+backTranslateItem = new MenuItem (translateMenu, SWT.PUSH);
+backTranslateItem.setText 
+(lh.localValue("&BackTranslate"));
+backTranslateItem.addSelectionListener (new SelectionAdapter() {
+public void widgetSelected (SelectionEvent e) {
+dm.placeholder();
+}
+});
 translationTemplatesItem = new MenuItem (translateMenu, 
 SWT.PUSH);
 translationTemplatesItem.setText 
@@ -576,37 +584,37 @@ advancedItem.setMenu (advancedMenu);
 
 // Set up help menu
 Menu helpMenu = new Menu (dm.documentWindow, SWT.DROP_DOWN);
-readManualItem = new MenuItem (helpMenu, SWT.PUSH);
-readManualItem.setText (lh.localValue("&ReadManual"));
-readManualItem.addSelectionListener (new SelectionAdapter() {
+aboutItem = new MenuItem (helpMenu, SWT.PUSH);
+aboutItem.setText (lh.localValue("&About"));
+aboutItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+new UserHelp("about");
 }
 });
 helpInfoItem = new MenuItem (helpMenu, SWT.PUSH);
 helpInfoItem.setText (lh.localValue("&helpInfo"));
 helpInfoItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+new UserHelp("helpinfo");
 }
 });
 tutorialsItem = new MenuItem (helpMenu, SWT.PUSH);
 tutorialsItem.setText (lh.localValue("&Tutorials"));
 tutorialsItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+new UserHelp("tutorials");
+}
+});
+readManualItem = new MenuItem (helpMenu, SWT.PUSH);
+readManualItem.setText (lh.localValue("&ReadManual"));
+readManualItem.addSelectionListener (new SelectionAdapter() {
+public void widgetSelected (SelectionEvent e) {
+new UserHelp("manuals");
 }
 });
 checkUpdatesItem = new MenuItem (helpMenu, SWT.PUSH);
 checkUpdatesItem.setText (lh.localValue("&CheckUpdates"));
 checkUpdatesItem.addSelectionListener (new SelectionAdapter() {
-public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
-}
-});
-aboutItem = new MenuItem (helpMenu, SWT.PUSH);
-aboutItem.setText (lh.localValue("&About"));
-aboutItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.placeholder();
 }

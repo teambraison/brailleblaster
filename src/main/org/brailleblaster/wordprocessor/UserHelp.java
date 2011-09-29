@@ -54,7 +54,7 @@ BBIni.getReleaseDate() +
 else if (helpName.equals ("manuals")) {
 showHelp ("manuals.html");
 }
-else if (helpName.equals ("helpinfo.html")) {
+else if (helpName.equals ("helpinfo")) {
 showHelp ("helpinfo.html");
 }
 else {

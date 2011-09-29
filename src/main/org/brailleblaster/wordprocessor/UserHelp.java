@@ -66,10 +66,19 @@ new Notify (helpName + " is being written.");
 * Display help documents in the local browser.
 */
 void showHelp (String fileName) {
+String completePath = helpPath + fileName;
+URI uri = null;
 try {
-desktop.browse (new URI (helpPath + fileName));
+uri = new URI (completePath);
 } catch (URISyntaxException e) {
+new Notify ("Bad URI");
+}
+if (uri != null) {
+try {
+desktop.browse (uri);
 } catch (IOException e) {
+new Notify ("Could not open " + completePath);
+}
 }
 }
 

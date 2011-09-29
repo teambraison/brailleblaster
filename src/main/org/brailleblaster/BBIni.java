@@ -57,6 +57,8 @@ bbini = new BBIni(args);
 
 private static Logger logger;
 private static Display display = null;
+private static String BBVersion;
+private static String releaseDate;
 private static String brailleblasterPath;
 private static String osName;
 private static String osVersion;
@@ -64,6 +66,7 @@ private static String fileSep;
 private static String nativeCommandPath;
 private static String nativeLibraryPath;
 private static String programDataPath;
+private static String helpDocsPath;
 private static String nativeCommandSuffix;
 private static String nativeLibrarySuffix;
 private static String settingsPath;
@@ -72,7 +75,7 @@ private static String platformName;
 private static boolean hLiblouisutdml = false;
 private static FileHandler logFile;
 
-  private BBIni(String[] args) {
+private BBIni(String[] args) {
 Main m = new Main();
 brailleblasterPath = BrailleblasterPath.getPath (m);
 osName = System.getProperty ("os.name");
@@ -87,6 +90,8 @@ else nativeLibrarySuffix = ".so";
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
+helpDocsPath = brailleblasterPath + fileSep + "dist" + 
+fileSep + "helpDocs";
 String userHome = System.getProperty ("user.home");
 settingsPath = userHome + fileSep + "bbsettings";
 File settings = new File (settingsPath);
@@ -140,6 +145,22 @@ public static boolean haveLiblouisutdml()
 return hLiblouisutdml;
 }
 
+public static void setVersion (String version) {
+BBVersion = version;
+}
+
+public static String getVersion() {
+return BBVersion;
+}
+
+public static void setReleaseDate (String relDate) {
+releaseDate = relDate;
+}
+
+public static String getReleaseDate () {
+return releaseDate;
+}
+
 public static String getBrailleblasterPath()
 {
 return brailleblasterPath;
@@ -163,6 +184,10 @@ return nativeLibraryPath;
 public static String getProgramDataPath()
 {
 return programDataPath;
+}
+
+public static String getHelpDocsPath() {
+return helpDocsPath;
 }
 
 public static String getNativeCommandSuffix()

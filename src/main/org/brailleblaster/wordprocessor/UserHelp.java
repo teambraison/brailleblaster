@@ -69,16 +69,15 @@ void showHelp (String fileName) {
 String completePath = helpPath + fileName;
 URI uri = null;
 try {
-uri = new URI (completePath);
+uri = new URI ("file://" + completePath);
 } catch (URISyntaxException e) {
 new Notify ("Bad URI");
+return;
 }
-if (uri != null) {
 try {
 desktop.browse (uri);
 } catch (IOException e) {
 new Notify ("Could not open " + completePath);
-}
 }
 }
 

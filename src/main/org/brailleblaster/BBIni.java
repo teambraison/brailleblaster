@@ -90,8 +90,7 @@ else nativeLibrarySuffix = ".so";
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
-helpDocsPath = brailleblasterPath + fileSep + "dist" + 
-fileSep + "helpDocs";
+helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
 String userHome = System.getProperty ("user.home");
 settingsPath = userHome + fileSep + "bbsettings";
 File settings = new File (settingsPath);

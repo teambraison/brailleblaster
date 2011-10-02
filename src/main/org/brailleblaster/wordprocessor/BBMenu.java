@@ -141,14 +141,14 @@ newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&New"));
 newItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.returnReason = WP.NewDocument;
+dm.setReturn (WP.NewDocument);
 }
 });
 openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.returnReason = WP.OpenDocumentGetFile;
+dm.setReturn (WP.OpenDocumentGetFile);
 }
 });
 recentItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -246,7 +246,7 @@ closeItem = new MenuItem (fileMenu, SWT.PUSH);
 closeItem.setText (lh.localValue("&close"));
 closeItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.returnReason = WP.DocumentClosed;
+dm.setReturn (WP.DocumentClosed);
 }
 });
 if (!BBIni.getPlatformName().equals("cocoa")) {
@@ -254,7 +254,7 @@ exitItem = new MenuItem (fileMenu, SWT.PUSH);
 exitItem.setText (lh.localValue("e&xit"));
 exitItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.returnReason = WP.BBClosed;
+dm.setReturn (WP.BBClosed);
 }
 });
 }
@@ -266,7 +266,7 @@ undoItem = new MenuItem (editMenu, SWT.PUSH);
 undoItem.setText (lh.localValue("&Undo"));
 undoItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.returnReason = WP.SwitchDocuments;
+dm.setReturn (WP.SwitchDocuments);
 //dm.placeholder();
 }
 });

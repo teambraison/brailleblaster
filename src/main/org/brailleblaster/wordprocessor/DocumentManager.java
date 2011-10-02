@@ -135,6 +135,36 @@ documentWindow.dispose();
 }
 
 /**
+* Checks if a return request  is valid and does any necessary 
+* processing.
+*/
+boolean setReturn (int reason) {
+switch (reason) {
+case WP.SwitchDocuments:
+if (WPManager.haveOtherDocuments()) {
+returnReason = reason;
+return true;
+}
+return false;
+case WP.NewDocument:
+returnReason = reason;
+break;
+case WP.OpenDocumentGetFile:
+returnReason = reason;
+break;
+case WP.DocumentClosed:
+returnReason = reason;
+break;
+case WP.BBClosed:
+returnReason = reason;
+break;
+default:
+break;
+}
+return true;
+}
+
+/**
  * This method is called to resume processing on this document after 
  * working on another.
  */

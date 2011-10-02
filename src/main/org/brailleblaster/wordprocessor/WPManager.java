@@ -46,8 +46,8 @@ String fileName = null;
 int action;
 private Display display;
 private SettingsDialogs settings;
-private DocumentManager[] documents = new DocumentManager[8];
-private int documentIndex;
+private static DocumentManager[] documents = new DocumentManager[8];
+private static int documentIndex;
 
 /**
  * This constructor is the entry point to the word prodessor. It gets
@@ -144,6 +144,18 @@ if (new YesNoChoice
 .result == SWT.NO) {
 System.exit(1);
 }
+}
+
+/**
+* Cjheck to see if there are other documents.
+*/
+static boolean haveOtherDocuments() {
+for (int checkIndex = 0; checkIndex < documents.length; checkIndex++) {
+if (checkIndex != documentIndex && documents[checkIndex] != null) {
+return true;
+}
+}
+return false;
 }
 
 }

@@ -57,7 +57,9 @@ showHelp ("manuals.html");
 else if (helpName.equals ("helpinfo")) {
 showHelp ("helpinfo.html");
 }
-else {
+else if (helpName.equals ("tutorials")) {
+showHelp ("tutorial.html");
+} else {
 new Notify (helpName + " is being written.");
 }
 }
@@ -66,7 +68,7 @@ new Notify (helpName + " is being written.");
 * Display help documents in the local browser.
 */
 void showHelp (String fileName) {
-String URIString = "file://" + helpPath + fileName;
+String URIString = "file:///" + helpPath.replace('\\','/') + fileName;
 URI uri = null;
 try {
 uri = new URI (URIString);

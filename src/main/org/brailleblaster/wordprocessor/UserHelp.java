@@ -59,6 +59,9 @@ showHelp ("helpinfo.html");
 }
 else if (helpName.equals ("tutorials")) {
 showHelp ("tutorial.html");
+}
+else if (helpName.equals ("checkupdaes")) {
+showHelp ("checkupdaes.html");
 } else {
 new Notify (helpName + " is being written.");
 }

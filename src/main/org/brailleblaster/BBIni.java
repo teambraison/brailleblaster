@@ -55,6 +55,8 @@ bbini = new BBIni(args);
   return bbini;
 }
 
+private static boolean debug = false;
+private static boolean gotGui = true;
 private static Logger logger;
 private static Display display = null;
 private static String BBVersion;
@@ -110,7 +112,19 @@ logger.log (Level.SEVERE, "cannot open logfile", e);
 if (logFile != null) {
 logger.addHandler (logFile);
 }
-if (!(args.length > 0 && args[0].equals ("-nogui"))) {
+if (args.length > 0) {
+int i = 0;
+while (args[i].charAt(0) == '-') {
+if (args[i].equals ("-debug")) {
+debug = true;
+}
+else if (args[i].equals ("-nogui")) {
+gotGui = false;
+}
+i++;
+}
+}
+if (gotGui) {
 try {
 display = new Display();
 } catch (SWTError e) {
@@ -132,6 +146,14 @@ logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);
 catch (Exception e) {
 logger.log (Level.WARNING, "This shouldn't happen", e);
 }
+}
+
+public static boolean debugging() {
+return debug;
+}
+
+public static boolean haveGui() {
+return gotGui;
 }
 
 public static Display getDisplay()

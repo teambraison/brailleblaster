@@ -119,10 +119,11 @@ display.sleep();
 }
 switch (returnReason) {
 case WP.DocumentClosed:
+case WP.BBClosed:
 finish();
 break;
 default:
-documentWindow.setVisible (false);
+//documentWindow.setVisible (false);
 break;
 }
 }

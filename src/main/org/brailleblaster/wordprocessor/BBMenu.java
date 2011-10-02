@@ -141,7 +141,12 @@ newItem = new MenuItem (fileMenu, SWT.PUSH);
 newItem.setText (lh.localValue("&New"));
 newItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+if (BBIni.debugging()) {
 dm.setReturn (WP.NewDocument);
+}
+else {
+dm.placeholder();
+}
 }
 });
 openItem = new MenuItem (fileMenu, SWT.PUSH);
@@ -246,7 +251,12 @@ closeItem = new MenuItem (fileMenu, SWT.PUSH);
 closeItem.setText (lh.localValue("&close"));
 closeItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+if (BBIni.debugging()) {
 dm.setReturn (WP.DocumentClosed);
+}
+else {
+dm.setReturn (WP.BBClosed);
+}
 }
 });
 if (!BBIni.getPlatformName().equals("cocoa")) {
@@ -266,8 +276,11 @@ undoItem = new MenuItem (editMenu, SWT.PUSH);
 undoItem.setText (lh.localValue("&Undo"));
 undoItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+if (BBIni.debugging()) {
 dm.setReturn (WP.SwitchDocuments);
-//dm.placeholder();
+} else {
+dm.placeholder();
+}
 }
 });
 redoItem = new MenuItem (editMenu, SWT.PUSH);
@@ -606,7 +619,7 @@ new UserHelp("tutorials");
 }
 });
 readManualItem = new MenuItem (helpMenu, SWT.PUSH);
-readManualItem.setText (lh.localValue("&ReadManual"));
+readManualItem.setText (lh.localValue("&ReadManuals"));
 readManualItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 new UserHelp("manuals");
@@ -616,7 +629,7 @@ checkUpdatesItem = new MenuItem (helpMenu, SWT.PUSH);
 checkUpdatesItem.setText (lh.localValue("&CheckUpdates"));
 checkUpdatesItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.placeholder();
+new UserHelp ("checkupdates");
 }
 });
 helpItem.setMenu (helpMenu);

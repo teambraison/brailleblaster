@@ -117,6 +117,10 @@ while (!documentWindow.isDisposed() && returnReason == 0) {
 if (!display.readAndDispatch())
 display.sleep();
 }
+if (!BBIni.debugging()) {
+documentWindow.dispose();
+return;
+}
 switch (returnReason) {
 case WP.DocumentClosed:
 case WP.BBClosed:

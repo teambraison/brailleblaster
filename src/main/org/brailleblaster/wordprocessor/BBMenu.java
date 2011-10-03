@@ -153,7 +153,11 @@ openItem = new MenuItem (fileMenu, SWT.PUSH);
 openItem.setText (lh.localValue("&Open"));
 openItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
+if (BBIni.debugging()) {
 dm.setReturn (WP.OpenDocumentGetFile);
+} else {
+dm.fileOpen();
+}
 }
 });
 recentItem = new MenuItem (fileMenu, SWT.PUSH);

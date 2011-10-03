@@ -204,7 +204,7 @@ documentWindow.setText ("BrailleBlaster " + pathName.substring (index +
 }
 
 void fileOpen () {
-if (doc != null) {
+if (BBIni.debugging() && doc != null) {
 returnReason = WP.OpenDocumentGetFile;
 return;
 }

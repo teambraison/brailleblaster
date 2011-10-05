@@ -62,7 +62,7 @@ case WP.ReadManuals:
 showHelp ("manuals.html");
 break;
 case WP.CheckUpdates:
-showHelp ("checkupdaes.html");
+showHelp ("checkupdates.html");
 default:
 break;
 }

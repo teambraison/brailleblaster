@@ -605,35 +605,35 @@ aboutItem = new MenuItem (helpMenu, SWT.PUSH);
 aboutItem.setText (lh.localValue("&About"));
 aboutItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-new UserHelp("about");
+new UserHelp(WP.AboutBB);
 }
 });
 helpInfoItem = new MenuItem (helpMenu, SWT.PUSH);
 helpInfoItem.setText (lh.localValue("&helpInfo"));
 helpInfoItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-new UserHelp("helpinfo");
+new UserHelp(WP.HelpInfo);
 }
 });
 tutorialsItem = new MenuItem (helpMenu, SWT.PUSH);
 tutorialsItem.setText (lh.localValue("&Tutorials"));
 tutorialsItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-new UserHelp("tutorials");
+new UserHelp(WP.ReadTutorial);
 }
 });
 readManualItem = new MenuItem (helpMenu, SWT.PUSH);
 readManualItem.setText (lh.localValue("&ReadManuals"));
 readManualItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-new UserHelp("manuals");
+new UserHelp(WP.ReadManuals);
 }
 });
 checkUpdatesItem = new MenuItem (helpMenu, SWT.PUSH);
 checkUpdatesItem.setText (lh.localValue("&CheckUpdates"));
 checkUpdatesItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-new UserHelp ("checkupdates");
+new UserHelp (WP.CheckUpdates);
 }
 });
 helpItem.setMenu (helpMenu);

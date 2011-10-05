@@ -71,6 +71,9 @@ documentIndex = 0;
 DocumentManager curDoc;
 curDoc = documents[documentIndex] = new DocumentManager(display, 
 documentIndex, action, fileName);
+if (!BBIni.debugging()) {
+return;
+}
 do {
 switch (curDoc.returnReason) {
 case WP.DocumentClosed:

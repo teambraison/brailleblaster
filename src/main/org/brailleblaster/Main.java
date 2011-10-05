@@ -46,7 +46,7 @@ public class Main {
 public static void main (String[] args) {
 BBIni.initialize(args);
 BBIni.setVersion ("brailleblaster-1.3.0");
-BBIni.setReleaseDate ("10/20/2011");
+BBIni.setReleaseDate ("October 5, 2011");
 if (args.length == 0)
 new WPManager (null);
 else

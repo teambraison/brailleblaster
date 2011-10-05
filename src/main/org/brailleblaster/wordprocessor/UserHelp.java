@@ -41,29 +41,30 @@ import java.io.IOException;
 class UserHelp {
 
 private String helpPath;
-Desktop desktop;
+private Desktop desktop;
 
-UserHelp (String helpName) {
+UserHelp (int helpChoice) {
 helpPath = BBIni.getHelpDocsPath() + BBIni.getFileSep();
 desktop = Desktop.getDesktop();
-if (helpName.equals ("about")) {
+switch (helpChoice) {
+case WP.AboutBB:
 new Notify (BBIni.getVersion() +  ", released on " + 
 BBIni.getReleaseDate() + 
 ". For questions and bug reports contact john.boyer@abilitiessoft.com");
-}
-else if (helpName.equals ("manuals")) {
-showHelp ("manuals.html");
-}
-else if (helpName.equals ("helpinfo")) {
+break;
+case WP.HelpInfo:
 showHelp ("helpinfo.html");
-}
-else if (helpName.equals ("tutorials")) {
+break;
+case WP.ReadTutorial:
 showHelp ("tutorial.html");
-}
-else if (helpName.equals ("checkupdates")) {
+break;
+case WP.ReadManuals:
+showHelp ("manuals.html");
+break;
+case WP.CheckUpdates:
 showHelp ("checkupdaes.html");
-} else {
-new Notify (helpName + " is being written.");
+default:
+break;
 }
 }
 

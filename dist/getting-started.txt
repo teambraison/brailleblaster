@@ -1,3 +1,22 @@
+BrailleBlaster is in a very early stage of development, but still has 
+powerful translation and formatting capabilities. The GUI shows the 
+eventual look of BrailleBlaster. You can use the Open, SaveAs, Translate 
+and EmbossNow items. The help menu is fully implemented and gives you 
+access to the manuals for liblouis and liblouisutdml. From these you can 
+learn how to customize trranslation and formatting. All this will
+eventually be handled via the GUI. The Daisy and Braille panes will show 
+only the first parts of files and translations. You can experiment with 
+editing in them, but changes cannot be saved and will not affect a 
+translation. This is tempoorary. You can also use BrailleBlaster from 
+the command line, as explained later in this document.
+
+After you have downloaded the BrailleBlaster build for your platform and 
+architecture, unzip it and go to the folder (directory) which it 
+produces. You will need a Java Runtime Environment, which your machine 
+probably already has. Put a shortcut to brailleblaster.jar on your 
+desktop. You can also run it from a command line or terminal as 
+described below.
+
 The command to run BrailleBlaster is simply
 
 java -jar brailleblaster.jar 

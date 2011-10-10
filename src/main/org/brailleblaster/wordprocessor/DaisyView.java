@@ -35,7 +35,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 
 class DaisyView {
-
 StyledText view;
 
 DaisyView (Shell documentWindow) {

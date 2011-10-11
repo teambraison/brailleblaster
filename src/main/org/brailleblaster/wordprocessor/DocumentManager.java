@@ -385,6 +385,9 @@ Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 PrintDialog embosser = new PrintDialog (shell);
 PrinterData data = embosser.open();
 shell.dispose();
+if (data == null || data.equals("")) {
+return;
+}
 File translatedFile = new File (BRFTranslation);
 PrinterDevice embosserDevice;
 try {

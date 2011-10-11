@@ -27,34 +27,22 @@
 */
 
 package org.brailleblaster.wordprocessor;
-
-import org.eclipse.swt.printing.*;
-import org.brailleblaster.BBIni;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.*;
 
 /**
- * This class handles printing, printer setup and print preview. Since 
- * the Tiger printer uses a standard printer driver, it is also covered 
- * here.
-*/
- 
-class BBPrint {
-PrinterData data = null;
-
-/**
- * This constructor takes care of printer setup.
-*/
-BBPrint() {
-Shell shell = new Shell (BBIni.getDisplay(), SWT.DIALOG_TRIM);
-PrintDialog printer = new PrintDialog (shell);
-data = printer.open();
-shell.dispose();
+ * Pick a document from those recently opened and return its absolute 
+ * path.
+*/ 
+class RecentDocuments {
+RecentDocuments() {
+}
+void addDocument (String document) {
 }
 
-void printPreview() {
+String pickDocument() {
+return null;
 }
 
 }
+
 

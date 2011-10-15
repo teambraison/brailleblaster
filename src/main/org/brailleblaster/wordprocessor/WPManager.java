@@ -57,7 +57,6 @@ private static int documentIndex;
 
 public WPManager(String fileName) {
 this.fileName = fileName;
-new ShowBriefly ("Starting up");
 if (fileName != null) {
 action = WP.DocumentFromCommandLine;
 } else {

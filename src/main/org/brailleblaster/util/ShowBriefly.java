@@ -46,7 +46,7 @@ shell = new Shell(display, SWT.DIALOG_TRIM);
 Label label = new Label (shell, SWT.HORIZONTAL);
 label.setText (message);
 shell.open ();
-display.timerExec (10000, new Runnable () {
+display.timerExec (60000, new Runnable () {
 public void run () {
 endShow();
 }

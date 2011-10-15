@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.YesNoChoice;
+import org.brailleblaster.util.ShowBriefly;
 import org.brailleblaster.util.Notify;
 
 public class WPManager {
@@ -56,6 +57,7 @@ private static int documentIndex;
 
 public WPManager(String fileName) {
 this.fileName = fileName;
+new ShowBriefly ("Starting up");
 if (fileName != null) {
 action = WP.DocumentFromCommandLine;
 } else {

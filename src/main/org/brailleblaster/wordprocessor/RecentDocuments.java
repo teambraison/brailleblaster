@@ -28,19 +28,34 @@
 
 package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Combo;
+import org.brailleblaster.BBIni;
+
 
 /**
  * Pick a document from those recently opened and return its absolute 
  * path.
 */ 
 class RecentDocuments {
+Shell shell;
+Combo combo;
+
 RecentDocuments() {
+shell = new Shell (BBIni.getDisplay(), SWT.DIALOG_TRIM);
+combo = new Combo (shell, SWT.DROP_DOWN | SWT.READ_ONLY | SWT.SIMPLE);
+
+shell.dispose();
 }
+
 void addDocument (String document) {
 }
 
 String pickDocument() {
-return null;
+shell.open();
+String document = combo.getText();
+return document;
 }
 
 }

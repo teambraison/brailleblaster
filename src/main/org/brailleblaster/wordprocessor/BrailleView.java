@@ -33,10 +33,15 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.VerifyEvent;
+
+
 
 class BrailleView {
 
 StyledText view;
+boolean hasFocus = false;
 
 BrailleView (Shell documentWindow) {
 view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
@@ -46,6 +51,15 @@ location.right = new FormAttachment(100);
 location.top = new FormAttachment (12);
 location.bottom = new FormAttachment(92);
 view.setLayoutData (location);
+view.addVerifyKeyListener (new VerifyKeyListener() {
+public void verifyKey (VerifyEvent event) {
+handleKeystrokes (event);
+}
+});
+}
+
+private void handleKeystrokes (VerifyEvent event) {
+return;
 }
 
 }

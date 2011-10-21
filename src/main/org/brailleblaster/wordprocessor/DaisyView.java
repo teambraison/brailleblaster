@@ -36,9 +36,8 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.custom.VerifyKeyListener;
 
-class DaisyView {
-StyledText view;
-boolean hasFocus = true;
+class DaisyView extends AbstractVieww {
+// (in AbstractView) StyledText view;
 
 DaisyView (Shell documentWindow) {
 view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);

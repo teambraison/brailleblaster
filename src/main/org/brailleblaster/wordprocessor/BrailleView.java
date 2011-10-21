@@ -38,9 +38,9 @@ import org.eclipse.swt.events.VerifyEvent;
 
 
 
-class BrailleView extends ProtoView {
+class BrailleView extends AbstractView {
 
-// (in ProtoView) StyledText view;
+// (in AbstractView) StyledText view;
 
 BrailleView (Shell documentWindow) {
 view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);

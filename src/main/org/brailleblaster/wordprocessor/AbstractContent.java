@@ -1,12 +1,13 @@
-import org.eclipse.swt.custom.Styled/Text;
+package org.brailleblaster.wordprocessor;
+
+import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
 
-class BrailleContent implements StyledTextContent
-entends Node
-{
+abstract class AbstractContent implements StyledTextContent {
+
 private StyledTextContent baseContent;
 
-BrailleContent (final StyledText styledText) {
+AbstractContent (final StyledText styledText) {
 baseContent = styledText.getContent();
 styledText.setContent(this);
 }
@@ -15,3 +16,4 @@ void addTextChangeListener(final TextChangeListener listener)  {
 baseContent.addTextChangeListener(listener);
 }
 
+}

@@ -38,10 +38,9 @@ import org.eclipse.swt.events.VerifyEvent;
 
 
 
-class BrailleView {
+class BrailleView extends ProtoView {
 
-StyledText view;
-boolean hasFocus = false;
+// (in ProtoView) StyledText view;
 
 BrailleView (Shell documentWindow) {
 view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);

@@ -28,44 +28,15 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.printing.*;
-import org.brailleblaster.BBIni;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.*;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.FontDialog;
-import org.eclipse.swt.widgets.ColorDialog;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.VerifyEvent;
 
-/**
- * This class handles printing, printer setup and print preview. Since 
- * the Tiger printer uses a standard printer driver, it is also covered 
- * here.
-*/
- 
-class BBPrint {
-PrinterData data = null;
-
-/**
- * This constructor takes care of printer setup.
-*/
-BBPrint() {
-Shell shell = new Shell (BBIni.getDisplay(), SWT.DIALOG_TRIM);
-PrintDialog printer = new PrintDialog (shell);
-data = printer.open();
-shell.dispose();
+abstract class ProtoView {
+StyledText view;
+boolean hasFocus = false;
 }
-
-void printPreview() {
-}
-
-}
-

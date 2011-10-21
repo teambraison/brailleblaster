@@ -36,7 +36,11 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 
-abstract class ProtoView {
+abstract class AbstractView {
 StyledText view;
 boolean hasFocus = false;
+
+AbstractView() {
+}
+
 }

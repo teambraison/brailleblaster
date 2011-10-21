@@ -34,5 +34,5 @@ package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
 
-class BrailleContent {
+class BrailleContent extends AbstractContent {
 }

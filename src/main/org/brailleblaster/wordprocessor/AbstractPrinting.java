@@ -51,13 +51,13 @@ import org.eclipse.swt.widgets.ColorDialog;
  * here.
 */
  
-class BBPrint {
+abstract class AbstractPrinting {
 PrinterData data = null;
 
 /**
  * This constructor takes care of printer setup.
 */
-BBPrint() {
+AbstractPrinting() {
 Shell shell = new Shell (BBIni.getDisplay(), SWT.DIALOG_TRIM);
 PrintDialog printer = new PrintDialog (shell);
 data = printer.open();

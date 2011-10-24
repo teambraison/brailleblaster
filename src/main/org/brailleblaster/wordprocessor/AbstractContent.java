@@ -37,6 +37,9 @@ public abstract class AbstractContent implements StyledTextContent {
 
 private StyledTextContent baseContent;
 
+public AbstractContent() {
+}
+
 public AbstractContent (final StyledText styledText) {
 baseContent = styledText.getContent();
 styledText.setContent(this);
@@ -53,7 +56,7 @@ styledText.setContent(this);
  *    <li>ERROR_NULL_ARGUMENT when listener is null</li>
  * </ul>
  */
-public void addTextChangeListener(TextChangeListener listener);
+public void addTextChangeListener(TextChangeListener listener){}
 
 /**
  * Return the number of characters in the content.

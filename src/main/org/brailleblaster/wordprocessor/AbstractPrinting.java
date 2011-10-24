@@ -53,6 +53,7 @@ import org.eclipse.swt.widgets.ColorDialog;
  
 abstract class AbstractPrinting {
 PrinterData data = null;
+Printer printer = null;
 
 /**
  * This constructor takes care of printer setup.
@@ -66,8 +67,8 @@ shell.dispose();
 
 Thread printingThread = new Thread("Printing") {
 public void run() {
-print(printer);
-printer.dispose();
+//print(printer);
+//printer.dispose();
 }
 };
 

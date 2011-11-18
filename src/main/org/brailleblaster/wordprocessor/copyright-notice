@@ -25,25 +25,3 @@
   *
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
-
-package org.brailleblaster.wordprocessor;
-
-import org.eclipse.swt.*;
-import org.brailleblaster.util.Notify;
-import org.brailleblaster.localization.LocaleHandler;
-
-/**
-This class displays the welcome screen on startup and gives some 
- * capability to change settings.
-*/
-
-public class SettingsDialogs {
-SettingsDialogs() {
-new Notify ("Welcome to BrailleBlaster\n\n"
-+ "In this release you can type in the left-hand pane (DAISY view)\n"
-+ "Then use Translate, followed by SaveAs or EmbossNow\n"
-);
-}
-
-}
-

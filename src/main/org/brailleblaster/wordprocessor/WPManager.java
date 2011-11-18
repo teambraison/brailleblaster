@@ -46,7 +46,6 @@ public class WPManager {
 String fileName = null;
 int action;
 private Display display;
-private SettingsDialogs settings;
 private static DocumentManager[] documents = new DocumentManager[8];
 private static int documentIndex;
 
@@ -67,6 +66,7 @@ if (display == null) {
 System.out.println ("Could not find graphical interface environment");
 System.exit(1);
 }
+new SettingsDialogs();
 checkLiblouisutdml();
 documentIndex = 0;
 DocumentManager curDoc;

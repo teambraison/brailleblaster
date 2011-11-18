@@ -72,8 +72,7 @@ public void run() {
 }
 };
 
-void printPreview() {
-}
+abstract int fillPage ();
 
 }
 

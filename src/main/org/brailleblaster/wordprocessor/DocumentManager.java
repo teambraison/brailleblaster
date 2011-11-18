@@ -74,6 +74,7 @@ BrailleView braille;
 BBStatusBar statusBar;
 boolean exitSelected = false;
 Document doc = null;
+NewDocument newDoc;
 String configFileList = null;
 String tempPath;
 String UTDMLTranslation = null;
@@ -207,6 +208,10 @@ documentWindow.setText ("BrailleBlaster " + pathName);
 documentWindow.setText ("BrailleBlaster " + pathName.substring (index + 
 1));
 }
+}
+
+void fileNew() {
+newDoc = new NewDocument (doc);
 }
 
 void fileOpen () {

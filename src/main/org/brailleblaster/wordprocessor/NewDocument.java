@@ -33,22 +33,53 @@ import org.brailleblaster.util.Notify;
 import java.io.IOException;
 
 class NewDocument {
-Document doc;
 Element headAdd;
+Element sectionAdd;
 Element frontAdd;
 Element bodyAdd;
 Element rearAdd;
 
 private String framework =
-"<?xml version='1.0' encoding='UTF-8' standalone='yes'?>"
-+ "<dtbook>"
-+ "<head/>"
-+ "<book><frontmatter/>"
-+ "<bodymatter><level><h1/>"
-+ "</level></bodymatter>"
-+ "<rearmatter/></book></dobook>";
+"<?xml version='1.0' encoding='utf-8'?>"
++ "<document "
++ "profile='http://www.daisy.org/z3986/2011/vocab/profiles/default/' "
++ "prefix='' xml:lang='' "
++ "xmlns='http://www.daisy.org/ns/z3986/authoring/' "
++ "xmlns:its='http://www.w3.org/2005/11/its' "
++ "xmlns:ssml='http://www.w3.org/2001/10/synthesis' "
++ "xmlns:xforms='http://www.w3.org/2002/xforms/' "
++ "xmlns:m='http://www.w3.org/1998/Math/MathML' "
++ "xmlns:sel='http://www.daisy.org/ns/z3986/authoring/features/select/' "
++ "xmlns:rend='http://www.daisy.org/ns/z3986/authoring/features/rend/'>"
++ "<head>"
++ "<meta rel='z3986:profile' "
++ "resource='http://www.daisy.org/z3986/2011/auth/profiles/genericdocument/0.7/'>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/its-ruby/0.6/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/ssml/0.5/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/forms/0.4/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/mathml/0.4/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/select/0.4/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/rend/0.6/'/>"
++ "<meta rel='z3986:feature' "
++ "resource='http://www.daisy.org/z3986/2011/auth/features/svg-cdr/0.2/'/>"
++ "</meta>"
++ "<meta property='dcterms:identifier' content=''/>"
++ "<meta property='dcterms:publisher' content=''/>"
++ "<meta property='dcterms:modified' content=''/>"
++ "</head>"
++ "<body>"
++ "<section/>"
++ "</body>"
++ "</document>"
+;
 
-NewDocument() {
+NewDocument (Document doc) {
 Builder builder = new Builder();
 try {
 doc = builder.build (framework, null);
@@ -62,26 +93,23 @@ findAddChildPoints (rootElement);
 }
 
 private void findAddChildPoints (Node node) {
-Node newNode;
+Node newNode = null;
 Element elementNode = null;
-String name;
+String elementName;
+String attributeName;
 for (int i = 0; i < node.getChildCount(); i++) {
 newNode = node.getChild(i);
 if (newNode instanceof Element) {
 elementNode = (Element)newNode;
-name = elementNode.getLocalName();
-if (name.equals ("head")) {
+elementName = elementNode.getLocalName();
+if (elementName.equals ("head")) {
 headAdd = elementNode;
-} else if (name.equals ("frontmatter")) {
-frontAdd = elementNode;
-} else if (name.equals ("level")) {
-bodyAdd = elementNode;
-} else if (name.equals ("rearmatter")) {
-rearAdd = elementNode;
+} else if (elementName.equals ("section")) {
+sectionAdd = elementNode;
+}
 }
 }
 findAddChildPoints (newNode);
-}
 }
 
 }

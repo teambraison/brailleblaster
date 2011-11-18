@@ -44,7 +44,7 @@ class BBMenu {
 * This class contains all the menus.
 */
 
-Menu menuBar;
+final Menu menuBar;
 
 /* All the menu items are member fields so they can be accessed outside 
 * the constructor. This might be done for example with setEnabled(false) 
@@ -145,7 +145,7 @@ if (BBIni.debugging()) {
 dm.setReturn (WP.NewDocument);
 }
 else {
-dm.placeholder();
+dm.fileNew();
 }
 }
 });

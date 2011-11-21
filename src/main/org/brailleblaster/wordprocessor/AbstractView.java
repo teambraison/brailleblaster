@@ -52,11 +52,11 @@ location.right = new FormAttachment(right);
 location.top = new FormAttachment (top);
 location.bottom = new FormAttachment(bottom);
 view.setLayoutData (location);
-view.addVerifyKeyListener (new VerifyKeyListener() {
+/*view.addVerifyKeyListener (new VerifyKeyListener() {
 public void verifyKey (VerifyEvent event) {
 handleKeystrokes (event);
 }
-});
+});*/
 }
 
 void handleKeystrokes (VerifyEvent event) {

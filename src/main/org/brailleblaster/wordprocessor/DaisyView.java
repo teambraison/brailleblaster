@@ -37,25 +37,9 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.custom.VerifyKeyListener;
 
 class DaisyView extends AbstractView {
-// (in AbstractView) StyledText view;
 
 DaisyView (Shell documentWindow) {
-view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
-FormData location = new FormData();
-location.left = new FormAttachment(0);
-location.right = new FormAttachment(55);
-location.top = new FormAttachment (12);
-location.bottom = new FormAttachment(92);
-view.setLayoutData (location);
-view.addVerifyKeyListener (new VerifyKeyListener() {
-public void verifyKey (VerifyEvent event) {
-handleKeystrokes (event);
-}
-});
-}
-
-private void handleKeystrokes (VerifyEvent event) {
-return;
+super (documentWindow, 0, 55, 12, 92);
 }
 
 }

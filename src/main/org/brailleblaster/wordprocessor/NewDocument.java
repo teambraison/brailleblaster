@@ -31,6 +31,7 @@ package org.brailleblaster.wordprocessor;
 import nu.xom.*;
 import org.brailleblaster.util.Notify;
 import java.io.IOException;
+import org.eclipse.swt.custom.StyledText;
 
 class NewDocument {
 Element headAdd;
@@ -39,7 +40,7 @@ Element frontAdd;
 Element bodyAdd;
 Element rearAdd;
 
-private String framework =
+private final String framework =
 "<?xml version='1.0' encoding='utf-8'?>"
 + "<document "
 + "profile='http://www.daisy.org/z3986/2011/vocab/profiles/default/' "
@@ -76,10 +77,15 @@ private String framework =
 + "<body>"
 + "<section/>"
 + "</body>"
-+ "</document>"
-;
++ "</document>";
 
-NewDocument (Document doc) {
+Document doc;
+
+NewDocument () {
+startDocument ();
+}
+
+private void startDocument () {
 Builder builder = new Builder();
 try {
 doc = builder.build (framework, null);
@@ -110,6 +116,46 @@ sectionAdd = elementNode;
 }
 }
 findAddChildPoints (newNode);
+}
+
+void restartDocument () {
+doc = null;
+startDocument ();
+}
+
+void fillOutBody (StyledText view) {
+String text = view.getText();
+int length = text.length();
+int beginParagraph = 0;
+int endParagraph;
+while (beginParagraph < length) {
+Element paragraph = new Element ("p");
+char c = 0;
+int i;
+for (i = beginParagraph; (i < length && (c = text.charAt(i)) != 0x0a 
+&& c != 0x0d); i++);
+if (i  < length) {
+endParagraph = i - 1;
+if (c == 0x0a) {
+i++;
+}
+else if (text.charAt(i + 1) == 0x0a) {
+i += 2;
+} else {
+i++;
+}
+} else {
+endParagraph = length;
+}
+paragraph.appendChild (text.substring (beginParagraph, endParagraph));
+sectionAdd.appendChild (paragraph);
+paragraph = null;
+beginParagraph = i;
+}
+}
+
+Document getDocument() {
+return doc;
 }
 
 }

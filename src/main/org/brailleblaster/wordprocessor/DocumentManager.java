@@ -50,6 +50,7 @@ import org.brailleblaster.util.Notify;
 import java.io.File;
 import org.daisy.printing.*;
 import javax.print.PrintException;
+import org.eclipse.swt.widgets.Listener;
 
 class DocumentManager {
 
@@ -66,6 +67,7 @@ int action;
 int returnReason = 0;
 FormLayout layout;
 String documentName = null;
+boolean documentChanged = false;
 BBToolBar toolBar;
 BBMenu menu;
 AbstractView activeView;
@@ -107,6 +109,11 @@ braille = new BrailleView (documentWindow);
 statusBar = new BBStatusBar (documentWindow);
 documentWindow.setSize (1000, 700);
 documentWindow.layout(true, true);
+documentWindow.addListener (SWT.Close, new Listener () {
+public void handleEvent (Event event) {
+handleShutdown(event);
+}
+});
 documentWindow.open();
 if (action == WP.OpenDocumentGetFile) {
 fileOpen();
@@ -136,6 +143,13 @@ break;
 }
 
 /**
+ * Handle application shutdown signal from OS;
+ */
+void handleShutdown (Event event) {
+event.doit = true;
+}
+
+ /**
 * Clean up before closing the document.
 */
 void finish() {
@@ -210,8 +224,14 @@ documentWindow.setText ("BrailleBlaster " + pathName.substring (index +
 }
 }
 
+void createDocument () {
+newDoc = new NewDocument();
+newDoc.fillOutBody (daisy.view);
+doc = newDoc.getDocument();
+}
+
 void fileNew() {
-newDoc = new NewDocument (doc);
+placeholder();
 }
 
 void fileOpen () {
@@ -351,6 +371,7 @@ translation.close();
 }
 
 void translate() {
+createDocument();
 if (doc == null) {
 new Notify ("There is no open file.");
 return;

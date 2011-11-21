@@ -39,8 +39,30 @@ import org.eclipse.swt.events.VerifyEvent;
 abstract class AbstractView {
 StyledText view;
 boolean hasFocus = false;
+boolean hasChanged = false;
 
-AbstractView() {
+AbstractView() {}
+
+AbstractView (Shell documentWindow, int left, int right, int top, 
+int bottom) {
+view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
+FormData location = new FormData();
+location.left = new FormAttachment(left);
+location.right = new FormAttachment(right);
+location.top = new FormAttachment (top);
+location.bottom = new FormAttachment(bottom);
+view.setLayoutData (location);
+view.addVerifyKeyListener (new VerifyKeyListener() {
+public void verifyKey (VerifyEvent event) {
+handleKeystrokes (event);
+}
+});
+}
+
+void handleKeystrokes (VerifyEvent event) {
+hasChanged = true;
+event.doit = true;
+return;
 }
 
 }

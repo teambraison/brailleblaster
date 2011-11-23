@@ -115,12 +115,14 @@ handleShutdown(event);
 }
 });
 documentWindow.open();
+setWindowTitle ("untitled");
+if (documentNumber == 0) {
+new SettingsDialogs();
+}
 if (action == WP.OpenDocumentGetFile) {
 fileOpen();
 } else if (action == WP.DocumentFromCommandLine) {
 openFirstDocument();
-} else {
-setWindowTitle ("Untitled");
 }
 
 while (!documentWindow.isDisposed() && returnReason == 0) {

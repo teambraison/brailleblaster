@@ -66,7 +66,6 @@ if (display == null) {
 System.out.println ("Could not find graphical interface environment");
 System.exit(1);
 }
-new SettingsDialogs();
 checkLiblouisutdml();
 documentIndex = 0;
 DocumentManager curDoc;

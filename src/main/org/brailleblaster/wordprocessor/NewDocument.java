@@ -113,9 +113,9 @@ headAdd = elementNode;
 } else if (elementName.equals ("section")) {
 sectionAdd = elementNode;
 }
+findAddChildPoints (elementNode);
 }
 }
-findAddChildPoints (newNode);
 }
 
 void restartDocument () {

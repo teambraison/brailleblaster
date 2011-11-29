@@ -51,6 +51,7 @@ import java.io.File;
 import org.daisy.printing.*;
 import javax.print.PrintException;
 import org.eclipse.swt.widgets.Listener;
+import org.brailleblaster.settings.Welcome;
 
 class DocumentManager {
 
@@ -117,7 +118,7 @@ handleShutdown(event);
 documentWindow.open();
 setWindowTitle ("untitled");
 if (documentNumber == 0) {
-new SettingsDialogs();
+new Welcome(); // This then calls the settings dialogs.
 }
 if (action == WP.OpenDocumentGetFile) {
 fileOpen();

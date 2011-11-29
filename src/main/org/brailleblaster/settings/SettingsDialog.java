@@ -26,23 +26,20 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.settings;
 
 import org.eclipse.swt.*;
-import org.brailleblaster.util.Notify;
-import org.brailleblaster.localization.LocaleHandler;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Dialog;
 
-/**
-This class displays the welcome screen on startup and gives some 
- * capability to change settings.
+/** This class works closely with classes in the louisutdml package to 
+chose the correct liblouisutsml configuration file and other user 
+preferences.
 */
 
-public class SettingsDialogs {
-SettingsDialogs() {
-new Notify ("Welcome to BrailleBlaster\n\n"
-+ "In this release you can type in the left-hand pane (DAISY view)\n"
-+ "Then use Translate, followed by SaveAs or EmbossNow\n"
-);
+class SettingsDialog {
+
+SettingsDialog (Shell settingsShell) { 
 }
 
 }

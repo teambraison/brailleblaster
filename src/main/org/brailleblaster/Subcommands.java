@@ -40,14 +40,13 @@ import javax.print.PrintException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Arrays;
-class Subcommands {
-
 /**
  * Process subcommands.
  * If the first argument is not a recognized subcommand, 
  * assume it is the name of a file to be opened in the wordprocessor.
 */
 
+class Subcommands {
 private Logger logger = BBIni.getLogger();
 private LocaleHandler lh = new LocaleHandler ();
 private liblouisutdml louisutdml;
@@ -68,43 +67,72 @@ i++;
 subcommand = args[i];
 subArgs = Arrays.copyOfRange (args, i + 1, args.length);
 if (subcommand.equals ("translate")) {
-doTranslate (subArgs);
+doTranslate();
 }
 else if (subcommand.equals ("emboss")) {
-doEmboss (subArgs);
-} else {
+doEmboss();
+}
+else if (subcommand.equals ("checktable")) {
+doChecktable();
+}
+else if (subcommand.equals ("help")) {
+doHelp();
+}
+else {
 new WPManager (subcommand);
 }
 }
 
 /**
-* Translate the input file to the output file addording to the options, 
-* if any.
-*/
-private void doTranslate (String[] args)
-{
+ * Translate the input file to the output file addording to the options, 
+ * if any.
+ */
+private void doTranslate() {
 louisutdml.file2brl (subArgs);
 }
 
 /**
-* This method takes the same arguments as translate, except that the 
-* output file must be specified and must be the name of a printer. Only 
-* the generic embosser is supported at the moment, but most embossers 
-* can run in this mode.
-*/
+ * This method takes the same arguments as translate, except that the 
+ * output file must be specified and must be the name of a printer. Only 
+ * the generic embosser is supported at the moment, but most embossers 
+ * can run in this mode.
+ */
 
-private void doEmboss (String[] args) {
-int outIndex = args.length - 1;
+private void doEmboss() {
+int outIndex = subArgs.length - 1;
 String transOut = "transout";
-String embosserName = args[outIndex];
-args[outIndex] = transOut;
-louisutdml.file2brl (args);
+String embosserName = subArgs[outIndex];
+subArgs[outIndex] = transOut;
+louisutdml.file2brl (subArgs);
 File translatedFile = new File (transOut);
 try {
 PrinterDevice embosser = new PrinterDevice (embosserName, true);
 embosser.transmit (translatedFile);
 } catch (PrintException e) {
 logger.log (Level.SEVERE, "Embosser is  not working", e);
+}
+}
+
+private void doChecktable() {
+String logFile = null;
+if (subArgs.length > 1) {
+logFile = subArgs[1];
+}
+if (louisutdml.checkTable (subArgs[0], logFile, 0)) {
+System.out.println ("No errors found");
+}
+else {
+System.out.println ("This table will not work.");
+}
+}
+
+private void doHelp() {
+final String[] help = new String[] {
+"Usage: java-jar brailleblaster.jar {options} subcommand arguments",
+"options: -nogui, the system does not have a GUI",
+};
+for (int i = 0; i < help.length; i++) {
+System.out.println (help[i]);
 }
 }
 

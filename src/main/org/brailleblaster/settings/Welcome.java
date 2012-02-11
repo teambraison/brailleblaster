@@ -37,12 +37,14 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 
 /**
-This class displays the welcome screen on startup and gives some 
- * capability to change settings.
- */
+ * This class displays the welcome screen The first time BrailleBlaster 
+ *  is started and on subsequent startups unless the user has chosen tot 
+ * to see it in SettingsDilog. If this choice has not been made it then calls 
+ * SettingsDialog(); Otherwise it simply returns.
+  */
 
 public class Welcome {
-private String message = "Welcome to BrailleBlaster\n\n"
+private final String message = "Welcome to BrailleBlaster\n\n"
 + "A trumpet blast for Braille and tactile graphics\n"
 + "A blast of fresh air for those who are suffocating for lack of good "
 + "tactile material\n"
@@ -52,13 +54,13 @@ private String message = "Welcome to BrailleBlaster\n\n"
 
 public Welcome() {
 Display display = BBIni.getDisplay();
-Shell settingsShell = new Shell(display, SWT.DIALOG_TRIM);
-MessageBox mb = new MessageBox(settingsShell, SWT.OK);
+Shell shell = new Shell(display, SWT.DIALOG_TRIM);
+MessageBox mb = new MessageBox(shell, SWT.OK);
 mb.setText ("WELCOMEE");
 mb.setMessage (message);
 mb.open();
-new SettingsDialog (settingsShell);
-settingsShell.dispose();
+shell.dispose();
+new SettingsDialog ();
 }
 
 }

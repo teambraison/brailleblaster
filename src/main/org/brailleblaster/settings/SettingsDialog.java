@@ -29,8 +29,10 @@
 package org.brailleblaster.settings;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Dialog;
+import org.brailleblaster.BBIni;
 
 /** This class works closely with classes in the louisutdml package to 
 chose the correct liblouisutsml configuration file and other user 
@@ -39,7 +41,9 @@ preferences.
 
 class SettingsDialog {
 
-SettingsDialog (Shell settingsShell) { 
+SettingsDialog () { 
+Display display  = BBIni.getDisplay();
+Shell shell = new Shell (display, SWT.DIALOG_TRIM);
 }
 
 }

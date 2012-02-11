@@ -22,6 +22,9 @@ table_files = \
 	compress.ctb \
 	corrections.ctb \
 	countries.cti \
+	cs-chardefs.cti \
+	cs-g1.ctb \
+	cs-translation.ctb \
 	cy-cy-g1.utb \
 	cy-cy-g2.ctb \
 	Cz-Cz-g1.utb \
@@ -66,6 +69,7 @@ table_files = \
 	en-us-mathtext.ctb \
 	eo.ctb \
 	es-chardefs.cti \
+	Es-Es-G0.utb \
 	Es-Es-g1.utb \
 	es-g1.ctb \
 	es-new.dis \
@@ -103,6 +107,7 @@ table_files = \
 	hu1.ctb \
 	hu.ctb \
 	hy.ctb \
+	hyph_cs_CZ.dic \
 	hyph_de_DE.dic \
 	hyph_en_US.dic \
 	hyph_es_ES.dic \
@@ -171,6 +176,7 @@ table_files = \
 	ru-ru.dis \
 	ru-ru-g1.utb \
 	sa.ctb \
+	scripttest.ctb \
 	sat.ctb \
 	sd.ctb \
 	se-se.ctb \

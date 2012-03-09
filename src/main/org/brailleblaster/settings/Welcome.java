@@ -56,7 +56,7 @@ public Welcome() {
 Display display = BBIni.getDisplay();
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
-mb.setText ("WELCOMEE");
+mb.setText ("WELCOME");
 mb.setMessage (message);
 mb.open();
 shell.dispose();

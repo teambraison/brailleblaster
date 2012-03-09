@@ -40,6 +40,8 @@ import javax.print.PrintException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Arrays;
+import org.eclipse.swt.widgets.Display;
+
 /**
  * Process subcommands.
  * If the first argument is not a recognized subcommand, 
@@ -79,6 +81,11 @@ else if (subcommand.equals ("help")) {
 doHelp();
 }
 else {
+Display display = BBIni.getDisplay ();
+if (display == null) {
+  System.out.println ("Bad command line");
+  return;
+  }
 new WPManager (subcommand);
 }
 }

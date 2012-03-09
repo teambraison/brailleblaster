@@ -80,6 +80,7 @@ Document doc = null;
 NewDocument newDoc;
 String configFileList = null;
 String tempPath;
+boolean haveOpenedFile = false;
 String UTDMLTranslation = null;
 String BRFTranslation = null;
 liblouisutdml louisutdml;
@@ -265,6 +266,7 @@ new Notify ("Could not open " + documentName);
 return;
 }
 setWindowTitle (documentName);
+haveOpenedFile = true;
 Element rootElement = doc.getRootElement();
 walkTree (rootElement);
 }
@@ -374,7 +376,10 @@ translation.close();
 }
 
 void translate() {
+if (!haveOpenedFile) {
+/* We have a new file. */
 createDocument();
+}
 if (doc == null) {
 new Notify ("There is no open file.");
 return;

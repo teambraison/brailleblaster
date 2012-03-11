@@ -1,13 +1,27 @@
+This file is a suppleement to README.txt. You may find it advantageous 
+to read that file to get an idea of the structure and operation of 
+BrailleBlaster.
+
+BrailleBlaster was written using Java 5, because that was what was 
+available. It can be compiled and run on Java 7. However, if compiled on 
+Java 7 it will not run on Java 6. Similarly, if compiled on Java 6 it 
+will not run on Java 5 or any previous version. The developers may move 
+to Java 7 if it contains new usable features.
+
+The best way to build BrailleBlaster is to clone the Mercurial 
+reopsitory and then place native and jar files in their proper 
+directories, as described below.
+
 To build BrailleBlaster you must have Ant installed on your machine or 
 an IDE that can execute an Ant build.xml file. In addition, you must 
 copy the following .jar files into the directory dist/lib
 
 The swt.jar for your platform
-apache-commons-exec-1.1.jar
-xom.jar
-jeuclid.jar
+commons-cli-1.2.jar
+commons-exec-1.1.jar
 jliblouisutdml.jar (bindings)
-hunspell.jar (bindings)
+xom.jar
+(others as time goes on)
 
 Then run ant. This will place brailleblaster.jar in the dist directory.
 
@@ -16,8 +30,7 @@ your platform. Be sure they compile into dist/native
 
 liblouis
 liblouisutdml
-itex2MML (requires flex and bison)
-hunspell (linked with its bindings)
+(Others as time goes on)
 
 The compilation should place command-line toolls in the bin 
 sibdirectory, libraries in the lib subdirectory and platform-independent 

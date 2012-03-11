@@ -38,7 +38,7 @@ import org.brailleblaster.BBIni;
 
 /**
  * This class displays the welcome screen The first time BrailleBlaster 
- *  is started and on subsequent startups unless the user has chosen tot 
+ *  is started and on subsequent startups unless the user has chosen not 
  * to see it in SettingsDilog. If this choice has not been made it then calls 
  * SettingsDialog(); Otherwise it simply returns.
   */
@@ -50,7 +50,8 @@ private final String message = "Welcome to BrailleBlaster\n\n"
 + "tactile material\n"
 + "\n\n"
 + "In this release you can type in the left-hand pane (DAISY view)\n"
-+ "Then use Translate, followed by SaveAs or EmbossNow\n";
++ "Then use Translate, followed by SaveAs or EmbossNow\n" 
++ "Instead of typing in text you can open a file";
 
 public Welcome() {
 Display display = BBIni.getDisplay();

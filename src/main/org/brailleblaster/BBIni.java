@@ -92,7 +92,7 @@ nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep +
 programDataPath = brailleblasterPath + fileSep + "programData";
 helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
 if (platformName.equals("win32")) {
-BBHome = System.getenv ("APPDATA") + BBID;
+BBHome = System.getenv ("APPDATA") + fileSep + BBID;
 nativeLibrarySuffix = ".dll";
 }
 else if (platformName.equals ("cocoa")) {

@@ -31,7 +31,7 @@ package org.brailleblaster;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ProgramCaller;
-import org.brailleblaster.embossers.EmbosserManager;
+import org.brailleblaster.embossers.EmbossersManager;
 import org.liblouis.liblouisutdml;
 import java.io.IOException;
 import org.daisy.printing.PrinterDevice;

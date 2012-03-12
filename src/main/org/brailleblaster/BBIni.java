@@ -76,6 +76,7 @@ private static String tempFilesPath;
 private static String platformName;
 private static boolean hLiblouisutdml = false;
 private static FileHandler logFile;
+static final String BBID = "brlblst";
 
 private BBIni(String[] args) {
 Main m = new Main();
@@ -84,28 +85,36 @@ osName = System.getProperty ("os.name");
 osVersion = System.getProperty ("os.version");
 fileSep = System.getProperty ("file.separator");
 platformName = SWT.getPlatform();
-if (platformName.equals("win32"))
-nativeLibrarySuffix = ".dll";
-else if (platformName.equals ("cocoa"))
-nativeLibrarySuffix = ".dylib";
-else nativeLibrarySuffix = ".so";
+String userHome = System.getProperty ("user.home");
+String BBHome;
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
 helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
-String userHome = System.getProperty ("user.home");
-settingsPath = userHome + fileSep + "bbsettings";
+if (platformName.equals("win32")) {
+BBHome = System.getenv ("APPDATA") + BBID;
+nativeLibrarySuffix = ".dll";
+}
+else if (platformName.equals ("cocoa")) {
+BBHome = userHome + fileSep + BBID;
+nativeLibrarySuffix = ".dylib";
+}
+else {
+BBHome = userHome + fileSep + BBID;
+nativeLibrarySuffix = ".so";
+}
+settingsPath = BBHome + fileSep + "settings";
 File settings = new File (settingsPath);
 if (!settings.exists())
 settings.mkdir();
-tempFilesPath = userHome + fileSep + "bbtemp";
+tempFilesPath = BBHome + fileSep + "temp";
 File temps = new File (tempFilesPath);
 if (!temps.exists())
 temps.mkdir();
 logger = Logger.getLogger ("org.brailleblaster");
 try {
 logFile = new FileHandler 
-(tempFilesPath + fileSep + "bblog.xml");
+(tempFilesPath + fileSep + "log.xml");
 } catch (IOException e) {
 logger.log (Level.SEVERE, "cannot open logfile", e);
 }

@@ -83,7 +83,7 @@ doHelp();
 else {
 Display display = BBIni.getDisplay ();
 if (display == null) {
-  System.out.println ("Bad command line");
+  System.out.println ("Incorrect options or subcommand");
   return;
   }
 new WPManager (subcommand);

@@ -57,6 +57,7 @@ bbini = new BBIni(args);
 
 private static boolean debug = false;
 private static boolean gotGui = true;
+private static boolean utd = false;
 private static Logger logger;
 private static Display display = null;
 private static String BBVersion;
@@ -87,8 +88,6 @@ fileSep = System.getProperty ("file.separator");
 platformName = SWT.getPlatform();
 String userHome = System.getProperty ("user.home");
 String BBHome;
-nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
-"lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 programDataPath = brailleblasterPath + fileSep + "programData";
 helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
 if (platformName.equals("win32")) {
@@ -103,14 +102,16 @@ else {
 BBHome = userHome + fileSep + BBID;
 nativeLibrarySuffix = ".so";
 }
+nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
+"lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
 settingsPath = BBHome + fileSep + "settings";
 File settings = new File (settingsPath);
 if (!settings.exists())
-settings.mkdir();
+settings.mkdirs();
 tempFilesPath = BBHome + fileSep + "temp";
 File temps = new File (tempFilesPath);
 if (!temps.exists())
-temps.mkdir();
+temps.mkdirs();
 logger = Logger.getLogger ("org.brailleblaster");
 try {
 logFile = new FileHandler 
@@ -129,6 +130,12 @@ debug = true;
 }
 else if (args[i].equals ("-nogui")) {
 gotGui = false;
+}
+else if (args[i].equals ("-utd")) {
+utd = true;
+}
+else {
+System.out.println ("Bad option " + args[i]);
 }
 i++;
 }
@@ -247,5 +254,8 @@ public static Logger getLogger() {
 return logger;
 }
 
+public static boolean useUtd () {
+  return utd;
 }
 
+}

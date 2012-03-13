@@ -118,6 +118,7 @@ logFile = new FileHandler
 (tempFilesPath + fileSep + "log.xml");
 } catch (IOException e) {
 logger.log (Level.SEVERE, "cannot open logfile", e);
+e.printStackTrace();
 }
 if (logFile != null) {
 logger.addHandler (logFile);

@@ -85,7 +85,7 @@ String UTDMLTranslation = null;
 String BRFTranslation = null;
 liblouisutdml louisutdml;
 String logFile = "Translate.log";
-String settings;
+String configSettings = null;
 int mode = 0;
 
 /**
@@ -214,6 +214,7 @@ new Notify ("Could not open " + documentName);
 return;
 }
 setWindowTitle (documentName);
+haveOpenedFile = true;
 Element rootElement = doc.getRootElement();
 walkTree (rootElement);
 }
@@ -385,6 +386,9 @@ new Notify ("There is no open file.");
 return;
 }
 configFileList = "preferences.cfg";
+if (BBIni.useUtd()) {
+configSettings = "formatFor utd\n";
+}
 String docFile = tempPath + docID + "-tempdoc.xml";
 BRFTranslation = tempPath + docID + "-doc.brl";
 FileOutputStream writer = null;
@@ -402,7 +406,7 @@ new Notify ("Could not write to file");
 return;
 }
 boolean result = louisutdml.translateFile (configFileList, docFile, 
-BRFTranslation, logFile, settings, mode);
+BRFTranslation, logFile, configSettings, mode);
 if (!result) {
 new Notify ("Translation failed.");
 return;

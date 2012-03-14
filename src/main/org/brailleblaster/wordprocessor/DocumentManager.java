@@ -81,8 +81,7 @@ NewDocument newDoc;
 String configFileList = null;
 String tempPath;
 boolean haveOpenedFile = false;
-String UTDMLTranslation = null;
-String BRFTranslation = null;
+String translatedFileName = null;
 liblouisutdml louisutdml;
 String logFile = "Translate.log";
 String configSettings = null;
@@ -305,16 +304,16 @@ if (saveTo == null) {
 new Notify ("could not write to " + saveTo);
 return;
 }
-if (BRFTranslation == null) {
+if (translatedFileName == null) {
 new Notify ("There is no translated file to be saved.");
 return;
 }
 FileInputStream inFile = null;
 FileOutputStream outFile = null;
 try {
-inFile = new FileInputStream (BRFTranslation);
+inFile = new FileInputStream (translatedFileName);
 } catch (FileNotFoundException e) {
-new Notify ("Could not open " + BRFTranslation);
+new Notify ("Could not open " + translatedFileName);
 return;
 }
 try {
@@ -329,7 +328,7 @@ while (length != -1) {
 try {
 length = inFile.read (buffer, 0, buffer.length);
 } catch (IOException e) {
-new Notify ("Problem reading " + BRFTranslation);
+new Notify ("Problem reading " + translatedFileName);
 break;
 }
 if (length == -1) {
@@ -354,15 +353,15 @@ String line;
 BufferedReader translation = null;
 try {
 translation = new BufferedReader (new FileReader 
-(BRFTranslation));
+(translatedFileName));
 } catch (FileNotFoundException e) {
-new Notify ("Could not fine " + BRFTranslation);
+new Notify ("Could not fine " + translatedFileName);
 }
 for (int i = 0; i < 20; i++) {
 try {
 line = translation.readLine();
 } catch (IOException e) {
-new Notify ("Problem reading " + BRFTranslation);
+new Notify ("Problem reading " + translatedFileName);
 return;
 }
 if (line == null) {
@@ -390,7 +389,7 @@ if (BBIni.useUtd()) {
 configSettings = "formatFor utd\n";
 }
 String docFile = tempPath + docID + "-tempdoc.xml";
-BRFTranslation = tempPath + docID + "-doc.brl";
+translatedFileName = tempPath + docID + "-doc.brl";
 FileOutputStream writer = null;
 try {
 writer = new FileOutputStream (docFile);
@@ -406,7 +405,7 @@ new Notify ("Could not write to file");
 return;
 }
 boolean result = louisutdml.translateFile (configFileList, docFile, 
-BRFTranslation, logFile, configSettings, mode);
+translatedFileName, logFile, configSettings, mode);
 if (!result) {
 new Notify ("Translation failed.");
 return;
@@ -415,10 +414,10 @@ showBraille();
 }
 
 void fileEmbossNow () {
-if (BRFTranslation == null) {
+if (translatedFileName == null) {
 translate();
 }
-if (BRFTranslation == null) {
+if (translatedFileName == null) {
 return;
 }
 Shell shell = new Shell (display, SWT.DIALOG_TRIM);
@@ -428,7 +427,7 @@ shell.dispose();
 if (data == null || data.equals("")) {
 return;
 }
-File translatedFile = new File (BRFTranslation);
+File translatedFile = new File (translatedFileName);
 PrinterDevice embosserDevice;
 try {
 embosserDevice = new PrinterDevice (data.name, true);

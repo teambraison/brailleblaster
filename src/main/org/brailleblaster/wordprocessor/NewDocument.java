@@ -147,8 +147,10 @@ i++;
 } else {
 endParagraph = length;
 }
+if (beginParagraph >= 0 && endParagraph >= 0) {
 paragraph.appendChild (text.substring (beginParagraph, endParagraph));
 sectionAdd.appendChild (paragraph);
+}
 paragraph = null;
 beginParagraph = i;
 }

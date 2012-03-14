@@ -51,7 +51,7 @@ private final String message = "Welcome to BrailleBlaster\n\n"
 + "\n\n"
 + "In this release you can type in the left-hand pane (DAISY view)\n"
 + "Then use Translate, followed by SaveAs or EmbossNow\n" 
-+ "Instead of typing in text you can open a file";
++ "Instead of typing in text you can open a file.\n";
 
 public Welcome() {
 Display display = BBIni.getDisplay();

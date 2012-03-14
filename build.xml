@@ -14,7 +14,7 @@ basedir=".">
 
 <target name="compile" depends="init">
 <javac srcdir="${srcdir}" destdir="${builddir}"
-includeantruntime="false" target="1.5">
+includeantruntime="false" source="1.5" target="1.5">
 <classpath>
 <pathelement path="${classpath}"/>
 <pathelement location="${classpath}/swt.jar"/>
@@ -27,11 +27,11 @@ includeantruntime="false" target="1.5">
 </target>
 
 <target name="dist" depends="compile">
-<jar jarfile="${distdir}/brailleblaster.jar" 
+<jar jarfile="${distdir}/brailleblaster.jar"
 basedir="${builddir}">
 <manifest>
 <attribute name="Main-Class" value="org.brailleblaster.Main"/>
-<attribute name="Class-Path" value="lib/commons-exec-1.1.jar 
+<attribute name="Class-Path" value="lib/commons-exec-1.1.jar
 lib/jliblouisutdml.jar
 lib/swt.jar
 lib/xom-1.2.6.jar

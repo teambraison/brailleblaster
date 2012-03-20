@@ -86,6 +86,21 @@ liblouisutdml louisutdml;
 String logFile = "Translate.log";
 String configSettings = null;
 int mode = 0;
+/* Start of fields used for UTDML processing*/
+UTD utd;
+int braillePageNumber; //number of braille pages
+String firstTableName;
+int dpi; // resolution
+int paperWidth;
+int paperHeight;
+int leftMargin;
+int rightMargin;
+int topMargin;
+int bottomMargin;
+String utdIndexAttr;
+int utdIndexPos;
+/*End of utd fields*/
+
 
 /**
  * Constructor that sets things up for a new document.
@@ -125,7 +140,7 @@ fileOpen();
 } else if (action == WP.DocumentFromCommandLine) {
 openFirstDocument();
 }
-
+utd = new UTD();
 while (!documentWindow.isDisposed() && returnReason == 0) {
 if (!display.readAndDispatch())
 display.sleep();
@@ -143,6 +158,169 @@ default:
 //documentWindow.setVisible (false);
 break;
 }
+}
+
+/**
+ * This nested class encapsulates hnadling of the Universal 
+ * TactileDocument Markup Language (UTDML);
+ */
+class UTD {
+Node beforeBrlNode = null;
+boolean firstPage;
+boolean firstLineOnPage;
+int maxlines;
+int numlines;
+
+UTD () {
+}
+
+void displayTranslatedFile() {
+beforeBrlNode = null;
+utdIndexAttr = null;
+utdIndexPos = 0;
+firstPage = true;
+firstLineOnPage = true;
+maxlines = 20;
+numlines = 0;
+Builder parser = new Builder();
+try {
+doc = parser.build (translatedFileName);
+} catch (ParsingException e) {
+new Notify ("Malformed document");
+return;
+}
+catch (IOException e) {
+new Notify ("Could not open " + translatedFileName);
+return;
+}
+Element rootElement = doc.getRootElement();
+walkTree (rootElement);
+}
+
+private void walkTree (Element node) {
+Node newNode;
+Element element;
+String elementName;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+element = (Element)newNode;
+elementName = element.getLocalName();
+if (elementName.equals ("meta")) {
+doUtdMeta (element);
+} else if (elementName.equals ("brl")) {
+if (i > 0) {
+beforeBrlNode = newNode.getChild(i - 1);
+} else {
+beforeBrlNode = null;
+}
+doBrlNode (element);
+} else {
+walkTree (element);
+}
+}
+}
+}
+
+private void doUtdMeta (Element node) {
+String metaContent;
+metaContent = node.getAttributeValue ("name");
+if (!(metaContent.equals ("utd"))) {
+return;
+}
+metaContent = node.getAttributeValue ("content");
+return;
+}
+
+private void doBrlNode (Element node) {
+utdIndexAttr = node.getAttributeValue ("index");
+utdIndexPos = 0;
+Node newNode;
+Element element;
+String elementName;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+element = (Element)newNode;
+elementName = element.getLocalName();
+if (elementName.equals ("newpage")) {
+doNewpage (element);
+} else if (elementName.equals ("newline")) {
+doNewline (element);
+} else if (elementName.equals ("span")) {
+doSpanNode (element);
+} else if (elementName.equals ("graphic")) {
+doGraphic (element);
+}
+}
+else if (newNode instanceof Text) {
+doTextNode (newNode);
+}
+}
+utdIndexAttr = null;
+utdIndexPos = 0;
+}
+
+private void doSpanNode (Element node) {
+String whichSpan = node.getAttributeValue ("class");
+if (whichSpan.equals ("brlonly")) {
+doBrlonlyNode (node);
+}
+else if (whichSpan.equals ("locked")) {
+doLockedNode (node);
+}
+}
+
+private void doBrlonlyNode (Element node) {
+Node newNode;
+Element element;
+String elementName;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+element = (Element)newNode;
+elementName = element.getLocalName();
+if (elementName.equals ("newpage")) {
+doNewpage (element);
+} else if (elementName.equals ("newline")) {
+doNewline (element);
+} else if (elementName.equals ("graphic")) {
+doGraphic (element);
+}
+}
+else if (newNode instanceof Text) {
+doTextNode (newNode);
+}
+}
+}
+
+private void doLockedNode (Element node) {
+}
+
+private void doNewpage (Element node) {
+firstLineOnPage = true;
+if (firstPage) {
+firstPage = false;
+return;
+}
+}
+
+private void doNewline (Element node) {
+}
+
+private void doTextNode (Node node) {
+Text text = (Text)node;
+}
+
+private void doGraphic (Element node) {
+}
+
+private void doGraphics (Element node) {
+}
+
+private void finishBrlNode () {
+}
+
 }
 
 /**

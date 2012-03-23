@@ -86,20 +86,7 @@ liblouisutdml louisutdml;
 String logFile = "Translate.log";
 String configSettings = null;
 int mode = 0;
-/* Start of fields used for UTDML processing*/
 UTD utd;
-int braillePageNumber; //number of braille pages
-String firstTableName;
-int dpi; // resolution
-int paperWidth;
-int paperHeight;
-int leftMargin;
-int rightMargin;
-int topMargin;
-int bottomMargin;
-String utdIndexAttr;
-int utdIndexPos;
-/*End of utd fields*/
 
 
 /**
@@ -165,23 +152,51 @@ break;
  * TactileDocument Markup Language (UTDML);
  */
 class UTD {
-Node beforeBrlNode = null;
-boolean firstPage;
-boolean firstLineOnPage;
+
+int braillePageNumber; //number of braille pages
+String firstTableName;
+int dpi; // resolution
+int paperWidth;
+int paperHeight;
+int leftMargin;
+int rightMargin;
+int topMargin;
+int bottomMargin;
+int currentBraillePageNumber;
+int currentPrintPageNumber;
+int[] brlIndex;
+int brlIndexPos;
+int[] brlonlyIndex;
+int brlonlyIndexPos;
+Node beforeBrlNode;
+Node beforeBrlonlyNode;
+private boolean firstPage;
+private boolean firstLineOnPage;
 int maxlines;
 int numlines;
 
-UTD () {
-}
-
 void displayTranslatedFile() {
 beforeBrlNode = null;
-utdIndexAttr = null;
-utdIndexPos = 0;
+beforeBrlonlyNode = null;
+brlIndex = null;
+brlIndexPos = 0;
+brlonlyIndex = null;
+brlonlyIndexPos = 0;
 firstPage = true;
 firstLineOnPage = true;
 maxlines = 20;
 numlines = 0;
+braillePageNumber = 0; //number of braille pages
+firstTableName = null;
+dpi = 0; // resolution
+paperWidth = 0;
+paperHeight = 0;
+leftMargin = 0;
+rightMargin = 0;
+topMargin = 0;
+bottomMargin = 0;
+currentBraillePageNumber = 0;
+currentPrintPageNumber = 0;
 Builder parser = new Builder();
 try {
 doc = parser.build (translatedFileName);
@@ -194,10 +209,10 @@ new Notify ("Could not open " + translatedFileName);
 return;
 }
 Element rootElement = doc.getRootElement();
-walkTree (rootElement);
+findBrlNodes (rootElement);
 }
 
-private void walkTree (Element node) {
+private void findBrlNodes (Element node) {
 Node newNode;
 Element element;
 String elementName;
@@ -216,25 +231,57 @@ beforeBrlNode = null;
 }
 doBrlNode (element);
 } else {
-walkTree (element);
+findBrlNodes (element);
 }
 }
 }
 }
 
 private void doUtdMeta (Element node) {
+if (braillePageNumber != 0) {
+return;
+}
 String metaContent;
 metaContent = node.getAttributeValue ("name");
 if (!(metaContent.equals ("utd"))) {
 return;
 }
 metaContent = node.getAttributeValue ("content");
+String[] keysValues = metaContent.split (" ", 20);
+for (int i = 0; i < keysValues.length; i++) {
+String keyValue[] = keysValues[i].split ("=", 2);
+if (keyValue[0].equals ("BraillePageNumber"))
+braillePageNumber = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("firstTableName"))
+firstTableName = keyValue[1];
+else if (keyValue[0].equals ("dpi"))
+dpi = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("paperWidth"))
+paperWidth = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("paperHeight"))
+paperHeight = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("leftMargin"))
+leftMargin = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("rightMargin"))
+rightMargin = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("topMargin"))
+topMargin = Integer.parseInt (keyValue[1]);
+else if (keyValue[0].equals ("bottomMargin"))
+bottomMargin = Integer.parseInt (keyValue[1]);
+}
 return;
 }
 
 private void doBrlNode (Element node) {
-utdIndexAttr = node.getAttributeValue ("index");
-utdIndexPos = 0;
+String[] indices = node.getAttributeValue ("index").split (" ", 20000);
+if (indices != null) {
+brlIndex = new int[indices.length];
+for (int i = 0; i < indices.length; i++) {
+brlIndex[i] = Integer.parseInt (indices[i]);
+}
+}
+brlIndexPos = 0;
+indices = null;
 Node newNode;
 Element element;
 String elementName;
@@ -257,8 +304,9 @@ else if (newNode instanceof Text) {
 doTextNode (newNode);
 }
 }
-utdIndexAttr = null;
-utdIndexPos = 0;
+finishBrlNode();
+brlIndex = null;
+brlIndexPos = 0;
 }
 
 private void doSpanNode (Element node) {
@@ -280,6 +328,34 @@ newNode = node.getChild(i);
 if (newNode instanceof Element) {
 element = (Element)newNode;
 elementName = element.getLocalName();
+if (elementName.equals ("brl")) {
+insideBrlonly (node);
+}
+}
+else if (newNode instanceof Text) {
+beforeBrlonlyNode = newNode;
+}
+}
+}
+
+private void insideBrlonly (Element node) {
+String[] indices = node.getAttributeValue ("index").split (" ", 20000);
+if (indices != null) {
+brlonlyIndex = new int[indices.length];
+for (int i = 0; i < indices.length; i++) {
+brlonlyIndex[i] = Integer.parseInt (indices[i]);
+}
+}
+brlonlyIndexPos = 0;
+indices = null;
+Node newNode;
+Element element;
+String elementName;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+element = (Element)newNode;
+elementName = element.getLocalName();
 if (elementName.equals ("newpage")) {
 doNewpage (element);
 } else if (elementName.equals ("newline")) {
@@ -289,15 +365,21 @@ doGraphic (element);
 }
 }
 else if (newNode instanceof Text) {
-doTextNode (newNode);
+doBrlonlyTextNode (newNode);
 }
 }
+brlonlyIndex = null;
+brlonlyIndexPos = 0;
 }
 
 private void doLockedNode (Element node) {
 }
 
 private void doNewpage (Element node) {
+String pageNumber = node.getAttributeValue ("brlnumber");
+currentBraillePageNumber = Integer.parseInt (pageNumber);
+pageNumber = node.getAttributeValue ("printnumber");
+currentPrintPageNumber = Integer.parseInt (pageNumber);
 firstLineOnPage = true;
 if (firstPage) {
 firstPage = false;
@@ -306,9 +388,14 @@ return;
 }
 
 private void doNewline (Element node) {
+String[] horVertPos = node.getAttributeValue ("xy").split (",", 2);
 }
 
 private void doTextNode (Node node) {
+Text text = (Text)node;
+}
+
+private void doBrlonlyTextNode (Node node) {
 Text text = (Text)node;
 }
 
@@ -318,7 +405,7 @@ private void doGraphic (Element node) {
 private void doGraphics (Element node) {
 }
 
-private void finishBrlNode () {
+private void finishBrlNode() {
 }
 
 }
@@ -588,7 +675,11 @@ if (!result) {
 new Notify ("Translation failed.");
 return;
 }
+if (BBIni.useUtd()) {
+utd.displayTranslatedFile();
+} else {
 showBraille();
+}
 }
 
 void fileEmbossNow () {

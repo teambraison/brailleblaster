@@ -174,6 +174,9 @@ private boolean firstPage;
 private boolean firstLineOnPage;
 int maxlines;
 int numlines;
+StringBuilder brailleLine = new StringBuilder (100);
+StringBuilder printLine = new StringBuilder (100);
+
 
 void displayTranslatedFile() {
 beforeBrlNode = null;
@@ -184,7 +187,7 @@ brlonlyIndex = null;
 brlonlyIndexPos = 0;
 firstPage = true;
 firstLineOnPage = true;
-maxlines = 20;
+maxlines = 100;
 numlines = 0;
 braillePageNumber = 0; //number of braille pages
 firstTableName = null;
@@ -388,15 +391,21 @@ return;
 }
 
 private void doNewline (Element node) {
+numlines++;
 String[] horVertPos = node.getAttributeValue ("xy").split (",", 2);
+brailleLine.append ("\n");
+braille.view.append (brailleLine.toString());
+brailleLine.delete (0, brailleLine.length);
 }
 
 private void doTextNode (Node node) {
 Text text = (Text)node;
+brailleLine.append (text.getValue());
 }
 
 private void doBrlonlyTextNode (Node node) {
 Text text = (Text)node;
+brailleLine.append (text.getValue());
 }
 
 private void doGraphic (Element node) {
@@ -406,6 +415,9 @@ private void doGraphics (Element node) {
 }
 
 private void finishBrlNode() {
+if (numlines < maxlines) {
+return;
+}
 }
 
 }
@@ -537,7 +549,7 @@ walkTree (rootElement);
 }
 
 private void walkTree (Node node) {
-int maxlines = 20;
+int maxlines = 100;
 int numlines = 0;
 Node newNode;
 for (int i = 0; i < node.getChildCount(); i++) {

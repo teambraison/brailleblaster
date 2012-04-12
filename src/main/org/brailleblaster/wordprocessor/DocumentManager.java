@@ -395,7 +395,7 @@ numlines++;
 String[] horVertPos = node.getAttributeValue ("xy").split (",", 2);
 brailleLine.append ("\n");
 braille.view.append (brailleLine.toString());
-brailleLine.delete (0, brailleLine.length);
+brailleLine.delete (0, brailleLine.length());
 }
 
 private void doTextNode (Node node) {
@@ -663,7 +663,8 @@ return;
 }
 configFileList = "preferences.cfg";
 if (BBIni.useUtd()) {
-configSettings = "formatFor utd\n";
+configSettings = "formatFor utd\n"
++ "mode notUC\n";
 }
 String docFile = tempPath + docID + "-tempdoc.xml";
 translatedFileName = tempPath + docID + "-doc.brl";

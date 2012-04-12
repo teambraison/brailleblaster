@@ -45,7 +45,8 @@ AbstractView() {}
 
 AbstractView (Shell documentWindow, int left, int right, int top, 
 int bottom) {
-view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
+view = new StyledText (documentWindow, SWT.BORDER | SWT.H_SCROLL 
+| SWT.V_SCROLL | SWT.WRAP);
 FormData location = new FormData();
 location.left = new FormAttachment(left);
 location.right = new FormAttachment(right);
@@ -62,7 +63,6 @@ handleKeystrokes (event);
 void handleKeystrokes (VerifyEvent event) {
 hasChanged = true;
 event.doit = true;
-return;
 }
 
 }

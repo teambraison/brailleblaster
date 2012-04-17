@@ -151,7 +151,7 @@ break;
  * This nested class encapsulates hnadling of the Universal 
  * TactileDocument Markup Language (UTDML);
  */
-class UTD {
+private class UTD {
 
 int braillePageNumber; //number of braille pages
 String firstTableName;
@@ -172,11 +172,10 @@ Node beforeBrlNode;
 Node beforeBrlonlyNode;
 private boolean firstPage;
 private boolean firstLineOnPage;
-int maxlines;
-int numlines;
+int pagesToShow;
+int pagesShown;
 StringBuilder brailleLine = new StringBuilder (100);
 StringBuilder printLine = new StringBuilder (100);
-
 
 void displayTranslatedFile() {
 beforeBrlNode = null;
@@ -187,8 +186,8 @@ brlonlyIndex = null;
 brlonlyIndexPos = 0;
 firstPage = true;
 firstLineOnPage = true;
-maxlines = 100;
-numlines = 0;
+pagesShown = 0;
+pagesToShow = 3;
 braillePageNumber = 0; //number of braille pages
 firstTableName = null;
 dpi = 0; // resolution
@@ -273,6 +272,15 @@ else if (keyValue[0].equals ("bottomMargin"))
 bottomMargin = Integer.parseInt (keyValue[1]);
 }
 return;
+}
+
+void showLines () {
+brailleLine.append ("\n");
+braille.view.append (brailleLine.toString());
+brailleLine.delete (0, brailleLine.length());
+printLine.append ("\n");
+daisy.view.append (printLine.toString());
+printLine.delete (0, printLine.length());
 }
 
 private void doBrlNode (Element node) {
@@ -388,14 +396,16 @@ if (firstPage) {
 firstPage = false;
 return;
 }
+showLines();
 }
 
 private void doNewline (Element node) {
-numlines++;
 String[] horVertPos = node.getAttributeValue ("xy").split (",", 2);
-brailleLine.append ("\n");
-braille.view.append (brailleLine.toString());
-brailleLine.delete (0, brailleLine.length());
+if (firstLineOnPage) {
+firstLineOnPage = false;
+return;
+}
+showLines();
 }
 
 private void doTextNode (Node node) {
@@ -411,13 +421,8 @@ brailleLine.append (text.getValue());
 private void doGraphic (Element node) {
 }
 
-private void doGraphics (Element node) {
-}
-
 private void finishBrlNode() {
-if (numlines < maxlines) {
 return;
-}
 }
 
 }

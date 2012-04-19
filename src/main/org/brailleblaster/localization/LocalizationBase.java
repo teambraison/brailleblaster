@@ -44,7 +44,7 @@ import org.brailleblaster.util.Notify;
 class LocalizationBase {
 private static Locale locale = null;
 private static ResourceBundle bundle = null;
-private static final String BUNDLEPATH = "programData.lang.i18n";
+private static final String BUNDLEPATH = "i18n";
 
 /* Prevent anyone from trying to instantiate this class */
 private LocalizationBase () {}
@@ -64,7 +64,6 @@ return locale;
 static Locale setLocale (String loc) {
   Locale lo = validateLocale(loc);
   if (isValid(lo)) {
-    new Notify ("The locale is set to: "+ lo.getDisplayCountry());
     bundle = ResourceBundle.getBundle(BUNDLEPATH, lo);
     locale = lo;
   } else {

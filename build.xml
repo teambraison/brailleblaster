@@ -35,7 +35,8 @@ basedir="${builddir}">
 lib/jliblouisutdml.jar
 lib/swt.jar
 lib/xom-1.2.6.jar
-lib/commons-cli-1.2.jar"/>
+lib/commons-cli-1.2.jar
+programData/lang/i18n"/>
 </manifest>
 </jar>
 </target>

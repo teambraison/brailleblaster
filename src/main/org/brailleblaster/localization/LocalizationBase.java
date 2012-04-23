@@ -53,8 +53,8 @@ private LocalizationBase () {}
  * Set the locale to the user's Default locale. 
  */
 static Locale setLocale () {
-	locale = Locale.getDefault();
-	bundle = ResourceBundle.getBundle(BUNDLEPATH, locale);
+locale = Locale.getDefault();
+bundle = ResourceBundle.getBundle(BUNDLEPATH, locale);
 return locale;
 }
 
@@ -68,7 +68,7 @@ static Locale setLocale (String loc) {
     locale = lo;
   } else {
     new Notify ("invalid Locale: " + locale);
-    throw new IllegalArgumentException("Invalid locale: " + locale);
+    return null;
   }
 return locale;
 }

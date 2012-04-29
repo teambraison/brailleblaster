@@ -27,6 +27,7 @@
 */
 package org.brailleblaster.util;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,20 +38,25 @@ public class FileUtils {
 public FileUtils() {
 }
 
-private void copyFile (String inputFileName, 
+public boolean exists (String fileName) {
+File file = new File (fileName);
+return file.exists();
+}
+
+public void copyFile (String inputFileName, 
 String outputFileName) {
 FileInputStream inFile = null;
 FileOutputStream outFile = null;
 try {
 inFile = new FileInputStream (inputFileName);
 } catch (FileNotFoundException e) {
-new Notify ("Could not open " + inputFileName);
+new Notify ("Could not open input file " + inputFileName);
 return;
 }
 try {
 outFile = new FileOutputStream (outputFileName);
 } catch (FileNotFoundException e) {
-new Notify ("Could not open " + outputFileName);
+new Notify ("Could not open output file " + outputFileName);
 return;
 }
 byte[] buffer = new byte[1024];
@@ -75,8 +81,10 @@ break;
 try {
 outFile.close();
 } catch (IOException e) {
-new Notify (outputFileName + " could not be completed");
+new Notify ("output file " + outputFileName + 
+"could not be completed");
 }
 }
+
 }
 

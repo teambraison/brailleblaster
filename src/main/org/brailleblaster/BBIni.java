@@ -33,6 +33,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.BrailleblasterPath;
+import org.brailleblaster.util.FileUtils;
 import org.liblouis.liblouisutdml;
 import java.lang.UnsatisfiedLinkError;
 import java.util.logging.Logger;
@@ -40,6 +41,7 @@ import java.util.logging.Level;
 import java.util.logging.FileHandler;
 import java.io.IOException;
 import java.io.File;
+import org.brailleblaster.util.FileUtils;
 
 /**
 * Determine and set initial conditions.
@@ -104,10 +106,17 @@ nativeLibrarySuffix = ".so";
 }
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
+FileUtils fu = new FileUtils();
 settingsPath = BBHome + fileSep + "settings";
 File settings = new File (settingsPath);
 if (!settings.exists())
 settings.mkdirs();
+String userSettings = settingsPath + fileSep + 
+"user_settings.properties";
+if (!fu.exists (userSettings)) {
+fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
+"user_settings.properties", userSettings);
+}
 tempFilesPath = BBHome + fileSep + "temp";
 File temps = new File (tempFilesPath);
 if (!temps.exists())

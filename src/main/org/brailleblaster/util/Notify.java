@@ -41,6 +41,10 @@ public class Notify {
 */
 public Notify (String message) {
 Display display = BBIni.getDisplay();
+if (display == null) {
+System.out.println (message);
+return;
+}
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
 mb.setMessage (message);

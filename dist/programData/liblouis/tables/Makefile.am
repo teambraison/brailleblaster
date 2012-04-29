@@ -76,6 +76,7 @@ table_files = \
 	es-old.dis \
 	es-translation.ctb \
 	et.ctb \
+	et-g0.utb \
 	eurodefs.cti \
 	fi1.ctb \
 	fi2.ctb \
@@ -129,6 +130,7 @@ table_files = \
 	kok.ctb \
 	kru.ctb \
 	lang2table \
+	letterDefTest.ctb \
 	lt.ctb \
 	Lv-Lv-g1.utb \
 	malayalam.cti \
@@ -152,8 +154,6 @@ table_files = \
 	nl-be-g1.utb \
 	nl-BE-translation.ctb \
 	Nl-Nl-g1.utb \
-	no-gen.ctb \
-	no-gen.dis \
 	no-no.ctb \
 	no-no.dis \
 	no-no-g0.utb \
@@ -176,7 +176,6 @@ table_files = \
 	ru-ru.dis \
 	ru-ru-g1.utb \
 	sa.ctb \
-	scripttest.ctb \
 	sat.ctb \
 	sd.ctb \
 	se-se.ctb \
@@ -193,6 +192,7 @@ table_files = \
 	sv-1996.ctb \
 	ta.ctb \
 	tamil.cti \
+	ta-ta-g1.ctb \
 	te.ctb \
 	telugu.cti \
 	text_nabcc.dis \

@@ -33,7 +33,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -48,14 +47,13 @@ import org.eclipse.swt.widgets.Dialog;
 import org.brailleblaster.BBIni;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.util.Notify;
-//import org.brailleblaster.wordprocessor.*;
 
 /** This class works closely with classes in the louisutdml package to 
 chose the correct liblouisutsml configuration file and other user 
 preferences.
  */
 
-class SettingsDialog {
+public class SettingsDialog {
 	private Shell shell;
 	private Properties prop;
 	private String userSettings;
@@ -63,7 +61,7 @@ class SettingsDialog {
 	public SettingsDialog(){
 		loadProperty();
 	}
-	void open(){
+	public void open(){
 		Display display = BBIni.getDisplay();
 		shell = new Shell(display, SWT.DIALOG_TRIM);
 		final Shell dialog =
@@ -72,10 +70,11 @@ class SettingsDialog {
 		dialog.setText("User's settings");
 		final Button[] checkbox= new Button[2];
 		checkbox[0] = new Button(dialog, SWT.CHECK);
-		checkbox[0].setText("Show welcome screen every time the program is open");
+		checkbox[0].setText(
+		"Show welcome screen and this dialogue every time the program starts");
 		checkbox[0].setSelection(showWelcome());
 		checkbox[1] = new Button(dialog, SWT.CHECK);
-		checkbox[1].setText("Show tutorial when finished setting");
+		checkbox[1].setText("Read tutorial when finished settings");
 		Button saveButton = new Button(dialog, SWT.PUSH);
 		saveButton.setText("Save");
 		GridData data = new GridData(SWT.END, SWT.BEGINNING, true, true);

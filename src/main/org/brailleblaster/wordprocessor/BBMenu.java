@@ -37,6 +37,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Event;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.settings.SettingsDialog;
 
 class BBMenu {
 
@@ -109,6 +110,7 @@ MenuItem brlFormatItem;
 MenuItem brailleASCIIItem;
 MenuItem showTranslationTemplatesItem;
 MenuItem showFormatTemplatesItem;
+MenuItem changeSettingsItem;
 MenuItem readManualItem;
 MenuItem helpInfoItem;
 MenuItem tutorialsItem;
@@ -595,6 +597,14 @@ showFormatTemplatesItem.setText (lh.localValue("&ShowFormatTemplates"));
 showFormatTemplatesItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
 dm.placeholder();
+}
+});
+changeSettingsItem = new MenuItem (advancedMenu, 
+SWT.PUSH);
+changeSettingsItem.setText (lh.localValue("&changeSettings"));
+changeSettingsItem.addSelectionListener (new SelectionAdapter() {
+public void widgetSelected (SelectionEvent e) {
+new SettingsDialog().open();
 }
 });
 advancedItem.setMenu (advancedMenu);

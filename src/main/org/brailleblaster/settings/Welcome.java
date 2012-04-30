@@ -58,9 +58,8 @@ public Welcome() {
 SettingsDialog sd = new SettingsDialog ();
 
 if (!sd.showWelcome()) {
-//return;
+return;
 }
-else{
 Display display = BBIni.getDisplay();
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
@@ -68,7 +67,6 @@ mb.setText ("WELCOME");
 mb.setMessage (message);
 mb.open();
 shell.dispose();
-}
 sd.open();
 }
 

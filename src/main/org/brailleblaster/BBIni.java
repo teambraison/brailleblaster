@@ -74,6 +74,7 @@ public final class BBIni {
 	private static String helpDocsPath;
 	private static String nativeCommandSuffix;
 	private static String nativeLibrarySuffix;
+	private static String recentDocs;
 	private static String settingsPath;
 	private static String tempFilesPath;
 	private static String platformName;
@@ -119,6 +120,9 @@ public final class BBIni {
 			fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
 					"user_settings.properties", userSettings);
 		}
+		//this part initialize recent_documents.txt
+		recentDocs = settingsPath + fileSep + "recent_documents.txt";
+		fu.create(recentDocs);
 		tempFilesPath = BBHome + fileSep + "temp";
 		File temps = new File (tempFilesPath);
 		if (!temps.exists())
@@ -265,6 +269,10 @@ public final class BBIni {
 	
 	public static String getUserSettings(){
 		return userSettings;
+	}
+	
+	public static String getRecentDocs(){
+	    return recentDocs;
 	}
 
 	public static Logger getLogger() {

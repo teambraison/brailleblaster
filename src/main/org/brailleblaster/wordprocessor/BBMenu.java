@@ -120,6 +120,13 @@ MenuItem aboutItem;
 BBMenu (final DocumentManager dm) {
 LocaleHandler lh = new LocaleHandler();
 
+/* Note that the values in the setText methods are keys for 
+* localization. They are not intended to be seen by the user. 
+* Capitalization should follow the convention for names in Java, but 
+* this is not always consistent. Values, with proper capitalization, are 
+* shown in the files in the dist/programData/lang subdirectory.
+*/
+
 // Set up menu bar
 menuBar = new Menu (dm.documentWindow, SWT.BAR);
 MenuItem fileItem = new MenuItem (menuBar, SWT.CASCADE);

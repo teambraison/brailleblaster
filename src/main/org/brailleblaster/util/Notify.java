@@ -33,21 +33,31 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 
+/**
+ * Display a message. 
+ */
 public class Notify {
 
 /**
 * Show the user a message.
 */
 public Notify (String message) {
+String realMessage;
+if (message.charAt(0) == '&') {
+realMessage = new LocaleHandler() .localValue (message);
+} else {
+realMessage = message;
+}
 Display display = BBIni.getDisplay();
 if (display == null) {
-System.out.println (message);
+System.out.println (realMessage);
 return;
 }
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
-mb.setMessage (message);
+mb.setMessage (realMessage);
 mb.open();
 shell.dispose();
 }

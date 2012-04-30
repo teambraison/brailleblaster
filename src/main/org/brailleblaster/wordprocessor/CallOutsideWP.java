@@ -26,39 +26,20 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.settings;
-
-import org.eclipse.swt.*;
-import org.brailleblaster.util.Notify;
-import org.brailleblaster.localization.LocaleHandler;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.MessageBox;
-import org.brailleblaster.BBIni;
+package org.brailleblaster.wordprocessor;
 
 /**
- * This class displays the welcome screen The first time BrailleBlaster 
- *  is started and on subsequent startups unless the user has chosen not 
- * to see it in SettingsDilog. If this choice has not been made it then calls 
- * SettingsDialog(); Otherwise it simply returns.
-  */
+ * Make certain features available outside the word processor
+ */
+public class CallOutsideWP {
 
-public class Welcome {
-
-public Welcome() {
-
-SettingsDialog sd = new SettingsDialog ();
-if (!sd.showWelcome()) {
-return;
+public void showTutorial() {
+new UserHelp (WP.ReadTutorial);
 }
-Display display = BBIni.getDisplay();
-Shell shell = new Shell(display, SWT.DIALOG_TRIM);
-MessageBox mb = new MessageBox(shell, SWT.OK);
-mb.setText ("WELCOME");
-mb.setMessage (new LocaleHandler ().localValue ("welcomeMessage"));
-mb.open();
-shell.dispose();
-sd.open();
+
+public void showURL (String url) {
+new UserHelp (url);
 }
 
 }
+

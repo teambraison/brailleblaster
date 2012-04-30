@@ -83,6 +83,7 @@ public final class BBIni {
 	static final String BBID = "brlblst";
 
 	private BBIni(String[] args) {
+		LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = BrailleblasterPath.getPath (m);
 		osName = System.getProperty ("os.name");

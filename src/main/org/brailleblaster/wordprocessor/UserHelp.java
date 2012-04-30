@@ -43,6 +43,9 @@ class UserHelp {
 private String helpPath;
 private Desktop desktop;
 
+/**
+ * constructor that accepts integer codes for help items
+ */
 UserHelp (int helpChoice) {
 helpPath = BBIni.getHelpDocsPath() + BBIni.getFileSep();
 desktop = Desktop.getDesktop();
@@ -68,10 +71,14 @@ break;
 }
 }
 
+UserHelp (String url) {
+showHelp (url);
+}
+
 /**
 * Display help documents in the local browser.
 */
-void showHelp (String fileName) {
+private void showHelp (String fileName) {
 String URIString = "file:///" + helpPath.replace('\\','/') + fileName;
 URI uri = null;
 try {

@@ -56,6 +56,7 @@ private String subcommand;
 private String[] subArgs;
 
 Subcommands (String[] args) {
+LocaleHandler lh = new LocaleHandler();
 logger = BBIni.getLogger();
 if (!BBIni.haveLiblouisutdml()) {
 logger.log  (Level.SEVERE, "The Braille translation facility is absent.");

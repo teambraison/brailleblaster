@@ -173,7 +173,7 @@ recentItem = new MenuItem (fileMenu, SWT.PUSH);
 recentItem.setText (lh.localValue("&Recent"));
 recentItem.addSelectionListener (new SelectionAdapter() {
 public void widgetSelected (SelectionEvent e) {
-dm.recentDocumennts();
+dm.recentDocuments();
 }
 });
 importItem = new MenuItem (fileMenu, SWT.PUSH);

@@ -174,8 +174,6 @@ class DocumentManager {
         Node beforeBrlonlyNode;
         private boolean firstPage;
         private boolean firstLineOnPage;
-        int pagesToShow;
-        int pagesShown;
         StringBuilder brailleLine = new StringBuilder (100);
         StringBuilder printLine = new StringBuilder (100);
 
@@ -188,8 +186,6 @@ class DocumentManager {
             brlonlyIndexPos = 0;
             firstPage = true;
             firstLineOnPage = true;
-            pagesShown = 0;
-            pagesToShow = 3;
             braillePageNumber = 0; //number of braille pages
             firstTableName = null;
             dpi = 0; // resolution
@@ -559,8 +555,6 @@ class DocumentManager {
     }
 
     private void walkTree (Node node) {
-        int maxlines = 1000000;
-        int numlines = 0;
         Node newNode;
         for (int i = 0; i < node.getChildCount(); i++) {
             newNode = node.getChild(i);
@@ -568,10 +562,6 @@ class DocumentManager {
                 walkTree (newNode);
             }
             else if (newNode instanceof Text) {
-                numlines++;
-                if (numlines == maxlines) {
-                    return;
-                }
                 String value = newNode.getValue();
                 daisy.view.append (value);
             }

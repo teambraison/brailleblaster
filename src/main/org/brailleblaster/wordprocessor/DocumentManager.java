@@ -88,7 +88,7 @@ class DocumentManager {
     String configSettings = null;
     int mode = 0;
     UTD utd;
-
+    String buffer;
 
     /**
      * Constructor that sets things up for a new document.
@@ -111,6 +111,7 @@ class DocumentManager {
         daisy = new DaisyView (documentWindow);
         braille = new BrailleView (documentWindow);
         // activeView = (ProtoView)daisy;
+        buffer="";
         statusBar = new BBStatusBar (documentWindow);
         documentWindow.setSize (1000, 700);
         documentWindow.layout(true, true);
@@ -550,8 +551,14 @@ class DocumentManager {
         rd.addDocument(fileName);
         setWindowTitle (documentName);
         haveOpenedFile = true;
-        Element rootElement = doc.getRootElement();
-        walkTree (rootElement);
+        final Element rootElement = doc.getRootElement();//this needs to be final, because it will be used by a different thread        
+        //Use threading to keep the control of the window
+        new Thread() {
+            public void run() {
+                walkTree (rootElement);
+            }
+        }
+        .start();
     }
 
     private void walkTree (Node node) {
@@ -562,8 +569,17 @@ class DocumentManager {
                 walkTree (newNode);
             }
             else if (newNode instanceof Text) {
-                String value = newNode.getValue();
-                daisy.view.append (value);
+                final String value = newNode.getValue();
+                buffer = buffer.concat(value);
+                //the main thread gets to execute the block inside syncExec()
+                if(buffer.length()>2048 || i== node.getChildCount()-1){
+                    display.syncExec(new Runnable() {    
+                        public void run() {
+                            daisy.view.append (buffer);
+                        }
+                    });
+                    buffer = "";
+                }
             }
         }
     }
@@ -724,7 +740,7 @@ class DocumentManager {
     void placeholder() {
         new Notify ("This menu item is not yet implemented. Sorry.");
     }
-    
+
     void recentDocuments(){
         rd.open();
     }

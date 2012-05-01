@@ -559,7 +559,7 @@ class DocumentManager {
     }
 
     private void walkTree (Node node) {
-        int maxlines = 100;
+        int maxlines = 1000000;
         int numlines = 0;
         Node newNode;
         for (int i = 0; i < node.getChildCount(); i++) {

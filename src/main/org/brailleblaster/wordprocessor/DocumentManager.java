@@ -519,6 +519,9 @@ class DocumentManager {
         placeholder();
     }
 
+    int numLines;
+    int numChars;
+
     void fileOpen () {
         if (BBIni.debugging() && doc != null) {
             returnReason = WP.OpenDocumentGetFile;
@@ -551,6 +554,9 @@ class DocumentManager {
         rd.addDocument(fileName);
         setWindowTitle (documentName);
         haveOpenedFile = true;
+        numLines = 0;
+        numChars = 0;
+        statusBar.setText ("Loading " + documentName);
         final Element rootElement = doc.getRootElement();//this needs to be final, because it will be used by a different thread        
         //Use threading to keep the control of the window
         new Thread() {
@@ -559,6 +565,8 @@ class DocumentManager {
             }
         }
         .start();
+        statusBar.setText ("Read " + numLines + " lines, " + numChars 
+        + " characters.");
     }
 
     private void walkTree (Node node) {
@@ -570,6 +578,8 @@ class DocumentManager {
             }
             else if (newNode instanceof Text) {
                 final String value = newNode.getValue();
+                numLines++;
+                numChars += value.length();
                 buffer = buffer.concat(value);
                 //the main thread gets to execute the block inside syncExec()
                 if(buffer.length()>2048 || i== node.getChildCount()-1){

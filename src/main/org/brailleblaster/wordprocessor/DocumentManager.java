@@ -565,8 +565,7 @@ class DocumentManager {
             }
         }
         .start();
-        statusBar.setText ("Read " + numLines + " lines, " + numChars 
-        + " characters.");
+
     }
 
     private void walkTree (Node node) {
@@ -586,6 +585,8 @@ class DocumentManager {
                     display.syncExec(new Runnable() {    
                         public void run() {
                             daisy.view.append (buffer);
+                            statusBar.setText ("Read " + numLines + " lines, " + numChars 
+                                    + " characters.");
                         }
                     });
                     buffer = "";

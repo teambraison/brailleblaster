@@ -1,30 +1,30 @@
 /* BrailleBlaster Braille Transcription Application
-  *
-  * Copyright (C) 2010, 2012
-  * ViewPlus Technologies, Inc. www.viewplus.com
-  * and
-  * Abilitiessoft, Inc. www.abilitiessoft.com
-  * All rights reserved
-  *
-  * This file may contain code borrowed from files produced by various 
-  * Java development teams. These are gratefully acknoledged.
-  *
-  * This file is free software; you can redistribute it and/or modify it
-  * under the terms of the Apache 2.0 License, as given at
-  * http://www.apache.org/licenses/
-  *
-  * This file is distributed in the hope that it will be useful, but
-  * WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
-  * See the Apache 2.0 License for more details.
-  *
-  * You should have received a copy of the Apache 2.0 License along with 
-  * this program; see the file LICENSE.
-  * If not, see
-  * http://www.apache.org/licenses/
-  *
-  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
-*/
+ *
+ * Copyright (C) 2010, 2012
+ * ViewPlus Technologies, Inc. www.viewplus.com
+ * and
+ * Abilitiessoft, Inc. www.abilitiessoft.com
+ * All rights reserved
+ *
+ * This file may contain code borrowed from files produced by various 
+ * Java development teams. These are gratefully acknoledged.
+ *
+ * This file is free software; you can redistribute it and/or modify it
+ * under the terms of the Apache 2.0 License, as given at
+ * http://www.apache.org/licenses/
+ *
+ * This file is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+ * See the Apache 2.0 License for more details.
+ *
+ * You should have received a copy of the Apache 2.0 License along with 
+ * this program; see the file LICENSE.
+ * If not, see
+ * http://www.apache.org/licenses/
+ *
+ * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+ */
 
 package org.brailleblaster.wordprocessor;
 
@@ -35,130 +35,176 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.ShowBriefly;
 import org.brailleblaster.util.Notify;
+import java.util.ArrayList;
 
 public class WPManager {
 
-/**
- * This is the controller for the whole word processing operation. It is the
- * entry point for the word processor, and therefore the only public class.
- */
+    /**
+     * This is the controller for the whole word processing operation. It is the
+     * entry point for the word processor, and therefore the only public class.
+     */
 
-String fileName = null;
-int action;
-private Display display;
-private static DocumentManager[] documents = new DocumentManager[8];
-private static int documentIndex;
+    String fileName = null;
+    int action;
+    private Display display;
+    private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
+    private static DocumentManager[] documents = new DocumentManager[MAX_NUM_DOCS];
+    private static int documentIndex;
+    private static DocumentManager curDoc;
 
-/**
- * This constructor is the entry point to the word prodessor. It gets
- * things set up, handles multiple documents, etc.
- */
+    private static boolean isDeactiated = false; 
+    private static DocumentManager prevDoc; 
+    private static int prevIndex= -1;
 
-public WPManager(String fileName) {
-this.fileName = fileName;
-if (fileName != null) {
-action = WP.DocumentFromCommandLine;
-} else {
-action = WP.NewDocument;
-}
-display = BBIni.getDisplay();
-if (display == null) {
-System.out.println ("Could not find graphical interface environment");
-System.exit(1);
-}
-checkLiblouisutdml();
-documentIndex = 0;
-DocumentManager curDoc;
-curDoc = documents[documentIndex] = new DocumentManager(display, 
-documentIndex, action, fileName);
-if (!BBIni.debugging()) {
-return;
-}
-do {
-switch (curDoc.returnReason) {
-case WP.DocumentClosed:
-documents[documentIndex] = null;
-int moveIndex = documentIndex;
-while (documents[moveIndex + 1] != null) {
-documents[documentIndex] = documents[moveIndex++];
-}
-if (documents[documentIndex] == null) {
-documentIndex = 0;
-}
-if (documents[documentIndex] == null) {
-return;
-}
-curDoc = documents[documentIndex];
-curDoc.resume();
-break;
-case WP.SwitchDocuments:
-documentIndex++;
-if (documents[documentIndex] != null) {
-curDoc = documents[documentIndex];
-curDoc.resume();
-} else {
-documentIndex = 0;
-curDoc = documents[documentIndex];
-curDoc.resume();
-}
-break;
-case WP.NewDocument:
-documentIndex++;
-if (documentIndex >= documents.length) {
-new Notify ("Too many documents");
-curDoc.resume();
-break;
-}
-curDoc = documents[documentIndex] = new DocumentManager(display, 
-documentIndex, WP.NewDocument, fileName);
-break;
-case WP.OpenDocumentGetFile:
-documentIndex++;
-if (documentIndex >= documents.length) {
-new Notify ("Too many documents");
-curDoc.resume();
-break;
-}
-curDoc = documents[documentIndex] = new DocumentManager(display, 
-documentIndex, WP.OpenDocumentGetFile, fileName);
-break;
-case WP.BBClosed:
-for (documentIndex = 0; documentIndex < documents.length; 
-documentIndex++) {
-if (documents[documentIndex] != null) {
-documents[documentIndex].finish();
-}
-documents[documentIndex] = null;
-}
-return;
-default:
-break;
-}
-} while (curDoc.returnReason != WP.BBClosed);
-}
+    /**
+     * This constructor is the entry point to the word prodessor. It gets
+     * things set up, handles multiple documents, etc.
+     */
 
-void checkLiblouisutdml() {
-if (BBIni.haveLiblouisutdml()) {
-return;
-}
-if (new YesNoChoice
-("The Braille facility is not usable." + " See the log."
-+ " Do you wish to continue?")
-.result == SWT.NO) {
-System.exit(1);
-}
-}
+    public WPManager(String fileName) {
+        this.fileName = fileName;
+        if (fileName != null) {
+            action = WP.DocumentFromCommandLine;
+        } else {
+            action = WP.NewDocument;
+        }
+        display = BBIni.getDisplay();
+        if (display == null) {
+            System.out.println ("Could not find graphical interface environment");
+            System.exit(1);
+        }
+        checkLiblouisutdml();        
+        documentIndex = 0;
+        curDoc = documents[0] =new DocumentManager(display, 
+                documentIndex, action, fileName) ;
+        do {
+            findTrigger();
+            switch (curDoc.returnReason) {
+            case WP.DocumentClosed://6
+                documents[documentIndex].finish();
+                if (getNextAvailableDoc() == -1) return; //no more docs, exit
+                WPManager.resumeAll(documentIndex);
+                break;
+            case WP.SwitchDocuments://4
+                //
+                System.out.println("Swithcing...from "+ documentIndex+ "to" +getNextAvailableDoc() );
+                documentIndex = getNextAvailableDoc();
+                curDoc = documents[documentIndex];
+                curDoc.resume();
+                break;
+            case WP.NewDocument://1
+                if (getNextAvailablePos() == -1){
+                    new Notify ("Too many documents");
+                    curDoc.resume();
+                    break;
+                }
+                documentIndex = getNextAvailablePos();
+                curDoc = documents[documentIndex] = new DocumentManager(display, 
+                        documentIndex, WP.NewDocument, fileName);
+                break;
+            case WP.OpenDocumentGetFile://2
+                if (getNextAvailablePos() == -1){
+                    new Notify ("Too many documents");
+                    curDoc.resume();
+                    break;
+                }
+                documentIndex = getNextAvailablePos();
+                curDoc = documents[documentIndex] = new DocumentManager(display, 
+                        documentIndex, WP.OpenDocumentGetFile, fileName);
+                break;
+            case WP.BBClosed://7
+                while(getNextAvailableDoc()!= -1){
+                    documents[getNextAvailableDoc()].finish();
+                }
+                return;
+            default:
+                break;
+            }
+        } while (curDoc.returnReason != WP.BBClosed);
+    }
 
-/**
-* Cjheck to see if there are other documents.
-*/
-static boolean haveOtherDocuments() {
-for (int checkIndex = 0; checkIndex < documents.length; checkIndex++) {
-if (checkIndex != documentIndex && documents[checkIndex] != null) {
-return true;
-}
-}
-return false;
-}
+    private static void findTrigger(){
+        int number = -1;
+        int i = 0;
+        for(boolean b:DocumentManager.getflags()){
+            if(b) {
+                number=i;
+                break;
+            }
+            i++;
+        }
+        if(number != -1)
+        {
+            DocumentManager.setflags(number, false);
+            documentIndex = number;
+            curDoc = documents[documentIndex];
+        }
+    }
 
+    //resume all the windows except the one with documentNumber
+    public static void resumeAll(int documentNumber){
+        for(int i = 0 ; i< documents.length; i++){
+            if(i != documentNumber) {
+                if(documents[i] != null) documents[i].resume(); 
+            }
+        }
+    }
+
+    static int getNextAvailableDoc(){
+        //search in higher index first for the next available index
+        //index-> MAX
+        for(int i = documentIndex+1; i <MAX_NUM_DOCS; i++){
+            if( documents[i] != null){
+                if(documents[i].isFinished())documents[i] = null;
+                else return i;
+            }
+        }
+        //0->index
+        for(int i = 0; i <= documentIndex; i++){
+            if( documents[i] != null){
+                if(documents[i].isFinished())documents[i] = null;
+                else return i;
+            }
+        }
+        //if no availabe doc
+        return -1;
+    }
+
+    int getNextAvailablePos(){
+        //see if there is available postion for one more document, -1 if it is full
+        for(int i = 0; i <MAX_NUM_DOCS; i++){
+            if( documents[i] == null) return i;
+            else if (documents[i].isFinished()){documents[i] = null; return i;}
+        }
+        return -1;
+    }
+
+    void checkLiblouisutdml() {
+        if (BBIni.haveLiblouisutdml()) {
+            return;
+        }
+        if (new YesNoChoice
+                ("The Braille facility is not usable." + " See the log."
+                        + " Do you wish to continue?")
+        .result == SWT.NO) {
+            System.exit(1);
+        }
+    }
+
+    static void setCurDoc(int documentNumber){
+        //System.out.println("Something triggers current doc to change, now documentIndex = " + documentNumber );
+        documentIndex = documentNumber;
+        curDoc = documents[documentIndex];;
+    }
+
+    /**
+     * Check to see if there are other documents.
+     */
+    static boolean haveOtherDocuments() {        
+        return (getNextAvailableDoc()!= -1);
+    }
+
+    static int getMaxNumDocs(){
+        return MAX_NUM_DOCS;
+    }
 }

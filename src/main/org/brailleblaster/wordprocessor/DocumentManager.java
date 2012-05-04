@@ -30,6 +30,7 @@ package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Event;
@@ -52,7 +53,7 @@ import org.daisy.printing.*;
 import javax.print.PrintException;
 import org.eclipse.swt.widgets.Listener;
 import org.brailleblaster.settings.Welcome;
-
+import org.eclipse.swt.widgets.MessageBox;
 class DocumentManager {
 
     /**
@@ -89,6 +90,10 @@ class DocumentManager {
     int mode = 0;
     UTD utd;
     String buffer;
+    boolean finished = false;
+    private volatile boolean stopRequested = false;
+    static final boolean[] flags = new boolean[WPManager.getMaxNumDocs()];
+    
 
     /**
      * Constructor that sets things up for a new document.
@@ -103,6 +108,12 @@ class DocumentManager {
         tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
         louisutdml = liblouisutdml.getInstance();
         documentWindow = new Shell (display, SWT.SHELL_TRIM);
+        documentWindow.addListener(SWT.Close, new Listener(){
+            public void handleEvent(Event event) {
+                setReturn(WP.DocumentClosed);
+                //this way clicking close box is equivalent to the 'close' item on the menu
+            }
+        });
         layout = new FormLayout();
         documentWindow.setLayout (layout);
         rd= new RecentDocuments();
@@ -121,7 +132,7 @@ class DocumentManager {
             }
         });
         documentWindow.open();
-        setWindowTitle ("untitled");
+        setWindowTitle (" untitled");
         if (documentNumber == 0) {
             new Welcome(); // This then calls the settings dialogs.
         }
@@ -131,24 +142,22 @@ class DocumentManager {
             openFirstDocument();
         }
         utd = new UTD();
-        while (!documentWindow.isDisposed() && returnReason == 0) {
+        
+        boolean stop = false;
+        while (!documentWindow.isDisposed() && (!stop)&&(returnReason == 0)) {
             if (!display.readAndDispatch())
                 display.sleep();
+            for(boolean b:flags){
+                stop |= b;
+            }
         }
-        if (!BBIni.debugging()) {
-            documentWindow.dispose();
-            return;
-        }
-        switch (returnReason) {
-        case WP.DocumentClosed:
-        case WP.BBClosed:
-            finish();
-            break;
-        default:
-            //documentWindow.setVisible (false);
-            break;
-        }
-    }
+        //get here iff the window is disposed, or someone has a reason        
+        if(flags[documentNumber]){
+            WPManager.setCurDoc(documentNumber);
+            flags[documentNumber] =false; //all should be false now
+        }              
+        //Then back to WPManager
+     }
 
     /**
      * This nested class encapsulates hnadling of the Universal 
@@ -438,6 +447,7 @@ class DocumentManager {
      */
     void finish() {
         documentWindow.dispose();
+        finished = true;
     }
 
     /**
@@ -448,9 +458,12 @@ class DocumentManager {
         switch (reason) {
         case WP.SwitchDocuments:
             if (WPManager.haveOtherDocuments()) {
+                //System.out.println("Switching to next");
                 returnReason = reason;
+                flags[documentNumber] = true;//this fires the interrupt
                 return true;
             }
+            new Notify("There is only one document.");
             return false;
         case WP.NewDocument:
             returnReason = reason;
@@ -467,6 +480,8 @@ class DocumentManager {
         default:
             break;
         }
+        //WPManager.setCurDoc(documentNumber);
+        flags[documentNumber] = true;//this fires the interrupt
         return true;
     }
 
@@ -478,7 +493,14 @@ class DocumentManager {
         if (documentWindow.isDisposed())
             return;
         documentWindow.forceActive();
-        returnReason = 0;
+        boolean stop = false;        
+        while (!documentWindow.isDisposed() && (!stop)) {
+            if (!documentWindow.getDisplay().readAndDispatch())
+                documentWindow.getDisplay().sleep();
+            for(boolean b:DocumentManager.getflags()){
+                stop |= b;
+            }
+        }
     }
 
     void openFirstDocument() {
@@ -523,8 +545,10 @@ class DocumentManager {
     int numChars;
 
     void fileOpen () {
-        if (BBIni.debugging() && doc != null) {
+        //        if (BBIni.debugging() && doc != null) {
+        if (doc != null){
             returnReason = WP.OpenDocumentGetFile;
+            flags[documentNumber] = true;
             return;
         }
         Shell shell = new Shell (display, SWT.DIALOG_TRIM);
@@ -561,7 +585,9 @@ class DocumentManager {
         //Use threading to keep the control of the window
         new Thread() {
             public void run() {
+                while (!stopRequested) {
                 walkTree (rootElement);
+                }
             }
         }
         .start();
@@ -593,6 +619,7 @@ class DocumentManager {
                 }
             }
         }
+        stopRequested = true;
     }
 
     void fileSave() {
@@ -724,6 +751,9 @@ class DocumentManager {
         }
     }
 
+    int getCount(){
+        return documentNumber;
+    }
     void fileEmbossNow () {
         if (translatedFileName == null) {
             translate();
@@ -752,8 +782,29 @@ class DocumentManager {
         new Notify ("This menu item is not yet implemented. Sorry.");
     }
 
+    boolean isFinished(){
+       return finished;
+    }
+    
     void recentDocuments(){
         rd.open();
+    }
+    
+    //5/3
+    void switchDocuments(){
+        
+    }
+    
+    static boolean[] getflags(){
+        return flags;
+    }
+    
+    static void setflags(int i,boolean b){
+        flags[i] = b;
+    }
+    
+    static void printflags(){
+        for(boolean b:flags)    System.out.print (b+", ");
     }
 
 }

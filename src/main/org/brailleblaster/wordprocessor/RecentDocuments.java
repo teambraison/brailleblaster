@@ -27,6 +27,7 @@
  */
 
 package org.brailleblaster.wordprocessor;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -35,7 +36,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -47,29 +47,28 @@ import org.eclipse.swt.widgets.Combo;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 
-
 /**
  * Pick a document from those recently opened and return its absolute 
  * path.
  */ 
-public class RecentDocuments {
+class RecentDocuments {
     Shell shell;
     Combo combo;
     ArrayList<String> recentDocsList;//this contains the full path and name of recent files
     String[] recentDocsArr;//this contains only the name of a file if there's no duplicates of it
     File file;  
-    private String userSettings;
+    private String recentFiles;
     private static final int MAX_NUM_FILES=50;
     private String fileSep;
 
     RecentDocuments() {
-        userSettings = BBIni.getRecentDocs();
+        recentFiles = BBIni.getRecentDocs();
         fileSep = BBIni.getFileSep();
-        file = new File(userSettings);
+        file = new File(recentFiles);
         readList();
     }
 
-    public void open(){
+    void open() {
         readList();
         processDocsList();
         Display display = BBIni.getDisplay();
@@ -84,7 +83,7 @@ public class RecentDocuments {
         data.minimumWidth = 300;
         data.grabExcessHorizontalSpace = true;
         combo.setLayoutData(data);
-        combo.addSelectionListener(new SelectionAdapter(){
+        combo.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();
                 String value = combo.getText();
@@ -107,39 +106,39 @@ public class RecentDocuments {
         shell.dispose();     
     }
 
-    private void processDocsList(){
+    private void processDocsList() {
         recentDocsArr = recentDocsList.toArray(new String[recentDocsList.size()]);
         boolean[] dupArr = new boolean[recentDocsArr.length];
         for(boolean b:dupArr) b=false;
-        for( int i=0; (i < recentDocsArr.length-1)&&(!dupArr[i]);i++){
+        for( int i=0; (i < recentDocsArr.length-1)&&(!dupArr[i]);i++) {
             String s1 = recentDocsArr[i];
             int index = s1.lastIndexOf(fileSep);
             if (index>=0) s1 = s1.substring(index);
-            for(int j=i+1; (j< recentDocsArr.length)&&(!dupArr[j]); j++){
+            for(int j=i+1; (j< recentDocsArr.length)&&(!dupArr[j]); j++) {
                 String s2 = recentDocsArr[j];
                 index = s2.lastIndexOf(fileSep);
                 if (index>=0) s2 = s2.substring(index);
-                if(s1.equals(s2)){
+                if(s1.equals(s2)) {
                     dupArr[i]=true;
                     dupArr[j]=true;
                 }
             }
         }
-        for(int i=0; i<recentDocsArr.length;i++){
+        for(int i=0; i<recentDocsArr.length;i++) {
             if(!dupArr[i])
                 recentDocsArr[i] = recentDocsArr[i].substring(recentDocsArr[i].lastIndexOf(fileSep)+1);
         }
     }
 
-    public void addDocument(String document){
-        if(document!=null){
+    void addDocument(String document) {
+        if(document!=null) {
         recentDocsList.remove(document); 
         recentDocsList.add(0, document);
         if(recentDocsList.size()>MAX_NUM_FILES) recentDocsList.remove(MAX_NUM_FILES);
         storeList();}
     }
 
-    private void storeList(){
+    private void storeList() {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(file));
@@ -147,7 +146,7 @@ public class RecentDocuments {
             new Notify(e.getMessage());
         }
         try {
-            for( String s:recentDocsList){
+            for( String s:recentDocsList) {
                 writer.write(s);
                 writer.newLine();
             }
@@ -163,7 +162,7 @@ public class RecentDocuments {
 
     }
 
-    private void readList(){
+    private void readList() {
         //May need to set Charset when there are special characters
         //Charset charset = Charset.forName("US-ASCII");
         BufferedReader reader = null;

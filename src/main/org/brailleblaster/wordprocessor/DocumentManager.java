@@ -54,12 +54,13 @@ import javax.print.PrintException;
 import org.eclipse.swt.widgets.Listener;
 import org.brailleblaster.settings.Welcome;
 import org.eclipse.swt.widgets.MessageBox;
-class DocumentManager {
+import org.brailleblaster.util.FileUtils;
 
-    /**
-     * This class manages each document in an MDI environment. It controls 
-     * the braille View and the daisy View.
-     */
+/**
+ * This class manages each document in an MDI environment. It controls 
+ * the braille View and the daisy View.
+  */
+class DocumentManager {
 
     final Display display;
     final Shell documentWindow;
@@ -116,7 +117,7 @@ class DocumentManager {
         });
         layout = new FormLayout();
         documentWindow.setLayout (layout);
-        rd= new RecentDocuments();
+        rd = new RecentDocuments(this);
         utd = new UTD(this);
         menu = new BBMenu (this);
         toolBar = new BBToolBar (this);
@@ -140,7 +141,7 @@ class DocumentManager {
         if (action == WP.OpenDocumentGetFile) {
             fileOpen();
         } else if (action == WP.DocumentFromCommandLine) {
-            openFirstDocument();
+            openDocument(documentName);
         }
         boolean stop = false;
         while (!documentWindow.isDisposed() && (!stop)&&(returnReason == 0)) {
@@ -227,24 +228,6 @@ class DocumentManager {
         }
     }
 
-    void openFirstDocument() {
-        Builder parser = new Builder();
-        try {
-            doc = parser.build (documentName);
-        } catch (ParsingException e) {
-            new Notify ("Malformed document");
-            return;
-        }
-        catch (IOException e) {
-            new Notify ("Could not open " + documentName);
-            return;
-        }
-        setWindowTitle (documentName);
-        haveOpenedFile = true;
-        Element rootElement = doc.getRootElement();
-        walkTree (rootElement);
-    }
-
     private void setWindowTitle (String pathName) {
         int index = pathName.lastIndexOf (File.separatorChar);
         if (index == -1) {
@@ -286,7 +269,10 @@ class DocumentManager {
             new Notify ("File not found");
             return;
         }
-        String fileName = documentName;
+        openDocument (documentName);
+    }
+
+    void openDocument (String fileName) {
         Builder parser = new Builder();
         try {
             doc = parser.build (fileName);
@@ -363,46 +349,9 @@ class DocumentManager {
             new Notify ("There is no translated file to be saved.");
             return;
         }
-        FileInputStream inFile = null;
-        FileOutputStream outFile = null;
-        try {
-            inFile = new FileInputStream (translatedFileName);
-        } catch (FileNotFoundException e) {
-            new Notify ("Could not open " + translatedFileName);
-            return;
-        }
-        try {
-            outFile = new FileOutputStream (saveTo);
-        } catch (FileNotFoundException e) {
-            new Notify ("Could not open " + saveTo);
-            return;
-        }
-        byte[] buffer = new byte[1024];
-        int length = 0;
-        while (length != -1) {
-            try {
-                length = inFile.read (buffer, 0, buffer.length);
-            } catch (IOException e) {
-                new Notify ("Problem reading " + translatedFileName);
-                break;
-            }
-            if (length == -1) {
-                break;
-            }
-            try {
-                outFile.write (buffer, 0, length);
-            } catch (IOException e) {
-                new Notify ("Problem writing to " + saveTo);
-                break;
-            }
-        }
-        try {
-            outFile.close();
+        new FileUtils().copyFile (translatedFileName, saveTo);
             //add this file to recentDocList
             rd.addDocument(translatedFileName);
-        } catch (IOException e) {
-            new Notify (saveTo + " could not be completed");
-        }
     }
 
     void showBraille() {

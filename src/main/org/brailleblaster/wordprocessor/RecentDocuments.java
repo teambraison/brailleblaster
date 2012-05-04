@@ -26,6 +26,8 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
+/* Author: Hanxiao Fu */
+
 package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedReader;
@@ -51,6 +53,7 @@ import org.brailleblaster.util.Notify;
  * Pick a document from those recently opened and return its absolute 
  * path.
  */ 
+
 class RecentDocuments {
     Shell shell;
     Combo combo;
@@ -60,8 +63,10 @@ class RecentDocuments {
     private String recentFiles;
     private static final int MAX_NUM_FILES=50;
     private String fileSep;
+    private DocumentManager dm;
 
-    RecentDocuments() {
+    RecentDocuments(final DocumentManager dm) {
+        this.dm = dm;
         recentFiles = BBIni.getRecentDocs();
         fileSep = BBIni.getFileSep();
         file = new File(recentFiles);
@@ -90,8 +95,7 @@ class RecentDocuments {
                 String path = recentDocsList.get(key);
                 //This is for debug
                 new Notify("Value="+value+", path="+path);
-                //then open the file
-                //openFile(path);
+                dm.openDocument (path);
                 shell.close();
             }
         });

@@ -64,8 +64,14 @@ logger.log  (Level.SEVERE, "The Braille translation facility is absent.");
 // ParseCommandLine.getInstance().parseCommand (args);
 louisutdml = liblouisutdml.getInstance();
 int i = 0;
-while (args[i].charAt(0) == '-') {
+while ( i < args.length) {
+if (args[i].charAt(0) != '-') {
+break;
+}
 i++;
+}
+if (i == args.length) {
+return;
 }
 subcommand = args[i];
 subArgs = Arrays.copyOfRange (args, i + 1, args.length);

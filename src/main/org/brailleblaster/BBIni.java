@@ -141,7 +141,7 @@ public final class BBIni {
 		}
 		if (args.length > 0) {
 			int i = 0;
-			while (args[i].charAt(0) == '-') {
+		while (args[i].charAt(0) == '-' && i < args.length) {
 				if (args[i].equals ("-debug")) {
 					debug = true;
 				}

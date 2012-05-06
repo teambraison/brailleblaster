@@ -175,7 +175,7 @@ class BBMenu {
         
         //5/3 just a tmp place to test the switch function
         switchItem = new MenuItem (fileMenu, SWT.PUSH);
-        switchItem.setText (lh.localValue("S&wtich"));
+        switchItem.setText (lh.localValue("S&witch"));
         switchItem.addSelectionListener (new SelectionAdapter() {
             public void widgetSelected (SelectionEvent e) {
                 dm.setReturn(WP.SwitchDocuments);

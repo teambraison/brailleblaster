@@ -140,8 +140,10 @@ public final class BBIni {
 			logger.addHandler (logFile);
 		}
 		if (args.length > 0) {
-			int i = 0;
-		while (args[i].charAt(0) == '-' && i < args.length) {
+for (int i = 0; i < args.length; i++) {
+if (args[i].charAt(0) != '-') {
+break;
+}
 				if (args[i].equals ("-debug")) {
 					debug = true;
 				}
@@ -154,7 +156,6 @@ public final class BBIni {
 				else {
 					System.out.println ("Bad option " + args[i]);
 				}
-				i++;
 			}
 		}
 		if (gotGui) {

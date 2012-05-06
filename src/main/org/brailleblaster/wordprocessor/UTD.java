@@ -333,7 +333,10 @@ class UTD {
     }
 
     private void doNewline (Element node) {
-        String[] horVertPos = node.getAttributeValue ("xy").split (",", 2);
+        String positions = node.getAttributeValue ("xy");
+        if (positions != null) {
+            String[] horVertPos = positions.split (",", 2);
+        }
         if (firstLineOnPage) {
             firstLineOnPage = false;
             return;

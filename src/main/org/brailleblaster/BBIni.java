@@ -79,6 +79,7 @@ public final class BBIni {
 	private static String tempFilesPath;
 	private static String platformName;
 	private static String userSettings;
+private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
 	private static FileHandler logFile;
 	static final String BBID = "brlblst";
@@ -140,7 +141,8 @@ public final class BBIni {
 			logger.addHandler (logFile);
 		}
 		if (args.length > 0) {
-for (int i = 0; i < args.length; i++) {
+int i = 0;
+while (i < args.length) {
 if (args[i].charAt(0) != '-') {
 break;
 }
@@ -156,7 +158,11 @@ break;
 				else {
 					System.out.println ("Bad option " + args[i]);
 				}
+i++;
 			}
+if (i < args.length) {
+hSubcommands = true;
+}
 		}
 		if (gotGui) {
 			try {
@@ -199,6 +205,10 @@ break;
 	{
 		return hLiblouisutdml;
 	}
+
+public static boolean haveSubcommands() {
+return hSubcommands;
+}
 
 	public static void setVersion (String version) {
 		BBVersion = version;

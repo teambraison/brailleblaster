@@ -47,11 +47,10 @@ public static void main (String[] args) {
 BBIni.initialize(args);
 BBIni.setVersion ("brailleblaster-1.3.0");
 BBIni.setReleaseDate ("October 5, 2011");
-if (args.length == 0)
+if (BBIni.haveSubcommands()) {
+new Subcommands(args);
+} else {
 new WPManager (null);
-else
-{
-new Subcommands (args);
 }
 Display display = BBIni.getDisplay();
 if (display != null)

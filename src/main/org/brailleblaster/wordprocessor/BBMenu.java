@@ -118,7 +118,7 @@ class BBMenu {
     MenuItem aboutItem;
     
     //5/3
-    MenuItem swtichItem;
+    MenuItem switchItem;
 
     BBMenu (final DocumentManager dm) {
         LocaleHandler lh = new LocaleHandler();
@@ -174,9 +174,9 @@ class BBMenu {
         });
         
         //5/3 just a tmp place to test the switch function
-        swtichItem = new MenuItem (fileMenu, SWT.PUSH);
-        swtichItem.setText (lh.localValue("S&wtich"));
-        swtichItem.addSelectionListener (new SelectionAdapter() {
+        switchItem = new MenuItem (fileMenu, SWT.PUSH);
+        switchItem.setText (lh.localValue("S&wtich"));
+        switchItem.addSelectionListener (new SelectionAdapter() {
             public void widgetSelected (SelectionEvent e) {
                 dm.setReturn(WP.SwitchDocuments);
             }

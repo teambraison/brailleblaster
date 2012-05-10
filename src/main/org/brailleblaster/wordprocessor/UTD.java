@@ -83,10 +83,15 @@ class UTD {
     Node beforeBrlonlyNode;
     private boolean firstPage;
     private boolean firstLineOnPage;
-    StringBuilder brailleLine = new StringBuilder (100);
-    StringBuilder printLine = new StringBuilder (100);
+    StringBuilder brailleLine = new StringBuilder (4096);
+    StringBuilder printLine = new StringBuilder (4096);
     DocumentManager dm;
     Document doc;
+    //for threading
+    int numLines;
+    int numPages;
+    int numChars;
+
 
     UTD (final DocumentManager dm) {
         this.dm = dm;
@@ -124,12 +129,14 @@ class UTD {
             new Notify ("Could not open " + dm.translatedFileName);
             return;
         }
-
-        System.out.println("start getting rootElement");
-
-        Element rootElement = doc.getRootElement();
-        findBrlNodes (rootElement);
-
+        final Element rootElement = doc.getRootElement();
+        //Use threading to keep the control of the window
+        new Thread() {
+            public void run() {
+                findBrlNodes (rootElement);
+            }
+        }
+        .start();
     }
 
     private void findBrlNodes (Element node) {
@@ -137,7 +144,7 @@ class UTD {
         Element element;
         String elementName;
         for (int i = 0; i < node.getChildCount(); i++) {
-                newNode = node.getChild(i);
+            newNode = node.getChild(i);
             if (newNode instanceof Element) {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
@@ -162,6 +169,20 @@ class UTD {
                     findBrlNodes (element);
                 }
             }
+            if(brailleLine.length()>2048 || printLine.length()>2048 || i== node.getChildCount()-1){
+                dm.display.syncExec(new Runnable() {    
+                    public void run() {                        
+                        dm.braille.view.append(brailleLine.toString());
+                        numChars += brailleLine.length();
+                        brailleLine.delete (0, brailleLine.length());
+                        dm.daisy.view.append(printLine.toString());
+                        printLine.delete (0, printLine.length());
+                        dm.statusBar.setText ("Translated " + numPages +" pages, " + numLines + " lines, " + numChars 
+                                + " characters.");
+                    }
+                });        
+            }
+
         }
     }
 
@@ -202,11 +223,7 @@ class UTD {
 
     void showLines () {
         brailleLine.append ("\n");
-        dm.braille.view.append (brailleLine.toString());
-        brailleLine.delete (0, brailleLine.length());
         printLine.append ("\n");
-        dm.daisy.view.append (printLine.toString());
-        printLine.delete (0, printLine.length());
     }
 
     private void doBrlNode (Element node) {
@@ -230,8 +247,10 @@ class UTD {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
                 if (elementName.equals ("newpage")) {
+                    //page number is updated in doNewpage
                     doNewpage (element);
                 } else if (elementName.equals ("newline")) {
+                    numLines++;
                     doNewline (element);
                 } else if (elementName.equals ("span")) {
                     doSpanNode (element);
@@ -318,11 +337,14 @@ class UTD {
 
     private void doNewpage (Element node) {
         String pageNumber = node.getAttributeValue ("brlnumber");
-        System.out.print("doNewpage: pageNumber = " +pageNumber);
-        if(pageNumber != null) currentBraillePageNumber = pageNumber; 
+        System.out.print("doNewpage: pageNumber = " +pageNumber+", Thread="+ Thread.currentThread().getName());
+        if(pageNumber != null) {
+            currentBraillePageNumber = pageNumber;
+            numPages++;
+        }
         pageNumber = node.getAttributeValue ("printnumber");
         if(pageNumber!= null) currentPrintPageNumber =pageNumber; 
-        System.out.println("done");
+        System.out.println("...done");
         //this may need to be reconsidered
         firstLineOnPage = true;
         if (firstPage) {

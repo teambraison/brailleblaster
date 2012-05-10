@@ -43,6 +43,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Combo;
@@ -83,19 +84,20 @@ class RecentDocuments {
         shell.setLayout (gridLayout);
         combo = new Combo (shell, SWT.DROP_DOWN|SWT.READ_ONLY);
         combo.setItems(recentDocsArr);
-        combo.setText("Test");
         GridData data = new GridData ();
         data.minimumWidth = 300;
         data.grabExcessHorizontalSpace = true;
         combo.setLayoutData(data);
-        combo.addSelectionListener(new SelectionAdapter() {
+        Button open = new Button(shell, SWT.PUSH);
+        shell.setDefaultButton(open);
+        open.setText("&Open");
+        open.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();
-                String value = combo.getText();
+                if(key != -1){
                 String path = recentDocsList.get(key);
-                //This is for debug
-                new Notify("Value="+value+", path="+path);
-                dm.openDocument (path);
+                dm.recentOpen (path);
+                }
                 shell.close();
             }
         });

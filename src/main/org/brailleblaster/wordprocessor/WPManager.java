@@ -86,10 +86,15 @@ public class WPManager {
                 WPManager.resumeAll(documentIndex);
                 break;
             case WP.SwitchDocuments://4
-                //
-                System.out.println("Swithcing...from "+ documentIndex+ "to" +getNextAvailableDoc() );
-                documentIndex = getNextAvailableDoc();
+                if(DocumentManager.recentFileNameIndex != -1){
+                    documentIndex = DocumentManager.recentFileNameIndex;
+                    DocumentManager.recentFileNameIndex = -1;
+                }
+                else {
+                    documentIndex = getNextAvailableDoc();
+                }
                 curDoc = documents[documentIndex];
+                //System.out.println("Swithcing...from "+ documentIndex+ "to" +getNextAvailableDoc() );
                 curDoc.resume();
                 break;
             case WP.NewDocument://1
@@ -104,13 +109,24 @@ public class WPManager {
                 break;
             case WP.OpenDocumentGetFile://2
                 if (getNextAvailablePos() == -1){
-                    new Notify ("Too many documents");
+                    new Notify ("Too many documents to open a new file");
                     curDoc.resume();
                     break;
                 }
                 documentIndex = getNextAvailablePos();
                 curDoc = documents[documentIndex] = new DocumentManager(display, 
                         documentIndex, WP.OpenDocumentGetFile, fileName);
+                break;
+            case WP.OpenDocumentGetRecent://8 open a recent doc in a new windows
+                if (getNextAvailablePos() == -1){
+                    new Notify ("Too many documents to open the recent document in a new window");
+                    curDoc.resume();
+                    break;
+                }
+                documentIndex = getNextAvailablePos();
+                fileName = DocumentManager.getRecentFileName();
+                curDoc = documents[documentIndex] = new DocumentManager(display, 
+                        documentIndex, WP.OpenDocumentGetRecent, fileName);
                 break;
             case WP.BBClosed://7
                 while(getNextAvailableDoc()!= -1){
@@ -170,6 +186,24 @@ public class WPManager {
         return -1;
     }
 
+    //check if a document named fileName is running, return its index or -1;
+    static int isRunning(String fileName){
+        int start = documentIndex;
+        for(int i = 0; i <MAX_NUM_DOCS; i++){
+            if( documents[i] != null){
+                if(documents[i].isFinished()){
+                    documents[i] = null;
+                }
+                else{
+                    //System.out.println("isRunning: NO"+i+"'s name is "+documents[i].documentName);
+                    if (documents[i].documentName.equals(fileName))
+                        return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     int getNextAvailablePos(){
         //see if there is available postion for one more document, -1 if it is full
         for(int i = 0; i <MAX_NUM_DOCS; i++){
@@ -207,4 +241,5 @@ public class WPManager {
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
     }
+
 }

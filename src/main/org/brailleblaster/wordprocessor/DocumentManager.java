@@ -94,7 +94,9 @@ class DocumentManager {
     boolean finished = false;
     private volatile boolean stopRequested = false;
     static final boolean[] flags = new boolean[WPManager.getMaxNumDocs()];
-    
+    //static final String[] runningFiles = new String[WPManager.getMaxNumDocs()];
+    static String recentFileName = null;
+    static int recentFileNameIndex = -1;
 
     /**
      * Constructor that sets things up for a new document.
@@ -140,7 +142,7 @@ class DocumentManager {
         }
         if (action == WP.OpenDocumentGetFile) {
             fileOpen();
-        } else if (action == WP.DocumentFromCommandLine) {
+        } else if ((action == WP.DocumentFromCommandLine)||(action == WP.OpenDocumentGetRecent)) {
             openDocument(documentName);
         }
         boolean stop = false;
@@ -252,7 +254,6 @@ class DocumentManager {
     int numChars;
 
     void fileOpen () {
-        //        if (BBIni.debugging() && doc != null) {
         if (doc != null){
             returnReason = WP.OpenDocumentGetFile;
             flags[documentNumber] = true;
@@ -271,7 +272,26 @@ class DocumentManager {
         }
         openDocument (documentName);
     }
+    
+    void recentOpen(String path){        
+        if (doc != null){
+            //see if this recent document is already opened in current windows set
+            recentFileNameIndex = WPManager.isRunning(path);
+            if(recentFileNameIndex!= -1){
+                returnReason = WP.SwitchDocuments;
+                flags[documentNumber] = true;
+                return;
+            }            
+            recentFileName = path;
+            returnReason = WP.OpenDocumentGetRecent;
+            flags[documentNumber] = true;
+            return;
+        }
+        documentName = path;
+        openDocument (documentName);
+    }
 
+        
     void openDocument (String fileName) {
         Builder parser = new Builder();
         try {
@@ -478,6 +498,10 @@ class DocumentManager {
     
     static void printflags(){
         for(boolean b:flags)    System.out.print (b+", ");
+    }
+    
+    static String getRecentFileName(){
+        return recentFileName;
     }
 
 }

@@ -44,6 +44,8 @@ static final int SwitchDocuments = 4;
 static final int DocumentFromCommandLine = 5;
 static final int DocumentClosed = 6;
 static final int BBClosed = 7;
+static final int OpenDocumentGetRecent = 8;
+static final int SwitchToRecentDoc = 9;
 
 // Help 
 

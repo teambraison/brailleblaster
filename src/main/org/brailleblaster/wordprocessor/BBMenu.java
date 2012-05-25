@@ -116,9 +116,6 @@ class BBMenu {
     MenuItem tutorialsItem;
     MenuItem checkUpdatesItem;
     MenuItem aboutItem;
-    
-    //5/3
-    MenuItem switchItem;
 
     BBMenu (final DocumentManager dm) {
         LocaleHandler lh = new LocaleHandler();
@@ -171,16 +168,7 @@ class BBMenu {
                     dm.fileOpen();
                 }
             }
-        });
-        
-        //5/3 just a tmp place to test the switch function
-        switchItem = new MenuItem (fileMenu, SWT.PUSH);
-        switchItem.setText (lh.localValue("S&witch"));
-        switchItem.addSelectionListener (new SelectionAdapter() {
-            public void widgetSelected (SelectionEvent e) {
-                dm.setReturn(WP.SwitchDocuments);
-            }
-        });        
+        });         
         
         recentItem = new MenuItem (fileMenu, SWT.PUSH);
         recentItem.setText (lh.localValue("&Recent"));

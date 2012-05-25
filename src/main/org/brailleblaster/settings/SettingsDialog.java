@@ -59,7 +59,7 @@ public class SettingsDialog {
 	private String userSettings;
 
 	public SettingsDialog(){
-		loadProperty();
+		loadProperties();
 	}
 	public void open(){
 		Display display = BBIni.getDisplay();
@@ -110,7 +110,7 @@ public class SettingsDialog {
 //				shellBounds.y + (shellBounds.height - dialogSize.y) / 2);
 	}
 
-	private void loadProperty(){
+	private void loadProperties(){
 		userSettings= BBIni.getUserSettings();
 		prop = new Properties();
 		try {

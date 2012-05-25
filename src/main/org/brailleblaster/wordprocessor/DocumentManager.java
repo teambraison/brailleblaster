@@ -59,7 +59,7 @@ import org.brailleblaster.util.FileUtils;
 /**
  * This class manages each document in an MDI environment. It controls 
  * the braille View and the daisy View.
-  */
+ */
 class DocumentManager {
 
     final Display display;
@@ -97,6 +97,8 @@ class DocumentManager {
     //static final String[] runningFiles = new String[WPManager.getMaxNumDocs()];
     static String recentFileName = null;
     static int recentFileNameIndex = -1;
+    int numLines;
+    int numChars;
 
     /**
      * Constructor that sets things up for a new document.
@@ -159,7 +161,7 @@ class DocumentManager {
             flags[documentNumber] =false; //all should be false now
         }              
         //Then back to WPManager
-     }
+    }
 
 
     /**
@@ -250,9 +252,6 @@ class DocumentManager {
         placeholder();
     }
 
-    int numLines;
-    int numChars;
-
     void fileOpen () {
         if (doc != null){
             returnReason = WP.OpenDocumentGetFile;
@@ -272,7 +271,7 @@ class DocumentManager {
         }
         openDocument (documentName);
     }
-    
+
     void recentOpen(String path){        
         if (doc != null){
             //see if this recent document is already opened in current windows set
@@ -291,7 +290,7 @@ class DocumentManager {
         openDocument (documentName);
     }
 
-        
+
     void openDocument (String fileName) {
         Builder parser = new Builder();
         try {
@@ -316,7 +315,7 @@ class DocumentManager {
         new Thread() {
             public void run() {
                 while (!stopRequested) {
-                walkTree (rootElement);
+                    walkTree (rootElement);
                 }
             }
         }
@@ -370,8 +369,8 @@ class DocumentManager {
             return;
         }
         new FileUtils().copyFile (translatedFileName, saveTo);
-            //add this file to recentDocList
-            rd.addDocument(translatedFileName);
+        //add this file to recentDocList
+        rd.addDocument(translatedFileName);
     }
 
     void showBraille() {
@@ -383,7 +382,10 @@ class DocumentManager {
         } catch (FileNotFoundException e) {
             new Notify ("Could not fine " + translatedFileName);
         }
-        for (int i = 0; i < 20; i++) {
+        numLines = 0;
+        numChars = 0;
+        
+        while(true){
             try {
                 line = translation.readLine();
             } catch (IOException e) {
@@ -393,7 +395,17 @@ class DocumentManager {
             if (line == null) {
                 break;
             }
-            braille.view.append (line + "\n");
+            numLines++;
+            numChars += line.length();
+            final String myLine = line;
+            display.syncExec(new Runnable() {
+                public void run() {
+                    braille.view.append (myLine + "\n");
+                    statusBar.setText ("Translated " + numLines + " lines, " + numChars 
+                            + " characters.");
+                    
+                }
+            });
         }
         try {
             translation.close();
@@ -440,7 +452,13 @@ class DocumentManager {
         if (BBIni.useUtd()) {
             utd.displayTranslatedFile();
         } else {
-            showBraille();
+            braille.view.setEditable(false);
+            new Thread() {
+                public void run() {
+                        showBraille();
+                }
+            }
+            .start();
         }
     }
 
@@ -476,30 +494,30 @@ class DocumentManager {
     }
 
     boolean isFinished(){
-       return finished;
+        return finished;
     }
-    
+
     void recentDocuments(){
         rd.open();
     }
-    
+
     //5/3
     void switchDocuments(){
-        
+
     }
-    
+
     static boolean[] getflags(){
         return flags;
     }
-    
+
     static void setflags(int i,boolean b){
         flags[i] = b;
     }
-    
+
     static void printflags(){
         for(boolean b:flags)    System.out.print (b+", ");
     }
-    
+
     static String getRecentFileName(){
         return recentFileName;
     }

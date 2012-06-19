@@ -53,6 +53,9 @@ table_files = \
 	de-g1-core.ctb \
 	de-g2-core.ctb \
 	devanagari.cti \
+	digits6Dots.uti \
+	digits6DotsPlusDot6.uti \
+	digits8Dots.uti \
 	dra.ctb \
 	en_CA.ctb \
 	en-chess.ctb \
@@ -105,8 +108,10 @@ table_files = \
 	hi.ctb \
 	hi-in-g1.utb \
 	hr.ctb \
-	hu1.ctb \
-	hu.ctb \
+	hu-chardefs.cti \
+	hu-exceptionwords.cti \
+	hu-hu-g1.ctb \
+	hu-hu-comp8.ctb \
 	hy.ctb \
 	hyph_cs_CZ.dic \
 	hyph_de_DE.dic \
@@ -130,7 +135,10 @@ table_files = \
 	kok.ctb \
 	kru.ctb \
 	lang2table \
-	letterDefTest.ctb \
+	latinLetterDef6Dots.uti \
+	latinLetterDef8Dots.uti \
+	loweredDigits6Dots.uti \
+	loweredDigits8Dots.uti \
 	lt.ctb \
 	Lv-Lv-g1.utb \
 	malayalam.cti \
@@ -150,6 +158,7 @@ table_files = \
 	nemeth_edit.ctb \
 	new.ctb \
 	nl-BE-chardefs.cti \
+	nl-BE.dis \
 	nl-BE-g1.ctb \
 	nl-be-g1.utb \
 	nl-BE-translation.ctb \
@@ -168,6 +177,7 @@ table_files = \
 	pi.ctb \
 	Pl-Pl-g1.utb \
 	printables.cti \
+	pt-pt-comp8.ctb \
 	pt-pt-g1.utb \
 	pt-pt-g2.ctb \
 	ro.ctb \

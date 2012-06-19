@@ -20,16 +20,7 @@ punctuation - 36				# 45 hyphen minus
 punctuation . 3					# 46
 math / 256							# 47
 
-digit 0 346							# 48
-digit 1 16
-digit 2 126
-digit 3 146
-digit 4 1456
-digit 5 156
-digit 6 1246
-digit 7 12456
-digit 8 1256						# 56
-digit 9 246							# 57
+include digits6DotsPlusDot6.uti
 
 punctuation : 25				# 58
 punctuation ; 23				# 59
@@ -39,32 +30,7 @@ math > 45								# 62
 punctuation ? 26				# 63
 sign @ 345							# 64
 
-uplow Aa 1							# 65 / 97
-uplow Bb 12							# 66 / 98
-uplow Cc 14
-uplow Dd 145
-uplow Ee 15
-uplow Ff 124
-uplow Gg 1245
-uplow Hh 125
-uplow Ii 24
-uplow Jj 245
-uplow Kk 13
-uplow Ll 123
-uplow Mm 134
-uplow Nn 1345
-uplow Oo 135
-uplow Pp 1234
-uplow Qq 12345
-uplow Rr 1235
-uplow Ss 234
-uplow Tt 2345
-uplow Uu 136
-uplow Vv 1236
-uplow Ww 2456
-uplow Xx 1346
-uplow Yy 13456
-uplow Zz 1356									# 90 / 122
+include latinLetterDef6Dots.uti
 
 punctuation [ 123567					# 91
 sign \\ 347										# 92 backslash

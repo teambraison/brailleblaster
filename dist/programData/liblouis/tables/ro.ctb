@@ -23,7 +23,7 @@
 # Updated by Stefan Moisei <vortex37 {at} gmail {dot} com>
 #
 # This table is based on the Unesco report on the progress of unification of
-# braille writing « L'ÉCRITURE BRAILLE DANS LE MONDE », by Sir Clutha
+# braille writing Â«Â L'Ã‰CRITURE BRAILLE DANS LE MONDEÂ Â», by Sir Clutha
 # MACKENZIE: http://unesdoc.unesco.org/images/0013/001352/135251fo.pdf
 # The document is dated 1954, so this table may be quite outdated.
 
@@ -52,16 +52,7 @@ punctuation ) 345		RIGHT PARENTHESIS
 punctuation , 2		COMMA
 punctuation - 36		HYPHEN-MINUS
 punctuation . 256		FULL STOP
-digit 0 2458		DIGIT ZERO
-digit 1 18		DIGIT ONE
-digit 2 128		DIGIT TWO
-digit 3 148		DIGIT THREE
-digit 4 1458		DIGIT FOUR
-digit 5 158		DIGIT FIVE
-digit 6 1248		DIGIT SIX
-digit 7 12458		DIGIT SEVEN
-digit 8 1258		DIGIT EIGHT
-digit 9 248		DIGIT NINE
+include digits8Dots.uti
 punctuation : 25		COLON
 punctuation ; 23		SEMICOLON
 punctuation ? 26		QUESTION MARK

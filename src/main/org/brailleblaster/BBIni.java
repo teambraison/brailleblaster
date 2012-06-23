@@ -171,16 +171,12 @@ hSubcommands = true;
 				logger.log (Level.SEVERE, "Can't find GUI", e);
 			}
 		}
-		try {
-			if (platformName.equals ("win32")) {
-				liblouisutdml.loadLibrary();
-			}
-			else {
-				liblouisutdml.load (nativeLibraryPath);
-			}
-			liblouisutdml.initialize (programDataPath, tempFilesPath);
-			hLiblouisutdml = true;
-		} catch (UnsatisfiedLinkError e) {
+try {
+liblouisutdml.loadLibrary (nativeLibraryPath, nativeLibrarySuffix);
+liblouisutdml.initialize (programDataPath, tempFilesPath, 
+"liblouisutdml.log");
+hLiblouisutdml = true;
+} catch (UnsatisfiedLinkError e) {
 			logger.log (Level.SEVERE, "Problem with liblouisutdml library", e);
 		}
 		catch (Exception e) {

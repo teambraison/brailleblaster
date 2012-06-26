@@ -94,30 +94,30 @@ private static boolean hSubcommands = false;
 		platformName = SWT.getPlatform();
 		String userHome = System.getProperty ("user.home");
 		String BBHome;
-		programDataPath = brailleblasterPath + fileSep + "programData";
-		helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
-		if (platformName.equals("win32")) {
-			BBHome = System.getenv ("APPDATA") + fileSep + BBID;
-			nativeLibrarySuffix = ".dll";
-		}
-		else if (platformName.equals ("cocoa")) {
-			BBHome = userHome + fileSep + BBID;
-			nativeLibrarySuffix = ".dylib";
-		}
-		else {
-			BBHome = userHome + fileSep + BBID;
-			nativeLibrarySuffix = ".so";
-		}
-		nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
-				"lib" + fileSep + "liblouisutdml" + nativeLibrarySuffix;
-		FileUtils fu = new FileUtils();
-		settingsPath = BBHome + fileSep + "settings";
-		File settings = new File (settingsPath);
-		if (!settings.exists())
-			settings.mkdirs();
-		userSettings = settingsPath + fileSep + 
-				"user_settings.properties";
-		if (!fu.exists (userSettings)) {
+programDataPath = brailleblasterPath + fileSep + "programData";
+helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
+if (platformName.equals("win32")) {
+BBHome = System.getenv ("APPDATA") + fileSep + BBID;
+nativeLibrarySuffix = ".dll";
+}
+else if (platformName.equals ("cocoa")) {
+BBHome = userHome + fileSep + BBID;
+nativeLibrarySuffix = ".dylib";
+}
+else {
+BBHome = userHome + fileSep + BBID;
+nativeLibrarySuffix = ".so";
+}
+nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
+"lib";
+FileUtils fu = new FileUtils();
+settingsPath = BBHome + fileSep + "settings";
+File settings = new File (settingsPath);
+if (!settings.exists())
+settings.mkdirs();
+userSettings = settingsPath + fileSep + 
+"user_settings.properties";
+if (!fu.exists (userSettings)) {
 			fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
 					"user_settings.properties", userSettings);
 		}

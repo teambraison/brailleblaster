@@ -37,13 +37,26 @@ public class BrailleblasterPath
 {
    public static String getPath (Object classToUse) 
 {
-     String url = classToUse.getClass().getResource("/" 
+	   
+    /*  Option to use an environment variable (mostly for testing with 
+    * Eclipse) */
+    String url = System.getenv("BBLASTER_WORK");
+    if (url != null) {
+    	     url = "file:/" + url ;
+    } 
+    else {  
+    	url = classToUse.getClass().getResource("/" 
 + classToUse.getClass().getName().replaceAll("\\.", "/")
  + ".class").toString();
-     url = url.substring(4).replaceFirst("/[^/]+\\.jar!.*$", "/");
+
+     url = url.substring(url.indexOf("file")).replaceFirst("/[^/]+\\.jar!.*$", "/");
+    }
+     
      try {
          File dir = new File(new URL(url).toURI());
          url = dir.getAbsolutePath();
+
+     
      } catch (MalformedURLException mue) {
          url = null;
      } catch (URISyntaxException ue) {

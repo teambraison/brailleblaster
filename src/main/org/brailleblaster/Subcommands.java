@@ -129,6 +129,10 @@ logger.log (Level.SEVERE, "Embosser is  not working", e);
 
 private void doChecktable() {
 String logFile = null;
+if (subArgs.length == 0) {
+System.out.println ("Usage: checktable tablename");
+return;
+}
 if (subArgs.length > 1) {
 logFile = subArgs[1];
 }

@@ -28,6 +28,7 @@
 
 package org.brailleblaster;
 
+import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ProgramCaller;
@@ -52,6 +53,7 @@ class Subcommands {
 private Logger logger = BBIni.getLogger();
 private LocaleHandler lh = new LocaleHandler ();
 private liblouisutdml louisutdml;
+private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 private String subcommand;
 private String[] subArgs;
 
@@ -103,6 +105,7 @@ new WPManager (subcommand);
  */
 private void doTranslate() {
 louisutdml.file2brl (subArgs);
+lbuLog.showLog();
 }
 
 /**
@@ -125,6 +128,7 @@ embosser.transmit (translatedFile);
 } catch (PrintException e) {
 logger.log (Level.SEVERE, "Embosser is  not working", e);
 }
+lbuLog.showLog();
 }
 
 private void doChecktable() {
@@ -136,12 +140,8 @@ return;
 if (subArgs.length > 1) {
 logFile = subArgs[1];
 }
-if (louisutdml.checkTable (subArgs[0], logFile, 0)) {
-System.out.println ("No errors found");
-}
-else {
-System.out.println ("This table will not work.");
-}
+louisutdml.checkTable (subArgs[0], logFile, 0);
+lbuLog.showLog();
 }
 
 private void doHelp() {

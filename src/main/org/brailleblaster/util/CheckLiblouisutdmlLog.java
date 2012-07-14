@@ -34,28 +34,88 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 /**
  * Check the file liblouisutdml.log in brlblst/temp. If it is not empty 
  * show its contents. There are separate methods for the GUI and the 
  * command line.
  */
-public class CheckLogFile {
+public class CheckLiblouisutdmlLog {
+String logFileName;
 
-public CheckLogFile () {
+public CheckLiblouisutdmlLog () {
+logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
+"liblouisutdml.log";
 }
 
 public void displayLog () {
-String logMessages = null;
+StringBuilder logMessages = new StringBuilder (4096);
 Display display = BBIni.getDisplay();
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
-mb.setMessage (logMessages);
+String line;
+BufferedReader logStream = null;
+try {
+logStream = new BufferedReader (new FileReader 
+(logFileName));
+} catch (FileNotFoundException e) {
+new Notify ("Could not find " + logFileName);
+}
+while(true) {
+try {
+line = logStream.readLine();
+} catch (IOException e) {
+new Notify ("Problem reading " + logFileName);
+return;
+}
+if (line == null) {
+break;
+}
+logMessages.append (line);
+}
+try {
+logStream.close();
+} catch (IOException e) {
+}
+if (logMessages.length() > 0) {
+mb.setMessage (logMessages.toString());
 mb.open();
+}
 shell.dispose();
 }
 
 public void showLog () {
+String line;
+BufferedReader logStream = null;
+try {
+logStream = new BufferedReader (new FileReader 
+(logFileName));
+} catch (FileNotFoundException e) {
+new Notify ("Could not find " + logFileName);
+}
+while(true) {
+try {
+line = logStream.readLine();
+} catch (IOException e) {
+new Notify ("Problem reading " + logFileName);
+return;
+}
+if (line == null) {
+break;
+}
+System.out.println (line);
+}
+try {
+logStream.close();
+} catch (IOException e) {
+}
 }
 
 }

@@ -38,7 +38,6 @@ import org.brailleblaster.util.Notify;
 import java.util.ArrayList;
 
 public class WPManager {
-
     /**
      * This is the controller for the whole word processing operation. It is the
      * entry point for the word processor, and therefore the only public class.
@@ -52,12 +51,12 @@ public class WPManager {
     private static int documentIndex;
     private static DocumentManager curDoc;
 
-    private static boolean isDeactiated = false; 
+    private static boolean isDeactivated = false; 
     private static DocumentManager prevDoc; 
     private static int prevIndex= -1;
 
     /**
-     * This constructor is the entry point to the word prodessor. It gets
+     * This constructor is the entry point to the word processor. It gets
      * things set up, handles multiple documents, etc.
      */
 
@@ -94,7 +93,7 @@ public class WPManager {
                     documentIndex = getNextAvailableDoc();
                 }
                 curDoc = documents[documentIndex];
-                //System.out.println("Swithcing...from "+ documentIndex+ "to" +getNextAvailableDoc() );
+                //System.out.println("Switching...from "+ documentIndex+ "to" +getNextAvailableDoc() );
                 curDoc.resume();
                 break;
             case WP.NewDocument://1
@@ -182,7 +181,7 @@ public class WPManager {
                 else return i;
             }
         }
-        //if no availabe doc
+        //if no available doc
         return -1;
     }
 
@@ -205,7 +204,7 @@ public class WPManager {
     }
 
     int getNextAvailablePos(){
-        //see if there is available postion for one more document, -1 if it is full
+        //see if there is available position for one more document, -1 if it is full
         for(int i = 0; i <MAX_NUM_DOCS; i++){
             if( documents[i] == null) return i;
             else if (documents[i].isFinished()){documents[i] = null; return i;}

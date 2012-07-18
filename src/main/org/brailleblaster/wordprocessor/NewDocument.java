@@ -125,6 +125,7 @@ startDocument ();
 
 void fillOutBody (StyledText view) {
 String text = view.getText();
+
 int length = text.length();
 int beginParagraph = 0;
 int endParagraph;
@@ -135,7 +136,8 @@ int i;
 for (i = beginParagraph; (i < length && (c = text.charAt(i)) != 0x0a 
 && c != 0x0d); i++);
 if (i  < length) {
-endParagraph = i - 1;
+// FO endParagraph = i - 1;
+endParagraph = i ;
 if (c == 0x0a) {
 i++;
 }

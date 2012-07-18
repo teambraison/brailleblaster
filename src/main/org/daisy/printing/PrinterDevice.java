@@ -62,7 +62,7 @@ public class PrinterDevice implements Device {
 				return;
 			}			
 		}
-		throw new IllegalArgumentException("Could not find embosser.");
+		throw new IllegalArgumentException("PrinterDevice: Could not find embosser.");
 	}
 	
 	/**

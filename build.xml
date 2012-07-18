@@ -22,6 +22,7 @@ includeantruntime="false" source="1.5" target="1.5">
 <pathelement location="${classpath}/jliblouisutdml.jar"/>
 <pathelement location="${classpath}/commons-cli-1.2.jar"/>
 <pathelement location="${classpath}/xom-1.2.6.jar"/>
+<pathelement location="${classpath}/tika-app-1.1.jar"/>
 </classpath>
 </javac>
 </target>
@@ -36,6 +37,7 @@ lib/jliblouisutdml.jar
 lib/swt.jar
 lib/xom-1.2.6.jar
 lib/commons-cli-1.2.jar
+lib/tika-app-1.1.jar
 programData/lang/"/>
 </manifest>
 </jar>

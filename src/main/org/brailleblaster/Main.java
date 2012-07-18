@@ -45,8 +45,8 @@ import org.eclipse.swt.widgets.Display;
 public class Main {
 public static void main (String[] args) {
 BBIni.initialize(args);
-BBIni.setVersion ("brailleblaster-1.3.0");
-BBIni.setReleaseDate ("October 5, 2011");
+BBIni.setVersion ("brailleblaster-1.4.0");
+BBIni.setReleaseDate ("July 17, 2012");
 if (BBIni.haveSubcommands()) {
 new Subcommands(args);
 } else {

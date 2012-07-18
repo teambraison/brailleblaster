@@ -28,6 +28,7 @@
 
 package org.brailleblaster;
 
+import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ProgramCaller;
@@ -52,6 +53,7 @@ class Subcommands {
 private Logger logger = BBIni.getLogger();
 private LocaleHandler lh = new LocaleHandler ();
 private liblouisutdml louisutdml;
+private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 private String subcommand;
 private String[] subArgs;
 
@@ -98,11 +100,14 @@ new WPManager (subcommand);
 }
 
 /**
- * Translate the input file to the output file addording to the options, 
+ * Translate the input file to the output file according to the options, 
  * if any.
  */
 private void doTranslate() {
+	//FO 
+louisutdml.setLogFile("liblouisutdml.log");
 louisutdml.file2brl (subArgs);
+lbuLog.showLog();
 }
 
 /**
@@ -117,6 +122,13 @@ int outIndex = subArgs.length - 1;
 String transOut = "transout";
 String embosserName = subArgs[outIndex];
 subArgs[outIndex] = transOut;
+// FO
+if (embosserName.isEmpty() || (subArgs.length < 2)) {
+//	logger.log (Level.SEVERE, "Embosser name not supplied. Exiting.");
+	System.out.println( "Embosser name not supplied. Exiting.");
+	return;
+}
+louisutdml.setLogFile("liblouisutdml.log");
 louisutdml.file2brl (subArgs);
 File translatedFile = new File (transOut);
 try {
@@ -125,24 +137,25 @@ embosser.transmit (translatedFile);
 } catch (PrintException e) {
 logger.log (Level.SEVERE, "Embosser is  not working", e);
 }
+lbuLog.showLog();
 }
 
 private void doChecktable() {
 String logFile = null;
+if (subArgs.length == 0) {
+System.out.println ("Usage: checktable tablename");
+return;
+}
 if (subArgs.length > 1) {
 logFile = subArgs[1];
 }
-if (louisutdml.checkTable (subArgs[0], logFile, 0)) {
-System.out.println ("No errors found");
-}
-else {
-System.out.println ("This table will not work.");
-}
+louisutdml.checkTable (subArgs[0], logFile, 0);
+lbuLog.showLog();
 }
 
 private void doHelp() {
 final String[] help = new String[] {
-"Usage: java-jar brailleblaster.jar {options} subcommand arguments",
+"Usage: java -jar brailleblaster.jar {options} subcommand arguments",
 "options: -nogui, the system does not have a GUI",
 };
 for (int i = 0; i < help.length; i++) {

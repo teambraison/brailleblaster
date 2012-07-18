@@ -41,7 +41,8 @@ import java.util.logging.Level;
 import java.util.logging.FileHandler;
 import java.io.IOException;
 import java.io.File;
-import org.brailleblaster.util.FileUtils;
+import java.util.Locale;
+
 
 /**
  * Determine and set initial conditions.
@@ -64,7 +65,7 @@ public final class BBIni {
 	private static Display display = null;
 	private static String BBVersion;
 	private static String releaseDate;
-	private static String brailleblasterPath;
+	private static String brailleblasterPath;  // FO
 	private static String osName;
 	private static String osVersion;
 	private static String fileSep;
@@ -79,7 +80,7 @@ public final class BBIni {
 	private static String tempFilesPath;
 	private static String platformName;
 	private static String userSettings;
-private static boolean hSubcommands = false;
+	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
 	private static FileHandler logFile;
 	static final String BBID = "brlblst";
@@ -289,5 +290,9 @@ return hSubcommands;
 	public static boolean useUtd () {
 		return utd;
 	}
-
+	// FO
+	public static void setUtd (boolean trueFalse) {
+		utd = trueFalse;
+		return;
+	}
 }

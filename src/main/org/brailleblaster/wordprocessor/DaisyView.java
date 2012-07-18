@@ -39,7 +39,9 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 class DaisyView extends AbstractView {
 
 DaisyView (Shell documentWindow) {
-super (documentWindow, 0, 55, 12, 92);
+// super (documentWindow, 0, 55, 12, 92);
+super (documentWindow, 0, 49, 12, 92);
+
 }
 
 }

@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.MessageBox;
  * This class encapsulates handling of the Universal 
  * TactileDocument Markup Language (UTDML);
  */
-class UTD {
+class UTD { 
 
     //static int pageCount;
     //static int pageCount2;
@@ -160,6 +160,51 @@ class UTD {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
                 
+                if (elementName.contentEquals("head")) {
+                	System.out.println("head");
+                	Element utdElement = findUtdMeta(element);
+                	doUtdMeta (utdElement);   // found it
+                	
+                } else if (elementName.contentEquals("brl")) {
+                	System.out.println("brl");
+                    if (i > 0) {
+                        try{
+                            beforeBrlNode = newNode.getChild(i - 1);
+                        }
+                        catch(IndexOutOfBoundsException e ){
+                            //The brl child, newNode, may not have any grandchild of node
+                            System.out.println("findBrlNodes: a brl Node does not have child, i = "+i ); 
+                            beforeBrlNode = null; 
+                            return;
+                        }
+                    } else {
+                        beforeBrlNode = null;
+                    }
+                    doBrlNode (element);
+                	
+                } else if (elementName.contentEquals("p")) {
+                	System.out.println("p");
+
+                	for (int j = 0; j < node.getChildCount(); j++) {
+                		// we need to dig down the element for the <brl> elements 
+                		Node pNode = node.getChild(j);
+                		Element pElement = (Element)pNode;
+                		for (int k = 0; k < pElement.getChildCount(); k++) {
+                			Node bNode = pElement.getChild(k);
+                			if (bNode instanceof Element) {
+                	            doBrlNode((Element)bNode);
+                			}
+                		}
+                	}
+                	
+                } else {
+                	System.out.println("else");
+
+                	findBrlNodes (element);   // go one level down 
+                }
+                
+                	
+ /** switch with String works only with 1.7
                 switch (elementName) {
                 case ("head"): {
                 	Element utdElement = findUtdMeta(element);
@@ -186,7 +231,7 @@ class UTD {
                 // FO
                 case ("p"): {
                 	for (int j = 0; j < node.getChildCount(); j++) {
-                		/** we need to dig down the element for the <brl> elements **/
+                		// we need to dig down the element for the <brl> elements 
                 		Node pNode = node.getChild(j);
                 		Element pElement = (Element)pNode;
                 		for (int k = 0; k < pElement.getChildCount(); k++) {
@@ -201,6 +246,7 @@ class UTD {
                 default :
                     findBrlNodes (element);   // go one level down 
                 } // end switch
+**/
 
             }
          

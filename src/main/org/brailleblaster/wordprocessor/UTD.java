@@ -460,6 +460,5 @@ class UTD {
 
     private void finishBrlNode() {
         return;
-    }
-
+    } 
 }

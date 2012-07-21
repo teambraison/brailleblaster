@@ -53,15 +53,6 @@ String logFileName;
 public CheckLiblouisutdmlLog () {
 logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
 "liblouisutdml.log";
-// FO create empty file 
-File f = new File(logFileName);
-try {
-    f.createNewFile();
-	}
-catch (IOException e) {
-    System.out.println ("CheckLiblouisutdmlLog: Error creating log file " + e);
-    return;
-   }
 }
 
 public void displayLog () {
@@ -71,14 +62,11 @@ Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
 String line;
 BufferedReader logStream = null;
-logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
-"liblouisutdml.log";
 try {
 logStream = new BufferedReader (new FileReader 
 (logFileName));
 } catch (FileNotFoundException e) {
 return;
-// new Notify ("Could not find " + logFileName);
 }
 while(true) {
 try {
@@ -90,7 +78,7 @@ return;
 if (line == null) {
 break;
 }
-logMessages.append (line);
+logMessages.append (line + "\n");
 }
 try {
 logStream.close();
@@ -106,14 +94,11 @@ shell.dispose();
 public void showLog () {
 String line;
 BufferedReader logStream = null;
-logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
-"liblouisutdml.log";
 try {
 logStream = new BufferedReader (new FileReader 
 (logFileName));
 } catch (FileNotFoundException e) {
 return;
-// new Notify ("Could not find " + logFileName);
 }
 while(true) {
 try {

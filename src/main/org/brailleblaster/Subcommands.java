@@ -104,8 +104,6 @@ new WPManager (subcommand);
  * if any.
  */
 private void doTranslate() {
-	//FO 
-louisutdml.setLogFile("liblouisutdml.log");
 louisutdml.file2brl (subArgs);
 lbuLog.showLog();
 }
@@ -128,7 +126,6 @@ if (embosserName.isEmpty() || (subArgs.length < 2)) {
 	System.out.println( "Embosser name not supplied. Exiting.");
 	return;
 }
-louisutdml.setLogFile("liblouisutdml.log");
 louisutdml.file2brl (subArgs);
 File translatedFile = new File (transOut);
 try {

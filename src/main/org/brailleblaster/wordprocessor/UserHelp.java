@@ -79,7 +79,8 @@ showHelp (url);
 * Display help documents in the local browser.
 */
 private void showHelp (String fileName) {
-String URIString = "file:///" + helpPath.replace('\\','/') + fileName;
+String us = "file:///" + helpPath.replace('\\','/') + fileName;
+String URIString = us.replace(" ", "%20");
 URI uri = null;
 try {
 uri = new URI (URIString);

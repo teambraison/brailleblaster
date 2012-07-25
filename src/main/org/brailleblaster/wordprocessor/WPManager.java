@@ -74,15 +74,23 @@ public class WPManager {
         }
         checkLiblouisutdml();        
         documentIndex = 0;
-        curDoc = documents[0] =new DocumentManager(display, 
+        curDoc = documents[0] = new DocumentManager(display, 
                 documentIndex, action, fileName) ;
         do {
             findTrigger();
             switch (curDoc.returnReason) {
             case WP.DocumentClosed://6
-                documents[documentIndex].finish();
-                if (getNextAvailableDoc() == -1) return; //no more docs, exit
-                WPManager.resumeAll(documentIndex);
+            	documents[documentIndex].finish();
+//              if (getNextAvailableDoc() == -1) return; //no more docs, exit
+                if (getNextAvailableDoc() == -1) {
+                	// open new document
+                	documentIndex = 0;
+                	action = WP.NewDocument;
+                    curDoc = documents[0] = new DocumentManager(display, 
+                            documentIndex, action, "") ;
+                } else {
+                    WPManager.resumeAll(documentIndex);
+                }
                 break;
             case WP.SwitchDocuments://4
                 if(DocumentManager.recentFileNameIndex != -1){
@@ -137,8 +145,8 @@ public class WPManager {
             }
         } while (curDoc.returnReason != WP.BBClosed);
     }
-
-    private static void findTrigger(){
+    
+        private static void findTrigger(){
         int number = -1;
         int i = 0;
         for(boolean b:DocumentManager.getflags()){

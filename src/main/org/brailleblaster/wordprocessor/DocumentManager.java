@@ -694,21 +694,22 @@ class DocumentManager {
         FillLayout layout = new FillLayout(SWT.VERTICAL);
         layout.marginWidth = 8;
         selShell.setLayout(layout);
-  
-        final Button b1 = new Button (selShell, SWT.RADIO);
+        final Composite radioGroup = new Composite(selShell, SWT.NONE);
+        radioGroup.setLayout(new RowLayout(SWT.VERTICAL));  
+        final Button b1 = new Button (radioGroup, SWT.RADIO);
 		b1.setText(lh.localValue("saveTextBraille"));
 		if (braille.view.getCharCount() == 0) {
 			b1.setEnabled(false);
 		}
 		b1.pack();
 		
-		final Button b2 = new Button (selShell, SWT.RADIO);
+		final Button b2 = new Button (radioGroup, SWT.RADIO);
 		b2.setText(lh.localValue("saveTextOnly"));
 		if (braille.view.getCharCount() == 0) {
 			b2.setSelection(true);
 		}
 		b2.pack();
-
+		radioGroup.pack();
 		Composite c = new Composite(selShell, SWT.NONE);
 		RowLayout clayout = new RowLayout();
 		clayout.type = SWT.HORIZONTAL;

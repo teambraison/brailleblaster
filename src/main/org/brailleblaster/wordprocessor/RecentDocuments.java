@@ -42,6 +42,8 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -95,6 +97,11 @@ class RecentDocuments {
         
         GridLayout gridLayout = new GridLayout ();
         shell.setLayout (gridLayout);
+        gridLayout.marginBottom = 20;
+        gridLayout.marginLeft = 10; 
+        gridLayout.marginRight = 10; 
+        gridLayout.numColumns = 3;
+        gridLayout.horizontalSpacing = 30;
         
         combo = new Combo (shell, SWT.DROP_DOWN | SWT.READ_ONLY);
         if (recentDocsArr.length > 25) {
@@ -104,17 +111,21 @@ class RecentDocuments {
         }
         combo.setItems(recentDocsArr);
         combo.select(0);
-        GridData data = new GridData ();
-        data.minimumWidth = 300;
-        data.grabExcessHorizontalSpace = true;
-        combo.setLayoutData(data);
-        
+               
         Button open = new Button(shell, SWT.PUSH);
-        shell.setDefaultButton(open);
-        //Button cancel = new Button(shell, SWT.PUSH);
-        //cancel.setText(lh.localValue("buttonCancel"));
-        
         open.setText(lh.localValue("&Open"));
+        
+        Button cancel = new Button(shell, SWT.PUSH);
+        cancel.setText(lh.localValue("buttonCancel"));
+        
+        shell.setDefaultButton(open);
+
+        cancel.addSelectionListener (new SelectionAdapter() {
+        	public void widgetSelected (SelectionEvent e) {
+        		shell.close();
+        	}
+        });
+        
         open.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();

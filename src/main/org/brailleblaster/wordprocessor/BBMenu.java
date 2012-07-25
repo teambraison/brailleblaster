@@ -168,7 +168,7 @@ class BBMenu {
 			}
 		});
 		openItem = new MenuItem(fileMenu, SWT.PUSH);
-		openItem.setText(lh.localValue("&Open"));
+		openItem.setText(lh.localValue("&Open") );
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -675,7 +675,7 @@ class BBMenu {
 		
 		dm.display.addFilter(SWT.KeyDown, new Listener() {
 
-            public void handleEvent(Event e) {
+          public void handleEvent(Event e) {
             	/* translate */
                 if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 't'))
                 {
@@ -700,38 +700,15 @@ class BBMenu {
                     dm.fileSave();
                     return;
                 }
+                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n'))
+                {
+                    dm.fileNew();
+                    return;
+                }
             }
-		
         });
 
-		/* track changes to the daisy area */
-
-//		dm.display.addFilter(SWT.Modify, new Listener() {
-//			 public void handleEvent(Event e) {
-//				 System.out.println("display changed: e.stateMask " + e.stateMask);
-//				 DocumentManager.displayHasChanged = true;
-//			 }
-//		});
-		
-//		final ModifyListener kmod = new ModifyListener () {
-//			public void modifyText(ModifyEvent e) {
-//				System.out.println ("Modify " + e);
-//			}
-//		};
-			
-//		dm.daisy.view.addModifyListener(kmod);
-		
-
-//		Listener kdown = new Listener() {
-//			 public void handleEvent(Event e) {
-//				 DocumentManager.displayHasChanged = true;
-//			 }
-//		};
-//
-//		dm.display.addFilter(SWT.Modify, kdown) ;
-//
 		// Activate menus when documentWindow shell is opened
 		dm.documentWindow.setMenuBar(menuBar);
 	}
-
 }

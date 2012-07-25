@@ -42,8 +42,8 @@ import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -85,7 +85,7 @@ class UTD {
     private boolean firstPage;
     private boolean firstLineOnPage;
     StringBuilder brailleLine = new StringBuilder (8192);
-    StringBuilder printLine = new StringBuilder (8192);
+//  StringBuilder printLine = new StringBuilder (8192);
     DocumentManager dm;
     Document doc;
     boolean utdFound = false;	// FO
@@ -95,14 +95,14 @@ class UTD {
     int numPages;
     int numChars;
     int bvLineCount;
-
+    BufferedWriter bufferedWriter = null;
 
     UTD (final DocumentManager dm) {
         this.dm = dm;
     }
 
    	
-    void displayTranslatedFile(String utdFileName) {
+    void displayTranslatedFile(String utdFileName, String brailleFileName) {
         beforeBrlNode = null;
         beforeBrlonlyNode = null;
         brlIndex = null;
@@ -137,14 +137,35 @@ class UTD {
             return;
         }
         final Element rootElement = doc.getRootElement();
+        
+      
+        try {
+            //Construct the BufferedWriter object
+            bufferedWriter = new BufferedWriter(new FileWriter(brailleFileName));
+            
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        
         //Use threading to keep the control of the window
-// FO
+
 //        new Thread() {
 //            public void run() {
               findBrlNodes (rootElement);
 //            }
 //        }
 //        .start();
+           try {
+                  if (bufferedWriter != null) {
+                      bufferedWriter.flush();
+                      bufferedWriter.close();
+                  }
+              } catch (IOException ex) {
+                  ex.printStackTrace();
+           }
     }
 
     private void findBrlNodes (Element node) {
@@ -152,21 +173,16 @@ class UTD {
         Element element;
         String elementName = null;
         firstTime = true;	// FO
-        
-        for (int i = 0; i < node.getChildCount(); i++) {
+        for (int i = 0; (i < node.getChildCount()); i++) {
             newNode = node.getChild(i);
-
             if (newNode instanceof Element) {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
-                
                 if (elementName.contentEquals("head")) {
-                	System.out.println("head");
                 	Element utdElement = findUtdMeta(element);
                 	doUtdMeta (utdElement);   // found it
                 	
                 } else if (elementName.contentEquals("brl")) {
-                	System.out.println("brl");
                     if (i > 0) {
                         try{
                             beforeBrlNode = newNode.getChild(i - 1);
@@ -180,11 +196,10 @@ class UTD {
                     } else {
                         beforeBrlNode = null;
                     }
-                    doBrlNode (element);
+                        doBrlNode (element);
+                    
+                } else if (elementName.contentEquals("p") ) {
                 	
-                } else if (elementName.contentEquals("p")) {
-                	System.out.println("p");
-
                 	for (int j = 0; j < node.getChildCount(); j++) {
                 		// we need to dig down the element for the <brl> elements 
                 		Node pNode = node.getChild(j);
@@ -196,61 +211,13 @@ class UTD {
                 			}
                 		}
                 	}
-                	
                 } else {
-                	System.out.println("else");
-
-                	findBrlNodes (element);   // go one level down 
+					findBrlNodes(element);
                 }
-                
-                	
- /** switch with String works only with 1.7
-                switch (elementName) {
-                case ("head"): {
-                	Element utdElement = findUtdMeta(element);
-                	doUtdMeta (utdElement);   // found it
-                	break;
-                }
-                case ("brl"): {
-                    if (i > 0) {
-                        try{
-                            beforeBrlNode = newNode.getChild(i - 1);
-                        }
-                        catch(IndexOutOfBoundsException e ){
-                            //The brl child, newNode, may not have any grandchild of node
-                            System.out.println("findBrlNodes: a brl Node does not have child, i = "+i ); 
-                            beforeBrlNode = null; 
-                            return;
-                        }
-                    } else {
-                        beforeBrlNode = null;
-                    }
-                    doBrlNode (element);
-                    break;
-                }
-                // FO
-                case ("p"): {
-                	for (int j = 0; j < node.getChildCount(); j++) {
-                		// we need to dig down the element for the <brl> elements 
-                		Node pNode = node.getChild(j);
-                		Element pElement = (Element)pNode;
-                		for (int k = 0; k < pElement.getChildCount(); k++) {
-                			Node bNode = pElement.getChild(k);
-                			if (bNode instanceof Element) {
-                	            doBrlNode((Element)bNode);
-                			};
-                		}
-                	}
-                	break;
-                }
-                default :
-                    findBrlNodes (element);   // go one level down 
-                } // end switch
-**/
-
             }
          
-            if(brailleLine.length() > 4096 || printLine.length() > 4096 || i == node.getChildCount()-1) {
+//            if(brailleLine.length() > 4096 || printLine.length() > 4096 || i == node.getChildCount()-1) {
+              if(brailleLine.length() > 4096 || i == node.getChildCount()-1) {
 
                 dm.display.syncExec(new Runnable() {    
                     public void run() {    
@@ -262,17 +229,19 @@ class UTD {
                     	} else {
                             dm.braille.view.append(brailleLine.toString() );
                     	} 
-                    		
-                        numChars += brailleLine.length();
-                        brailleLine.delete (0, brailleLine.length());
-//                        dm.daisy.view.append(printLine.toString());
-//                        printLine.delete (0, printLine.length());
-                        dm.statusBar.setText ("Translated " + numPages +" pages, " + numLines + " lines, " + numChars 
-                                + " characters.");
+                    	
+                    	try {
+                        bufferedWriter.write(brailleLine.toString());
+                    	} catch (IOException e) {
+                    		System.err.println("findBrlNodes IOException: " + e.getMessage());
+                    	}
+                    	brailleLine.delete (0, brailleLine.length());
                     }
                  });        
             }
-       }  // end for
+            /** p elements have their own structure **/
+            if (elementName.contentEquals("p"))  i = node.getChildCount() + 1;
+        }  // end for
     }
      
     
@@ -312,12 +281,11 @@ class UTD {
         metaContent = node.getAttributeValue ("name");
 
         if (metaContent == null ) {
-        	System.out.println("doUtdMeta: metaContent is null");
+        	System.err.println("doUtdMeta: metaContent is null");
         	dm.metaContent = false;
         	return;
         }
         if (!(metaContent.equals ("utd"))) {
-//        	System.out.println("doUtdMeta " + metaContent);
             return;
         }
         
@@ -349,7 +317,6 @@ class UTD {
 
     void showLines () {
         brailleLine.append ("\n");
-        printLine.append ("\n");
     }
 
     private void doBrlNode (Element node) {

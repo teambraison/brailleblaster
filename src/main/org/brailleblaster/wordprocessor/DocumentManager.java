@@ -315,7 +315,7 @@ class DocumentManager {
      * Clean up before closing the document.
      */
     void finish() {
-    	if (daisyHasChanged) {
+    	if (daisyHasChanged || brailleHasChanged) { //FO
        		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
     		if (ync.result == SWT.YES) { 
     			fileSave();
@@ -351,7 +351,7 @@ class DocumentManager {
         case WP.DocumentClosed:
             returnReason = reason;
         	//FO
-        	if ((daisy.view.getCharCount() == 0) || (! daisyHasChanged)) {
+        	if ((daisy.view.getCharCount() == 0) || (! daisyHasChanged) || (! brailleHasChanged)) {
         		returnReason = WP.BBClosed;
         	}
             break;
@@ -432,8 +432,8 @@ class DocumentManager {
         Shell shell = new Shell (display, SWT.DIALOG_TRIM);
         FileDialog dialog = new FileDialog (shell, SWT.OPEN);
         String filterPath = "/";
-    	String [] filterNames = new String [] {"UTDML file"};
-    	String [] filterExtensions = new String [] {"*.utd"};
+    	String [] filterNames = new String [] {"UTDML file","XML file"};
+    	String [] filterExtensions = new String [] {"*.utd","*.xml"};
 
     	String platform = SWT.getPlatform();
     	if (platform.equals("win32") || platform.equals("wpf")) {
@@ -675,6 +675,7 @@ class DocumentManager {
         	}
         }
         daisyHasChanged = false;
+        brailleHasChanged = false;
     }
 
     void fileSaveAs () {
@@ -750,6 +751,7 @@ class DocumentManager {
     	if (saveUtdml) statusBar.setText(lh.localValue("fileSaved")) ;
     	
         daisyHasChanged = false;
+        brailleHasChanged = false;
     }
 
     void showBraille() {
@@ -879,6 +881,7 @@ class DocumentManager {
         }
         
 		metaContent = true;
+		brailleHasChanged = true;
 
         if (display) {
         	if (BBIni.useUtd()) {

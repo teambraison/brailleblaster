@@ -914,7 +914,7 @@ class DocumentManager {
         return documentNumber;
     }
     void fileEmbossNow () {
-        if ((brailleFileName == null) || (braille.view.getCharCount() == 0)) {
+        if ((brailleFileName == null) || (braille.view.getCharCount() == 0) ) {
         	new Notify (lh.localValue("noXlationEmb"));
             return;
         }
@@ -925,7 +925,7 @@ class DocumentManager {
         if (data == null || data.equals("")) {
             return;
         }
-        File translatedFile = new File (translatedFileName);
+        File translatedFile = new File (brailleFileName);
         PrinterDevice embosserDevice;
         try {
             embosserDevice = new PrinterDevice (data.name, true);

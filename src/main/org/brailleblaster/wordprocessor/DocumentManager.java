@@ -300,6 +300,7 @@ class DocumentManager {
      */
     void handleShutdown (Event event) {
     	
+/**  Save is handled in finish() method
     	if (daisyHasChanged) {
        		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
     		if (ync.result == SWT.YES) { 
@@ -308,6 +309,7 @@ class DocumentManager {
     			daisyHasChanged = false;
     		}
     	}
+**/
         event.doit = true;
     }
 
@@ -666,6 +668,8 @@ class DocumentManager {
         				new FileUtils().copyFile (translatedFileName, documentName);
         				statusBar.setText(lh.localValue("fileSaved")) ;
         				new Notify (lh.localValue("fileSaved"));
+        		        daisyHasChanged = false;
+        		        brailleHasChanged = false;
         		} else {
         			new Notify(lh.localValue("noChangeSaved")); 
         		}
@@ -674,8 +678,6 @@ class DocumentManager {
         		fileSaveAs();
         	}
         }
-        daisyHasChanged = false;
-        brailleHasChanged = false;
     }
 
     void fileSaveAs () {
@@ -1048,6 +1050,7 @@ class DocumentManager {
         braille.view.setEditable(false);
 
         statusBar.setText (lh.localValue("importCompleted"));
+        daisy.view.addModifyListener(daisyMod);
         daisyHasChanged = true;
         setWindowTitle (documentName);
         daisy.view.setFocus();

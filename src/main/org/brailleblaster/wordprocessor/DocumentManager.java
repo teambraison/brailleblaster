@@ -688,103 +688,19 @@ class DocumentManager {
 		saveUtdml = false;
 
         /* dialog asking for the type of UTDML file to save */
-        final Shell selShell = new Shell(display, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM | SWT.CENTER) ;
-        selShell.setMinimumSize (300, 150);        
 
-        FillLayout layout = new FillLayout(SWT.VERTICAL);
-        layout.marginWidth = 8;
-        selShell.setLayout(layout);
-        final Composite radioGroup = new Composite(selShell, SWT.NONE);
-        radioGroup.setLayout(new RowLayout(SWT.VERTICAL));  
-        final Button b1 = new Button (radioGroup, SWT.RADIO);
-		b1.setText(lh.localValue("saveTextBraille"));
-		if (braille.view.getCharCount() == 0) {
-			b1.setEnabled(false);
-		}
-		b1.pack();
-		
-		final Button b2 = new Button (radioGroup, SWT.RADIO);
-		b2.setText(lh.localValue("saveTextOnly"));
-		if (braille.view.getCharCount() == 0) {
-			b2.setSelection(true);
-		}
-		b2.pack();
-		radioGroup.pack();
-		Composite c = new Composite(selShell, SWT.NONE);
-		RowLayout clayout = new RowLayout();
-		clayout.type = SWT.HORIZONTAL;
-		clayout.spacing = 30;
-		clayout.marginWidth = 8;
-		clayout.center = true;
-		clayout.pack = true;
-		clayout.justify = true;
-		c.setLayout(clayout);
-		
-		Button b3 = new Button (c, SWT.PUSH);
-		b3.setText(lh.localValue("buttonSave"));
-		b3.pack();
-		
-		Button b4 = new Button (c, SWT.PUSH);
-		b4.setText(lh.localValue("buttonCancel"));
-		b4.pack();
-
-		c.pack();
-		
-		selShell.setText(lh.localValue("optionSelect"));
-		selShell.pack();
-		
-		Monitor primary = display.getPrimaryMonitor ();
-		Rectangle bounds = primary.getBounds ();
-		Rectangle rect = selShell.getBounds ();
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
-		selShell.setLocation (x, y);
-
-		/* text and Braille */
-		b1.addSelectionListener (new SelectionAdapter() {
-    		public void widgetSelected (SelectionEvent e) {
-    			textAndBraille = true;
-    		}
-    	});
-
-		/* Text only */
-		b2.addSelectionListener (new SelectionAdapter() {
-    		public void widgetSelected (SelectionEvent e) {
-    			textAndBraille = false;
-    		}
-    	});
-
-		/* Save */
-    	b3.addSelectionListener (new SelectionAdapter() {
-    		public void widgetSelected (SelectionEvent e) {
-
-    			if ((b1.getSelection()) || (b2.getSelection()) ) {
-    				saveUtdml = true;
-    				selShell.dispose();
-    			} else {
-    				 new Notify (lh.localValue("mustSelect")); 
-    			}
-    		}
-    	});
-    	
-    	/* Cancel */
-    	b4.addSelectionListener (new SelectionAdapter() {
-    		public void widgetSelected (SelectionEvent e) {
-    	        selShell.dispose();
-    		}
-    	});
-
-		selShell.open();
-		
-		while (!selShell.isDisposed()) {
-			if (!display.readAndDispatch())
-				display.sleep();
+		if (braille.view.getCharCount() != 0) {
+			SaveOptionsDialog saveChoice = new SaveOptionsDialog(documentWindow);
+			saveChoice.setText(lh.localValue("optionSelect"));
+			SaveSelection result = saveChoice.open();
+			if (result.equals(SaveSelection.TEXT_AND_BRAILLE)) {
+				textAndBraille = true;
+			} else if (result.equals(SaveSelection.CANCELLED)) {
+				return;
+			}
+			saveUtdml = true;
 		}
 
-		/* Nothing selected */
-		if (! saveUtdml) {
-			return;
-		};
 		
         Shell shell = new Shell (display);
         FileDialog dialog = new FileDialog (shell, SWT.SAVE);

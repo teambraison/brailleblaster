@@ -705,6 +705,10 @@ class BBMenu {
                     dm.fileNew();
                     return;
                 }
+                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'w'))
+                {
+                	dm.setReturn(WP.DocumentClosed);
+                }
             }
         });
 

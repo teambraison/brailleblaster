@@ -148,7 +148,6 @@ class DocumentManager {
     LocaleHandler lh = new LocaleHandler();
     StringBuilder brailleLine = new StringBuilder (8192);
     StringBuilder daisyLine = new StringBuilder (8192);
-    
 
     /**
      * Constructor that sets things up for a new document.
@@ -181,18 +180,18 @@ class DocumentManager {
         
         documentWindow.addListener(SWT.Close, new Listener(){
             public void handleEvent(Event event) {
-//            setReturn(WP.DocumentClosed);
+  //          setReturn(WP.DocumentClosed);
                 //this way clicking close box is equivalent to the 'close' item on the menu
-
-                setReturn(WP.BBClosed);
+              setReturn(WP.BBClosed);
             }
         });
 
         documentWindow.addListener (SWT.Dispose, new Listener () {
             public void handleEvent (Event event) {
-                handleShutdown(event);
+                  handleShutdown(event);
             }
         });
+        
         
         Monitor primary = display.getPrimaryMonitor ();
 		Rectangle bounds = primary.getBounds ();
@@ -299,8 +298,6 @@ class DocumentManager {
      * Handle application shutdown signal from OS;
      */
     void handleShutdown (Event event) {
-    	
-/**  Save is handled in finish() method
     	if (daisyHasChanged) {
        		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
     		if (ync.result == SWT.YES) { 
@@ -309,23 +306,13 @@ class DocumentManager {
     			daisyHasChanged = false;
     		}
     	}
-**/
-    	System.out.println ("handleShutdown " + documentNumber );
-        event.doit = true;
+    event.doit = true;
     }
 
     /**
      * Clean up before closing the document.
      */
     void finish() {
-    	if (daisyHasChanged || brailleHasChanged) { //FO
-       		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
-    		if (ync.result == SWT.YES) { 
-    			fileSave();
-    		} else {
-    			daisyHasChanged = false;
-    		}
-    	}
         documentWindow.dispose();
         finished = true;
     }

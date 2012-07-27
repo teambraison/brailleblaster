@@ -404,7 +404,7 @@ class DocumentManager {
 
     void fileNew() {
     	// FO
-    	if (daisyHasChanged)  {
+    	if (daisyHasChanged || brailleHasChanged)  {
     		YesNoChoice ync = new YesNoChoice("Warning: The current file has not been saved. Continue?");	
     		if (ync.result == SWT.NO) return; 
     	}
@@ -415,9 +415,12 @@ class DocumentManager {
 		brailleFileName = null;
 		documentName = null;
 		daisyHasChanged = false;
+		brailleHasChanged = false;
 		doc = null;
 		BBIni.setUtd(false);
 		stopRequested = false;
+		statusBar.setText("");
+		documentWindow.setText ("BrailleBlaster");
 	    daisy.view.setFocus();
     }
 
@@ -454,12 +457,16 @@ class DocumentManager {
         
         if (documentName != null) {
             openDocument (documentName);
-    		BBIni.setUtd(true);
+            String ext = getFileExt(documentName);
+            if (ext.contentEquals("utd")) {
+            	BBIni.setUtd(true);
+            	metaContent = true;
+         //   }
     	    haveOpenedFile = true;
-    	    metaContent = true;
     	    brailleFileName = getBrailleFileName();
     	    utd.displayTranslatedFile(documentName, brailleFileName);
-            braille.view.setEditable(false);
+            }
+    	    braille.view.setEditable(false);
             daisyHasChanged = false;
             daisy.view.addModifyListener(daisyMod);
             setWindowTitle (documentName);
@@ -484,14 +491,13 @@ class DocumentManager {
         documentName = path;
         openDocument (documentName);
         
-        int dot = documentName.lastIndexOf(".");
-        if (dot > 0) {
-            String ext = documentName.substring(dot +1);
+        String ext = getFileExt(documentName);
             if (ext.contentEquals("utd")) {
             	brailleFileName = getBrailleFileName();
             	utd.displayTranslatedFile(documentName, brailleFileName); 
+            	BBIni.setUtd(true);
             }	
-        }
+        haveOpenedFile = true;
     }
 
     void openDocument (String fileName) {
@@ -642,13 +648,16 @@ class DocumentManager {
 
     
     void fileSave() {
-    	if (! daisyHasChanged) {
+    	if ( !(daisyHasChanged || brailleHasChanged)) {
             new Notify (lh.localValue("noChange") );
             return;
     	};
     	
+    	String ext = "";
+    	if (documentName != null) 	ext = getFileExt(documentName);
+    	
     	/** no open file then do a Save As **/    	
-        if (!haveOpenedFile) {
+        if ((!haveOpenedFile) || ext.contentEquals("xml")) {
         	fileSaveAs();
         } else {
             saveDaisyWorkFile();
@@ -664,7 +673,7 @@ class DocumentManager {
         	} else if (translatedFileName != null) {
         		YesNoChoice ync = new YesNoChoice(lh.localValue("confirmTranslationSaved") );	
         		if (ync.result == SWT.YES) { 
-        				System.out.println(fileName + " " + lh.localValue("saveTextBraille"));
+//        				System.out.println(fileName + " " + lh.localValue("saveTextBraille"));
         				new FileUtils().copyFile (translatedFileName, documentName);
         				statusBar.setText(lh.localValue("fileSaved")) ;
         				new Notify (lh.localValue("fileSaved"));
@@ -704,7 +713,6 @@ class DocumentManager {
 			saveUtdml = true;
 		}
 
-		
         Shell shell = new Shell (display);
         FileDialog dialog = new FileDialog (shell, SWT.SAVE);
         String filterPath = System.getProperty ("user.home");
@@ -719,6 +727,11 @@ class DocumentManager {
        	dialog.setFilterNames(filterNames);
        	dialog.setFilterExtensions (filterExtensions); 
        	if (haveOpenedFile) {
+       		if (getFileExt(documentName).contentEquals("xml")) {
+       			int i = documentName.lastIndexOf(".");
+       			String fn = documentName.substring(0, i);
+       			documentName = fn + ".utd";
+       		}
        		dialog.setFileName(documentName);
        	} else {
        		dialog.setFileName(newDaisyFile);
@@ -748,10 +761,9 @@ class DocumentManager {
     	
     	//add this file to recentDocList
     	rd.addDocument(saveTo);
-    	statusBar.setText(lh.localValue("fileSaved")) ;
-		               
-    	if (saveUtdml) statusBar.setText(lh.localValue("fileSaved")) ;
-    	
+    	statusBar.setText(lh.localValue("fileSaved") + " " + saveTo) ;
+    	documentWindow.setText ("BrailleBlaster " + fileName);
+  	
         daisyHasChanged = false;
         brailleHasChanged = false;
     }
@@ -1037,6 +1049,8 @@ class DocumentManager {
     	
     	documentName = dialog.open();
         shell.dispose();
+        
+        if (documentName == null) return;
 
         /** Tika HTML **/
         try {
@@ -1142,6 +1156,16 @@ class DocumentManager {
 
     boolean getDaisyHasChanged() {
     	return daisyHasChanged;
+    }
+    
+    private String getFileExt(String fileName) {
+    	String ext = "";
+    	String fn = fileName.toLowerCase();
+    	int dot = fn.lastIndexOf(".");
+        if (dot > 0) {
+            ext = fn.substring(dot +1);
+        }
+    	return ext;
     }
 }
 

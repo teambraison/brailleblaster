@@ -310,6 +310,7 @@ class DocumentManager {
     		}
     	}
 **/
+    	System.out.println ("handleShutdown " + documentNumber );
         event.doit = true;
     }
 
@@ -363,7 +364,7 @@ class DocumentManager {
         default:
             break;
         }
-        //WPManager.setCurDoc(documentNumber);
+        WPManager.setCurDoc(documentNumber); //FO 27
         flags[documentNumber] = true;//this fires the interrupt
         return true;
     }
@@ -550,7 +551,8 @@ class DocumentManager {
             	
             	String nname = ((Element) node).getLocalName();
             	if (! (nname.matches("span") || nname.matches("brl"))) {
-            		final String value = newNode.getValue() + "\n";
+//            		final String value = newNode.getValue() + "\n";
+            		final String value = newNode.getValue();
             		numLines++;
             		numChars += value.length();
  

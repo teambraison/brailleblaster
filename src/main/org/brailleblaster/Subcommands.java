@@ -133,9 +133,8 @@ doHelp();
 else if (subcommand.equals ("exit")) {
 break;
 }
-else {
-System.out.println ("Incorrect sobcommana '" + subcommand + "'");
-continue;
+else if (subcommand != null && !subcommand.equals("")) {
+System.out.println ("Incorrect subcommand '" + subcommand + "'");
 }
 }
 }

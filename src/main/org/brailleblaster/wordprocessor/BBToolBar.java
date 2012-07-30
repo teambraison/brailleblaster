@@ -46,7 +46,6 @@ import org.eclipse.swt.graphics.Point;
 public class BBToolBar {
 
 private ToolBar toolBar;
-private ToolBar toolBar2;
 
 // FO
 public BBToolBar (final DocumentManager dm) {
@@ -116,17 +115,6 @@ embossWithInk.addSelectionListener (new SelectionAdapter() {
 });
 
 toolBar.pack();
-/**
-toolBar2 = new ToolBar (dm.documentWindow, SWT.HORIZONTAL);
-Color color2 = dm.display.getSystemColor(SWT.COLOR_GRAY);  // FO 29
-toolBar2.setBackground(color2);     // FO 29
-FormData location2 = new FormData();
-location2.left = new FormAttachment(0);
-location2.right = new FormAttachment(99);
-location2.top = new FormAttachment (8);
-location2.bottom = new FormAttachment (9);
-toolBar2.setLayoutData (location2);
-**/
 
 //FO
 FormData bloc = new FormData();

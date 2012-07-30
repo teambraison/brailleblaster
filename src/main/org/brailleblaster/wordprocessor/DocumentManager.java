@@ -393,6 +393,7 @@ class DocumentManager {
     	// FO
     	if (!daisy.view.isVisible()) { 
     		activateViews(true);
+    		activateMenus(true);
     		daisy.hasChanged = false;
     		braille.hasChanged = false;
     		haveOpenedFile = false;
@@ -412,22 +413,6 @@ class DocumentManager {
 //      return;
 //      }
     	}
-    	/**
-    	daisy.view.replaceTextRange(0, daisy.view.getCharCount(), "");
-	    braille.view.replaceTextRange(0, braille.view.getCharCount(), "");
-		haveOpenedFile = false;
-		brailleFileName = null;
-		documentName = null;
-		daisy.hasChanged = false;
-		braille.hasChanged = false;
-		doc = null;
-		BBIni.setUtd(false);
-		stopRequested = false;
-		statusBar.setText("");
-//		documentWindow.setText ("BrailleBlaster");
-		setWindowTitle (" untitled"); 
-	    daisy.view.setFocus();
-	    **/
     }
 
     /* UTD or XML DOCUMENT */
@@ -435,6 +420,7 @@ class DocumentManager {
     	
     	if (!daisy.view.isVisible()) { 
     		activateViews(true);
+    		activateMenus(true);
     		daisy.hasChanged = false;
     		braille.hasChanged = false;
     		haveOpenedFile = false;
@@ -498,6 +484,22 @@ class DocumentManager {
     }
 
     void recentOpen(String path){        
+    	
+      	if (!daisy.view.isVisible()) { 
+    		activateViews(true);
+    		activateMenus(true);
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		haveOpenedFile = false;
+    		brailleFileName = null;
+    		documentName = null;
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		doc = null;
+    		BBIni.setUtd(false);
+      	}
+    	
+    	
         if (doc != null){
             //see if this recent document is already opened in current windows set
             recentFileNameIndex = WPManager.isRunning(path);
@@ -512,15 +514,22 @@ class DocumentManager {
             return;
         }
         documentName = path;
-        openDocument (documentName);
         
         String ext = getFileExt(documentName);
-            if (ext.contentEquals("utd")) {
+        if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
             	brailleFileName = getBrailleFileName();
             	utd.displayTranslatedFile(documentName, brailleFileName); 
             	BBIni.setUtd(true);
-            }	
-        haveOpenedFile = true;
+                openDocument (documentName);
+        } else  {
+            parseImport(documentName);
+        	
+            braille.view.setEditable(false);
+
+            daisy.hasChanged = true;
+            setWindowTitle (documentName);
+            daisy.view.setFocus();
+        }
     }
 
     void openDocument (String fileName) {
@@ -1082,6 +1091,7 @@ class DocumentManager {
     	
        	if (!daisy.view.isVisible()) { 
     		activateViews(true);
+    		activateMenus(true);
     		daisy.hasChanged = false;
     		braille.hasChanged = false;
     		haveOpenedFile = false;
@@ -1127,23 +1137,29 @@ class DocumentManager {
         shell.dispose();
         
         if (documentName == null) return;
-
-        /** Tika HTML **/
-        try {
-        	useTikaHtmlParser(documentName);
-        } catch (Exception e) {
-        	System.out.println ("Error importing: documentName" );
-        }
         
-        openTikaDocument(tikaWorkFile);
+        //add this file to recentDocList
+        rd.addDocument(documentName);
+
+        parseImport(documentName);
         	
         braille.view.setEditable(false);
 
-//      statusBar.setText (lh.localValue("importCompleted"));
-//      daisy.view.addModifyListener(daisyMod);
         daisy.hasChanged = true;
         setWindowTitle (documentName);
         daisy.view.setFocus();
+    }
+    
+    void parseImport(String fileName) {
+        /** Tika HTML **/
+        try {
+        	useTikaHtmlParser(fileName);
+        } catch (Exception e) {
+        	System.out.println ("Error importing: " + fileName );
+        	return;
+        }
+        
+        openTikaDocument(tikaWorkFile);
     }
     
     /** Tika importer that creates a HTML formatted file **/
@@ -1262,7 +1278,7 @@ class DocumentManager {
     }
     
     void activateMenus (boolean state) {
-    	String itemToFind[] = {"Close", "Save", "Emboss Now", "Print"};
+    	String itemToFind[] = {"Close", "Save", "Emboss Now", "Print", "Translate"};
     	Menu mb = documentWindow.getMenuBar();
     	MenuItem mi[] = mb.getItems();
     	String t;
@@ -1281,6 +1297,30 @@ class DocumentManager {
     		    if (t.contains(itemToFind[j])) {
         		  ii[i].setEnabled(state);
     		    }
+    		}
+    	}
+    	Control tb[]  = documentWindow.getChildren();
+    	for (i=0; i< tb.length; i++) {
+    		t = tb[i].toString().replace("&", "");
+    		if (t.contains("ToolBar")) {
+  			  break;
+    		}
+    	}
+    	ToolBar ttb = (ToolBar)tb[i];
+    	 ToolItem ti[] = ttb.getItems();
+    	 for (i=0; i< ti.length; i++) {
+    		 for (int j=0; j<itemToFind.length; j++) {
+    		     if (ti[i].getText().contains(itemToFind[j])) {
+    		    	 ti[i].setEnabled(state);
+    		     }
+    		 }
+    	 }
+    	 String vb = lh.localValue("viewBraille");
+     	 for (i=0; i< tb.length; i++) {
+    		t = tb[i].toString().replace("&", "");
+    		if (t.contains(vb)) {
+    			tb[i].setEnabled(state);
+  			    break;
     		}
     	}
     }

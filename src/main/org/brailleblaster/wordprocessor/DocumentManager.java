@@ -253,11 +253,30 @@ class DocumentManager {
         if (documentNumber == 0) {
             new Welcome(); // This then calls the settings dialogs.
         }
+
+        /**
         if (action == WP.OpenDocumentGetFile) {
             fileOpen();
         } else if ((action == WP.DocumentFromCommandLine)||(action == WP.OpenDocumentGetRecent)) {
             openDocument(documentName);
         }
+        **/
+        
+        switch (action) {
+        case WP.OpenDocumentGetFile:
+        	fileOpen();
+        	break;
+        case WP.DocumentFromCommandLine:
+        	openDocument(documentName);
+        	break;
+        case WP.OpenDocumentGetRecent:
+        	openDocument(documentName);
+        	break;
+        case WP.ImportDocument:
+        	importDocument();
+        	break;
+        }
+        
         
         boolean stop = false;
         daisy.view.setFocus();
@@ -429,7 +448,7 @@ class DocumentManager {
     		daisy.view.setFocus();
     	};
     	
-        if (doc != null){
+        if ((doc != null) || daisy.hasChanged) {
             returnReason = WP.OpenDocumentGetFile;
             flags[documentNumber] = true;
             return;
@@ -1060,6 +1079,28 @@ class DocumentManager {
     }
     
     void importDocument() {
+    	
+       	if (!daisy.view.isVisible()) { 
+    		activateViews(true);
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		haveOpenedFile = false;
+    		brailleFileName = null;
+    		documentName = null;
+    		daisy.hasChanged = false;
+    		doc = null;
+    		BBIni.setUtd(false);
+    		setWindowTitle (" untitled"); 
+    		daisy.view.setFocus();
+    	};
+    	
+        if ((doc != null) || daisy.hasChanged) {
+            returnReason = WP.ImportDocument;
+            flags[documentNumber] = true;
+            return;
+        }
+        haveOpenedFile = false;
+        metaContent = false;
      	
         Shell shell = new Shell (display, SWT.DIALOG_TRIM);
         FileDialog dialog = new FileDialog (shell, SWT.OPEN);

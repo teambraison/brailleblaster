@@ -306,7 +306,6 @@ class DocumentManager {
      * processing.
      */
     boolean setReturn (int reason) {
-    	System.out.println("reason " + reason);
         switch (reason) {
         case WP.SwitchDocuments:
             if (WPManager.haveOtherDocuments()) {

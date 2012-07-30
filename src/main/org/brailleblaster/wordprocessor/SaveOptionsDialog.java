@@ -84,6 +84,7 @@ public class SaveOptionsDialog extends Dialog {
 		} catch (IllegalArgumentException e) {
 			System.err.println ("setTabList exception " + e.getMessage());
 		}
+		selShell.setDefaultButton(b3);
 		
 		selShell.pack();
 		

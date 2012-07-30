@@ -413,6 +413,22 @@ class DocumentManager {
 
     /* UTD or XML DOCUMENT */
     void fileOpen () {
+    	
+    	if (!daisy.view.isVisible()) { 
+    		activateViews(true);
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		haveOpenedFile = false;
+    		brailleFileName = null;
+    		documentName = null;
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		doc = null;
+    		BBIni.setUtd(false);
+    		setWindowTitle (" untitled"); 
+    		daisy.view.setFocus();
+    	};
+    	
         if (doc != null){
             returnReason = WP.OpenDocumentGetFile;
             flags[documentNumber] = true;
@@ -455,7 +471,8 @@ class DocumentManager {
             }
     	    braille.view.setEditable(false);
             daisy.hasChanged = false;
-//            daisy.view.addModifyListener(daisyMod);
+            braille.hasChanged = false;
+//          daisy.view.addModifyListener(daisyMod);
             setWindowTitle (documentName);
             daisy.view.setFocus();
         }

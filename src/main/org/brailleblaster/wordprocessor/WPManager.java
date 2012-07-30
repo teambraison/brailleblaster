@@ -124,6 +124,18 @@ public class WPManager {
                 curDoc = documents[documentIndex] = new DocumentManager(display, 
                         documentIndex, WP.OpenDocumentGetFile, fileName);
                 break;
+//FO 30
+            case WP.ImportDocument://3
+                if (getNextAvailablePos() == -1){
+                    new Notify ("Too many documents to open a new file");
+                    curDoc.resume();
+                    break;
+                }
+                documentIndex = getNextAvailablePos();
+                curDoc = documents[documentIndex] = new DocumentManager(display, 
+                        documentIndex, WP.ImportDocument, fileName);
+                break;
+                
             case WP.OpenDocumentGetRecent://8 open a recent doc in a new windows
                 if (getNextAvailablePos() == -1){
                     new Notify ("Too many documents to open the recent document in a new window");

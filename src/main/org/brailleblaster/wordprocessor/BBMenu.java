@@ -283,7 +283,8 @@ class BBMenu {
 		closeItem.setText(lh.localValue("&Close"));
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.setReturn(WP.DocumentClosed);
+//				dm.setReturn(WP.DocumentClosed);  //FO 29
+				dm.fileClose();
 			}
 		});
 		if (!BBIni.getPlatformName().equals("cocoa")) {
@@ -291,7 +292,8 @@ class BBMenu {
 			exitItem.setText(lh.localValue("e&xit"));
 			exitItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-					dm.setReturn(WP.BBClosed);
+//					dm.setReturn(WP.BBClosed);
+					dm.setReturn(WP.DocumentClosed);
 				}
 			});
 		}
@@ -709,7 +711,7 @@ class BBMenu {
                 {
                 	dm.setReturn(WP.DocumentClosed);
                 }
-            }
+          }
         });
 
 		// Activate menus when documentWindow shell is opened

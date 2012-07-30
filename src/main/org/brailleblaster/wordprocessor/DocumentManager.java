@@ -58,7 +58,9 @@ import java.util.logging.Level;
 
 import org.daisy.printing.*;
 import javax.print.PrintException;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.graphics.Color;
+
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.FileUtils;
@@ -77,8 +79,6 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.ToHTMLContentHandler;
-import org.apache.tika.sax.ToTextContentHandler;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.xml.sax.SAXException;
 
@@ -116,8 +116,6 @@ class DocumentManager {
     String daisyWorkFile = null;       // FO
     String tikaWorkFile = null;        // FO
     String newDaisyFile = "utdml-doc"; // FO
-    static boolean daisyHasChanged = false; // FO
-    static boolean brailleHasChanged = false; // FO
     boolean textAndBraille = false;
 	boolean saveUtdml = false;
 	boolean metaContent = false;
@@ -171,18 +169,18 @@ class DocumentManager {
         menu = new BBMenu (this);
         toolBar = new BBToolBar (this);
         /* text window is on the left */
-        daisy = new DaisyView (documentWindow);
-        braille = new BrailleView (documentWindow);
+	    daisy = new DaisyView (documentWindow);
+	    braille = new BrailleView (documentWindow);
+
         // activeView = (ProtoView)daisy;
         statusBar = new BBStatusBar (documentWindow);
         documentWindow.setSize (1000, 700);
         documentWindow.layout(true, true);
         
-        documentWindow.addListener(SWT.Close, new Listener(){
+        documentWindow.addListener (SWT.Close, new Listener (){
             public void handleEvent(Event event) {
-  //          setReturn(WP.DocumentClosed);
+              setReturn(WP.DocumentClosed);
                 //this way clicking close box is equivalent to the 'close' item on the menu
-              setReturn(WP.BBClosed);
             }
         });
 
@@ -191,7 +189,6 @@ class DocumentManager {
                   handleShutdown(event);
             }
         });
-        
         
         Monitor primary = display.getPrimaryMonitor ();
 		Rectangle bounds = primary.getBounds ();
@@ -202,7 +199,7 @@ class DocumentManager {
         documentWindow.open();
         setWindowTitle (" untitled"); 
         
-        daisy.view.addModifyListener(daisyMod);
+//      daisy.view.addModifyListener(daisyMod);
         /** for later use 
         braille.view.addModifyListener(brailleMod);
         **/
@@ -263,7 +260,6 @@ class DocumentManager {
         }
         
         boolean stop = false;
-
         daisy.view.setFocus();
 
         while (!documentWindow.isDisposed() && (!stop)&&(returnReason == 0)) {
@@ -281,29 +277,17 @@ class DocumentManager {
         //Then back to WPManager
     }
 
-    // Listeners to set the change flag.
-    ModifyListener daisyMod = new ModifyListener () {
-      	public void modifyText(ModifyEvent e) {
-			 daisyHasChanged = true;
-      	}
-   };
-   
-   ModifyListener brailleMod = new ModifyListener () {
-     	public void modifyText(ModifyEvent e) {
-			 brailleHasChanged = true;
-     	}
-  };
-    
     /**
      * Handle application shutdown signal from OS;
      */
     void handleShutdown (Event event) {
-    	if (daisyHasChanged) {
+    	if (daisy.hasChanged) {
        		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
     		if (ync.result == SWT.YES) { 
     			fileSave();
     		} else {
-    			daisyHasChanged = false;
+    			daisy.hasChanged = false;
+    			braille.hasChanged = false;
     		}
     	}
     event.doit = true;
@@ -322,6 +306,7 @@ class DocumentManager {
      * processing.
      */
     boolean setReturn (int reason) {
+    	System.out.println("reason " + reason);
         switch (reason) {
         case WP.SwitchDocuments:
             if (WPManager.haveOtherDocuments()) {
@@ -340,10 +325,6 @@ class DocumentManager {
             break;
         case WP.DocumentClosed:
             returnReason = reason;
-        	//FO
-        	if ((daisy.view.getCharCount() == 0) || (! daisyHasChanged) || (! brailleHasChanged)) {
-        		returnReason = WP.BBClosed;
-        	}
             break;
         case WP.BBClosed:
             returnReason = reason;
@@ -392,27 +373,46 @@ class DocumentManager {
 
     void fileNew() {
     	// FO
-    	if (daisyHasChanged || brailleHasChanged)  {
-    		YesNoChoice ync = new YesNoChoice("Warning: The current file has not been saved. Continue?");	
-    		if (ync.result == SWT.NO) return; 
-    	}
+    	if (!daisy.view.isVisible()) { 
+    		activateViews(true);
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		haveOpenedFile = false;
+    		brailleFileName = null;
+    		documentName = null;
+    		daisy.hasChanged = false;
+    		braille.hasChanged = false;
+    		doc = null;
+    		BBIni.setUtd(false);
+    		setWindowTitle (" untitled"); 
+    		daisy.view.setFocus();
+    	} else {
 
+//      if (doc != null){
+        returnReason = WP.NewDocument;
+        flags[documentNumber] = true;
+//      return;
+//      }
+    	}
+    	/**
     	daisy.view.replaceTextRange(0, daisy.view.getCharCount(), "");
 	    braille.view.replaceTextRange(0, braille.view.getCharCount(), "");
 		haveOpenedFile = false;
 		brailleFileName = null;
 		documentName = null;
-		daisyHasChanged = false;
-		brailleHasChanged = false;
+		daisy.hasChanged = false;
+		braille.hasChanged = false;
 		doc = null;
 		BBIni.setUtd(false);
 		stopRequested = false;
 		statusBar.setText("");
-		documentWindow.setText ("BrailleBlaster");
+//		documentWindow.setText ("BrailleBlaster");
+		setWindowTitle (" untitled"); 
 	    daisy.view.setFocus();
+	    **/
     }
 
-    /* UTD DOCUMENT */
+    /* UTD or XML DOCUMENT */
     void fileOpen () {
         if (doc != null){
             returnReason = WP.OpenDocumentGetFile;
@@ -438,7 +438,7 @@ class DocumentManager {
     	dialog.setFilterPath (filterPath);
 
     	/* temporarily turn off tracking of changes */
-    	daisy.view.removeModifyListener(daisyMod);
+//    	daisy.view.removeModify(daisyMod);
     	
     	documentName = dialog.open();
         shell.dispose();
@@ -455,8 +455,8 @@ class DocumentManager {
     	    utd.displayTranslatedFile(documentName, brailleFileName);
             }
     	    braille.view.setEditable(false);
-            daisyHasChanged = false;
-            daisy.view.addModifyListener(daisyMod);
+            daisy.hasChanged = false;
+//            daisy.view.addModifyListener(daisyMod);
             setWindowTitle (documentName);
             daisy.view.setFocus();
         }
@@ -490,7 +490,7 @@ class DocumentManager {
 
     void openDocument (String fileName) {
     	
-    	daisy.view.removeModifyListener(daisyMod);
+//    	daisy.view.removeModifyListener(daisyMod);
     	
         Builder parser = new Builder();
         try {
@@ -520,13 +520,40 @@ class DocumentManager {
 //          }
 //       }
 //        .start();
-         daisy.view.addModifyListener(daisyMod);
+//         daisy.view.addModifyListener(daisyMod);
     }
 
+    
+    void fileClose() {
+    	if (daisy.view == null) {
+    		System.err.println("fileCLose() - something wrong!!!");
+    		return;
+    	}
+    	activateMenus (false);
+    	if (daisy.hasChanged || braille.hasChanged) {
+           		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
+        		if (ync.result == SWT.YES) { 
+        			fileSave();
+        		} 
+    	}
+    	activateViews(false);
+		haveOpenedFile = false;
+		brailleFileName = null;
+		documentName = null;
+		doc = null;
+		BBIni.setUtd(false);
+		stopRequested = false;
+		statusBar.setText("");
+		daisy.view.setText("");
+		daisy.hasChanged = false;
+		braille.view.setText("");
+		braille.hasChanged = false;
+		setWindowTitle (" untitled"); 
+    }
+    
     private void walkTree (Node node) {
+        String ext = getFileExt(documentName);
         Node newNode;
-        numLines = 0;
-		numChars = 0;
        
         for (int i = 0; i < node.getChildCount(); i++) {
             newNode = node.getChild(i);
@@ -538,8 +565,12 @@ class DocumentManager {
             	
             	String nname = ((Element) node).getLocalName();
             	if (! (nname.matches("span") || nname.matches("brl"))) {
-//            		final String value = newNode.getValue() + "\n";
-            		final String value = newNode.getValue();
+            		final String value;
+                    if (ext.contentEquals("utd")) {
+            		 value = newNode.getValue() + "\n";
+                    } else {
+            		 value = newNode.getValue();
+                    }
             		numLines++;
             		numChars += value.length();
  
@@ -550,7 +581,7 @@ class DocumentManager {
                     	display.syncExec(new Runnable() {    
                         public void run() {
                             daisy.view.append (daisyLine.toString());
-                            statusBar.setText ("Read " + numLines + " lines, " + numChars 
+                            statusBar.setText ("Read " + numChars 
                                     + " characters.");
                         }
                     });
@@ -564,7 +595,7 @@ class DocumentManager {
 
     void openTikaDocument (String fileName) {
     	
-    	daisy.view.removeModifyListener(daisyMod);
+//    	daisy.view.removeModifyListener(daisyMod);
     	stopRequested = false;
     	
         Builder parser = new Builder();
@@ -587,7 +618,6 @@ class DocumentManager {
         while (!stopRequested) {
            walkTikaTree (rootElement);
          }
-         daisy.view.addModifyListener(daisyMod);
     }
 
     private void walkTikaTree (Node node) {
@@ -624,7 +654,7 @@ class DocumentManager {
                     	display.syncExec(new Runnable() {    
                         public void run() {
                             daisy.view.append (daisyLine.toString());
-                            statusBar.setText ("Read " + numLines + " lines, " + numChars 
+                            statusBar.setText ("Read " + daisy.view.getCharCount()
                                     + " characters.");
                         }
                     });
@@ -637,7 +667,7 @@ class DocumentManager {
 
     
     void fileSave() {
-    	if ( !(daisyHasChanged || brailleHasChanged)) {
+    	if ( !(daisy.hasChanged || braille.hasChanged)) {
             new Notify (lh.localValue("noChange") );
             return;
     	};
@@ -666,8 +696,8 @@ class DocumentManager {
         				new FileUtils().copyFile (translatedFileName, documentName);
         				statusBar.setText(lh.localValue("fileSaved")) ;
         				new Notify (lh.localValue("fileSaved"));
-        		        daisyHasChanged = false;
-        		        brailleHasChanged = false;
+        		        daisy.hasChanged = false;
+        		        braille.hasChanged = false;
         		} else {
         			new Notify(lh.localValue("noChangeSaved")); 
         		}
@@ -753,8 +783,8 @@ class DocumentManager {
     	statusBar.setText(lh.localValue("fileSaved") + " " + saveTo) ;
     	documentWindow.setText ("BrailleBlaster " + fileName);
   	
-        daisyHasChanged = false;
-        brailleHasChanged = false;
+        daisy.hasChanged = false;
+        braille.hasChanged = false;
     }
 
     void showBraille() {
@@ -884,7 +914,7 @@ class DocumentManager {
         }
         
 		metaContent = true;
-		brailleHasChanged = true;
+		braille.hasChanged = true;
 
         if (display) {
         	if (BBIni.useUtd()) {
@@ -1034,7 +1064,7 @@ class DocumentManager {
     	dialog.setFilterPath (filterPath);
 
     	/* turn off change tracking */
-    	daisy.view.removeModifyListener(daisyMod);
+//    	daisy.view.removeModifyListener(daisyMod);
     	
     	documentName = dialog.open();
         shell.dispose();
@@ -1052,9 +1082,9 @@ class DocumentManager {
         	
         braille.view.setEditable(false);
 
-        statusBar.setText (lh.localValue("importCompleted"));
-        daisy.view.addModifyListener(daisyMod);
-        daisyHasChanged = true;
+//      statusBar.setText (lh.localValue("importCompleted"));
+//      daisy.view.addModifyListener(daisyMod);
+        daisy.hasChanged = true;
         setWindowTitle (documentName);
         daisy.view.setFocus();
     }
@@ -1088,6 +1118,7 @@ class DocumentManager {
         try { 
         	ToXMLContentHandler handler = new ToXMLContentHandler(output, "ISO-8859-1");
 //        	ToXMLContentHandler handler = new ToXMLContentHandler(output, "UTF-8");
+//        	ToXMLContentHandler handler = new ToXMLContentHandler(output, "us-ascii");
                 parser.parse(stream, handler, metadata, context);
         }  catch (IOException e) {
             System.err.println("useHtmlParser IOException: " + e.getMessage());
@@ -1101,13 +1132,10 @@ class DocumentManager {
         	stream.close();
         }
     }
-
   
   	void showDaisy(String content) {
-              
- 		/* Make sure we replace the existing view with the content of the file */
+  		/* Make sure we replace the existing view with the content of the file */
         daisy.view.replaceTextRange(0, daisy.view.getCharCount(), content + "\n");
- 	
     }
 
     void placeholder() {
@@ -1144,7 +1172,7 @@ class DocumentManager {
     }
 
     boolean getDaisyHasChanged() {
-    	return daisyHasChanged;
+    	return daisy.hasChanged;
     }
     
     private String getFileExt(String fileName) {
@@ -1155,6 +1183,49 @@ class DocumentManager {
             ext = fn.substring(dot +1);
         }
     	return ext;
+    }
+    
+    void activateViews(boolean state) {
+    	activateDaisyView(state);
+    	activateBrailleView(state);
+    }
+    void activateDaisyView(boolean active) {
+        if (active) {
+        	daisy.view.setVisible(true);
+        } else {
+        	daisy.view.setVisible(false);
+        }
+    }
+    void activateBrailleView(boolean active) {
+        if (active) {
+        	braille.view.setVisible(true);
+        } else {
+        	braille.view.setVisible(false);
+        }
+    }
+    
+    void activateMenus (boolean state) {
+    	String itemToFind[] = {"Close", "Save", "Emboss Now", "Print"};
+    	Menu mb = documentWindow.getMenuBar();
+    	MenuItem mi[] = mb.getItems();
+    	String t;
+    	int i;
+    	for (i=0; i < mi.length; i++) {
+    		t = mi[i].getText().replace("&", "");
+    		if (t.contains("File")) {
+        		break;
+    		}
+    	}
+    	Menu f = mi[i].getMenu();
+    	MenuItem ii[] = f.getItems();
+    	for (i=0; i< ii.length; i++) {
+    		t = ii[i].toString().replaceAll("&", "");
+    		for (int j=0; j<itemToFind.length; j++) {
+    		    if (t.contains(itemToFind[j])) {
+        		  ii[i].setEnabled(state);
+    		    }
+    		}
+    	}
     }
 }
 

@@ -34,7 +34,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.events.*;
 
 abstract class AbstractView {
 StyledText view;
@@ -55,19 +56,24 @@ location.top = new FormAttachment (top);
 location.bottom = new FormAttachment(bottom);
 view.setLayoutData (location);
 
+//view.addVerifyKeyListener (new VerifyKeyListener() {
+//public void verifyKey (VerifyEvent event) {
+//handleKeystrokes (event);
+//}
+//});
 
-view.addVerifyKeyListener (new VerifyKeyListener() {
-public void verifyKey (VerifyEvent event) {
-handleKeystrokes (event);
+view.addModifyListener(viewMod);
 }
-});
 
-
-}
+// Better use a ModifyListener to set the change flag.
+ModifyListener viewMod = new ModifyListener () {
+    public void modifyText(ModifyEvent e) {
+         hasChanged = true;
+    }
+};
 
 void handleKeystrokes (VerifyEvent event) {
-hasChanged = true;
-event.doit = true;
-}
-
+  hasChanged = true;
+  event.doit = true;
+  }
 }

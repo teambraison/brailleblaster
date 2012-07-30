@@ -81,16 +81,16 @@ public class WPManager {
             switch (curDoc.returnReason) {
             case WP.DocumentClosed://6
             	documents[documentIndex].finish();
-//              if (getNextAvailableDoc() == -1) return; //no more docs, exit
-                if (getNextAvailableDoc() == -1) {
+                if (getNextAvailableDoc() == -1) return; //no more docs, exit
+//FO                if (getNextAvailableDoc() == -1) {
                 	// open new document
-                	documentIndex = 0;
-                	action = WP.NewDocument;
-                    curDoc = documents[0] = new DocumentManager(display, 
-                            documentIndex, action, "") ;
-                } else {
+//                	documentIndex = 0;
+//                	action = WP.NewDocument;
+//                    curDoc = documents[0] = new DocumentManager(display, 
+//                            documentIndex, action, "") ;
+//                } else {
                     WPManager.resumeAll(documentIndex);
-                }
+//                }
                 break;
             case WP.SwitchDocuments://4
                 if(DocumentManager.recentFileNameIndex != -1){
@@ -248,5 +248,4 @@ public class WPManager {
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
     }
-
 }

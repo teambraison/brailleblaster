@@ -66,7 +66,9 @@ try {
 logStream = new BufferedReader (new FileReader 
 (logFileName));
 } catch (FileNotFoundException e) {
+
 new Notify ("Could not find " + logFileName);
+return;
 }
 while(true) {
 try {
@@ -78,7 +80,7 @@ return;
 if (line == null) {
 break;
 }
-logMessages.append (line);
+logMessages.append (line + "\n");
 }
 try {
 logStream.close();
@@ -99,6 +101,7 @@ logStream = new BufferedReader (new FileReader
 (logFileName));
 } catch (FileNotFoundException e) {
 new Notify ("Could not find " + logFileName);
+return;
 }
 while(true) {
 try {

@@ -38,7 +38,6 @@ import org.brailleblaster.util.Notify;
 import java.util.ArrayList;
 
 public class WPManager {
-
     /**
      * This is the controller for the whole word processing operation. It is the
      * entry point for the word processor, and therefore the only public class.
@@ -52,12 +51,12 @@ public class WPManager {
     private static int documentIndex;
     private static DocumentManager curDoc;
 
-    private static boolean isDeactiated = false; 
+    private static boolean isDeactivated = false; 
     private static DocumentManager prevDoc; 
     private static int prevIndex= -1;
 
     /**
-     * This constructor is the entry point to the word prodessor. It gets
+     * This constructor is the entry point to the word processor. It gets
      * things set up, handles multiple documents, etc.
      */
 
@@ -75,15 +74,23 @@ public class WPManager {
         }
         checkLiblouisutdml();        
         documentIndex = 0;
-        curDoc = documents[0] =new DocumentManager(display, 
+        curDoc = documents[0] = new DocumentManager(display, 
                 documentIndex, action, fileName) ;
         do {
             findTrigger();
             switch (curDoc.returnReason) {
             case WP.DocumentClosed://6
-                documents[documentIndex].finish();
+            	documents[documentIndex].finish();
                 if (getNextAvailableDoc() == -1) return; //no more docs, exit
-                WPManager.resumeAll(documentIndex);
+//FO                if (getNextAvailableDoc() == -1) {
+                	// open new document
+//                	documentIndex = 0;
+//                	action = WP.NewDocument;
+//                    curDoc = documents[0] = new DocumentManager(display, 
+//                            documentIndex, action, "") ;
+//                } else {
+                    WPManager.resumeAll(documentIndex);
+//                }
                 break;
             case WP.SwitchDocuments://4
                 if(DocumentManager.recentFileNameIndex != -1){
@@ -94,7 +101,7 @@ public class WPManager {
                     documentIndex = getNextAvailableDoc();
                 }
                 curDoc = documents[documentIndex];
-                //System.out.println("Swithcing...from "+ documentIndex+ "to" +getNextAvailableDoc() );
+                //System.out.println("Switching...from "+ documentIndex+ "to" +getNextAvailableDoc() );
                 curDoc.resume();
                 break;
             case WP.NewDocument://1
@@ -117,6 +124,18 @@ public class WPManager {
                 curDoc = documents[documentIndex] = new DocumentManager(display, 
                         documentIndex, WP.OpenDocumentGetFile, fileName);
                 break;
+//FO 30
+            case WP.ImportDocument://3
+                if (getNextAvailablePos() == -1){
+                    new Notify ("Too many documents to open a new file");
+                    curDoc.resume();
+                    break;
+                }
+                documentIndex = getNextAvailablePos();
+                curDoc = documents[documentIndex] = new DocumentManager(display, 
+                        documentIndex, WP.ImportDocument, fileName);
+                break;
+                
             case WP.OpenDocumentGetRecent://8 open a recent doc in a new windows
                 if (getNextAvailablePos() == -1){
                     new Notify ("Too many documents to open the recent document in a new window");
@@ -138,8 +157,8 @@ public class WPManager {
             }
         } while (curDoc.returnReason != WP.BBClosed);
     }
-
-    private static void findTrigger(){
+    
+        private static void findTrigger(){
         int number = -1;
         int i = 0;
         for(boolean b:DocumentManager.getflags()){
@@ -182,7 +201,7 @@ public class WPManager {
                 else return i;
             }
         }
-        //if no availabe doc
+        //if no available doc
         return -1;
     }
 
@@ -205,7 +224,7 @@ public class WPManager {
     }
 
     int getNextAvailablePos(){
-        //see if there is available postion for one more document, -1 if it is full
+        //see if there is available position for one more document, -1 if it is full
         for(int i = 0; i <MAX_NUM_DOCS; i++){
             if( documents[i] == null) return i;
             else if (documents[i].isFinished()){documents[i] = null; return i;}
@@ -241,5 +260,4 @@ public class WPManager {
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
     }
-
 }

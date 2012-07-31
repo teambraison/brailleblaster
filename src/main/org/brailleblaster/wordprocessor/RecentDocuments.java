@@ -41,13 +41,18 @@ import java.util.ArrayList;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Combo;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 
 /**
@@ -65,6 +70,8 @@ class RecentDocuments {
     private static final int MAX_NUM_FILES=50;
     private String fileSep;
     private DocumentManager dm;
+    // FO
+    LocaleHandler lh = new LocaleHandler();
 
     RecentDocuments(final DocumentManager dm) {
         this.dm = dm;
@@ -80,17 +87,45 @@ class RecentDocuments {
         Display display = BBIni.getDisplay();
         shell = new Shell (display, SWT.DIALOG_TRIM);
         shell.setText("Recent documents");
+        // FO
+        Monitor primary = display.getPrimaryMonitor();
+      	Rectangle bounds = primary.getBounds();
+      	Rectangle rect = shell.getBounds();
+      	int x = bounds.x + ((bounds.width - rect.width) / 2) + 10;
+      	int y = bounds.y + ((bounds.height - rect.height) / 2) + 10;
+      	shell.setLocation (x, y);
+        
         GridLayout gridLayout = new GridLayout ();
         shell.setLayout (gridLayout);
-        combo = new Combo (shell, SWT.DROP_DOWN|SWT.READ_ONLY);
+        gridLayout.marginBottom = 20;
+        gridLayout.marginLeft = 10; 
+        gridLayout.marginRight = 10; 
+        gridLayout.numColumns = 3;
+        gridLayout.horizontalSpacing = 30;
+        
+        combo = new Combo (shell, SWT.DROP_DOWN | SWT.READ_ONLY);
+        if (recentDocsArr.length > 25) {
+            combo.setVisibleItemCount(25);
+        } else {
+            combo.setVisibleItemCount(recentDocsArr.length);
+        }
         combo.setItems(recentDocsArr);
-        GridData data = new GridData ();
-        data.minimumWidth = 300;
-        data.grabExcessHorizontalSpace = true;
-        combo.setLayoutData(data);
+        combo.select(0);
+               
         Button open = new Button(shell, SWT.PUSH);
+        open.setText(lh.localValue("&Open"));
+        
+        Button cancel = new Button(shell, SWT.PUSH);
+        cancel.setText(lh.localValue("buttonCancel"));
+        
         shell.setDefaultButton(open);
-        open.setText("&Open");
+
+        cancel.addSelectionListener (new SelectionAdapter() {
+        	public void widgetSelected (SelectionEvent e) {
+        		shell.close();
+        	}
+        });
+        
         open.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();

@@ -39,7 +39,9 @@ import org.eclipse.swt.events.VerifyEvent;
 class BrailleView extends AbstractView {
 
 BrailleView (Shell documentWindow) {
-super (documentWindow, 56, 100, 12, 92);
+//	super (documentWindow, 56, 100, 12, 92);
+	super (documentWindow, 50, 100, 12, 92);
+
 }
 
 }

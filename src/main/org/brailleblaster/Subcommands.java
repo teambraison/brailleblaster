@@ -35,6 +35,7 @@ import org.brailleblaster.util.ProgramCaller;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.liblouis.liblouisutdml;
 import java.io.IOException;
+import java.io.Console;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
 import javax.print.PrintException;
@@ -97,10 +98,51 @@ if (display == null) {
   }
 new WPManager (subcommand);
 }
+if (BBIni.multCommands()) {
+moreCommands();
+}
 }
 
 /**
- * Translate the input file to the output file addording to the options, 
+ * Ask for more commands and execute them.
+ */
+private void moreCommands () {
+Console cons = System.console();
+if (cons == null) {
+System.out.println ("The console is not available.");
+return;
+}
+cons.printf (
+"Type another command at the prompt. Type exit when finished.\n");
+while (true) {
+cons.printf ("Command: ");
+String line = cons.readLine();
+String[] args = line.split (" ", 20);
+subcommand = args[0];
+subArgs = Arrays.copyOfRange (args, 1, args.length);
+if (subcommand.equals ("translate")) {
+doTranslate();
+}
+else if (subcommand.equals ("emboss")) {
+doEmboss();
+}
+else if (subcommand.equals ("checktable")) {
+doChecktable();
+}
+else if (subcommand.equals ("help")) {
+doHelp();
+}
+else if (subcommand.equals ("exit")) {
+break;
+}
+else if (subcommand != null && !subcommand.equals("")) {
+System.out.println ("Incorrect subcommand '" + subcommand + "'");
+}
+}
+}
+
+/**
+ * Translate the input file to the output file according to the options, 
  * if any.
  */
 private void doTranslate() {
@@ -114,12 +156,15 @@ lbuLog.showLog();
  * the generic embosser is supported at the moment, but most embossers 
  * can run in this mode.
  */
-
 private void doEmboss() {
 int outIndex = subArgs.length - 1;
 String transOut = "transout";
 String embosserName = subArgs[outIndex];
 subArgs[outIndex] = transOut;
+if (embosserName.isEmpty() || (subArgs.length < 2)) {
+	System.out.println( "Embosser name not supplied. Exiting.");
+	return;
+}
 louisutdml.file2brl (subArgs);
 File translatedFile = new File (transOut);
 try {
@@ -146,7 +191,7 @@ lbuLog.showLog();
 
 private void doHelp() {
 final String[] help = new String[] {
-"Usage: java-jar brailleblaster.jar {options} subcommand arguments",
+"Usage: java -jar brailleblaster.jar {options} subcommand arguments",
 "options: -nogui, the system does not have a GUI",
 };
 for (int i = 0; i < help.length; i++) {

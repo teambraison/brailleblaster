@@ -98,7 +98,9 @@ if (display == null) {
   }
 new WPManager (subcommand);
 }
+if (BBIni.multCommands()) {
 moreCommands();
+}
 }
 
 /**
@@ -111,7 +113,7 @@ System.out.println ("The console is not available.");
 return;
 }
 cons.printf (
-"Type a command at the prompt. Type exit when finished.\n");
+"Type another command at the prompt. Type exit when finished.\n");
 while (true) {
 cons.printf ("Command: ");
 String line = cons.readLine();

@@ -61,7 +61,8 @@ public final class BBIni {
 	private static boolean debug = false;
 	private static boolean gotGui = true;
 	private static boolean utd = false;
-	private static Logger logger;
+    private static boolean multipleSubcommands = false;
+    private static Logger logger;
 	private static Display display = null;
 	private static String BBVersion;
 	private static String releaseDate;
@@ -147,31 +148,34 @@ while (i < args.length) {
 if (args[i].charAt(0) != '-') {
 break;
 }
-				if (args[i].equals ("-debug")) {
-					debug = true;
-				}
-				else if (args[i].equals ("-nogui")) {
-					gotGui = false;
-				}
-				else if (args[i].equals ("-utd")) {
-					utd = true;
-				}
-				else {
-					System.out.println ("Bad option " + args[i]);
-				}
+if (args[i].equals ("-debug")) {
+debug = true;
+}
+else if (args[i].equals ("-nogui")) {
+gotGui = false;
+}
+else if (args[i].equals ("-utd")) {
+utd = true;
+}
+else if (args[i].equals ("-multcom")) {
+multipleSubcommands = true;
+}
+else {
+System.out.println ("Bad option '" + args[i] + "'");
+}
 i++;
-			}
+}
 if (i < args.length) {
 hSubcommands = true;
 }
-		}
-		if (gotGui) {
-			try {
-				display = new Display();
-			} catch (SWTError e) {
-				logger.log (Level.SEVERE, "Can't find GUI", e);
-			}
-		}
+}
+if (gotGui) {
+try {
+display = new Display();
+} catch (SWTError e) {
+logger.log (Level.SEVERE, "Can't find GUI", e);
+}
+}
 try {
 liblouisutdml.loadLibrary (nativeLibraryPath, nativeLibrarySuffix);
 liblouisutdml.initialize (programDataPath, tempFilesPath, 
@@ -290,6 +294,9 @@ return hSubcommands;
 	public static boolean useUtd () {
 		return utd;
 	}
+public static boolean multCommands () {
+return multipleSubcommands;
+}
 	// FO
 	public static void setUtd (boolean trueFalse) {
 		utd = trueFalse;

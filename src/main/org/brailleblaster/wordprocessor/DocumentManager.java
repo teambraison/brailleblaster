@@ -712,7 +712,7 @@ class DocumentManager {
     
     void fileSave() {
     	if ( !(daisy.hasChanged || braille.hasChanged)) {
-            new Notify (lh.localValue("noChange") );
+            new Notify (lh.localValue("noChange"));
             return;
     	};
     	

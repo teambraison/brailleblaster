@@ -150,7 +150,7 @@ class BBMenu {
 
 		MenuItem advancedItem = new MenuItem(menuBar, SWT.CASCADE);
 		advancedItem.setText(lh.localValue("&Advanced"));
-		advancedItem.setEnabled(false); /* FO */
+//		advancedItem.setEnabled(false); 
 		MenuItem helpItem = new MenuItem(menuBar, SWT.CASCADE);
 		helpItem.setText(lh.localValue("&Help"));
 
@@ -596,6 +596,7 @@ class BBMenu {
 		Menu advancedMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
 		brlFormatItem = new MenuItem(advancedMenu, SWT.PUSH);
 		brlFormatItem.setText(lh.localValue("&BrailleFormat"));
+		brlFormatItem.setEnabled(false);
 		brlFormatItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -603,6 +604,7 @@ class BBMenu {
 		});
 		brailleASCIIItem = new MenuItem(advancedMenu, SWT.PUSH);
 		brailleASCIIItem.setText(lh.localValue("&brailleASCIITable"));
+		brailleASCIIItem.setEnabled(false);
 		brailleASCIIItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -611,6 +613,7 @@ class BBMenu {
 		showTranslationTemplatesItem = new MenuItem(advancedMenu, SWT.PUSH);
 		showTranslationTemplatesItem.setText(lh
 				.localValue("&ShowTranslationTemplates"));
+		showTranslationTemplatesItem.setEnabled(false);
 		showTranslationTemplatesItem
 				.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
@@ -619,6 +622,7 @@ class BBMenu {
 				});
 		showFormatTemplatesItem = new MenuItem(advancedMenu, SWT.PUSH);
 		showFormatTemplatesItem.setText(lh.localValue("&ShowFormatTemplates"));
+		showFormatTemplatesItem.setEnabled(false);
 		showFormatTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();

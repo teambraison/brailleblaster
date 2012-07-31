@@ -85,6 +85,8 @@ public class SaveOptionsDialog extends Dialog {
 			System.err.println ("setTabList exception " + e.getMessage());
 		}
 		
+		selShell.setDefaultButton(b3);
+		
 		selShell.pack();
 		
 		Monitor primary = display.getPrimaryMonitor ();

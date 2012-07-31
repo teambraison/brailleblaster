@@ -101,13 +101,13 @@ public class SettingsDialog {
 			}
 		});
 		dialog.pack();
-		dialog.open();
 		// Move the dialog to the center of the top level shell.
-//		Rectangle shellBounds = shell.getBounds();
-//		Point dialogSize = dialog.getSize();
-//		dialog.setLocation(
-//				shellBounds.x + (shellBounds.width - dialogSize.x) / 2,
-//				shellBounds.y + (shellBounds.height - dialogSize.y) / 2);
+		Rectangle shellBounds = shell.getBounds();
+		Point dialogSize = dialog.getSize();
+		dialog.setLocation(
+				shellBounds.x + (shellBounds.width - dialogSize.x) / 2,
+				shellBounds.y + (shellBounds.height - dialogSize.y) / 2);
+		dialog.open();
 	}
 
 	private void loadProperties(){

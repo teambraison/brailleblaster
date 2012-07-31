@@ -40,9 +40,10 @@ import org.eclipse.swt.printing.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.custom.StyledText;
 import nu.xom.*;
+
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -59,7 +60,7 @@ import org.eclipse.swt.widgets.MessageBox;
  * This class encapsulates handling of the Universal 
  * TactileDocument Markup Language (UTDML);
  */
-class UTD {
+class UTD { 
 
     //static int pageCount;
     //static int pageCount2;
@@ -83,21 +84,25 @@ class UTD {
     Node beforeBrlonlyNode;
     private boolean firstPage;
     private boolean firstLineOnPage;
-    StringBuilder brailleLine = new StringBuilder (4096);
-    StringBuilder printLine = new StringBuilder (4096);
+    StringBuilder brailleLine = new StringBuilder (8192);
+//  StringBuilder printLine = new StringBuilder (8192);
     DocumentManager dm;
     Document doc;
+    boolean utdFound = false;	// FO
+    boolean firstTime;
     //for threading
     int numLines;
     int numPages;
     int numChars;
-
+    int bvLineCount;
+    BufferedWriter bufferedWriter = null;
 
     UTD (final DocumentManager dm) {
         this.dm = dm;
     }
 
-    void displayTranslatedFile() {
+   	
+    void displayTranslatedFile(String utdFileName, String brailleFileName) {
         beforeBrlNode = null;
         beforeBrlonlyNode = null;
         brlIndex = null;
@@ -117,73 +122,155 @@ class UTD {
         bottomMargin = 0;
         currentBraillePageNumber = "0";
         currentPrintPageNumber = "0";
+        
         Builder parser = new Builder();
         try {
-            doc = parser.build (dm.translatedFileName);
+//          doc = parser.build (dm.translatedFileName);
+            doc = parser.build (utdFileName);
         } catch (ParsingException e) {
             new Notify ("Malformed document");
             return;
         }
         catch (IOException e) {
-            System.out.println("Could not open"+ dm.translatedFileName+" because" + e.getMessage());
-            new Notify ("Could not open " + dm.translatedFileName);
+            System.out.println("Could not open"+ utdFileName +" because" + e.getMessage());
+            new Notify ("Could not open " + utdFileName);
             return;
         }
         final Element rootElement = doc.getRootElement();
-        //Use threading to keep the control of the window
-        new Thread() {
-            public void run() {
-                findBrlNodes (rootElement);
-            }
+        
+      
+        try {
+            //Construct the BufferedWriter object
+            bufferedWriter = new BufferedWriter(new FileWriter(brailleFileName));
+            
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        .start();
+        
+        
+        //Use threading to keep the control of the window
+
+//        new Thread() {
+//            public void run() {
+              findBrlNodes (rootElement);
+//            }
+//        }
+//        .start();
+           try {
+                  if (bufferedWriter != null) {
+                      bufferedWriter.flush();
+                      bufferedWriter.close();
+                  }
+              } catch (IOException ex) {
+                  ex.printStackTrace();
+           }
     }
 
     private void findBrlNodes (Element node) {
         Node newNode;
         Element element;
-        String elementName;
-        for (int i = 0; i < node.getChildCount(); i++) {
+        String elementName = null;
+        firstTime = true;	// FO
+        for (int i = 0; (i < node.getChildCount()); i++) {
             newNode = node.getChild(i);
             if (newNode instanceof Element) {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
-                if (elementName.equals ("meta")) {
-                    doUtdMeta (element);
-                } else if (elementName.equals ("brl")) {
+                if (elementName.contentEquals("head")) {
+                	Element utdElement = findUtdMeta(element);
+                	doUtdMeta (utdElement);   // found it
+                	
+                } else if (elementName.contentEquals("brl")) {
                     if (i > 0) {
                         try{
                             beforeBrlNode = newNode.getChild(i - 1);
                         }
                         catch(IndexOutOfBoundsException e ){
                             //The brl child, newNode, may not have any grandchild of node
-                            System.out.println("a brl Node does not have child, i = "+i ); 
+                            System.out.println("findBrlNodes: a brl Node does not have child, i = "+i ); 
                             beforeBrlNode = null; 
                             return;
                         }
                     } else {
                         beforeBrlNode = null;
                     }
-                    doBrlNode (element);
+                        doBrlNode (element);
+                    
+                } else if (elementName.contentEquals("p") ) {
+                	
+                	for (int j = 0; j < node.getChildCount(); j++) {
+                		// we need to dig down the element for the <brl> elements 
+                		Node pNode = node.getChild(j);
+                		Element pElement = (Element)pNode;
+                		for (int k = 0; k < pElement.getChildCount(); k++) {
+                			Node bNode = pElement.getChild(k);
+                			if (bNode instanceof Element) {
+                	            doBrlNode((Element)bNode);
+                			}
+                		}
+                	}
                 } else {
-                    findBrlNodes (element);
+					findBrlNodes(element);
                 }
             }
-            if(brailleLine.length()>2048 || printLine.length()>2048 || i== node.getChildCount()-1){
-                dm.display.syncExec(new Runnable() {    
-                    public void run() {                        
-                        dm.braille.view.append(brailleLine.toString());
-                        numChars += brailleLine.length();
-                        brailleLine.delete (0, brailleLine.length());
-                        dm.daisy.view.append(printLine.toString());
-                        printLine.delete (0, printLine.length());
-                        dm.statusBar.setText ("Translated " + numPages +" pages, " + numLines + " lines, " + numChars 
-                                + " characters.");
-                    }
-                });        
-            }
+         
+//            if(brailleLine.length() > 4096 || printLine.length() > 4096 || i == node.getChildCount()-1) {
+              if(brailleLine.length() > 4096 || i == node.getChildCount()-1) {
 
-        }
+                dm.display.syncExec(new Runnable() {    
+                    public void run() {    
+                    	// FO
+                    	if (firstTime) {
+                    		dm.braille.view.replaceTextRange(0, dm.braille.view.getCharCount(), 
+                    				brailleLine.toString() );
+                    		firstTime = false;
+                    	} else {
+                            dm.braille.view.append(brailleLine.toString() );
+                    	} 
+                    	
+                    	try {
+                        bufferedWriter.write(brailleLine.toString());
+                    	} catch (IOException e) {
+                    		System.err.println("findBrlNodes IOException: " + e.getMessage());
+                    	}
+                    	brailleLine.delete (0, brailleLine.length());
+                    }
+                 });        
+            }
+            /** p elements have their own structure **/
+            if (elementName.contentEquals("p"))  i = node.getChildCount() + 1;
+        }  // end for
+    }
+     
+    
+    private Element findUtdMeta (Element node) {
+    	String elementName;
+    	String attValue;
+    	Element child = null;
+    	Node childNode;
+    	
+    	for (int i = 0; i < node.getChildCount(); i++) {
+    		childNode = node.getChild(i);
+    		if (childNode instanceof Element) {
+    			child = (Element)childNode;
+    		
+    		elementName = child.getLocalName();
+    		if (elementName.equals ("meta")) {
+            	// FO
+            	if (child.getAttribute ("name") == null) {
+            		continue;
+            	};
+            	attValue = child.getAttributeValue("name");
+            	if (attValue.equals ("utd")) {
+            		utdFound = true;
+            		break;
+            	}
+    		}
+    		}
+    	}
+    	return child;
     }
 
     private void doUtdMeta (Element node) {
@@ -192,14 +279,22 @@ class UTD {
         }
         String metaContent;
         metaContent = node.getAttributeValue ("name");
+
+        if (metaContent == null ) {
+        	System.err.println("doUtdMeta: metaContent is null");
+        	dm.metaContent = false;
+        	return;
+        }
         if (!(metaContent.equals ("utd"))) {
             return;
         }
+        
+        dm.metaContent = true;
         metaContent = node.getAttributeValue ("content");
         String[] keysValues = metaContent.split (" ", 20);
         for (int i = 0; i < keysValues.length; i++) {
             String keyValue[] = keysValues[i].split ("=", 2);
-            if (keyValue[0].equals ("BraillePageNumber"))
+            if (keyValue[0].equals ("braillePageNumber"))
                 braillePageNumber = Integer.parseInt (keyValue[1]);
             else if (keyValue[0].equals ("firstTableName"))
                 firstTableName = keyValue[1];
@@ -218,12 +313,10 @@ class UTD {
             else if (keyValue[0].equals ("bottomMargin"))
                 bottomMargin = Integer.parseInt (keyValue[1]);
         }
-        return;
     }
 
     void showLines () {
         brailleLine.append ("\n");
-        printLine.append ("\n");
     }
 
     private void doBrlNode (Element node) {
@@ -246,6 +339,7 @@ class UTD {
             if (newNode instanceof Element) {
                 element = (Element)newNode;
                 elementName = element.getLocalName();
+
                 if (elementName.equals ("newpage")) {
                     //page number is updated in doNewpage
                     doNewpage (element);
@@ -337,14 +431,12 @@ class UTD {
 
     private void doNewpage (Element node) {
         String pageNumber = node.getAttributeValue ("brlnumber");
-        System.out.print("doNewpage: pageNumber = " +pageNumber+", Thread="+ Thread.currentThread().getName());
         if(pageNumber != null) {
             currentBraillePageNumber = pageNumber;
             numPages++;
         }
         pageNumber = node.getAttributeValue ("printnumber");
         if(pageNumber!= null) currentPrintPageNumber =pageNumber; 
-        System.out.println("...done");
         //this may need to be reconsidered
         firstLineOnPage = true;
         if (firstPage) {
@@ -381,6 +473,5 @@ class UTD {
 
     private void finishBrlNode() {
         return;
-    }
-
+    } 
 }

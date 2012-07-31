@@ -41,7 +41,8 @@ import java.util.logging.Level;
 import java.util.logging.FileHandler;
 import java.io.IOException;
 import java.io.File;
-import org.brailleblaster.util.FileUtils;
+import java.util.Locale;
+
 
 /**
  * Determine and set initial conditions.
@@ -60,11 +61,12 @@ public final class BBIni {
 	private static boolean debug = false;
 	private static boolean gotGui = true;
 	private static boolean utd = false;
-	private static Logger logger;
+    private static boolean multipleSubcommands = false;
+    private static Logger logger;
 	private static Display display = null;
 	private static String BBVersion;
 	private static String releaseDate;
-	private static String brailleblasterPath;
+	private static String brailleblasterPath;  // FO
 	private static String osName;
 	private static String osVersion;
 	private static String fileSep;
@@ -79,7 +81,7 @@ public final class BBIni {
 	private static String tempFilesPath;
 	private static String platformName;
 	private static String userSettings;
-private static boolean hSubcommands = false;
+	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
 	private static FileHandler logFile;
 	static final String BBID = "brlblst";
@@ -146,31 +148,34 @@ while (i < args.length) {
 if (args[i].charAt(0) != '-') {
 break;
 }
-				if (args[i].equals ("-debug")) {
-					debug = true;
-				}
-				else if (args[i].equals ("-nogui")) {
-					gotGui = false;
-				}
-				else if (args[i].equals ("-utd")) {
-					utd = true;
-				}
-				else {
-					System.out.println ("Bad option " + args[i]);
-				}
+if (args[i].equals ("-debug")) {
+debug = true;
+}
+else if (args[i].equals ("-nogui")) {
+gotGui = false;
+}
+else if (args[i].equals ("-utd")) {
+utd = true;
+}
+else if (args[i].equals ("-multcom")) {
+multipleSubcommands = true;
+}
+else {
+System.out.println ("Bad option '" + args[i] + "'");
+}
 i++;
-			}
+}
 if (i < args.length) {
 hSubcommands = true;
 }
-		}
-		if (gotGui) {
-			try {
-				display = new Display();
-			} catch (SWTError e) {
-				logger.log (Level.SEVERE, "Can't find GUI", e);
-			}
-		}
+}
+if (gotGui) {
+try {
+display = new Display();
+} catch (SWTError e) {
+logger.log (Level.SEVERE, "Can't find GUI", e);
+}
+}
 try {
 liblouisutdml.loadLibrary (nativeLibraryPath, nativeLibrarySuffix);
 liblouisutdml.initialize (programDataPath, tempFilesPath, 
@@ -289,5 +294,12 @@ return hSubcommands;
 	public static boolean useUtd () {
 		return utd;
 	}
-
+public static boolean multCommands () {
+return multipleSubcommands;
+}
+	// FO
+	public static void setUtd (boolean trueFalse) {
+		utd = trueFalse;
+		return;
+	}
 }

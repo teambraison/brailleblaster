@@ -1323,6 +1323,12 @@ class DocumentManager {
   			    break;
     		}
     	}
+     	if (tb[i] instanceof Button) {
+     		Button b = (Button)tb[i];
+     		b.setSelection(false);
+     		displayBrailleFont = false;
+     		setBrailleFont(displayBrailleFont);
+     	}
     }
 }
 

@@ -499,7 +499,6 @@ class DocumentManager {
     		BBIni.setUtd(false);
       	}
     	
-    	
         if (doc != null){
             //see if this recent document is already opened in current windows set
             recentFileNameIndex = WPManager.isRunning(path);
@@ -519,8 +518,15 @@ class DocumentManager {
         if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
             	brailleFileName = getBrailleFileName();
             	utd.displayTranslatedFile(documentName, brailleFileName); 
-            	BBIni.setUtd(true);
                 openDocument (documentName);
+                if (ext.contentEquals("utd")) {
+                	BBIni.setUtd(true); 
+            		daisy.hasChanged = false;
+            		braille.hasChanged = false;
+                }
+                else {
+                    daisy.hasChanged = true;
+                }
         } else  {
             parseImport(documentName);
         	
@@ -528,8 +534,8 @@ class DocumentManager {
 
             daisy.hasChanged = true;
             setWindowTitle (documentName);
-            daisy.view.setFocus();
         }
+        daisy.view.setFocus();
     }
 
     void openDocument (String fileName) {
@@ -566,13 +572,12 @@ class DocumentManager {
 //        .start();
 //         daisy.view.addModifyListener(daisyMod);
     }
-
     
     void fileClose() {
     	if (daisy.view == null) {
     		System.err.println("fileCLose() - something wrong!!!");
     		return;
-    	}
+    	} 
     	activateMenus (false);
     	if (daisy.hasChanged || braille.hasChanged) {
            		YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged") );	
@@ -597,6 +602,7 @@ class DocumentManager {
     
     private void walkTree (Node node) {
         String ext = getFileExt(documentName);
+        final Boolean isUtd = ext.contentEquals("utd"); 
         Node newNode;
        
         for (int i = 0; i < node.getChildCount(); i++) {
@@ -610,7 +616,7 @@ class DocumentManager {
             	String nname = ((Element) node).getLocalName();
             	if (! (nname.matches("span") || nname.matches("brl"))) {
             		final String value;
-                    if (ext.contentEquals("utd")) {
+                    if (isUtd) {
             		 value = newNode.getValue() + "\n";
                     } else {
             		 value = newNode.getValue();

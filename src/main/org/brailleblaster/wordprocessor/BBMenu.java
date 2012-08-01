@@ -703,13 +703,13 @@ class BBMenu {
                 /* save */
                 if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's'))
                 {
-                    dm.fileSave();
+               		dm.fileSave();
                     return;
                 }
                 if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n'))
                 {
                     dm.fileNew();
-                    return;
+                   return;
                 }
                 if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'w'))
                 {
@@ -717,7 +717,7 @@ class BBMenu {
                 }
           }
         });
-
+		
 		// Activate menus when documentWindow shell is opened
 		dm.documentWindow.setMenuBar(menuBar);
 	}

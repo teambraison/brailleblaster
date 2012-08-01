@@ -677,47 +677,6 @@ class BBMenu {
 		});
 		helpItem.setMenu(helpMenu);
 		
-		// FO listener for control keys
-		
-		dm.display.addFilter(SWT.KeyDown, new Listener() {
-
-          public void handleEvent(Event e) {
-            	/* translate */
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 't'))
-                {
-                    dm.translate(true);
-                    return;
-                }
-                /* emboss */
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'e'))
-                {
-                    dm.fileEmbossNow();
-                    return;
-                }
-                /* open */
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'o'))
-                {
-                    dm.fileOpen();
-                    return;
-                }
-                /* save */
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's'))
-                {
-               		dm.fileSave();
-                    return;
-                }
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n'))
-                {
-                    dm.fileNew();
-                   return;
-                }
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'w'))
-                {
-                	dm.setReturn(WP.DocumentClosed);
-                }
-          }
-        });
-		
 		// Activate menus when documentWindow shell is opened
 		dm.documentWindow.setMenuBar(menuBar);
 	}

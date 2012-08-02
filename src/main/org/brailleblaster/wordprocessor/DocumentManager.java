@@ -254,14 +254,6 @@ class DocumentManager {
             new Welcome(); // This then calls the settings dialogs.
         }
 
-        /**
-        if (action == WP.OpenDocumentGetFile) {
-            fileOpen();
-        } else if ((action == WP.DocumentFromCommandLine)||(action == WP.OpenDocumentGetRecent)) {
-            openDocument(documentName);
-        }
-        **/
-        
         switch (action) {
         case WP.OpenDocumentGetFile:
         	fileOpen();
@@ -270,13 +262,33 @@ class DocumentManager {
         	openDocument(documentName);
         	break;
         case WP.OpenDocumentGetRecent:
-        	openDocument(documentName);
+// FO 03
+        	String ext = getFileExt(documentName);
+            if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
+                	brailleFileName = getBrailleFileName();
+                    openDocument (documentName);
+                	utd.displayTranslatedFile(documentName, brailleFileName); 
+                    if (ext.contentEquals("utd")) {
+                    	BBIni.setUtd(true); 
+                		daisy.hasChanged = false;
+                		braille.hasChanged = false;
+                    }
+                    else {
+                        daisy.hasChanged = true;
+                    }
+            } else  {
+                parseImport(documentName);
+                braille.view.setEditable(false);
+                daisy.hasChanged = true;
+                setWindowTitle (documentName);
+            }
+            daisy.view.setFocus();
         	break;
+
         case WP.ImportDocument:
         	importDocument();
         	break;
         }
-        
         
         boolean stop = false;
         daisy.view.setFocus();
@@ -510,7 +522,7 @@ class DocumentManager {
             recentFileName = path;
             returnReason = WP.OpenDocumentGetRecent;
             flags[documentNumber] = true;
-            return;
+            return;   
         }
         documentName = path;
         

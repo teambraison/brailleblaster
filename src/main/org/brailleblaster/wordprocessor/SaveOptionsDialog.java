@@ -84,7 +84,6 @@ public class SaveOptionsDialog extends Dialog {
 		} catch (IllegalArgumentException e) {
 			System.err.println ("setTabList exception " + e.getMessage());
 		}
-		selShell.setDefaultButton(b3);
 		
 		selShell.setDefaultButton(b3);
 		
@@ -116,7 +115,8 @@ public class SaveOptionsDialog extends Dialog {
     		public void widgetSelected (SelectionEvent e) {
 
     			if ((b1.getSelection()) || (b2.getSelection()) ) {
-    				if (textAndBraille) {
+    				//FO make sure we get the default selection
+    				if (textAndBraille || b1.getSelection()) {
     					result = SaveSelection.TEXT_AND_BRAILLE;
     				} else {
     					result = SaveSelection.TEXT_ONLY;
@@ -136,10 +136,11 @@ public class SaveOptionsDialog extends Dialog {
     	});
 
 
-                selShell.open();
-                while (!selShell.isDisposed()) {
-                        if (!display.readAndDispatch()) display.sleep();
-                }
-                return result;
+        selShell.open();
+        while (!selShell.isDisposed()) {
+                if (!display.readAndDispatch()) display.sleep();
+            }
+
+        return result;
         }
 }

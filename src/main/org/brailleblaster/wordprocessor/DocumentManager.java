@@ -947,6 +947,10 @@ class DocumentManager {
 
     void translate(boolean display) {
 
+    	if (daisy.view.getCharCount() == 0) {
+    		return;
+    	}
+    	
     	saveDaisyWorkFile();
         
     	if (! BBIni.useUtd()) {

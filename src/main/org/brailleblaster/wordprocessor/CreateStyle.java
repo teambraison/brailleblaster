@@ -8,12 +8,14 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.ACC;
 import org.eclipse.swt.accessibility.Accessible;
-import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -27,46 +29,70 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.brailleblaster.localization.LocaleHandler;
 
-public class CreateStyle {
-	static StyledText view;
-	static Display display;
-	static Button mybutt;
-	static Button mybutt2;
-	static int propertyLabelWidth = 125;
-	static int propertyTextWidth = 100;
-	
-
+public class CreateStyle extends Dialog{
+	final static int PROPERTYLABELWIDTH = 125;
+	final static int PROPERTYTEXTWIDTH = 100;
+	private static LocaleHandler lh = new LocaleHandler();
 	private static int num_styles = 0;
 	private static Label lastLabel;
-    //private static final int MAX_NUM_FILES=50;
-    private String fileSep;
-    private DocumentManager dm;
-    private String stylePath;
-    private String propExtension;
-    private ArrayList<String> formValues = new ArrayList<String>() ;
-    
-    LocaleHandler lh = new LocaleHandler();
-    
+	//private static final int MAX_NUM_FILES=50;
+	private String fileSep;
+	private DocumentManager dm;
+	private String stylePath;
+	private String propExtension;
+	private ArrayList<String> formValues = new ArrayList<String>() ;
     final String sTrue = lh.localValue("styleTrue");
     final String sFalse = lh.localValue("styleFalse");
+    
+	private  FocusListener focusListener = new FocusListener() {
+		public void focusGained(FocusEvent e) {
+			Text t = (Text) e.widget;
+			t.selectAll();
+			//System.out.println("selecting all");
+		}
 
-    CreateStyle(final DocumentManager dm) {
-        this.dm = dm;
-		display = BBIni.getDisplay();
-        fileSep = BBIni.getFileSep();
-        stylePath = BBIni.getStylePath();
-        this.propExtension =BBIni.propExtension;
-    }
+		public void focusLost(FocusEvent e) {
+			final Text t = (Text) e.widget;
+			
+			if (t.getSelectionCount() > 0) {
+				t.clearSelection();
+			}
+
+//FO  	    if(t.getText().length() == 0){
+			if(! t.getText().toString().matches("^[a-zA-Z0-9_]+$")) {
+				new Notify(lh.localValue("styleNotBlank"));
+				Display.getCurrent().asyncExec(new Runnable(){
+					public void run(){
+						t.setFocus();
+					}
+				});
+			}
+		}
+	};
+	
+	public CreateStyle (Shell parent, int style) {
+		super (parent, style);
+	}
+
+	CreateStyle (final DocumentManager dm) {
+		this (dm.documentWindow, SWT.NONE);
+		this.dm = dm;
+		fileSep = BBIni.getFileSep();
+		stylePath = BBIni.getStylePath();
+		this.propExtension =BBIni.propExtension;
+	}
 
 	void open(){
-		Shell stylePanel = new Shell(display);
+		Shell parent = getParent();
+		Display display = parent.getDisplay();
+		Shell stylePanel = new Shell(parent);
 		stylePanel.setText(lh.localValue("newStyle"));
 		FormLayout layout = new FormLayout();
 		layout.marginWidth = 10;
@@ -87,17 +113,18 @@ public class CreateStyle {
 
 
 		Label name = new Label(attributesPanel, SWT.NULL);
-		name.setText(lh.localValue("styleName"));
+		name.setText(lh.localValue("styleName"));;
 		data = new FormData();
-		data.width = propertyLabelWidth;
+		data.width = PROPERTYLABELWIDTH;
 		name.setLayoutData(data);
-		Text nameText = new Text(attributesPanel, SWT.SINGLE | SWT.BORDER| SWT.RIGHT);
+		Text nameText = new Text(attributesPanel, SWT.RIGHT|SWT.WRAP | SWT.BORDER);
 		nameText.setText("s"+ (num_styles+1));
 		data = new FormData();
 		data.left = new FormAttachment(name, 5);
 		data.right = new FormAttachment(100, 0);
-		data.width = propertyTextWidth;
+		data.width = PROPERTYTEXTWIDTH;
 		nameText.setLayoutData(data);
+		nameText.addFocusListener(focusListener);
 		Accessible accName = name.getAccessible();
 		Accessible accNameText = nameText.getAccessible();
 		accName.addRelation(ACC.RELATION_LABEL_FOR, accNameText);
@@ -118,6 +145,7 @@ public class CreateStyle {
 		loadProperties(propertiesPanel);
 		addButtons(stylePanel, propertiesPanel);
 
+
 		stylePanel.pack();
 		stylePanel.open();
 		while (!stylePanel.isDisposed ()) {
@@ -136,18 +164,19 @@ public class CreateStyle {
 				Label firstLabel = new Label(propertiesPanel, SWT.NULL);
 				firstLabel.setText(sp.toString()+":");
 				data = new FormData();
-				data.width = propertyLabelWidth;
+				data.width = PROPERTYLABELWIDTH;
 				firstLabel.setLayoutData(data);
 				firstLabel.setToolTipText(sp.getToolTip());
-				Text firstText = new Text(propertiesPanel, SWT.SINGLE | SWT.BORDER|SWT.RIGHT);
+				Text firstText = new Text(propertiesPanel, SWT.RIGHT|SWT.WRAP | SWT.BORDER);
 				data = new FormData();
 				data.left = new FormAttachment(firstLabel, 5);
 				data.right = new FormAttachment(100, 0);
-				data.width = propertyTextWidth;
+				data.width = PROPERTYTEXTWIDTH;
 				setNumericalValidation(firstText);//
 				firstText.setLayoutData(data);
 				firstText.setToolTipText(sp.getToolTip());
 				firstText.setText(sp.getDefaultValue());
+				firstText.addFocusListener(focusListener);
 				//add accessible				
 				Accessible accFirstLabel = firstLabel.getAccessible();
 				Accessible accFirstText = firstText.getAccessible();
@@ -182,7 +211,7 @@ public class CreateStyle {
 		}
 	}
 
-	private void addButtons(final Composite parent ,Group propertiesPanel){
+	private void addButtons(final Shell parent ,Group propertiesPanel){
 		FormData data = new FormData();
 		Button confirmButt = new Button(parent, SWT.PUSH);
 		Button cancelButt = new Button(parent, SWT.PUSH);
@@ -195,6 +224,7 @@ public class CreateStyle {
 		data.top = new FormAttachment(cancelButt, 0, SWT.TOP);
 		data.right = new FormAttachment(cancelButt, -5);
 		confirmButt.setLayoutData(data);
+		parent.setDefaultButton(confirmButt);
 
 		cancelButt.addSelectionListener(new SelectionAdapter(){ 
 			public void widgetSelected(SelectionEvent e) {
@@ -206,14 +236,13 @@ public class CreateStyle {
 			public void widgetSelected(SelectionEvent e) {
 				Group abs = (Group) parent.getChildren()[0];
 				Control aList[] = abs.getChildren();
-				//String a;
 				for(Control c: aList){
 					String s= controlToString(c);
 					//System.out.print(s+'\n');
 					formValues.add(s);
 				}
 				//saveStyle();
-				
+
 				Group pps = (Group) parent.getChildren()[1];
 				Control pList[] = pps.getChildren();
 				for(Control c: pList){
@@ -221,8 +250,8 @@ public class CreateStyle {
 					//System.out.print(s+'\n');
 					formValues.add(s);
 				}
-				
-				saveStyle(getStyleName());				
+
+				saveStyle(getStyleName());	
 				parent.dispose();
 			}
 		});
@@ -236,20 +265,20 @@ public class CreateStyle {
 		}		
 		return "";
 	}
-	
+
 	static String controlToString(Control c){
 		String s = "";
 		if(c instanceof Text){
 			Text m = (Text)c;
-			s =m.getText();//+"\n";
+			s =m.getText();
 		}
 		else if (c instanceof Label){
 			Label l = (Label)c;
-			s = l.getText();//+"\t";
+			s = l.getText();
 		}
 		else if (c instanceof Combo){
 			Combo cb = (Combo)c;
-			s = cb.getText();//+"\n";
+			s = cb.getText();
 		}
 		return s;
 	}
@@ -258,7 +287,7 @@ public class CreateStyle {
 		FormData data = new FormData();
 		Label curLabel = new Label(parent, SWT.PUSH);
 		data.top= new FormAttachment(lastLabel, 12);
-		data.width = propertyLabelWidth;
+		data.width = PROPERTYLABELWIDTH;
 		curLabel.setLayoutData(data);
 		curLabel.setText(text);
 		curLabel.setToolTipText(text);
@@ -266,35 +295,36 @@ public class CreateStyle {
 		return curLabel;
 	}
 
-	private  Text addFieldText(Composite parent, String text, String toolTip){
+	private Text addFieldText(Composite parent, String text, String toolTip){
 		FormData data = new FormData();
 		final Text curText = 
-				new Text(parent, SWT.SINGLE | SWT.BORDER|SWT.RIGHT);
+				new Text(parent, SWT.WRAP | SWT.BORDER|SWT.RIGHT);
 		setNumericalValidation(curText);
 
 		data.top= new FormAttachment(lastLabel, -2, SWT.TOP);
 		data.left = new FormAttachment(lastLabel, 5);
 		data.right = new FormAttachment(100, 0);
-		data.width = propertyTextWidth;
+		data.width = PROPERTYTEXTWIDTH;
 		curText.setLayoutData(data);
 		curText.setText(text);
 		curText.setToolTipText(toolTip);
+		curText.addFocusListener(focusListener);
 		return curText;
 	}
 
-	private  Combo addFieldCombo(Composite parent, String text, String toolTip){
+	private static Combo addFieldCombo(Composite parent, String text, String toolTip){
 		FormData data = new FormData();
 		Combo curText = 
 				new  Combo(parent, SWT.BORDER|SWT.RIGHT|SWT.READ_ONLY);
 		data.top= new FormAttachment(lastLabel, -2, SWT.TOP);
 		data.left = new FormAttachment(lastLabel, 5);
 		data.right = new FormAttachment(100, 0);
-		data.width = propertyTextWidth;
+		data.width = PROPERTYTEXTWIDTH;
 		curText.setLayoutData(data);
 		curText.setText(text);
-		curText.add(sTrue);
-		curText.add(sFalse);
-		if(text.equals(sTrue)){
+		curText.add("True");
+		curText.add("False");
+		if(text.equals("True")){
 			curText.select(0);
 		}
 		else{
@@ -304,17 +334,17 @@ public class CreateStyle {
 		return curText;
 	}
 
-	private void setNumericalValidation(final Text text){
+	private static void setNumericalValidation(final Text text){
 		text.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent event) {
 				String txt = ((Text) event.getSource()).getText();
 				try {
-					int num = Integer.parseInt(txt);
+					//	int num = Integer.parseInt(txt);
 					// Checks on num
 				} catch (NumberFormatException e) {
 					// Show error
-					new Notify(txt + lh.localValue("styleNotValid"));
+					new Notify(txt+ lh.localValue("styleNotValid"));
 				}
 			}
 		});
@@ -323,21 +353,32 @@ public class CreateStyle {
 			public void verifyText(VerifyEvent e) {
 				final String oldS = text.getText();
 				final String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);
-				try {
-					BigDecimal bd = new BigDecimal(newS);
-					// value is decimal
-					// Test value range
-				} catch (final NumberFormatException numberFormatException) {
-					// value is not decimal
+				//System.out.println( e.character); 
+				if (e.character == SWT.CR)  {
 					e.doit = false;
-					new Notify(lh.localValue("styleNumOnly"));
+				}
+				else if(newS.equals("")){
+					//only check if the string is not empty,
+					//focusListener handles the empty string
+					//do nothing
+				}
+				else{
+					try {
+						BigDecimal bd = new BigDecimal(newS);
+						// value is decimal
+						// Test value range
+					} catch (final NumberFormatException numberFormatException) {
+						// value is not decimal
+						e.doit = false;
+						new Notify(lh.localValue("styleNumOnly"));
+					}
 				}
 			}
 		});
 	}
 
 	private void saveStyle(String styleName){
-        //file = new File(recentFiles);
+		//file = new File(recentFiles);
 		FileUtils fu = new FileUtils();
 		String fileName = stylePath+fileSep+styleName+propExtension;
 		int i = 1;
@@ -350,35 +391,34 @@ public class CreateStyle {
 		}
 		writeToFile(new File(fileName));
 	}
-	
-    private void writeToFile(File file) {
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
-        } catch (IOException e) {
-            new Notify(e.getMessage());
-        }
-        try {
-        	boolean isEven = false;
-            for( String s:formValues) {
-            	if(s.charAt(s.length()-1)==':'){
-            		s = s.substring(0,s.length()-1)+"=";
-            	}
-                writer.write(s);
-                if(isEven){
-                	writer.newLine();
-                }
-                isEven = !isEven;
-            }
-        } catch (IOException e) {
-            new Notify(e.getMessage());
-        }finally{
-            try {
-                writer.close();
-            } catch (IOException e) {
-                new Notify(e.getMessage());
-            }
-        }
-    }
 
+	private void writeToFile(File file) {
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+		} catch (IOException e) {
+			new Notify(e.getMessage());
+		}
+		try {
+			boolean isEven = false;
+			for( String s:formValues) {
+				if(s.charAt(s.length()-1)==':'){
+					s = s.substring(0,s.length()-1)+"=";
+				}
+				writer.write(s);
+				if(isEven){
+					writer.newLine();
+				}
+				isEven = !isEven;
+			}
+		} catch (IOException e) {
+			new Notify(e.getMessage());
+		}finally{
+			try {
+				writer.close();
+			} catch (IOException e) {
+				new Notify(e.getMessage());
+			}
+		}
+	}
 }

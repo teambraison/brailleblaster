@@ -87,6 +87,7 @@ class BBMenu {
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
 	MenuItem createStyleItem;
+	MenuItem selectStyleItem; //HF
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -139,7 +140,6 @@ class BBMenu {
 		fileItem.setText(lh.localValue("&File"));
 		MenuItem editItem = new MenuItem(menuBar, SWT.CASCADE);
 		editItem.setText(lh.localValue("&Edit"));
-		editItem.setEnabled(false); /* FO */
 		MenuItem viewItem = new MenuItem(menuBar, SWT.CASCADE);
 		viewItem.setText(lh.localValue("&View"));
 		MenuItem translateItem = new MenuItem(menuBar, SWT.CASCADE);
@@ -303,6 +303,7 @@ class BBMenu {
 		Menu editMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
 		undoItem = new MenuItem(editMenu, SWT.PUSH);
 		undoItem.setText(lh.localValue("&Undo"));
+		undoItem.setEnabled(false);
 		undoItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -314,6 +315,7 @@ class BBMenu {
 		});
 		redoItem = new MenuItem(editMenu, SWT.PUSH);
 		redoItem.setText(lh.localValue("&Redo"));
+		redoItem.setEnabled(false);
 		redoItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -321,13 +323,15 @@ class BBMenu {
 		});
 		cutItem = new MenuItem(editMenu, SWT.PUSH);
 		cutItem.setText(lh.localValue("&Cut"));
+		cutItem.setEnabled(false);
 		cutItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
 		copyItem = new MenuItem(editMenu, SWT.PUSH);
-		copyItem.setText(lh.localValue("c&Opy"));
+		copyItem.setText(lh.localValue("&Copy"));
+		copyItem.setEnabled(false);
 		copyItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -335,6 +339,7 @@ class BBMenu {
 		});
 		pasteItem = new MenuItem(editMenu, SWT.PUSH);
 		pasteItem.setText(lh.localValue("&Paste"));
+		pasteItem.setEnabled(false);
 		pasteItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -342,6 +347,7 @@ class BBMenu {
 		});
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
 		searchItem.setText(lh.localValue("&Search"));
+		searchItem.setEnabled(false);
 		searchItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -349,6 +355,7 @@ class BBMenu {
 		});
 		replaceItem = new MenuItem(editMenu, SWT.PUSH);
 		replaceItem.setText(lh.localValue("&Replace"));
+		replaceItem.setEnabled(false);
 		replaceItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -356,6 +363,7 @@ class BBMenu {
 		});
 		spellCheckItem = new MenuItem(editMenu, SWT.PUSH);
 		spellCheckItem.setText(lh.localValue("&SpellCheck"));
+		spellCheckItem.setEnabled(false);
 		spellCheckItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -363,6 +371,7 @@ class BBMenu {
 		});
 		boldToggleItem = new MenuItem(editMenu, SWT.PUSH);
 		boldToggleItem.setText(lh.localValue("&BoldToggle"));
+		boldToggleItem.setEnabled(false);
 		boldToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -370,6 +379,7 @@ class BBMenu {
 		});
 		italicToggleItem = new MenuItem(editMenu, SWT.PUSH);
 		italicToggleItem.setText(lh.localValue("&ItalicToggle"));
+		italicToggleItem.setEnabled(false);
 		italicToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -377,6 +387,7 @@ class BBMenu {
 		});
 		underlineToggleItem = new MenuItem(editMenu, SWT.PUSH);
 		underlineToggleItem.setText(lh.localValue("&UnderlineToggle"));
+		underlineToggleItem.setEnabled(false);
 		underlineToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -384,6 +395,7 @@ class BBMenu {
 		});
 		zoomImageItem = new MenuItem(editMenu, SWT.PUSH);
 		zoomImageItem.setText(lh.localValue("&ZoomImage"));
+		zoomImageItem.setEnabled(false);
 		zoomImageItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -391,6 +403,7 @@ class BBMenu {
 		});
 		selectAllItem = new MenuItem(editMenu, SWT.PUSH);
 		selectAllItem.setText(lh.localValue("&SelectAll"));
+		selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -400,11 +413,22 @@ class BBMenu {
 		createStyleItem.setText(lh.localValue("&CreateStyle"));
 		createStyleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
+//FO 03				dm.placeholder();
+				dm.getStyleManager().createStyle();
+			}
+		});
+		selectStyleItem = new MenuItem(editMenu, SWT.PUSH);
+		selectStyleItem.setText(lh.localValue("&SelectStyle"));
+		selectStyleItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				//dm.selectStyle();
 				dm.placeholder();
 			}
 		});
+
 		nextElementItem = new MenuItem(editMenu, SWT.PUSH);
 		nextElementItem.setText(lh.localValue("&NexstElement"));
+		nextElementItem.setEnabled(false);
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -412,6 +436,7 @@ class BBMenu {
 		});
 		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		assocSelectionItem.setText(lh.localValue("&AssocSelection"));
+		assocSelectionItem.setEnabled(false);
 		assocSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -419,6 +444,7 @@ class BBMenu {
 		});
 		lockSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		lockSelectionItem.setText(lh.localValue("&LockSelection"));
+		lockSelectionItem.setEnabled(false);
 		lockSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -426,6 +452,7 @@ class BBMenu {
 		});
 		unlockSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		unlockSelectionItem.setText(lh.localValue("&UnlockSelection"));
+		unlockSelectionItem.setEnabled(false);
 		unlockSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -433,6 +460,7 @@ class BBMenu {
 		});
 		editLockedItem = new MenuItem(editMenu, SWT.PUSH);
 		editLockedItem.setText(lh.localValue("&EditLocked"));
+		editLockedItem.setEnabled(false);
 		editLockedItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -440,6 +468,7 @@ class BBMenu {
 		});
 		keybdBrlToggleItem = new MenuItem(editMenu, SWT.PUSH);
 		keybdBrlToggleItem.setText(lh.localValue("&KeybdBrlToggle"));
+		keybdBrlToggleItem.setEnabled(false);
 		keybdBrlToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -447,6 +476,7 @@ class BBMenu {
 		});
 		cursorFollowItem = new MenuItem(editMenu, SWT.PUSH);
 		cursorFollowItem.setText(lh.localValue("&CursorFollow"));
+		cursorFollowItem.setEnabled(false);
 		cursorFollowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -454,6 +484,7 @@ class BBMenu {
 		});
 		dragCursorItem = new MenuItem(editMenu, SWT.PUSH);
 		dragCursorItem.setText(lh.localValue("&DragCursor"));
+		dragCursorItem.setEnabled(false);
 		dragCursorItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();

@@ -81,6 +81,9 @@ public final class BBIni {
 	private static String tempFilesPath;
 	private static String platformName;
 	private static String userSettings;
+	private static String stylePath;
+	public final static String propExtension = ".properties"; 
+
 	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
 	private static FileHandler logFile;
@@ -126,6 +129,12 @@ if (!fu.exists (userSettings)) {
 		//this part initialize recent_documents.txt
 		recentDocs = settingsPath + fileSep + "recent_documents.txt";
 		fu.create(recentDocs);
+		//FO Aug 03
+		stylePath = settingsPath + fileSep + "styles";
+		File styleDir = new File (stylePath);
+		if (!styleDir.exists())
+			styleDir.mkdirs();
+
 		tempFilesPath = BBHome + fileSep + "temp";
 		File temps = new File (tempFilesPath);
 		if (!temps.exists())
@@ -302,4 +311,8 @@ return multipleSubcommands;
 		utd = trueFalse;
 		return;
 	}
+	public static String getStylePath(){
+		return stylePath;
+	}
+
 }

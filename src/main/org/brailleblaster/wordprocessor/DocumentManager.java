@@ -119,6 +119,7 @@ class DocumentManager {
     boolean textAndBraille = false;
 	boolean saveUtdml = false;
 	boolean metaContent = false;
+    StyleManager sm; //separate styles from DM
     
     liblouisutdml louisutdml;
     String logFile = "Translate.log";
@@ -165,6 +166,7 @@ class DocumentManager {
         layout = new FormLayout();
         documentWindow.setLayout (layout);
         rd = new RecentDocuments(this);
+        sm = new StyleManager(this);
         utd = new UTD(this);
         menu = new BBMenu (this);
         toolBar = new BBToolBar (this);
@@ -1347,6 +1349,10 @@ class DocumentManager {
      		displayBrailleFont = false;
      		setBrailleFont(displayBrailleFont);
      	}
+    }
+
+    StyleManager getStyleManager(){
+    	return sm;
     }
 }
 

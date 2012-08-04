@@ -264,20 +264,18 @@ class DocumentManager {
         	openDocument(documentName);
         	break;
         case WP.OpenDocumentGetRecent:
-// FO 03
+// FO 04
         	String ext = getFileExt(documentName);
             if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
-                	brailleFileName = getBrailleFileName();
-                    openDocument (documentName);
+            	brailleFileName = getBrailleFileName();
+                openDocument (documentName);
+                if (ext.contentEquals("utd")) {
+                	BBIni.setUtd(true); 
                 	utd.displayTranslatedFile(documentName, brailleFileName); 
-                    if (ext.contentEquals("utd")) {
-                    	BBIni.setUtd(true); 
-                		daisy.hasChanged = false;
-                		braille.hasChanged = false;
-                    }
-                    else {
-                        daisy.hasChanged = true;
-                    }
+            		braille.hasChanged = false;
+                };
+                daisy.hasChanged = false;
+
             } else  {
                 parseImport(documentName);
                 braille.view.setEditable(false);
@@ -470,10 +468,7 @@ class DocumentManager {
     	dialog.setFilterNames (filterNames);
     	dialog.setFilterExtensions (filterExtensions);
     	dialog.setFilterPath (filterPath);
-
-    	/* temporarily turn off tracking of changes */
-//    	daisy.view.removeModify(daisyMod);
-    	
+   	
     	documentName = dialog.open();
         shell.dispose();
         
@@ -531,22 +526,20 @@ class DocumentManager {
         String ext = getFileExt(documentName);
         if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
             	brailleFileName = getBrailleFileName();
-            	utd.displayTranslatedFile(documentName, brailleFileName); 
                 openDocument (documentName);
                 if (ext.contentEquals("utd")) {
                 	BBIni.setUtd(true); 
-            		daisy.hasChanged = false;
+                	utd.displayTranslatedFile(documentName, brailleFileName); 
             		braille.hasChanged = false;
-                }
-                else {
-                    daisy.hasChanged = true;
-                }
+                };
+
+                daisy.hasChanged = false;
+
         } else  {
             parseImport(documentName);
         	
             braille.view.setEditable(false);
 
-            daisy.hasChanged = true;
             setWindowTitle (documentName);
         }
         daisy.view.setFocus();
@@ -799,21 +792,31 @@ class DocumentManager {
         Shell shell = new Shell (display);
         FileDialog dialog = new FileDialog (shell, SWT.SAVE);
         String filterPath = System.getProperty ("user.home");
-    	String [] filterNames = new String [] {"UTDML file"};
-        String[] filterExtensions = new String [] {"*.utd"};
-
+        // FO 04
+        String[] filterNames = null;
+        String[] filterExtensions = null;
+        if (textAndBraille) {
+    	    filterNames = new String [] {"UTDML file"};
+            filterExtensions = new String [] {"*.utd"};
+        } else {
+    	    filterNames = new String [] {"XML file"};
+            filterExtensions = new String [] {"*.xml"};
+        }
+        
        	String platform = SWT.getPlatform();
        	if (platform.equals("win32") || platform.equals("wpf")) {
         		if (filterPath == null) filterPath = "c:\\";
        	}
        	dialog.setFilterPath (filterPath);
        	dialog.setFilterNames(filterNames);
-       	dialog.setFilterExtensions (filterExtensions); 
+       	dialog.setFilterExtensions (filterExtensions);
+       	
        	if (haveOpenedFile) {
        		if (getFileExt(documentName).contentEquals("xml")) {
        			int i = documentName.lastIndexOf(".");
        			String fn = documentName.substring(0, i);
-       			documentName = fn + ".utd";
+       			if (textAndBraille)  documentName = fn + ".utd";
+       		    else documentName = fn + ".xml";
        		}
        		dialog.setFileName(documentName);
        	} else {
@@ -849,6 +852,10 @@ class DocumentManager {
   	
         daisy.hasChanged = false;
         braille.hasChanged = false;
+        if (!textAndBraille) {
+        	translatedFileName = null;
+        	braille.view.replaceTextRange(0, braille.view.getCharCount(), "");
+        }
     }
 
     void showBraille() {

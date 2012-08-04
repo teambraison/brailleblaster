@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Control;
 
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 
@@ -51,7 +52,11 @@ public class SaveOptionsDialog extends Dialog {
         radioGroup.setLayout(new RowLayout(SWT.VERTICAL));  
         final Button b1 = new Button (radioGroup, SWT.RADIO);
 		b1.setText(lh.localValue("saveTextBraille"));
-		b1.setSelection(true);
+		if (BBIni.useUtd()) {
+			b1.setSelection(true);
+		} else {
+		    b1.setEnabled(false);
+		}
 		b1.pack();
 		
 		final Button b2 = new Button (radioGroup, SWT.RADIO);

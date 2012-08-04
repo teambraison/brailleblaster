@@ -207,6 +207,15 @@ class BBMenu {
 				dm.fileSaveAs();
 			}
 		});
+		
+		saveAsItem = new MenuItem(fileMenu, SWT.PUSH);
+		saveAsItem.setText(lh.localValue("Save&Braille"));
+		saveAsItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				dm.brailleSave();
+			}
+		});
+		
 		embosserSetupItem = new MenuItem(fileMenu, SWT.PUSH);
 		embosserSetupItem.setText(lh.localValue("&EmbosserSetup"));
 		embosserSetupItem.setEnabled(false); /* FO */

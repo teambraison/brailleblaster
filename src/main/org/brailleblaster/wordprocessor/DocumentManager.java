@@ -1236,6 +1236,50 @@ class DocumentManager {
         	stream.close();
         }
     }
+    
+    void brailleSave() {
+
+        if ((braille.view.getCharCount() == 0) || brailleFileName == null) {
+        	new Notify(lh.localValue("noXlation"));
+        	return;
+        };
+
+        Shell shell = new Shell (display);
+        FileDialog dialog = new FileDialog (shell, SWT.SAVE);
+        String filterPath = System.getProperty ("user.home");
+        // FO 04
+        String[] filterNames = new String [] {"BRF file"};
+        String[] filterExtensions = new String [] {"*.brf"};
+        
+       	String platform = SWT.getPlatform();
+       	if (platform.equals("win32") || platform.equals("wpf")) {
+        		if (filterPath == null) filterPath = "c:\\";
+       	}
+       	dialog.setFilterPath (filterPath);
+       	dialog.setFilterNames(filterNames);
+       	dialog.setFilterExtensions (filterExtensions);
+       	
+       	if (haveOpenedFile) {
+       			int i = documentName.lastIndexOf(".");
+       			String fn = documentName.substring(0, i);
+       		    documentName = fn + ".brf";
+       	} else {
+       		documentName = "document-" + docID + ".brf";
+       	}
+		dialog.setFileName(documentName);
+		          	
+        String saveTo = dialog.open();
+        shell.dispose();
+        if (saveTo == null) {
+            return;
+        }
+
+        String fileName = new File(saveTo).getName();
+    	statusBar.setText(lh.localValue("savingFile") + " " + fileName) ;
+    		
+    	new FileUtils().copyFile (brailleFileName, saveTo);
+    	
+    }
   
   	void showDaisy(String content) {
   		/* Make sure we replace the existing view with the content of the file */

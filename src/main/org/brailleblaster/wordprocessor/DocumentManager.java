@@ -53,6 +53,7 @@ import java.io.Reader;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -82,7 +83,20 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.xml.sax.SAXException;
 
-enum encodingSelection { ISO_8859_1, UTF_8, WINDOWS_1252, US_ASCII }
+enum Encodings { 
+	ISO_8859_1 ("ISO-8859-1"), 
+	UTF_8 ("UTF-8"), 
+	WINDOWS_1252 ("WINDOWS-1252"), 
+	US_ASCII ("US-ASCII"); 
+	
+    private final String encoding;
+    Encodings (String encoding) {
+	    this.encoding = encoding;
+    }
+    public String encoding() {
+    	return encoding;
+    }
+}
 
 /**
  * This class manages each document in an MDI environment. It controls 
@@ -149,9 +163,11 @@ class DocumentManager {
     StringBuilder brailleLine = new StringBuilder (8192);
     StringBuilder daisyLine = new StringBuilder (8192);
     // character encoding for import
-    encodingSelection encoding = null;
-    static String importEncoding = null;
+    static String encoding = null;
 
+    Charset utf8charset = Charset.forName("UTF-8");
+    Charset iso88591charset = Charset.forName("ISO-8859-1");
+    
     /**
      * Constructor that sets things up for a new document.
      */
@@ -1416,35 +1432,12 @@ class DocumentManager {
     }
     
     // encoding for Import
-    
-    String getEncodingString() {
-        encodingSelection encoding = getEncoding();
-        
-        final String encodingString;
-        
-        switch(encoding) {
-        case ISO_8859_1:
-        	encodingString = "ISO-8859-1";
-        	break;
-        case UTF_8:
-        	encodingString = "UTF-8";
-        	break;
-        case WINDOWS_1252:
-        	encodingString = "WINDOWS-1252";
-        	break;
-        case US_ASCII:
-        	encodingString = "US-ASCII";
-        	break;
-        default:
-        	encodingString = "ISO-8859-1";
-        	break;
-        }
-        return encodingString;
-    }
+    public String getEncodingString () {
 
-    public encodingSelection getEncoding () {
     	encoding = null;
-    	final Shell selShell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.CENTER);
+    	
+//    	final Shell selShell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.CENTER);
+    	final Shell selShell = new Shell(display, SWT.DIALOG_TRIM | SWT.CENTER);
         selShell.setText(lh.localValue("specifyEncoding"));
         selShell.setMinimumSize (250, 100);        
 
@@ -1515,25 +1508,25 @@ class DocumentManager {
 
        	b1.addSelectionListener (new SelectionAdapter() {
        		public void widgetSelected (SelectionEvent e) {
-       			encoding = encodingSelection.ISO_8859_1;
+       			encoding = Encodings.ISO_8859_1.encoding();
        		}
        	});
 
        	b2.addSelectionListener (new SelectionAdapter() {
        		public void widgetSelected (SelectionEvent e) {
-       			encoding = encodingSelection.UTF_8;
+       			encoding = Encodings.UTF_8.encoding();
        		}
        	});
 
        	b3.addSelectionListener (new SelectionAdapter() {
        		public void widgetSelected (SelectionEvent e) {
-       			encoding = encodingSelection.WINDOWS_1252;
+       			encoding = Encodings.WINDOWS_1252.encoding();
        		}
        	});
        	
        	b4.addSelectionListener (new SelectionAdapter() {
        		public void widgetSelected (SelectionEvent e) {
-       			encoding = encodingSelection.US_ASCII;
+       			encoding = Encodings.US_ASCII.encoding();
        		}
        	});
 
@@ -1543,16 +1536,24 @@ class DocumentManager {
 			    selShell.dispose();
        		}
        	});
+       	
+       	selShell.addListener (SWT.Close, new Listener (){
+            public void handleEvent(Event event) {
+              event.doit = false;  // must pick a value
+            }
+        });
+
 
 	    selShell.open();
+	    
 	    while (!selShell.isDisposed()) {
 	    	if (!display.readAndDispatch()) display.sleep();
 	        // nothing clicked
 	        if (encoding == null) {
-	    	  if (b1.getSelection()) encoding = encodingSelection.ISO_8859_1;
-	    	  else if (b2.getSelection()) encoding = encodingSelection.UTF_8;
-	    	  else if (b3.getSelection()) encoding = encodingSelection.WINDOWS_1252;
-	    	  else if (b4.getSelection()) encoding = encodingSelection.US_ASCII;
+	    	  if (b1.getSelection()) encoding = Encodings.ISO_8859_1.encoding();
+	    	  else if (b2.getSelection()) encoding = Encodings.UTF_8.encoding();
+	    	  else if (b3.getSelection()) encoding = Encodings.WINDOWS_1252.encoding();
+	    	  else if (b4.getSelection()) encoding = Encodings.US_ASCII.encoding();
 	        };
 	    }
 	    return encoding;

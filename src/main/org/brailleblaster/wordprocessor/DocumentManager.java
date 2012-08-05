@@ -82,6 +82,7 @@ import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.xml.sax.SAXException;
 
+enum encodingSelection { ISO_8859_1, UTF_8, WINDOWS_1252, US_ASCII }
 
 /**
  * This class manages each document in an MDI environment. It controls 
@@ -147,6 +148,9 @@ class DocumentManager {
     LocaleHandler lh = new LocaleHandler();
     StringBuilder brailleLine = new StringBuilder (8192);
     StringBuilder daisyLine = new StringBuilder (8192);
+    // character encoding for import
+    encodingSelection encoding = null;
+    static String importEncoding = null;
 
     /**
      * Constructor that sets things up for a new document.
@@ -277,7 +281,8 @@ class DocumentManager {
                 daisy.hasChanged = false;
 
             } else  {
-                parseImport(documentName);
+            	
+                parseImport(documentName, getEncodingString());
                 braille.view.setEditable(false);
                 daisy.hasChanged = true;
                 setWindowTitle (documentName);
@@ -536,7 +541,7 @@ class DocumentManager {
                 daisy.hasChanged = false;
 
         } else  {
-            parseImport(documentName);
+            parseImport(documentName, getEncodingString());
         	
             braille.view.setEditable(false);
 
@@ -1042,7 +1047,6 @@ class DocumentManager {
             embosserDevice = new PrinterDevice (data.name, true);
             embosserDevice.transmit (translatedFile);
         } catch (PrintException e) {
-//          new Notify ("Could not emboss on "  + data.name);
         	new Notify (lh.localValue("cannotEmboss") + ": " + data.name);
         }
     }
@@ -1140,9 +1144,12 @@ class DocumentManager {
             flags[documentNumber] = true;
             return;
         }
+        
+        final String encoding = getEncodingString();
+        
         haveOpenedFile = false;
         metaContent = false;
-     	
+
         Shell shell = new Shell (display, SWT.DIALOG_TRIM);
         FileDialog dialog = new FileDialog (shell, SWT.OPEN);
         String filterPath = System.getProperty ("user.home");
@@ -1172,7 +1179,7 @@ class DocumentManager {
         //add this file to recentDocList
         rd.addDocument(documentName);
 
-        parseImport(documentName);
+        parseImport(documentName, encoding);
         	
         braille.view.setEditable(false);
 
@@ -1181,10 +1188,10 @@ class DocumentManager {
         daisy.view.setFocus();
     }
     
-    void parseImport(String fileName) {
+    void parseImport(String fileName, String encoding) {
         /** Tika HTML **/
         try {
-        	useTikaHtmlParser(fileName);
+        	useTikaHtmlParser(fileName, encoding);
         } catch (Exception e) {
         	System.out.println ("Error importing: " + fileName );
         	return;
@@ -1194,7 +1201,7 @@ class DocumentManager {
     }
     
     /** Tika importer that creates a HTML formatted file **/
-    void useTikaHtmlParser(String docName) throws Exception {
+    void useTikaHtmlParser(String docName, String encoding) throws Exception {
 
     	String fn = new File(docName).getName();
     	int dot = fn.lastIndexOf(".");
@@ -1218,12 +1225,10 @@ class DocumentManager {
         Parser parser = new AutoDetectParser();
         
         OutputStream output = new FileOutputStream(workFile);
-  
+
         try { 
-        	ToXMLContentHandler handler = new ToXMLContentHandler(output, "ISO-8859-1");
-//        	ToXMLContentHandler handler = new ToXMLContentHandler(output, "UTF-8");
-//        	ToXMLContentHandler handler = new ToXMLContentHandler(output, "us-ascii");
-                parser.parse(stream, handler, metadata, context);
+        	ToXMLContentHandler handler = new ToXMLContentHandler(output, encoding);
+            parser.parse(stream, handler, metadata, context);
         }  catch (IOException e) {
             System.err.println("useHtmlParser IOException: " + e.getMessage());
         }  catch (SAXException e) {
@@ -1409,5 +1414,149 @@ class DocumentManager {
     StyleManager getStyleManager(){
     	return sm;
     }
+    
+    // encoding for Import
+    
+    String getEncodingString() {
+        encodingSelection encoding = getEncoding();
+        
+        final String encodingString;
+        
+        switch(encoding) {
+        case ISO_8859_1:
+        	encodingString = "ISO-8859-1";
+        	break;
+        case UTF_8:
+        	encodingString = "UTF-8";
+        	break;
+        case WINDOWS_1252:
+        	encodingString = "WINDOWS-1252";
+        	break;
+        case US_ASCII:
+        	encodingString = "US-ASCII";
+        	break;
+        default:
+        	encodingString = "ISO-8859-1";
+        	break;
+        }
+        return encodingString;
+    }
+
+    public encodingSelection getEncoding () {
+    	encoding = null;
+    	final Shell selShell = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.CENTER);
+        selShell.setText(lh.localValue("specifyEncoding"));
+        selShell.setMinimumSize (250, 100);        
+
+        FillLayout layout = new FillLayout(SWT.VERTICAL);
+        layout.marginWidth = 8;
+        selShell.setLayout(layout);
+        Composite radioGroup = new Composite(selShell, SWT.NONE);
+        radioGroup.setLayout(new RowLayout(SWT.VERTICAL));  
+
+        Button b1 = new Button (radioGroup, SWT.RADIO);
+        b1.setText(lh.localValue("encodeISO88591"));
+        b1.setSelection(true); // default
+       	b1.pack();
+
+       	Button b2 = new Button (radioGroup, SWT.RADIO);
+       	b2.setText(lh.localValue("encodeUTF8"));
+       	b2.pack();
+
+       	Button b3 = new Button (radioGroup, SWT.RADIO);
+       	b3.setText(lh.localValue("encodeWINDOWS1252"));
+       	b3.pack();
+       	
+       	Button b4 = new Button (radioGroup, SWT.RADIO);
+       	b4.setText(lh.localValue("encodeUSASCII"));
+       	b4.pack();
+       	
+       	if (SWT.getPlatform().equals("win32") || SWT.getPlatform().equals("wpf")) {
+       	    b1.setSelection(false);
+       	    b3.setSelection(true);
+       	} 
+       	
+       	radioGroup.pack();
+
+       	Composite c = new Composite(selShell, SWT.NONE);
+       	RowLayout clayout = new RowLayout();
+       	clayout.type = SWT.HORIZONTAL;
+       	//clayout.spacing = 30;
+       	//clayout.marginWidth = 8;
+       	clayout.marginTop = 20;
+       	clayout.center = true;
+       	clayout.pack = true;
+       	clayout.justify = true;
+       	c.setLayout(clayout);
+
+       	Button bsel = new Button (c, SWT.PUSH);
+       	bsel.setText(lh.localValue("encodeSelect"));
+       	bsel.pack();
+
+       	c.pack();
+
+       	Control tabList[] = new Control[] { radioGroup, c, radioGroup};
+       	try {
+       		selShell.setTabList(tabList);
+       	} catch (IllegalArgumentException e) {
+       		System.err.println ("setTabList exception " + e.getMessage());
+       	}
+
+       	selShell.setDefaultButton(bsel);
+
+       	selShell.pack();
+
+       	Monitor primary = display.getPrimaryMonitor ();
+       	Rectangle bounds = primary.getBounds ();
+       	Rectangle rect = selShell.getBounds ();
+       	int x = bounds.x + (bounds.width - rect.width) / 2;
+       	int y = bounds.y + (bounds.height - rect.height) / 2;
+       	selShell.setLocation (x, y);
+
+       	b1.addSelectionListener (new SelectionAdapter() {
+       		public void widgetSelected (SelectionEvent e) {
+       			encoding = encodingSelection.ISO_8859_1;
+       		}
+       	});
+
+       	b2.addSelectionListener (new SelectionAdapter() {
+       		public void widgetSelected (SelectionEvent e) {
+       			encoding = encodingSelection.UTF_8;
+       		}
+       	});
+
+       	b3.addSelectionListener (new SelectionAdapter() {
+       		public void widgetSelected (SelectionEvent e) {
+       			encoding = encodingSelection.WINDOWS_1252;
+       		}
+       	});
+       	
+       	b4.addSelectionListener (new SelectionAdapter() {
+       		public void widgetSelected (SelectionEvent e) {
+       			encoding = encodingSelection.US_ASCII;
+       		}
+       	});
+
+       	/* Select */
+       	bsel.addSelectionListener (new SelectionAdapter() {
+       		public void widgetSelected (SelectionEvent e) {
+			    selShell.dispose();
+       		}
+       	});
+
+	    selShell.open();
+	    while (!selShell.isDisposed()) {
+	    	if (!display.readAndDispatch()) display.sleep();
+	        // nothing clicked
+	        if (encoding == null) {
+	    	  if (b1.getSelection()) encoding = encodingSelection.ISO_8859_1;
+	    	  else if (b2.getSelection()) encoding = encodingSelection.UTF_8;
+	    	  else if (b3.getSelection()) encoding = encodingSelection.WINDOWS_1252;
+	    	  else if (b4.getSelection()) encoding = encodingSelection.US_ASCII;
+	        };
+	    }
+	    return encoding;
+    }
+
 }
 

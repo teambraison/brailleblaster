@@ -401,8 +401,11 @@ public class CreateStyle extends Dialog{
 		}
 		try {
 			boolean isEven = false;
+			int i = 1;
 			for( String s:formValues) {
-				if(s.charAt(s.length()-1)==':'){
+				if (i++ == 1) {
+					s = "styleName=";
+				} else if (s.charAt(s.length()-1)==':'){
 					s = s.substring(0,s.length()-1)+"=";
 				}
 				writer.write(s);

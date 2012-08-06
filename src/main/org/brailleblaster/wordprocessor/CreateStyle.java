@@ -117,7 +117,7 @@ public class CreateStyle extends Dialog{
 		data = new FormData();
 		data.width = PROPERTYLABELWIDTH;
 		name.setLayoutData(data);
-		Text nameText = new Text(attributesPanel, SWT.RIGHT|SWT.WRAP | SWT.BORDER);
+		Text nameText = new Text(attributesPanel, SWT.RIGHT | SWT.BORDER);
 		nameText.setText("s"+ (num_styles+1));
 		data = new FormData();
 		data.left = new FormAttachment(name, 5);
@@ -167,7 +167,7 @@ public class CreateStyle extends Dialog{
 				data.width = PROPERTYLABELWIDTH;
 				firstLabel.setLayoutData(data);
 				firstLabel.setToolTipText(sp.getToolTip());
-				Text firstText = new Text(propertiesPanel, SWT.RIGHT|SWT.WRAP | SWT.BORDER);
+				Text firstText = new Text(propertiesPanel, SWT.RIGHT | SWT.BORDER);
 				data = new FormData();
 				data.left = new FormAttachment(firstLabel, 5);
 				data.right = new FormAttachment(100, 0);
@@ -298,7 +298,7 @@ public class CreateStyle extends Dialog{
 	private Text addFieldText(Composite parent, String text, String toolTip){
 		FormData data = new FormData();
 		final Text curText = 
-				new Text(parent, SWT.WRAP | SWT.BORDER|SWT.RIGHT);
+				new Text(parent, SWT.BORDER|SWT.RIGHT);
 		setNumericalValidation(curText);
 
 		data.top= new FormAttachment(lastLabel, -2, SWT.TOP);

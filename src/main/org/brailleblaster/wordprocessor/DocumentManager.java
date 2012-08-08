@@ -720,7 +720,8 @@ class DocumentManager {
 			doc = parser.build(fileName);
 
 		} catch (ParsingException e) {
-			new Notify(lh.localValue("malformedDocument"));
+			new Notify("Tika: " + lh.localValue("malformedDocument"));
+			e.getStackTrace();
 			return;
 		} catch (IOException e) {
 			new Notify(lh.localValue("couldNotOpen") + " " + documentName);
@@ -1362,8 +1363,8 @@ class DocumentManager {
 			System.err.println("useTikaHtmlParser TikaException: "
 					+ e.getMessage());
 		} finally {
-			output.close();
 			stream.close();
+			output.close();
 		}
 	}
 
@@ -1421,9 +1422,8 @@ class DocumentManager {
 		// backtranslate
 
 		BBIni.setUtd(false) ;
-		configFileList = "preferences.cfg";
-		configSettings = "backFormat html\n" + "mode notUc\n";
-		configSettings = "";
+		configFileList = "backtranslate.cfg";
+		configSettings = "backFormat html\n" + "mode notUc\n" ;
 
 		daisyWorkFile = tempPath + docID + "-tempdoc.xml";
 		

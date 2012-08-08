@@ -574,10 +574,9 @@ class BBMenu {
 				dm.translate(true);
 			}
 		});
-	
-		
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
 		backTranslateItem.setText(lh.localValue("&BackTranslate"));
+		backTranslateItem.setEnabled(false);
 		backTranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();

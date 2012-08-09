@@ -55,6 +55,7 @@ import java.io.UnsupportedEncodingException;
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -82,16 +83,15 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 //import org.apache.log4j.Level;
 
-import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
 import org.apache.tika.sax.ToTextContentHandler;
-import org.apache.tika.sax.WriteOutContentHandler;
 
 import org.xml.sax.SAXException;
 
@@ -177,6 +177,8 @@ class DocumentManager {
 	StringBuilder daisyLine = new StringBuilder(8192);
 	// character encoding for import
 	static String encoding = null;
+	
+	MediaType mediaType;
 
 	/**
 	 * Constructor that sets things up for a new document.
@@ -1257,8 +1259,6 @@ class DocumentManager {
 			return;
 		}
 
-		final String encoding = getEncodingString();
-
 		haveOpenedFile = false;
 		metaContent = false;
 
@@ -1300,7 +1300,7 @@ class DocumentManager {
 			openBrf(documentName);
 			setWindowTitle("untitled");
 		} else {
-			parseImport(documentName, encoding);
+			parseImport(documentName, getEncodingString());
 			setWindowTitle(documentName);
 		}
 		braille.view.setEditable(false);
@@ -1374,7 +1374,6 @@ class DocumentManager {
 			new Notify(lh.localValue("noXlation"));
 			return;
 		}
-		;
 
 		Shell shell = new Shell(display);
 		FileDialog dialog = new FileDialog(shell, SWT.SAVE);
@@ -1708,5 +1707,4 @@ class DocumentManager {
 		}
 		return encoding;
 	}
-
 }

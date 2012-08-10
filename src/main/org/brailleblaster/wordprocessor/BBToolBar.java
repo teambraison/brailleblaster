@@ -103,20 +103,29 @@ embossNow.addSelectionListener (new SelectionAdapter() {
     }
 });
 
+/**
 ToolItem embossWithInk = new ToolItem (toolBar, SWT.PUSH);
-// FO
 tlabel = lh.localValue ("EmbossInkN&ow");
 embossWithInk.setText (tlabel.replace ("&", ""));
-embossWithInk.setEnabled(false);  /* FO */
+embossWithInk.setEnabled(false); 
 embossWithInk.addSelectionListener (new SelectionAdapter() {
     public void widgetSelected (SelectionEvent e) {
         dm.placeholder();
     }
 });
+**/
+
+ToolItem daisyPrint = new ToolItem (toolBar, SWT.PUSH);
+tlabel = lh.localValue ("&Print");
+daisyPrint.setText (tlabel.replace ("&", ""));
+daisyPrint.addSelectionListener (new SelectionAdapter() {
+    public void widgetSelected (SelectionEvent e) {
+        dm.daisyPrint();
+    }
+});
 
 toolBar.pack();
 
-//FO
 FormData bloc = new FormData();
 bloc.left = new FormAttachment(68);
 bloc.right = new FormAttachment(78);

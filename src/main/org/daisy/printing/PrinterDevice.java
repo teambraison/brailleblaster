@@ -26,8 +26,8 @@ import javax.print.attribute.DocAttributeSet;
  * @since 1.0
  */
 public class PrinterDevice implements Device {
-	//private final static DocFlavor FLAVOR = DocFlavor.BYTE_ARRAY.AUTOSENSE;
-	private final static DocFlavor FLAVOR = DocFlavor.INPUT_STREAM.AUTOSENSE;
+	private final static DocFlavor FLAVOR = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+//	private final static DocFlavor FLAVOR = DocFlavor.INPUT_STREAM.TEXT_PLAIN_UTF_8;
 	private PrintService service;
 	
 	/**

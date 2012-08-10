@@ -224,9 +224,10 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+/**		
 		embosserPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		embosserPreviewItem.setText(lh.localValue("Embosser&Preview"));
-		embosserPreviewItem.setEnabled(false); /* FO */
+		embosserPreviewItem.setEnabled(false); 
 		embosserPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -234,12 +235,13 @@ class BBMenu {
 		});
 		embossInkPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossInkPreviewItem.setText(lh.localValue("Emboss&InkPreview"));
-		embossInkPreviewItem.setEnabled(false); /* FO */
+		embossInkPreviewItem.setEnabled(false); 
 		embossInkPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/		
 		embossNowItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossNowItem.setText(lh.localValue("Emboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
@@ -247,17 +249,20 @@ class BBMenu {
 				dm.fileEmbossNow();
 			}
 		});
+/**		
 		embossInkNowItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossInkNowItem.setText(lh.localValue("EmbossInkN&ow"));
-		embossInkNowItem.setEnabled(false); /* FO */
+		embossInkNowItem.setEnabled(false); 
 		embossInkNowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/		
+/**		
 		printPageSetupItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPageSetupItem.setText(lh.localValue("PrintPageS&etup"));
-		printPageSetupItem.setEnabled(false); /* FO */
+		printPageSetupItem.setEnabled(false); 
 		printPageSetupItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -265,18 +270,20 @@ class BBMenu {
 		});
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPreviewItem.setText(lh.localValue("PrintP&review"));
-		printPreviewItem.setEnabled(false); /* FO */
+		printPreviewItem.setEnabled(false); 
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print"));
-		printItem.setEnabled(false); /* FO */
+//		printItem.setEnabled(false); 
 		printItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+//				dm.placeholder();
+				dm.daisyPrint();
 			}
 		});
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);

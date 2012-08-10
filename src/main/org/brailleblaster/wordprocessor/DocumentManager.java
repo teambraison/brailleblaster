@@ -40,6 +40,8 @@ import org.eclipse.swt.events.*;
 import nu.xom.*;
 import nu.xom.Text;
 
+import java.awt.Paint;
+import java.awt.print.*;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -50,18 +52,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
-import java.util.HashMap;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -69,6 +64,9 @@ import java.util.regex.Pattern;
 
 import org.daisy.printing.*;
 import javax.print.PrintException;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.Color;
 
@@ -1150,9 +1148,52 @@ class DocumentManager {
 			embosserDevice = new PrinterDevice(data.name, true);
 			embosserDevice.transmit(translatedFile);
 		} catch (PrintException e) {
-			new Notify(lh.localValue("cannotEmboss") + ": " + data.name);
+			new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
 		}
 	}
+	
+	void daisyPrint() {
+		if ((daisy.view.getCharCount() == 0)) {
+			new Notify(lh.localValue("nothingToPrint"));
+			return;
+		}
+
+		final String printFileName = tempPath + docID + "-print.tmp";
+		PrintStream out = null;
+		
+		try {
+		    out = new PrintStream(new FileOutputStream(printFileName));
+		    out.println(daisy.view.getText());
+			out.flush();
+		} catch (IOException e) {
+			new Notify(lh.localValue("cannotWriteFile"));
+			return;
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+		}
+		
+		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
+		PrintDialog printer = new PrintDialog(shell);
+		PrinterData pdata = printer.open();
+		shell.dispose();
+
+		if (pdata == null || pdata.equals("")) {
+			return;
+		}
+		
+		File printFile = new File(printFileName);
+		PrinterDevice printerDevice;
+		try {
+			printerDevice = new PrinterDevice(pdata.name, true);
+			printerDevice.transmit(printFile);
+
+		} catch (PrintException e) {
+			new Notify(lh.localValue("cannotPrint") + ": " + pdata.name + "\n" + e.getMessage());
+		}
+		
+}	
 
 	void toggleBrailleFont() {
 		if (displayBrailleFont) {

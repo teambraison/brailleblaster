@@ -57,6 +57,8 @@ import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
 import java.io.File;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -965,11 +967,10 @@ class DocumentManager {
 		}
 		numLines = 0;
 		numChars = 0;
-		// FO
 		firstTime = true;
 		boolean eof = false;
 		String line;
-
+        
 		while (!eof) {
 			try {
 				line = translation.readLine();
@@ -978,7 +979,7 @@ class DocumentManager {
 						+ translatedFileName);
 				return;
 			}
-
+			
 			if (line == null) {
 				eof = true;
 			} else {
@@ -1463,7 +1464,7 @@ class DocumentManager {
 
 		BBIni.setUtd(false) ;
 		configFileList = "backtranslate.cfg";
-		configSettings = "backFormat html\n" + "mode notUc\n" ;
+		configSettings = "mode notUc\n" ;
 
 		daisyWorkFile = tempPath + docID + "-tempdoc.xml";
 		

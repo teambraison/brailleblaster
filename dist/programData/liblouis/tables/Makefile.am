@@ -70,7 +70,7 @@ table_files = \
 	en-us-g2.ctb \
 	en-us-interline.ctb \
 	en-us-mathtext.ctb \
-	eo.ctb \
+	eo-g1.ctb \
 	es-chardefs.cti \
 	Es-Es-G0.utb \
 	Es-Es-g1.utb \
@@ -108,6 +108,7 @@ table_files = \
 	hi.ctb \
 	hi-in-g1.utb \
 	hr.ctb \
+	hu-backtranslate-correction.dis \
 	hu-chardefs.cti \
 	hu-exceptionwords.cti \
 	hu-hu-g1.ctb \
@@ -118,6 +119,7 @@ table_files = \
 	hyph_en_US.dic \
 	hyph_es_ES.dic \
 	hyph_fr_FR.dic \
+	hyph_hu_HU.dic \
 	hyph_it_IT.dic \
 	hyph_nl_NL.dic \
 	hyph_no_NO.dic \

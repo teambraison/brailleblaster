@@ -578,7 +578,7 @@ class BBMenu {
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.translate(true);
+				dm.translateView(true);
 			}
 		});
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);

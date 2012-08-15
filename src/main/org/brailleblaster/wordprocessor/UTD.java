@@ -240,7 +240,9 @@ class UTD {
                  });        
             }
             /** p elements have their own structure **/
-            if (elementName.contentEquals("p"))  i = node.getChildCount() + 1;
+            if (!(elementName == null)) {
+                if (elementName.contentEquals("p"))  i = node.getChildCount() + 1;
+            }
         }  // end for
     }
      

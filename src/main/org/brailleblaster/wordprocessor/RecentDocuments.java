@@ -131,9 +131,10 @@ class RecentDocuments {
                 int key = combo.getSelectionIndex();
                 if(key != -1){
                 String path = recentDocsList.get(key);
+                shell.close();
                 dm.recentOpen (path);
                 }
-                shell.close();
+//              shell.close();
             }
         });
         // show the SWT window

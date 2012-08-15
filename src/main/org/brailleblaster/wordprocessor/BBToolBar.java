@@ -89,7 +89,7 @@ translateItem.setText (tlabel.replace("&", ""));
 // FO
 translateItem.addSelectionListener (new SelectionAdapter() {
     public void widgetSelected (SelectionEvent e) {
-        dm.translate(true);
+        dm.translateView(true);
     }
 });
 

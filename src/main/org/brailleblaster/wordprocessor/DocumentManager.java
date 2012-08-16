@@ -1409,6 +1409,8 @@ public class DocumentManager {
 		if (!path.contentEquals(tempPath)) removeDirectory(new File (path));
         
         haveOpenedFile=false;
+        documentName = null;
+        daisyWorkFile = null;
 	}
 		
 	public boolean removeDirectory(File directory) {

@@ -43,7 +43,8 @@ import org.apache.tika.sax.ToXMLContentHandler;
 public class ImportersManager
 {
 	String fileName;
-    Boolean isZip;
+    boolean isZip;
+    boolean isNimas;
     String tempPath;
     String docID;
     LocaleHandler lh = new LocaleHandler();
@@ -188,12 +189,17 @@ public class ImportersManager
 				if (nn.contentEquals("item")) {
 					String mt = ((Element) newNode).getAttributeValue("media-type");
 					if (mt.contentEquals("application/x-dtbook+xml")) {
+						isNimas = true;
 						String href =  ((Element) newNode).getAttributeValue("href");
 						orderedDocList[orderedDocSeq++] = opfPath + href;
 					}
 				}
 			}
 		}
+	}
+	
+	public boolean isNimas() {
+		return this.isNimas;
 	}
 
 	private String getFileExt(String fileName) {

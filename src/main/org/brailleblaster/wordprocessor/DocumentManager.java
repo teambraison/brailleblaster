@@ -185,8 +185,8 @@ public class DocumentManager {
 	static String altFont = "unibraille29";
 	static String courierFont = "Courier New";
 	LocaleHandler lh = new LocaleHandler();
-	StringBuilder brailleLine = new StringBuilder(8192);
-	StringBuilder daisyLine = new StringBuilder(8192);
+	StringBuilder brailleLine = new StringBuilder(10000);
+	StringBuilder daisyLine = new StringBuilder(10000);
 	// character encoding for import
 	static String encoding = null;
 	
@@ -650,14 +650,14 @@ public class DocumentManager {
 															// will be used by a
 															// different thread
 
-//		new Thread() {
-//		public void run() {
-//		  while (!stopRequested) {
+		new Thread() {
+		public void run() {
+		  while (!stopRequested) {
 			walkTree(rootElement);
-//		  }
-//	    }
-//	 }
-//		 .start();
+		  }
+	    }
+	 }
+	 .start();
 	}
 
 	private void walkTree(Node node) {
@@ -682,11 +682,11 @@ public class DocumentManager {
 				}
 				
 				// the main thread gets to execute the block inside syncExec()
-				if (daisyLine.length() > 4096 || i == node.getChildCount() - 1) {
+				if (daisyLine.length() > 8192 || i == node.getChildCount() - 1) {
 					display.syncExec(new Runnable() {
 						public void run() {
 							daisy.view.append(daisyLine.toString());
-							statusBar.setText("Read " + numChars
+							  statusBar.setText("Read " + numLines + " lines, " + numChars
 									+ " characters.");
 						}
 					});

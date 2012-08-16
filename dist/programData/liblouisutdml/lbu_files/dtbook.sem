@@ -229,7 +229,7 @@ no tr,smilref
 no tr,valign
 no w
 no w,class
-note note
+no note
 notranslate acronym
 pagenum pagenum
 para abbr

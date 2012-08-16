@@ -336,7 +336,7 @@ public class DocumentManager {
 				}
 				daisy.hasChanged = false;
 			} else if (ext.contentEquals("zip")) { 
-					importZip();
+					importZip(getEncodingString());
 					daisy.hasChanged = true;
 			
 			} else {
@@ -606,7 +606,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			
 		} else if (ext.contentEquals("zip")) {
-			importZip();
+			importZip(getEncodingString());
 		} else {
 			if (ext.contentEquals("brf")) {
 				openBrf(documentName);
@@ -795,7 +795,6 @@ public class DocumentManager {
 			new Notify(lh.localValue("noChange"));
 			return;
 		}
-		;
 
 		String ext = "";
 		if (documentName != null)
@@ -1350,7 +1349,7 @@ public class DocumentManager {
 	    }
         
         if (zip) {
-        	importZip();
+        	importZip(getEncodingString());
 		    return;
         } 
 		
@@ -1362,14 +1361,13 @@ public class DocumentManager {
 			parseImport(documentName, getEncodingString());
 			setWindowTitle(documentName);
 		}
-        
 
 		braille.view.setEditable(false);
 		daisy.hasChanged = true;
 		daisy.view.setFocus();
 	}
 	
-	void importZip() {
+	void importZip(String encoding) {
 		String [] arc = null;
 		
 		statusBar.setText(lh.localValue("loadingFile") + " " + documentName);
@@ -1396,36 +1394,20 @@ public class DocumentManager {
 		}
 		statusBar.setText(lh.localValue("importCompleted"));
 		
-		BBIni.setUtd(true);
-		configFileList = "nimas.cfg";
-		configSettings = "formatFor utd\n" + "mode notUC\n";
-		translatedFileName = tempPath + docID + "-tempdoc.xml";
 		String path = null;
-		
+
 		for (int i=0; i<arc.length; i++) {
 			
 		  daisyWorkFile = tempPath + arc[i];
-		  //////////////
-//		  openDocument(daisyWorkFile);
-//		  translatedFileName = brailleFileName;
-//		  showBraille();
-//		  BBIni.setUtd(false);
-       
-		  boolean result = louisutdml.translateFile(configFileList,
-					daisyWorkFile, translatedFileName, logFile, configSettings,
-					mode);
-
-		  if (!result) {
-				new Notify(lh.localValue("translationFailed"));
-				return;
-		  }
-		  openDocument(translatedFileName);
-  		  File d = new File (daisyWorkFile);
-  		  if (path == null) path = d.getParentFile().getPath();
+		  
+      	  parseImport(daisyWorkFile, encoding);  
+		  
+      	  File d = new File (daisyWorkFile);
+          if (path == null) path = d.getParentFile().getPath();
 		  d.delete();
 		}
 		
-        removeDirectory(new File (path));
+		if (!path.contentEquals(tempPath)) removeDirectory(new File (path));
         
         haveOpenedFile=false;
 	}

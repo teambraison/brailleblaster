@@ -194,7 +194,7 @@ public class DocumentManager {
 	MediaType mediaType;
 	
 	final String[] compressed = {"application/zip", "application/epub+zip"};
-	
+	public boolean isNimas;
 
 	/**
 	 * Constructor that sets things up for a new document.
@@ -635,7 +635,7 @@ public class DocumentManager {
 		if ( !((fileName.contains("-tempdoc.xml")) || (fileName.contains(tempPath))) ) {
 		    rd.addDocument(fileName);
 		}
-		if (getFileExt(documentName).contentEquals("brf")) { 
+		if ((getFileExt(documentName).contentEquals("brf")) || (getFileExt(documentName).contentEquals("brl")))   { 
 			setWindowTitle("untitled");
 		} else {
 		    setWindowTitle(documentName);
@@ -1373,10 +1373,12 @@ public class DocumentManager {
 		String [] arc = null;
 		
 		statusBar.setText(lh.localValue("loadingFile") + " " + documentName);
-				
+		
 		try {
 			ImportersManager im = new ImportersManager(documentName, tempPath, docID, true);
 			arc = im.extractZipFiles();
+			isNimas = im.isNimas();
+			
 		} catch (IOException e) {
 			System.err.println("ImportersManager IOException: "
 						+ e.getMessage());
@@ -1394,15 +1396,30 @@ public class DocumentManager {
 		}
 		statusBar.setText(lh.localValue("importCompleted"));
 		
+		BBIni.setUtd(true);
+		configFileList = "nimas.cfg";
+		configSettings = "formatFor utd\n" + "mode notUC\n";
+		translatedFileName = tempPath + docID + "-tempdoc.xml";
 		for (int i=0; i<arc.length; i++) {
 			
-		  BBIni.setUtd(true);
 		  daisyWorkFile = tempPath + arc[i];
-		  openDocument(daisyWorkFile);
+		  //////////////
+//		  openDocument(daisyWorkFile);
 //		  translatedFileName = brailleFileName;
 //		  showBraille();
-		  BBIni.setUtd(false);
+//		  BBIni.setUtd(false);
+       
+		  boolean result = louisutdml.translateFile(configFileList,
+					daisyWorkFile, translatedFileName, logFile, configSettings,
+					mode);
+
+		  if (!result) {
+				new Notify(lh.localValue("translationFailed"));
+				return;
+		  }
+		  openDocument(translatedFileName);
 		}
+
 		haveOpenedFile=false;
 	}
 		

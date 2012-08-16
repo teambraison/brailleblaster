@@ -83,7 +83,6 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.Color;
 
 import org.brailleblaster.importers.ImportersManager;
-import org.brailleblaster.transformer.XMLtransformer;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.FileUtils;

@@ -9,62 +9,59 @@ import nu.xom.Document;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.*;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
-import org.xml.sax.helpers.XMLReaderAdapter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.apache.tika.*;
-import org.apache.tika.detect.TypeDetector;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.io.TikaInputStream;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.mime.MediaType;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.ParserDecorator;
-import org.apache.tika.parser.xml.XMLParser;
-import org.apache.tika.sax.BodyContentHandler;
-import org.apache.tika.sax.EmbeddedContentHandler;
-import org.apache.tika.sax.ToXMLContentHandler;
-
 public class ImportersManager
 {
-	String fileName;
-    boolean isZip;
+	final String fileName;
     boolean isNimas;
-    String tempPath;
-    String docID;
+    boolean isEpub;
+    final String mediaType;
+    final String tempPath;
+    final String docID;
     LocaleHandler lh = new LocaleHandler();
     static int fileCount;
     String[] orderedDocList;
     int orderedDocSeq;
     String opfPath;
+    String encoding;
 
     
     // Constructor
-	public ImportersManager (String fileName, String tempPath, String docID, boolean zip) 
+	public ImportersManager (String fileName, String tempPath, String docID, String arcType) 
 			throws Exception  {
 	    this.fileName = fileName;
 		this.tempPath = tempPath;
 		this.docID = docID;
-	    this.isZip = zip;
+		isNimas = false;
+		isEpub = false;
+		if (arcType.contains("epub")) {
+			isEpub = true;
+			mediaType = "application/xhtml+xml";
+		} else {	
+	        isNimas = true;
+	        mediaType = "application/x-dtbook+xml";
+		}
+		
+	    if ((isNimas && isEpub) || (!isNimas && !isEpub)) {
+	    	System.err.println("extractZipFiles - Error - doc type - Nimas " + isNimas +
+	    			" isEpub " + isNimas);
+	    }
 	 }
 
-	 public String[]  extractZipFiles () {
-			if (isZip) {
+	 public String[]  extractPubFiles () {
+			if (isEpub || isNimas) {
 				return extractZip(fileName, tempPath, docID);
 			} else {
 				return null;
@@ -79,7 +76,7 @@ public class ImportersManager
  		    fis = new FileInputStream(fileName);
  		    
 		} catch (FileNotFoundException e) {
-			System.err.println(e.getLocalizedMessage());
+			System.err.println(e.getMessage());
 			return null;
 		}
 		ZipInputStream zis = new 
@@ -94,7 +91,8 @@ public class ImportersManager
 		   while((entry = zis.getNextEntry()) != null) {
 			   String fn = entry.getName();
 			   String ext = getFileExt(fn);
-			   if (ext.contentEquals("xml") || ext.contentEquals("opf")) {
+			   if (ext.contentEquals("xml") || ext.contentEquals("opf") || ext.contentEquals("html")
+					   || ext.contentEquals("htm")) {
 			     arcNames.append(fn + "|");
 			     count++;
 			   } else {
@@ -120,7 +118,7 @@ public class ImportersManager
 		   }
 		   zis.close();
 		} catch (IOException e) {
-			System.err.println(e.getLocalizedMessage());
+			System.err.println(e.getMessage());
 			return null;
 		}
 		
@@ -142,12 +140,19 @@ public class ImportersManager
 		
 		if (!opfFile.isEmpty()) {
 			File of = new File(opfFile);
-			opfPath = of.getParent() + BBIni.getFileSep();
+			if (of.getParent() == null) {
+				opfPath = BBIni.getFileSep();
+			} else {
+			    opfPath = of.getParent() + BBIni.getFileSep();
+			}
+
 			orderedDocList = getOrderedFileList(a.length, tempPath+opfFile);
+			encoding = getEncoding(tempPath+opfFile);
 		} else {
 			orderedDocList = a.clone();
+			encoding = "UTF-8"; 
 		}
-		
+				
 		return orderedDocList  ;
 	}
 	
@@ -188,8 +193,7 @@ public class ImportersManager
 				}
 				if (nn.contentEquals("item")) {
 					String mt = ((Element) newNode).getAttributeValue("media-type");
-					if (mt.contentEquals("application/x-dtbook+xml")) {
-						isNimas = true;
+					if (mt.contentEquals(mediaType)) {
 						String href =  ((Element) newNode).getAttributeValue("href");
 						orderedDocList[orderedDocSeq++] = opfPath + href;
 					}
@@ -198,9 +202,34 @@ public class ImportersManager
 		}
 	}
 	
-	public boolean isNimas() {
-		return this.isNimas;
+	private String getEncoding(String fileName) {
+
+		String line;
+		
+		try {
+			  FileInputStream ois = new FileInputStream(fileName);
+			  BufferedReader br = new BufferedReader(new InputStreamReader(ois));
+
+			  line = br.readLine();
+			  //System.out.println(line);
+			  ois.close();	  
+			
+			} catch (FileNotFoundException e) {
+			    System.err.println(e.getLocalizedMessage());
+			    return null;
+			} catch (IOException e) {
+			    System.err.println(e.getLocalizedMessage());
+			    return null;
+		    }
+		
+		if (line == null) return null;
+		
+		String e1 = line.substring(line.indexOf("encoding="));
+		String e2 = e1.substring(e1.indexOf("\"")+1, e1.lastIndexOf("\"") );
+		
+		return e2;
 	}
+	
 
 	private String getFileExt(String fileName) {
 		String ext = "";
@@ -210,6 +239,18 @@ public class ImportersManager
 			ext = fn.substring(dot + 1);
 		}
 		return ext;
+	}
+
+	public boolean isNimas() {
+		return this.isNimas;
+	}
+
+	public boolean isEpub() {
+		return this.isEpub;
+	}
+
+	public String getEncoding() {
+		return encoding;
 	}
 }
 

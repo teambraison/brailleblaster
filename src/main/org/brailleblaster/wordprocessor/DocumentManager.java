@@ -83,6 +83,8 @@ import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.Color;
 
 import org.brailleblaster.importers.ImportersManager;
+import org.brailleblaster.importers.XSLtransformer;
+
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.FileUtils;
@@ -194,6 +196,7 @@ public class DocumentManager {
 	
 	final String[] compressed = {"application/zip", "application/epub+zip"};
 	public boolean isNimas;
+	public boolean isEpub;
 
 	/**
 	 * Constructor that sets things up for a new document.
@@ -325,6 +328,7 @@ public class DocumentManager {
 		case WP.OpenDocumentGetRecent:
 			// FO 04
 			String ext = getFileExt(documentName);
+			String arcType = archiveType(documentName);
 			if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
 				brailleFileName = getBrailleFileName();
 				openDocument(documentName);
@@ -334,8 +338,8 @@ public class DocumentManager {
 					braille.hasChanged = false;
 				}
 				daisy.hasChanged = false;
-			} else if (ext.contentEquals("zip")) { 
-					importZip(getEncodingString());
+			} else if (arcType != null ) { 
+					importZip(arcType); 
 					daisy.hasChanged = true;
 			
 			} else {
@@ -593,6 +597,7 @@ public class DocumentManager {
 		braille.view.setEditable(false);
 
 		String ext = getFileExt(documentName);
+		String arcType = archiveType(documentName);
 		if (ext.contentEquals("utd") || ext.contentEquals("xml")) {
 			brailleFileName = getBrailleFileName();
 			openDocument(documentName);
@@ -604,8 +609,8 @@ public class DocumentManager {
 
 			daisy.hasChanged = false;
 			
-		} else if (ext.contentEquals("zip")) {
-			importZip(getEncodingString());
+		} else if (arcType != null) {
+			importZip(arcType);
 		} else {
 			if (ext.contentEquals("brf")) {
 				openBrf(documentName);
@@ -627,22 +632,22 @@ public class DocumentManager {
 			new Notify(lh.localValue("malformedDocument"));
 			return;
 		} catch (IOException e) {
-			new Notify(lh.localValue("couldNotOpen") + " " + documentName);
+			new Notify(lh.localValue("couldNotOpen") + " " + fileName);
 			return;
 		}
 		// add this file to recentDocList
 		if ( !((fileName.contains("-tempdoc.xml")) || (fileName.contains(tempPath))) ) {
 		    rd.addDocument(fileName);
 		}
-		if ((getFileExt(documentName).contentEquals("brf")) || (getFileExt(documentName).contentEquals("brl")))   { 
+		if ((getFileExt(fileName).contentEquals("brf")) || (getFileExt(fileName).contentEquals("brl")))   { 
 			setWindowTitle("untitled");
 		} else {
-		    setWindowTitle(documentName);
+		    setWindowTitle(fileName);
 		    haveOpenedFile = true;
 		}
 		numLines = 0;
 		numChars = 0;
-		statusBar.setText(lh.localValue("loadingDocument") + " " + documentName);
+		statusBar.setText(lh.localValue("loadingDocument") + " " + fileName);
 		daisyLine.delete(0, daisyLine.length());
 		
 		final Element rootElement = doc.getRootElement();// this needs to be
@@ -661,8 +666,6 @@ public class DocumentManager {
 	}
 
 	private void walkTree(Node node) {
-		String ext = getFileExt(documentName);
-		final Boolean isUtd = ext.contentEquals("utd");
 		Node newNode;
 		
 		for (int i = 0; i < node.getChildCount(); i++) {
@@ -671,7 +674,6 @@ public class DocumentManager {
 			if (newNode instanceof Element) {
 				walkTree(newNode);
 			} else if (newNode instanceof Text) {
-
 				String nname = ((Element) node).getLocalName();
 				if (!(nname.matches("span") || nname.matches("brl") || nname.matches("body") || nname.matches("title"))) {
 					final String value = newNode.getValue();
@@ -711,14 +713,14 @@ public class DocumentManager {
 			e.getStackTrace();
 			return;
 		} catch (IOException e) {
-			new Notify(lh.localValue("couldNotOpen") + " " + documentName);
+			new Notify(lh.localValue("couldNotOpen") + " " + fileName);
 			return;
 		}
 
 		numLines = 0;
 		numChars = 0;
 		statusBar
-		.setText(lh.localValue("loadingDocument") + " " + documentName);
+		.setText(lh.localValue("loadingDocument") + " " + fileName);
 		final Element rootElement = doc.getRootElement();// this needs to be
 															// final, because it
 															// will be used by a
@@ -744,6 +746,7 @@ public class DocumentManager {
 			} else if (newNode instanceof Text) {
 
 				String nname = ((Element) node).getLocalName();
+
 				Boolean match = false;
 				int j = 0;
 				while (!match && (j < tags.length)) {
@@ -754,7 +757,7 @@ public class DocumentManager {
 					String value = newNode.getValue() + "\n";
 
 					// replace Unicode with matching codepoints
-					Matcher matcher = Pattern.compile("\\\\u((?i)[0-9a-f]{4})")
+					Matcher matcher = Pattern.compile("\\\\u((?i)[0-9a-fA-F]{4})")
 							.matcher(value);
 					StringBuffer sb = new StringBuffer();
 					int codepoint;
@@ -770,8 +773,8 @@ public class DocumentManager {
 					numChars += value.length();
 
 					daisyLine.append(value);
-				}
-				;
+				};
+				
 				// the main thread gets to execute the block inside syncExec()
 				if (daisyLine.length() > 4096 || i == node.getChildCount() - 1) {
 					display.syncExec(new Runnable() {
@@ -1293,12 +1296,13 @@ public class DocumentManager {
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String filterPath = System.getProperty("user.home");
 		String[] filterNames = new String[] { "ASCII Text", 
-				"Compressed archive (ZIP)",
+				"NIMAS archive (ZIP)",
+				"EPUB Book",
 				"Word Doc", "Word Docx",
 				"Rich Text Format", "Braille BRF", "OpenOffice ODT", "PDF", "XML", 
 				"All Files (*)" };
 		String[] filterExtensions = new String[] { "*.txt", 
-				"*.zip",
+				"*.zip", "*.epub",
 				"*.doc", "*.docx", 
 				"*.rtf", "*.brf", "*.odt", "*.pdf", "*.xml", 
 				"*" };
@@ -1324,31 +1328,12 @@ public class DocumentManager {
 		if (documentName == null)
 			return;
 
-		Tika tika = new Tika();
-		File inFile = new File(documentName);
-	    String type = "";
-        try {
-	        type = tika.detect(inFile);
-        } catch (IOException e) {
-	    	System.err.println(inFile.getName() + ":\n" + e.getMessage());
-	    	new Notify(lh.localValue("couldNotOpen") + ":\n" + inFile.getName() +
-	    			"\n" + e.getLocalizedMessage());
-	    	return;
-        }
-
 		// add this file to recentDocList
 		rd.addDocument(documentName);
 
-        boolean zip = false;
-        for (int i=0; i<compressed.length; i++) {
-            if (type.contentEquals(compressed[i])) {
-//        	  System.out.println(type);
-        	  zip = true;
-            }
-	    }
-        
-        if (zip) {
-        	importZip(getEncodingString());
+		String arcType = archiveType(documentName);
+        if (arcType != null) {
+        	importZip(arcType);
 		    return;
         } 
 		
@@ -1366,25 +1351,27 @@ public class DocumentManager {
 		daisy.view.setFocus();
 	}
 	
-	void importZip(String encoding) {
+	void importZip(String arcType) {
 		String [] arc = null;
 		
-		statusBar.setText(lh.localValue("loadingFile") + " " + documentName);
+		statusBar.setText(lh.localValue("loadingFile") + " " + documentName + ", " + arcType );
 		
 		try {
-			ImportersManager im = new ImportersManager(documentName, tempPath, docID, true);
-			arc = im.extractZipFiles();
+			ImportersManager im = new ImportersManager(documentName, tempPath, 
+					docID, arcType);
+			arc = im.extractPubFiles();
 			isNimas = im.isNimas();
+			isEpub = im.isEpub();
+			encoding = im.getEncoding();
 			
 		} catch (IOException e) {
 			System.err.println("ImportersManager IOException: "
 						+ e.getMessage());
 			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName + 
-	    			"\n" + e.getLocalizedMessage());
+	    			"\n" + e.getMessage());
 		} catch (Exception e) {
-			System.err.println(e.getMessage());
-			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName + 
-	    			"\n" + e.getLocalizedMessage());
+			System.err.println("importZip exception: " + e.getMessage());
+			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName ); 
 		} 
 		
 		if (arc == null) {
@@ -1394,20 +1381,39 @@ public class DocumentManager {
 		statusBar.setText(lh.localValue("importCompleted"));
 		
 		String path = null;
+		String xslFile = "";
+	    String xslPath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep();
+	    if (isNimas) {
+	    	xslFile = xslPath + "nimas.xsl";
+	    } else if (isEpub) { 	    	
+	    	xslFile = xslPath + "epub.xsl";
+	    }
 
-		for (int i=0; i<arc.length; i++) {
-			
-		  daisyWorkFile = tempPath + arc[i];
+	    String outFile;
+	    XSLtransformer xsl = new XSLtransformer();
+	    int i = 0;
+		while ( i < arc.length) {
+		  if (arc[i] != null) {
+		    daisyWorkFile = tempPath + arc[i];
+		    
+		    outFile = tempPath + docID + "-" + (new File(daisyWorkFile).getName());
 		  
-      	  parseImport(daisyWorkFile, encoding);  
+	        xsl.transformXml(xslFile, daisyWorkFile, outFile);
+	        openTikaDocument(outFile);
 		  
-      	  File d = new File (daisyWorkFile);
-          if (path == null) path = d.getParentFile().getPath();
-		  d.delete();
+      	    File d = new File (daisyWorkFile);
+            if (path == null) path = d.getParentFile().getPath();
+		    d.delete();
+		  }
+          i++;
 		}
 		
 		if (!path.contentEquals(tempPath)) removeDirectory(new File (path));
-        
+		if (isEpub) {
+			removeDirectory (new File (tempPath + "META-INF"));
+			removeDirectory (new File (tempPath + "OEBPS"));
+		}
+		
         haveOpenedFile=false;
         documentName = null;
         daisyWorkFile = null;
@@ -1635,6 +1641,29 @@ public class DocumentManager {
 		return ext;
 	}
 
+	private String archiveType (String doc) {
+		Tika tika = new Tika();
+		File inFile = new File(doc);
+	    String type = "";
+        try {
+	        type = tika.detect(inFile);
+        } catch (IOException e) {
+	    	System.err.println(inFile.getName() + ":\n" + e.getMessage());
+	    	new Notify(lh.localValue("couldNotOpen") + ":\n" + inFile.getName() +
+	    			"\n" + e.getLocalizedMessage());
+	    	return null;
+        }
+
+        for (int i=0; i<compressed.length; i++) {
+            if (type.contentEquals(compressed[i])) {
+//        	  System.out.println(type);
+        	  return type;
+            }
+	    }
+        return null;
+	}
+	
+	
 	void activateViews(boolean state) {
 		activateDaisyView(state);
 		activateBrailleView(state);

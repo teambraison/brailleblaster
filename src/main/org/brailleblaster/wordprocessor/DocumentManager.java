@@ -625,6 +625,7 @@ public class DocumentManager {
 
 	void openDocument(String fileName) {
 
+		stopRequested = false;
 		Builder parser = new Builder();
 		try {
 			doc = parser.build(fileName);
@@ -698,18 +699,15 @@ public class DocumentManager {
 		}
 		stopRequested = true;
 	}
-
 	
 	void openTikaDocument(String fileName) {
 
-		// daisy.view.removeModifyListener(daisyMod);
-		stopRequested = false;
 		Builder parser = new Builder();
 		try {
 			doc = parser.build(fileName);
 
 		} catch (ParsingException e) {
-			new Notify("Tika: " + lh.localValue("malformedDocument"));
+			new Notify("TikaDocument: " + lh.localValue("malformedDocument"));
 			e.getStackTrace();
 			return;
 		} catch (IOException e) {
@@ -721,14 +719,9 @@ public class DocumentManager {
 		numChars = 0;
 		statusBar
 		.setText(lh.localValue("loadingDocument") + " " + fileName);
-		final Element rootElement = doc.getRootElement();// this needs to be
-															// final, because it
-															// will be used by a
-															// different thread
+		final Element rootElement = doc.getRootElement();// this needs to be final
 
-		while (!stopRequested) {
-			walkTikaTree(rootElement);
-		}
+		walkTikaTree(rootElement);
 	}
 
 	private void walkTikaTree(Node node) {
@@ -774,22 +767,16 @@ public class DocumentManager {
 
 					daisyLine.append(value);
 				};
-				
-				// the main thread gets to execute the block inside syncExec()
+			
 				if (daisyLine.length() > 4096 || i == node.getChildCount() - 1) {
-					display.syncExec(new Runnable() {
-						public void run() {
-							daisy.view.append(daisyLine.toString());
-							statusBar.setText("Read "
+					daisy.view.append(daisyLine.toString());
+					statusBar.setText("Read "
 									+ daisy.view.getCharCount()
 									+ " characters.");
-						}
-					});
 					daisyLine.delete(0, daisyLine.length());
 				}
 			}
 		}
-		stopRequested = true;
 	}
 
 	void fileSave() {

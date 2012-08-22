@@ -92,7 +92,7 @@ public class ImportersManager
 			   String fn = entry.getName();
 			   String ext = getFileExt(fn);
 			   if (ext.contentEquals("xml") || ext.contentEquals("opf") || ext.contentEquals("html")
-					   || ext.contentEquals("htm")) {
+					   || ext.contentEquals("htm") || ext.contentEquals("xhtml")) {
 			     arcNames.append(fn + "|");
 			     count++;
 			   } else {

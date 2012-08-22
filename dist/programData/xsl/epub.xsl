@@ -2,6 +2,8 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 <xsl:output method="xml"/>
 
+<!-- XSLT for importing epub archive documents into BrailleBlaster -->
+
 <!-- body template -->
 <xsl:template match="/">
       <html><body>
@@ -9,7 +11,7 @@
       </body></html>
 </xsl:template>
 
-<xsl:template match="html/head/title">
+<xsl:template match="title">
    <p><xsl:value-of select="."/></p>
    <p>\u00a0</p>
 </xsl:template>
@@ -18,8 +20,6 @@
    <p><xsl:value-of select="normalize-space(.)"/></p>
    <p>\u00a0</p>
 </xsl:template>
-
-<!-- 
 
 <xsl:template match="h1|h2|h3|h4">
    <p>\u00a0</p>
@@ -77,11 +77,10 @@
    <p>\u00a0</p>
 </xsl:template>
 
-
 <xsl:template match="frontmatter|rearmatter">
    <p>\u00a0</p>
    <p><xsl:value-of select="normalize-space(.)"/></p>
    <p>\u00a0</p>
 </xsl:template>
--->
+
 </xsl:stylesheet>

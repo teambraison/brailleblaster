@@ -4,6 +4,9 @@
   * ViewPlus Technologies, Inc. www.viewplus.com
   * and
   * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
   * All rights reserved
   *
   * This file may contain code borrowed from files produced by various 
@@ -25,6 +28,7 @@
   *
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
+
 
 package org.brailleblaster;
 

@@ -626,6 +626,7 @@ public class DocumentManager {
 	void openDocument(String fileName) {
 
 		stopRequested = false;
+		
 		Builder parser = new Builder();
 		try {
 			doc = parser.build(fileName);
@@ -701,6 +702,7 @@ public class DocumentManager {
 	}
 	
 	void openTikaDocument(String fileName) {
+		stopRequested = false;
 
 		Builder parser = new Builder();
 		try {
@@ -715,19 +717,29 @@ public class DocumentManager {
 			return;
 		}
 
-		numLines = 0;
-		numChars = 0;
-		statusBar
-		.setText(lh.localValue("loadingDocument") + " " + fileName);
+		statusBar.setText(lh.localValue("loadingDocument") + " " + fileName);
 		final Element rootElement = doc.getRootElement();// this needs to be final
 
-		walkTikaTree(rootElement);
-	}
+		// use thread only for single-file documents
+	    if (!(isNimas || isEpub) ) {
+			new Thread() {
+		      public void run() {
+		      while (!stopRequested) {
+			    walkTikaTree(rootElement);
+		      }
+	        }
+	      }
+	      .start();
+	    } else {
+		  while (!stopRequested) {
+			 walkTikaTree(rootElement);
+		  }
+	    }
+    }	
+	
 
 	private void walkTikaTree(Node node) {
 		Node newNode;
-		numLines = 0;
-		numChars = 0;
 
 		String tags[] = { "title", "p", "i", "b", "u", "strong", "span" };
 
@@ -769,14 +781,19 @@ public class DocumentManager {
 				};
 			
 				if (daisyLine.length() > 4096 || i == node.getChildCount() - 1) {
-					daisy.view.append(daisyLine.toString());
-					statusBar.setText("Read "
-									+ daisy.view.getCharCount()
+					display.syncExec(new Runnable() {
+						public void run() {
+							daisy.view.append(daisyLine.toString());
+							  statusBar.setText("Read " + numChars
 									+ " characters.");
+						}
+					});
+					
 					daisyLine.delete(0, daisyLine.length());
 				}
 			}
 		}
+		stopRequested = true;
 	}
 
 	void fileSave() {
@@ -1317,6 +1334,12 @@ public class DocumentManager {
 
 		// add this file to recentDocList
 		rd.addDocument(documentName);
+		
+		numLines = 0;
+		numChars = 0;
+
+		isNimas = false;
+		isEpub = false;
 
 		String arcType = archiveType(documentName);
         if (arcType != null) {
@@ -1357,7 +1380,7 @@ public class DocumentManager {
 			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName + 
 	    			"\n" + e.getMessage());
 		} catch (Exception e) {
-			System.err.println("importZip exception: " + e.getMessage());
+			System.err.println("ImportersManager exception: " + e.getMessage());
 			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName ); 
 		} 
 		

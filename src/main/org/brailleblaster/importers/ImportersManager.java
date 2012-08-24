@@ -256,10 +256,15 @@ public class ImportersManager
 		
 		if (line == null) return null;
 		
-		String e1 = line.substring(line.indexOf("encoding="));
-		String e1a = e1.replace("'", "\"");
-		String e2 = e1a.substring(e1a.indexOf("\"")+1, e1a.lastIndexOf("\"") );
-		
+		String e2;
+		int i = line.indexOf("encoding=");
+		if (i < 0) {
+			e2 = "UTF-8";
+		} else {
+			String e1 = line.substring(i);
+			String e1a = e1.replace("'", "\"");
+			e2 = e1a.substring(e1a.indexOf("\"")+1, e1a.lastIndexOf("\"") );
+		}	
 		return e2.toUpperCase();
 	}
 	

@@ -1414,6 +1414,8 @@ public class DocumentManager {
       	    File d = new File (daisyWorkFile);
             if (path == null) path = d.getParentFile().getPath();
 		    d.delete();
+		    d = new File(outFile);
+		    d.delete();
 		  }
           i++;
 		}
@@ -1460,7 +1462,6 @@ public class DocumentManager {
 		      }
 		    }
 		  }
-
 		  return directory.delete();
 	}
 	

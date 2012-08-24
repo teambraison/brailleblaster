@@ -45,6 +45,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.brailleblaster.localization.LocaleHandler;
@@ -61,9 +62,16 @@ public class XSLtransformer {
 		
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			/* turn off DTD validation */
+			factory.setValidating(false);
+			factory.setFeature("http://xml.org/sax/features/namespaces", false);
+			factory.setFeature("http://xml.org/sax/features/validation", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
 			DocumentBuilder builder = factory.newDocumentBuilder();
 
-			document = builder.parse(new File (fileName));
+			document = builder.parse(new FileInputStream(fileName));
 		
 			File out = new File(outFile);
 		StreamSource stylesource = new StreamSource(new File (xsl));

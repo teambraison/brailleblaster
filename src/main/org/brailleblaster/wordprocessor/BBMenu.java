@@ -427,6 +427,7 @@ class BBMenu {
 		});
 		createStyleItem = new MenuItem(editMenu, SWT.PUSH);
 		createStyleItem.setText(lh.localValue("&CreateStyle"));
+		createStyleItem.setEnabled(false);
 		createStyleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 //FO 03				dm.placeholder();
@@ -435,6 +436,7 @@ class BBMenu {
 		});
 		selectStyleItem = new MenuItem(editMenu, SWT.PUSH);
 		selectStyleItem.setText(lh.localValue("&SelectStyle"));
+		selectStyleItem.setEnabled(false);
 		selectStyleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.selectStyle();

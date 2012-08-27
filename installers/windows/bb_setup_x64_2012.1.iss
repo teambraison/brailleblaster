@@ -1,20 +1,22 @@
   ; Inno Setup script for 
-; BrailleBlaster win32 version 1.3.0
-; file name: bb_setup_win32_3_0.iss
-; last compiled: June 08, 2012
-; by TJ McElroy - mcelroy.tj@gmail.com
+; BrailleBlaster x64 version 2012.1
+; file name: bb_setup_x64_2012.1.iss
+; Created by TJ McElroy
+; last compiled: June 28, 2012
+; by Vic Beckley
 ; Using Inno Setup version 5.5.0 
 ; latest Inno Setup Compiler as of June 08, 2012
 ; can be found at:
 ; http://www.jrsoftware.org/isdl.php
 
-; Last modified: Jun 8, 2012
-; added comments to beginning of script
+; Last modified: Jun 28, 2012
+; Modified comments at beginning of script
 ; 
 ; begin:
 #define MyAppName "BrailleBlaster"
-#define MyAppVersion "1.3.0_win_32"
-#define MyAppPublisher "Tester_1"
+;#define MyAppVersion "2012.1 x86"
+#define MyAppVersion "2012.1 x64"
+#define MyAppPublisher "Jointly ViewPlus Technologies and Abilitiessoft"
 #define MyAppURL "http://www.brailleblaster.org/"
 #define MyAppExeName "brailleblaster.jar"
 
@@ -33,11 +35,11 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\temp\brailleblaster-1-3-0\LICENSE.txt
-InfoBeforeFile=C:\temp\brailleblaster-1-3-0\pre_install.txt
-InfoAfterFile=C:\temp\brailleblaster-1-3-0\thank_you.txt
-OutputDir=c:\lab\braille_blaster\bb_setup_win32_3_0
-OutputBaseFilename=setup
+LicenseFile=C:\BrailleBlaster\dist\LICENSE.txt
+InfoBeforeFile=C:\brailleblaster\installers\windows\pre_install.txt
+InfoAfterFile=C:\BrailleBlaster\installers\windows\thank_you.txt
+OutputDir=c:\temp
+OutputBaseFilename=BrailleBlaster_2012.1_win_x64
 Compression=lzma
 SolidCompression=yes
 
@@ -49,8 +51,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\temp\brailleblaster-1-3-0\brailleblaster.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\temp\brailleblaster-1-3-0\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\BrailleBlaster\dist\brailleblaster.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\BrailleBlaster\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

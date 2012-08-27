@@ -128,21 +128,23 @@ String text = view.getText();
 
 int length = text.length();
 int beginParagraph = 0;
-int endParagraph;
+int endParagraph = 0;
 while (beginParagraph < length) {
 Element paragraph = new Element ("p");
 char c = 0;
 int i;
 for (i = beginParagraph; (i < length && (c = text.charAt(i)) != 0x0a 
 && c != 0x0d); i++);
+
+System.out.println("i " + i + " beginParagraph " + beginParagraph + " endParagraph " + endParagraph);
 if (i  < length) {
 // FO endParagraph = i - 1;
-endParagraph = i ;
+endParagraph = i;
 if (c == 0x0a) {
 i++;
 }
 else if (text.charAt(i + 1) == 0x0a) {
-i += 2;
+i += 1;
 } else {
 i++;
 }

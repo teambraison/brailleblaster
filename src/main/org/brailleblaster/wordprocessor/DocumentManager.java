@@ -40,16 +40,19 @@ import org.eclipse.swt.events.*;
 import nu.xom.*;
 import nu.xom.Text;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.io.Writer;
 
 import org.liblouis.liblouisutdml;
 import org.brailleblaster.util.Notify;
@@ -71,6 +74,7 @@ import javax.print.DocPrintJob;
 import javax.print.PrintException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
+import javax.print.ServiceUI;
 import javax.print.SimpleDoc;
 import javax.print.attribute.DocAttributeSet;
 import javax.print.attribute.HashDocAttributeSet;
@@ -1177,15 +1181,7 @@ public class DocumentManager {
 	}
 	
 	void daisyPrint() {
-/**
-		if ((daisy.view.getCharCount() == 0)) {
-			new Notify(lh.localValue("nothingToPrint"));
-			return;
-		}
-
-		final String printFileName = tempPath + docID + "-print.tmp";
-		PrintStream out = null;
-**/		
+	
 		placeholder();
 }	
 

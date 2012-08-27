@@ -279,7 +279,7 @@ class BBMenu {
 **/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print"));
-//		printItem.setEnabled(false); 
+		printItem.setEnabled(false); 
 		printItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 //				dm.placeholder();

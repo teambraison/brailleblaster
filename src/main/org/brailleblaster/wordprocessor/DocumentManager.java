@@ -682,7 +682,7 @@ public class DocumentManager {
 					numLines++;
 					numChars += value.length();
 
-					daisyLine.append(value);
+					daisyLine.append(value + '\n');
 				}
 				
 				// the main thread gets to execute the block inside syncExec()
@@ -695,6 +695,7 @@ public class DocumentManager {
 						}
 					});
 				    daisyLine.delete(0, daisyLine.length());
+				    daisy.hasChanged = false;
 				}
 			}
 		}

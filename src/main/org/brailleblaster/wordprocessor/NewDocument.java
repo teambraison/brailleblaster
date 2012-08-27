@@ -135,8 +135,6 @@ char c = 0;
 int i;
 for (i = beginParagraph; (i < length && (c = text.charAt(i)) != 0x0a 
 && c != 0x0d); i++);
-
-System.out.println("i " + i + " beginParagraph " + beginParagraph + " endParagraph " + endParagraph);
 if (i  < length) {
 // FO endParagraph = i - 1;
 endParagraph = i;

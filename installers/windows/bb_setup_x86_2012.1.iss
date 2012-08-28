@@ -34,10 +34,10 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\BrailleBlaster\dist\LICENSE.txt
-InfoBeforeFile=C:\brailleblaster\installers\windows\pre_install.txt
-InfoAfterFile=C:\BrailleBlaster\installers\windows\thank_you.txt
-OutputDir=c:\temp
+LicenseFile=..\..\dist\LICENSE.txt
+InfoBeforeFile=pre_install.txt
+InfoAfterFile=thank_you.txt
+OutputDir=..\..\
 OutputBaseFilename=BrailleBlaster_2012.1_win_x86
 Compression=lzma
 SolidCompression=yes
@@ -50,8 +50,8 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "C:\BrailleBlaster\dist\brailleblaster.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\BrailleBlaster\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\dist\brailleblaster.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\BrailleBlaster\dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

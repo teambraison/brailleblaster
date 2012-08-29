@@ -45,9 +45,21 @@ public class PrintersManager implements Printable {
     int[] pageBreaks;  // array of page break line positions.
 
     String[] textLines;
-    String textToPrint = null;
+    StringBuffer textToPrint = new StringBuffer();
+    final int MAX_CHAR = 90;
     
     LocaleHandler lh = new LocaleHandler();
+    
+    public PrintersManager (String text) {
+        char c = 0;
+    	for (int i = 0; i < text.length(); i++) {
+        	if ( (c = text.charAt(i)) == 0x0d) {
+    			this.textToPrint.append(" ");
+        	} else {
+        		this.textToPrint.append(c);
+        	}
+    	}
+    }
     
     private void initTextLines() {
     	int numLines = 0;
@@ -56,14 +68,14 @@ public class PrintersManager implements Printable {
         char c = 0;
         if (textLines == null) {
         	for (j = 0; j < textToPrint.length(); j++) { 
-        		if ((++numChar > 80) || ((c = textToPrint.charAt(j)) == 0x0a) ){
+        		if ((++numChar > MAX_CHAR) || (textToPrint.charAt(j) == 0x0a) ){
         			numLines++;
         			numChar = 0;
         		} 
         	}
 
         	if (c != 0x0a) {
-        		textToPrint = textToPrint + "\n";
+        		textToPrint.append("\n");
         		numLines++;
         	}
         	textLines = new String[numLines];
@@ -73,7 +85,7 @@ public class PrintersManager implements Printable {
         	int i = 0;
             while (i < numLines) {
             	for (end = start; end < textToPrint.length(); end++) {  
-            		if (((c=textToPrint.charAt(end)) == 0x0a) || (++numChar > 80)) {
+            		if (((c=textToPrint.charAt(end)) == 0x0a) || (++numChar > MAX_CHAR)) {
                     	textLines[i++] = textToPrint.substring(start, end);
                     	numChar = 0;
                         start = end + 1;
@@ -128,8 +140,7 @@ public class PrintersManager implements Printable {
         return PAGE_EXISTS;
     }
 
-    public void printText(String text ) {
-       	 this.textToPrint = text;
+    public void printText() {
        	 
          PrinterJob job = PrinterJob.getPrinterJob();
          job.setPrintable(this);

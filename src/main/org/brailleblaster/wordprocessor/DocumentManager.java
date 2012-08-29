@@ -1169,8 +1169,8 @@ public class DocumentManager {
 	
 	void daisyPrint() {
 		
-		PrintersManager pn = new PrintersManager();
-		pn.printText(daisy.view.getText());
+		PrintersManager pn = new PrintersManager(daisy.view.getText());
+		pn.printText();
 		
 //		placeholder();
 }	

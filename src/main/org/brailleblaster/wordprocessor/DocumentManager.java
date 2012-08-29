@@ -67,20 +67,7 @@ import java.util.regex.Pattern;
 
 import org.daisy.printing.*;
 
-import javax.print.Doc;
-import javax.print.DocFlavor;
-import javax.print.DocFlavor.INPUT_STREAM;
-import javax.print.DocPrintJob;
 import javax.print.PrintException;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.ServiceUI;
-import javax.print.SimpleDoc;
-import javax.print.attribute.DocAttributeSet;
-import javax.print.attribute.HashDocAttributeSet;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.Copies;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.swt.widgets.*;
@@ -90,6 +77,7 @@ import org.brailleblaster.importers.ImportersManager;
 import org.brailleblaster.importers.XSLtransformer;
 
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.YesNoChoice;
@@ -1181,8 +1169,11 @@ public class DocumentManager {
 	}
 	
 	void daisyPrint() {
-	
-		placeholder();
+		
+		PrintersManager pn = new PrintersManager();
+		pn.printText(daisy.view.getText());
+		
+//		placeholder();
 }	
 
 	void toggleBrailleFont() {

@@ -492,6 +492,7 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+/**		
 		cursorFollowItem = new MenuItem(editMenu, SWT.PUSH);
 		cursorFollowItem.setText(lh.localValue("&CursorFollow"));
 		cursorFollowItem.setEnabled(false);
@@ -508,7 +509,9 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+**/		
 		editItem.setMenu(editMenu);
+		editItem.setEnabled(false);
 
 		// Set up view menu
 		Menu viewMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
@@ -530,6 +533,7 @@ class BBMenu {
 		});
 		increaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
 		increaseContrastItem.setText(lh.localValue("&IncreaseContrast"));
+		increaseContrastItem.setEnabled(false);
 		increaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -537,6 +541,7 @@ class BBMenu {
 		});
 		decreaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
 		decreaseContrastItem.setText(lh.localValue("&DecreaseContrast"));
+		decreaseContrastItem.setEnabled(false);
 		decreaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -544,20 +549,23 @@ class BBMenu {
 		});
 		showOutlineItem = new MenuItem(viewMenu, SWT.PUSH);
 		showOutlineItem.setText(lh.localValue("&ShowOutline"));
+		showOutlineItem.setEnabled(false);
 		showOutlineItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+/**		
 		braillePresentationItem = new MenuItem(viewMenu, SWT.PUSH);
 		braillePresentationItem.setText(lh.localValue("&BraillePresentation"));
-		braillePresentationItem.setEnabled(false); /* FO */
+		braillePresentationItem.setEnabled(false); 
 		braillePresentationItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				 dm.placeholder();
 	
 			}
 		});
+
 		formatLikeBrailleItem = new MenuItem(viewMenu, SWT.PUSH);
 		formatLikeBrailleItem.setText(lh.localValue("&FormatLikeBraille"));
 		formatLikeBrailleItem.addSelectionListener(new SelectionAdapter() {
@@ -572,6 +580,7 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+**/
 		viewItem.setMenu(viewMenu);
 
 		// Set up translate menu

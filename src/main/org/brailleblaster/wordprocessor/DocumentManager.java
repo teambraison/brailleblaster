@@ -281,8 +281,7 @@ public class DocumentManager {
 				new Notify(lh.localValue("fontNotLoadedBraille"));
 			}
 		}
-		;
-
+		
 		if (Courier) {
 			daisyFont = new Font(documentWindow.getDisplay(), courierFont,
 					daisyFontHeight, SWT.NORMAL);

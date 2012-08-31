@@ -105,7 +105,7 @@ public class ImportersManager
 	private String[] extractZip (String fileName, String tempPath, String docID) {
 		FileInputStream fis;
 		try {
- 		    fis = new FileInputStream(fileName);
+ 		    fis = new FileInputStream(new File(fileName));
  		    
 		} catch (FileNotFoundException e) {
 			System.err.println(e.getMessage());

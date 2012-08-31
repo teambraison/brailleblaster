@@ -615,7 +615,7 @@ public class DocumentManager {
 		
 		Builder parser = new Builder();
 		try {
-			doc = parser.build(fileName);
+			doc = parser.build(new File(fileName));
 		} catch (ParsingException e) {
 			new Notify(lh.localValue("malformedDocument"));
 			return;
@@ -693,7 +693,7 @@ public class DocumentManager {
 
 		Builder parser = new Builder();
 		try {
-			doc = parser.build(fileName);
+			doc = parser.build(new File(fileName));
 
 		} catch (ParsingException e) {
 			new Notify("TikaDocument: " + lh.localValue("malformedDocument"));

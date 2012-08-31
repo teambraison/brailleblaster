@@ -28,65 +28,27 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.widgets.*;
-
-import org.eclipse.swt.custom.*;
-
-import org.eclipse.swt.layout.*;
-import org.brailleblaster.BBIni;
-import org.eclipse.swt.printing.*;
-import org.eclipse.swt.events.*;
-
-import nu.xom.*;
-import nu.xom.Text;
-
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.Reader;
-import java.io.Writer;
-
-import org.liblouis.liblouisutdml;
-import org.brailleblaster.util.Notify;
-import java.io.File;
-import java.net.URLConnection;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.daisy.printing.*;
 
 import javax.print.PrintException;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.swt.widgets.*;
-import org.eclipse.swt.graphics.Color;
-
-import org.brailleblaster.importers.ImportersManager;
-import org.brailleblaster.importers.XSLtransformer;
-
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.printers.PrintersManager;
-import org.brailleblaster.settings.Welcome;
-import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.YesNoChoice;
-// FO
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Rectangle;
-//import org.apache.log4j.Level;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.ParsingException;
+import nu.xom.Serializer;
+import nu.xom.Text;
 
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -97,8 +59,41 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.ToXMLContentHandler;
-import org.apache.tika.sax.ToTextContentHandler;
-
+import org.brailleblaster.BBIni;
+import org.brailleblaster.importers.ImportersManager;
+import org.brailleblaster.importers.XSLtransformer;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.settings.Welcome;
+import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.YesNoChoice;
+import org.daisy.printing.PrinterDevice;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.PrinterData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
+import org.liblouis.liblouisutdml;
 import org.xml.sax.SAXException;
 
 enum Encodings {

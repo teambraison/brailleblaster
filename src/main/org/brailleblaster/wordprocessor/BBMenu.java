@@ -28,20 +28,14 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
+import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.settings.SettingsDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Event;
-// FO
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.widgets.Listener;
-
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.BBIni;
-import org.brailleblaster.settings.SettingsDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 class BBMenu {
 

@@ -32,20 +32,19 @@
 
 package org.brailleblaster;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import java.io.File;
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.BrailleblasterPath;
 import org.brailleblaster.util.FileUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
+import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
-import java.lang.UnsatisfiedLinkError;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.logging.FileHandler;
-import java.io.IOException;
-import java.io.File;
-import java.util.Locale;
 
 
 /**

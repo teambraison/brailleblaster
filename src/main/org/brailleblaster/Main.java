@@ -32,12 +32,9 @@
 
 package org.brailleblaster;
 
-import org.liblouis.liblouisutdml;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.brailleblaster.localization.LocaleHandler;
-import java.io.IOException;
-import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
+import org.liblouis.liblouisutdml;
 
 /**
 * This class contains the main method. If there are no arguments it 

@@ -28,33 +28,19 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.layout.FormLayout;
-import org.brailleblaster.BBIni;
-import org.eclipse.swt.printing.*;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.custom.StyledText;
-import nu.xom.*;
-
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
-import org.liblouis.liblouisutdml;
+
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.ParsingException;
+import nu.xom.Text;
+
 import org.brailleblaster.util.Notify;
-import java.io.File;
-import org.daisy.printing.*;
-import javax.print.PrintException;
-import org.eclipse.swt.widgets.Listener;
-import org.brailleblaster.settings.Welcome;
-import org.eclipse.swt.widgets.MessageBox;
 
 /**
  * This class encapsulates handling of the Universal 

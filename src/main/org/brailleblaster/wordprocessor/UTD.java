@@ -29,6 +29,7 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -112,7 +113,7 @@ class UTD {
         Builder parser = new Builder();
         try {
 //          doc = parser.build (dm.translatedFileName);
-            doc = parser.build (utdFileName);
+            doc = parser.build (new File(utdFileName));
         } catch (ParsingException e) {
             new Notify ("Malformed document");
             return;

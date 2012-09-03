@@ -36,6 +36,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -179,6 +181,8 @@ public class DocumentManager {
 	// character encoding for import
 	static String encoding = null;
 	
+	static Logger logger;
+	
 	MediaType mediaType;
 	
 	final String[] compressed = {"application/zip", "application/epub+zip"};
@@ -210,6 +214,8 @@ public class DocumentManager {
 		/* text window is on the left */
 		daisy = new DaisyView(documentWindow);
 		braille = new BrailleView(documentWindow);
+		
+		logger = BBIni.getLogger();
 
 		// activeView = (ProtoView)daisy;
 		statusBar = new BBStatusBar(documentWindow);
@@ -696,8 +702,11 @@ public class DocumentManager {
 			doc = parser.build(new File(fileName));
 
 		} catch (ParsingException e) {
-			new Notify("TikaDocument: " + lh.localValue("malformedDocument"));
-			e.getStackTrace();
+			logger.log(Level.SEVERE, lh.localValue("malformedDocument: " + fileName));
+			logger.log(Level.INFO, e.getMessage());
+
+			new Notify(lh.localValue("malformedDocument") + "\n" + fileName);
+//			e.getStackTrace();
 			return;
 		} catch (IOException e) {
 			new Notify(lh.localValue("couldNotOpen") + " " + fileName);
@@ -936,7 +945,8 @@ public class DocumentManager {
 
 	void fileClose() {
 		if (daisy.view == null) {
-			System.err.println("fileCLose() - something wrong!!!");
+			logger.log(Level.SEVERE, "fileCLose() - something wrong!!!");
+//			System.err.println("fileCLose() - something wrong!!!");
 			return;
 		}
 		activateMenus(false);
@@ -980,7 +990,9 @@ public class DocumentManager {
 			try {
 				line = translation.readLine();
 			} catch (IOException e) {
-				new Notify(lh.localValue("problemReading") + " "
+				logger.log(Level.SEVERE, lh.localValue("problemReading") + " "
+						+ translatedFileName);
+				new Notify(lh.localValue("problemReading") + ":\n"
 						+ translatedFileName);
 				return;
 			}
@@ -1025,6 +1037,8 @@ public class DocumentManager {
 		try {
 			translation.close();
 		} catch (IOException e) {
+			logger.log(Level.SEVERE, lh.localValue("problemReading") + " "
+					+ translatedFileName + ": close()");
 			new Notify(lh.localValue("problemReading") + " "
 					+ translatedFileName);
 		}
@@ -1052,6 +1066,7 @@ public class DocumentManager {
 			outputDoc.write(doc);
 			outputDoc.flush();
 		} catch (IOException e) {
+			logger.log(Level.SEVERE, lh.localValue("cannotWriteFile") + ": " + daisyWorkFile);
 			new Notify(lh.localValue("cannotWriteFile"));
 			return;
 		}
@@ -1357,12 +1372,16 @@ public class DocumentManager {
 			encoding = im.getEncoding();
 			
 		} catch (IOException e) {
-			System.err.println("ImportersManager IOException: "
-						+ e.getMessage());
+			logger.log(Level.SEVERE, "ImportersManager IOException: "
+					+ e.getMessage());
+//			System.err.println("ImportersManager IOException: "
+//						+ e.getMessage());
 			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName + 
 	    			"\n" + e.getMessage());
 		} catch (Exception e) {
-			System.err.println("ImportersManager exception: " + e.getMessage());
+			logger.log(Level.SEVERE, "ImportersManager IOException: "
+					+ e.getMessage());
+//			System.err.println("ImportersManager exception: " + e.getMessage());
 			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName ); 
 		} 
 		
@@ -1452,10 +1471,12 @@ public class DocumentManager {
 		try {
 			useTikaParser(fileName, encoding);
 		} catch (ParserConfigurationException e) {
-			System.err.println("Error importing: " + fileName);
+			logger.log(Level.SEVERE, "Error importing: " + fileName);
+//			System.err.println("Error importing: " + fileName);
 			return;
 		} catch (Exception e) {
-			System.err.println("Error importing: " + fileName);
+			logger.log(Level.SEVERE, "Error importing: " + fileName);
+//			System.err.println("Error importing: " + fileName);
 			return;
 		}
 
@@ -1474,8 +1495,10 @@ public class DocumentManager {
 		try {
 			workFile.createNewFile();
 		} catch (IOException e) {
-			System.out.println("useTikaHtmlParser: Error creating Tika workfile "
-							+ e);
+			logger.log(Level.SEVERE, "useTikaHtmlParser: Error creating Tika workfile " + 
+					tikaWorkFile + " " + e.getMessage());
+//			System.out.println("useTikaHtmlParser: Error creating Tika workfile " + 
+//					e.getMessage());
 			return;
 		}
 
@@ -1495,14 +1518,20 @@ public class DocumentManager {
 					encoding);
 			parser.parse(stream, handler, metadata, context);
 		} catch (IOException e) {
-			System.err.println("useTikaHtmlParser IOException: "
+			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
 					+ e.getMessage());
+//			System.err.println("useTikaHtmlParser IOException: "
+//					+ e.getMessage());
 		} catch (SAXException e) {
-			System.err.println("useTikaHtmlParser SAXException: "
+			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
 					+ e.getMessage());
+//			System.err.println("useTikaHtmlParser SAXException: "
+//					+ e.getMessage());
 		} catch (TikaException e) {
-			System.err.println("useTikaHtmlParser TikaException: "
+			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
 					+ e.getMessage());
+//			System.err.println("useTikaHtmlParser TikaException: "
+//					+ e.getMessage());
 		} finally {
 			stream.close();
 			output.close();
@@ -1641,7 +1670,8 @@ public class DocumentManager {
         try {
 	        type = tika.detect(inFile);
         } catch (IOException e) {
-	    	System.err.println(inFile.getName() + ":\n" + e.getMessage());
+	    	logger.log(Level.SEVERE, "Error detecting " + inFile.getName() + ":\n" + e.getMessage());
+//	    	System.err.println(inFile.getName() + ":\n" + e.getMessage());
 	    	new Notify(lh.localValue("couldNotOpen") + ":\n" + inFile.getName() +
 	    			"\n" + e.getLocalizedMessage());
 	    	return null;

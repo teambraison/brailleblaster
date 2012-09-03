@@ -37,8 +37,12 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class PrintersManager implements Printable {
 
@@ -50,7 +54,12 @@ public class PrintersManager implements Printable {
     
     LocaleHandler lh = new LocaleHandler();
     
+    static Logger logger;
+    
     public PrintersManager (String text) {
+    	
+    	logger = BBIni.getLogger();
+    	
         char c = 0;
     	for (int i = 0; i < text.length(); i++) {
         	if ( (c = text.charAt(i)) == 0x0d) {
@@ -149,7 +158,8 @@ public class PrintersManager implements Printable {
              try {
                   job.print();
              } catch (PrinterException ex) {
-            	 System.err.println(ex.getMessage());
+            	 logger.log(Level.SEVERE, lh.localValue("cannotPrint") + " " + job.getPrintService().getName());
+//            	 System.err.println(ex.getMessage());
             	 new Notify(lh.localValue("cannotPrint") + " " + job.getPrintService().getName()) ;
              }
          }

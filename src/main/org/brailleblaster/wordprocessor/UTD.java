@@ -33,6 +33,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -42,6 +44,7 @@ import nu.xom.ParsingException;
 import nu.xom.Text;
 
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.BBIni;
 
 /**
  * This class encapsulates handling of the Universal 
@@ -83,9 +86,11 @@ class UTD {
     int numChars;
     int bvLineCount;
     BufferedWriter bufferedWriter = null;
+    static Logger logger;
 
     UTD (final DocumentManager dm) {
         this.dm = dm;
+        logger = BBIni.getLogger();
     }
 
    	
@@ -115,11 +120,13 @@ class UTD {
 //          doc = parser.build (dm.translatedFileName);
             doc = parser.build (new File(utdFileName));
         } catch (ParsingException e) {
+        	logger.log(Level.SEVERE, "Malformed document: " + utdFileName);
             new Notify ("Malformed document");
             return;
         }
         catch (IOException e) {
-            System.out.println("Could not open"+ utdFileName +" because" + e.getMessage());
+//          System.out.println("Could not open"+ utdFileName +" because" + e.getMessage());
+        	logger.log(Level.SEVERE, "Could not open"+ utdFileName +" because" + e.getMessage());
             new Notify ("Could not open " + utdFileName);
             return;
         }
@@ -176,7 +183,7 @@ class UTD {
                         }
                         catch(IndexOutOfBoundsException e ){
                             //The brl child, newNode, may not have any grandchild of node
-                            System.out.println("findBrlNodes: a brl Node does not have child, i = "+i ); 
+                            System.err.println("findBrlNodes: a brl Node does not have child, i = "+i ); 
                             beforeBrlNode = null; 
                             return;
                         }
@@ -270,7 +277,8 @@ class UTD {
         metaContent = node.getAttributeValue ("name");
 
         if (metaContent == null ) {
-        	System.err.println("doUtdMeta: metaContent is null");
+        	logger.log(Level.INFO, "doUtdMeta: metaContent is null");
+        	// System.err.println("doUtdMeta: metaContent is null");
         	dm.metaContent = false;
         	return;
         }

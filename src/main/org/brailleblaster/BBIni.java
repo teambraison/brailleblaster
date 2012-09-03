@@ -154,6 +154,9 @@ if (!fu.exists (userSettings)) {
 		if (logFile != null) {
 			logger.addHandler (logFile);
 		}
+		// disable output to console
+		logger.setUseParentHandlers(false);
+		
 		if (args.length > 0) {
 int i = 0;
 while (i < args.length) {

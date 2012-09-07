@@ -14,7 +14,6 @@
 ; 
 ; begin:
 #define MyAppName "BrailleBlaster"
-;#define MyAppVersion "2012.1 x86"
 #define MyAppVersion "2012.1 x64"
 #define MyAppPublisher "Jointly ViewPlus Technologies and Abilitiessoft"
 #define MyAppURL "http://www.brailleblaster.org/"
@@ -32,7 +31,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={pf64}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile=..\..\dist\LICENSE.txt

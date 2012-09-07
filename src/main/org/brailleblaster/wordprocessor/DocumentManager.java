@@ -310,6 +310,14 @@ public class DocumentManager {
 			new Welcome(); // This then calls the settings dialogs.
 		}
 
+		String loc = lh.getLocale().toString();
+		if (!loc.contentEquals(lh.localValue("localeResource"))) {
+			logger.log(Level.WARNING, "Locale resource for " + loc + " not found. Using default.");
+//			System.err.println("Locale resource for '" + lh.getLocale().getDisplayName()  + 
+//					"' not found. Using default.");
+//			new Notify("Locale resource for '" + lh.getLocale().getDisplayName()  + "' not found.");
+		}
+		
 		switch (action) {
 		case WP.OpenDocumentGetFile:
 			fileOpen();

@@ -43,9 +43,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Dialog;
 import org.brailleblaster.BBIni;
-import org.eclipse.swt.widgets.MessageBox;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 
 /** This class works closely with classes in the louisutdml package to 
@@ -57,6 +56,7 @@ public class SettingsDialog {
 	private Shell shell;
 	private Properties prop;
 	private String userSettings;
+	LocaleHandler lh = new LocaleHandler();
 
 	public SettingsDialog(){
 		loadProperties();
@@ -67,16 +67,15 @@ public class SettingsDialog {
 		final Shell dialog =
 				new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		dialog.setLayout(new GridLayout(1,  true));
-		dialog.setText("User's settings");
+		dialog.setText(lh.localValue("settingsTitle"));
 		final Button[] checkbox= new Button[2];
 		checkbox[0] = new Button(dialog, SWT.CHECK);
-		checkbox[0].setText(
-		"Show welcome screen and this dialogue every time the program starts");
+		checkbox[0].setText(lh.localValue("settingsWelcome"));
 		checkbox[0].setSelection(showWelcome());
 		checkbox[1] = new Button(dialog, SWT.CHECK);
-		checkbox[1].setText("Read tutorial when finished settings");
+		checkbox[1].setText(lh.localValue("settingsTutorial"));
 		Button saveButton = new Button(dialog, SWT.PUSH);
-		saveButton.setText("Save");
+		saveButton.setText(lh.localValue("&Save"));
 		GridData data = new GridData(SWT.END, SWT.BEGINNING, true, true);
 		data.widthHint = 130;
 		saveButton.setLayoutData(data);

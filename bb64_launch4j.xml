@@ -1,0 +1,35 @@
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>brailleblaster.jar</jar>
+  <outfile>dist\brailleblaster.exe</outfile>
+  <errTitle>BrailleBlaster</errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>http://www.brailleblaster.org</supportUrl>
+  <customProcName>false</customProcName>
+  <stayAlive>false</stayAlive>
+  <manifest></manifest>
+  <icon></icon>
+  <jre>
+    <path></path>
+    <minVersion>1.6.0</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <opt>-d64</opt>
+  </jre>
+  <versionInfo>
+    <fileVersion>0.0.12.1</fileVersion>
+    <txtFileVersion>2012.1</txtFileVersion>
+    <fileDescription>BrailleBlaster</fileDescription>
+    <copyright>Copyright ViewPlus Technologies Inc. and Abilitiessoft</copyright>
+    <productVersion>0.0.12.1</productVersion>
+    <txtProductVersion>2012.1</txtProductVersion>
+    <productName>BrailleBlaster</productName>
+    <companyName></companyName>
+    <internalName>brailleblaster</internalName>
+    <originalFilename>brailleblaster.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>

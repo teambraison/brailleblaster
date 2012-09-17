@@ -46,9 +46,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.wordprocessor.CallOutsideWP;
 
 /** This class works closely with classes in the louisutdml package to 
-chose the correct liblouisutsml configuration file and other user 
+chose the correct liblouisutdml configuration file and other user 
 preferences.
  */
 
@@ -58,10 +59,10 @@ public class SettingsDialog {
 	private String userSettings;
 	LocaleHandler lh = new LocaleHandler();
 
-	public SettingsDialog(){
+	public SettingsDialog() {
 		loadProperties();
 	}
-	public void open(){
+	public void open() {
 		Display display = BBIni.getDisplay();
 		shell = new Shell(display, SWT.DIALOG_TRIM);
 		final Shell dialog =
@@ -83,7 +84,7 @@ public class SettingsDialog {
 		saveButton.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				String showWelcome; 
-				if(checkbox[0].getSelection()){
+				if(checkbox[0].getSelection()) {
 					showWelcome = "yes";
 				}
 				else {
@@ -91,8 +92,9 @@ public class SettingsDialog {
 				}
 				setProperty("showWelcome", showWelcome);
 				storeProperty();
-				if(checkbox[1].getSelection()){
+				if(checkbox[1].getSelection()) {
 					//show tutorial
+					//new CallOutsideWP().showTutorial();
 				}
 				dialog.close();
 			}
@@ -109,7 +111,7 @@ public class SettingsDialog {
 		dialog.open();
 	}
 
-	private void loadProperties(){
+	private void loadProperties() {
 		userSettings= BBIni.getUserSettings();
 		prop = new Properties();
 		try {
@@ -121,11 +123,11 @@ public class SettingsDialog {
 		}
 	}
 
-	public void setProperty(String key, String value){
+	public void setProperty(String key, String value) {
 		prop.setProperty(key, value);
 	}
 
-	public void storeProperty(){
+	public void storeProperty() {
 		//no change will be made to the properties file until this method is called
 		try {
 			prop.store(new FileOutputStream(userSettings), null);
@@ -136,7 +138,7 @@ public class SettingsDialog {
 		}
 	}
 
-	public boolean showWelcome(){
+	public boolean showWelcome() {
 		return prop.getProperty("showWelcome").equals("yes")? true:false; 
 	}
 }

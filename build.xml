@@ -38,7 +38,8 @@ lib/swt.jar
 lib/xom-1.2.6.jar
 lib/commons-cli-1.2.jar
 lib/tika-app-1.1.jar
-programData/lang/"/>
+programData/lang/
+programData/styles/"/>
 </manifest>
 </jar>
 </target>

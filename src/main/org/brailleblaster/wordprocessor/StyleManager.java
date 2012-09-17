@@ -1,21 +1,30 @@
 package org.brailleblaster.wordprocessor;
 
-public class StyleManager {
-    CreateStyle cs;
-   // SelectStyle ss;
+class StyleManager{
+	
+    StylePanel sp;
     DocumentManager dm;
 	
 	public StyleManager(DocumentManager dm){
 		this.dm = dm;
-        cs = new CreateStyle(dm);
-        //ss = new SelectStyle(dm);
+        sp = new StylePanel(this);
 	}
-	
-    void createStyle(){
-    	cs.open();
+
+    void createStyle(String styleName){
+    	EditStyle es = new EditStyle(this);
+    	es.create(styleName);
     }
     
-    void selectStyle(){
-    	//ss.open();
+    void modifyStyle(Style style){
+    	EditStyle es = new EditStyle(this);
+    	es.modify(style);
+    }
+    
+    void stylePanel(){
+    	sp.open();
+    }
+    
+    void readStyleFiles(String styleName){
+    	sp.readStyleFiles(styleName);
     }
 }

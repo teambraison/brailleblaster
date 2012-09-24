@@ -6,9 +6,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -38,37 +35,27 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 
-public class EditStyle extends Dialog{
-	final static int PROPERTYLABELWIDTH = 125; //SWT UI setting
+public class CreateStyle extends Dialog{
+	final static int PROPERTYLABELWIDTH = 125;
 	final static int PROPERTYTEXTWIDTH = 100;
 	private static LocaleHandler lh = new LocaleHandler();
 	private static int num_styles = 0;
 	private static Label lastLabel;
-    final static String STRUE = lh.localValue("styleTrue");
-    final static String SFALSE = lh.localValue("styleFalse");
-    final static int INDEXTRUE = 0; //index of "true" in the combo
-    final static int INDEXFALSE = 1;
-	private static String fileSep;
-	
+	//private static final int MAX_NUM_FILES=50;
+	private String fileSep;
 	private DocumentManager dm;
-	private StyleManager sm;
 	private String stylePath;
 	private String propExtension;
 	private ArrayList<String> formValues = new ArrayList<String>() ;
-
-    private Text nameText;
-    private Hashtable<String, Widget> formRelTab;
-    //static ArrayList<String> propertiesNameList =new ArrayList<String>();
+    final String sTrue = lh.localValue("styleTrue");
+    final String sFalse = lh.localValue("styleFalse");
     
-    static int CREATE = 1;
-    static int MODIFY = 2;
-    
-	private static  FocusListener focusListener = new FocusListener() {
+	private  FocusListener focusListener = new FocusListener() {
 		public void focusGained(FocusEvent e) {
 			Text t = (Text) e.widget;
 			t.selectAll();
+			//System.out.println("selecting all");
 		}
 
 		public void focusLost(FocusEvent e) {
@@ -78,7 +65,7 @@ public class EditStyle extends Dialog{
 				t.clearSelection();
 			}
 
-			//FO  	   
+//FO  	    if(t.getText().length() == 0){
 			if(! t.getText().toString().matches("^[a-zA-Z0-9_]+$")) {
 				new Notify(lh.localValue("styleNotBlank"));
 				Display.getCurrent().asyncExec(new Runnable(){
@@ -90,31 +77,29 @@ public class EditStyle extends Dialog{
 		}
 	};
 	
-	public EditStyle (Shell parent, int style) {
+	public CreateStyle (Shell parent, int style) {
 		super (parent, style);
 	}
-    
-	EditStyle (final StyleManager styleManager) {
-		this (styleManager.dm.documentWindow, SWT.NONE);
-		this.sm = styleManager;
-		this.dm = styleManager.dm;
+
+	CreateStyle (final DocumentManager dm) {
+		this (dm.documentWindow, SWT.NONE);
+		this.dm = dm;
 		fileSep = BBIni.getFileSep();
 		stylePath = BBIni.getStylePath();
 		this.propExtension =BBIni.propExtension;
 	}
 
-	private Shell initOpen(int mode){
+	void open(){
 		Shell parent = getParent();
+		Display display = parent.getDisplay();
 		Shell stylePanel = new Shell(parent);
-		String panelTitle = (mode == CREATE)?(lh.localValue("newStyle")):(lh.localValue("modifyStyle"));
-		stylePanel.setText(panelTitle);
+		stylePanel.setText(lh.localValue("newStyle"));
 		FormLayout layout = new FormLayout();
 		layout.marginWidth = 10;
 		layout.marginHeight = 10;
 		stylePanel.setLayout(layout);
 
 		FormData data = new FormData();
-		formRelTab = new Hashtable<String, Widget>(); //Stores the mapping rel between labels and widgets
 
 		Group attributesPanel = new Group(stylePanel, SWT.NONE);
 		attributesPanel.setText(lh.localValue("styleAttributes"));
@@ -128,11 +113,11 @@ public class EditStyle extends Dialog{
 
 
 		Label name = new Label(attributesPanel, SWT.NULL);
-		name.setText(lh.localValue("styleName"));
+		name.setText(lh.localValue("styleName"));;
 		data = new FormData();
 		data.width = PROPERTYLABELWIDTH;
 		name.setLayoutData(data);
-		nameText = new Text(attributesPanel, SWT.SINGLE | SWT.BORDER| SWT.RIGHT);
+		Text nameText = new Text(attributesPanel, SWT.RIGHT | SWT.BORDER);
 		nameText.setText("s"+ (num_styles+1));
 		data = new FormData();
 		data.left = new FormAttachment(name, 5);
@@ -158,42 +143,11 @@ public class EditStyle extends Dialog{
 		propertiesPanel.setLayoutData(data);
 
 		loadProperties(propertiesPanel);
-		String confirmButtText = (mode == CREATE)?lh.localValue("styleCreate"):lh.localValue("styleModify");
-		addButtons(stylePanel, propertiesPanel, confirmButtText);
-		
-		formRelTab.put("styleName:", nameText);
+		addButtons(stylePanel, propertiesPanel);
+
+
 		stylePanel.pack();
 		stylePanel.open();
-		return stylePanel;
-	}
-	
-	//used to create new style
-	void create(String styleName){
-		Shell stylePanel = initOpen(CREATE);
-		Shell parent = getParent();
-		Display display = parent.getDisplay();
-		HashMap<String, String> styleSet = new HashMap<String, String>(); 
-		styleSet.put("styleName", styleName);
-		Style style = new Style(styleSet);
-		updateFields(style);
-		nameText.setEditable(false);
-		nameText.setEnabled(false);
-		while (!stylePanel.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep();
-		}
-		stylePanel.dispose();
-	}
-	
-	//used to modify existing style
-	void modify(Style style){
-		Shell stylePanel = initOpen(MODIFY);
-		Shell parent = getParent();
-		Display display = parent.getDisplay();
-		if(style != null){
-			nameText.setEditable(false);
-			nameText.setEnabled(false);
-			updateFields(style);
-		}
 		while (!stylePanel.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep();
 		}
@@ -213,7 +167,7 @@ public class EditStyle extends Dialog{
 				data.width = PROPERTYLABELWIDTH;
 				firstLabel.setLayoutData(data);
 				firstLabel.setToolTipText(sp.getToolTip());
-				Text firstText = new Text(propertiesPanel, SWT.SINGLE | SWT.BORDER|SWT.RIGHT);
+				Text firstText = new Text(propertiesPanel, SWT.RIGHT | SWT.BORDER);
 				data = new FormData();
 				data.left = new FormAttachment(firstLabel, 5);
 				data.right = new FormAttachment(100, 0);
@@ -232,20 +186,36 @@ public class EditStyle extends Dialog{
 				accFirstText.addRelation(ACC.RELATION_LABELLED_BY, accPropertiesPanel);
 				lastLabel = firstLabel;
 				isFirstProperty = false;
-				//add to table
-				formRelTab.put(firstLabel.getText(), firstText);
 			}
 			else{
-				addFields(propertiesPanel, sp);
+				Label l = addFieldLabel(propertiesPanel, sp.toString()+":");
+				if(sp.getTypeIndex() == StyleProperty.INTEGER){
+					Text t = addFieldText(propertiesPanel, sp.getDefaultValue(), sp.getToolTip());
+					Accessible accLabel = l.getAccessible();
+					Accessible accText = t.getAccessible();
+					accLabel.addRelation(ACC.RELATION_LABEL_FOR, accText);
+					accText.addRelation(ACC.RELATION_LABELLED_BY, accLabel);
+					accText.addRelation(ACC.RELATION_MEMBER_OF, accPropertiesPanel);
+					accText.addRelation(ACC.RELATION_LABELLED_BY, accPropertiesPanel);
+				}
+				else if(sp.getTypeIndex() == StyleProperty.BOOLEAN){
+					Combo c = addFieldCombo(propertiesPanel, sp.getDefaultValue(), sp.getToolTip());
+					Accessible accLabel = l.getAccessible();
+					Accessible accCombo = c.getAccessible();
+					accLabel.addRelation(ACC.RELATION_LABEL_FOR, accCombo);
+					accCombo.addRelation(ACC.RELATION_LABELLED_BY, accLabel);
+					accCombo.addRelation(ACC.RELATION_MEMBER_OF, accPropertiesPanel);
+					accCombo.addRelation(ACC.RELATION_LABELLED_BY, accPropertiesPanel);
+				}
 			}
 		}
 	}
 
-	private void addButtons(final Shell parent ,Group propertiesPanel, String confirmText){
+	private void addButtons(final Shell parent ,Group propertiesPanel){
 		FormData data = new FormData();
 		Button confirmButt = new Button(parent, SWT.PUSH);
 		Button cancelButt = new Button(parent, SWT.PUSH);
-		confirmButt.setText(confirmText);
+		confirmButt.setText(lh.localValue("styleCreate"));
 		cancelButt.setText(lh.localValue("styleCancel"));
 		data.top = new FormAttachment(propertiesPanel, 5);
 		data.right = new FormAttachment(100, -5);
@@ -268,28 +238,24 @@ public class EditStyle extends Dialog{
 				Control aList[] = abs.getChildren();
 				for(Control c: aList){
 					String s= controlToString(c);
+					//System.out.print(s+'\n');
 					formValues.add(s);
 				}
+				//saveStyle();
 
 				Group pps = (Group) parent.getChildren()[1];
 				Control pList[] = pps.getChildren();
 				for(Control c: pList){
 					String s= controlToString(c);
+					//System.out.print(s+'\n');
 					formValues.add(s);
 				}
-				String styleName= getStyleName();
-				
-				System.out.println("Style name is " + styleName);
-				
-				saveStyle(styleName);	
+
+				saveStyle(getStyleName());	
 				parent.dispose();
-				sm.readStyleFiles(styleName);
 			}
 		});
-		
 	}
-	
-	
 	String sn = lh.localValue("styleName");
 	String getStyleName(){
 		for(int i = 0; i< formValues.size(); i++){
@@ -317,31 +283,6 @@ public class EditStyle extends Dialog{
 		return s;
 	}
 
-	private void addFields(Group propertiesPanel, StyleProperty sp){
-		Accessible accPropertiesPanel = propertiesPanel.getAccessible();
-		Label l = addFieldLabel(propertiesPanel, sp.toString()+":");
-		if(sp.getTypeIndex() == StyleProperty.INTEGER){
-			Text t = addFieldText(propertiesPanel, sp.getDefaultValue(), sp.getToolTip());
-			Accessible accLabel = l.getAccessible();
-			Accessible accText = t.getAccessible();
-			accLabel.addRelation(ACC.RELATION_LABEL_FOR, accText);
-			accText.addRelation(ACC.RELATION_LABELLED_BY, accLabel);
-			accText.addRelation(ACC.RELATION_MEMBER_OF, accPropertiesPanel);
-			accText.addRelation(ACC.RELATION_LABELLED_BY, accPropertiesPanel);
-			formRelTab.put(l.getText(), t);
-		}
-		else if(sp.getTypeIndex() == StyleProperty.BOOLEAN){
-			Combo c = addFieldCombo(propertiesPanel, sp.getDefaultValue(), sp.getToolTip());
-			Accessible accLabel = l.getAccessible();
-			Accessible accCombo = c.getAccessible();
-			accLabel.addRelation(ACC.RELATION_LABEL_FOR, accCombo);
-			accCombo.addRelation(ACC.RELATION_LABELLED_BY, accLabel);
-			accCombo.addRelation(ACC.RELATION_MEMBER_OF, accPropertiesPanel);
-			accCombo.addRelation(ACC.RELATION_LABELLED_BY, accPropertiesPanel);
-			formRelTab.put(l.getText(), c);
-		}
-	}
-	
 	private static Label addFieldLabel(Composite parent, String text){
 		FormData data = new FormData();
 		Label curLabel = new Label(parent, SWT.PUSH);
@@ -354,10 +295,10 @@ public class EditStyle extends Dialog{
 		return curLabel;
 	}
 
-	private static Text addFieldText(Composite parent, String text, String toolTip){
+	private Text addFieldText(Composite parent, String text, String toolTip){
 		FormData data = new FormData();
 		final Text curText = 
-				new Text(parent, SWT.SINGLE | SWT.BORDER|SWT.RIGHT);
+				new Text(parent, SWT.BORDER|SWT.RIGHT);
 		setNumericalValidation(curText);
 
 		data.top= new FormAttachment(lastLabel, -2, SWT.TOP);
@@ -381,13 +322,13 @@ public class EditStyle extends Dialog{
 		data.width = PROPERTYTEXTWIDTH;
 		curText.setLayoutData(data);
 		curText.setText(text);
-		curText.add(STRUE);
-		curText.add(SFALSE);
-		if(text.equals(STRUE)){
-			curText.select(INDEXTRUE);
+		curText.add("True");
+		curText.add("False");
+		if(text.equals("True")){
+			curText.select(0);
 		}
 		else{
-			curText.select(INDEXFALSE);
+			curText.select(1);
 		}
 		curText.setToolTipText(toolTip);
 		return curText;
@@ -412,6 +353,7 @@ public class EditStyle extends Dialog{
 			public void verifyText(VerifyEvent e) {
 				final String oldS = text.getText();
 				final String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);
+				//System.out.println( e.character); 
 				if (e.character == SWT.CR)  {
 					e.doit = false;
 				}
@@ -435,21 +377,15 @@ public class EditStyle extends Dialog{
 		});
 	}
 
-	/**
-	 * 	Write to the properties file with the style name in the local directory;
-	 * Create one if not existed yet.
-	 * 
-	 * @param styleName
-	 */
 	private void saveStyle(String styleName){
+		//file = new File(recentFiles);
 		FileUtils fu = new FileUtils();
 		String fileName = stylePath+fileSep+styleName+propExtension;
-//		int i = 1;
-//		while(fu.exists(fileName)){
-//			fileName = stylePath+fileSep+styleName +"("+ i +")" +propExtension;
-//			i++;
-//		}
-		System.out.println(fileName);
+		int i = 1;
+		while(fu.exists(fileName)){
+			fileName = stylePath+fileSep+styleName +"("+ i +")" +propExtension;
+			i++;
+		}
 		if(!fu.exists(fileName)){
 			fu.create(fileName);
 		}
@@ -488,50 +424,4 @@ public class EditStyle extends Dialog{
 			}
 		}
 	}
-	
-	
-	/**
-	 * This method load existing style values to the form
-	 *  @param style 
-	 */	
-	
-	void updateFields(Style style){
-//		for(String s: formRelTab.keySet()){
-//			System.out.println(s);
-//			Widget w = formRelTab.get(s);
-//			if(w instanceof Text){
-//				System.out.println(((Text) w).getText());
-//			}
-//		}			
-		//style.print();
-		
-		
-		for(String labelText: formRelTab.keySet()){
-			Widget w = formRelTab.get(labelText);
-			
-			String key = labelText.substring(0,labelText.length()-1);// this filters out the ':' in the label text
-			String value = style.styleSet.get(key);
-
-			//System.out.println('+'+key + ":"+ value +", w:"+w.toString());
-			if(value == null) continue;
-			if(w instanceof Text){
-				((Text) w).setText(value);
-			}
-			else if(w instanceof Combo){
-				int i;
-				if(value.equals(STRUE)) {
-					i = INDEXTRUE;
-				}
-				else{
-					i = INDEXFALSE;
-				}
-				((Combo) w).select(i);
-			}
-		}
-	}
-	
-	public Hashtable<String, Widget> getFormRelTab(){
-		return formRelTab;
-	}
-	
 }

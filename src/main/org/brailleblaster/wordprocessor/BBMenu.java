@@ -28,20 +28,14 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.*;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
+import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.settings.SettingsDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Event;
-// FO
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.widgets.Listener;
-
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.BBIni;
-import org.brailleblaster.settings.SettingsDialog;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 class BBMenu {
 
@@ -87,7 +81,7 @@ class BBMenu {
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
 	MenuItem createStyleItem;
-	MenuItem stylePanelItem; //HF
+	MenuItem selectStyleItem; //HF
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -224,9 +218,10 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+/**		
 		embosserPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		embosserPreviewItem.setText(lh.localValue("Embosser&Preview"));
-		embosserPreviewItem.setEnabled(false); /* FO */
+		embosserPreviewItem.setEnabled(false); 
 		embosserPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -234,12 +229,13 @@ class BBMenu {
 		});
 		embossInkPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossInkPreviewItem.setText(lh.localValue("Emboss&InkPreview"));
-		embossInkPreviewItem.setEnabled(false); /* FO */
+		embossInkPreviewItem.setEnabled(false); 
 		embossInkPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/		
 		embossNowItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossNowItem.setText(lh.localValue("Emboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
@@ -247,17 +243,20 @@ class BBMenu {
 				dm.fileEmbossNow();
 			}
 		});
+/**		
 		embossInkNowItem = new MenuItem(fileMenu, SWT.PUSH);
 		embossInkNowItem.setText(lh.localValue("EmbossInkN&ow"));
-		embossInkNowItem.setEnabled(false); /* FO */
+		embossInkNowItem.setEnabled(false); 
 		embossInkNowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/		
+/**		
 		printPageSetupItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPageSetupItem.setText(lh.localValue("PrintPageS&etup"));
-		printPageSetupItem.setEnabled(false); /* FO */
+		printPageSetupItem.setEnabled(false); 
 		printPageSetupItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -265,18 +264,20 @@ class BBMenu {
 		});
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPreviewItem.setText(lh.localValue("PrintP&review"));
-		printPreviewItem.setEnabled(false); /* FO */
+		printPreviewItem.setEnabled(false); 
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+**/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print"));
-		printItem.setEnabled(false); /* FO */
+//		printItem.setEnabled(false); 
 		printItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+//				dm.placeholder();
+				dm.daisyPrint();
 			}
 		});
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);
@@ -418,11 +419,22 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
-		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);
-		stylePanelItem.setText(lh.localValue("&StylePanel"));
-		stylePanelItem.addSelectionListener(new SelectionAdapter() {
+		createStyleItem = new MenuItem(editMenu, SWT.PUSH);
+		createStyleItem.setText(lh.localValue("&CreateStyle"));
+		createStyleItem.setEnabled(false);
+		createStyleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.getStyleManager().stylePanel();
+//FO 03				dm.placeholder();
+				dm.getStyleManager().createStyle();
+			}
+		});
+		selectStyleItem = new MenuItem(editMenu, SWT.PUSH);
+		selectStyleItem.setText(lh.localValue("&SelectStyle"));
+		selectStyleItem.setEnabled(false);
+		selectStyleItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				//dm.selectStyle();
+				dm.placeholder();
 			}
 		});
 
@@ -474,6 +486,7 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+/**		
 		cursorFollowItem = new MenuItem(editMenu, SWT.PUSH);
 		cursorFollowItem.setText(lh.localValue("&CursorFollow"));
 		cursorFollowItem.setEnabled(false);
@@ -490,7 +503,9 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+**/		
 		editItem.setMenu(editMenu);
+		editItem.setEnabled(false);
 
 		// Set up view menu
 		Menu viewMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
@@ -512,6 +527,7 @@ class BBMenu {
 		});
 		increaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
 		increaseContrastItem.setText(lh.localValue("&IncreaseContrast"));
+		increaseContrastItem.setEnabled(false);
 		increaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -519,6 +535,7 @@ class BBMenu {
 		});
 		decreaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
 		decreaseContrastItem.setText(lh.localValue("&DecreaseContrast"));
+		decreaseContrastItem.setEnabled(false);
 		decreaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
@@ -526,20 +543,23 @@ class BBMenu {
 		});
 		showOutlineItem = new MenuItem(viewMenu, SWT.PUSH);
 		showOutlineItem.setText(lh.localValue("&ShowOutline"));
+		showOutlineItem.setEnabled(false);
 		showOutlineItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();
 			}
 		});
+/**		
 		braillePresentationItem = new MenuItem(viewMenu, SWT.PUSH);
 		braillePresentationItem.setText(lh.localValue("&BraillePresentation"));
-		braillePresentationItem.setEnabled(false); /* FO */
+		braillePresentationItem.setEnabled(false); 
 		braillePresentationItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				 dm.placeholder();
 	
 			}
 		});
+
 		formatLikeBrailleItem = new MenuItem(viewMenu, SWT.PUSH);
 		formatLikeBrailleItem.setText(lh.localValue("&FormatLikeBraille"));
 		formatLikeBrailleItem.addSelectionListener(new SelectionAdapter() {
@@ -554,6 +574,7 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+**/
 		viewItem.setMenu(viewMenu);
 
 		// Set up translate menu
@@ -562,13 +583,12 @@ class BBMenu {
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.translate(true);
+				dm.translateView(true);
 			}
 		});
-	
-		
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
 		backTranslateItem.setText(lh.localValue("&BackTranslate"));
+		backTranslateItem.setEnabled(false);
 		backTranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				dm.placeholder();

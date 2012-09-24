@@ -53,27 +53,19 @@ public class FileUtils {
             }
         }
     }
-    
-    public boolean delete(String fileName){
-    	File f= new File(fileName);
-    	if(f.exists()){
-    		return f.delete();
-    	}
-    	return true;
-    }
 
     public void copyFile (String inputFileName, 
             String outputFileName) {
         FileInputStream inFile = null;
         FileOutputStream outFile = null;
         try {
-            inFile = new FileInputStream (inputFileName);
+            inFile = new FileInputStream (new File(inputFileName));
         } catch (FileNotFoundException e) {
             new Notify ("Could not open input file " + inputFileName);
             return;
         }
         try {
-            outFile = new FileOutputStream (outputFileName);
+            outFile = new FileOutputStream (new File(outputFileName));
         } catch (FileNotFoundException e) {
             new Notify ("Could not open output file " + outputFileName);
             return;

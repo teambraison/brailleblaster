@@ -45,6 +45,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
+import java.util.UUID;
 
 
 /**
@@ -86,13 +87,15 @@ public final class BBIni {
 	private static String userSettings;
 	private static String stylePath;
 	public final static String propExtension = ".properties"; 
-
 	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
 	private static FileHandler logFile;
-	static final String BBID = "brlblst";
+	private static final String BBID = "brlblst";
+	private static String instanceId;
 
 	private BBIni(String[] args) {
+		UUID uuid = new UUID(System.currentTimeMillis(), 1123);
+		instanceId = uuid.toString();
 		LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = BrailleblasterPath.getPath (m);
@@ -319,6 +322,10 @@ return multipleSubcommands;
 	}
 	public static String getStylePath(){
 		return stylePath;
+	}
+
+	public static String getInstanceID() {
+		return instanceId;
 	}
 
 }

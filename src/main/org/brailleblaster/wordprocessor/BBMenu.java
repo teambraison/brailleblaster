@@ -80,8 +80,7 @@ class BBMenu {
 	MenuItem underlineToggleItem;
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
-	MenuItem createStyleItem;
-	MenuItem selectStyleItem; //HF
+	MenuItem stylePanelItem;
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -419,22 +418,11 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
-		createStyleItem = new MenuItem(editMenu, SWT.PUSH);
-		createStyleItem.setText(lh.localValue("&CreateStyle"));
-		createStyleItem.setEnabled(false);
-		createStyleItem.addSelectionListener(new SelectionAdapter() {
+		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);
+		stylePanelItem.setText(lh.localValue("&StylePanel"));
+		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//FO 03				dm.placeholder();
-				dm.getStyleManager().createStyle();
-			}
-		});
-		selectStyleItem = new MenuItem(editMenu, SWT.PUSH);
-		selectStyleItem.setText(lh.localValue("&SelectStyle"));
-		selectStyleItem.setEnabled(false);
-		selectStyleItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				//dm.selectStyle();
-				dm.placeholder();
+				dm.getStyleManager().stylePanel();
 			}
 		});
 
@@ -505,7 +493,7 @@ class BBMenu {
 		});
 **/		
 		editItem.setMenu(editMenu);
-		editItem.setEnabled(false);
+		editItem.setEnabled(true);
 
 		// Set up view menu
 		Menu viewMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);

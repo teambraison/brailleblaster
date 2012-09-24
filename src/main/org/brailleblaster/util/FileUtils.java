@@ -53,6 +53,14 @@ public class FileUtils {
             }
         }
     }
+	
+    public boolean delete(String fileName){
+		File f= new File(fileName);
+		if(f.exists()){
+			return f.delete();
+		}
+		return true;
+	}
 
     public void copyFile (String inputFileName, 
             String outputFileName) {

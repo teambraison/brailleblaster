@@ -94,8 +94,9 @@ public final class BBIni {
 	private static String instanceId;
 
 	private BBIni(String[] args) {
-		UUID uuid = new UUID(System.currentTimeMillis(), 1123);
-		instanceId = uuid.toString();
+		long seconds = System.currentTimeMillis() / 1000;
+		instanceId = Long.toString (seconds, 32);
+//System.out.println (instanceId);
 		LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = BrailleblasterPath.getPath (m);
@@ -141,7 +142,7 @@ if (!fu.exists (userSettings)) {
 		if (!styleDir.exists())
 			styleDir.mkdirs();
 
-		tempFilesPath = BBHome + fileSep + "temp";
+		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File (tempFilesPath);
 		if (!temps.exists())
 			temps.mkdirs();

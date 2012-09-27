@@ -135,7 +135,6 @@ public class DocumentManager {
 	DaisyView daisy;
 	BrailleView braille;
 	BBStatusBar statusBar;
-	boolean exitSelected = false;
 	Document doc = null;
 	NewDocument newDoc;
 	String configFileList = null;

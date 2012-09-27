@@ -54,7 +54,7 @@ public class FileUtils {
         }
     }
 	
-    public boolean delete(String fileName){
+    public boolean deleteFile(String fileName){
 		File f= new File(fileName);
 		if(f.exists()){
 			return f.delete();

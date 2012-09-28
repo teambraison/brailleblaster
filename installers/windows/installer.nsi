@@ -39,8 +39,9 @@ Var JVMX64
 !insertmacro MUI_PAGE_STARTMENU BrailleBlaster $StartMenuFolder
 !insertmacro MUI_PAGE_INSTFILES
 !define MUI_FINISHPAGE_NOAUTOCLOSE
-!define MUI_FINISHPAGE_RUN "$INSTDIR\brailleblasterw.bat"
+!define MUI_FINISHPAGE_RUN
 !define MUI_FINISHPAGE_RUN_TEXT "Run BrailleBlaster"
+!define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
 ;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\readme.txt"
 !insertmacro MUI_PAGE_FINISH
 
@@ -59,19 +60,12 @@ Section "BrailleBlaster" SecBBInstall
     ${If} "$JVMX64" == "64"
       ;MessageBox MB_OK "64-bit JVM detected"
       File /r /x "README" "x64\*"
-      FileOpen $0 "brailleblasterw.bat" w
-      IfErrors done
-      FileWrite $0 "$\"$JVMHome\bin\javaw.exe$\" -jar $\"$INSTDIR\brailleblaster.jar$\""
-      FileClose $0
+      CreateShortCut "$INSTDIR\brailleblasterw.lnk" "$\"$JVMHome\bin\javaw.exe$\"" "-jar $\"$INSTDIR\brailleblaster.jar$\""
     ${Else}
       ;MessageBox MB_OK "32-bit JVM detected"
       File /r /x "README" "x86\*"
-      FileOpen $0 "brailleblasterw.bat" w
-      IfErrors done
-      FileWrite $0 "$\"$JVMHome\bin\javaw.exe$\" -jar $\"$INSTDIR\brailleblaster.jar$\""
-      FileClose $0
+      CreateShortCut "$INSTDIR\brailleblasterw.lnk" "$\"$JVMHome\bin\javaw.exe$\"" "-jar $\"$INSTDIR\brailleblaster.jar$\""
     ${EndIf}
-    done:
   ;${Else}
     ;MessageBox MB_OK "No JVM detected"
   ${EndIf}
@@ -97,9 +91,10 @@ Section "BrailleBlaster" SecBBInstall
   ;The start menu group
   !insertmacro MUI_STARTMENU_WRITE_BEGIN BrailleBlaster
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk" "$instdir\brailleblasterw.bat"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk" "$instdir\brailleblasterw.lnk"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
+  CreateShortCut "$DESKTOP\BrailleBlaster.lnk" "$INSTDIR\brailleblasterw.lnk"
 SectionEnd
 
 ; Set the descriptions for the sections
@@ -111,6 +106,7 @@ LangString DESC_BBInstall ${LANG_ENLISH} "BrailleBlaster Application"
 ; The Uninstaller section
 Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
+  Delete "$DESKTOP\BrailleBlaster.lnk"
   RMDir /r "$INSTDIR"
   !insertmacro MUI_STARTMENU_GETFOLDER BrailleBlaster $StartMenuFolder
   Delete "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk"
@@ -188,3 +184,6 @@ function JVMDetect
   ${EndIf}
 FunctionEnd
 
+Function "LaunchLink"
+  ExecShell "" "$INSTDIR\brailleblasterw.lnk"
+FunctionEnd

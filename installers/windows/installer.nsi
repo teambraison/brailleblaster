@@ -3,6 +3,7 @@
 !include "LogicLib.nsh"
 !include "MUI2.nsh"
 !include "X64.nsh"
+!include "WordFunc.nsh"
 
 ; Some basic information
 
@@ -10,6 +11,7 @@ Name "BrailleBlaster"
 !define APPVERSION "2012.2"
 OutFile "BrailleBlaster-${APPVERSION}-installer.exe"
 
+SetCompressor /SOLID LZMA
 InstallDir "$PROGRAMFILES\brailleblaster"
 InstallDirRegKey HKLM "Software\BrailleBlaster" "installdir"
 
@@ -17,6 +19,7 @@ RequestExecutionLevel admin
 
 Var StartMenuFolder
 
+!define MinJVMVersion "1.6"
 Var JVMHome
 Var JVMVersion
 Var JVMX64
@@ -30,11 +33,15 @@ Var JVMX64
 !insertmacro MUI_PAGE_LICENSE "..\..\LICENSE.txt"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
-!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM"
 !define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\BrailleBlaster"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
 !insertmacro MUI_PAGE_STARTMENU BrailleBlaster $StartMenuFolder
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_FINISHPAGE_RUN "$INSTDIR\brailleblasterw.bat"
+!define MUI_FINISHPAGE_RUN_TEXT "Run BrailleBlaster"
+;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\readme.txt"
 !insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_WELCOME
@@ -47,18 +54,36 @@ Var JVMX64
 
 Section "BrailleBlaster" SecBBInstall
   SetOutPath "$INSTDIR"
-  Call JVMDetect
+  ;Call JVMDetect
   ${IfNot} "$JVMHome" == ""
     ${If} "$JVMX64" == "64"
-      MessageBox MB_OK "64-bit JVM detected"
+      ;MessageBox MB_OK "64-bit JVM detected"
+      File /r /x "README" "x64\*"
+      FileOpen $0 "brailleblasterw.bat" w
+      IfErrors done
+      FileWrite $0 "$\"$JVMHome\bin\javaw.exe$\" -jar $\"$INSTDIR\brailleblaster.jar$\""
+      FileClose $0
     ${Else}
-      MessageBox MB_OK "32-bit JVM detected"
+      ;MessageBox MB_OK "32-bit JVM detected"
+      File /r /x "README" "x86\*"
+      FileOpen $0 "brailleblasterw.bat" w
+      IfErrors done
+      FileWrite $0 "$\"$JVMHome\bin\javaw.exe$\" -jar $\"$INSTDIR\brailleblaster.jar$\""
+      FileClose $0
     ${EndIf}
-  ${Else}
-    MessageBox MB_OK "No JVM detected"
+    done:
+  ;${Else}
+    ;MessageBox MB_OK "No JVM detected"
   ${EndIf}
+  ; Add the application files
+  File "..\..\dist\brailleblaster.jar"
+  File /r /x "README" "..\..\dist\programData"
+  File /r /x "README"  /x "swt.jar" "..\..\dist\lib"
+  File /r "..\..\dist\helpDocs"
+  
   ; Store the install directory
   WriteRegStr HKLM "Software\BrailleBlaster" "installdir" $INSTDIR
+  ; Add the add/remove programs information
   WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "DisplayName" "BrailleBlaster"
   WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "DisplayVersion" "${APPVERSION}"
   WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "Publisher" "BrailleBlaster Project"
@@ -72,6 +97,7 @@ Section "BrailleBlaster" SecBBInstall
   ;The start menu group
   !insertmacro MUI_STARTMENU_WRITE_BEGIN BrailleBlaster
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk" "$instdir\brailleblasterw.bat"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
   !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
@@ -85,13 +111,28 @@ LangString DESC_BBInstall ${LANG_ENLISH} "BrailleBlaster Application"
 ; The Uninstaller section
 Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
-  RMDir "$INSTDIR"
+  RMDir /r "$INSTDIR"
   !insertmacro MUI_STARTMENU_GETFOLDER BrailleBlaster $StartMenuFolder
+  Delete "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk"
   Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster"
   DeleteRegKey HKLM "Software\BrailleBlaster"
 SectionEnd
+
+function .onInit
+  Call JVMDetect
+  ${If} $JVMHome == ""
+    MessageBox MB_OK "You need Java installed to be able to use BrailleBlaster. Please install Java and retry installing. Installer will now exit."
+    Abort
+  ${Else}
+    ${VersionCompare} $JVMVersion ${MinJVMVersion} $0
+    ${If} $0 == 2
+      MessageBox MB_OK "Your Java version is $JVMVersion, but BrailleBlaster requires at least Java ${MinJVMVersion}. Please upgrade to at least Java 1.6 and then try installing. The installer will now exit"
+      Abort
+    ${EndIf}
+  ${EndIf}
+FunctionEnd
 
 function JVMDetect
   ;Var /GLOBAL JVMVersion
@@ -146,3 +187,4 @@ function JVMDetect
     ${EndIf}
   ${EndIf}
 FunctionEnd
+

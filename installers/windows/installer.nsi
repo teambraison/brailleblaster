@@ -15,6 +15,8 @@ InstallDirRegKey HKLM "Software\BrailleBlaster" "installdir"
 
 RequestExecutionLevel admin
 
+Var StartMenuFolder
+
 Var JVMHome
 Var JVMVersion
 Var JVMX64
@@ -28,6 +30,10 @@ Var JVMX64
 !insertmacro MUI_PAGE_LICENSE "..\..\LICENSE.txt"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
+!define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKCU"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\BrailleBlaster"
+!define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+!insertmacro MUI_PAGE_STARTMENU BrailleBlaster $StartMenuFolder
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
@@ -53,8 +59,21 @@ Section "BrailleBlaster" SecBBInstall
   ${EndIf}
   ; Store the install directory
   WriteRegStr HKLM "Software\BrailleBlaster" "installdir" $INSTDIR
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "DisplayName" "BrailleBlaster"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "DisplayVersion" "${APPVERSION}"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "Publisher" "BrailleBlaster Project"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "URLInfoAbout" "http://www.brailleblaster.org"
+  WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "UninstallString" "$\"$INSTDIR\Uninstall.exe$\""
+  WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "NoModify" 1
+  WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster" "NoRepair" 1
+
   ; Create uninstaller
   WriteUninstaller "$INSTDIR\Uninstall.exe"
+  ;The start menu group
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN BrailleBlaster
+    CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+  !insertmacro MUI_STARTMENU_WRITE_END
 SectionEnd
 
 ; Set the descriptions for the sections
@@ -67,7 +86,11 @@ LangString DESC_BBInstall ${LANG_ENLISH} "BrailleBlaster Application"
 Section "Uninstall"
   Delete "$INSTDIR\Uninstall.exe"
   RMDir "$INSTDIR"
-  DeleteRegKey /ifempty HKLM "Software\BrailleBlaster"
+  !insertmacro MUI_STARTMENU_GETFOLDER BrailleBlaster $StartMenuFolder
+  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+  RMDir "$SMPROGRAMS\$StartMenuFolder"
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster"
+  DeleteRegKey HKLM "Software\BrailleBlaster"
 SectionEnd
 
 function JVMDetect

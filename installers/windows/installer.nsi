@@ -5,6 +5,11 @@
 !include "X64.nsh"
 !include "WordFunc.nsh"
 
+; Language translations
+LangString DESC_BBInstall ${LANG_ENLISH} "BrailleBlaster Application"
+LangString CreateDesktopShortCutMsg ${LANG_ENGLISH} "Create desktop shortcut"
+; End language translations
+
 ; Some basic information
 
 Name "BrailleBlaster"
@@ -31,6 +36,20 @@ Var JVMX64
 !define MUI_ABORTWARNING
 
 ; The pages to show
+; First the customisation of the finish page
+Var Checkbox
+Function BBFinishShow
+  ${NSD_CreateCheckbox} 120u 110u 100% 10u "$(CreateDesktopShortCutMsg)"
+  pop $Checkbox
+  SetCtlColors $Checkbox "ffffff"
+  ${NSD_SetState} $Checkbox 1
+FunctionEnd
+Function BBFinishLeave
+  ${NSD_GetState} $Checkbox $0
+  ${If} $0 <> 0
+    CreateShortCut "$DESKTOP\BrailleBlaster.lnk" "$INSTDIR\brailleblasterw.lnk"
+  ${EndIf}
+FunctionEnd
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "..\..\LICENSE.txt"
@@ -46,6 +65,8 @@ Var JVMX64
 !define MUI_FINISHPAGE_RUN_TEXT "Run BrailleBlaster"
 !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
 ;!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\readme.txt"
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW "BBFinishShow"
+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE "BBFinishLeave"
 !insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_WELCOME
@@ -102,14 +123,9 @@ Section "BrailleBlaster" SecBBInstall
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall BrailleBlaster.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut "$SMPROGRAMS\$StartMenuFolder\BrailleBlaster website.lnk" "http://www.brailleblaster.org/"
   !insertmacro MUI_STARTMENU_WRITE_END
-  CreateShortCut "$DESKTOP\BrailleBlaster.lnk" "$INSTDIR\brailleblasterw.lnk"
+  ;CreateShortCut "$DESKTOP\BrailleBlaster.lnk" "$INSTDIR\brailleblasterw.lnk"
 SectionEnd
 
-; Set the descriptions for the sections
-LangString DESC_BBInstall ${LANG_ENLISH} "BrailleBlaster Application"
-!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecBBInstall} $(DESC_BBInstall)
-!insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; The Uninstaller section
 Section "Uninstall"
@@ -203,3 +219,8 @@ FunctionEnd
 Function "LaunchLink"
   ExecShell "" "$INSTDIR\brailleblasterw.lnk"
 FunctionEnd
+
+; Set the descriptions for the sections
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecBBInstall} $(DESC_BBInstall)
+!insertmacro MUI_FUNCTION_DESCRIPTION_END

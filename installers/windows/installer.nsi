@@ -127,7 +127,11 @@ function .onInit
       MessageBox MB_OK "Your Java version is $JVMVersion, but BrailleBlaster requires at least Java ${MinJVMVersion}. Please upgrade to at least Java 1.6 and then try installing. The installer will now exit"
       Abort
     ${EndIf}
+    ; If we are using a 64-bit JVM then use the correct Program Files directory
+    ; But We must not have a install directory from the registry
+    ReadRegStr $0 HKLM "SOFTWARE\BrailleBlaster" "installdir"
     ${If} "$JVMX64" == "64"
+    ${AndIf} $0 == ""
       StrCpy $INSTDIR "$PROGRAMFILES64\brailleblaster"
     ${EndIf}
   ${EndIf}

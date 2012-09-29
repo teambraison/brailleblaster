@@ -12,6 +12,9 @@ Name "BrailleBlaster"
 OutFile "BrailleBlaster-${APPVERSION}-installer.exe"
 
 SetCompressor /SOLID LZMA
+ShowInstDetails nevershow
+ShowUninstDetails nevershow
+
 InstallDir "$PROGRAMFILES\brailleblaster"
 InstallDirRegKey HKLM "Software\BrailleBlaster" "installdir"
 

@@ -94,8 +94,13 @@ Section "BrailleBlaster" SecBBInstall
   ;The start menu group
   !insertmacro MUI_STARTMENU_WRITE_BEGIN BrailleBlaster
     CreateDirectory "$SMPROGRAMS\$StartMenuFolder"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk" "$instdir\brailleblasterw.lnk"
-    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+    ; Clean up old links (eg. if we are upgrading)
+    Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+    Delete "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk"
+    ; Now create the new links
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\BrailleBlaster.lnk" "$instdir\brailleblasterw.lnk"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\Uninstall BrailleBlaster.lnk" "$INSTDIR\Uninstall.exe"
+    CreateShortCut "$SMPROGRAMS\$StartMenuFolder\BrailleBlaster website.lnk" "http://www.brailleblaster.org/"
   !insertmacro MUI_STARTMENU_WRITE_END
   CreateShortCut "$DESKTOP\BrailleBlaster.lnk" "$INSTDIR\brailleblasterw.lnk"
 SectionEnd
@@ -113,7 +118,8 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
   !insertmacro MUI_STARTMENU_GETFOLDER BrailleBlaster $StartMenuFolder
   Delete "$SMPROGRAMS\$StartMenuFolder\brailleblaster.lnk"
-  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\Uninstall BrailleBlaster.lnk"
+  Delete "$SMPROGRAMS\$StartMenuFolder\BrailleBlaster website.lnk"
   RMDir "$SMPROGRAMS\$StartMenuFolder"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\BrailleBlaster"
   DeleteRegKey HKLM "Software\BrailleBlaster"

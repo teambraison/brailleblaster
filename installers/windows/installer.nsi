@@ -98,6 +98,9 @@ Section "BrailleBlaster" SecBBInstall
   File /r /x "README" "..\..\dist\programData"
   File /r /x "README"  /x "swt.jar" "..\..\dist\lib"
   File /r "..\..\dist\helpDocs"
+  File "..\..\dist\contributors-credits.txt"
+  File "..\..\dist\COPYRIGHT.txt"
+  File "..\..\dist\LICENSE.txt"
   
   ; Store the install directory
   WriteRegStr HKLM "Software\BrailleBlaster" "installdir" $INSTDIR

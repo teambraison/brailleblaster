@@ -96,7 +96,7 @@ Section "BrailleBlaster" SecBBInstall
   ; Add the application files
   File "..\..\dist\brailleblaster.jar"
   File /r /x "README" "..\..\dist\programData"
-  File /r /x "README"  /x "swt.jar" "..\..\dist\lib"
+  File /r /x "README" /x "swt.jar" /x "*.dll" "..\..\dist\lib"
   File /r "..\..\dist\helpDocs"
   File "..\..\dist\contributors-credits.txt"
   File "..\..\dist\COPYRIGHT.txt"

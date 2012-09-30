@@ -1,4 +1,5 @@
 ; This installer script is an attempt to create a universal installer for BrailleBlaster
+; It uses NSIS from http://nsis.sf.net
 
 !include "LogicLib.nsh"
 !include "MUI2.nsh"

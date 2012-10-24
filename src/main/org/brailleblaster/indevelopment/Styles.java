@@ -32,9 +32,26 @@
 package indevelopment;
 
 import nu.xom.Element;
+/** 
+ * This class contains the data structures and mothods used for handling 
+ *styles.
+ * <p>Styles are used in the print window only. The Braille window will 
+ * already have been 
+ * formatted by liblouisutdml. The rationale behind the use of styles is 
+ * that if the print window looks good visually and the correct markup 
+ * is used in the document, the Braille will also be formatted 
+ * correctly.<p>
+
+ * <p>Note that BrailleBlaster styles deal with layout. Italic, bold, 
+ * etc. are dealt with by action methods in the Semantic class.</p>
+*/
 
 public class Styles {
 
+  /**
+    * Reserved styles are defined by the developers. If the user 
+    * redefines them the changed styles go in her/his directories.
+    */
 String[] reservedStyles = {
   "document",
   "para",
@@ -60,7 +77,9 @@ String[] reservedStyles = {
   "contents9",
   "contents10"
   };
-  
+/** 
+ * The different formats that can be applied to styles.
+ */  
 enum StyleFormat {
   inherit,
   leftJustified,
@@ -74,6 +93,10 @@ enum StyleFormat {
   contents
 };
 
+/**
+ * The status items mark the various stages in the procession of a 
+ * style.
+ */
 enum StyleStatus {
   error,
   beforeBody,
@@ -107,7 +130,22 @@ class StyleRecord {
   int curFirstLineIndent;
 }
 
+/**
+ * The stack array is managed as a fifo stack to handle nested styles. 
+ * For example, we might push a table style onto the stack in the startStyle 
+ * method. Each row would then be pushed onto the stack by StartStyle 
+ * and removed by endStyle. When the last row has been processed, the top  of 
+ * the stack will contain the table style, which is then completed by 
+ * endStyle.
+ */
 StyleRecord[] stack = new StyleRecord[20];
+
+public boolean startStyle (Element element) {
+  return true;
+}
+
+public void endStyle () {
+}
 
 public void applyStyle (String style, String text) {
 }

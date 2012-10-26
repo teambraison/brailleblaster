@@ -29,11 +29,29 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package indevelopment;
+package newcode;
 
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Text;
+import nu.xom.Attribute;
+
+/**
+ * This class provides the means of displaying and editing different 
+ * flavors of xml.
+ * This is accomplished by using a semantic-action file for each type of 
+ * xml document, such as NIMAS, epub or docbook. Displaying and editing 
+ * both the print and Braille windows are covered. No transformations 
+ * are necessary.
+ * See also Styles.java
+ */
 public class Semantics {
+/**
+ * The various actions that can be carried out on an xml document, in 
+ * addition to processing styles.
+ */
 enum Action {
-  no,
+  blankSpace,
   skip,
   generic,
   cdata,
@@ -59,6 +77,10 @@ enum Action {
   graphic
 };
 
+ /**
+ * This is an entry in the SemanticTable, which is used to control 
+ * displaying and editing.
+ */
 class SemanticEntry {
   String markup;
   String operation;
@@ -69,6 +91,27 @@ class SemanticEntry {
   String macro;
 }
 
+/**
+ * The semantic table. The semantic-action file for the type of document 
+ * being processed is read and each line is used to create an entry in 
+ * this table.
+ */
 SemanticEntry[] semanticTable = new SemanticEntry[100];
+
+public boolean makeSemanticsTable (Document doc) {
+return true;
+}
+
+private void addBBSemAttr (Element element) {
+}
+
+public void makeDocumentModel (Document doc) {
+}
+
+private void doActionOrStyle (Element element) {
+}
+
+public void readAndEdit (Document doc) {
+}
 
 }

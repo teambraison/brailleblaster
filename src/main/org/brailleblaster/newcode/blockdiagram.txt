@@ -1,0 +1,235 @@
+This is a sort of informal block diagram in narrative form. It is 
+intended as a guide for the future development of BrailleBlaster. 
+
+Input may be in the form of an xml file or it may be a utd working file 
+which has been saved so that work can be resumed later. xml files may be 
+original well-formed files of any flavor, for example, dtbook, docbook, 
+etc. They may also be derived from other formats such as MSWord, rtf, 
+and so on. Another source is file sets, such as NIMAS or epub. In this 
+case the manifest is opened, and the file to be processed is chosen from 
+it. A means is provided to concatenate several files into one. xml files 
+can also be derived from plain-text by calling the translateTextFile 
+method with formatFor utd or from brf files by calling backTrnslateFile, 
+also with formatFor utd.
+
+Whatever its source, an xml file is rendered by calling translateFile 
+with formatFor utd. BrailleBlaster then works on the utd file produced. 
+In the case of formerly saved utd files or those produced by importing 
+plain text or brf files, BrailleBlaster works with these directly.
+
+Configuration files have been eliminated in this revision because most 
+of the information they would contain belongs in the UserSettings file 
+or in the semantic-action file for the particular xml flavor. Some of 
+the things which may be specified in the UserSettings file are listed 
+in Appendix A.
+
+The input file is then parsed to produce a parse tree.
+
+Semantic-action files are then read. A file is chosen by looking for a 
+file with the name of the root element and the extension .sem It is used 
+to construct the semantic table, which will be used for determining how 
+information should be displayed on the screen and what markup should be 
+used when new information is added. For more on semantic-action files 
+see Appendix B. Appendix C. gives an example semantic-action file.
+ 
+If the semantic-action files contain XPath expressions as keys these are 
+applied to the parse tree, and the selected nodes are modified by adding 
+an attribute indicating the entry in the semantic table to be used. The 
+value of each key will already have been entered into this table.
+
+The keys containing markup in the semantic files are then applied to the 
+parse tree, and a similar attribute is added to the matching nodes, 
+unnless it is already present because it has been added by an XPath 
+expression.
+
+This forms the DOM of the document.
+
+This DOM is then used to display the document on the screen. Both the 
+print and Braille windows are filled in this process. The print window 
+resembles WordPad. The Braille window shows the Braille line-by-line, 
+with blank lines, indentations, etc. Its editor is like a simple text 
+editor, but with features for locking Braille.
+
+Editing of the print document can then take place. If the contents of a 
+text node are altered the new contents replace the old. They are also 
+dynamically translated and the translation is shown in the Braille 
+window. If an element node is deleted its entire subtree is deleted. If 
+a new block of characters is created the user is prompted to asign it a 
+style and a node with the appropriate markup (derived from the 
+semantic-action files) is added to the document at the place where the 
+new block was created.
+
+if focus is shifted to the Braille window and the user has checked the 
+Edit Braille box on the advanced menu the window can be edited. Any 
+editing is highlighted in both the Braille and print windows. The print 
+window also changes to show the part of the original text that 
+corresponds to each line of Braille.
+
+
+Since the user may wish to view the result of editing Braille in the 
+context of the entire document, The translate and back-translate items 
+on the menu are replaced with retranslate and reback-translate.
+
+The file can be saved as a utd file so work can be resumed later or it 
+can be saved as the original xml file with enhancements. These consist 
+of edited Braille which has been moved into the print document with 
+proper markup (specified in the semantic-action files). The attributes 
+used to create the DOM are removed during the save process. Editing in 
+the print window is handled automatically as part of the conversion of 
+the parse tree to a file.
+
+Besides saving the file as utd or as an enhanced document, it can be 
+saved as a brf file or embossed.
+
+The enhanced document can then later be rendered by liblouisutdml with 
+any liblouisutdml configuration and semantic-action files that the user 
+wishes. This can be done either by BrailleBlaster or by another 
+application which uses the loblouis-liblouisutdml transcription engine.
+
+Appendix A. User settings
+
+The settings below are largely for printed  output. Analogous settings 
+for embosser output would be included.
+
+hyphenate=no
+topMargin=0.5
+leftMargin=1
+rightMargin=0.5
+bottomMargin=0.5
+paperHeight=11
+paperWidth=8.5
+
+Appendix B: Semantic-Action Files
+
+Semantic-action files associate the markup in a particular type of xml 
+document with BrailleBlaster styles, methods (actions) and macros. 
+Usually they are named by concatenating the name of the root element of 
+the document flavor with the extension .sem They are not to be confused 
+with liblouisutdml semantic-action files. The latter are concerned with 
+rendering an xml document into Braille and tactile graphics. 
+BrailleBlaster semantic-action files are concerned with displaying the 
+contents of a document on the screen and with editing them. Their format 
+is completely different from the format of liblouisutdml semantic-action 
+files. They are stored in the semantics directory in the programData 
+directory. There is a dialogue for creating and editing them. If an 
+unknown xml flavor is encountered a prototype semantic-action file is 
+created.
+
+the key part of a line in a semantic-action file is a reference to 
+markup in the document. This may be literal markup or an XPath 
+expression. There are a few exceptions, which will be discussed later. 
+The value part contains the name of a style or action, or of a macro, 
+which can combine several styles and actions. it may also contain 
+parameters.
+
+Literal keys may have one of the following forms: an element name; an 
+element name, a comma, and an attribute name; an element name, a comma, 
+an attribute name, an attribute value. XPath keys begin with the 
+characters &xpath with the XPath expression imediately following and 
+enclosed in parentheses. The key may also be the word newEntries. If the 
+value is yes markup which has not yet been associated with anything is 
+recorded and placed in a prototype semantic-action file. The key may 
+also be the word file, followed by a colon followed by a filename. In 
+this case the value is the word include, and the line specifies that 
+another semantic file should be read at this point. Finally, the key may 
+be internetAccessRequired This is used to specify that internnet access 
+is needed to process this xml flavor.
+
+Values start with one of the words action macro style. This is followed 
+by a space. If action is specified, the action is one of those below. If 
+style is specified a style name follows. The extension .properties is 
+added to it and it is looked up in the styles directory. Likewise, 
+macros are looked up in the macro directory. All three may have 
+parameters preceded by a space and separated by comas.
+
+The following actions may be specified.
+
+  internetAccessRequired, This document needs Internet access.
+  no, Do nothing except insert a space.
+  skip, Skip the subtree of which this markup is the root.
+  generic, Apply the parameters.
+  cdata, Special processing for CData sections.
+  htmllink, Insert a link
+  htmltarget, to this target.
+  # reserved styles. These styles are predefined, but may be altered
+  document, Assign to the node that actually contains the content, such 
+  	as the book node in dtbook.
+  para, A paragraph.
+  heading1,various levels of headings 
+  heading2,
+  heading3,
+  heading4,
+  heading5,
+  heading6,
+  heading7,
+  heading8,
+  heading9,
+  heading10,
+  contentsheader, The heading of the table of contents.
+  contents1, Various levels within the contents.
+  contents2,
+  contents3,
+  contents4,
+  contents5,
+  contents6,
+  contents7,
+  contents8,
+  contents9,
+  contents10,
+  # General text 
+  notranslate, do not translate the contents of the markup.
+  attrtotext, Transform an attribute value to text.
+  runninghead, Specify a running header.
+  footer, Specify a page footer.
+  boxline, Specify a line of identical characters.
+  italic, Italicise the text within the markup.
+  bold, Bold it.
+  underline, Underline it.
+  compbrl, Show it in computer Braille.
+  linespacing, Number of blank lines between lines of characters.
+  blankline, Leave a blank  line.
+  softreturn, Start a new line, but not a new style.
+  newpage, Start a new page.
+  brl, Process the <brl> subtree rooted at this node.
+  music, Display/edit the music notation in this subtree.
+  math, Display/edit the MathML notation in this subtree.
+  chemistry, Display/edit the chemistry notation in this subtree.
+  graphic, Display/edit the graphic pointed to by the markup.
+
+Appendix C. Example Semantic-Action File (dtbook.sem) 
+
+file:filename=include
+newEntries=no
+internetAccesRequired=no
+book=style document
+docauthor=style para
+p=style para
+doctitle=style heading1
+h1=style heading1
+h2=style heading2
+h3=style heading3
+h4=style heading4
+h5=style heading4
+h6=style heading4
+a,href=action htmlLink
+a,name=action htmlTarget
+code=style computerCode
+code,class,inline=action compbrl
+span,class,italic=action italic \s,\s
+b=action bold
+acronym=action notranslate
+li=style list
+pagenum=action pagenum
+th=style para
+tr=style para
+strong=action italic \s,\s
+code,class,display=style computerCode
+em=action italic \s,\s
+note=style note
+blockquote=style blockquote
+samp=style para
+sidebar=style para
+br=action softReturn
+abbr=style para
+
+

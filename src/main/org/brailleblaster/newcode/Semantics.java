@@ -31,21 +31,33 @@
 
 package newcode;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import nu.xom.Builder;
+import nu.xom.Node;
+import nu.xom.ParsingException;
+import nu.xom.Serializer;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Text;
 import nu.xom.Attribute;
+import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.YesNoChoice;
 
 /**
- * This class provides the means of displaying and editing different 
- * flavors of xml.
+ * This class provides the means of displaying and editing any
+ * flavor of xml.
  * This is accomplished by using a semantic-action file for each type of 
  * xml document, such as NIMAS, epub or docbook. Displaying and editing 
- * both the print and Braille windows are covered. No transformations 
+ * in both the print and Braille windows are covered. No transformations 
  * are necessary.
  * See also Styles.java
  */
 public class Semantics {
+
 /**
  * The various actions that can be carried out on an xml document, in 
  * addition to processing styles.

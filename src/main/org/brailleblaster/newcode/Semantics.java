@@ -116,15 +116,16 @@ private SemanticEntry[] semanticTable = new SemanticEntry[100];
 /** 
  * This is the parsed xml document (Containing UTDML).
  */
-private Document parsedDocument;
+private Document workingDocument;
 
 /**
  * The semanticLookup hash table has literal markup  in the 
- semanticTable as keys and the index of entries in the samanticTable as 
- values.
+ * semanticTable as keys and the index of entries in the samanticTable 
+ * as values.
  */
-Hashtable<String, Integer> semanticLookup = new Hashtable<String, 
-   Integer>();
+private Hashtable<String, Integer> semanticLookup = new 
+  Hashtable<String, Integer>();
+
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;
 private boolean newEntries;
@@ -136,7 +137,7 @@ private void handleNamespaces (String nm) {
 }
  
 /**
- * Find the root element of parsedDocument and look for a file with the 
+ * Find the root element of workingDocument and look for a file with the 
  * root name concatenated with .sem in the semantics directory. Read 
  * this file into semanticTable, separating the various strings and putting 
  * them into their proper fields. Then construct the semanticLookup
@@ -148,6 +149,24 @@ private void handleNamespaces (String nm) {
 private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
+}
+
+/**
+ * if newEntries = true make a record of any markup that is not listed 
+ * in the semanticTable. This information will later be used to make a 
+ * file containing this 
+ * information.
+ */
+private void recordNewEntries (String newEntry) {
+}
+
+/**
+ * If any new entries have been recorded, output them to a file in the 
+ user's semantics directory. First sort them so that element names come 
+ first, then element,attribute pairs, then 
+ element,attribute,attribute,balue triplets.
+ */
+private void outputNewEntries() {
 }
 
 /**
@@ -169,15 +188,21 @@ private void addBBSemAttr (Element element) {
 }
 
 /**
+ * The complete path of the document file.
+ */
+private String documentName;
+
+/**
  * Make the BrailleBlaster document model, calling addBBSemAttr 
  * recursively. fileName is the complete path of an xml file containing 
  * UTDML.
  */
 public void makeDocumentModel (String fileName) {
+  documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();
 try {
-parsedDocument = parser.build (file);
+workingDocument = parser.build (file);
 } catch (ParsingException e) {
 new Notify(lh.localValue("malformedDocument"));
 return;
@@ -188,15 +213,51 @@ return;
   file = null;
   makeSemanticsTable();
   doXPathExpressions();
-  Element rootElement = parsedDocument.getRootElement();
+  Element rootElement = workingDocument.getRootElement();
   addBBSemAttr (rootElement);
   semanticLookup = null;
 }
 
+/**
+ * This method is used by the readAndEdit method to carry out the 
+ * appropriate operations for each element having a bbsem attribute.
+ */
 private void doActionOrStyle (Element element) {
 }
 
+/**
+ * This method enables the user to read and edit the contents of the 
+ * document. It moves around in the parse tree, following the user's 
+ * scrolling and cursor movements. The doStyleOrAction method is called 
+ * for each element having a bbsem attribute.
+ */
 public void readAndEdit() {
+}
+
+/**
+ * Remove the bbsem attribute before saving the document. The method 
+ * walks through the parse tree, calling itself recursively for each 
+ * element.
+ */
+private void removeBBSemAttr() {
+}
+
+/**
+ * Save the file with utd markup so that work can be resumed at a later 
+ * time. The bbsem attribute is removed. 
+ */
+public void saveWorkikngFile () {
+  String fileName = documentName + ".utd";
+  removeBBSemAttr();
+}
+
+/**
+ * Enhance the original document by moving any edited Braille into the 
+ print portion, with appropriate markup. Remove the bbsem attribute and 
+ * the meta,name,utd element.
+ */
+public void saveEnhancedDocument() {
+  removeBBSemAttr();
 }
 
 }

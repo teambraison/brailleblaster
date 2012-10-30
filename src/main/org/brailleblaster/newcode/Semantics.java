@@ -61,37 +61,6 @@ import java.util.Hashtable;
  */
 public class Semantics {
 
-/**
- * The various actions that can be carried out on an xml document, in 
- * addition to processing styles.
- */
-enum Action {
-  blankSpace,
-  skip,
-  generic,
-  cdata,
-  htmlLink,
-  htmlTarget,
-  noTranslate,
-  attrToText,
-  runningHead,
-  footer,
-  boxLine,
-  italic,
-  bold,
-  underline,
-  compbrl,
-  lineSpacing,
-  blankLine,
-  softReturn,
-  newPage,
-  brl,
-  music,
-  math,
-  chemistry,
-  graphic
-};
-
  /**
  * This is an entry in the SemanticTable, which is used to control 
  * displaying and editing.
@@ -101,7 +70,7 @@ class SemanticEntry {
   String operation;
   String operand;
   String parameters;
-  Action action;
+  Actions.Action action;
   Styles.StyleType style;
   String macro;
 }

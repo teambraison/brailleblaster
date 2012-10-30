@@ -32,6 +32,7 @@
 package newcode;
 
 import nu.xom.Element;
+
 /** 
  * This class contains the data structures and mothods used for handling 
  *styles.
@@ -43,7 +44,7 @@ import nu.xom.Element;
  * correctly.<p>
 
  * <p>Note that BrailleBlaster styles deal with layout. Italic, bold, 
- * etc. are dealt with by action methods in the Semantic class.</p>
+ * etc. are dealt with by action methods in the Semantics class.</p>
 */
 
 public class Styles {
@@ -77,6 +78,7 @@ String[] reservedStyles = {
   "contents9",
   "contents10"
   };
+
 /** 
  * The different formats that can be applied to styles.
  */  
@@ -94,7 +96,7 @@ enum StyleFormat {
 };
 
 /**
- * The status items mark the various stages in the procession of a 
+ * The status items mark the various stages in the processing of a 
  * style.
  */
 enum StyleStatus {
@@ -106,6 +108,9 @@ enum StyleStatus {
   afterBody,
 };
 
+/**
+  * This embedded class defines the various fields that specify a style.
+  */
 class StyleType {
   int linesBefore;
   int linesAfter;
@@ -120,7 +125,10 @@ class StyleType {
   boolean newPageAfter;
 }
 
-class StyleRecord {
+/**
+ * An item on the style stack, which is used to handle nested styles.
+ */
+private class StyleRecord {
   StyleType style;
   StyleStatus status;
   StyleFormat curStyleFormat;
@@ -138,16 +146,30 @@ class StyleRecord {
  * the stack will contain the table style, which is then completed by 
  * endStyle.
  */
-StyleRecord[] stack = new StyleRecord[20];
+private StyleRecord[] stack = new StyleRecord[20];
 
+/**
+ * Begins the processing of a style and places a strylRecord on the top 
+ * of the stack. If the element does not have a style it returns false.
+ */
 public boolean startStyle (Element element) {
   return true;
 }
 
+/**
+ * Completes the processing of the styleRecord on the top of the stack 
+ and pops it.
+ */
 public void endStyle () {
 }
 
-public void applyStyle (String style, String text) {
+/**
+ * During editing this method is called to add a new element to the 
+ * parse tree at the current location. The element may be the root of a 
+ * subtree. For example, its children may be emphasized or MathML 
+ * expressions or images.
+ */
+public void applyStyle (String style, Element element) {
 }
 
 }

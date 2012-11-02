@@ -198,38 +198,38 @@ The following actions may be specified.
 
 Appendix C. Example Semantic-Action File (dtbook.sem) 
 
-file:filename=include
-newEntries=no
-internetAccesRequired=no
-book=style document
-docauthor=style para
-p=style para
-doctitle=style heading1
-h1=style heading1
-h2=style heading2
-h3=style heading3
-h4=style heading4
-h5=style heading4
-h6=style heading4
-a,href=action htmlLink
-a,name=action htmlTarget
-code=style computerCode
-code,class,inline=action compbrl
-span,class,italic=action italic \s,\s
-b=action bold
-acronym=action notranslate
-li=style list
-pagenum=action pagenum
-th=style para
-tr=style para
-strong=action italic \s,\s
-code,class,display=style computerCode
-em=action italic \s,\s
-note=style note
-blockquote=style blockquote
-samp=style para
-sidebar=style para
-br=action softReturn
-abbr=style para
+file:filename include
+newEntries no
+internetAccesRequired no
+book style document
+docauthor style para
+p style para
+doctitle style heading1
+h1 style heading1
+h2 style heading2
+h3 style heading3
+h4 style heading4
+h5 style heading4
+h6 style heading4
+a,href action htmlLink
+a,name action htmlTarget
+code style computerCode
+code,class,inline action compbrl
+span,class,italic action italic \s,\s
+b action bold
+acronym action notranslate
+li style list
+pagenum action pagenum
+th style para
+tr style para
+strong action italic \s,\s
+code,class,display style computerCode
+em action italic \s,\s
+note style note
+blockquote style blockquote
+samp style para
+sidebar style para
+br action softReturn
+abbr style para
 
 

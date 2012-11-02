@@ -97,6 +97,7 @@ private Hashtable<String, Integer> semanticLookup = new
 
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;
+private boolean haveSemanticFile = true;
 private boolean newEntries;
 
 /**
@@ -118,6 +119,53 @@ private void handleNamespaces (String nm) {
 private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
+  Element rootElement = workingDocument.getRootElement();
+  String rootName = rootElement.getLocalName();
+  String fileName = rootName + ".sem";
+  FileInputStream semFile;
+  try {
+  semFile = new FileInputStream (fileName);
+  } catch (FileNotFoundException e) {
+  haveSemanticFile = false;
+  return;
+  }
+  byte[] bytebuf = new byte[1024];
+  int numbytes = 0;
+  String line;
+  int lineCount = 0;
+  boolean isComment = false;
+  int ch;
+  int prevch;
+  while (true) {
+  try {
+  ch = semFile.read();
+  } catch (IOException e) {
+  return;
+  }
+  if (ch == -1) {
+  break;
+  }
+  ch &= 0xff;
+  if (ch <= 32) {
+  continue;
+  }
+  if (ch == '#') {
+  isComment = true;
+  }
+  bytebuf[numbytes++] = (byte)ch;
+  prevch = ch;
+  line = new String (bytebuf, numbytes);
+  String[] parts = line.split (line, 6);
+  semanticTable[lineCount] = new SemanticEntry();
+  semanticTable[lineCount].markup = parts[0];
+  semanticTable[lineCount].operation = parts[1];
+  semanticTable[lineCount].operand = parts[2];
+  semanticTable[lineCount].parameters = parts[3];
+  lineCount++;
+  }
+  for (int i = 0; i < lineCount; i++) {
+  semanticLookup.put (semanticTable[i].markup, i);
+  }
 }
 
 /**

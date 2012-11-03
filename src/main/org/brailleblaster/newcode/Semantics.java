@@ -81,6 +81,7 @@ class SemanticEntry {
  * this table.
  */
 private SemanticEntry[] semanticTable = new SemanticEntry[100];
+int lineCount = 0;
 
 /** 
  * This is the parsed xml document (Containing UTDML).
@@ -105,6 +106,92 @@ private boolean newEntries;
  */
 private void handleNamespaces (String nm) {
 }
+
+/**
+ * Compile a semantic-action file. If an include statement is 
+ * encountered this method calls itself recursively.
+ * Param: filename.
+ */
+private boolean compileFile (String fileName) {
+  FileInputStream semFile;
+  try {
+  semFile = new FileInputStream (fileName);
+  } catch (FileNotFoundException e) {
+  haveSemanticFile = false;
+  return false;
+  }
+  byte[] bytebuf = new byte[1024];
+  int numbytes = 0;
+  String line;
+  boolean isCrNext = false;
+  boolean isComment = false;
+  int ch = 0;
+  int prevch = 0;
+  while (true) {
+  numbytes = 0;
+  prevch = 0;
+  isComment = false;
+  while (true) {
+  try {
+  ch = semFile.read();
+  } catch (IOException e) {
+  return false;
+  }
+  if (ch == -1) {
+  break;
+  }
+  ch &= 0xff;
+  if (numbytes == 0 && ch <= 32) {
+  continue;
+  }
+  if (ch == 13 && isCrNext) {
+  isCrNext = false;
+  continue;
+  }
+  if (ch == '#') {
+  isComment = true;
+  }
+  if (ch == 10 || ch == 13) {
+  numbytes--;
+  if (prevch == '\\') {
+  isCrNext = true;
+  continue;
+  }
+  break;
+  }
+  prevch = ch;
+  bytebuf[numbytes++] = (byte)ch;
+  }
+  if (ch == -1) {
+  break;
+  }
+  if (isComment) {
+  continue;
+  }
+  line = new String (bytebuf, numbytes);
+  String[] parts = line.split (line, 6);
+  if (parts[0].equals ("include")) {
+  compileFile (parts[1]);
+  continue;
+  }
+  try {
+  } catch (ArrayIndexOutOfBoundsException e) {
+  semanticTable[lineCount].markup = parts[0];
+  return false;
+  }
+  semanticLookup.put (semanticTable[lineCount].markup, lineCount);
+  semanticTable[lineCount].operation = parts[1];
+  semanticTable[lineCount].operand = parts[2];
+  semanticTable[lineCount].parameters = parts[3];
+  lineCount++;
+  }
+  try {
+  semFile.close();
+  } catch (IOException e) {
+  return false;
+  }
+  return true;
+}
  
 /**
  * Find the root element of workingDocument and look for a file with the 
@@ -122,50 +209,7 @@ private void makeSemanticsTable() {
   Element rootElement = workingDocument.getRootElement();
   String rootName = rootElement.getLocalName();
   String fileName = rootName + ".sem";
-  FileInputStream semFile;
-  try {
-  semFile = new FileInputStream (fileName);
-  } catch (FileNotFoundException e) {
-  haveSemanticFile = false;
-  return;
-  }
-  byte[] bytebuf = new byte[1024];
-  int numbytes = 0;
-  String line;
-  int lineCount = 0;
-  boolean isComment = false;
-  int ch;
-  int prevch;
-  while (true) {
-  try {
-  ch = semFile.read();
-  } catch (IOException e) {
-  return;
-  }
-  if (ch == -1) {
-  break;
-  }
-  ch &= 0xff;
-  if (ch <= 32) {
-  continue;
-  }
-  if (ch == '#') {
-  isComment = true;
-  }
-  bytebuf[numbytes++] = (byte)ch;
-  prevch = ch;
-  line = new String (bytebuf, numbytes);
-  String[] parts = line.split (line, 6);
-  semanticTable[lineCount] = new SemanticEntry();
-  semanticTable[lineCount].markup = parts[0];
-  semanticTable[lineCount].operation = parts[1];
-  semanticTable[lineCount].operand = parts[2];
-  semanticTable[lineCount].parameters = parts[3];
-  lineCount++;
-  }
-  for (int i = 0; i < lineCount; i++) {
-  semanticLookup.put (semanticTable[i].markup, i);
-  }
+  compileFile (fileName);
 }
 
 /**

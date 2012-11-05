@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package newcode;
+package wordprocessor;
 
 import java.io.File;
 import java.io.FileInputStream;

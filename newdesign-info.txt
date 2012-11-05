@@ -1,0 +1,1 @@
+This repository is a temporary repository for the new design of BrailleBlaster until it is at a stage it is deemed suitable to be merged back into the main repository. Unless you are developing the new design, you are recommended to follow the default repository.

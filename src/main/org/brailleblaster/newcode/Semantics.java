@@ -257,9 +257,38 @@ private void doXPathExpressions() {
  * added if it is already present because it was set by an XPath 
  * expression.
  */
-private void addBBSemAttr (Element element) {
+private void addBBSemAttr (Node node) {
+Node newNode;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+Element element = (Element)newNode;
+/* Check if in SemanticsTable. If so, add bbsem attribute, unless 
+ * already there.*/
+if (element.getAttribute ("bbsem") == null) {
+helpAddAttr (element);
+}
+/* Process this element recursively */
+addBBSemAttr (element);
+}
+}
 }
 
+/**
+ * This is a helper method for addBBSemAttr. It scanns through 
+ * attributges to see if elementName,attrName,attrValue or 
+ * elementName,attrrName match some markup0 in semanticsTable. If so, it 
+ * adds the bbsem attribute with the index of the semanticEntry to the 
+ * element and returns. If not 
+ * it checks to see if the elementName alone 
+ * matches and adds the bbsem attribute if it does. It then returnsj.
+ * param element: the element to be checked.
+ */
+private void helpAddAttr (Element element) {
+  String elementName = element.getLocalName();
+}
+ 
+ 
 /**
  * The complete path of the document file.
  */

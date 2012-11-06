@@ -62,7 +62,7 @@ import java.util.Hashtable;
 public class Semantics {
 
  /**
- * This is an entry in the SemanticTable, which is used to control 
+ * This is an entry in the SemanticsTable, which is used to control 
  * displaying and editing.
  */
 class SemanticEntry {
@@ -80,7 +80,7 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-private SemanticEntry[] semanticTable = new SemanticEntry[100];
+private SemanticEntry[] semanticsTable = new SemanticEntry[100];
 int lineCount = 0;
 
 /** 
@@ -89,11 +89,11 @@ int lineCount = 0;
 private Document workingDocument;
 
 /**
- * The semanticLookup hash table has literal markup  in the 
- * semanticTable as keys and the index of entries in the samanticTable 
+ * The semanticsLookup hash table has literal markup  in the 
+ * semanticsTable as keys and the index of entries in the samanticsTable 
  * as values.
  */
-private Hashtable<String, Integer> semanticLookup = new 
+private Hashtable<String, Integer> semanticsLookup = new 
   Hashtable<String, Integer>();
 
 private LocaleHandler lh = new LocaleHandler();
@@ -187,15 +187,15 @@ private boolean compileFile (String fileName) {
   continue;
   }
   try {
-  semanticTable[lineCount].markup = parts[0];
+  semanticsTable[lineCount].markup = parts[0];
   } catch (ArrayIndexOutOfBoundsException e) {
   showErrors (fileName, lineNumber, "Too many semantic entries.");
   return false;
   }
-  semanticLookup.put (semanticTable[lineCount].markup, lineCount);
-  semanticTable[lineCount].operation = parts[1];
-  semanticTable[lineCount].operand = parts[2];
-  semanticTable[lineCount].parameters = parts[3];
+  semanticsLookup.put (semanticsTable[lineCount].markup, lineCount);
+  semanticsTable[lineCount].operation = parts[1];
+  semanticsTable[lineCount].operand = parts[2];
+  semanticsTable[lineCount].parameters = parts[3];
   lineCount++;
   }
   try {
@@ -223,7 +223,7 @@ private void makeSemanticsTable() {
 
 /**
  * if newEntries = true make a record of any markup that is not listed 
- * in the semanticTable. This information will later be used to make a 
+ * in the semanticsTable. This information will later be used to make a 
  * file containing this 
  * information.
  */
@@ -240,9 +240,10 @@ private void outputNewEntries() {
 }
 
 /**
- * Evaluate any Xpath expressions that the semanticTable may contain and 
+ * Evaluate any Xpath expressions that the semanticsTable may contain 
+ and 
  * add the bbsem attribute to the nodes in the nodeset. The bbsem 
- * attribute has the index of the entry in the semanticTable as its 
+ * attribute has the index of the entry in the semanticsTable as its 
  * valuel
  */
 private void doXPathExpressions() {
@@ -250,10 +251,11 @@ private void doXPathExpressions() {
 
 /**
  * Add the bbsem attribute to nodes in the parse tree.  Any XPath 
- * expressions in the semanticTable have already been aplied. The 
- * parse tree is traversed, and the semanticTable is checked for matching
+ * expressions in the semanticsTable have already been aplied. The 
+ * parse tree is traversed, and the semanticsTable is checked for 
+ matching
  * markup. If found, a bbsem attribute with a value of the index in the 
- * semanticTable is added to the element node. The attribute is not 
+ * semanticsTable is added to the element node. The attribute is not 
  * added if it is already present because it was set by an XPath 
  * expression.
  */
@@ -275,7 +277,7 @@ addBBSemAttr (element);
 }
 
 /**
- * This is a helper method for addBBSemAttr. It scanns through 
+ * This is a helper method for addBBSemAttr. It scans through 
  * attributges to see if elementName,attrName,attrValue or 
  * elementName,attrrName match some markup0 in semanticsTable. If so, it 
  * adds the bbsem attribute with the index of the semanticEntry to the 
@@ -286,6 +288,36 @@ addBBSemAttr (element);
  */
 private void helpAddAttr (Element element) {
   String elementName = element.getLocalName();
+  Attribute attr;
+  String attrName;
+  String attrValue;
+  Attribute bbsemAttr = new Attribute("bbsem", "99");
+  Integer semanticsTableIndex;
+  int numAttr = element.getAttributeCount();
+  for (int i = 0; i < numAttr; i++) {
+  attr = element.getAttribute(i);
+  attrName = attr.getLocalName();
+  attrValue = attr.getValue();
+  semanticsTableIndex = semanticsLookup.get (elementName + "," 
+  + attrName + "," + attrValue);
+  if (semanticsTableIndex != null) {
+  bbsemAttr.setValue (semanticsTableIndex.toString());
+  element.addAttribute (bbsemAttr);
+  return;
+  }
+  semanticsTableIndex = semanticsLookup.get (elementName + "," + 
+  attrName);
+  if (semanticsTableIndex != null) {
+  bbsemAttr.setValue (semanticsTableIndex.toString());
+  element.addAttribute (bbsemAttr);
+  return;
+  }
+  }
+  semanticsTableIndex = semanticsLookup.get (elementName);
+  if (semanticsTableIndex != null) {
+  bbsemAttr.setValue (semanticsTableIndex.toString());
+  element.addAttribute (bbsemAttr);
+  }
 }
  
  
@@ -316,14 +348,18 @@ return;
   doXPathExpressions();
   Element rootElement = workingDocument.getRootElement();
   addBBSemAttr (rootElement);
-  semanticLookup = null;
+  semanticsLookup = null;
 }
 
 /**
  * This method is used by the readAndEdit method to carry out the 
  * appropriate operations for each element having a bbsem attribute.
  */
-private void doActionOrStyle (Element element) {
+private void doSemantics (Element element) {
+  String semanticsTableIndex = element.getAttributeValue ("bbsem");
+  if (semanticsTableIndex == null) {
+  return;
+  }
 }
 
 /**

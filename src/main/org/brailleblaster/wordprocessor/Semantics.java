@@ -186,6 +186,15 @@ private boolean compileFile (String fileName) {
   compileFile (parts[1]);
   continue;
   }
+  if (parts[0].equals ("newEntries") && parts[1].equals ("yes")) {
+  newEntries = true;
+  continue;
+  }
+  if (patrs[0].equals ("internetAccessRequired") && parts[1].equals 
+  ("yes")) {
+  internetAccessRequired = true;
+  continue;
+  }
   try {
   semanticsTable[lineCount].markup = parts[0];
   } catch (ArrayIndexOutOfBoundsException e) {
@@ -291,6 +300,7 @@ private void helpAddAttr (Element element) {
   Attribute attr;
   String attrName;
   String attrValue;
+  String key;
   Attribute bbsemAttr = new Attribute("bbsem", "99");
   Integer semanticsTableIndex;
   int numAttr = element.getAttributeCount();
@@ -298,19 +308,25 @@ private void helpAddAttr (Element element) {
   attr = element.getAttribute(i);
   attrName = attr.getLocalName();
   attrValue = attr.getValue();
-  semanticsTableIndex = semanticsLookup.get (elementName + "," 
-  + attrName + "," + attrValue);
+  key = elementName + "," + attrName + "," + attrValue;
+  semanticsTableIndex = semanticsLookup.get (key);
   if (semanticsTableIndex != null) {
   bbsemAttr.setValue (semanticsTableIndex.toString());
   element.addAttribute (bbsemAttr);
   return;
   }
-  semanticsTableIndex = semanticsLookup.get (elementName + "," + 
-  attrName);
+  else if (newEntries) {
+  recordNewEntries (key);
+  }
+  key = elementName + "," + attrName;
+  semanticsTableIndex = semanticsLookup.get (key);
   if (semanticsTableIndex != null) {
   bbsemAttr.setValue (semanticsTableIndex.toString());
   element.addAttribute (bbsemAttr);
   return;
+  }
+  else if (newEntries) {
+  recordNewEntries (key);
   }
   }
   semanticsTableIndex = semanticsLookup.get (elementName);
@@ -318,9 +334,11 @@ private void helpAddAttr (Element element) {
   bbsemAttr.setValue (semanticsTableIndex.toString());
   element.addAttribute (bbsemAttr);
   }
+  else if (newEntries) {
+  recordNewEntries (elementName);
+  }
 }
- 
- 
+
 /**
  * The complete path of the document file.
  */
@@ -345,6 +363,9 @@ new Notify(lh.localValue("couldNotOpen") + " " + fileName);
 return;
 }
   makeSemanticsTable();
+  if (!haveSemanticFile) {
+  newEntries = true;
+  }
   doXPathExpressions();
   Element rootElement = workingDocument.getRootElement();
   addBBSemAttr (rootElement);

@@ -1,0 +1,25 @@
+This file describes the packages and classes in BrailleBlaster. It is 
+recommended reading for anyone writing code for the project.
+
+package org.brailleblaster
+
+class Main: This class contains the main method, which starts 
+BrailleBlaster and cleans up when it is finished.
+
+class BBIni: This clas handles command-line options beginning with "-" 
+and almost everything needed to set up BrailleBlaster, including 
+determining platform-dependent paths and other things and loading 
+liblouisutdml. Other classes seldom have to be concerned with 
+differences between platforms.
+
+Class Subcommands: This class handles the subcommands like translate, 
+emboss, checktable, etc. It is called by the main method after BBIni if 
+there are subcommands. If something is given on the command line that is 
+not a subcommand it assumes that it is the name of a file to be 
+processed by the wordprocessor and passes control to WPManager.
+
+class ParseCommandLine: This class is currently unused. It was written 
+to process complex command lines. However, Subcommands appears to do an 
+adequate job. ParseCommandLine may therefore be eliminated.
+
+

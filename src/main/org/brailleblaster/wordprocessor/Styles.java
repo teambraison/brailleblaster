@@ -29,23 +29,22 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package wordprocessor;
+package org.brailleblaster.wordprocessor;
 
 import nu.xom.Element;
 
 /** 
  * This class contains the data structures and mothods used for handling 
- *styles.
+ * styles.
  * <p>Styles are used in the print window only. The Braille window will 
  * already have been 
  * formatted by liblouisutdml. The rationale behind the use of styles is 
  * that if the print window looks good visually and the correct markup 
  * is used in the document, the Braille will also be formatted 
  * correctly.<p>
-
  * <p>Note that BrailleBlaster styles deal with layout. Italic, bold, 
  * etc. are dealt with by action methods in the Semantics class.</p>
-*/
+ */
 
 public class Styles {
 
@@ -116,17 +115,18 @@ class StyleType {
   int linesAfter;
   int leftMargin;
   int rightMargin;
+  int firstLineIndent;
   boolean keepWithNext;
   boolean dontSplit;
   boolean orphanControl;
-  int firstLineIndent;
   StyleFormat format;
   boolean newPageBefore;
   boolean newPageAfter;
 }
 
 /**
- * An item on the style stack, which is used to handle nested styles.
+ * An item on the style stack, which is used to handle nested styles. It 
+ * is an fifo stack.
  */
 private class StyleRecord {
   StyleType style;
@@ -158,18 +158,18 @@ public boolean startStyle (Element element) {
 
 /**
  * Completes the processing of the styleRecord on the top of the stack 
- and pops it.
+ * and pops it.
  */
 public void endStyle () {
 }
 
 /**
- * During editing this method is called to add a new element to the 
- * parse tree at the current location. The element may be the root of a 
+ * During editing this method is called to add a new style element to 
+ * the parse tree at the current location. The element may be the root of a 
  * subtree. For example, its children may be emphasized or MathML 
  * expressions or images.
  */
-public void applyStyle (String style, Element element) {
+public void applyStyle (Element element) {
 }
 
 }

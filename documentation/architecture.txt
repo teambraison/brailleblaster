@@ -1,7 +1,9 @@
 This file describes the packages and classes in BrailleBlaster. It is 
-recommended reading for anyone writing code for the project. Packages 
-and classes are described in the order which seems to best promote 
-understanding, not in alphabetical order.
+recommended reading for anyone writing code for the project. 
+
+Packages and classes are described in the order which seems to best 
+promote understanding, not in alphabetical order. Some clases, which may 
+not be included in the final design, are not described.
 
 A note on directory structure. The user's brlblst directory, which is in 
 the platform-specific place for application data, will now contain a 
@@ -10,17 +12,16 @@ file in the programData directory this file is placed in
 brlblst/programData in the appropriate subdirectory. brlblst/programData 
 is initially empty. When a file such as a liblouis table is needed it is 
 checked before the corresponding place in the built-in programData 
-directory. Temparary files will be placed in the location favored by the 
-platform. They will be in subdirectories with an instance ID. Setting up 
-the necessary paths will be handled by BBIni. 
+directory is checked. Temparary files will be placed in the location 
+favored by the platform. They will be in subdirectories with an instance 
+ID. Setting up the necessary paths will be handled by BBIni.
 
-O
 package org.brailleblaster
 
 class Main: This class contains the main method, which starts 
 BrailleBlaster and cleans up when it is finished.
 
-class BBIni: This clas handles command-line options beginning with "-" 
+class BBIni: This class handles command-line options beginning with "-" 
 and almost everything needed to set up BrailleBlaster, including 
 determining platform-dependent paths and other things and loading 
 liblouisutdml. Other classes seldom have to be concerned with 
@@ -53,8 +54,8 @@ this class construct a sort of document model from semantic-action
 files.
 
 class Styles: This class handles the styles used to control the display 
-in the print window. These styles deal with layout. Font changes, xuch 
-as italic or bold are dealt with by methods in the Semantics class.
+in the print window. These styles deal with layout. Font changes, such 
+as italic or bold are dealt with by methods in the Actions class.
 
 class Actions: This class contains methods which supplement styles and 
 perform additional operations, such as emphasis, introducing blank 
@@ -77,7 +78,8 @@ default browser.
 class CallOutsideWP: this class makes certain features available inside 
 the wordprocessor package available to other packages. In particular, it 
 gives access to the ability to show html through the system's default 
-browser. It contains two methods, showTutorial and showURL. 
+browser. It contains two methods, showTutorial and showURL. Other 
+methods will be added as needed.
 
 class DaisyView: This class actually shows the print document on the 
 left side of the screen. It uses the StyledText control. However, it is 
@@ -111,7 +113,7 @@ package org.brailleblaster.xmleditor
 
 This package does not yet exist. It will provide the capability to view 
 the xml parse tree as such, change and delete attributes and elements, 
-add new ones, ecit text nodes, etc.
+add new ones, edit text nodes, etc.
 
 package org.brailleblaster.settings
 
@@ -120,7 +122,7 @@ BrailleBlaster is started and enables the user to chose not to see it
 and/or to see a tutorial.
 
 class SettingsDialog: This class enables the user to change the initial 
-settings, such as which Braille template will be used.
+settings, such as which Braille template that will be used.
 
 package org.brailleblaster.localization
 
@@ -128,8 +130,8 @@ class LocalizationHandler: This class provides the capability to display
 messages in the user's language or in another language which s/he may 
 chose.
 
-class LocalizatgionBase: This is a helper class for 
-LocalizatgionHandler.
+class LocalizationBase: This is a helper class for 
+LocalizationHandler.
 
 package org.brailleblaster.util
 

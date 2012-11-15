@@ -1,6 +1,20 @@
 This file describes the packages and classes in BrailleBlaster. It is 
-recommended reading for anyone writing code for the project.
+recommended reading for anyone writing code for the project. Packages 
+and classes are described in the order which seems to best promote 
+understanding, not in alphabetical order.
 
+A note on directory structure. The user's brlblst directory, which is in 
+the platform-specific place for application data, will now contain a 
+replica of the programData directory. If the user creates or modifies a 
+file in the programData directory this file is placed in 
+brlblst/programData in the appropriate subdirectory. brlblst/programData 
+is initially empty. When a file such as a liblouis table is needed it is 
+checked before the corresponding place in the built-in programData 
+directory. Temparary files will be placed in the location favored by the 
+platform. They will be in subdirectories with an instance ID. Setting up 
+the necessary paths will be handled by BBIni. 
+
+O
 package org.brailleblaster
 
 class Main: This class contains the main method, which starts 
@@ -21,5 +35,152 @@ processed by the wordprocessor and passes control to WPManager.
 class ParseCommandLine: This class is currently unused. It was written 
 to process complex command lines. However, Subcommands appears to do an 
 adequate job. ParseCommandLine may therefore be eliminated.
+
+package org.brailleblaster.wordprocessor
+
+class WPManager: This is the entrance point to the "word processor", 
+so-called because it is more than a text editor. It is the only public 
+class in this package except for the class CallOutsideWP. It sets up the 
+basic word processor environment and also the multi-document interface.
+
+class DocumentManager: This class handles each document. It sets up the 
+print and braille windows, the menus, the toolbar, etc. It contains 
+methods for handling the various menu items.
+
+class Semantics: This class augments an xml parse tree with semantic 
+information which will be used in displaying and editing it. Methods in 
+this class construct a sort of document model from semantic-action 
+files.
+
+class Styles: This class handles the styles used to control the display 
+in the print window. These styles deal with layout. Font changes, xuch 
+as italic or bold are dealt with by methods in the Semantics class.
+
+class Actions: This class contains methods which supplement styles and 
+perform additional operations, such as emphasis, introducing blank 
+lines, soft returns, etc.
+
+class UTD: Handles UTDML. It is called by methods in Semantics to handle 
+subtrees rooted at a <brl> element.
+
+class StylePanel: The user can create and modify styles. These styles 
+are stored in the user's programData directory.
+
+class BrailleTemplates: This class does not yet exist. It will enable 
+advanced users to control how liblouisutdml translates and formats 
+Braille.
+
+class UserHelp: This class contains methods that implement the help 
+submenu. They open the documents in programData/helpDocs in the system's 
+default browser.
+
+class CallOutsideWP: this class makes certain features available inside 
+the wordprocessor package available to other packages. In particular, it 
+gives access to the ability to show html through the system's default 
+browser. It contains two methods, showTutorial and showURL. 
+
+class DaisyView: This class actually shows the print document on the 
+left side of the screen. It uses the StyledText control. However, it is 
+not clear that StyledText can do what we need, since the program must 
+move about in the parse tree as the user scrolls and moves the cursor.
+
+class BrailleView: This class shows the Braille translation on the right 
+side of the screen.
+
+class RecentDocuments: This class maintains a file of paths to recently 
+opened documents and presents the user with a dialogue box for chosing 
+one of them.
+
+class NewDocument: This class will be rewritten. It will present the 
+user with a set of radio buttons for the various xml flavors suported 
+and then call Semantics.makeDocumentModel with a skeleton file for that 
+flavor.
+
+class BBMenu: Displays the menus and calls a method in DocumentManager 
+when a menu item is selected.
+
+class BBToolBar: Displays the toolbar and calls a method in 
+DocumentManager when an item is selected.
+
+class BBStatusBar: Displays and modifies the status bar at the bottom 
+olf the screen.
+
+class WP: Contains various constants used by other classes.
+
+package org.brailleblaster.xmleditor
+
+This package does not yet exist. It will provide the capability to view 
+the xml parse tree as such, change and delete attributes and elements, 
+add new ones, ecit text nodes, etc.
+
+package org.brailleblaster.settings
+
+class Welcome: This class displays the welcome message when 
+BrailleBlaster is started and enables the user to chose not to see it 
+and/or to see a tutorial.
+
+class SettingsDialog: This class enables the user to change the initial 
+settings, such as which Braille template will be used.
+
+package org.brailleblaster.localization
+
+class LocalizationHandler: This class provides the capability to display 
+messages in the user's language or in another language which s/he may 
+chose.
+
+class LocalizatgionBase: This is a helper class for 
+LocalizatgionHandler.
+
+package org.brailleblaster.util
+
+class BrailleblasterPath: this class is used by BBIni to find the path 
+to brailleblaster.jar. This path is then used as the basis for all other 
+paths.
+
+class CheckLiblouisutdmlLog: This class contains methods that check 
+whether a call to a method in the bindings for liblouisutdml has 
+produced error messages. If so, these messages are displayed in a manner 
+appropriate to the GUI or the command line, whichever is being used.
+
+class Notify: Used to display messages that the user must respond to by 
+pressing the OK button.
+
+class YesNoChoice: Displays messages for which the user can chose either 
+yes or no.
+
+class FileUtils: Contains methods for various operations on files, such 
+as deleting a file, checking whether it exists, deleting a directory, 
+etc.
+
+class ProgramCaller: Used for calling external programs, such as 
+MathType.
+
+package org.brailleblaster.importers
+
+Contains various classes for importing various types of files. At the 
+mement the only class is:
+
+class ImportersManager: Choses import methods.
+
+package org.brailleblaster.exporters
+
+This package contains classes for exporting xml documents to various 
+other file formats. The only class now is:
+
+class ExportersManager: Choses classes and methods for various types of 
+file formats.
+
+package org.brailleblaster.embossers
+
+Contains drivers for various types of Braille embossers. The only class 
+now is:
+
+class EmbossersManager: which choses the classes and methods to emboss 
+on a particular device and to do any preparatory work.
+
+package org.brailleblaster.printers
+
+This is very similar to org.brailleblaster.embossers, except that it 
+handles conventional ink prnters.
 
 

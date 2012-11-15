@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package wordprocessor;
+package org.brailleblaster.wordprocessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +59,7 @@ import java.util.Hashtable;
  * are necessary.
  * See also Styles.java
  */
-public class Semantics {
+class Semantics {
 
  /**
  * This is an entry in the SemanticsTable, which is used to control 
@@ -115,6 +115,7 @@ private void handleNamespaces (String nm) {
  */
 private void showErrors (String fileName, int lineNumber, String 
 message) {
+System.out.println (fileName + ":" + lineNumber + ": " + message);
 }
  
 /**
@@ -190,7 +191,7 @@ private boolean compileFile (String fileName) {
   newEntries = true;
   continue;
   }
-  if (patrs[0].equals ("internetAccessRequired") && parts[1].equals 
+  if (parts[0].equals ("internetAccessRequired") && parts[1].equals 
   ("yes")) {
   internetAccessRequired = true;
   continue;
@@ -236,7 +237,7 @@ private void makeSemanticsTable() {
  * file containing this 
  * information.
  */
-private void recordNewEntries (String newEntry) {
+private void recordNewEntries (String markup) {
 }
 
 /**
@@ -349,7 +350,7 @@ private String documentName;
  * recursively. fileName is the complete path of an xml file containing 
  * UTDML.
  */
-public void makeDocumentModel (String fileName) {
+void makeDocumentModel (String fileName) {
   documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();

@@ -4,6 +4,9 @@
   * ViewPlus Technologies, Inc. www.viewplus.com
   * and
   * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
   * All rights reserved
   *
   * This file may contain code borrowed from files produced by various 
@@ -19,7 +22,7 @@
   * See the Apache 2.0 License for more details.
   *
   * You should have received a copy of the Apache 2.0 License along with 
-  * this program; see the file LICENSE.txt
+  * this program; see the file LICENSE.
   * If not, see
   * http://www.apache.org/licenses/
   *

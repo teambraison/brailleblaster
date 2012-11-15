@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package wordprocessor;
+package org.brailleblaster.wordprocessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -94,6 +94,7 @@ enum Action {
  * false.
  */
 public boolean actionBeforeElement (Element element) {
+Action act = Action.valueOf ("blankLine");
   return true;
 }
 

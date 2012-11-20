@@ -232,6 +232,37 @@ private void makeSemanticsTable() {
 }
 
 /**
+ * Given the name of a style, find its markup in the semanticsTable. The 
+ * search is linear. Since there may be more than one set of markup for 
+ * a style, the semantic-action file must be arranged so that the preferred 
+ * markup is nearest the beginning.
+ */
+public String findStyleMarkup (String styleName) {
+  for (int i = 0; i < lineCount; i++) {
+  if (semanticsTable[i].operation.equals ("style") && 
+  semanticsTable[i].operand.equals (styleName))
+  return semanticsTable[i].markup;
+  }
+  return null;
+}
+
+/**
+ * Given the name of an actgion, find its markup in the semanticsTable. 
+ The 
+ * search is linear. Since there may be more than one set of markup for 
+ * an action, the semantic-action file must be arranged so that the 
+ * preferred markup is nearest the beginning.
+ */
+public String findActionMarkup (String actionName) {
+  for (int i = 0; i < lineCount; i++) {
+  if (semanticsTable[i].operation.equals ("action") && 
+  semanticsTable[i].operand.equals (actionName))
+  return semanticsTable[i].markup;
+  }
+  return null;
+}
+
+/**
  * if newEntries = true make a record of any markup that is not listed 
  * in the semanticsTable. This information will later be used to make a 
  * file containing this 
@@ -394,20 +425,31 @@ public void readAndEdit() {
 }
 
 /**
- * Remove the bbsem attribute before saving the document. The method 
- * walks through the parse tree, calling itself recursively for each 
- * element.
+ * This method takes an alment, usually the root element, and removes 
+ * the bbsem attribute from its subtree.
+ *      @param element
  */
-private void removeBBSemAttr() {
+private void removeBBSemAttr (Node node) {
+Node newNode;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+Element element = (Element)newNode;
+Attribute attr = element.getAttribute ("bbsem");
+if (attr != null) {
+element.removeAttribute (attr);
 }
-
+removeBBSemAttr (element);
+}
+}
+}
 /**
  * Save the file with utd markup so that work can be resumed at a later 
  * time. The bbsem attribute is removed. 
  */
 public void saveWorkikngFile () {
   String fileName = documentName + ".utd";
-  removeBBSemAttr();
+  // removeBBSemAttr();
 }
 
 /**
@@ -416,7 +458,7 @@ public void saveWorkikngFile () {
  * the meta,name,utd element.
  */
 public void saveEnhancedDocument() {
-  removeBBSemAttr();
+ // removeBBSemAttr();
 }
 
 }

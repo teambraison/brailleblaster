@@ -64,7 +64,6 @@ public final class BBIni {
 
 	private static boolean debug = false;
 	private static boolean gotGui = true;
-	private static boolean utd = false;
     private static boolean multipleSubcommands = false;
     private static Logger logger;
 	private static Display display = null;
@@ -172,9 +171,6 @@ debug = true;
 }
 else if (args[i].equals ("-nogui")) {
 gotGui = false;
-}
-else if (args[i].equals ("-utd")) {
-utd = true;
 }
 else if (args[i].equals ("-multcom")) {
 multipleSubcommands = true;
@@ -310,17 +306,9 @@ return hSubcommands;
 		return logger;
 	}
 
-	public static boolean useUtd () {
-		return utd;
-	}
 public static boolean multCommands () {
 return multipleSubcommands;
 }
-	// FO
-	public static void setUtd (boolean trueFalse) {
-		utd = trueFalse;
-		return;
-	}
 	public static String getStylePath(){
 		return stylePath;
 	}

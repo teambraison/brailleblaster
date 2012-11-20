@@ -1,30 +1,33 @@
 /* BrailleBlaster Braille Transcription Application
- *
- * Copyright (C) 2010, 2012
- * ViewPlus Technologies, Inc. www.viewplus.com
- * and
- * Abilitiessoft, Inc. www.abilitiessoft.com
- * All rights reserved
- *
- * This file may contain code borrowed from files produced by various 
- * Java development teams. These are gratefully acknoledged.
- *
- * This file is free software; you can redistribute it and/or modify it
- * under the terms of the Apache 2.0 License, as given at
- * http://www.apache.org/licenses/
- *
- * This file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
- * See the Apache 2.0 License for more details.
- *
- * You should have received a copy of the Apache 2.0 License along with 
- * this program; see the file LICENSE.
- * If not, see
- * http://www.apache.org/licenses/
- *
- * Maintained by John J. Boyer john.boyer@abilitiessoft.com
- */
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
 
 package org.brailleblaster.wordprocessor;
 
@@ -332,7 +335,7 @@ public class DocumentManager {
 				brailleFileName = getBrailleFileName();
 				openDocument(documentName);
 				if (ext.contentEquals("utd")) {
-					BBIni.setUtd(true);
+//					BBIni.setUtd(true);
 					utd.displayTranslatedFile(documentName, brailleFileName);
 					braille.hasChanged = false;
 				}
@@ -482,7 +485,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-			BBIni.setUtd(false);
+//			BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		} else {
@@ -509,7 +512,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-			BBIni.setUtd(false);
+//			BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		}
@@ -546,7 +549,7 @@ public class DocumentManager {
 			openDocument(documentName);
 			String ext = getFileExt(documentName);
 			if (ext.contentEquals("utd")) {
-				BBIni.setUtd(true);
+//				BBIni.setUtd(true);
 				metaContent = true;
 				// }
 				haveOpenedFile = true;
@@ -575,7 +578,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-			BBIni.setUtd(false);
+//			BBIni.setUtd(false);
 		}
 
 		if (doc != null) {
@@ -601,7 +604,7 @@ public class DocumentManager {
 			brailleFileName = getBrailleFileName();
 			openDocument(documentName);
 			if (ext.contentEquals("utd")) {
-				BBIni.setUtd(true);
+//				BBIni.setUtd(true);
 				utd.displayTranslatedFile(documentName, brailleFileName);
 				braille.hasChanged = false;
 			}
@@ -968,7 +971,7 @@ public class DocumentManager {
 		brailleFileName = null;
 		documentName = null;
 		doc = null;
-		BBIni.setUtd(false);
+//		BBIni.setUtd(false);
 		stopRequested = false;
 		statusBar.setText("");
 		daisy.view.setText("");
@@ -1094,10 +1097,10 @@ public class DocumentManager {
 
 		saveDaisyWorkFile();
 
-		if (!BBIni.useUtd()) {
+		/*if (!BBIni.useUtd()) */ {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("askUtdml"));
 			if (ync.result == SWT.YES) {
-				BBIni.setUtd(true);
+//				BBIni.setUtd(true);
 			}
 		}
 		translate(display);
@@ -1106,7 +1109,7 @@ public class DocumentManager {
 	void translate(boolean display) {
 		configFileList = "preferences.cfg";
 		configSettings = null;
-		if (BBIni.useUtd()) {
+		/*if (BBIni.useUtd())*/ {
 			configSettings = "formatFor utd\n" + "mode notUC\n";
 		}
 
@@ -1121,7 +1124,7 @@ public class DocumentManager {
 			return;
 		}
 
-		if (!BBIni.useUtd()) {
+		/*if (!BBIni.useUtd())*/ {
 			brailleFileName = getBrailleFileName();
 			new FileUtils().copyFile(translatedFileName, brailleFileName);
 		}
@@ -1130,16 +1133,18 @@ public class DocumentManager {
 		braille.hasChanged = true;
 
 		if (display) {
-			if (BBIni.useUtd()) {
+			/*if (BBIni.useUtd())*/ {
 				brailleFileName = getBrailleFileName();
 				utd.displayTranslatedFile(translatedFileName, brailleFileName);
-			} else {
+			} 
+/*			else {
 				new Thread() {
 					public void run() {
 						showBraille();
 					}
 				}.start();
 			}
+			*/
 		}
 	}
 
@@ -1286,7 +1291,7 @@ public class DocumentManager {
 			documentName = null;
 			daisy.hasChanged = false;
 			doc = null;
-			BBIni.setUtd(false);
+//			BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		}
@@ -1597,7 +1602,7 @@ public class DocumentManager {
 		
 		// backtranslate
 
-		BBIni.setUtd(false) ;
+//		BBIni.setUtd(false) ;
 		configFileList = "backtranslate.cfg";
 		configSettings = "mode notUc\n" ;
 

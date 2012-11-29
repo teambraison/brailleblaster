@@ -96,6 +96,8 @@ private Document workingDocument;
 private Hashtable<String, Integer> semanticsLookup = new 
   Hashtable<String, Integer>();
 
+private StyleType st = new StyleType();
+private Actions act = new Actions();
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;
 private boolean haveSemanticFile = true;
@@ -443,22 +445,38 @@ removeBBSemAttr (element);
 }
 }
 }
+
 /**
  * Save the file with utd markup so that work can be resumed at a later 
  * time. The bbsem attribute is removed. 
  */
 public void saveWorkikngFile () {
   String fileName = documentName + ".utd";
-  // removeBBSemAttr();
+  removeBBSemAttr (workingDocument.getRootElement());
+  FileOutputStream writer = null;
+  try {
+writer = new FileOutputStream(fileName);
+} catch (FileNotFoundException e) {
+new Notify(lh.localValue("cannotOpenFileW") + " " + fileName);
+return;
+}
+Serializer outputDoc = new Serializer(writer);
+try {
+outputDoc.write(workingDocument);
+outputDoc.flush();
+} catch (IOException e) {
+//logger.log(Level.SEVERE, lh.localValue("cannotWriteFile") + ": " + 
+new Notify(lh.localValue("cannotWriteFile"));
+return;
+}
 }
 
 /**
  * Enhance the original document by moving any edited Braille into the 
- print portion, with appropriate markup. Remove the bbsem attribute and 
- * the meta,name,utd element.
+ * print portion, with appropriate markup. Remove the bbsem attribute 
+ * and the meta,name,utd element.
  */
 public void saveEnhancedDocument() {
- // removeBBSemAttr();
 }
 
 }

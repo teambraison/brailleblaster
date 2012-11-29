@@ -1,30 +1,33 @@
 /* BrailleBlaster Braille Transcription Application
- *
- * Copyright (C) 2010, 2012
- * ViewPlus Technologies, Inc. www.viewplus.com
- * and
- * Abilitiessoft, Inc. www.abilitiessoft.com
- * All rights reserved
- *
- * This file may contain code borrowed from files produced by various 
- * Java development teams. These are gratefully acknoledged.
- *
- * This file is free software; you can redistribute it and/or modify it
- * under the terms of the Apache 2.0 License, as given at
- * http://www.apache.org/licenses/
- *
- * This file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
- * See the Apache 2.0 License for more details.
- *
- * You should have received a copy of the Apache 2.0 License along with 
- * this program; see the file LICENSE.
- * If not, see
- * http://www.apache.org/licenses/
- *
- * Maintained by John J. Boyer john.boyer@abilitiessoft.com
- */
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
 
 package org.brailleblaster.wordprocessor;
 
@@ -52,9 +55,6 @@ import org.brailleblaster.BBIni;
  */
 class UTD { 
 
-    //static int pageCount;
-    //static int pageCount2;
-
     int braillePageNumber; //number of braille pages
     String firstTableName;
     int dpi; // resolution
@@ -74,8 +74,8 @@ class UTD {
     Node beforeBrlonlyNode;
     private boolean firstPage;
     private boolean firstLineOnPage;
-    StringBuilder brailleLine = new StringBuilder (8192);
-//  StringBuilder printLine = new StringBuilder (8192);
+    StringBuilder brailleLine = new StringBuilder (1024);
+//  StringBuilder printLine = new StringBuilder (1024);
     DocumentManager dm;
     Document doc;
     boolean utdFound = false;	// FO
@@ -117,7 +117,6 @@ class UTD {
         
         Builder parser = new Builder();
         try {
-//          doc = parser.build (dm.translatedFileName);
             doc = parser.build (new File(utdFileName));
         } catch (ParsingException e) {
         	logger.log(Level.SEVERE, "Malformed document: " + utdFileName);
@@ -316,7 +315,7 @@ class UTD {
         brailleLine.append ("\n");
     }
 
-    private void doBrlNode (Element node) {
+    void doBrlNode (Element node) {
         String tmp = node.getAttributeValue("index");
         String[] indices = null;
         if(tmp != null) indices = node.getAttributeValue ("index").split (" ", 20000);

@@ -1,30 +1,34 @@
 /* BrailleBlaster Braille Transcription Application
- *
- * Copyright (C) 2010, 2012
- * ViewPlus Technologies, Inc. www.viewplus.com
- * and
- * Abilitiessoft, Inc. www.abilitiessoft.com
- * All rights reserved
- *
- * This file may contain code borrowed from files produced by various 
- * Java development teams. These are gratefully acknoledged.
- *
- * This file is free software; you can redistribute it and/or modify it
- * under the terms of the Apache 2.0 License, as given at
- * http://www.apache.org/licenses/
- *
- * This file is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
- * See the Apache 2.0 License for more details.
- *
- * You should have received a copy of the Apache 2.0 License along with 
- * this program; see the file LICENSE.
- * If not, see
- * http://www.apache.org/licenses/
- *
- * Maintained by John J. Boyer john.boyer@abilitiessoft.com
- */
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
 package org.brailleblaster.util;
 
 import java.io.File;
@@ -32,7 +36,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import org.brailleblaster.BBIni;
 
+
+/**
+ * This class contains methods for creating, deleting and testing files 
+ * and for searching directories.
+ */
 public class FileUtils {
 
     public FileUtils() {
@@ -43,7 +53,7 @@ public class FileUtils {
         return file.exists();
     }
 
-    public void create (String fileName){
+    public void create (String fileName) {
         File f = new File(fileName);
         if(!f.exists()){
             try {
@@ -54,7 +64,7 @@ public class FileUtils {
         }
     }
 	
-    public boolean deleteFile(String fileName){
+    public boolean deleteFile(String fileName) {
 		File f= new File(fileName);
 		if(f.exists()){
 			return f.delete();
@@ -137,6 +147,19 @@ public class FileUtils {
 		  }
 		  return directory.delete();
 	}
+
+public boolean makeUserProgramData () {
+}
+
+/**
+ * Search for partialPathName first in the user's programData directory 
+ * and then in the built-in programData directory.
+ * @param partialPathName: a name like 
+ * liblouisutdml/lbu_files/preferences.cfg
+ */
+public String searchProgramData (String partialPathName) {
+return null;
+}
 
 }
 

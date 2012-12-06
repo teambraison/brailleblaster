@@ -112,11 +112,11 @@ BBHome = System.getenv ("APPDATA") + fileSep + BBID;
 nativeLibrarySuffix = ".dll";
 }
 else if (platformName.equals ("cocoa")) {
-BBHome = userHome + fileSep + BBID;
+BBHome = userHome + fileSep + + "." + BBID;
 nativeLibrarySuffix = ".dylib";
 }
 else {
-BBHome = userHome + fileSep + BBID;
+BBHome = userHome + fileSep + "." + BBID;
 nativeLibrarySuffix = ".so";
 }
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 

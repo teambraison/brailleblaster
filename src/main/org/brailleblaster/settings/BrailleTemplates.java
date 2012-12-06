@@ -31,10 +31,43 @@
 
 package org.brailleblaster.settings;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+import org.eclipse.swt.*;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.util.Notify;
+import org.brailleblaster.wordprocessor.CallOutsideWP;
+
 /**
  * This class edits liblouisutdml configuration files and enables the 
  * user to chose which file to use.
  */
 public class BrailleTemplates {
+
+String fileToEdit = null;
+
+public BrailleTemplates () {
+showConfigFileList();
+editConfigFile(fileName);
+}
+private void showConfigFileList() {
 }
 
+private void editConfigFile (String fileName) {
+if (fileName == null) return;
+}
+
+}

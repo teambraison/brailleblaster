@@ -148,16 +148,13 @@ public class FileUtils {
 		  return directory.delete();
 	}
 
-public boolean makeUserProgramData () {
-}
-
 /**
  * Search for partialPathName first in the user's programData directory 
  * and then in the built-in programData directory.
  * @param partialPathName: a name like 
  * liblouisutdml/lbu_files/preferences.cfg
  */
-public String searchProgramData (String partialPathName) {
+public String findInProgramData (String partialPathName) {
 return null;
 }
 

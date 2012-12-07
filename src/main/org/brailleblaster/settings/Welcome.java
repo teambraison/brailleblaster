@@ -41,7 +41,6 @@ import java.util.Properties;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.util.OpenFile;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;

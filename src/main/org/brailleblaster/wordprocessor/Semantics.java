@@ -96,7 +96,7 @@ private Document workingDocument;
 private Hashtable<String, Integer> semanticsLookup = new 
   Hashtable<String, Integer>();
 
-private StyleType st = new StyleType();
+private Styles st = new Styles();
 private Actions act = new Actions();
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;

@@ -61,7 +61,7 @@ String fileToEdit = null;
 
 public BrailleTemplates () {
 showConfigFileList();
-editConfigFile(fileName);
+editConfigFile(fileToEdit);
 }
 private void showConfigFileList() {
 }

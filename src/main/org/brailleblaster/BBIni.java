@@ -76,11 +76,11 @@ public final class BBIni {
 	private static String nativeCommandPath;
 	private static String nativeLibraryPath;
 	private static String programDataPath;
+	private static String userProgramDataPath;
 	private static String helpDocsPath;
 	private static String nativeCommandSuffix;
 	private static String nativeLibrarySuffix;
 	private static String recentDocs;
-	private static String settingsPath;
 	private static String tempFilesPath;
 	private static String platformName;
 	private static String userSettings;
@@ -112,7 +112,7 @@ BBHome = System.getenv ("APPDATA") + fileSep + BBID;
 nativeLibrarySuffix = ".dll";
 }
 else if (platformName.equals ("cocoa")) {
-BBHome = userHome + fileSep + + "." + BBID;
+BBHome = userHome + fileSep + "." + BBID;
 nativeLibrarySuffix = ".dylib";
 }
 else {
@@ -122,21 +122,24 @@ nativeLibrarySuffix = ".so";
 nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + 
 "lib";
 FileUtils fu = new FileUtils();
-settingsPath = BBHome + fileSep + "settings";
-File settings = new File (settingsPath);
-if (!settings.exists())
-settings.mkdirs();
-userSettings = settingsPath + fileSep + 
+userProgramDataPath = BBHome + fileSep + "programData";
+File userData = new File (userProgramDataPath);
+if (!userData.exists()) {
+userData.mkdirs();
+}
+makeUserProgramData();
+userSettings = userProgramDataPath + fileSep + 
 "user_settings.properties";
 if (!fu.exists (userSettings)) {
 			fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
 					"user_settings.properties", userSettings);
 		}
 		//this part initialize recent_documents.txt
-		recentDocs = settingsPath + fileSep + "recent_documents.txt";
+		recentDocs = userProgramDataPath + fileSep + 
+		"recent_documents.txt";
 		fu.create(recentDocs);
 		//FO Aug 03
-		stylePath = settingsPath + fileSep + "styles";
+		stylePath = userProgramDataPath + fileSep + "styles";
 		File styleDir = new File (stylePath);
 		if (!styleDir.exists())
 			styleDir.mkdirs();
@@ -203,6 +206,24 @@ hLiblouisutdml = true;
 			logger.log (Level.WARNING, "This shouldn't happen", e);
 		}
 	}
+
+private void makeUserProgramData () {
+String basePath = userProgramDataPath + fileSep;
+helpMakeUPD (basePath + "liblouis/tables");
+helpMakeUPD (basePath + "liblouiutdml/lbu_files");
+helpMakeUPD (basePath + "lang");
+helpMakeUPD (basePath + "semantics");
+helpMakeUPD (basePath + "styles");
+helpMakeUPD (basePath + "settings");
+helpMakeUPD (basePath + "fonts");
+}
+
+private void helpMakeUPD (String pathName) {
+File file = new File (pathName);
+if (!file.exists()) {
+file.mkdirs();
+}
+}
 
 	public static boolean debugging() {
 		return debug;
@@ -281,9 +302,9 @@ return hSubcommands;
 		return nativeLibrarySuffix;
 	}
 
-	public static String getSettingsPath()
+	public static String getUserProgramDataPath()
 	{
-		return settingsPath;
+		return userProgramDataPath;
 	}
 
 	public static String getTempFilesPath () {

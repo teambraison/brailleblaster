@@ -131,8 +131,8 @@ makeUserProgramData();
 userSettings = userProgramDataPath + fileSep + 
 "user_settings.properties";
 if (!fu.exists (userSettings)) {
-			fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
-					"user_settings.properties", userSettings);
+fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
+"user_settings.properties", userSettings);
 		}
 		//this part initialize recent_documents.txt
 		recentDocs = userProgramDataPath + fileSep + 

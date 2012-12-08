@@ -154,8 +154,27 @@ public class FileUtils {
  * @param partialPathName: a name like 
  * liblouisutdml/lbu_files/preferences.cfg
  */
-public String findInProgramData (String partialPathName) {
+public String findInProgramData (String partialPath) {
+File file;
+String completePath = BBIni.getUserProgramDataPath() + partialPath;
+file = new File (completePath);
+if (file.exists()) {
+return completePath;
+}
+completePath = BBIni.getProgramDataPath() + partialPath;
+file = new File (completePath);
+if (file.exists()) {
+return completePath;
+}
 return null;
+}
+
+/**
+ * Write a file to userProgramData.
+ * @param partialPath: pathname based at userProgramDataPath.
+ */
+public boolean writeToUserProgrramData (String partialPath) {
+return true;
 }
 
 }

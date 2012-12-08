@@ -70,4 +70,7 @@ private void editConfigFile (String fileName) {
 if (fileName == null) return;
 }
 
+private void editStyle () {
+}
+
 }

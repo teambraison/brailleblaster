@@ -52,25 +52,51 @@ import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.CallOutsideWP;
 
 /**
- * This class edits liblouisutdml configuration files and enables the 
- * user to chose which file to use.
+ * This class provides the methods for dealing with liblouisutdml 
+ * configuration files. The user can chose a file to use, edit one, copy 
+ * or create. Any new or modified files are stored in the 
+ * liblouisutdml/lbu_files directory of the userProgramData directory, 
+ * not in the built-in programData directory.
  */
 public class BrailleTemplates {
 
 String fileToEdit = null;
 
+/**
+ * Call the method that lists configuration files and then enables the 
+ * user to pick one to use or to edit. Then if the latter choice has 
+ * been made, call a method to do the editing. Files are sought first in 
+ * the liblouisutdml/lbu_files of the userProgramData directory and then 
+ * in the programData directory.
+ */
 public BrailleTemplates () {
 showConfigFileList();
+if (fileToEdit != null) {
 editConfigFile(fileToEdit);
 }
+}
+
+/**
+ * List the files with the extension .cfg in liblouisutdml/lbu_files 
+ * looking first in userProgramData and then in programData. Enable the 
+ * user to pick one to use or edit.
+ */
 private void showConfigFileList() {
 }
 
+/**
+ * Edit a configuration file. When finished store it in the 
+ * liblouisutdml/lbu_files directory of the userProgramData directory. 
+ * If a style is to be edited call the editStyle method.
+ */
 private void editConfigFile (String fileName) {
 if (fileName == null) return;
 }
 
-private void editStyle () {
+ /**
+ * Edit a style in a configuration file.
+ */
+private void editStyle (int lineNumber) {
 }
 
 }

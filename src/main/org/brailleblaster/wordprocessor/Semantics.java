@@ -49,6 +49,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import java.util.Hashtable;
+import java.util.ArrayList;
 
 /**
  * This class provides the means of displaying and editing any
@@ -60,6 +61,47 @@ import java.util.Hashtable;
  * See also Styles.java
  */
 class Semantics {
+
+/**
+ * The complete path of the document file.
+ */
+private String documentName;
+
+/** 
+ * This is the parsed xml document (Containing UTDML).
+ */
+private Document workingDocument;
+
+/**
+ * Root element of workingDocument
+ */
+Element rootElement;
+
+/**
+ * Make the BrailleBlaster document model, calling addBBSemAttr 
+ * recursively. fileName is the complete path of an xml file containing 
+ * UTDML.
+ */
+void makeDocumentModel (String fileName) {
+  documentName = fileName;
+  File file = new File (fileName);
+Builder parser = new Builder();
+try {
+workingDocument = parser.build (file);
+} catch (ParsingException e) {
+new Notify(lh.localValue("malformedDocument"));
+return;
+} catch (IOException e) {
+new Notify(lh.localValue("couldNotOpen") + " " + fileName);
+return;
+}
+  rootElement = workingDocument.getRootElement();
+  makeSemanticsTable();
+  if (!haveSemanticFile) {
+  newEntries = true;
+  }
+  makeSemanticsList();
+}
 
  /**
  * This is an entry in the SemanticsTable, which is used to control 
@@ -82,11 +124,6 @@ class SemanticEntry {
  */
 private SemanticEntry[] semanticsTable = new SemanticEntry[100];
 int lineCount = 0;
-
-/** 
- * This is the parsed xml document (Containing UTDML).
- */
-private Document workingDocument;
 
 /**
  * The semanticsLookup hash table has literal markup  in the 
@@ -111,13 +148,14 @@ private void handleNamespaces (String nm) {
 
 /**
  * Handle error messages.
- * Param: fileName, name of semantic file.
- *        lineNumber, line on which the eror occurred.
- *        message, error message.
+ * @Param: fileName, name of semantic file.
+ *  @lineNumber, line on which the eror occurred.
+ *   @message, error message.
  */
 private void showErrors (String fileName, int lineNumber, String 
 message) {
-System.out.println (fileName + ":" + lineNumber + ": " + message);
+System.out.println ("error: " + fileName + ":" + lineNumber + ": " + 
+message);
 }
  
 /**
@@ -227,7 +265,6 @@ private boolean compileFile (String fileName) {
 private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
-  Element rootElement = workingDocument.getRootElement();
   String rootName = rootElement.getLocalName();
   String fileName = rootName + ".sem";
   compileFile (fileName);
@@ -265,12 +302,21 @@ public String findActionMarkup (String actionName) {
 }
 
 /**
+ * ArrayList for keeping a record of markup not in the semantic-actions 
+ * file
+ */
+ArrayList<String> newMarkup = new ArrayList<String>();
+
+/**
  * if newEntries = true make a record of any markup that is not listed 
  * in the semanticsTable. This information will later be used to make a 
  * file containing this 
  * information.
  */
 private void recordNewEntries (String markup) {
+if (newEntries) {
+newMarkup.add (markup);
+}
 }
 
 /**
@@ -283,15 +329,89 @@ private void outputNewEntries() {
 }
 
 /**
+ * This embedded class contains the semantic information for elements 
+ * whose markup is in the SemanticsTable.
+ */
+class ElementSemantics {
+Element element;
+int semanticIndex;
+int start; // start of text in StyledText.
+int end;
+int depth;
+}
+
+/**
+ * Storage for semantic information.
+ */
+ArrayList<ElementSemantics> semanticsList;
+
+/**
+ * Make the starting SemanticsList immediately after the document has 
+ * been parsed and the semanticsTable built.
+ */
+void makeSemanticsList() {
+semanticsList = new ArrayList<ElementSemantics>(1000);
+doXPathExpressions();
+findSemantics (rootElement, -1);
+}
+
+/**
  * Evaluate any Xpath expressions that the semanticsTable may contain 
  and 
  * add the bbsem attribute to the nodes in the nodeset. The bbsem 
  * attribute has the index of the entry in the semanticsTable as its 
- * valuel
+ * value.
  */
 private void doXPathExpressions() {
 }
 
+private ElementSemantics elementEntry = new ElementSemantics();
+
+ /**
+ * Walk through the parse tree, depth-first, and add elements with 
+ * semannticsTable markup to semanticsList.
+ */
+private void findSemantics (Node node, int depth) {
+Node newNode;
+Element element;
+String elementName;
+for (int i = 0; i < node.getChildCount(); i++) {
+newNode = node.getChild(i);
+if (newNode instanceof Element) {
+element = (Element)newNode;
+int semanticIndex;
+if ((semanticIndex = hasSemantics(element)) != -1) {
+elementEntry.element = element;
+elementEntry.semanticIndex = semanticIndex;
+elementEntry.depth = depth;
+semanticsList.add (elementEntry);
+}
+elementName = element.getLocalName();
+if (!(elementName.equals("brl") || elementName.equals("math"))) {
+findSemantics (element, depth++);
+}
+}
+}
+}
+
+/**
+ * See if the semanticsTable contains markup for this element,its 
+ * attributes, and or its attribute values. If so return the index of 
+ * the entry in the semanticsTable
+ * @param element, the element to check
+ * @return int the index of the markup in the semanticsTable.
+ */
+private int hasSemantics (Element element) {
+return 0;
+}
+ 
+/**
+ * Revise the semanticsList after an edit. 
+ * @param startPos: the position at whichh to begin the revision.
+ */
+private void wReviseSemanticList (int startPos) {
+}
+ 
 /**
  * Add the bbsem attribute to nodes in the parse tree.  Any XPath 
  * expressions in the semanticsTable have already been aplied. The 
@@ -374,39 +494,6 @@ private void helpAddAttr (Element element) {
 }
 
 /**
- * The complete path of the document file.
- */
-private String documentName;
-
-/**
- * Make the BrailleBlaster document model, calling addBBSemAttr 
- * recursively. fileName is the complete path of an xml file containing 
- * UTDML.
- */
-void makeDocumentModel (String fileName) {
-  documentName = fileName;
-  File file = new File (fileName);
-Builder parser = new Builder();
-try {
-workingDocument = parser.build (file);
-} catch (ParsingException e) {
-new Notify(lh.localValue("malformedDocument"));
-return;
-} catch (IOException e) {
-new Notify(lh.localValue("couldNotOpen") + " " + fileName);
-return;
-}
-  makeSemanticsTable();
-  if (!haveSemanticFile) {
-  newEntries = true;
-  }
-  doXPathExpressions();
-  Element rootElement = workingDocument.getRootElement();
-  addBBSemAttr (rootElement);
-  semanticsLookup = null;
-}
-
-/**
  * This method is used by the readAndEdit method to carry out the 
  * appropriate operations for each element having a bbsem attribute.
  */
@@ -427,32 +514,11 @@ public void readAndEdit() {
 }
 
 /**
- * This method takes an alment, usually the root element, and removes 
- * the bbsem attribute from its subtree.
- *      @param element
- */
-private void removeBBSemAttr (Node node) {
-Node newNode;
-for (int i = 0; i < node.getChildCount(); i++) {
-newNode = node.getChild(i);
-if (newNode instanceof Element) {
-Element element = (Element)newNode;
-Attribute attr = element.getAttribute ("bbsem");
-if (attr != null) {
-element.removeAttribute (attr);
-}
-removeBBSemAttr (element);
-}
-}
-}
-
-/**
  * Save the file with utd markup so that work can be resumed at a later 
  * time. The bbsem attribute is removed. 
  */
 public void saveWorkikngFile () {
   String fileName = documentName + ".utd";
-  removeBBSemAttr (workingDocument.getRootElement());
   FileOutputStream writer = null;
   try {
 writer = new FileOutputStream(fileName);
@@ -480,3 +546,4 @@ public void saveEnhancedDocument() {
 }
 
 }
+

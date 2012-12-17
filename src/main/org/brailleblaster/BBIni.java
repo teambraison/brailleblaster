@@ -45,8 +45,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
-import java.util.UUID;
-
 
 /**
  * Determine and set initial conditions.
@@ -95,7 +93,6 @@ public final class BBIni {
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString (seconds, 32);
-//System.out.println (instanceId);
 		LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = BrailleblasterPath.getPath (m);
@@ -144,7 +141,7 @@ fu.copyFile (programDataPath + fileSep + "settings" + fileSep +
 		if (!styleDir.exists())
 			styleDir.mkdirs();
 
-		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
+tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File (tempFilesPath);
 		if (!temps.exists())
 			temps.mkdirs();

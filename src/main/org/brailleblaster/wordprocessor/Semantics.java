@@ -78,9 +78,11 @@ private Document workingDocument;
 Element rootElement;
 
 /**
- * Make the BrailleBlaster document model, calling addBBSemAttr 
- * recursively. fileName is the complete path of an xml file containing 
- * UTDML.
+ * Make the BrailleBlaster document model. The document is parsed and 
+ * then the makeSemanticsList method is called to build the 
+ * semanticsList. fileName is the complete path of an xml file 
+ * containing UTDML.
+ * @param fileName
  */
 void makeDocumentModel (String fileName) {
   documentName = fileName;
@@ -357,10 +359,8 @@ findSemantics (rootElement, -1);
 
 /**
  * Evaluate any Xpath expressions that the semanticsTable may contain 
- and 
- * add the bbsem attribute to the nodes in the nodeset. The bbsem 
- * attribute has the index of the entry in the semanticsTable as its 
- * value.
+ * and record their nodesets together with the index on the semanticsTable 
+ * where the XPath expression occurred.
  */
 private void doXPathExpressions() {
 }
@@ -402,7 +402,42 @@ findSemantics (element, depth++);
  * @return int the index of the markup in the semanticsTable.
  */
 private int hasSemantics (Element element) {
-return 0;
+  String elementName = element.getLocalName();
+  Attribute attr;
+  String attrName;
+  String attrValue;
+  String key;
+  Integer semanticsTableIndex;
+  int numAttr = element.getAttributeCount();
+  for (int i = 0; i < numAttr; i++) {
+  attr = element.getAttribute(i);
+  attrName = attr.getLocalName();
+  attrValue = attr.getValue();
+  key = elementName + "," + attrName + "," + attrValue;
+  semanticsTableIndex = semanticsLookup.get (key);
+  if (semanticsTableIndex != null) {
+  return semanticsTableIndex.intValue();
+  }
+  else if (newEntries) {
+  recordNewEntries (key);
+  }
+  key = elementName + "," + attrName;
+  semanticsTableIndex = semanticsLookup.get (key);
+  if (semanticsTableIndex != null) {
+  return semanticsTableIndex.intValue();
+  }
+  else if (newEntries) {
+  recordNewEntries (key);
+  }
+  }
+  semanticsTableIndex = semanticsLookup.get (elementName);
+  if (semanticsTableIndex != null) {
+  return semanticsTableIndex.intValue();
+  }
+  else if (newEntries) {
+  recordNewEntries (elementName);
+  }
+  return -1;
 }
  
 /**
@@ -413,109 +448,24 @@ private void wReviseSemanticList (int startPos) {
 }
  
 /**
- * Add the bbsem attribute to nodes in the parse tree.  Any XPath 
- * expressions in the semanticsTable have already been aplied. The 
- * parse tree is traversed, and the semanticsTable is checked for 
- matching
- * markup. If found, a bbsem attribute with a value of the index in the 
- * semanticsTable is added to the element node. The attribute is not 
- * added if it is already present because it was set by an XPath 
- * expression.
- */
-private void addBBSemAttr (Node node) {
-Node newNode;
-for (int i = 0; i < node.getChildCount(); i++) {
-newNode = node.getChild(i);
-if (newNode instanceof Element) {
-Element element = (Element)newNode;
-/* Check if in SemanticsTable. If so, add bbsem attribute, unless 
- * already there.*/
-if (element.getAttribute ("bbsem") == null) {
-helpAddAttr (element);
-}
-/* Process this element recursively */
-addBBSemAttr (element);
-}
-}
-}
-
-/**
- * This is a helper method for addBBSemAttr. It scans through 
- * attributges to see if elementName,attrName,attrValue or 
- * elementName,attrrName match some markup0 in semanticsTable. If so, it 
- * adds the bbsem attribute with the index of the semanticEntry to the 
- * element and returns. If not 
- * it checks to see if the elementName alone 
- * matches and adds the bbsem attribute if it does. It then returnsj.
- * param element: the element to be checked.
- */
-private void helpAddAttr (Element element) {
-  String elementName = element.getLocalName();
-  Attribute attr;
-  String attrName;
-  String attrValue;
-  String key;
-  Attribute bbsemAttr = new Attribute("bbsem", "99");
-  Integer semanticsTableIndex;
-  int numAttr = element.getAttributeCount();
-  for (int i = 0; i < numAttr; i++) {
-  attr = element.getAttribute(i);
-  attrName = attr.getLocalName();
-  attrValue = attr.getValue();
-  key = elementName + "," + attrName + "," + attrValue;
-  semanticsTableIndex = semanticsLookup.get (key);
-  if (semanticsTableIndex != null) {
-  bbsemAttr.setValue (semanticsTableIndex.toString());
-  element.addAttribute (bbsemAttr);
-  return;
-  }
-  else if (newEntries) {
-  recordNewEntries (key);
-  }
-  key = elementName + "," + attrName;
-  semanticsTableIndex = semanticsLookup.get (key);
-  if (semanticsTableIndex != null) {
-  bbsemAttr.setValue (semanticsTableIndex.toString());
-  element.addAttribute (bbsemAttr);
-  return;
-  }
-  else if (newEntries) {
-  recordNewEntries (key);
-  }
-  }
-  semanticsTableIndex = semanticsLookup.get (elementName);
-  if (semanticsTableIndex != null) {
-  bbsemAttr.setValue (semanticsTableIndex.toString());
-  element.addAttribute (bbsemAttr);
-  }
-  else if (newEntries) {
-  recordNewEntries (elementName);
-  }
-}
-
-/**
  * This method is used by the readAndEdit method to carry out the 
- * appropriate operations for each element having a bbsem attribute.
+ * appropriate operations for each element in the semanticsList.
  */
 private void doSemantics (Element element) {
-  String semanticsTableIndex = element.getAttributeValue ("bbsem");
-  if (semanticsTableIndex == null) {
-  return;
-  }
 }
 
 /**
  * This method enables the user to read and edit the contents of the 
  * document. It moves around in the parse tree, following the user's 
  * scrolling and cursor movements. The doStyleOrAction method is called 
- * for each element having a bbsem attribute.
+ * for each element in the semanticsList.
  */
 public void readAndEdit() {
 }
 
 /**
  * Save the file with utd markup so that work can be resumed at a later 
- * time. The bbsem attribute is removed. 
+ * time.
  */
 public void saveWorkikngFile () {
   String fileName = documentName + ".utd";
@@ -539,8 +489,7 @@ return;
 
 /**
  * Enhance the original document by moving any edited Braille into the 
- * print portion, with appropriate markup. Remove the bbsem attribute 
- * and the meta,name,utd element.
+ * original document Remove the meta,name,utd element.
  */
 public void saveEnhancedDocument() {
 }

@@ -498,7 +498,6 @@ public class DocumentManager {
 		}
 	}
 
-	/* UTD or XML DOCUMENT */
 	void fileOpen() {
 
 		if (!daisy.view.isVisible()) {
@@ -512,7 +511,6 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-//			BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		}

@@ -37,17 +37,20 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.util.BrailleblasterPath;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 /**
- * Determine and set initial conditions.
+ * Determine and set initial conditions. This class takes care of most 
+ * platform dependencies. Its get methods should be used rather than 
+ * coding platform determining code in other classes.
  */
 
 public final class BBIni {
@@ -80,6 +83,7 @@ public final class BBIni {
 	private static String nativeLibrarySuffix;
 	private static String recentDocs;
 	private static String tempFilesPath;
+	private static String logFilesPath;
 	private static String platformName;
 	private static String userSettings;
 	private static String stylePath;
@@ -95,7 +99,7 @@ public final class BBIni {
 		instanceId = Long.toString (seconds, 32);
 		LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
-		brailleblasterPath = BrailleblasterPath.getPath (m);
+		brailleblasterPath = getBrailleblasterPath (m);
 		osName = System.getProperty ("os.name");
 		osVersion = System.getProperty ("os.version");
 		fileSep = System.getProperty ("file.separator");
@@ -145,10 +149,15 @@ tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File (tempFilesPath);
 		if (!temps.exists())
 			temps.mkdirs();
+		logFilesPath = BBHome + fileSep + "log";
+		File logPath = new File(logFilesPath);
+		if (!logPath.exists()) {
+		logPath.mkdirs();
+		}
 		logger = Logger.getLogger ("org.brailleblaster");
 		try {
 			logFile = new FileHandler 
-					(tempFilesPath + fileSep + "log.xml");
+					(logFilesPath + fileSep + "log.xml");
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.log (Level.SEVERE, "cannot open logfile", e);
@@ -203,6 +212,36 @@ hLiblouisutdml = true;
 			logger.log (Level.WARNING, "This shouldn't happen", e);
 		}
 	}
+
+   private String getBrailleblasterPath (Object classToUse) 
+{
+	   
+    /*  Option to use an environment variable (mostly for testing with 
+    * Eclipse) */
+    String url = System.getenv("BBLASTER_WORK");
+    if (url != null) {
+    	     url = "file:/" + url ;
+    } 
+    else {  
+    	url = classToUse.getClass().getResource("/" 
++ classToUse.getClass().getName().replaceAll("\\.", "/")
+ + ".class").toString();
+
+     url = url.substring(url.indexOf("file")).replaceFirst("/[^/]+\\.jar!.*$", "/");
+    }
+     
+     try {
+         File dir = new File(new URL(url).toURI());
+         url = dir.getAbsolutePath();
+
+     
+     } catch (MalformedURLException mue) {
+         url = null;
+     } catch (URISyntaxException ue) {
+         url = null;
+     }
+     return url;
+   } 
 
 private void makeUserProgramData () {
 String basePath = userProgramDataPath + fileSep;
@@ -306,6 +345,10 @@ return hSubcommands;
 
 	public static String getTempFilesPath () {
 		return tempFilesPath;
+	}
+
+	public static String getLogFilesPath() {
+	return logFilesPath;
 	}
 
 	public static String getPlatformName() {

@@ -527,8 +527,10 @@ public class DocumentManager {
 		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String filterPath = "/";
-		String[] filterNames = new String[] { "UTDML", "XML" };
-		String[] filterExtensions = new String[] { "*.utd", "*.xml" };
+		String[] filterNames = new String[] { "XML", "TEXT", 
+		"BRF", "UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", 
+		"*.txt", "*.brf", "*.utd", };
 
 		String platform = SWT.getPlatform();
 		if (platform.equals("win32") || platform.equals("wpf")) {
@@ -547,9 +549,7 @@ public class DocumentManager {
 			openDocument(documentName);
 			String ext = getFileExt(documentName);
 			if (ext.contentEquals("utd")) {
-//				BBIni.setUtd(true);
 				metaContent = true;
-				// }
 				haveOpenedFile = true;
 				brailleFileName = getBrailleFileName();
 				utd.displayTranslatedFile(documentName, brailleFileName);

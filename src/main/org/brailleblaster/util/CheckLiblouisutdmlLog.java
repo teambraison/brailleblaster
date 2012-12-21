@@ -4,6 +4,9 @@
   * ViewPlus Technologies, Inc. www.viewplus.com
   * and
   * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
   * All rights reserved
   *
   * This file may contain code borrowed from files produced by various 
@@ -51,7 +54,7 @@ public class CheckLiblouisutdmlLog {
 String logFileName;
 
 public CheckLiblouisutdmlLog () {
-logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
+logFileName = BBIni.getLogFilesPath() + BBIni.getFileSep() + 
 "liblouisutdml.log";
 }
 

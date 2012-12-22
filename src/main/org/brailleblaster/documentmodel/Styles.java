@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.documentmodel;
 
 import nu.xom.Element;
 
@@ -41,11 +41,10 @@ import nu.xom.Element;
  * formatted by liblouisutdml. The rationale behind the use of styles is 
  * that if the print window looks good visually and the correct markup 
  * is used in the document, the Braille will also be formatted 
- * correctly.<p>
+ * correctly.</p>
  * <p>Note that BrailleBlaster styles deal with layout. Italic, bold, 
- * etc. are dealt with by action methods in the Semantics class.</p>
+ * etc. are dealt with by action methods in the Actions class.</p>
  */
-
 public class Styles {
 
   /**
@@ -137,6 +136,11 @@ private class StyleRecord {
   int curRightMargin;
   int curFirstLineIndent;
 }
+
+/**
+ * Index of the top item on the style stack.
+ */
+private int styleTop;
 
 /**
  * The stack array is managed as a fifo stack to handle nested styles. 

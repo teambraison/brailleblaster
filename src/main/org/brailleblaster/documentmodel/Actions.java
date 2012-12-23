@@ -79,7 +79,6 @@ enum Action {
   lineSpacing,
   blankLine,
   softReturn,
-  newPage,
   brl,
   music,
   math,

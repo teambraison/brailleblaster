@@ -115,12 +115,7 @@ class StyleType {
   int leftMargin;
   int rightMargin;
   int firstLineIndent;
-  boolean keepWithNext;
-  boolean dontSplit;
-  boolean orphanControl;
   StyleFormat format;
-  boolean newPageBefore;
-  boolean newPageAfter;
 }
 
 /**

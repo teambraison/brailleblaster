@@ -1,21 +1,50 @@
-This file describes the packages and classes in BrailleBlaster. It is 
-recommended reading for anyone writing code for the project. 
+Introduction
+
+This file describes the design of BrailleBlaster. Emphasis is on the 
+packages and classes. It is recommended reading for anyone writing code 
+for the project.
+
+Directory Structure 
+
+The user's brlblst directory, which is in the platform-specific place 
+for application data, will now contain a replica of the programData 
+directory. If the user creates or modifies a file in the programData 
+directory this file is placed in brlblst/programData in the appropriate 
+subdirectory. brlblst/programData is initially empty. When a file such 
+as a liblouis table is needed it is checked before the corresponding 
+place in the built-in programData directory is checked. A new directory 
+under brlblst called log has been added for log files. Temporary files 
+will be placed in the location favored by the platform. They will be in 
+subdirectories with an instance ID. Setting up the necessary paths will 
+be handled by BBIni.
+
+The Braille and ptint (Daisy) views
+
+These are the two views presented on the left (print) and right 
+(Braille) sides of the screen in the word processor. The print view 
+presents the contents of the document in a visually attractive form. 
+This presentation is controlled by the styles and actions in the 
+document model. When new material is added to the print view appropriate 
+markup is chosen for transmitting this material to the underlying xml 
+document. liblouisutdml uses this markup to format the Braille 
+translation correctly. The print view is not divided into pages, since 
+this would be meaningless in terms of the Braille output. However if the 
+document contains print page information this is displayed. When 
+something is edited in the print view the corresponding protion of the 
+Braille view is dynamically retranslated. 
+
+The Braille view, on the right of the screen, shows how liblouisutdml 
+has rendered the document into Braille and tactile graphics. 
+BrailleBlaster styles do not apply to it, but some actions do. When 
+something in the Braille view is edited, the changes are marked and are 
+also moved to the print view with appropriate markup. This is done so 
+that they will become part of the document when it is saved.
+
+Packages and Classes
 
 Packages and classes are described in the order which seems to best 
 promote understanding, not in alphabetical order. Some clases, which may 
 not be included in the final design, are not described.
-
-A note on directory structure. The user's brlblst directory, which is in 
-the platform-specific place for application data, will now contain a 
-replica of the programData directory. If the user creates or modifies a 
-file in the programData directory this file is placed in 
-brlblst/programData in the appropriate subdirectory. brlblst/programData 
-is initially empty. When a file such as a liblouis table is needed it is 
-checked before the corresponding place in the built-in programData 
-directory is checked. A new directory under brlblst called log has been 
-added for log files. Temporary files will be placed in the location 
-favored by the platform. They will be in subdirectories with an instance 
-ID. Setting up the necessary paths will be handled by BBIni.
 
 package org.brailleblaster
 
@@ -38,16 +67,7 @@ class ParseCommandLine: This class is currently unused. It was written
 to process complex command lines. However, Subcommands appears to do an 
 adequate job. ParseCommandLine may therefore be eliminated.
 
-package org.brailleblaster.wordprocessor
-
-class WPManager: This is the entrance point to the "word processor", 
-so-called because it is more than a text editor. It is the only public 
-class in this package except for the class CallOutsideWP. It sets up the 
-basic word processor environment and also the multi-document interface.
-
-class DocumentManager: This class handles each document. It sets up the 
-print and braille windows, the menus, the toolbar, etc. It contains 
-methods for handling the various menu items.
+package org.brailleblaster.documentmodel
 
 class Semantics: This class augments an xml parse tree with semantic 
 information which will be used in displaying and editing it. Methods in 
@@ -61,6 +81,17 @@ as italic or bold are dealt with by methods in the Actions class.
 class Actions: This class contains methods which supplement styles and 
 perform additional operations, such as emphasis, introducing blank 
 lines, soft returns, etc.
+
+package org.brailleblaster.wordprocessor
+
+class WPManager: This is the entrance point to the "word processor", 
+so-called because it is more than a text editor. It is the only public 
+class in this package except for the class CallOutsideWP. It sets up the 
+basic word processor environment and also the multi-document interface.
+
+class DocumentManager: This class handles each document. It sets up the 
+print and braille windows, the menus, the toolbar, etc. It contains 
+methods for handling the various menu items.
 
 class UTD: Handles UTDML. It is called by methods in Semantics to handle 
 subtrees rooted at a <brl> element.

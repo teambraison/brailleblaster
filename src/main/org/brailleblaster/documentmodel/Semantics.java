@@ -60,22 +60,30 @@ import java.util.ArrayList;
  * are necessary.
  * See also Styles.java
  */
-class Semantics {
+public class Semantics throws Exception {
 
+/**
+ * Instances of this class may not be reused. A new instance must be 
+ created for each document. 
+ */
+public Semantics {
+}
+ 
 /**
  * The complete path of the document file.
  */
-private String documentName;
+private String documentName = null;
 
 /** 
- * This is the parsed xml document (Containing UTDML).
+ * This is the parsed xml document (Containing UTDML). It is available 
+ * to other classes in this package.
  */
-private Document workingDocument;
+Document workingDocument;
 
 /**
  * Root element of workingDocument
  */
-Element rootElement;
+private Element rootElement;
 
 /**
  * Make the BrailleBlaster document model. The document is parsed and 
@@ -84,7 +92,10 @@ Element rootElement;
  * containing UTDML.
  * @param fileName
  */
-void makeDocumentModel (String fileName) {
+public void makeDocumentModel (String fileName) throws Exception {
+  if (documentName != null) {
+  throw new Exception ("New document but not new instance");
+  }
   documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();
@@ -124,15 +135,15 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-private SemanticEntry[] semanticsTable = new SemanticEntry[100];
-int lineCount = 0;
+SemanticEntry[] semanticsTable = new SemanticEntry[100];
+int semanticsCount = 0; // Number of entries in semanticsTable
 
 /**
  * The semanticsLookup hash table has literal markup  in the 
  * semanticsTable as keys and the index of entries in the samanticsTable 
  * as values.
  */
-private Hashtable<String, Integer> semanticsLookup = new 
+Hashtable<String, Integer> semanticsLookup = new 
   Hashtable<String, Integer>();
 
 private Styles st = new Styles();
@@ -143,7 +154,8 @@ private boolean haveSemanticFile = true;
 private boolean newEntries;
 
 /**
- * Handle the namespaces entries in a semantic-action file.
+ * Handle the namespaces entries in a semantic-action file. These are 
+ * needed for evaluating XPath expressions.
  */
 private void handleNamespaces (String nm) {
 }
@@ -163,7 +175,7 @@ message);
 /**
  * Compile a semantic-action file. If an include statement is 
  * encountered this method calls itself recursively.
- * Param: filename.
+ * @Param: filename.
  */
 private boolean compileFile (String fileName) {
   FileInputStream semFile;
@@ -239,16 +251,16 @@ private boolean compileFile (String fileName) {
   continue;
   }
   try {
-  semanticsTable[lineCount].markup = parts[0];
+  semanticsTable[semanticsCount].markup = parts[0]; // markup
   } catch (ArrayIndexOutOfBoundsException e) {
   showErrors (fileName, lineNumber, "Too many semantic entries.");
   return false;
   }
-  semanticsLookup.put (semanticsTable[lineCount].markup, lineCount);
-  semanticsTable[lineCount].operation = parts[1];
-  semanticsTable[lineCount].operand = parts[2];
-  semanticsTable[lineCount].parameters = parts[3];
-  lineCount++;
+  semanticsLookup.put (semanticsTable[semanticsCount].markup, semanticsCount);
+  semanticsTable[semanticsCount].operation = parts[1];
+  semanticsTable[semanticsCount].operand = parts[2];
+  semanticsTable[semanticsCount].parameters = parts[3];
+  semanticsCount++;
   }
   try {
   semFile.close();
@@ -259,10 +271,10 @@ private boolean compileFile (String fileName) {
 }
  
 /**
- * This method finds the root element of workingDocument and 
+ * This method takes the root element of workingDocument and 
  * concatenates with the path to the semantics directory, and add the 
  * ".sem" suffix. The resulting string is then passed to compileFile, 
- * which constructs the semanticsTable and the sookupSemantics hasTable.
+ * which constructs the semanticsTable and the lookupSemantics hasTable.
  */
 private void makeSemanticsTable() {
   internetAccessRequired = false;
@@ -279,7 +291,7 @@ private void makeSemanticsTable() {
  * markup is nearest the beginning.
  */
 public String findStyleMarkup (String styleName) {
-  for (int i = 0; i < lineCount; i++) {
+  for (int i = 0; i < semanticsCount; i++) {
   if (semanticsTable[i].operation.equals ("style") && 
   semanticsTable[i].operand.equals (styleName))
   return semanticsTable[i].markup;
@@ -289,13 +301,12 @@ public String findStyleMarkup (String styleName) {
 
 /**
  * Given the name of an actgion, find its markup in the semanticsTable. 
- The 
- * search is linear. Since there may be more than one set of markup for 
+ * The search is linear. Since there may be more than one set of markup for 
  * an action, the semantic-action file must be arranged so that the 
  * preferred markup is nearest the beginning.
  */
 public String findActionMarkup (String actionName) {
-  for (int i = 0; i < lineCount; i++) {
+  for (int i = 0; i < semanticsCount; i++) {
   if (semanticsTable[i].operation.equals ("action") && 
   semanticsTable[i].operand.equals (actionName))
   return semanticsTable[i].markup;
@@ -307,7 +318,7 @@ public String findActionMarkup (String actionName) {
  * ArrayList for keeping a record of markup not in the semantic-actions 
  * file
  */
-ArrayList<String> newMarkup = new ArrayList<String>();
+private ArrayList<String> newMarkup = new ArrayList<String>();
 
 /**
  * if newEntries = true make a record of any markup that is not listed 
@@ -328,6 +339,7 @@ newMarkup.add (markup);
  * element,attribute,attribute,balue triplets.
  */
 private void outputNewEntries() {
+  if (newMarkup.length == 0) ruturn;
 }
 
 /**
@@ -351,7 +363,7 @@ ArrayList<ElementSemantics> semanticsList;
  * Make the starting SemanticsList immediately after the document has 
  * been parsed and the semanticsTable built.
  */
-void makeSemanticsList() {
+private void makeSemanticsList() {
 semanticsList = new ArrayList<ElementSemantics>(1000);
 doXPathExpressions();
 findSemantics (rootElement, -1);

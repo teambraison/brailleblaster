@@ -47,6 +47,7 @@ import nu.xom.Attribute;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.YesNoChoice;
 import java.util.Hashtable;
 import java.util.ArrayList;
@@ -79,6 +80,12 @@ Document workingDocument;
  */
 private Element rootElement;
 
+public Semantics() throws Exception {
+documentName = null;
+workingDocument = null;
+semanticsList = null;
+}
+
 /**
  * Make the BrailleBlaster document model. The document is parsed and 
  * then the makeSemanticsList method is called to build the 
@@ -86,7 +93,10 @@ private Element rootElement;
  * containing UTDML.
  * @param fileName
  */
-public void makeDocumentModel (String fileName) {
+public void makeDocumentModel (String fileName) throws Exception {
+  if (documentName != null) {
+  throw new Exception ("Attempt to reuse instance");
+  }
   documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();
@@ -108,7 +118,7 @@ return;
   outputNewEntries();
 }
 
- /**
+/**
  * This is an entry in the SemanticsTable, which is used to control 
  * displaying and editing.
  */
@@ -158,12 +168,14 @@ private void handleNamespaces (String nm) {
  *  @lineNumber, line on which the eror occurred.
  *   @message, error message.
  */
-private void showErrors (String fileName, int lineNumber, String 
+private void showError (String fileName, int lineNumber, String 
 message) {
 System.out.println ("error: " + fileName + ":" + lineNumber + ": " + 
 message);
 }
  
+private FileUtils fu = new FileUtils();
+
 /**
  * Compile a semantic-action file. If an include statement is 
  * encountered this method calls itself recursively.
@@ -175,6 +187,7 @@ private boolean compileFile (String fileName) {
   semFile = new FileInputStream (fileName);
   } catch (FileNotFoundException e) {
   haveSemanticFile = false;
+  showError (fileName, 0, "not found");
   return false;
   }
   byte[] bytebuf = new byte[1024];
@@ -230,7 +243,9 @@ private boolean compileFile (String fileName) {
   line = new String (bytebuf, numbytes);
   String[] parts = line.split (line, 6);
   if (parts[0].equals ("include")) {
-  compileFile (parts[1]);
+  String includeName = fu.findInProgramData ("semantics" +   
+  BBIni.getFileSep() + parts[1]);
+  compileFile (includeName);
   continue;
   }
   if (parts[0].equals ("newEntries") && parts[1].equals ("yes")) {
@@ -245,7 +260,7 @@ private boolean compileFile (String fileName) {
   try {
   semanticsTable[semanticsCount].markup = parts[0]; // markup
   } catch (ArrayIndexOutOfBoundsException e) {
-  showErrors (fileName, lineNumber, "Too many semantic entries.");
+  showError (fileName, lineNumber, "Too many semantic entries.");
   return false;
   }
   semanticsLookup.put (semanticsTable[semanticsCount].markup, semanticsCount);
@@ -272,7 +287,10 @@ private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
   String rootName = rootElement.getLocalName();
-  String fileName = rootName + ".sem";
+  String partialFileName = "semantics" + BBIni.getFileSep() + rootName 
+  + ".sem";
+  String fileName = fu.findInProgramData 
+  (partialFileName);
   compileFile (fileName);
 }
 
@@ -369,8 +387,6 @@ findSemantics (rootElement, -1);
 private void doXPathExpressions() {
 }
 
-private ElementSemantics elementEntry = new ElementSemantics();
-
  /**
  * Walk through the parse tree, depth-first, and add elements with 
  * semannticsTable markup to semanticsList.
@@ -385,6 +401,7 @@ if (newNode instanceof Element) {
 element = (Element)newNode;
 int semanticIndex;
 if ((semanticIndex = hasSemantics(element)) != -1) {
+ElementSemantics elementEntry = new ElementSemantics();
 elementEntry.element = element;
 elementEntry.semanticIndex = semanticIndex;
 elementEntry.depth = depth;
@@ -472,12 +489,11 @@ public void readAndEdit() {
  * time.
  */
 public void saveWorkikngFile () {
-  String fileName = documentName + ".utd";
   FileOutputStream writer = null;
   try {
-writer = new FileOutputStream(fileName);
+writer = new FileOutputStream(documentName);
 } catch (FileNotFoundException e) {
-new Notify(lh.localValue("cannotOpenFileW") + " " + fileName);
+new Notify(lh.localValue("cannotOpenFileW") + " " + documentName);
 return;
 }
 Serializer outputDoc = new Serializer(writer);

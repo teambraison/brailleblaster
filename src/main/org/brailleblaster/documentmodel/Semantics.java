@@ -52,23 +52,17 @@ import java.util.Hashtable;
 import java.util.ArrayList;
 
 /**
- * This class provides the means of displaying and editing any
+ * <p>This class provides the means of displaying and editing any
  * flavor of xml.
  * This is accomplished by using a semantic-action file for each type of 
  * xml document, such as NIMAS, epub or docbook. Displaying and editing 
  * in both the print and Braille windows are covered. No transformations 
- * are necessary.
- * See also Styles.java
+ * are necessary.</p>
+ * <p>Instances of this class may not be reused. A new instance must be 
+ * created for each document.</p>
  */
-public class Semantics throws Exception {
+public class Semantics {
 
-/**
- * Instances of this class may not be reused. A new instance must be 
- created for each document. 
- */
-public Semantics {
-}
- 
 /**
  * The complete path of the document file.
  */
@@ -92,10 +86,7 @@ private Element rootElement;
  * containing UTDML.
  * @param fileName
  */
-public void makeDocumentModel (String fileName) throws Exception {
-  if (documentName != null) {
-  throw new Exception ("New document but not new instance");
-  }
+public void makeDocumentModel (String fileName) {
   documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();
@@ -114,6 +105,7 @@ return;
   newEntries = true;
   }
   makeSemanticsList();
+  outputNewEntries();
 }
 
  /**
@@ -339,7 +331,7 @@ newMarkup.add (markup);
  * element,attribute,attribute,balue triplets.
  */
 private void outputNewEntries() {
-  if (newMarkup.length == 0) ruturn;
+  if (newMarkup.size() == 0) return;
 }
 
 /**

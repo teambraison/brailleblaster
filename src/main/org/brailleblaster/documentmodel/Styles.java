@@ -31,7 +31,16 @@
 
 package org.brailleblaster.documentmodel;
 
+import java.util.Properties;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import nu.xom.Element;
+import org.brailleblaster.BBIni;
+import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.Notify;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+
 
 /** 
  * This class contains the data structures and mothods used for handling 
@@ -47,6 +56,9 @@ import nu.xom.Element;
  */
 public class Styles {
 
+FileUtils fu = new FileUtils();
+String fileSep = BBIni.getFileSep();
+
   /**
     * Reserved styles are defined by the developers. If the user 
     * redefines them the changed styles go in her/his directories.
@@ -58,23 +70,11 @@ String[] reservedStyles = {
   "heading2",
   "heading3",
   "heading4",
-  "heading5",
-  "heading6",
-  "heading7",
-  "heading8",
-  "heading9",
-  "heading10",
   "contentsHeader",
   "contents1",
   "contents2",
   "contents3",
   "contents4",
-  "conents5",
-  "contents6",
-  "contents7",
-  "contents8",
-  "contents9",
-  "contents10"
   };
 
 /** 
@@ -110,12 +110,84 @@ enum StyleStatus {
   * This embedded class defines the various fields that specify a style.
   */
 class StyleType {
-  int linesBefore;
-  int linesAfter;
-  int leftMargin;
-  int rightMargin;
-  int firstLineIndent;
-  StyleFormat format;
+  String name = "";
+  int linesBefore = 0;
+  int linesAfter = 0;
+  int leftMargin = 0;
+  int rightMargin= 0;
+  int firstLineIndent = 0;
+  StyleFormat format = StyleFormat.leftJustified;
+}
+
+/**
+ * This methods writes the style as a properties file on 
+ * userProgramDataPath/styles.
+ */
+void writeStyle (StyleType st) {
+  String fileName = BBIni.getUserProgramDataPath() + 
+  fileSep + "styles" + fileSep + st.name + ".properties";
+  fu.create (fileName);
+Properties prop = new Properties();
+try {
+prop.load(new FileInputStream(fileName));
+} catch (FileNotFoundException e) {
+new Notify(e.getMessage());
+return;
+} catch (IOException e) {
+new Notify(e.getMessage());
+return;
+}
+  prop.setProperty ("name", st.name);
+  prop.setProperty ("linesBeforee", Integer.toString (st.linesBefore));
+  prop.setProperty ("linesAfter", Integer.toString (st.linesAfter));
+  prop.setProperty ("leftMargin", Integer.toString (st.leftMargin));
+  prop.setProperty ("rightMargin", Integer.toString (st.rightMargin));
+  prop.setProperty ("firstLineIndent", 
+  Integer.toString (st.firstLineIndent));
+  prop.setProperty ("format", st.format.toString());
+try {
+prop.store(new FileOutputStream (fileName), null);
+} catch (FileNotFoundException e) {
+new Notify(e.getMessage());
+} catch (IOException e) {
+new Notify(e.getMessage());
+}
+}
+
+/**
+ * Read a style from a properties file in programData and create a new 
+ * instance of StyleType with all fields initialized from the file.
+ */
+StyleType readStyle (String styleName) {
+  String fileName = fu.findInProgramData ("styles" + fileSep + 
+  styleName 
+  + ".properties");
+Properties prop = new Properties();
+try {
+prop.load(new FileInputStream(fileName));
+} catch (FileNotFoundException e) {
+new Notify ("There is no style named " + styleName);
+return null;
+} catch (IOException e) {
+new Notify(e.getMessage());
+return null;
+}
+  StyleType st = new StyleType();
+  st.name = prop.getProperty ("name");
+   st.linesBefore = Integer.parseInt (prop.getProperty ("linesBefore"));
+  st.linesAfter = Integer.parseInt (prop.getProperty ("linesAfter"));
+  st.leftMargin = Integer.parseInt (prop.getProperty ("leftMargin"));
+  st.rightMargin = Integer.parseInt (prop.getProperty ("rightMargin"));
+  st.firstLineIndent = Integer.parseInt (prop.getProperty 
+  ("firstLineIndent"));
+  st.format = st.format.valueOf (prop.getProperty ("format"));
+  return st;  
+}
+
+/**
+ * Edit a StyleType. This is done in a dialog box.
+ */
+void StyleEdit (StyleType st) {
 }
 
 /**

@@ -482,6 +482,8 @@ private void doSemantics (Element element) {
  * for each element in the semanticsList.
  */
 public void readAndEdit() {
+for (int i = 0; i < semanticsList.size(); i++) {
+}
 }
 
 /**

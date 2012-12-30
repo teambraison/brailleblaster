@@ -66,7 +66,6 @@ public class Welcome {
 	LocaleHandler lh = new LocaleHandler();
 public Welcome() {
 loadProperties();
-//SettingsDialog sd = new SettingsDialog ();
 if (!showWelcome()) {
 return;
 }
@@ -80,8 +79,6 @@ formLayout.marginHeight = 10;
 formLayout.spacing = 10;
 shell.setLayout(formLayout);
 shell.setText ("WELCOME");
-
-//Welcome Message
 Label label = new Label(shell, SWT.WRAP);
 FormData data = new FormData();
 data.left = new FormAttachment(0, 0);

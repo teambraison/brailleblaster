@@ -187,7 +187,7 @@ return null;
 /**
  * Edit a StyleType. This is done in a dialog box.
  */
-void StyleEdit (StyleType st) {
+public void StyleEdit (StyleType st) {
 }
 
 /**

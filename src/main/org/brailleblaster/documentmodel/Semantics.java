@@ -94,7 +94,7 @@ semanticsList = null;
  * @param fileName
  */
 public void makeDocumentModel (String fileName) throws Exception {
-  if (documentName != null) {
+  if (workingDocument != null) {
   throw new Exception ("Attempt to reuse instance");
   }
   documentName = fileName;
@@ -111,6 +111,11 @@ return;
 }
   rootElement = workingDocument.getRootElement();
   makeSemanticsTable();
+  if (errorCount > 0) {
+  new Notify (errorMessages + errorCount + " errors found. stop.");
+  errorMessages = null;
+  return;
+  }
   if (!haveSemanticFile) {
   newEntries = true;
   }
@@ -162,19 +167,25 @@ private boolean newEntries;
 private void handleNamespaces (String nm) {
 }
 
+private int errorCount = 0;
+private String errorMessages = "";
+
 /**
  * Handle error messages.
  * @Param: fileName, name of semantic file.
- *  @lineNumber, line on which the eror occurred.
+ *  @lineNumber, line on which the error occurred.
  *   @message, error message.
  */
-private void showError (String fileName, int lineNumber, String 
+private void recordError (String fileName, int lineNumber, String 
 message) {
-System.out.println ("error: " + fileName + ":" + lineNumber + ": " + 
-message);
+errorCount++;
+errorMessages = errorMessages + "error: " + fileName + ":" + lineNumber 
++ ": " + 
+message + "\n";
 }
  
 private FileUtils fu = new FileUtils();
+private String fileSep = BBIni.getFileSep();
 
 /**
  * Compile a semantic-action file. If an include statement is 
@@ -182,12 +193,14 @@ private FileUtils fu = new FileUtils();
  * @Param: filename.
  */
 private boolean compileFile (String fileName) {
+  String completePath = fu.findInProgramData ("semantics" + fileSep + 
+  fileName);
   FileInputStream semFile;
   try {
-  semFile = new FileInputStream (fileName);
+  semFile = new FileInputStream (completePath);
   } catch (FileNotFoundException e) {
   haveSemanticFile = false;
-  showError (fileName, 0, "not found");
+  recordError (fileName, 0, "not found");
   return false;
   }
   byte[] bytebuf = new byte[1024];
@@ -260,13 +273,36 @@ private boolean compileFile (String fileName) {
   try {
   semanticsTable[semanticsCount].markup = parts[0]; // markup
   } catch (ArrayIndexOutOfBoundsException e) {
-  showError (fileName, lineNumber, "Too many semantic entries.");
+  recordError (fileName, lineNumber, "Too many semantic entries.");
   return false;
   }
   semanticsLookup.put (semanticsTable[semanticsCount].markup, semanticsCount);
   semanticsTable[semanticsCount].operation = parts[1];
   semanticsTable[semanticsCount].operand = parts[2];
   semanticsTable[semanticsCount].parameters = parts[3];
+  SemanticEntry checkError = semanticsTable[semanticsCount];
+  if (!(checkError.operation.equals ("style") || 
+  checkError.operation.equals ("action") || checkError.operation.equals 
+  ("macro"))) {
+  recordError (fileName, lineNumber, 
+  "There is no semantic operation called "
+ + checkError.operation);
+  return false;
+  }
+  if (checkError.operation.equals ("style")
+  && fu.findInProgramData ("styles" + fileSep + 
+  checkError.operand 
+  + ".properties") == null) {
+  recordError (fileName, lineNumber,
+  "There is no style called " + checkError.operand);
+  return false;
+  }
+  if (checkError.operation.equals ("action") && 
+  Actions.Action.valueOf (checkError.operand) == null) {
+  recordError (fileName, lineNumber,
+  "There is no action called " + checkError.operand);
+  return false;
+  }
   semanticsCount++;
   }
   try {

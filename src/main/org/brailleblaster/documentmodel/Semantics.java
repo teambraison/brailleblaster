@@ -280,6 +280,10 @@ private boolean compileFile (String fileName) {
   semanticsTable[semanticsCount].operation = parts[1];
   semanticsTable[semanticsCount].operand = parts[2];
   semanticsTable[semanticsCount].parameters = parts[3];
+  if (semanticsTable[semanticsCount].operation.equals ("action")) {
+  semanticsTable[semanticsCount].action = Actions.Action.valueOf 
+  (semanticsTable[semanticsCount].operand);
+  }
   SemanticEntry checkError = semanticsTable[semanticsCount];
   if (!(checkError.operation.equals ("style") || 
   checkError.operation.equals ("action") || checkError.operation.equals 
@@ -394,7 +398,7 @@ private void outputNewEntries() {
  */
 class ElementSemantics {
 Element element;
-int semanticIndex;
+int semanticsIndex;
 int start; // start of text in StyledText.
 int end;
 int depth;
@@ -435,11 +439,12 @@ for (int i = 0; i < node.getChildCount(); i++) {
 newNode = node.getChild(i);
 if (newNode instanceof Element) {
 element = (Element)newNode;
-int semanticIndex;
-if ((semanticIndex = hasSemantics(element)) != -1) {
+int semanticsIndex;
+if ((semanticsIndex = hasSemantics(element)) != -1 && 
+semanticsTable[semanticsIndex].action != Actions.Action.skip) {
 ElementSemantics elementEntry = new ElementSemantics();
 elementEntry.element = element;
-elementEntry.semanticIndex = semanticIndex;
+elementEntry.semanticsIndex = semanticsIndex;
 elementEntry.depth = depth;
 semanticsList.add (elementEntry);
 }

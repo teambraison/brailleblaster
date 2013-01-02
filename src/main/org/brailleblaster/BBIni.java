@@ -57,7 +57,10 @@ public final class BBIni {
 
 	private static BBIni bbini;
 
-	public static BBIni initialize (String[] args) {
+/**
+ * Calls a private constructor, making this class a singleton.
+ */
+public static BBIni initialize (String[] args) {
 		if (bbini == null)
 			bbini = new BBIni(args);
 		return bbini;
@@ -135,7 +138,6 @@ if (!fu.exists (userSettings)) {
 fu.copyFile (programDataPath + fileSep + "settings" + fileSep + 
 "user_settings.properties", userSettings);
 		}
-		//this part initialize recent_documents.txt
 		recentDocs = userProgramDataPath + fileSep + 
 		"recent_documents.txt";
 		fu.create(recentDocs);

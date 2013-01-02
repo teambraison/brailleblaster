@@ -52,11 +52,7 @@ public class SaveOptionsDialog extends Dialog {
         radioGroup.setLayout(new RowLayout(SWT.VERTICAL));  
         final Button b1 = new Button (radioGroup, SWT.RADIO);
 		b1.setText(lh.localValue("saveTextBraille"));
-		if (BBIni.useUtd()) {
-			b1.setSelection(true);
-		} else {
-		    b1.setEnabled(false);
-		}
+	b1.setSelection(true);
 		b1.pack();
 		
 		final Button b2 = new Button (radioGroup, SWT.RADIO);

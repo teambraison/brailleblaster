@@ -280,6 +280,7 @@ private boolean compileFile (String fileName) {
   semanticsTable[semanticsCount].operation = parts[1];
   semanticsTable[semanticsCount].operand = parts[2];
   semanticsTable[semanticsCount].parameters = parts[3];
+  semanticsTable[semanticsCount].style = null;
   if (semanticsTable[semanticsCount].operation.equals ("action")) {
   semanticsTable[semanticsCount].action = Actions.Action.valueOf 
   (semanticsTable[semanticsCount].operand);

@@ -64,11 +64,6 @@ import java.util.ArrayList;
  */
 public class Semantics {
 
-/**
- * The complete path of the document file.
- */
-private String documentName = null;
-
 /** 
  * This is the parsed xml document (Containing UTDML). It is available 
  * to other classes in this package.
@@ -81,7 +76,6 @@ Document workingDocument;
 private Element rootElement;
 
 public Semantics() throws Exception {
-documentName = null;
 workingDocument = null;
 semanticsList = null;
 }
@@ -90,14 +84,16 @@ semanticsList = null;
  * Make the BrailleBlaster document model. The document is parsed and 
  * then the makeSemanticsList method is called to build the 
  * semanticsList. fileName is the complete path of an xml file 
- * containing UTDML.
- * @param fileName
+ * containing UTDML. This file is produced by calling the translateFile 
+ * method in liblouisutdml with "formatFor utd". It will probably be a 
+ * temporary file.
+ * @param fileName: The complete path to a file in which UTDML has been 
+ * added to the original xml document.
  */
 public void makeDocumentModel (String fileName) throws Exception {
   if (workingDocument != null) {
   throw new Exception ("Attempt to reuse instance");
   }
-  documentName = fileName;
   File file = new File (fileName);
 Builder parser = new Builder();
 try {
@@ -531,13 +527,15 @@ for (int i = 0; i < semanticsList.size(); i++) {
 /**
  * Save the file with utd markup so that work can be resumed at a later 
  * time.
+ * @Param fileName: The complete path of the file to which the document 
+ * is to be saved.
  */
-public void saveWorkikngFile () {
+public void saveWorkikngFile (String fileName) {
   FileOutputStream writer = null;
   try {
-writer = new FileOutputStream(documentName);
+writer = new FileOutputStream(fileName);
 } catch (FileNotFoundException e) {
-new Notify(lh.localValue("cannotOpenFileW") + " " + documentName);
+new Notify(lh.localValue("cannotOpenFileW") + " " + fileName);
 return;
 }
 Serializer outputDoc = new Serializer(writer);
@@ -553,9 +551,12 @@ return;
 
 /**
  * Enhance the original document by moving any edited Braille into the 
- * original document Remove the meta,name,utd element.
+ * original document Remove the <brl> subtrees and the meta,name,utd 
+ * element.
+ * @param fileName: The complete path of the file to which the document 
+ * is to be saved.
  */
-public void saveEnhancedDocument() {
+public void saveEnhancedDocument(String fileName) {
 }
 
 }

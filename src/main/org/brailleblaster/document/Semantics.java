@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.documentmodel;
+package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -75,7 +75,7 @@ Document workingDocument;
  */
 private Element rootElement;
 
-public Semantics() throws Exception {
+public Semantics() {
 workingDocument = null;
 semanticsList = null;
 }
@@ -530,7 +530,7 @@ for (int i = 0; i < semanticsList.size(); i++) {
  * @Param fileName: The complete path of the file to which the document 
  * is to be saved.
  */
-public void saveWorkikngFile (String fileName) {
+public void saveWorkingFile (String fileName) {
   FileOutputStream writer = null;
   try {
 writer = new FileOutputStream(fileName);

@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.documentmodel;
+package org.brailleblaster.document;
 
 import java.util.Properties;
 import java.io.FileInputStream;
@@ -187,7 +187,7 @@ return null;
 /**
  * Edit a StyleType. This is done in a dialog box.
  */
-public void StyleEdit (StyleType st) {
+public void editStyle (StyleType st) {
 }
 
 /**

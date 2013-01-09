@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.documentmodel;
+package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.FileInputStream;

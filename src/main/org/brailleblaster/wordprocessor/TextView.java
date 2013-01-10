@@ -26,13 +26,30 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
+package org.brailleblaster.wordprocessor;
+
+import org.eclipse.swt.*;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.custom.VerifyKeyListener;
+
+class TextView extends AbstractView {
+
+TextView (Shell documentWindow) {
+// super (documentWindow, 0, 55, 12, 92);
+super (documentWindow, 0, 49, 12, 92);
+
+}
+
 /* This is a derivative work from 
  * org.eclipse.swt.custom.DefaultContent.java 
 */
 
-package org.brailleblaster.wordprocessor;
+private class TextContent extends AbstractContent {
+}
 
-import org.eclipse.swt.*;
 
-class DaisyContent extends AbstractContent {
 }

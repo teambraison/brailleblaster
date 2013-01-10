@@ -151,7 +151,6 @@ public class DocumentManager {
 	boolean textAndBraille = false;
 	boolean saveUtdml = false;
 	boolean metaContent = false;
-	StyleManager sm; // separate styles from DM
 
 	liblouisutdml louisutdml;
 	String logFile = "Translate.log";
@@ -209,7 +208,6 @@ public class DocumentManager {
 		layout = new FormLayout();
 		documentWindow.setLayout(layout);
 		rd = new RecentDocuments(this);
-		sm = new StyleManager(this);
 		utd = new UTD(this);
 		menu = new BBMenu(this);
 		toolBar = new BBToolBar(this);
@@ -1773,9 +1771,6 @@ public class DocumentManager {
 		}
 	}
 
-	StyleManager getStyleManager() {
-		return sm;
-	}
 
 	// encoding for Import
 	public String getEncodingString() {

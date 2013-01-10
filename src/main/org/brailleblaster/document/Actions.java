@@ -54,7 +54,7 @@ import java.util.Hashtable;
  * This class contains the actions which can be performed on elements. 
  * They are distinct from styles.
  */
-public class Actions {
+class Actions {
 
 /**
  * The various actions that can be carried out on an xml document, in 
@@ -92,7 +92,7 @@ enum Action {
  * element, such as skipping it and its subtree, the method returns 
  * false.
  */
-public boolean actionBeforeElement (Element element) {
+boolean actionBeforeElement (Element element) {
 Action act = Action.valueOf ("blankLine");
   return true;
 }
@@ -101,7 +101,7 @@ Action act = Action.valueOf ("blankLine");
  * This method is called after an element and its subtree have been 
  * processed to take any action that might be necessary at this point.
  */
-public void actionAfterElement() {
+void actionAfterElement() {
 }
 
 }

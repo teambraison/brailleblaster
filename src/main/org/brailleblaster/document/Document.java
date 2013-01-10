@@ -31,6 +31,8 @@
 
 package org.brailleblaster.document;
 
+import nu.xom.Node;
+import nu.xom.Nodes;
 import java.io.InputStream;
 
 public class Document {
@@ -57,6 +59,14 @@ public void editCreateStyle (String styleName) {
 Styles.StyleType styleType = st.readStyle (styleName);
 st.editStyle (styleType);
 st.writeStyle (styleType);
+}
+
+public Nodes getNodes (Node node, String xpathExpr) {
+return null;
+}
+
+public Node getContextNode() {
+return null;
 }
 
 }

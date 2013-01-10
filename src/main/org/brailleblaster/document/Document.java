@@ -39,7 +39,8 @@ private Semantics sm = new Semantics();
 private Styles st = new Styles();
 private Actions act = new Actions();
 
-public void startDocument (InputStream inputStream) throws Exception {
+public void startDocument (InputStream inputStream, String configFile, 
+String configSettings) throws Exception {
 String fileName = "xxx";
 sm.makeDocumentModel (fileName);
 }

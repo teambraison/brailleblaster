@@ -62,7 +62,7 @@ import java.util.ArrayList;
  * <p>Instances of this class may not be reused. A new instance must be 
  * created for each document.</p>
  */
-public class Semantics {
+class Semantics {
 
 /** 
  * This is the parsed xml document (Containing UTDML). It is available 
@@ -75,7 +75,7 @@ Document workingDocument;
  */
 private Element rootElement;
 
-public Semantics() {
+Semantics() {
 workingDocument = null;
 semanticsList = null;
 }
@@ -90,7 +90,7 @@ semanticsList = null;
  * @param fileName: The complete path to a file in which UTDML has been 
  * added to the original xml document.
  */
-public void makeDocumentModel (String fileName) throws Exception {
+void makeDocumentModel (String fileName) throws Exception {
   if (workingDocument != null) {
   throw new Exception ("Attempt to reuse instance");
   }
@@ -337,7 +337,7 @@ private void makeSemanticsTable() {
  * a style, the semantic-action file must be arranged so that the preferred 
  * markup is nearest the beginning.
  */
-public String findStyleMarkup (String styleName) {
+String findStyleMarkup (String styleName) {
   for (int i = 0; i < semanticsCount; i++) {
   if (semanticsTable[i].operation.equals ("style") && 
   semanticsTable[i].operand.equals (styleName))
@@ -352,7 +352,7 @@ public String findStyleMarkup (String styleName) {
  * an action, the semantic-action file must be arranged so that the 
  * preferred markup is nearest the beginning.
  */
-public String findActionMarkup (String actionName) {
+String findActionMarkup (String actionName) {
   for (int i = 0; i < semanticsCount; i++) {
   if (semanticsTable[i].operation.equals ("action") && 
   semanticsTable[i].operand.equals (actionName))
@@ -519,7 +519,7 @@ private void doSemantics (Element element) {
  * scrolling and cursor movements. The doStyleOrAction method is called 
  * for each element in the semanticsList.
  */
-public void readAndEdit() {
+void readAndEdit() {
 for (int i = 0; i < semanticsList.size(); i++) {
 }
 }
@@ -530,7 +530,7 @@ for (int i = 0; i < semanticsList.size(); i++) {
  * @Param fileName: The complete path of the file to which the document 
  * is to be saved.
  */
-public void saveWorkingFile (String fileName) {
+void saveWorkingFile (String fileName) {
   FileOutputStream writer = null;
   try {
 writer = new FileOutputStream(fileName);
@@ -556,7 +556,7 @@ return;
  * @param fileName: The complete path of the file to which the document 
  * is to be saved.
  */
-public void saveEnhancedDocument(String fileName) {
+void saveEnhancedDocument(String fileName) {
 }
 
 }

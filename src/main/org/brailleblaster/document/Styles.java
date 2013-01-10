@@ -54,7 +54,7 @@ import java.io.FileNotFoundException;
  * <p>Note that BrailleBlaster styles deal with layout. Italic, bold, 
  * etc. are dealt with by action methods in the Actions class.</p>
  */
-public class Styles {
+class Styles {
 
 FileUtils fu = new FileUtils();
 String fileSep = BBIni.getFileSep();
@@ -187,7 +187,7 @@ return null;
 /**
  * Edit a StyleType. This is done in a dialog box.
  */
-public void editStyle (StyleType st) {
+void editStyle (StyleType st) {
 }
 
 /**
@@ -223,7 +223,7 @@ private StyleRecord[] stack = new StyleRecord[20];
  * Begins the processing of a style and places a strylRecord on the top 
  * of the stack. If the element does not have a style it returns false.
  */
-public boolean startStyle (Element element) {
+boolean startStyle (Element element) {
   return true;
 }
 
@@ -231,7 +231,7 @@ public boolean startStyle (Element element) {
  * Completes the processing of the styleRecord on the top of the stack 
  * and pops it.
  */
-public void endStyle () {
+void endStyle () {
 }
 
 /**
@@ -240,7 +240,7 @@ public void endStyle () {
  * subtree. For example, its children may be emphasized or MathML 
  * expressions or images.
  */
-public void applyStyle (Element element) {
+void applyStyle (Element element) {
 }
 
 }

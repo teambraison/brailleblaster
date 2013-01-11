@@ -44,7 +44,7 @@ private Actions act = new Actions();
 public void startDocument (InputStream inputStream, String configFile, 
 String configSettings) throws Exception {
 String fileName = "xxx";
-sm.makeDocumentModel (fileName);
+sm.makeSemantics (fileName);
 }
 
 public void saveWorkingFile (String completePath) {

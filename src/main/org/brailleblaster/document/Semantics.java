@@ -90,7 +90,7 @@ semanticsList = null;
  * @param fileName: The complete path to a file in which UTDML has been 
  * added to the original xml document.
  */
-void makeDocumentModel (String fileName) throws Exception {
+void makeSemantics (String fileName) throws Exception {
   if (workingDocument != null) {
   throw new Exception ("Attempt to reuse instance");
   }

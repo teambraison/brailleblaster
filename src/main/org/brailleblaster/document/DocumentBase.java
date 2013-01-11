@@ -31,11 +31,12 @@
 
 package org.brailleblaster.document;
 
+import nu.xom.Document;
 import nu.xom.Node;
 import nu.xom.Nodes;
 import java.io.InputStream;
 
-public class Document {
+public class DocumentBase {
 
 private Semantics sm = new Semantics();
 private Styles st = new Styles();
@@ -53,6 +54,10 @@ sm.saveWorkingFile (completePath);
 
 public void saveEnhancedDocument (String completePath) {
 sm.saveEnhancedDocument (completePath);
+}
+
+public Document getDocumentTree() {
+return sm.workingDocument;
 }
 
 public void editCreateStyle (String styleName) {

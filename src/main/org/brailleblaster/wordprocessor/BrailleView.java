@@ -44,5 +44,12 @@ BrailleView (Shell documentWindow) {
 
 }
 
+
+/* This is a derivative work from 
+ * org.eclipse.swt.custom.DefaultContent.java 
+*/
+
+class BrailleContent extends AbstractContent {
+}
 }
 

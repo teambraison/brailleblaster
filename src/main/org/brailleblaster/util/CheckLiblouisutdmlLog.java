@@ -46,7 +46,7 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 
 /**
- * Check the file liblouisutdml.log in brlblst/temp. If it is not empty 
+ * Check the file liblouisutdml.log in logFilesPath . If it is not empty 
  * show its contents. There are separate methods for the GUI and the 
  * command line.
  */
@@ -58,6 +58,9 @@ logFileName = BBIni.getLogFilesPath() + BBIni.getFileSep() +
 "liblouisutdml.log";
 }
 
+/**
+ * Display the log in the GUI.
+ */
 public void displayLog () {
 StringBuilder logMessages = new StringBuilder (4096);
 Display display = BBIni.getDisplay();
@@ -96,6 +99,9 @@ mb.open();
 shell.dispose();
 }
 
+/**
+ * Show the log on the command line.
+ */
 public void showLog () {
 String line;
 BufferedReader logStream = null;

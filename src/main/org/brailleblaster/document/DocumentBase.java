@@ -86,6 +86,11 @@ setupFromFile (completePath, configFile, configSettings);
  * @param completePath Complete path to where the file should be saved
  */
 public void saveWorkingFile (String completePath) {
+int extPos = completePath.lastIndexOf (".") + 1;
+String ext = completePath.substring (extPos);
+if (!ext.equalsIgnoreCase ("utd")) {
+throw new IllegalArgumentException ("File name must end in 'utd'.");
+}
 sm.saveWorkingFile (completePath);
 }
 
@@ -148,7 +153,7 @@ String outFile = BBIni.getTempFilesPath() + fileSep +
 "outFile.utd";
 String logFile = BBIni.getLogFilesPath() + fileSep + 
 "liblouisutdml.log";
-boolean success;
+boolean success = false;
 int extPos = completePath.lastIndexOf (".") + 1;
 String ext = completePath.substring (extPos);
 if (ext.equalsIgnoreCase ("xml")) {
@@ -165,12 +170,16 @@ if (ext.equalsIgnoreCase ("brf")) {
 success = lutdml.backTranslateFile (configFileWithPath, completePath, 
 outFile, 
 logFile, configWithUTD, 0);
+} else
+if (ext.equalsIgnoreCase ("utd")) {
+sm.makeSemantics (completePath);
+success = true;
 } else {
 throw new IllegalArgumentException 
 (completePath + " not .xml, .txt, or .brf");
 }
-if (!success) {
 new CheckLiblouisutdmlLog().displayLog();
+if (!success) {
 return false;
 }
 sm.makeSemantics (outFile);

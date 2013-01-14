@@ -116,7 +116,7 @@ st.writeStyle (styleType);
 }
 
 public Nodes getNodes (Node node, String xpathExpr) {
-return null;
+return sm.getNodes (node, xpathExpr);
 }
 
 public Node getContextNode() {

@@ -38,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import nu.xom.Builder;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.Serializer;
 import nu.xom.Document;
@@ -525,6 +526,19 @@ for (int i = 0; i < semanticsList.size(); i++) {
 }
 
 /**
+ * Return a nodeset.
+ * @param node beginning node
+ * @param xpathExpr an XPath expression
+ */
+Nodes getNodes (Node node, String xpathExpr) {
+if (node == null) {
+return rootElement.query (xpathExpr);
+} else {
+return node.query (xpathExpr);
+}
+}
+
+/**
  * Save the file with utd markup so that work can be resumed at a later 
  * time.
  * @Param fileName: The complete path of the file to which the document 
@@ -543,7 +557,6 @@ try {
 outputDoc.write(workingDocument);
 outputDoc.flush();
 } catch (IOException e) {
-//logger.log(Level.SEVERE, lh.localValue("cannotWriteFile") + ": " + 
 new Notify(lh.localValue("cannotWriteFile"));
 return;
 }
@@ -557,6 +570,18 @@ return;
  * is to be saved.
  */
 void saveEnhancedDocument(String fileName) {
+Node node;
+Nodes nodes;
+nodes = rootElement.query ("//meta[@name='brl']");
+node = nodes.get(0);
+node.detach();
+nodes = rootElement.query ("//brl");
+for (int i = 0; i < nodes.size(); i++) {
+node = nodes.get(i);
+node.detach();
+}
+nodes = null;
+saveWorkingFile (fileName);
 }
 
 }

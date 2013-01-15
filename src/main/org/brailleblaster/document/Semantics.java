@@ -139,8 +139,11 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-SemanticEntry[] semanticsTable = new SemanticEntry[100];
+static SemanticEntry[] semanticsTable = new SemanticEntry[100];
 int semanticsCount = 0; // Number of entries in semanticsTable
+static SemanticEntry getSemanticEntry (int index) {
+return semanticsTable[index];
+}
 
 /**
  * The semanticsLookup hash table has literal markup  in the 

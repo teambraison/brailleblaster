@@ -32,6 +32,7 @@
 package org.brailleblaster.document;
 
 import java.util.Properties;
+import java.util.Hashtable;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import nu.xom.Element;
@@ -55,6 +56,10 @@ import java.io.FileNotFoundException;
  * etc. are dealt with by action methods in the Actions class.</p>
  */
 class Styles {
+
+Styles() {
+makeStyleTable();
+}
 
 FileUtils fu = new FileUtils();
 String fileSep = BBIni.getFileSep();
@@ -119,8 +124,13 @@ class StyleType {
   StyleFormat format = StyleFormat.leftJustified;
 }
 
+private Hashtable<String, StyleType> stuleTable = new Hashtable<String, 
+StyleType>();
+void makeStyleTable() {
+}
+
 /**
- * This methods writes the style as a properties file on 
+ * This method writes the style as a properties file on 
  * userProgramDataPath/styles.
  */
 void writeStyle (StyleType st) {
@@ -197,6 +207,7 @@ void editStyle (StyleType st) {
 private class StyleRecord {
   StyleType style;
   StyleStatus status;
+  int depth;
   StyleFormat curStyleFormat;
   Element curElement;
   int curLeftMargin;
@@ -207,7 +218,7 @@ private class StyleRecord {
 /**
  * Index of the top item on the style stack.
  */
-private int styleTop;
+private int styleTop = -1;
 
 /**
  * The stack array is managed as a fifo stack to handle nested styles. 
@@ -220,15 +231,33 @@ private int styleTop;
 private StyleRecord[] stack = new StyleRecord[20];
 
 /**
+ * Display a set of radio buttons with style names. Teturn the name of 
+ * the selected style.
+ */
+String pickStyle () {
+return null;
+}
+
+/**
  * Begins the processing of a style and places a strylRecord on the top 
  * of the stack. If the element does not have a style it returns false.
  */
-boolean startStyle (Element element) {
+boolean startStyle (Semantics.ElementSemantics es) {
+  Semantics.SemanticEntry se = Semantics.getSemanticEntry 
+  (es.semanticsIndex);
+  if (!se.operation.equals ("style")) {
+  return false;
+  }
+  styleTop++;
+  StyleRecord sr = stack[styleTop];
+  sr.depth = es.depth;
+  
   return true;
 }
 
 /**
- * Completes the processing of the styleRecord on the top of the stack 
+ * Completes the processing of the styleRecord on the top of the w
+ stack 
  * and pops it.
  */
 void endStyle () {

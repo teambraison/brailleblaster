@@ -113,6 +113,12 @@ public class FileUtils {
             new Notify ("output file " + outputFileName + 
                     "could not be completed");
         }
+        try {
+        	inFile.close();
+        }
+        catch (IOException e){
+        	e.printStackTrace();
+        }
     }
 
 	public boolean deleteDirectory(File directory) {

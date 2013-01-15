@@ -19,37 +19,39 @@
   * See the Apache 2.0 License for more details.
   *
   * You should have received a copy of the Apache 2.0 License along with 
-  * this program; see the file LICENSE.
+  * this program; see the file LICENSE.txt
   * If not, see
   * http://www.apache.org/licenses/
   *
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.views;
 
+import org.brailleblaster.abstractClasses.AbstractContent;
+import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.custom.VerifyKeyListener;
 
-class BrailleView extends AbstractView {
 
-BrailleView (Shell documentWindow) {
-//	super (documentWindow, 56, 100, 12, 92);
-	super (documentWindow, 58, 100, 12, 92);
+public class TextView extends AbstractView {
+
+public TextView (Shell documentWindow) {
+// super (documentWindow, 0, 55, 12, 92);
+super (documentWindow, 16, 57, 12, 92);
 
 }
-
 
 /* This is a derivative work from 
  * org.eclipse.swt.custom.DefaultContent.java 
 */
 
-class BrailleContent extends AbstractContent {
-}
+private class TextContent extends AbstractContent {
 }
 
+}

@@ -26,7 +26,33 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.views;
 
-abstract class AbstractPreview {
+import org.brailleblaster.abstractClasses.AbstractContent;
+import org.brailleblaster.abstractClasses.AbstractView;
+import org.eclipse.swt.*;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.VerifyEvent;
+
+
+public class BrailleView extends AbstractView {
+
+public BrailleView (Shell documentWindow) {
+//	super (documentWindow, 56, 100, 12, 92);
+	super (documentWindow, 58, 100, 12, 92);
+
 }
+
+
+/* This is a derivative work from 
+ * org.eclipse.swt.custom.DefaultContent.java 
+*/
+
+class BrailleContent extends AbstractContent {
+}
+}
+

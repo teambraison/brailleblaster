@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Control;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.views.BrailleView;
 
 enum SaveSelection {
     TEXT_AND_BRAILLE, TEXT_ONLY, CANCELLED

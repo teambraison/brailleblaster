@@ -1,33 +1,33 @@
 /* BrailleBlaster Braille Transcription Application
-  *
-  * Copyright (C) 2010, 2012
-  * ViewPlus Technologies, Inc. www.viewplus.com
-  * and
-  * Abilitiessoft, Inc. www.abilitiessoft.com
-  * and
-  * American Printing House for the Blind, Inc. www.aph.org
-  *
-  * All rights reserved
-  *
-  * This file may contain code borrowed from files produced by various 
-  * Java development teams. These are gratefully acknoledged.
-  *
-  * This file is free software; you can redistribute it and/or modify it
-  * under the terms of the Apache 2.0 License, as given at
-  * http://www.apache.org/licenses/
-  *
-  * This file is distributed in the hope that it will be useful, but
-  * WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
-  * See the Apache 2.0 License for more details.
-  *
-  * You should have received a copy of the Apache 2.0 License along with 
-  * this program; see the file LICENSE.
-  * If not, see
-  * http://www.apache.org/licenses/
-  *
-  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
-*/
+ *
+ * Copyright (C) 2010, 2012
+ * ViewPlus Technologies, Inc. www.viewplus.com
+ * and
+ * Abilitiessoft, Inc. www.abilitiessoft.com
+ * and
+ * American Printing House for the Blind, Inc. www.aph.org
+ *
+ * All rights reserved
+ *
+ * This file may contain code borrowed from files produced by various 
+ * Java development teams. These are gratefully acknoledged.
+ *
+ * This file is free software; you can redistribute it and/or modify it
+ * under the terms of the Apache 2.0 License, as given at
+ * http://www.apache.org/licenses/
+ *
+ * This file is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+ * See the Apache 2.0 License for more details.
+ *
+ * You should have received a copy of the Apache 2.0 License along with 
+ * this program; see the file LICENSE.
+ * If not, see
+ * http://www.apache.org/licenses/
+ *
+ * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+ */
 
 package org.brailleblaster.wordprocessor;
 
@@ -135,8 +135,9 @@ public class DocumentManager {
 	RecentDocuments rd;
 	UTD utd;
 	AbstractView activeView;
-	DaisyView daisy;
+	TextView daisy;
 	BrailleView braille;
+	TreeView treeView;
 	BBStatusBar statusBar;
 	Document doc = null;
 	NewDocument newDoc;
@@ -181,12 +182,12 @@ public class DocumentManager {
 	StringBuilder daisyLine = new StringBuilder(10000);
 	// character encoding for import
 	static String encoding = null;
-	
+
 	static Logger logger;
-	
+
 	MediaType mediaType;
-	
-	final String[] compressed = {"application/zip", "application/epub+zip"};
+
+	final String[] compressed = { "application/zip", "application/epub+zip" };
 	public boolean isNimas;
 	public boolean isEpub;
 
@@ -212,15 +213,16 @@ public class DocumentManager {
 		menu = new BBMenu(this);
 		toolBar = new BBToolBar(this);
 		/* text window is on the left */
-		daisy = new DaisyView(documentWindow);
+		daisy = new TextView(documentWindow);
 		braille = new BrailleView(documentWindow);
-		
+		treeView = new TreeView(documentWindow);
 		logger = BBIni.getLogger();
 
 		// activeView = (ProtoView)daisy;
 		statusBar = new BBStatusBar(documentWindow);
 		documentWindow.setSize(1000, 700);
 		documentWindow.layout(true, true);
+		
 
 		documentWindow.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
@@ -282,7 +284,7 @@ public class DocumentManager {
 				new Notify(lh.localValue("fontNotLoadedBraille"));
 			}
 		}
-		
+
 		if (Courier) {
 			daisyFont = new Font(documentWindow.getDisplay(), courierFont,
 					daisyFontHeight, SWT.NORMAL);
@@ -312,12 +314,15 @@ public class DocumentManager {
 
 		String loc = lh.getLocale().toString();
 		if (!loc.contentEquals(lh.localValue("localeResource"))) {
-			logger.log(Level.WARNING, "Locale resource for " + loc + " not found. Using default.");
-//			System.err.println("Locale resource for '" + lh.getLocale().getDisplayName()  + 
-//					"' not found. Using default.");
-//			new Notify("Locale resource for '" + lh.getLocale().getDisplayName()  + "' not found.");
+			logger.log(Level.WARNING, "Locale resource for " + loc
+					+ " not found. Using default.");
+			// System.err.println("Locale resource for '" +
+			// lh.getLocale().getDisplayName() +
+			// "' not found. Using default.");
+			// new Notify("Locale resource for '" +
+			// lh.getLocale().getDisplayName() + "' not found.");
 		}
-		
+
 		switch (action) {
 		case WP.OpenDocumentGetFile:
 			fileOpen();
@@ -333,21 +338,21 @@ public class DocumentManager {
 				brailleFileName = getBrailleFileName();
 				openDocument(documentName);
 				if (ext.contentEquals("utd")) {
-//					BBIni.setUtd(true);
+					// BBIni.setUtd(true);
 					utd.displayTranslatedFile(documentName, brailleFileName);
 					braille.hasChanged = false;
 				}
 				daisy.hasChanged = false;
-			} else if (arcType != null ) { 
-					importZip(arcType); 
-					daisy.hasChanged = true;
-			
+			} else if (arcType != null) {
+				importZip(arcType);
+				daisy.hasChanged = true;
+
 			} else {
 				if (ext.contentEquals("brf")) {
 					openBrf(documentName);
 					setWindowTitle("untitled");
-				} else {	
-				    parseImport(documentName, getEncodingString());
+				} else {
+					parseImport(documentName, getEncodingString());
 					setWindowTitle(documentName);
 				}
 				daisy.hasChanged = true;
@@ -483,7 +488,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-//			BBIni.setUtd(false);
+			// BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		} else {
@@ -525,10 +530,10 @@ public class DocumentManager {
 		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String filterPath = "/";
-		String[] filterNames = new String[] { "XML", "TEXT", 
-		"BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", 
-		"*.txt", "*.brf", "*.utd", };
+		String[] filterNames = new String[] { "XML", "TEXT", "BRF",
+				"UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", "*.txt", "*.brf",
+				"*.utd", };
 
 		String platform = SWT.getPlatform();
 		if (platform.equals("win32") || platform.equals("wpf")) {
@@ -574,7 +579,7 @@ public class DocumentManager {
 			daisy.hasChanged = false;
 			braille.hasChanged = false;
 			doc = null;
-//			BBIni.setUtd(false);
+			// BBIni.setUtd(false);
 		}
 
 		if (doc != null) {
@@ -600,23 +605,23 @@ public class DocumentManager {
 			brailleFileName = getBrailleFileName();
 			openDocument(documentName);
 			if (ext.contentEquals("utd")) {
-//				BBIni.setUtd(true);
+				// BBIni.setUtd(true);
 				utd.displayTranslatedFile(documentName, brailleFileName);
 				braille.hasChanged = false;
 			}
 
 			daisy.hasChanged = false;
-			
+
 		} else if (arcType != null) {
 			importZip(arcType);
 		} else {
 			if (ext.contentEquals("brf")) {
 				openBrf(documentName);
 				setWindowTitle("untitled");
-			} else {	
-			    parseImport(documentName, getEncodingString());
+			} else {
+				parseImport(documentName, getEncodingString());
 				setWindowTitle(documentName);
-			} 
+			}
 		}
 		daisy.view.setFocus();
 	}
@@ -624,7 +629,7 @@ public class DocumentManager {
 	void openDocument(String fileName) {
 
 		stopRequested = false;
-		
+
 		Builder parser = new Builder();
 		try {
 			doc = parser.build(new File(fileName));
@@ -636,38 +641,39 @@ public class DocumentManager {
 			return;
 		}
 		// add this file to recentDocList
-		if ( !((fileName.contains("-tempdoc.xml")) || (fileName.contains(tempPath))) ) {
-		    rd.addDocument(fileName);
+		if (!((fileName.contains("-tempdoc.xml")) || (fileName
+				.contains(tempPath)))) {
+			rd.addDocument(fileName);
 		}
-		if ((getFileExt(fileName).contentEquals("brf")) || (getFileExt(fileName).contentEquals("brl")))   { 
+		if ((getFileExt(fileName).contentEquals("brf"))
+				|| (getFileExt(fileName).contentEquals("brl"))) {
 			setWindowTitle("untitled");
 		} else {
-		    setWindowTitle(fileName);
-		    haveOpenedFile = true;
+			setWindowTitle(fileName);
+			haveOpenedFile = true;
 		}
 		numLines = 0;
 		numChars = 0;
 		statusBar.setText(lh.localValue("loadingDocument") + " " + fileName);
 		daisyLine.delete(0, daisyLine.length());
-		
+
 		final Element rootElement = doc.getRootElement();// this needs to be
 															// final, because it
 															// will be used by a
 															// different thread
 
 		new Thread() {
-		public void run() {
-		  while (!stopRequested) {
-			walkTree(rootElement);
-		  }
-	    }
-	 }
-	 .start();
+			public void run() {
+				while (!stopRequested) {
+					walkTree(rootElement);
+				}
+			}
+		}.start();
 	}
 
 	private void walkTree(Node node) {
 		Node newNode;
-		
+
 		for (int i = 0; i < node.getChildCount(); i++) {
 			newNode = node.getChild(i);
 
@@ -675,31 +681,32 @@ public class DocumentManager {
 				walkTree(newNode);
 			} else if (newNode instanceof Text) {
 				String nname = ((Element) node).getLocalName();
-				if (!(nname.matches("span") || nname.matches("brl") || nname.matches("body") || nname.matches("title"))) {
+				if (!(nname.matches("span") || nname.matches("brl")
+						|| nname.matches("body") || nname.matches("title"))) {
 					final String value = newNode.getValue();
 					numLines++;
 					numChars += value.length();
 
 					daisyLine.append(value + '\n');
 				}
-				
+
 				// the main thread gets to execute the block inside syncExec()
 				if (daisyLine.length() > 8192 || i == node.getChildCount() - 1) {
 					display.syncExec(new Runnable() {
 						public void run() {
 							daisy.view.append(daisyLine.toString());
-							  statusBar.setText("Read " + numLines + " lines, " + numChars
-									+ " characters.");
+							statusBar.setText("Read " + numLines + " lines, "
+									+ numChars + " characters.");
 						}
 					});
-				    daisyLine.delete(0, daisyLine.length());
-				    daisy.hasChanged = false;
+					daisyLine.delete(0, daisyLine.length());
+					daisy.hasChanged = false;
 				}
 			}
 		}
 		stopRequested = true;
 	}
-	
+
 	void openTikaDocument(String fileName) {
 		stopRequested = false;
 
@@ -708,11 +715,12 @@ public class DocumentManager {
 			doc = parser.build(new File(fileName));
 
 		} catch (ParsingException e) {
-			logger.log(Level.SEVERE, lh.localValue("malformedDocument: " + fileName));
+			logger.log(Level.SEVERE,
+					lh.localValue("malformedDocument: " + fileName));
 			logger.log(Level.INFO, e.getMessage());
 
 			new Notify(lh.localValue("malformedDocument") + "\n" + fileName);
-//			e.getStackTrace();
+			// e.getStackTrace();
 			return;
 		} catch (IOException e) {
 			new Notify(lh.localValue("couldNotOpen") + " " + fileName);
@@ -720,25 +728,24 @@ public class DocumentManager {
 		}
 
 		statusBar.setText(lh.localValue("loadingDocument") + " " + fileName);
-		final Element rootElement = doc.getRootElement();// this needs to be final
+		final Element rootElement = doc.getRootElement();// this needs to be
+															// final
 
 		// use thread only for single-file documents
-	    if (!(isNimas || isEpub) ) {
+		if (!(isNimas || isEpub)) {
 			new Thread() {
-		      public void run() {
-		      while (!stopRequested) {
-			    walkTikaTree(rootElement);
-		      }
-	        }
-	      }
-	      .start();
-	    } else {
-		  while (!stopRequested) {
-			 walkTikaTree(rootElement);
-		  }
-	    }
-    }	
-	
+				public void run() {
+					while (!stopRequested) {
+						walkTikaTree(rootElement);
+					}
+				}
+			}.start();
+		} else {
+			while (!stopRequested) {
+				walkTikaTree(rootElement);
+			}
+		}
+	}
 
 	private void walkTikaTree(Node node) {
 		Node newNode;
@@ -764,8 +771,8 @@ public class DocumentManager {
 					String value = newNode.getValue() + "\n";
 
 					// replace Unicode with matching codepoints
-					Matcher matcher = Pattern.compile("\\\\u((?i)[0-9a-fA-F]{4})")
-							.matcher(value);
+					Matcher matcher = Pattern.compile(
+							"\\\\u((?i)[0-9a-fA-F]{4})").matcher(value);
 					StringBuffer sb = new StringBuffer();
 					int codepoint;
 					while (matcher.find()) {
@@ -780,17 +787,18 @@ public class DocumentManager {
 					numChars += value.length();
 
 					daisyLine.append(value);
-				};
-			
+				}
+				;
+
 				if (daisyLine.length() > 4096 || i == node.getChildCount() - 1) {
 					display.syncExec(new Runnable() {
 						public void run() {
 							daisy.view.append(daisyLine.toString());
-							  statusBar.setText("Read " + numChars
+							statusBar.setText("Read " + numChars
 									+ " characters.");
 						}
 					});
-					
+
 					daisyLine.delete(0, daisyLine.length());
 				}
 			}
@@ -903,12 +911,12 @@ public class DocumentManager {
 			dialog.setFileName(documentName);
 		} else {
 			if (documentName != null) {
-			  if (getFileExt(documentName).contentEquals("brf")) {
-				saveDaisyWorkFile();
-				int i = documentName.lastIndexOf(".");
-				String fn = documentName.substring(0, i);
-				newDaisyFile = fn + ".xml";
-			  }
+				if (getFileExt(documentName).contentEquals("brf")) {
+					saveDaisyWorkFile();
+					int i = documentName.lastIndexOf(".");
+					String fn = documentName.substring(0, i);
+					newDaisyFile = fn + ".xml";
+				}
 			}
 			dialog.setFileName(newDaisyFile);
 		}
@@ -921,7 +929,7 @@ public class DocumentManager {
 
 		String fileName = new File(saveTo).getName();
 		statusBar.setText(lh.localValue("savingFile") + " " + fileName);
-		
+
 		/* text and braille utd */
 		if (textAndBraille) {
 			if (translatedFileName == null) {
@@ -940,7 +948,6 @@ public class DocumentManager {
 		statusBar.setText(lh.localValue("fileSaved") + " " + saveTo);
 		documentWindow.setText("BrailleBlaster " + fileName);
 
-		
 		if (!textAndBraille) {
 			translatedFileName = null;
 			braille.view.replaceTextRange(0, braille.view.getCharCount(), "");
@@ -952,7 +959,7 @@ public class DocumentManager {
 	void fileClose() {
 		if (daisy.view == null) {
 			logger.log(Level.SEVERE, "fileCLose() - something wrong!!!");
-//			System.err.println("fileCLose() - something wrong!!!");
+			// System.err.println("fileCLose() - something wrong!!!");
 			return;
 		}
 		activateMenus(false);
@@ -967,7 +974,7 @@ public class DocumentManager {
 		brailleFileName = null;
 		documentName = null;
 		doc = null;
-//		BBIni.setUtd(false);
+		// BBIni.setUtd(false);
 		stopRequested = false;
 		statusBar.setText("");
 		daisy.view.setText("");
@@ -991,7 +998,7 @@ public class DocumentManager {
 		firstTime = true;
 		boolean eof = false;
 		String line;
-        
+
 		while (!eof) {
 			try {
 				line = translation.readLine();
@@ -1002,7 +1009,7 @@ public class DocumentManager {
 						+ translatedFileName);
 				return;
 			}
-			
+
 			if (line == null) {
 				eof = true;
 			} else {
@@ -1072,7 +1079,8 @@ public class DocumentManager {
 			outputDoc.write(doc);
 			outputDoc.flush();
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, lh.localValue("cannotWriteFile") + ": " + daisyWorkFile);
+			logger.log(Level.SEVERE, lh.localValue("cannotWriteFile") + ": "
+					+ daisyWorkFile);
 			new Notify(lh.localValue("cannotWriteFile"));
 			return;
 		}
@@ -1093,10 +1101,10 @@ public class DocumentManager {
 
 		saveDaisyWorkFile();
 
-		/*if (!BBIni.useUtd()) */ {
+		/* if (!BBIni.useUtd()) */{
 			YesNoChoice ync = new YesNoChoice(lh.localValue("askUtdml"));
 			if (ync.result == SWT.YES) {
-//				BBIni.setUtd(true);
+				// BBIni.setUtd(true);
 			}
 		}
 		translate(display);
@@ -1105,7 +1113,7 @@ public class DocumentManager {
 	void translate(boolean display) {
 		configFileList = "preferences.cfg";
 		configSettings = null;
-		/*if (BBIni.useUtd())*/ {
+		/* if (BBIni.useUtd()) */{
 			configSettings = "formatFor utd\n" + "mode notUC\n";
 		}
 
@@ -1120,7 +1128,7 @@ public class DocumentManager {
 			return;
 		}
 
-		/*if (!BBIni.useUtd())*/ {
+		/* if (!BBIni.useUtd()) */{
 			brailleFileName = getBrailleFileName();
 			new FileUtils().copyFile(translatedFileName, brailleFileName);
 		}
@@ -1129,18 +1137,14 @@ public class DocumentManager {
 		braille.hasChanged = true;
 
 		if (display) {
-			/*if (BBIni.useUtd())*/ {
+			/* if (BBIni.useUtd()) */{
 				brailleFileName = getBrailleFileName();
 				utd.displayTranslatedFile(translatedFileName, brailleFileName);
-			} 
-/*			else {
-				new Thread() {
-					public void run() {
-						showBraille();
-					}
-				}.start();
 			}
-			*/
+			/*
+			 * else { new Thread() { public void run() { showBraille(); }
+			 * }.start(); }
+			 */
 		}
 	}
 
@@ -1181,17 +1185,18 @@ public class DocumentManager {
 			embosserDevice = new PrinterDevice(data.name, true);
 			embosserDevice.transmit(translatedFile);
 		} catch (PrintException e) {
-			new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
+			new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n"
+					+ e.getMessage());
 		}
 	}
-	
+
 	void daisyPrint() {
-		
+
 		PrintersManager pn = new PrintersManager(daisy.view.getText());
 		pn.printText();
-		
-//		placeholder();
-}	
+
+		// placeholder();
+	}
 
 	void toggleBrailleFont() {
 		if (displayBrailleFont) {
@@ -1287,7 +1292,7 @@ public class DocumentManager {
 			documentName = null;
 			daisy.hasChanged = false;
 			doc = null;
-//			BBIni.setUtd(false);
+			// BBIni.setUtd(false);
 			setWindowTitle(" untitled");
 			daisy.view.setFocus();
 		}
@@ -1304,22 +1309,18 @@ public class DocumentManager {
 		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
 		String filterPath = System.getProperty("user.home");
-		String[] filterNames = new String[] { "ASCII Text", 
-				"NIMAS archive (ZIP)",
-				"EPUB Book",
-				"Word Doc", "Word Docx",
-				"Rich Text Format", "Braille BRF", "OpenOffice ODT", "PDF", "XML", 
-				"All Files (*)" };
-		String[] filterExtensions = new String[] { "*.txt", 
-				"*.zip", "*.epub",
-				"*.doc", "*.docx", 
-				"*.rtf", "*.brf", "*.odt", "*.pdf", "*.xml", 
+		String[] filterNames = new String[] { "ASCII Text",
+				"NIMAS archive (ZIP)", "EPUB Book", "Word Doc", "Word Docx",
+				"Rich Text Format", "Braille BRF", "OpenOffice ODT", "PDF",
+				"XML", "All Files (*)" };
+		String[] filterExtensions = new String[] { "*.txt", "*.zip", "*.epub",
+				"*.doc", "*.docx", "*.rtf", "*.brf", "*.odt", "*.pdf", "*.xml",
 				"*" };
 
 		String platform = SWT.getPlatform();
 		if (platform.equals("win32") || platform.equals("wpf")) {
-			filterNames[filterNames.length-1] = "All Files (*.*)";
-			filterExtensions[filterExtensions.length-1] = "*.*";
+			filterNames[filterNames.length - 1] = "All Files (*.*)";
+			filterExtensions[filterExtensions.length - 1] = "*.*";
 			filterPath = System.getProperty("user.home");
 			if (filterPath == null)
 				filterPath = "c:\\";
@@ -1339,7 +1340,7 @@ public class DocumentManager {
 
 		// add this file to recentDocList
 		rd.addDocument(documentName);
-		
+
 		numLines = 0;
 		numChars = 0;
 
@@ -1347,12 +1348,12 @@ public class DocumentManager {
 		isEpub = false;
 
 		String arcType = archiveType(documentName);
-        if (arcType != null) {
-        	importZip(arcType);
-		    return;
-        } 
-		
-		  // special case
+		if (arcType != null) {
+			importZip(arcType);
+			return;
+		}
+
+		// special case
 		if (getFileExt(documentName).contentEquals("brf")) {
 			openBrf(documentName);
 			setWindowTitle("untitled");
@@ -1365,126 +1366,129 @@ public class DocumentManager {
 		daisy.hasChanged = true;
 		daisy.view.setFocus();
 	}
-	
+
 	void importZip(String arcType) {
-		String [] arc = null;
-		
-		statusBar.setText(lh.localValue("loadingFile") + " " + documentName + ", " + arcType );
-		
+		String[] arc = null;
+
+		statusBar.setText(lh.localValue("loadingFile") + " " + documentName
+				+ ", " + arcType);
+
 		try {
-			ImportersManager im = new ImportersManager(documentName, tempPath, 
+			ImportersManager im = new ImportersManager(documentName, tempPath,
 					docID, arcType);
 			arc = im.extractPubFiles();
 			isNimas = im.isNimas();
 			isEpub = im.isEpub();
 			encoding = im.getEncoding();
-			
+
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "ImportersManager IOException: "
-					+ e.getMessage());
-//			System.err.println("ImportersManager IOException: "
-//						+ e.getMessage());
-			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName + 
-	    			"\n" + e.getMessage());
+			logger.log(Level.SEVERE,
+					"ImportersManager IOException: " + e.getMessage());
+			// System.err.println("ImportersManager IOException: "
+			// + e.getMessage());
+			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName
+					+ "\n" + e.getMessage());
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "ImportersManager IOException: "
-					+ e.getMessage());
-//			System.err.println("ImportersManager exception: " + e.getMessage());
-			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName ); 
-		} 
-		
+			logger.log(Level.SEVERE,
+					"ImportersManager IOException: " + e.getMessage());
+			// System.err.println("ImportersManager exception: " +
+			// e.getMessage());
+			new Notify(lh.localValue("couldNotOpen") + ":\n" + documentName);
+		}
+
 		if (arc == null) {
-			new Notify(lh.localValue("problemReading") + ":\n" + documentName );
+			new Notify(lh.localValue("problemReading") + ":\n" + documentName);
 			return;
 		}
 		statusBar.setText(lh.localValue("importCompleted"));
-		
+
 		String path = null;
 		String xslFile = "";
-	    String xslPath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep();
-	    if (isNimas) {
-	    	xslFile = xslPath + "nimas.xsl";
-	    } else if (isEpub) { 	    	
-	    	xslFile = xslPath + "epub.xsl";
-	    }
+		String xslPath = BBIni.getProgramDataPath() + BBIni.getFileSep()
+				+ "xsl" + BBIni.getFileSep();
+		if (isNimas) {
+			xslFile = xslPath + "nimas.xsl";
+		} else if (isEpub) {
+			xslFile = xslPath + "epub.xsl";
+		}
 
-	    String outFile;
-	    XSLtransformer xsl = new XSLtransformer();
-	    int i = 0;
-		while ( i < arc.length) {
-		  if (arc[i] != null) {
-		    daisyWorkFile = tempPath + arc[i];
-		    
-		    outFile = tempPath + docID + "-" + (new File(daisyWorkFile).getName());
-		  
-	        xsl.transformXml(xslFile, daisyWorkFile, outFile);
-	        openTikaDocument(outFile);
-		  
-      	    File d = new File (daisyWorkFile);
-            if (path == null) path = d.getParentFile().getPath();
-		    d.delete();
-		    d = new File(outFile);
-		    d.delete();
-		  }
-          i++;
+		String outFile;
+		XSLtransformer xsl = new XSLtransformer();
+		int i = 0;
+		while (i < arc.length) {
+			if (arc[i] != null) {
+				daisyWorkFile = tempPath + arc[i];
+
+				outFile = tempPath + docID + "-"
+						+ (new File(daisyWorkFile).getName());
+
+				xsl.transformXml(xslFile, daisyWorkFile, outFile);
+				openTikaDocument(outFile);
+
+				File d = new File(daisyWorkFile);
+				if (path == null)
+					path = d.getParentFile().getPath();
+				d.delete();
+				d = new File(outFile);
+				d.delete();
+			}
+			i++;
 		}
-		
-		if (!path.contentEquals(tempPath)) removeDirectory(new File (path));
+
+		if (!path.contentEquals(tempPath))
+			removeDirectory(new File(path));
 		if (isEpub) {
-			removeDirectory (new File (tempPath + "META-INF"));
-			removeDirectory (new File (tempPath + "OEBPS"));
+			removeDirectory(new File(tempPath + "META-INF"));
+			removeDirectory(new File(tempPath + "OEBPS"));
 		}
-		
-        haveOpenedFile=false;
-        documentName = null;
-        daisyWorkFile = null;
+
+		haveOpenedFile = false;
+		documentName = null;
+		daisyWorkFile = null;
 	}
-		
+
 	public boolean removeDirectory(File directory) {
 
-		  // System.out.println("removeDirectory " + directory);
+		// System.out.println("removeDirectory " + directory);
 
-		  if (directory == null)
-		    return false;
-		  if (!directory.exists())
-		    return true;
-		  if (!directory.isDirectory())
-		    return false;
+		if (directory == null)
+			return false;
+		if (!directory.exists())
+			return true;
+		if (!directory.isDirectory())
+			return false;
 
-		  String[] list = directory.list();
+		String[] list = directory.list();
 
-		  // Some JVMs return null for File.list() when the
-		  // directory is empty.
-		  if (list != null) {
-		    for (int i = 0; i < list.length; i++) {
-		      File entry = new File(directory, list[i]);
+		// Some JVMs return null for File.list() when the
+		// directory is empty.
+		if (list != null) {
+			for (int i = 0; i < list.length; i++) {
+				File entry = new File(directory, list[i]);
 
-		      if (entry.isDirectory())
-		      {
-		        if (!removeDirectory(entry))
-		          return false;
-		      }
-		      else
-		      {
-		        if (!entry.delete())
-		          return false;
-		      }
-		    }
-		  }
-		  return directory.delete();
+				if (entry.isDirectory()) {
+					if (!removeDirectory(entry))
+						return false;
+				} else {
+					if (!entry.delete())
+						return false;
+				}
+			}
+		}
+		return directory.delete();
 	}
-	
+
 	void parseImport(String fileName, String encoding) {
 		/** Tika extract **/
 		try {
 			useTikaParser(fileName, encoding);
 		} catch (ParserConfigurationException e) {
 			logger.log(Level.SEVERE, "Error importing: " + fileName);
-//			System.err.println("Error importing: " + fileName);
+			// System.err.println("Error importing: " + fileName);
 			return;
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Error importing: " + fileName);
-//			System.err.println("Error importing: " + fileName);
+			// System.err.println("Error importing: " + fileName);
 			return;
 		}
 
@@ -1503,10 +1507,12 @@ public class DocumentManager {
 		try {
 			workFile.createNewFile();
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "useTikaHtmlParser: Error creating Tika workfile " + 
-					tikaWorkFile + " " + e.getMessage());
-//			System.out.println("useTikaHtmlParser: Error creating Tika workfile " + 
-//					e.getMessage());
+			logger.log(Level.SEVERE,
+					"useTikaHtmlParser: Error creating Tika workfile "
+							+ tikaWorkFile + " " + e.getMessage());
+			// System.out.println("useTikaHtmlParser: Error creating Tika workfile "
+			// +
+			// e.getMessage());
 			return;
 		}
 
@@ -1526,20 +1532,20 @@ public class DocumentManager {
 					encoding);
 			parser.parse(stream, handler, metadata, context);
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
-					+ e.getMessage());
-//			System.err.println("useTikaHtmlParser IOException: "
-//					+ e.getMessage());
+			logger.log(Level.SEVERE,
+					"useTikaHtmlParser IOException: " + e.getMessage());
+			// System.err.println("useTikaHtmlParser IOException: "
+			// + e.getMessage());
 		} catch (SAXException e) {
-			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
-					+ e.getMessage());
-//			System.err.println("useTikaHtmlParser SAXException: "
-//					+ e.getMessage());
+			logger.log(Level.SEVERE,
+					"useTikaHtmlParser IOException: " + e.getMessage());
+			// System.err.println("useTikaHtmlParser SAXException: "
+			// + e.getMessage());
 		} catch (TikaException e) {
-			logger.log(Level.SEVERE, "useTikaHtmlParser IOException: "
-					+ e.getMessage());
-//			System.err.println("useTikaHtmlParser TikaException: "
-//					+ e.getMessage());
+			logger.log(Level.SEVERE,
+					"useTikaHtmlParser IOException: " + e.getMessage());
+			// System.err.println("useTikaHtmlParser TikaException: "
+			// + e.getMessage());
 		} finally {
 			stream.close();
 			output.close();
@@ -1593,26 +1599,25 @@ public class DocumentManager {
 	// plain BRF file to back-translate
 	void openBrf(String fileName) {
 		translatedFileName = getBrailleFileName();
-		new FileUtils().copyFile (fileName, translatedFileName);
+		new FileUtils().copyFile(fileName, translatedFileName);
 		showBraille();
-		
+
 		// backtranslate
 
-//		BBIni.setUtd(false) ;
+		// BBIni.setUtd(false) ;
 		configFileList = "backtranslate.cfg";
-		configSettings = "mode notUc\n" ;
+		configSettings = "mode notUc\n";
 
 		daisyWorkFile = tempPath + docID + "-tempdoc.xml";
-		
-		boolean result = louisutdml.backTranslateFile(configFileList,
-				fileName, daisyWorkFile, logFile, configSettings,
-				mode);
+
+		boolean result = louisutdml.backTranslateFile(configFileList, fileName,
+				daisyWorkFile, logFile, configSettings, mode);
 
 		if (!result) {
 			new Notify(lh.localValue("translationFailed"));
 			return;
 		}
-		
+
 		openDocument(daisyWorkFile);
 		haveOpenedFile = false;
 	}
@@ -1671,30 +1676,30 @@ public class DocumentManager {
 		return ext;
 	}
 
-	private String archiveType (String doc) {
+	private String archiveType(String doc) {
 		Tika tika = new Tika();
 		File inFile = new File(doc);
-	    String type = "";
-        try {
-	        type = tika.detect(inFile);
-        } catch (IOException e) {
-	    	logger.log(Level.SEVERE, "Error detecting " + inFile.getName() + ":\n" + e.getMessage());
-//	    	System.err.println(inFile.getName() + ":\n" + e.getMessage());
-	    	new Notify(lh.localValue("couldNotOpen") + ":\n" + inFile.getName() +
-	    			"\n" + e.getLocalizedMessage());
-	    	return null;
-        }
+		String type = "";
+		try {
+			type = tika.detect(inFile);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "Error detecting " + inFile.getName()
+					+ ":\n" + e.getMessage());
+			// System.err.println(inFile.getName() + ":\n" + e.getMessage());
+			new Notify(lh.localValue("couldNotOpen") + ":\n" + inFile.getName()
+					+ "\n" + e.getLocalizedMessage());
+			return null;
+		}
 
-        for (int i=0; i<compressed.length; i++) {
-            if (type.contentEquals(compressed[i])) {
-//        	  System.out.println(type);
-        	  return type;
-            }
-	    }
-        return null;
+		for (int i = 0; i < compressed.length; i++) {
+			if (type.contentEquals(compressed[i])) {
+				// System.out.println(type);
+				return type;
+			}
+		}
+		return null;
 	}
-	
-	
+
 	void activateViews(boolean state) {
 		activateDaisyView(state);
 		activateBrailleView(state);
@@ -1770,7 +1775,6 @@ public class DocumentManager {
 			setBrailleFont(displayBrailleFont);
 		}
 	}
-
 
 	// encoding for Import
 	public String getEncodingString() {

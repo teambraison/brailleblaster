@@ -422,7 +422,8 @@ class BBMenu {
 		stylePanelItem.setText(lh.localValue("&StylePanel"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.getStyleManager().stylePanel();
+				//dm.getStyleManager().stylePanel();
+				System.out.println("Empty method");
 			}
 		});
 

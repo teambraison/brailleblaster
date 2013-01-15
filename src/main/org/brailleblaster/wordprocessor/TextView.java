@@ -40,7 +40,7 @@ class TextView extends AbstractView {
 
 TextView (Shell documentWindow) {
 // super (documentWindow, 0, 55, 12, 92);
-super (documentWindow, 0, 49, 12, 92);
+super (documentWindow, 16, 57, 12, 92);
 
 }
 

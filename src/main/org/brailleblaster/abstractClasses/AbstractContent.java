@@ -26,7 +26,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.custom.StyledText;

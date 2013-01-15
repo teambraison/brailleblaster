@@ -1,8 +1,37 @@
-package org.brailleblaster.wordprocessor;
+/* BrailleBlaster Braille Transcription Application
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
+package org.brailleblaster.views;
 
 import java.io.IOException;
-
-import javax.swing.text.View;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -13,26 +42,21 @@ import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 
+import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.GlyphMetrics;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+
 public class TreeView extends AbstractView {
 	
-	static Tree tree;
+	Tree tree;
 	
 	public TreeView(Shell documentWindow){
 		super(documentWindow, 0, 15, 12, 92);
-		tree = new Tree(view, SWT.NONE);
+		this.tree = new Tree(view, SWT.NONE);
 		/*
 		 * Code below was used for testing purposes only.
 		 * It should be deleted once Document class is properly implemented
@@ -55,8 +79,8 @@ public class TreeView extends AbstractView {
 		tree.pack();
 	}
 	
-	public static  void populateTree(Document doc){
-		TreeItem root = new TreeItem(tree, 0);
+	public void populateTree(Document doc){
+		TreeItem root = new TreeItem(this.tree, 0);
 		root.setText(doc.getRootElement().getLocalName());
 			
 		Elements rootNode = doc.getRootElement().getChildElements();
@@ -69,7 +93,7 @@ public class TreeView extends AbstractView {
         }
 	}
 	
-	private static void populateHelper(Element e, TreeItem item){
+	private void populateHelper(Element e, TreeItem item){
 		Elements n = e.getChildElements();
 		
 		for(int i = 0; i < n.size(); i++){

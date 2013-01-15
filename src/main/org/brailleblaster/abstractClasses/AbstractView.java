@@ -26,7 +26,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
@@ -37,15 +37,15 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.events.*;
 
-abstract class AbstractView {
-	StyledText view;
-	boolean hasFocus = false;
-	boolean hasChanged = false;
+public abstract class AbstractView {
+	public StyledText view;
+	public boolean hasFocus = false;
+	public boolean hasChanged = false;
 
-	AbstractView() {
+	public AbstractView() {
 	}
 
-	AbstractView(Shell documentWindow, int left, int right, int top, int bottom) {
+	public AbstractView(Shell documentWindow, int left, int right, int top, int bottom) {
 		view = new StyledText(documentWindow, SWT.BORDER | SWT.H_SCROLL
 				| SWT.V_SCROLL | SWT.WRAP);
 

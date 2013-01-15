@@ -195,7 +195,7 @@ public final class BBIni {
 			}
 		}
 		try {
-			liblouisutdml.loadLibrary("C:\\Users\\broller\\Documents\\Project\\dist\\native\\lib", nativeLibrarySuffix);
+			liblouisutdml.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
 			liblouisutdml.initialize(programDataPath, tempFilesPath,
 					"liblouisutdml.log");
 			hLiblouisutdml = true;

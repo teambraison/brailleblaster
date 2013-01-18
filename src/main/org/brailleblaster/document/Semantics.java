@@ -76,9 +76,13 @@ Document workingDocument;
  */
 private Element rootElement;
 
+private Styles st;
+private Actions act;
 Semantics() {
 workingDocument = null;
 semanticsList = null;
+st = new Styles(this);
+act = new Actions (this);
 }
 
 /**
@@ -139,9 +143,9 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-static SemanticEntry[] semanticsTable = new SemanticEntry[100];
+SemanticEntry[] semanticsTable = new SemanticEntry[100];
 int semanticsCount = 0; // Number of entries in semanticsTable
-static SemanticEntry getSemanticEntry (int index) {
+SemanticEntry getSemanticEntry (int index) {
 return semanticsTable[index];
 }
 
@@ -153,8 +157,6 @@ return semanticsTable[index];
 Hashtable<String, Integer> semanticsLookup = new 
   Hashtable<String, Integer>();
 
-private Styles st = new Styles();
-private Actions act = new Actions();
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;
 private boolean haveSemanticFile = true;

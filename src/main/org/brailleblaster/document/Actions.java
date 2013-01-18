@@ -56,6 +56,11 @@ import java.util.Hashtable;
  */
 class Actions {
 
+Semantics sm;
+Actions (final Semantics sm) {
+this.sm = sm;
+}
+
 /**
  * The various actions that can be carried out on an xml document, in 
  * addition to processing styles.

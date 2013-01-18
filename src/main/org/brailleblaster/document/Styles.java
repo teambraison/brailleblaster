@@ -56,8 +56,9 @@ import java.io.FileNotFoundException;
  * etc. are dealt with by action methods in the Actions class.</p>
  */
 class Styles {
-
-Styles() {
+Semantics sm;
+Styles (final Semantics sm) {
+this.sm = sm;
 makeStyleTable();
 }
 
@@ -243,7 +244,7 @@ return null;
  * of the stack. If the element does not have a style it returns false.
  */
 boolean startStyle (Semantics.ElementSemantics es) {
-  Semantics.SemanticEntry se = Semantics.getSemanticEntry 
+  Semantics.SemanticEntry se = sm.getSemanticEntry 
   (es.semanticsIndex);
   if (!se.operation.equals ("style")) {
   return false;

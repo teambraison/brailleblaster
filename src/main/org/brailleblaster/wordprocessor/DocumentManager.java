@@ -101,7 +101,6 @@ public class DocumentManager {
 	DocumentManager(WPManager wp, String docName) {
 		this.wp = wp;
 		this.db = new DocumentBase();
-		//this.shell = wp.getShell();
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());
@@ -169,7 +168,14 @@ public class DocumentManager {
 	
 	public void openDocument(String fileName){
 		System.out.println(fileName + " is opened here");
-		setTabTitle(fileName);
+		try{
+			db.startDocument(fileName, "preferences.cfg", "liblouisutdml.ini");
+			setTabTitle(fileName);
+			System.out.println("Code here");
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public String getFileExt(String fileName) {

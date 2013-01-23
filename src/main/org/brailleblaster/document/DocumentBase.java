@@ -53,8 +53,6 @@ public class DocumentBase {
 private FileUtils fu = new FileUtils();
 private String fileSep = BBIni.getFileSep();
 private Semantics sm = new Semantics();
-private Styles st = new Styles();
-private Actions act = new Actions();
 private liblouisutdml lutdml = liblouisutdml.getInstance();
 
 /**
@@ -95,7 +93,7 @@ sm.saveWorkingFile (completePath);
 }
 
 /**
- * Save the document, with all print and Braille editsl <brl> nodes and 
+ * Save the document, with all print and Braille edits. <brl> nodes and 
  * meta,name,brl are removed.
  * @param completePath the location in which the file is to be saved
  */
@@ -111,13 +109,13 @@ return sm.workingDocument;
 }
 
 /**
- * Edit or creat a style to be used in the word processor view.
+ * Edit or create a style to be used in the word processor view.
  * @param stylename the name of the style to be edited or created
  */
 public void editCreateStyle (String styleName) {
-Styles.StyleType styleType = st.readStyle (styleName);
-st.editStyle (styleType);
-st.writeStyle (styleType);
+Styles.StyleType styleType = sm.st.readStyle (styleName);
+sm.st.editStyle (styleType);
+sm.st.writeStyle (styleType);
 }
 
 public Nodes getNodes (Node node, String xpathExpr) {

@@ -76,8 +76,8 @@ Document workingDocument;
  */
 private Element rootElement;
 
-private Styles st;
-private Actions act;
+Styles st;
+Actions act;
 Semantics() {
 workingDocument = null;
 semanticsList = null;

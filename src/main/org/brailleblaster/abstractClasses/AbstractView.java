@@ -30,6 +30,7 @@ package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
@@ -45,9 +46,8 @@ public abstract class AbstractView {
 	public AbstractView() {
 	}
 
-	public AbstractView(Shell documentWindow, int left, int right, int top, int bottom) {
-		view = new StyledText(documentWindow, SWT.BORDER | SWT.H_SCROLL
-				| SWT.V_SCROLL | SWT.WRAP);
+	public AbstractView(Group group, int left, int right, int top, int bottom) {
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
 
 		FormData location = new FormData();
 		location.left = new FormAttachment(left);
@@ -76,4 +76,6 @@ public abstract class AbstractView {
 		hasChanged = true;
 		event.doit = true;
 	}
+	
+	public abstract void initializeView();
 }

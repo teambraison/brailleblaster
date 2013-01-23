@@ -47,14 +47,14 @@ public class Main {
 		BBIni.initialize(args);
 		BBIni.setVersion("brailleblaster-1.4.0");
 		BBIni.setReleaseDate("July 17, 2012");
+		
 		if (BBIni.haveSubcommands()) {
 			new Subcommands(args);
-		} else {
+		} 
+		else {
 			new WPManager(null);
 		}
-		Display display = BBIni.getDisplay();
-		if (display != null)
-			display.dispose();
+
 		if (BBIni.haveLiblouisutdml()) {
 			liblouisutdml louisutdml = liblouisutdml.getInstance();
 			louisutdml.free();

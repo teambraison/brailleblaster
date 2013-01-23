@@ -30,6 +30,7 @@ package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.printing.*;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.*;
@@ -59,7 +60,7 @@ Printer printer = null;
  * This constructor takes care of printer setup.
 */
 AbstractPrinting() {
-Shell shell = new Shell (BBIni.getDisplay(), SWT.DIALOG_TRIM);
+Shell shell = new Shell (WPManager.getDisplay(), SWT.DIALOG_TRIM);
 PrintDialog printer = new PrintDialog (shell);
 data = printer.open();
 shell.dispose();

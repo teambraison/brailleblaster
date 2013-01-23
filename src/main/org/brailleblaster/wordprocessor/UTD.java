@@ -212,7 +212,7 @@ class UTD {
 //            if(brailleLine.length() > 4096 || printLine.length() > 4096 || i == node.getChildCount()-1) {
               if(brailleLine.length() > 4096 || i == node.getChildCount()-1) {
 
-                dm.display.syncExec(new Runnable() {    
+            	dm.getDisplay().syncExec(new Runnable() {    
                     public void run() {    
                     	// FO
                     	if (firstTime) {
@@ -230,7 +230,8 @@ class UTD {
                     	}
                     	brailleLine.delete (0, brailleLine.length());
                     }
-                 });        
+                 });    
+        
             }
             /** p elements have their own structure **/
             if (!(elementName == null)) {

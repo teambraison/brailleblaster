@@ -29,235 +29,137 @@
 package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.ShowBriefly;
 import org.brailleblaster.util.Notify;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class WPManager {
     /**
      * This is the controller for the whole word processing operation. It is the
      * entry point for the word processor, and therefore the only public class.
      */
-
-    String fileName = null;
-    int action;
-    private Display display;
-    private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
-    private static DocumentManager[] documents = new DocumentManager[MAX_NUM_DOCS];
-    private static int documentIndex;
-    private static DocumentManager curDoc;
-
-    private static boolean isDeactivated = false; 
-    private static DocumentManager prevDoc; 
-    private static int prevIndex= -1;
-
-    /**
-     * This constructor is the entry point to the word processor. It gets
-     * things set up, handles multiple documents, etc.
-     */
-
-    public WPManager(String fileName) {
-        this.fileName = fileName;
-        if (fileName != null) {
-            action = WP.DocumentFromCommandLine;
-        } else {
-            action = WP.NewDocument;
-        }
-        display = BBIni.getDisplay();
-        if (display == null) {
-            System.out.println ("Could not find graphical interface environment");
-            System.exit(1);
-        }
-        checkLiblouisutdml();        
-        documentIndex = 0;
-        curDoc = documents[0] = new DocumentManager(display, 
-                documentIndex, action, fileName) ;
-        do {
-            findTrigger();
-            switch (curDoc.returnReason) {
-            case WP.DocumentClosed://6
-            	documents[documentIndex].finish();
-                if (getNextAvailableDoc() == -1) return; //no more docs, exit
-//FO                if (getNextAvailableDoc() == -1) {
-                	// open new document
-//                	documentIndex = 0;
-//                	action = WP.NewDocument;
-//                    curDoc = documents[0] = new DocumentManager(display, 
-//                            documentIndex, action, "") ;
-//                } else {
-                    WPManager.resumeAll(documentIndex);
-//                }
-                break;
-            case WP.SwitchDocuments://4
-                if(DocumentManager.recentFileNameIndex != -1){
-                    documentIndex = DocumentManager.recentFileNameIndex;
-                    DocumentManager.recentFileNameIndex = -1;
-                }
-                else {
-                    documentIndex = getNextAvailableDoc();
-                }
-                curDoc = documents[documentIndex];
-                //System.out.println("Switching...from "+ documentIndex+ "to" +getNextAvailableDoc() );
-                curDoc.resume();
-                break;
-            case WP.NewDocument://1
-                if (getNextAvailablePos() == -1){
-                    new Notify ("Too many documents");
-                    curDoc.resume();
-                    break;
-                }
-                documentIndex = getNextAvailablePos();
-                curDoc = documents[documentIndex] = new DocumentManager(display, 
-                        documentIndex, WP.NewDocument, fileName);
-                break;
-            case WP.OpenDocumentGetFile://2
-                if (getNextAvailablePos() == -1){
-                    new Notify ("Too many documents to open a new file");
-                    curDoc.resume();
-                    break;
-                }
-                documentIndex = getNextAvailablePos();
-                curDoc = documents[documentIndex] = new DocumentManager(display, 
-                        documentIndex, WP.OpenDocumentGetFile, fileName);
-                break;
-//FO 30
-            case WP.ImportDocument://3
-                if (getNextAvailablePos() == -1){
-                    new Notify ("Too many documents to open a new file");
-                    curDoc.resume();
-                    break;
-                }
-                documentIndex = getNextAvailablePos();
-                curDoc = documents[documentIndex] = new DocumentManager(display, 
-                        documentIndex, WP.ImportDocument, fileName);
-                break;
-                
-            case WP.OpenDocumentGetRecent://8 open a recent doc in a new windows
-                if (getNextAvailablePos() == -1){
-                    new Notify ("Too many documents to open the recent document in a new window");
-                    curDoc.resume();
-                    break;
-                }
-                documentIndex = getNextAvailablePos();
-                fileName = DocumentManager.getRecentFileName();
-                curDoc = documents[documentIndex] = new DocumentManager(display, 
-                        documentIndex, WP.OpenDocumentGetRecent, fileName);
-                break;
-            case WP.BBClosed://7
-                while(getNextAvailableDoc()!= -1){
-                    documents[getNextAvailableDoc()].finish();
-                }
-                return;
-            default:
-                break;
-            }
-        } while (curDoc.returnReason != WP.BBClosed);
-    }
+    public static Display display;
+    private Shell shell;
+    private FormLayout layout;
+    private TabFolder folder;
+    private FormData location;
+    private BBMenu bbMenu;
+    private BBStatusBar statusBar;
+    private LinkedList<DocumentManager> managerList;
     
-        private static void findTrigger(){
-        int number = -1;
-        int i = 0;
-        for(boolean b:DocumentManager.getflags()){
-            if(b) {
-                number=i;
-                break;
-            }
-            i++;
-        }
-        if(number != -1)
-        {
-            DocumentManager.setflags(number, false);
-            documentIndex = number;
-            curDoc = documents[documentIndex];
-        }
+    private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
+    
+    //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
+    public WPManager(String fileName) {
+    	checkLiblouisutdml();
+    	 
+        display = new Display();
+        this.shell = new Shell(display, SWT.SHELL_TRIM);
+        this.shell.setText("BrailleBlaster"); 
+		this.layout = new FormLayout();
+		this.shell.setLayout(this.layout);
+		
+		this.folder = new TabFolder(this.shell, SWT.NONE);	
+		this.location = new FormData();
+	    this.location.left = new FormAttachment(0);
+	    this.location.right = new FormAttachment(100);
+	    this.location.top = new FormAttachment (3);
+	    this.location.bottom = new FormAttachment(98);
+	    this.folder.setLayoutData (this.location);
+	   
+	    this.statusBar = new BBStatusBar(this.shell);
+	    this.bbMenu = new BBMenu(this);
+	    
+	    this.managerList = new LinkedList<DocumentManager>();
+	    this.managerList.add(new DocumentManager(this, null));
+		
+		this.shell.addListener(SWT.Close, new Listener() { 
+	        public void handleEvent(Event event) { 
+	           System.out.println("Main Shell handling Close event, about to dipose the main Display"); 
+	           display.dispose(); 
+	        } 
+	     });
+		
+		setShellScreenLocation(display, this.shell);
+   
+        new Welcome(); 
+		this.shell.open();
+        
+        while (!display.isDisposed())  { 
+	        try { 
+	           if (!display.readAndDispatch()) { 
+	              display.sleep(); 
+	           } 
+	        } 
+	        catch (Exception e) { 
+	           e.printStackTrace(); 
+	        } 
+	    } 
     }
+	
+	private void setShellScreenLocation(Display display, Shell shell){
+		Monitor primary = display.getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		Rectangle rect = shell.getBounds();
+		int x = bounds.x + ((bounds.width - rect.width) / 2);
+		int y = bounds.y + ((bounds.height - rect.height) / 2);
+		shell.setLocation(x, y);
+	}	
+	
+	public void addDocumentManager(String fileName){
+		this.managerList.add(new DocumentManager(this, fileName));
+		setSelection();
+	}
 
-    //resume all the windows except the one with documentNumber
-    public static void resumeAll(int documentNumber){
-        for(int i = 0 ; i< documents.length; i++){
-            if(i != documentNumber) {
-                if(documents[i] != null) documents[i].resume(); 
-            }
-        }
-    }
-
-    static int getNextAvailableDoc(){
-        //search in higher index first for the next available index
-        //index-> MAX
-        for(int i = documentIndex+1; i <MAX_NUM_DOCS; i++){
-            if( documents[i] != null){
-                if(documents[i].isFinished())documents[i] = null;
-                else return i;
-            }
-        }
-        //0->index
-        for(int i = 0; i <= documentIndex; i++){
-            if( documents[i] != null){
-                if(documents[i].isFinished())documents[i] = null;
-                else return i;
-            }
-        }
-        //if no available doc
-        return -1;
-    }
-
-    //check if a document named fileName is running, return its index or -1;
-    static int isRunning(String fileName){
-        int start = documentIndex;
-        for(int i = 0; i <MAX_NUM_DOCS; i++){
-            if( documents[i] != null){
-                if(documents[i].isFinished()){
-                    documents[i] = null;
-                }
-                else{
-                    //System.out.println("isRunning: NO"+i+"'s name is "+documents[i].documentName);
-                    if (documents[i].documentName.equals(fileName))
-                        return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    int getNextAvailablePos(){
-        //see if there is available position for one more document, -1 if it is full
-        for(int i = 0; i <MAX_NUM_DOCS; i++){
-            if( documents[i] == null) return i;
-            else if (documents[i].isFinished()){documents[i] = null; return i;}
-        }
-        return -1;
-    }
-
+	public void setSelection(){
+		int index = this.managerList.size() - 1;
+		this.folder.setSelection(index);
+	}
+	
     void checkLiblouisutdml() {
         if (BBIni.haveLiblouisutdml()) {
             return;
         }
-        if (new YesNoChoice
-                ("The Braille facility is not usable." + " See the log."
-                        + " Do you wish to continue?")
-        .result == SWT.NO) {
+        if (new YesNoChoice("The Braille facility is not usable." + " See the log." + " Do you wish to continue?").result == SWT.NO) {
             System.exit(1);
         }
     }
 
-    static void setCurDoc(int documentNumber){
-        //System.out.println("Something triggers current doc to change, now documentIndex = " + documentNumber );
-        documentIndex = documentNumber;
-        curDoc = documents[documentIndex];;
-    }
-
-    /**
-     * Check to see if there are other documents.
-     */
-    static boolean haveOtherDocuments() {        
-        return (getNextAvailableDoc()!= -1);
-    }
-
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
+    }
+    
+    public static Display getDisplay() {
+		return display;
+	}
+    
+    public Shell getShell(){
+    	return shell;
+    }
+    
+    public TabFolder getFolder(){
+    	return this.folder;
+    }
+    
+    public LinkedList<DocumentManager> getList(){
+    	return this.managerList;
+    }
+    
+    public BBStatusBar getStatusBar(){
+    	return this.statusBar;
     }
 }

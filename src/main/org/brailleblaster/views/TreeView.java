@@ -45,6 +45,7 @@ import nu.xom.ValidityException;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -54,8 +55,8 @@ public class TreeView extends AbstractView {
 	
 	Tree tree;
 	
-	public TreeView(Shell documentWindow){
-		super(documentWindow, 0, 15, 12, 92);
+	public TreeView(Group documentWindow){
+		super(documentWindow, 0, 15, 0, 100);
 		this.tree = new Tree(view, SWT.NONE);
 		/*
 		 * Code below was used for testing purposes only.
@@ -77,6 +78,10 @@ public class TreeView extends AbstractView {
         
 		view.setLayout(new FillLayout());
 		tree.pack();
+	}
+	
+	public void initializeView(){
+		
 	}
 	
 	public void populateTree(Document doc){

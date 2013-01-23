@@ -36,17 +36,14 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
 
 class BBMenu {
-
-	/**
-	 * This class contains all the menus.
-	 */
-
+	//This class contains all the menus.
 	final Menu menuBar;
 
-	/*
-	 * All the menu items are member fields so they can be accessed outside the
+	/* All the menu items are member fields so they can be accessed outside the
 	 * constructor. This might be done for example with setEnabled(false) to
 	 * indicate that a menu item is unavailable.
 	 */
@@ -116,7 +113,7 @@ class BBMenu {
 	MenuItem checkUpdatesItem;
 	MenuItem aboutItem;
 
-	BBMenu(final DocumentManager dm) {
+	BBMenu(final WPManager wp) {
 		LocaleHandler lh = new LocaleHandler();
 
 		/*
@@ -128,7 +125,7 @@ class BBMenu {
 		 */
 
 		// Set up menu bar
-		menuBar = new Menu(dm.documentWindow, SWT.BAR);
+		menuBar = new Menu(wp.getShell(), SWT.BAR);
 		MenuItem fileItem = new MenuItem(menuBar, SWT.CASCADE);
 		fileItem.setText(lh.localValue("&File"));
 		MenuItem editItem = new MenuItem(menuBar, SWT.CASCADE);
@@ -148,15 +145,17 @@ class BBMenu {
 		helpItem.setText(lh.localValue("&Help"));
 
 		// Set up file menu
-		Menu fileMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu fileMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		newItem = new MenuItem(fileMenu, SWT.PUSH);
-		newItem.setText(lh.localValue("&New"));
+		newItem.setText(lh.localValue("&New") + "\tCtrl + N");
+		newItem.setAccelerator(SWT.MOD1 + 'N');
 		newItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
-					dm.setReturn(WP.NewDocument);
+					//dm.setReturn(WP.NewDocument);
 				} else {
-					dm.fileNew();
+					System.out.println("New Document Tab created");
+					wp.addDocumentManager(null);
 				}
 			}
 		});
@@ -165,9 +164,12 @@ class BBMenu {
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
-					dm.setReturn(WP.OpenDocumentGetFile);
-				} else {
-					dm.fileOpen();
+					//dm.setReturn(WP.OpenDocumentGetFile);
+				} 
+				else {
+					//dm.fileOpen();
+					int index= wp.getFolder().getSelectionIndex();
+					wp.getList().get(index).fileOpenDialog(wp);
 				}
 			}
 		});
@@ -176,28 +178,30 @@ class BBMenu {
 		recentItem.setText(lh.localValue("&Recent"));
 		recentItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.recentDocuments();
+				//dm.recentDocuments();
+				int index = wp.getFolder().getSelectionIndex();
+				wp.getList().get(index).rd.open();
 			}
 		});
 		importItem = new MenuItem(fileMenu, SWT.PUSH);
 		importItem.setText(lh.localValue("&Import"));
 		importItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.importDocument();
+				//dm.importDocument();
 			}
 		});
 		saveItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveItem.setText(lh.localValue("&Save"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.fileSave();
+				//dm.fileSave();
 			}
 		});
 		saveAsItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveAsItem.setText(lh.localValue("Save&As"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.fileSaveAs();
+				//dm.fileSaveAs();
 			}
 		});
 		
@@ -205,7 +209,7 @@ class BBMenu {
 		saveAsItem.setText(lh.localValue("Save&Braille"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.brailleSave();
+				//dm.brailleSave();
 			}
 		});
 		
@@ -214,7 +218,7 @@ class BBMenu {
 		embosserSetupItem.setEnabled(false); /* FO */
 		embosserSetupItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 /**		
@@ -239,7 +243,7 @@ class BBMenu {
 		embossNowItem.setText(lh.localValue("Emboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.fileEmbossNow();
+				//dm.fileEmbossNow();
 			}
 		});
 /**		
@@ -276,7 +280,7 @@ class BBMenu {
 		printItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 //				dm.placeholder();
-				dm.daisyPrint();
+				//dm.daisyPrint();
 			}
 		});
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);
@@ -284,7 +288,7 @@ class BBMenu {
 		languageItem.setEnabled(false); /* FO */
 		languageItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		
@@ -292,33 +296,41 @@ class BBMenu {
 		closeItem.setText(lh.localValue("&Close"));
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				dm.setReturn(WP.DocumentClosed);  //FO 29
-				dm.fileClose();
+				int index = wp.getFolder().getSelectionIndex();
+				wp.getList().get(index).fileClose();
+				wp.getList().remove(index);
 			}
 		});
 		if (!BBIni.getPlatformName().equals("cocoa")) {
 			exitItem = new MenuItem(fileMenu, SWT.PUSH);
-			exitItem.setText(lh.localValue("e&xit"));
+			exitItem.setText(lh.localValue("e&xit") + "\tCtrl + Q");
+			exitItem.setAccelerator(SWT.MOD1 + 'Q');
 			exitItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
-//					dm.setReturn(WP.BBClosed);
-					dm.setReturn(WP.DocumentClosed);
+					for(int i = 0; i < wp.getList().size(); i++){
+						DocumentManager temp = wp.getList().get(i);
+						if(temp.daisy.hasChanged || temp.braille.hasChanged){
+							temp.fileClose();
+						}
+					}
+					wp.getList().clear();
+					wp.getShell().getDisplay().dispose();
 				}
 			});
 		}
 		fileItem.setMenu(fileMenu);
 
 		// Set up edit menu
-		Menu editMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu editMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		undoItem = new MenuItem(editMenu, SWT.PUSH);
 		undoItem.setText(lh.localValue("&Undo"));
 		undoItem.setEnabled(false);
 		undoItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
-					dm.setReturn(WP.SwitchDocuments);
+					//dm.setReturn(WP.SwitchDocuments);
 				} else {
-					dm.placeholder();
+					//dm.placeholder();
 				}
 			}
 		});
@@ -327,7 +339,7 @@ class BBMenu {
 		redoItem.setEnabled(false);
 		redoItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		cutItem = new MenuItem(editMenu, SWT.PUSH);
@@ -335,7 +347,7 @@ class BBMenu {
 		cutItem.setEnabled(false);
 		cutItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		copyItem = new MenuItem(editMenu, SWT.PUSH);
@@ -343,7 +355,7 @@ class BBMenu {
 		copyItem.setEnabled(false);
 		copyItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		pasteItem = new MenuItem(editMenu, SWT.PUSH);
@@ -351,7 +363,7 @@ class BBMenu {
 		pasteItem.setEnabled(false);
 		pasteItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
@@ -359,7 +371,7 @@ class BBMenu {
 		searchItem.setEnabled(false);
 		searchItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		replaceItem = new MenuItem(editMenu, SWT.PUSH);
@@ -367,7 +379,7 @@ class BBMenu {
 		replaceItem.setEnabled(false);
 		replaceItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		spellCheckItem = new MenuItem(editMenu, SWT.PUSH);
@@ -375,7 +387,7 @@ class BBMenu {
 		spellCheckItem.setEnabled(false);
 		spellCheckItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		boldToggleItem = new MenuItem(editMenu, SWT.PUSH);
@@ -383,7 +395,7 @@ class BBMenu {
 		boldToggleItem.setEnabled(false);
 		boldToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		italicToggleItem = new MenuItem(editMenu, SWT.PUSH);
@@ -391,7 +403,7 @@ class BBMenu {
 		italicToggleItem.setEnabled(false);
 		italicToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		underlineToggleItem = new MenuItem(editMenu, SWT.PUSH);
@@ -399,7 +411,7 @@ class BBMenu {
 		underlineToggleItem.setEnabled(false);
 		underlineToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		zoomImageItem = new MenuItem(editMenu, SWT.PUSH);
@@ -407,7 +419,7 @@ class BBMenu {
 		zoomImageItem.setEnabled(false);
 		zoomImageItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		selectAllItem = new MenuItem(editMenu, SWT.PUSH);
@@ -415,7 +427,7 @@ class BBMenu {
 		selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);
@@ -432,7 +444,7 @@ class BBMenu {
 		nextElementItem.setEnabled(false);
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
@@ -440,7 +452,7 @@ class BBMenu {
 		assocSelectionItem.setEnabled(false);
 		assocSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		lockSelectionItem = new MenuItem(editMenu, SWT.PUSH);
@@ -448,7 +460,7 @@ class BBMenu {
 		lockSelectionItem.setEnabled(false);
 		lockSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		unlockSelectionItem = new MenuItem(editMenu, SWT.PUSH);
@@ -456,7 +468,7 @@ class BBMenu {
 		unlockSelectionItem.setEnabled(false);
 		unlockSelectionItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		editLockedItem = new MenuItem(editMenu, SWT.PUSH);
@@ -464,7 +476,7 @@ class BBMenu {
 		editLockedItem.setEnabled(false);
 		editLockedItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		keybdBrlToggleItem = new MenuItem(editMenu, SWT.PUSH);
@@ -472,7 +484,7 @@ class BBMenu {
 		keybdBrlToggleItem.setEnabled(false);
 		keybdBrlToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 /**		
@@ -497,21 +509,23 @@ class BBMenu {
 		editItem.setEnabled(true);
 
 		// Set up view menu
-		Menu viewMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		increaseFontSizeItem = new MenuItem(viewMenu, SWT.PUSH);
-		increaseFontSizeItem.setText(lh.localValue("&IncreaseFontSize"));
+		increaseFontSizeItem.setText(lh.localValue("&IncreaseFontSize") + "\tCtrl + '+'");
+		increaseFontSizeItem.setAccelerator(SWT.MOD1 + '+');
 		increaseFontSizeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				dm.placeholder();
-				dm.increaseFont();
+				int index = wp.getFolder().getSelectionIndex();
+				FontManager.increaseFont(wp, wp.getList().get(index));
 			}
 		});
 		decreaseFontSizeItem = new MenuItem(viewMenu, SWT.PUSH);
-		decreaseFontSizeItem.setText(lh.localValue("&DecreaseFintSize"));
+		decreaseFontSizeItem.setText(lh.localValue("&DecreaseFontSize") + "\tCtrl + '-'");
+		decreaseFontSizeItem.setAccelerator(SWT.MOD1 + '-');
 		decreaseFontSizeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				dm.placeholder();
-				dm.decreaseFont();
+				int index = wp.getFolder().getSelectionIndex();
+				FontManager.decreaseFont(wp, wp.getList().get(index));
 			}
 		});
 		increaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
@@ -519,7 +533,7 @@ class BBMenu {
 		increaseContrastItem.setEnabled(false);
 		increaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		decreaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
@@ -527,7 +541,7 @@ class BBMenu {
 		decreaseContrastItem.setEnabled(false);
 		decreaseContrastItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		showOutlineItem = new MenuItem(viewMenu, SWT.PUSH);
@@ -535,7 +549,7 @@ class BBMenu {
 		showOutlineItem.setEnabled(false);
 		showOutlineItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 /**		
@@ -567,12 +581,12 @@ class BBMenu {
 		viewItem.setMenu(viewMenu);
 
 		// Set up translate menu
-		Menu translateMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu translateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		xtranslateItem = new MenuItem(translateMenu, SWT.PUSH);
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.translateView(true);
+				//dm.translateView(true);
 			}
 		});
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
@@ -580,7 +594,7 @@ class BBMenu {
 		backTranslateItem.setEnabled(false);
 		backTranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		translationTemplatesItem = new MenuItem(translateMenu, SWT.PUSH);
@@ -588,58 +602,58 @@ class BBMenu {
 				.setText(lh.localValue("&TranslationTemplates"));
 		translationTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		translateItem.setMenu(translateMenu);
 
 		// Set up insert menu
-		Menu insertMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu insertMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		inLineMathItem = new MenuItem(insertMenu, SWT.PUSH);
 		inLineMathItem.setText(lh.localValue("&InLineMath"));
 		inLineMathItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		displayedMathItem = new MenuItem(insertMenu, SWT.PUSH);
 		displayedMathItem.setText(lh.localValue("&DisplayedMath"));
 		displayedMathItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		inLineGraphicItem = new MenuItem(insertMenu, SWT.PUSH);
 		inLineGraphicItem.setText(lh.localValue("&InLineGraphic"));
 		inLineGraphicItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		displayedGraphicItem = new MenuItem(insertMenu, SWT.PUSH);
 		displayedGraphicItem.setText(lh.localValue("&DisplayedGraphic"));
 		displayedGraphicItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		tableItem = new MenuItem(insertMenu, SWT.PUSH);
 		tableItem.setText(lh.localValue("&Table"));
 		tableItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		insertItem.setMenu(insertMenu);
 
 		// Set up advanced menu
-		Menu advancedMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu advancedMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		brlFormatItem = new MenuItem(advancedMenu, SWT.PUSH);
 		brlFormatItem.setText(lh.localValue("&BrailleFormat"));
 		brlFormatItem.setEnabled(false);
 		brlFormatItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		brailleASCIIItem = new MenuItem(advancedMenu, SWT.PUSH);
@@ -647,17 +661,16 @@ class BBMenu {
 		brailleASCIIItem.setEnabled(false);
 		brailleASCIIItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		showTranslationTemplatesItem = new MenuItem(advancedMenu, SWT.PUSH);
-		showTranslationTemplatesItem.setText(lh
-				.localValue("&ShowTranslationTemplates"));
+		showTranslationTemplatesItem.setText(lh.localValue("&ShowTranslationTemplates"));
 		showTranslationTemplatesItem.setEnabled(false);
 		showTranslationTemplatesItem
 				.addSelectionListener(new SelectionAdapter() {
 					public void widgetSelected(SelectionEvent e) {
-						dm.placeholder();
+						//dm.placeholder();
 					}
 				});
 		showFormatTemplatesItem = new MenuItem(advancedMenu, SWT.PUSH);
@@ -665,7 +678,7 @@ class BBMenu {
 		showFormatTemplatesItem.setEnabled(false);
 		showFormatTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+				//dm.placeholder();
 			}
 		});
 		changeSettingsItem = new MenuItem(advancedMenu, SWT.PUSH);
@@ -678,7 +691,7 @@ class BBMenu {
 		advancedItem.setMenu(advancedMenu);
 
 		// Set up help menu
-		Menu helpMenu = new Menu(dm.documentWindow, SWT.DROP_DOWN);
+		Menu helpMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		aboutItem = new MenuItem(helpMenu, SWT.PUSH);
 		aboutItem.setText(lh.localValue("&About"));
 		aboutItem.addSelectionListener(new SelectionAdapter() {
@@ -718,6 +731,6 @@ class BBMenu {
 		helpItem.setMenu(helpMenu);
 		
 		// Activate menus when documentWindow shell is opened
-		dm.documentWindow.setMenuBar(menuBar);
+		wp.getShell().setMenuBar(menuBar);
 	}
 }

@@ -32,6 +32,7 @@ import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
@@ -41,15 +42,18 @@ import org.eclipse.swt.custom.VerifyKeyListener;
 
 public class TextView extends AbstractView {
 
-public TextView (Shell documentWindow) {
+public TextView (Group documentWindow) {
 // super (documentWindow, 0, 55, 12, 92);
-super (documentWindow, 16, 57, 12, 92);
-
+super (documentWindow, 16, 57, 0, 100);
 }
 
 /* This is a derivative work from 
  * org.eclipse.swt.custom.DefaultContent.java 
 */
+
+public void initializeView(){
+	
+}
 
 private class TextContent extends AbstractContent {
 }

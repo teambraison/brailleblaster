@@ -55,11 +55,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * Pick a document from those recently opened and return its absolute 
- * path.
- */ 
-
+//Pick a document from those recently opened and return its absolute path.
 class RecentDocuments {
     Shell shell;
     Combo combo;
@@ -84,7 +80,7 @@ class RecentDocuments {
     void open() {
         readList();
         processDocsList();
-        Display display = BBIni.getDisplay();
+        Display display = WPManager.getDisplay();
         shell = new Shell (display, SWT.DIALOG_TRIM);
         shell.setText("Recent documents");
         // FO
@@ -106,7 +102,8 @@ class RecentDocuments {
         combo = new Combo (shell, SWT.DROP_DOWN | SWT.READ_ONLY);
         if (recentDocsArr.length > 25) {
             combo.setVisibleItemCount(25);
-        } else {
+        } 
+        else {
             combo.setVisibleItemCount(recentDocsArr.length);
         }
         combo.setItems(recentDocsArr);
@@ -130,9 +127,10 @@ class RecentDocuments {
             public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();
                 if(key != -1){
-                String path = recentDocsList.get(key);
-                shell.close();
-                dm.recentOpen (path);
+                	String path = recentDocsList.get(key);
+                	shell.close();
+                	//dm.recentOpen (path);
+                	dm.openDocument(path);
                 }
 //              shell.close();
             }
@@ -141,8 +139,9 @@ class RecentDocuments {
         shell.pack();
         shell.open();
         while (!shell.isDisposed()) {
-            if (!display.readAndDispatch())
+            if (!display.readAndDispatch()){
                 display.sleep();
+            }
         }
         // tear down the SWT window
         shell.dispose();     
@@ -155,7 +154,9 @@ class RecentDocuments {
         for( int i=0; (i < recentDocsArr.length-1)&&(!dupArr[i]);i++) {
             String s1 = recentDocsArr[i];
             int index = s1.lastIndexOf(fileSep);
-            if (index>=0) s1 = s1.substring(index);
+            if (index>=0) {
+            	s1 = s1.substring(index);
+            }
             for(int j=i+1; (j< recentDocsArr.length)&&(!dupArr[j]); j++) {
                 String s2 = recentDocsArr[j];
                 index = s2.lastIndexOf(fileSep);
@@ -167,24 +168,29 @@ class RecentDocuments {
             }
         }
         for(int i=0; i<recentDocsArr.length;i++) {
-            if(!dupArr[i])
+            if(!dupArr[i]){
                 recentDocsArr[i] = recentDocsArr[i].substring(recentDocsArr[i].lastIndexOf(fileSep)+1);
+            }
         }
     }
 
     void addDocument(String document) {
         if(document!=null) {
-        recentDocsList.remove(document); 
-        recentDocsList.add(0, document);
-        if(recentDocsList.size()>MAX_NUM_FILES) recentDocsList.remove(MAX_NUM_FILES);
-        storeList();}
+        	recentDocsList.remove(document); 
+        	recentDocsList.add(0, document);
+        	if(recentDocsList.size()>MAX_NUM_FILES){
+        		recentDocsList.remove(MAX_NUM_FILES);
+        	}
+        	storeList();
+        }
     }
 
     private void storeList() {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(file));
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             new Notify(e.getMessage());
         }
         try {
@@ -192,12 +198,15 @@ class RecentDocuments {
                 writer.write(s);
                 writer.newLine();
             }
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             new Notify(e.getMessage());
-        }finally{
+        }
+        finally{
             try {
                 writer.close();
-            } catch (IOException e) {
+            } 
+            catch (IOException e) {
                 new Notify(e.getMessage());
             }
         }
@@ -210,7 +219,8 @@ class RecentDocuments {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
+        } 
+        catch (FileNotFoundException e) {
             new Notify(e.getMessage());
         }
         recentDocsList = new ArrayList<String>();
@@ -219,12 +229,15 @@ class RecentDocuments {
             while ((line = reader.readLine()) != null) {
                 recentDocsList.add(line);
             }
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             new Notify(e.getMessage());
-        }finally{
+        }
+        finally{
             try {
                 reader.close();
-            } catch (IOException e) {
+            } 
+            catch (IOException e) {
                 new Notify(e.getMessage());
             }
         }

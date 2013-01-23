@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.wordprocessor.WPManager;
 
 /**
  * Display a message. 
@@ -50,7 +51,7 @@ realMessage = new LocaleHandler() .localValue (message);
 } else {
 realMessage = message;
 }
-Display display = BBIni.getDisplay();
+Display display = WPManager.getDisplay();
 if (display == null) {
 System.out.println (realMessage);
 return;

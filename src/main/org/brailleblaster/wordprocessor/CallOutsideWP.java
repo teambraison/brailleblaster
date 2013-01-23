@@ -35,14 +35,12 @@ package org.brailleblaster.wordprocessor;
  * Make certain features available outside the word processor
  */
 public class CallOutsideWP {
+	public void showTutorial() {
+		new UserHelp (WP.ReadTutorial);
+	}
 
-public void showTutorial() {
-new UserHelp (WP.ReadTutorial);
-}
-
-public void showURL (String url) {
-new UserHelp (url);
-}
-
+	public void showURL (String url) {
+		new UserHelp (url);
+	}
 }
 

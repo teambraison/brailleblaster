@@ -52,6 +52,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.wordprocessor.CallOutsideWP;
+import org.brailleblaster.wordprocessor.WPManager;
 
 /**
  * This class displays the welcome screen The first time BrailleBlaster 
@@ -70,7 +71,7 @@ if (!showWelcome()) {
 return;
 }
 
-Display display = BBIni.getDisplay();
+Display display = WPManager.getDisplay();
 final Shell shell = new Shell(display, SWT.CLOSE|SWT.BORDER);
 
 FormLayout formLayout = new FormLayout();

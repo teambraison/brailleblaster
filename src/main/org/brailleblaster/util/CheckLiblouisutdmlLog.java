@@ -37,6 +37,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.wordprocessor.WPManager;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -63,7 +65,7 @@ logFileName = BBIni.getLogFilesPath() + BBIni.getFileSep() +
  */
 public void displayLog () {
 StringBuilder logMessages = new StringBuilder (4096);
-Display display = BBIni.getDisplay();
+Display display = WPManager.getDisplay();
 Shell shell = new Shell(display, SWT.DIALOG_TRIM);
 MessageBox mb = new MessageBox(shell, SWT.OK);
 String line;

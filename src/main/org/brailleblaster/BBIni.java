@@ -69,7 +69,6 @@ public final class BBIni {
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private static Logger logger;
-	private static Display display = null;
 	private static String BBVersion;
 	private static String releaseDate;
 	private static String brailleblasterPath; // FO
@@ -113,15 +112,16 @@ public final class BBIni {
 		if (platformName.equals("win32")) {
 			BBHome = System.getenv("APPDATA") + fileSep + BBID;
 			nativeLibrarySuffix = ".dll";
-		} else if (platformName.equals("cocoa")) {
+		} 
+		else if (platformName.equals("cocoa")) {
 			BBHome = userHome + fileSep + "." + BBID;
 			nativeLibrarySuffix = ".dylib";
-		} else {
+		} 
+		else {
 			BBHome = userHome + fileSep + "." + BBID;
 			nativeLibrarySuffix = ".so";
 		}
-		nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep
-				+ "lib";
+		nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + "lib";
 		FileUtils fu = new FileUtils();
 		userProgramDataPath = BBHome + fileSep + "programData";
 		File userData = new File(userProgramDataPath);
@@ -129,24 +129,22 @@ public final class BBIni {
 			userData.mkdirs();
 		}
 		makeUserProgramData();
-		userSettings = userProgramDataPath + fileSep
-				+ "user_settings.properties";
+		userSettings = userProgramDataPath + fileSep + "user_settings.properties";
 		if (!fu.exists(userSettings)) {
-			fu.copyFile(programDataPath + fileSep + "settings" + fileSep
-					+ "user_settings.properties", userSettings);
+			fu.copyFile(programDataPath + fileSep + "settings" + fileSep + "user_settings.properties", userSettings);
 		}
 		recentDocs = userProgramDataPath + fileSep + "recent_documents.txt";
 		fu.create(recentDocs);
-		// FO Aug 03
 		stylePath = userProgramDataPath + fileSep + "styles";
 		File styleDir = new File(stylePath);
-		if (!styleDir.exists())
+		if (!styleDir.exists()){
 			styleDir.mkdirs();
-
+		}
 		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File(tempFilesPath);
-		if (!temps.exists())
+		if (!temps.exists()){
 			temps.mkdirs();
+		}
 		logFilesPath = BBHome + fileSep + "log";
 		File logPath = new File(logFilesPath);
 		if (!logPath.exists()) {
@@ -155,7 +153,8 @@ public final class BBIni {
 		logger = Logger.getLogger("org.brailleblaster");
 		try {
 			logFile = new FileHandler(logFilesPath + fileSep + "log.xml");
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "cannot open logfile", e);
 			e.printStackTrace();
@@ -165,7 +164,6 @@ public final class BBIni {
 		}
 		// disable output to console
 		logger.setUseParentHandlers(false);
-
 		if (args.length > 0) {
 			int i = 0;
 			while (i < args.length) {
@@ -187,54 +185,38 @@ public final class BBIni {
 				hSubcommands = true;
 			}
 		}
-		if (gotGui) {
-			try {
-				display = new Display();
-			} catch (SWTError e) {
-				logger.log(Level.SEVERE, "Can't find GUI", e);
-			}
-		}
 		try {
 			liblouisutdml.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			liblouisutdml.initialize(programDataPath, tempFilesPath,
-					"liblouisutdml.log");
+			liblouisutdml.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
 			hLiblouisutdml = true;
-		} catch (UnsatisfiedLinkError e) {
+		} 
+		catch (UnsatisfiedLinkError e) {
 			logger.log(Level.SEVERE, "Problem with liblouisutdml library", e);
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			logger.log(Level.WARNING, "This shouldn't happen", e);
 		}
 	}
 
 	private String getBrailleblasterPath(Object classToUse) {
-
-		/*
-		 * Option to use an environment variable (mostly for testing with
-		 * Eclipse)
-		 */
+		//Option to use an environment variable (mostly for testing withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
 		if (url != null) {
 			url = "file:/" + url;
-		} else {
-			url = classToUse
-					.getClass()
-					.getResource(
-							"/"
-									+ classToUse.getClass().getName()
-											.replaceAll("\\.", "/") + ".class")
-					.toString();
-
-			url = url.substring(url.indexOf("file")).replaceFirst(
-					"/[^/]+\\.jar!.*$", "/");
+		} 
+		else {
+			url = classToUse.getClass().getResource("/"+ classToUse.getClass().getName().replaceAll("\\.", "/") + ".class").toString();
+			url = url.substring(url.indexOf("file")).replaceFirst("/[^/]+\\.jar!.*$", "/");
 		}
 
 		try {
 			File dir = new File(new URL(url).toURI());
 			url = dir.getAbsolutePath();
-
-		} catch (MalformedURLException mue) {
+		} 
+		catch (MalformedURLException mue) {
 			url = null;
-		} catch (URISyntaxException ue) {
+		} 
+		catch (URISyntaxException ue) {
 			url = null;
 		}
 		return url;
@@ -260,14 +242,6 @@ public final class BBIni {
 
 	public static boolean debugging() {
 		return debug;
-	}
-
-	public static boolean haveGui() {
-		return gotGui;
-	}
-
-	public static Display getDisplay() {
-		return display;
 	}
 
 	public static boolean haveLiblouisutdml() {

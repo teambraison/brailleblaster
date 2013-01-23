@@ -71,8 +71,7 @@ public class ImportersManager
 
     
     // Constructor
-	public ImportersManager (String fileName, String tempPath, String docID, String arcType) 
-			throws Exception  {
+	public ImportersManager (String fileName, String tempPath, String docID, String arcType) throws Exception  {
 	    this.fileName = fileName;
 		this.tempPath = tempPath;
 		this.docID = docID;
@@ -81,21 +80,22 @@ public class ImportersManager
 		if (arcType.contains("epub")) {
 			isEpub = true;
 			mediaType = "application/xhtml+xml";
-		} else {	
+		} 
+		else {	
 	        isNimas = true;
 	        mediaType = "application/x-dtbook+xml";
 		}
 		
 	    if ((isNimas && isEpub) || (!isNimas && !isEpub)) {
-	    	System.err.println("extractZipFiles - Error - doc type - Nimas " + isNimas +
-	    			" isEpub " + isNimas);
+	    	System.err.println("extractZipFiles - Error - doc type - Nimas " + isNimas + " isEpub " + isNimas);
 	    }
 	 }
 
 	 public String[]  extractPubFiles () {
 			if (isEpub || isNimas) {
 				return extractZip(fileName, tempPath, docID);
-			} else {
+			} 
+			else {
 				return null;
 			}
 		}
@@ -107,12 +107,13 @@ public class ImportersManager
 		try {
  		    fis = new FileInputStream(new File(fileName));
  		    
-		} catch (FileNotFoundException e) {
+		} 
+		catch (FileNotFoundException e) {
 			System.err.println(e.getMessage());
 			return null;
 		}
 		ZipInputStream zis = new 
-				  ZipInputStream(new BufferedInputStream(fis));
+		ZipInputStream(new BufferedInputStream(fis));
 		ZipEntry entry;
 		StringBuffer arcNames = new StringBuffer();
 		int count = 0;
@@ -123,11 +124,11 @@ public class ImportersManager
 		   while((entry = zis.getNextEntry()) != null) {
 			   String fn = entry.getName();
 			   String ext = getFileExt(fn);
-			   if (ext.contentEquals("xml") || ext.contentEquals("opf") || ext.contentEquals("html")
-					   || ext.contentEquals("htm") || ext.contentEquals("xhtml")) {
+			   if (ext.contentEquals("xml") || ext.contentEquals("opf") || ext.contentEquals("html") || ext.contentEquals("htm") || ext.contentEquals("xhtml")) {
 			     arcNames.append(fn + "|");
 			     count++;
-			   } else {
+			   } 
+			   else {
 				   continue;
 			   }
 			   int c;
@@ -140,16 +141,16 @@ public class ImportersManager
 			   of.getParentFile().mkdirs();
 			   FileOutputStream fos = new FileOutputStream(destFile);
 			   BufferedOutputStream dest = new 
-						  BufferedOutputStream(fos, BUFFER);
-			   while ((c = zis.read(data, 0, BUFFER)) != -1) {
-				  
+			   BufferedOutputStream(fos, BUFFER);
+			   while ((c = zis.read(data, 0, BUFFER)) != -1) {  
 				   dest.write(data, 0, c);
 				}
 			    dest.flush();
 	            dest.close();
 		   }
 		   zis.close();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			System.err.println(e.getMessage());
 			return null;
 		}
@@ -174,13 +175,15 @@ public class ImportersManager
 			File of = new File(opfFile);
 			if (of.getParent() == null) {
 				opfPath = BBIni.getFileSep();
-			} else {
+			} 
+			else {
 			    opfPath = of.getParent() + BBIni.getFileSep();
 			}
 
 			orderedDocList = getOrderedFileList(a.length, tempPath+opfFile);
 			encoding = getEncoding(tempPath+opfFile);
-		} else {
+		} 
+		else {
 			orderedDocList = a.clone();
 			encoding = "UTF-8"; 
 		}
@@ -196,10 +199,12 @@ public class ImportersManager
 	    Document doc;
 		try {
 			doc = parser.build(opfFile);
-		} catch (ParsingException e) {
+		} 
+		catch (ParsingException e) {
 			new Notify(lh.localValue("malformedDocument") + "\n" + opfFile);
 			return null;
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			new Notify(lh.localValue("couldNotOpen") + "\n" + opfFile);
 			return null;
 		}
@@ -212,7 +217,6 @@ public class ImportersManager
 	}
 	
 	void walkOpfTree (Node node ) {
-		
 		Node newNode;
 		
 		for (int i = 0; i < node.getChildCount(); i++) {
@@ -235,7 +239,6 @@ public class ImportersManager
 	}
 	
 	private String getEncoding(String fileName) {
-
 		String line;
 		
 		try {
@@ -246,21 +249,26 @@ public class ImportersManager
 			  //System.out.println(line);
 			  ois.close();	  
 			
-			} catch (FileNotFoundException e) {
+		} 
+		catch (FileNotFoundException e) {
 			    System.err.println(e.getLocalizedMessage());
 			    return null;
-			} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			    System.err.println(e.getLocalizedMessage());
 			    return null;
-		    }
+		}
 		
-		if (line == null) return null;
+		if (line == null){
+			return null;
+		}
 		
 		String e2;
 		int i = line.indexOf("encoding=");
 		if (i < 0) {
 			e2 = "UTF-8";
-		} else {
+		} 
+		else {
 			String e1 = line.substring(i);
 			String e1a = e1.replace("'", "\"");
 			e2 = e1a.substring(e1a.indexOf("\"")+1, e1a.lastIndexOf("\"") );

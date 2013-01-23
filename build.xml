@@ -17,7 +17,7 @@ basedir=".">
 includeantruntime="false" source="1.6" target="1.6" >
 <classpath>
 <pathelement path="${classpath}"/>
-<pathelement location="${classpath}/swt.jar"/>
+<pathelement location="${classpath}/swt_win_64.jar"/>
 <pathelement location="${classpath}/commons-exec-1.1.jar"/>
 <pathelement location="${classpath}/jliblouisutdml.jar"/>
 <pathelement location="${classpath}/commons-cli-1.2.jar"/>

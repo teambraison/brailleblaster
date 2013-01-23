@@ -99,9 +99,8 @@ public final class BBIni {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
 		LocaleHandler lh = new LocaleHandler();
-		//Main m = new Main();
-		//brailleblasterPath = getBrailleblasterPath(m);
-		brailleblasterPath = "C:\\Users\\broller\\Documents\\LocalTest\\brailleblaster.newdesign\\dist";
+		Main m = new Main();
+		brailleblasterPath = getBrailleblasterPath(m);
 		osName = System.getProperty("os.name");
 		osVersion = System.getProperty("os.version");
 		fileSep = System.getProperty("file.separator");

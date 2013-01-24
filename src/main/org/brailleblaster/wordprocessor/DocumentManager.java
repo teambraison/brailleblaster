@@ -169,7 +169,7 @@ public class DocumentManager {
 	public void openDocument(String fileName){
 		System.out.println(fileName + " is opened here");
 		try{
-			db.startDocument(fileName, "preferences.cfg", "liblouisutdml.ini");
+			db.startDocument(fileName, "preferences.cfg", null);
 			setTabTitle(fileName);
 			System.out.println("Code here");
 		}

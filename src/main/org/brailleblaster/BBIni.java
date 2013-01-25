@@ -64,7 +64,7 @@ public final class BBIni {
 			bbini = new BBIni(args);
 		return bbini;
 	}
-
+	private static Display display;
 	private static boolean debug = false;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
@@ -338,6 +338,10 @@ public final class BBIni {
 
 	public static String getInstanceID() {
 		return instanceId;
+	}
+	
+	public static Display getDisplay(){
+		return display;
 	}
 
 }

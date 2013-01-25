@@ -68,7 +68,7 @@ public class WPManager {
     	checkLiblouisutdml();
     	 
         display = new Display();
-        this.shell = new Shell(display, SWT.SHELL_TRIM);
+    	this.shell = new Shell(display, SWT.SHELL_TRIM);
         this.shell.setText("BrailleBlaster"); 
 		this.layout = new FormLayout();
 		this.shell.setLayout(this.layout);

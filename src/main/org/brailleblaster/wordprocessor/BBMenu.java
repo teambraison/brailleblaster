@@ -293,7 +293,8 @@ class BBMenu {
 		});
 		
 		closeItem = new MenuItem(fileMenu, SWT.PUSH);
-		closeItem.setText(lh.localValue("&Close"));
+		closeItem.setText(lh.localValue("&Close") + "\tCtrl + Shift + C");
+		closeItem.setAccelerator(SWT.MOD1 + SWT.MOD2 + 'C');
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				int index = wp.getFolder().getSelectionIndex();

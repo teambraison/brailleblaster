@@ -27,6 +27,7 @@ public class FontManager {
 	
 	public static void setShellFonts(Shell shell, DocumentManager dm){
 		FontData[] fd = shell.getDisplay().getFontList(null, true);
+		String fileSep = BBIni.getFileSep();
 		String fn;
 
 		for (int i = 0; i < fd.length; i++) {
@@ -42,11 +43,9 @@ public class FontManager {
 		}
 
 		if (!SimBraille) {
-			String fontPath = BBIni.getBrailleblasterPath() + "/programData/fonts/SimBraille.ttf";
+			String fontPath = BBIni.getBrailleblasterPath() + fileSep + "programData" + fileSep + "fonts" + fileSep + "SimBraille.ttf";
 			String platform = SWT.getPlatform();
-			if (platform.equals("win32") || platform.equals("wpf")) {
-				fontPath = BBIni.getBrailleblasterPath() + "\\programData\\fonts\\SimBraille.ttf";
-			}
+
 			if (!shell.getDisplay().loadFont(fontPath)) {
 				new Notify(lh.localValue("fontNotLoadedBraille"));
 			}
@@ -56,11 +55,9 @@ public class FontManager {
 			daisyFont = new Font(shell.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
 		} 
 		else {
-			String fontPath = BBIni.getBrailleblasterPath() + "/programData/fonts/" + altFont + ".ttf";
+			String fontPath = BBIni.getBrailleblasterPath() + fileSep +  "programData" + fileSep + "fonts" +fileSep + altFont + ".ttf";
 			String platform = SWT.getPlatform();
-			if (platform.equals("win32") || platform.equals("wpf")) {
-				fontPath = BBIni.getBrailleblasterPath() + "\\programData\\fonts\\" + altFont + ".ttf";
-			}
+
 			if (!shell.getDisplay().loadFont(fontPath)) {
 				new Notify(lh.localValue("fontNotLoadedText"));
 			}

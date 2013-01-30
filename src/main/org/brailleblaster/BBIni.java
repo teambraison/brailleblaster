@@ -268,10 +268,6 @@ public final class BBIni {
 		return releaseDate;
 	}
 
-	public static String getBrailleblasterPath() {
-		return brailleblasterPath;
-	}
-
 	public static String getFileSep() {
 		return fileSep;
 	}

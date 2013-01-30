@@ -109,15 +109,15 @@ public class FontManager {
 		if (daisyFontHeight + (daisyFontHeight / 4) <= 48) {
 			daisyFontHeight += daisyFontHeight / 4;
 			if (Courier) {
-				daisyFont = new Font(wp.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
+				daisyFont = new Font(WPManager.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
 			} else {
-				daisyFont = new Font(wp.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
+				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 			}
 			dm.getDaisyView().setFont(daisyFont);
 
 			brailleFontHeight += brailleFontHeight / 4;
 			if (displayBrailleFont) {
-				simBrailleFont = new Font(wp.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
+				simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
 				dm.getBrailleView().setFont(simBrailleFont);
 			} 
 			else {
@@ -130,16 +130,16 @@ public class FontManager {
 		if (daisyFontHeight - (daisyFontHeight / 5) >= 8) {
 			daisyFontHeight -= daisyFontHeight / 5;
 			if (Courier) {
-				daisyFont = new Font(wp.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
+				daisyFont = new Font(WPManager.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
 			} 
 			else {
-				daisyFont = new Font(wp.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
+				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 			}
 			dm.getDaisyView().setFont(daisyFont);
 
 			brailleFontHeight -= brailleFontHeight / 5;
 			if (displayBrailleFont) {
-				simBrailleFont = new Font(wp.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
+				simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
 				dm.getBrailleView().setFont(simBrailleFont);
 			} 
 			else {

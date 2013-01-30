@@ -33,4 +33,4 @@ import java.util.HashMap;
 
 public class TextNodeMap extends HashMap<Integer, TextNodeItem> {
 	
-	}
+}

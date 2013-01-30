@@ -162,12 +162,12 @@ public class FileUtils {
  */
 public String findInProgramData (String partialPath) {
 File file;
-String completePath = BBIni.getUserProgramDataPath() + partialPath;
+String completePath = BBIni.getUserProgramDataPath() + BBIni.getFileSep() +  "liblouisutdml" + BBIni.getFileSep() + partialPath;
 file = new File (completePath);
 if (file.exists()) {
 return completePath;
 }
-completePath = BBIni.getProgramDataPath() + partialPath;
+completePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + partialPath;
 file = new File (completePath);
 if (file.exists()) {
 return completePath;

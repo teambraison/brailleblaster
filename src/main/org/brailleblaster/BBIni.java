@@ -33,6 +33,7 @@ package org.brailleblaster;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.CodeSource;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,6 +46,7 @@ import org.liblouis.liblouisutdml;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 
 /**
  * Determine and set initial conditions. This class takes care of most platform
@@ -64,7 +66,7 @@ public final class BBIni {
 			bbini = new BBIni(args);
 		return bbini;
 	}
-	private static Display display;
+	
 	private static boolean debug = false;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
@@ -198,7 +200,7 @@ public final class BBIni {
 		}
 	}
 
-	private String getBrailleblasterPath(Object classToUse) {
+	private String getBrailleblasterPath(Object classToUse)  {
 		//Option to use an environment variable (mostly for testing withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
 		if (url != null) {
@@ -219,13 +221,14 @@ public final class BBIni {
 		catch (URISyntaxException ue) {
 			url = null;
 		}
+		
 		return url;
 	}
 
 	private void makeUserProgramData() {
 		String basePath = userProgramDataPath + fileSep;
-		helpMakeUPD(basePath + "liblouis/tables");
-		helpMakeUPD(basePath + "liblouiutdml/lbu_files");
+		helpMakeUPD(basePath + "liblouis" + fileSep + "tables");
+		helpMakeUPD(basePath + "liblouisutdml" + fileSep + "lbu_files");
 		helpMakeUPD(basePath + "lang");
 		helpMakeUPD(basePath + "semantics");
 		helpMakeUPD(basePath + "styles");
@@ -335,9 +338,4 @@ public final class BBIni {
 	public static String getInstanceID() {
 		return instanceId;
 	}
-	
-	public static Display getDisplay(){
-		return display;
-	}
-
 }

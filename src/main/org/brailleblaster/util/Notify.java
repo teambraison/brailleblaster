@@ -51,8 +51,7 @@ public class Notify {
 		} else {
 			realMessage = message;
 		}
-		
-		//Display display = WPManager.getDisplay();
+
 		if (WPManager.getDisplay() == null) {
 			System.out.println(realMessage);
 			return;

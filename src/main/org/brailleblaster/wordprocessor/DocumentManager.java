@@ -170,6 +170,9 @@ public class DocumentManager {
 		System.out.println(fileName + " is opened here");
 		try{
 			this.db.startDocument(fileName, "preferences.cfg", null);
+			this.doc = this.db.getDocumentTree();
+			this.daisy.view.setText(this.doc.toXML());
+			this.treeView.populateTree(this.doc);
 			setTabTitle(fileName);
 		}
 		catch(Exception e){

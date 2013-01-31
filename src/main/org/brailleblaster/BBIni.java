@@ -33,20 +33,17 @@ package org.brailleblaster;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.CodeSource;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTError;
-import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
+
 
 /**
  * Determine and set initial conditions. This class takes care of most platform

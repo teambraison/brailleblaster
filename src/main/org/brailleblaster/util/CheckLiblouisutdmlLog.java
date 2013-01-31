@@ -74,8 +74,6 @@ try {
 logStream = new BufferedReader (new FileReader 
 (logFileName));
 } catch (FileNotFoundException e) {
-
-new Notify ("Could not find " + logFileName);
 return;
 }
 while(true) {
@@ -111,14 +109,13 @@ try {
 logStream = new BufferedReader (new FileReader 
 (logFileName));
 } catch (FileNotFoundException e) {
-new Notify ("Could not find " + logFileName);
 return;
 }
 while(true) {
 try {
 line = logStream.readLine();
 } catch (IOException e) {
-new Notify ("Problem reading " + logFileName);
+System.out.println ("Problem reading " + logFileName);
 return;
 }
 if (line == null) {

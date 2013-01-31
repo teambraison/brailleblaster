@@ -74,8 +74,7 @@ public class FontManager {
 		}
 
 		if (!SimBraille) {
-			String fontPath = BBIni.getProgramDataPath() + fileSep + 
-			"fonts" + fileSep + "SimBraille.ttf";
+			String fontPath = BBIni.getProgramDataPath() + fileSep + "fonts" + fileSep + "SimBraille.ttf";
 			if (!shell.getDisplay().loadFont(fontPath)) {
 				new Notify(lh.localValue("fontNotLoadedBraille"));
 			}
@@ -159,18 +158,17 @@ public class FontManager {
 
 	void setBrailleFont(WPManager wp, DocumentManager dm, boolean toggle) {
 		if (toggle) {
-			simBrailleFont = new Font(wp.getDisplay(),
+			simBrailleFont = new Font(WPManager.getDisplay(),
 					"SimBraille", brailleFontHeight, SWT.NORMAL);
 			dm.braille.view.setFont(simBrailleFont);
 
-		} else {
-			// FontData[] fd =
-			// (documentWindow.getDisplay().getSystemFont()).getFontData();
+		} 
+		else {
 			if (Courier) {
-				simBrailleFont = new Font(wp.getDisplay(),
+				simBrailleFont = new Font(WPManager.getDisplay(),
 						courierFont, daisyFontHeight, SWT.NORMAL);
 			} else {
-				simBrailleFont = new Font(wp.getDisplay(), altFont,
+				simBrailleFont = new Font(WPManager.getDisplay(), altFont,
 						daisyFontHeight, SWT.NORMAL);
 			}
 			dm.braille.view.setFont(simBrailleFont);

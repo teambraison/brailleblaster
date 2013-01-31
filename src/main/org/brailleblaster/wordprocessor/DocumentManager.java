@@ -170,9 +170,6 @@ public class DocumentManager {
 		System.out.println(fileName + " is opened here");
 		try{
 			this.db.startDocument(fileName, "preferences.cfg", null);
-			if(this.db.getDocumentTree() == null){
-				System.out.println("LibLouis sucks");
-			}
 			setTabTitle(fileName);
 		}
 		catch(Exception e){

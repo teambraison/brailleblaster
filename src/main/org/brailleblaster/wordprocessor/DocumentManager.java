@@ -61,7 +61,6 @@ import org.liblouis.liblouisutdml;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class DocumentManager {
-	//Shell shell;
 	WPManager wp;
 	TabItem item;
 	Group group;
@@ -171,6 +170,9 @@ public class DocumentManager {
 		try{
 			this.db.startDocument(fileName, "preferences.cfg", null);
 			this.doc = this.db.getDocumentTree();
+			if(this.db.getDocumentTree() == null){
+				System.out.println("The Document Base document tree is empty");
+			}
 			this.daisy.view.setText(this.doc.toXML());
 			this.treeView.populateTree(this.doc);
 			setTabTitle(fileName);

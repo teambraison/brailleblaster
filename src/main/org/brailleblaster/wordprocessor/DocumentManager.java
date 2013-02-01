@@ -33,11 +33,9 @@ package org.brailleblaster.wordprocessor;
 
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import nu.xom.Document;
 import org.brailleblaster.BBIni;
-import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.DocumentBase;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.YesNoChoice;
@@ -46,16 +44,11 @@ import org.brailleblaster.views.TextView;
 import org.brailleblaster.views.TreeView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.liblouis.liblouisutdml;
 
@@ -70,6 +63,7 @@ public class DocumentManager {
 	BrailleView braille;
 	FormLayout layout;
 	DocumentBase db;
+	Control [] tabList;
 	static int docCount = 0;
 	String documentName = null;
 	boolean documentChanged = false;
@@ -114,6 +108,9 @@ public class DocumentManager {
 		louisutdml = liblouisutdml.getInstance();
 		
 		FontManager.setShellFonts(this.wp.getShell(), this);
+		
+		this.tabList = new Control[]{this.treeView.view, this.daisy.view, this.braille.view};
+		this.group.setTabList(this.tabList);
 		
 		rd = new RecentDocuments(this);
 		utd = new UTD(this);

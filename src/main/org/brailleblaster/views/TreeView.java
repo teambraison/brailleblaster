@@ -44,7 +44,10 @@ import nu.xom.ValidityException;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
@@ -53,7 +56,8 @@ import org.eclipse.swt.widgets.TreeItem;
 
 public class TreeView extends AbstractView {
 	
-	Tree tree;
+	public Tree tree;
+	private Control[] tabList;
 	
 	public TreeView(Group documentWindow){
 		super(documentWindow, 0, 15, 0, 100);
@@ -75,9 +79,20 @@ public class TreeView extends AbstractView {
 			e.printStackTrace();
 		}
 		*/
-        
+		view.addFocusListener(new FocusListener(){
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				tree.setFocus();
+			}
+			@Override
+			public void focusLost(FocusEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
 		view.setLayout(new FillLayout());
-		tree.pack();
+		this.tree.pack();
 	}
 	
 	public void initializeView(){

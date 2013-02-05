@@ -258,9 +258,7 @@ private boolean compileFile (String fileName) {
   line = new String (bytebuf, numbytes);
   String[] parts = line.split (line, 6);
   if (parts[0].equals ("include")) {
-  String includeName = fu.findInProgramData ("semantics" +   
-  BBIni.getFileSep() + parts[1]);
-  compileFile (includeName);
+  compileFile (parts[1]);
   continue;
   }
   if (parts[0].equals ("newEntries") && parts[1].equals ("yes")) {
@@ -330,10 +328,7 @@ private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
   String rootName = rootElement.getLocalName();
-  String partialFileName = "semantics" + BBIni.getFileSep() + rootName 
-  + ".sem";
-  String fileName = fu.findInProgramData 
-  (partialFileName);
+  String fileName = rootName + ".bbs";
   compileFile (fileName);
 }
 

@@ -139,7 +139,8 @@ return null;
 private boolean setupFromFile (String completePath, String 
 configFile, 
 String configSettings) throws Exception {
-String configFileWithPath = fu.findInProgramData ("lbu_files" + fileSep 
+String configFileWithPath = fu.findInProgramData 
+("liblouisutdml" + fileSep + "lbu_files" + fileSep 
 + configFile);
 String configWithUTD;
 if (configSettings == null) {

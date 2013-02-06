@@ -42,9 +42,6 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.YesNoChoice;
-import org.brailleblaster.util.ShowBriefly;
-import org.brailleblaster.util.Notify;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class WPManager {

@@ -197,13 +197,17 @@ private String fileSep = BBIni.getFileSep();
 private boolean compileFile (String fileName) {
   String completePath = fu.findInProgramData ("semantics" + fileSep + 
   fileName);
-  FileInputStream semFile;
-  try {
-  semFile = new FileInputStream (completePath);
-  } catch (FileNotFoundException e) {
+  if (completePath == null) {
   haveSemanticFile = false;
   recordError (fileName, 0, "not found");
   return false;
+  }
+  FileInputStream semFile  = null;
+  try {
+  semFile = new FileInputStream (completePath);
+  } catch (FileNotFoundException e) {
+  /* This should not happen, because findInProgramData has already 
+  * checked*/
   }
   byte[] bytebuf = new byte[1024];
   int numbytes = 0;

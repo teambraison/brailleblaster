@@ -92,6 +92,7 @@ public class DocumentManager {
 	
 	//Constructor that sets things up for a new document.
 	DocumentManager(WPManager wp, String docName) {
+		this.documentName = docName;
 		this.wp = wp;
 		this.db = new DocumentBase();
 		this.item = new TabItem(wp.getFolder(), 0);
@@ -131,7 +132,7 @@ public class DocumentManager {
 		System.out.println("File save occurs");
 	}
 	
-	public void fileOpenDialog(WPManager wp){
+	public void fileOpenDialog(WPManager wp) {
 		String tempName;
 
 		FileDialog dialog = new FileDialog(this.wp.getShell(), SWT.OPEN);
@@ -153,7 +154,7 @@ public class DocumentManager {
 		tempName = dialog.open();
 		
 		if(tempName != null){
-			if(this.doc != null || this.daisy.hasChanged || this.braille.hasChanged){
+			if(this.doc != null || this.daisy.hasChanged || this.braille.hasChanged || this.documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
@@ -170,9 +171,10 @@ public class DocumentManager {
 			if(this.db.getDocumentTree() == null){
 				System.out.println("The Document Base document tree is empty");
 			}
-			this.daisy.view.setText(this.doc.toXML());
-			this.treeView.populateTree(this.doc);
 			setTabTitle(fileName);
+			this.daisy.view.setText(this.doc.toXML());
+			this.daisy.hasChanged = false;
+			this.treeView.populateTree(this.doc);
 		}
 		catch(Exception e){
 			e.printStackTrace();

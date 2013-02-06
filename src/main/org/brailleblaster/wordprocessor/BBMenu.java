@@ -36,8 +36,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
 
 class BBMenu {
 	//This class contains all the menus.
@@ -293,7 +291,7 @@ class BBMenu {
 		});
 		
 		closeItem = new MenuItem(fileMenu, SWT.PUSH);
-		closeItem.setText(lh.localValue("&Close") + "\tCtrl + Shift + C");
+		closeItem.setText(lh.localValue("&Close") + "\tCtrl + W");
 		closeItem.setAccelerator(SWT.MOD1 + 'W');
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {

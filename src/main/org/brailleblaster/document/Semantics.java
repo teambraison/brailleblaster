@@ -143,7 +143,7 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-SemanticEntry[] semanticsTable = new SemanticEntry[100];
+SemanticEntry[] semanticsTable = null;
 int semanticsCount = 0; // Number of entries in semanticsTable
 SemanticEntry getSemanticEntry (int index) {
 return semanticsTable[index];
@@ -276,6 +276,9 @@ private boolean compileFile (String fileName) {
   ("yes")) {
   internetAccessRequired = true;
   continue;
+  }
+  if (semanticsTable == null) {
+  semanticsTable = new SemanticEntry[100];
   }
   try {
   semanticsTable[semanticsCount].markup = parts[0]; // markup

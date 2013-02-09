@@ -262,7 +262,7 @@ private boolean compileFile (String fileName) {
   if (numBytes == 0) {
   continue;
   }
-  line = new String (bytebuf, numBytes);
+  line = new String (bytebuf);
   String[] parts = line.split (line, 6);
   if (parts[0].equals ("include")) {
   compileFile (parts[1]);

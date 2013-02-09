@@ -210,7 +210,7 @@ private boolean compileFile (String fileName) {
   * checked*/
   }
   byte[] bytebuf = new byte[1024];
-  int numbytes = 0;
+  int numBytes = 0;
   String line;
   boolean isCrNext = false;
   boolean isComment = false;
@@ -218,7 +218,7 @@ private boolean compileFile (String fileName) {
   int prevch = 0;
   int lineNumber = 0;
   while (true) {
-  numbytes = 0;
+  numBytes = 0;
   prevch = 0;
   isComment = false;
   lineNumber++;
@@ -232,7 +232,7 @@ private boolean compileFile (String fileName) {
   break;
   }
   ch &= 0xff;
-  if (numbytes == 0 && ch <= 32) {
+  if (numBytes == 0 && ch <= 32) {
   continue;
   }
   if (ch == 13 && isCrNext) {
@@ -243,7 +243,7 @@ private boolean compileFile (String fileName) {
   isComment = true;
   }
   if (ch == 10 || ch == 13) {
-  numbytes--;
+  numBytes--;
   if (prevch == '\\') {
   isCrNext = true;
   continue;
@@ -251,7 +251,7 @@ private boolean compileFile (String fileName) {
   break;
   }
   prevch = ch;
-  bytebuf[numbytes++] = (byte)ch;
+  bytebuf[numBytes++] = (byte)ch;
   }
   if (ch == -1) {
   break;
@@ -259,7 +259,10 @@ private boolean compileFile (String fileName) {
   if (isComment) {
   continue;
   }
-  line = new String (bytebuf, numbytes);
+  if (numBytes == 0) {
+  continue;
+  }
+  line = new String (bytebuf, numBytes);
   String[] parts = line.split (line, 6);
   if (parts[0].equals ("include")) {
   compileFile (parts[1]);

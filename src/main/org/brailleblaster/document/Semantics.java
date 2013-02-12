@@ -50,7 +50,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.YesNoChoice;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.ArrayList;
 
 /**
@@ -136,6 +136,32 @@ class SemanticEntry {
   Actions.Action action;
   Styles.StyleType style;
   String macro;
+
+SemanticEntry (String markup, String operation) {
+this.markup = markup;
+this.operation = operation;
+}
+
+void setOperand (String operand) {
+this.operand = operand;
+}
+
+void setParameters (String parameters) {
+this.parameters = parameters;
+}
+
+void setMacro (String macro) {
+this.macro = macro;
+}
+
+void setStyle (Styles.StyleType style) {
+this.style = style;
+}
+
+void setAction (String action) {
+this.action = Actions.Action.valueOf(action);
+}
+
 }
 
 /**
@@ -143,10 +169,11 @@ class SemanticEntry {
  * being processed is read and each line is used to create an entry in 
  * this table.
  */
-SemanticEntry[] semanticsTable = null;
+ArrayList<SemanticEntry> semanticsTable = new 
+     ArrayList<SemanticEntry>();
 int semanticsCount = 0; // Number of entries in semanticsTable
 SemanticEntry getSemanticEntry (int index) {
-return semanticsTable[index];
+return semanticsTable.get (index);
 }
 
 /**
@@ -154,8 +181,8 @@ return semanticsTable[index];
  * semanticsTable as keys and the index of entries in the samanticsTable 
  * as values.
  */
-Hashtable<String, Integer> semanticsLookup = new 
-  Hashtable<String, Integer>();
+HashMap<String, Integer> semanticsLookup = new 
+  HashMap<String, Integer>();
 
 private LocaleHandler lh = new LocaleHandler();
 private boolean internetAccessRequired;
@@ -217,18 +244,19 @@ private boolean compileFile (String fileName) {
   int ch = 0;
   int prevch = 0;
   int lineNumber = 0;
-  while (true) {
+  while (true) { // get a line
   numBytes = 0;
   prevch = 0;
   isComment = false;
   lineNumber++;
-  while (true) {
+  while (true) { // get characters in line.
   try {
   ch = semFile.read();
   } catch (IOException e) {
+  new Notify ("Error while reading semantic file " + fileName);
   return false;
   }
-  if (ch == -1) {
+  if (ch == -1) { // End of file
   break;
   }
   ch &= 0xff;
@@ -264,6 +292,11 @@ private boolean compileFile (String fileName) {
   }
   line = new String (bytebuf);
   String[] parts = line.split (line, 6);
+  if (parts.length < 2) {
+  recordError (fileName, lineNumber, 
+  "at least markup and an operation are required");
+  continue;
+  }
   if (parts[0].equals ("include")) {
   compileFile (parts[1]);
   continue;
@@ -277,47 +310,37 @@ private boolean compileFile (String fileName) {
   internetAccessRequired = true;
   continue;
   }
-  if (semanticsTable == null) {
-  semanticsTable = new SemanticEntry[100];
+  SemanticEntry se = new SemanticEntry (parts[0], parts[1]);
+  if (parts.length > 2) {
+  se.setOperand (parts[2]);
   }
-  try {
-  semanticsTable[semanticsCount].markup = parts[0]; // markup
-  } catch (ArrayIndexOutOfBoundsException e) {
-  recordError (fileName, lineNumber, "Too many semantic entries.");
-  return false;
+  if (parts.length > 3) {
+  se.setParameters (parts[3]);
   }
-  semanticsLookup.put (semanticsTable[semanticsCount].markup, semanticsCount);
-  semanticsTable[semanticsCount].operation = parts[1];
-  semanticsTable[semanticsCount].operand = parts[2];
-  semanticsTable[semanticsCount].parameters = parts[3];
-  semanticsTable[semanticsCount].style = null;
-  if (semanticsTable[semanticsCount].operation.equals ("action")) {
-  semanticsTable[semanticsCount].action = Actions.Action.valueOf 
-  (semanticsTable[semanticsCount].operand);
-  }
-  SemanticEntry checkError = semanticsTable[semanticsCount];
-  if (!(checkError.operation.equals ("style") || 
-  checkError.operation.equals ("action") || checkError.operation.equals 
+  if (!(se.operation.equals ("style") || 
+  se.operation.equals ("action") || se.operation.equals 
   ("macro"))) {
   recordError (fileName, lineNumber, 
   "There is no semantic operation called "
- + checkError.operation);
-  return false;
+ + se.operation);
+  continue;
   }
-  if (checkError.operation.equals ("style")
+  if (se.operation.equals ("style")
   && fu.findInProgramData ("styles" + fileSep + 
-  checkError.operand 
+  se.operand 
   + ".properties") == null) {
   recordError (fileName, lineNumber,
-  "There is no style called " + checkError.operand);
-  return false;
+  "There is no style called " + se.operand);
+  continue;
   }
-  if (checkError.operation.equals ("action") && 
-  Actions.Action.valueOf (checkError.operand) == null) {
+  if (se.operation.equals ("action") && 
+  Actions.Action.valueOf (se.operand) == null) {
   recordError (fileName, lineNumber,
-  "There is no action called " + checkError.operand);
-  return false;
+  "There is no action called " + se.operand);
+  continue;
   }
+  semanticsTable.add (se);
+  semanticsLookup.put (se.markup, semanticsCount);
   semanticsCount++;
   }
   try {
@@ -350,9 +373,10 @@ private void makeSemanticsTable() {
  */
 String findStyleMarkup (String styleName) {
   for (int i = 0; i < semanticsCount; i++) {
-  if (semanticsTable[i].operation.equals ("style") && 
-  semanticsTable[i].operand.equals (styleName))
-  return semanticsTable[i].markup;
+  SemanticEntry se = semanticsTable.get(i);
+  if (se.operation.equals ("style") && 
+  se.operand.equals (styleName))
+  return se.markup;
   }
   return null;
 }
@@ -365,9 +389,10 @@ String findStyleMarkup (String styleName) {
  */
 String findActionMarkup (String actionName) {
   for (int i = 0; i < semanticsCount; i++) {
-  if (semanticsTable[i].operation.equals ("action") && 
-  semanticsTable[i].operand.equals (actionName))
-  return semanticsTable[i].markup;
+  SemanticEntry se = semanticsTable.get(i);
+  if (se.operation.equals ("action") && 
+  se.operand.equals (actionName))
+  return se.markup;
   }
   return null;
 }
@@ -410,6 +435,24 @@ int semanticsIndex;
 int start; // start of text in StyledText.
 int end;
 int depth;
+
+ElementSemantics (Element element, int semanticsIndex) {
+this.element = element;
+this.semanticsIndex = semanticsIndex;
+}
+
+void setStart (int start) {
+this.start = start;
+}
+
+void setEnc (int end) {
+this.end = end;
+}
+
+void setDepth (int depth) {
+this.depth = depth;
+}
+
 }
 
 /**
@@ -448,12 +491,10 @@ newNode = node.getChild(i);
 if (newNode instanceof Element) {
 element = (Element)newNode;
 int semanticsIndex;
-if ((semanticsIndex = hasSemantics(element)) != -1 && 
-semanticsTable[semanticsIndex].action != Actions.Action.skip) {
-ElementSemantics elementEntry = new ElementSemantics();
-elementEntry.element = element;
-elementEntry.semanticsIndex = semanticsIndex;
-elementEntry.depth = depth;
+if ((semanticsIndex = hasSemantics(element)) != -1) {
+ElementSemantics elementEntry = new ElementSemantics(element, 
+semanticsIndex);
+elementEntry.setDepth (depth);
 semanticsList.add (elementEntry);
 }
 elementName = element.getLocalName();

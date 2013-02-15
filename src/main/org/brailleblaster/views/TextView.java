@@ -28,6 +28,11 @@
 
 package org.brailleblaster.views;
 
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.Text;
+
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.*;

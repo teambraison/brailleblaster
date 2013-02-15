@@ -167,7 +167,13 @@ class BBMenu {
 				else {
 					//dm.fileOpen();
 					int index= wp.getFolder().getSelectionIndex();
-					wp.getList().get(index).fileOpenDialog(wp);
+					if(index == -1){
+						wp.addDocumentManager(null);
+						wp.getList().getFirst().fileOpenDialog(wp);
+					}
+					else {
+						wp.getList().get(index).fileOpenDialog(wp);
+					}
 				}
 			}
 		});

@@ -33,8 +33,10 @@ package org.brailleblaster.wordprocessor;
 
 
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import nu.xom.Document;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.DocumentBase;
 import org.brailleblaster.localization.LocaleHandler;
@@ -166,15 +168,17 @@ public class DocumentManager {
 	public void openDocument(String fileName){
 		System.out.println(fileName + " is opened here");
 		try{
-			this.db.startDocument(fileName, "preferences.cfg", null);
-			this.doc = this.db.getDocumentTree();
-			if(this.db.getDocumentTree() == null){
-				System.out.println("The Document Base document tree is empty");
+			if(this.db.startDocument(fileName, "preferences.cfg", null)){
+				this.doc = this.db.getDocumentTree();
+				setTabTitle(fileName);
+				this.daisy.view.setText(this.doc.toXML().toString());
+				this.daisy.hasChanged = false;
+				this.treeView.populateTree(this.doc);		
 			}
-			setTabTitle(fileName);
-			this.daisy.view.setText(this.doc.toXML());
-			this.daisy.hasChanged = false;
-			this.treeView.populateTree(this.doc);
+			else {
+				System.out.println("The Document Base document tree is empty");
+				logger.log(Level.SEVERE, "The Document Base document tree is null, the file failed to parse properly");
+			}
 		}
 		catch(Exception e){
 			e.printStackTrace();

@@ -62,10 +62,12 @@ private liblouisutdml lutdml = liblouisutdml.getInstance();
  * @param configFile The name of a liblouisutdml configuration file
  * @param configSettings additional configuration settings
  */
-public void startDocument (InputStream inputStream, String configFile, 
+public boolean startDocument (InputStream inputStream, String 
+configFile, 
 String configSettings) throws Exception {
 String fileName = "xxx";
 sm.makeSemantics (fileName);
+return false;
 }
 
 /**
@@ -73,9 +75,9 @@ sm.makeSemantics (fileName);
  * explicitly.
  * @param completePath complete path to the file
  */
-public void startDocument (String completePath, String configFile, 
+public boolean startDocument (String completePath, String configFile, 
 String configSettings) throws Exception {
-setupFromFile (completePath, configFile, configSettings);
+return setupFromFile (completePath, configFile, configSettings);
 }
 
 /**
@@ -150,8 +152,8 @@ configWithUTD = configSettings + "formatFor utd\n mode notUC\n";
 }
 String outFile = BBIni.getTempFilesPath() + fileSep + 
 "outFile.utd";
-String logFile = BBIni.getLogFilesPath() + fileSep + 
-"liblouisutdml.log";
+String logFile = null;//BBIni.getLogFilesPath() + fileSep + 
+//"liblouisutdml.log";
 boolean success = false;
 int extPos = completePath.lastIndexOf (".") + 1;
 String ext = completePath.substring (extPos);

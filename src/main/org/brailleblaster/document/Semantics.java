@@ -248,6 +248,7 @@ private boolean compileFile (String fileName) {
   numBytes = 0;
   prevch = 0;
   isComment = false;
+  isCrNext = false;
   lineNumber++;
   while (true) { // get characters in line.
   try {
@@ -276,7 +277,7 @@ private boolean compileFile (String fileName) {
   isCrNext = true;
   continue;
   }
-  break;
+  break; //end of line
   }
   prevch = ch;
   bytebuf[numBytes++] = (byte)ch;
@@ -291,7 +292,7 @@ private boolean compileFile (String fileName) {
   continue;
   }
   line = new String (bytebuf);
-  String[] parts = line.split (line, 6);
+  String[] parts = line.split ("\\s+", 6);
   if (parts.length < 2) {
   recordError (fileName, lineNumber, 
   "at least markup and an operation are required");

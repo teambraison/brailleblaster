@@ -35,21 +35,17 @@ import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
-import org.eclipse.swt.*;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.custom.VerifyKeyListener;
+
 
 
 public class TextView extends AbstractView {
+int total;
 
 public TextView (Group documentWindow) {
 // super (documentWindow, 0, 55, 12, 92);
 super (documentWindow, 16, 57, 0, 100);
+this.total = 0;
 }
 
 /* This is a derivative work from 
@@ -58,6 +54,29 @@ super (documentWindow, 16, 57, 0, 100);
 
 public void initializeView(){
 	
+}
+
+public void setText(Document doc){
+	Element e = doc.getRootElement();
+	
+	for(int i = 0; i < e.getChildCount(); i++){
+			this.setTextHelper(e.getChild(i));
+	}
+}
+
+private void setTextHelper(Node e){
+	for(int i = 0; i < e.getChildCount(); i++){
+		setTextHelper(e.getChild(i));
+	}
+	if(!(e instanceof Text)){
+		Element local = (Element)e;
+	
+		if(local.getLocalName().equals("p")){
+			if(e.getChildCount() > 0){
+				view.append(e.getChild(0).getValue() + "\n");
+			}
+		}
+	}
 }
 
 private class TextContent extends AbstractContent {

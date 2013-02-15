@@ -71,7 +71,6 @@ public class DocumentManager {
 	boolean documentChanged = false;
 	RecentDocuments rd;
 	UTD utd;
-	Document doc = null;
 	NewDocument newDoc;
 	String configFileList = null;
 	static String tempPath = null;
@@ -105,7 +104,6 @@ public class DocumentManager {
 		this.daisy = new TextView(this.group);
 		this.braille = new BrailleView(this.group);
 		this.item.setControl(this.group);
-		this.doc = null;
 		
 		tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
 		louisutdml = liblouisutdml.getInstance();
@@ -156,7 +154,7 @@ public class DocumentManager {
 		tempName = dialog.open();
 		
 		if(tempName != null){
-			if(this.doc != null || this.daisy.hasChanged || this.braille.hasChanged || this.documentName != null){
+			if(this.db.getDocumentTree() != null || this.daisy.hasChanged || this.braille.hasChanged || this.documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
@@ -169,11 +167,10 @@ public class DocumentManager {
 		System.out.println(fileName + " is opened here");
 		try{
 			if(this.db.startDocument(fileName, "preferences.cfg", null)){
-				this.doc = this.db.getDocumentTree();
 				setTabTitle(fileName);
-				this.daisy.view.setText(this.doc.toXML().toString());
+				this.daisy.setText(this.db.getDocumentTree());
 				this.daisy.hasChanged = false;
-				this.treeView.populateTree(this.doc);		
+				this.treeView.populateTree(this.db.getDocumentTree());		
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -206,7 +203,6 @@ public class DocumentManager {
 		haveOpenedFile = false;
 		brailleFileName = null;
 		documentName = null;
-		doc = null;
 	
 		this.daisy.hasChanged = false;
 		this.braille.hasChanged = false;

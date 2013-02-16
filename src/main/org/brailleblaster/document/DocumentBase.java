@@ -173,8 +173,7 @@ outFile,
 logFile, configWithUTD, 0);
 } else
 if (ext.equalsIgnoreCase ("utd")) {
-sm.makeSemantics (completePath);
-success = true;
+success = sm.makeSemantics (completePath);
 } else {
 throw new IllegalArgumentException 
 (completePath + " not .xml, .txt, or .brf");
@@ -183,8 +182,8 @@ new CheckLiblouisutdmlLog().displayLog();
 if (!success) {
 return false;
 }
-sm.makeSemantics (outFile);
-return true;
+success = sm.makeSemantics (outFile);
+return success;
 }
 
 }

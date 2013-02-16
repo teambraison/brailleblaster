@@ -95,7 +95,7 @@ act = new Actions (this);
  * @param fileName: The complete path to a file in which UTDML has been 
  * added to the original xml document.
  */
-void makeSemantics (String fileName) throws Exception {
+boolean makeSemantics (String fileName) throws Exception {
   if (workingDocument != null) {
   throw new Exception ("Attempt to reuse instance");
   }
@@ -105,23 +105,24 @@ try {
 workingDocument = parser.build (file);
 } catch (ParsingException e) {
 new Notify(lh.localValue("malformedDocument"));
-return;
+return false;
 } catch (IOException e) {
 new Notify(lh.localValue("couldNotOpen") + " " + fileName);
-return;
+return false;
 }
   rootElement = workingDocument.getRootElement();
   makeSemanticsTable();
   if (errorCount > 0) {
   new Notify (errorMessages + errorCount + " errors found. stop.");
   errorMessages = null;
-  return;
+  return false;
   }
   if (!haveSemanticFile) {
   newEntries = true;
   }
   makeSemanticsList();
   outputNewEntries();
+  return true;
 }
 
 /**

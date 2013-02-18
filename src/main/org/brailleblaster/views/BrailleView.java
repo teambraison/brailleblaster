@@ -28,16 +28,15 @@
 
 package org.brailleblaster.views;
 
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.Text;
+
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
-import org.eclipse.swt.*;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.VerifyEvent;
+
 
 public class BrailleView extends AbstractView {
 
@@ -52,6 +51,52 @@ public class BrailleView extends AbstractView {
 	 */
 	public void initializeView() {
 
+	}
+	
+	public void setText(Document doc){
+		Element e = doc.getRootElement();
+		
+		for(int i = 0; i < e.getChildCount(); i++){
+				this.setTextHelper(e.getChild(i));
+		}
+	}
+
+	private void setTextHelper(Node e){
+		for(int i = 0; i < e.getChildCount(); i++){
+			setTextHelper(e.getChild(i));
+		}
+		if(!isTextNode(e)){
+			Element local = (Element)e;
+		
+			if(local.getLocalName().equals("brl")){
+				for(int i = 0; i < e.getChildCount(); i++){
+					if(e.getChild(i).getChildCount() == 0 && !e.getChild(i).getValue().equals("")){
+						view.append(e.getChild(i).getValue());
+					}
+					else if(e.getChild(i).getValue().equals("") && e.getChild(i).getChildCount() == 0){
+						Element temp = (Element) e.getChild(i);
+						if(!temp.getLocalName().equals("newpage")){
+							view.append("\n");
+						}
+						else {
+							if(temp.getAttributeValue("brlnumber").equals("1")){
+								view.append("Page" + temp.getAttributeValue("brlnumber"));
+							}
+							else {
+								view.append("\nPage" + temp.getAttributeValue("brlnumber"));
+							}
+						}
+					}
+					//if(i == e.getChildCount() - 1){
+					//	view.append("\n");
+					//}
+				}
+			}
+		}
+	}
+	
+	public boolean isTextNode(Node n){
+		return (n instanceof Text);
 	}
 
 	class BrailleContent extends AbstractContent {

@@ -169,6 +169,7 @@ public class DocumentManager {
 			if(this.db.startDocument(fileName, "preferences.cfg", null)){
 				setTabTitle(fileName);
 				this.daisy.setText(this.db.getDocumentTree());
+				this.braille.setText(this.db.getDocumentTree());
 				this.daisy.hasChanged = false;
 				this.treeView.populateTree(this.db.getDocumentTree());		
 			}

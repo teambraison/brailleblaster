@@ -303,15 +303,24 @@ private boolean compileFile (String fileName) {
   compileFile (parts[1]);
   continue;
   }
-  if (parts[0].equalsIgnoreCase ("newEntries") 
-  && parts[1].equalsIgnoreCase ("yes")) {
+  if (parts[0].equalsIgnoreCase ("newEntries")) {
+  if (parts[1].equalsIgnoreCase ("yes")) {
   newEntries = true;
+  } else if (parts[1].equalsIgnoreCase ("no")) {
+  newEntries = false;
+  } else {
+  recordError (fileName, lineNumber, "'yes' or 'no' is required.");
+  }
   continue;
   }
-  if (parts[0].equalsIgnoreCase ("internetAccessRequired") 
-  && parts[1].equalsIgnoreCase 
-("yes")) {
+  if (parts[0].equalsIgnoreCase ("internetAccessRequired")) {
+  if (parts[1].equalsIgnoreCase ("yes")) {
   internetAccessRequired = true;
+  } else if (parts[1].equalsIgnoreCase ("no")) {
+  internetAccessRequired = false;
+  } else {
+  recordError (fileName, lineNumber, "'yes' or 'no' is required.");
+  }
   continue;
   }
   SemanticEntry se = new SemanticEntry (parts[0], parts[1]);

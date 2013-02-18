@@ -72,11 +72,29 @@ private void setTextHelper(Node e){
 		Element local = (Element)e;
 	
 		if(local.getLocalName().equals("p")){
-			if(e.getChildCount() > 0){
+			if(e.getChildCount() > 0 && !isTabs(e.getChild(0)) && !isSpaces(e.getChild(0))){
 				view.append(e.getChild(0).getValue() + "\n");
 			}
 		}
 	}
+}
+
+private boolean isTabs(Node n){
+	for(int i = 0; i < n.getValue().length(); i++){
+		if(!(n.getValue().charAt(i) == '\t')){
+			return false;
+		}
+	}
+	return true;
+}
+
+private boolean isSpaces(Node n){
+	for(int i = 0; i < n.getValue().length(); i++){
+		if(!(n.getValue().charAt(i) == ' ')){
+			return false;
+		}
+	}
+	return true;
 }
 
 private class TextContent extends AbstractContent {

@@ -299,16 +299,18 @@ private boolean compileFile (String fileName) {
   "at least markup and an operation are required");
   continue;
   }
-  if (parts[0].equals ("include")) {
+  if (parts[0].equalsIgnoreCase ("include")) {
   compileFile (parts[1]);
   continue;
   }
-  if (parts[0].equals ("newEntries") && parts[1].equals ("yes")) {
+  if (parts[0].equalsIgnoreCase ("newEntries") 
+  && parts[1].equalsIgnoreCase ("yes")) {
   newEntries = true;
   continue;
   }
-  if (parts[0].equals ("internetAccessRequired") && parts[1].equals 
-  ("yes")) {
+  if (parts[0].equalsIgnoreCase ("internetAccessRequired") 
+  && parts[1].equalsIgnoreCase 
+("yes")) {
   internetAccessRequired = true;
   continue;
   }
@@ -319,15 +321,15 @@ private boolean compileFile (String fileName) {
   if (parts.length > 3) {
   se.setParameters (parts[3]);
   }
-  if (!(se.operation.equals ("style") || 
-  se.operation.equals ("action") || se.operation.equals 
+  if (!(se.operation.equalsIgnoreCase ("style") || 
+  se.operation.equalsIgnoreCase ("action") || se.operation.equalsIgnoreCase 
   ("macro"))) {
   recordError (fileName, lineNumber, 
   "There is no semantic operation called "
  + se.operation);
   continue;
   }
-  if (se.operation.equals ("style")
+  if (se.operation.equalsIgnoreCase ("style")
   && fu.findInProgramData ("styles" + fileSep + 
   se.operand 
   + ".properties") == null) {
@@ -335,7 +337,7 @@ private boolean compileFile (String fileName) {
   "There is no style called " + se.operand);
   continue;
   }
-  if (se.operation.equals ("action") && 
+  if (se.operation.equalsIgnoreCase ("action") && 
   Actions.Action.valueOf (se.operand) == null) {
   recordError (fileName, lineNumber,
   "There is no action called " + se.operand);
@@ -376,8 +378,8 @@ private void makeSemanticsTable() {
 String findStyleMarkup (String styleName) {
   for (int i = 0; i < semanticsCount; i++) {
   SemanticEntry se = semanticsTable.get(i);
-  if (se.operation.equals ("style") && 
-  se.operand.equals (styleName))
+  if (se.operation.equalsIgnoreCase ("style") && 
+  se.operand.equalsIgnoreCase (styleName))
   return se.markup;
   }
   return null;
@@ -392,8 +394,8 @@ String findStyleMarkup (String styleName) {
 String findActionMarkup (String actionName) {
   for (int i = 0; i < semanticsCount; i++) {
   SemanticEntry se = semanticsTable.get(i);
-  if (se.operation.equals ("action") && 
-  se.operand.equals (actionName))
+  if (se.operation.equalsIgnoreCase ("action") && 
+  se.operand.equalsIgnoreCase (actionName))
   return se.markup;
   }
   return null;
@@ -500,7 +502,7 @@ elementEntry.setDepth (depth);
 semanticsList.add (elementEntry);
 }
 elementName = element.getLocalName();
-if (!(elementName.equals("brl") || elementName.equals("math"))) {
+if (!(elementName.equalsIgnoreCase("brl") || elementName.equalsIgnoreCase("math"))) {
 findSemantics (element, depth++);
 }
 }

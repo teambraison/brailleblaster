@@ -8,13 +8,10 @@ h3 style heading3
 h4 style heading4
 h5 style heading4
 h6 style heading4
-a,href action htmlLink
-a,name action htmlTarget
 code style computerCode
 code,class,inline action compbrl
 em action italic \s,\s
 b action bold
-acronym action notranslate
 li style list
 pagenum action pagenum
 docauthor style para

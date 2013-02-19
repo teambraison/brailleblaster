@@ -292,7 +292,7 @@ private boolean compileFile (String fileName) {
   if (numBytes == 0) {
   continue;
   }
-  line = new String (bytebuf);
+  line = new String (bytebuf, numBytes);
   String[] parts = line.trim().split ("\\s+", 6);
   if (parts.length < 2) {
   recordError (fileName, lineNumber, 

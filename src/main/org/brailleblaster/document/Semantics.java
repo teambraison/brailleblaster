@@ -33,6 +33,8 @@ package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -225,75 +227,29 @@ private String fileSep = BBIni.getFileSep();
 private boolean compileFile (String fileName) {
   String completePath = fu.findInProgramData ("semantics" + fileSep + 
   fileName);
-  if (completePath == null) {
+if (completePath == null) {
   haveSemanticFile = false;
   recordError (fileName, 0, "not found");
   return false;
   }
   FileInputStream semFile  = null;
+  BufferedReader br;
   try {
   semFile = new FileInputStream (completePath);
   } catch (FileNotFoundException e) {
-  /* This should not happen, because findInProgramData has already 
+  /* This should not happen, because findInProgramData has already
   * checked*/
   }
-  byte[] bytebuf = new byte[1024];
-  int numBytes = 0;
   String line;
-  boolean isCrNext = false;
-  boolean isComment = false;
-  int ch = 0;
-  int prevch = 0;
   int lineNumber = 0;
-  while (true) { // get a line
-  numBytes = 0;
-  prevch = 0;
-  isComment = false;
-  isCrNext = false;
-  lineNumber++;
-  while (true) { // get characters in line.
+  br = new BufferedReader(new InputStreamReader(semFile));
   try {
-  ch = semFile.read();
-  } catch (IOException e) {
-  new Notify ("Error while reading semantic file " + fileName);
-  return false;
+  while ((line = br.readLine()) != null) {
+   lineNumber++;
+   String[] parts = line.trim().split ("\\s+", 6);
+  if (parts[0].charAt(0) == '#') {
+  continue; //comment
   }
-  if (ch == -1) { // End of file
-  break;
-  }
-  ch &= 0xff;
-  if (numBytes == 0 && ch <= 32) {
-  continue;
-  }
-  if (ch == 13 && isCrNext) {
-  isCrNext = false;
-  continue;
-  }
-  if (ch == '#') {
-  isComment = true;
-  }
-  if (ch == 10 || ch == 13) {
-  numBytes--;
-  if (prevch == '\\') {
-  isCrNext = true;
-  continue;
-  }
-  break; //end of line
-  }
-  prevch = ch;
-  bytebuf[numBytes++] = (byte)ch;
-  }
-  if (ch == -1) {
-  break;
-  }
-  if (isComment) {
-  continue;
-  }
-  if (numBytes == 0) {
-  continue;
-  }
-  line = new String (bytebuf, numBytes);
-  String[] parts = line.trim().split ("\\s+", 6);
   if (parts.length < 2) {
   recordError (fileName, lineNumber, 
   "at least markup and an operation are required");
@@ -355,6 +311,10 @@ private boolean compileFile (String fileName) {
   semanticsTable.add (se);
   semanticsLookup.put (se.markup, semanticsCount);
   semanticsCount++;
+  }
+  } catch (IOException e) {
+  new Notify ("Problem reading " + completePath);
+  return false;
   }
   try {
   semFile.close();

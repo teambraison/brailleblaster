@@ -305,7 +305,7 @@ if (completePath == null) {
   continue;
   }
   if (se.operation.equalsIgnoreCase ("action") && 
-  Actions.Action.valueOf (se.operand) == null) {
+  !act.exists (se.operand)) {
   recordError (fileName, lineNumber,
   "There is no action called " + se.operand);
   continue;

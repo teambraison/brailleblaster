@@ -92,6 +92,18 @@ enum Action {
 };
 
 /**
+ * Check if an action exists.
+ */
+boolean exists (String actionName) {
+  try {
+  Action.valueOf (actionName);
+  } catch (IllegalArgumentException e) {
+  return false;
+  }
+  return true;
+}
+ 
+/**
  * This method is called to carry out any actions that may be needed 
  * before an elemennt is processed. If the action itself processes the 
  * element, such as skipping it and its subtree, the method returns 

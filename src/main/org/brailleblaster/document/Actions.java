@@ -73,6 +73,7 @@ enum Action {
   htmlLink,
   htmlTarget,
   noTranslate,
+  pagenum,
   attrToText,
   runningHead,
   footer,

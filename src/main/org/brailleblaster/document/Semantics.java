@@ -106,10 +106,12 @@ Builder parser = new Builder();
 try {
 workingDocument = parser.build (file);
 } catch (ParsingException e) {
-new Notify(lh.localValue("malformedDocument"));
+new Notify("Problem processing " + fileName + " See stack trace.");
+e.printStackTrace();
 return false;
 } catch (IOException e) {
-new Notify(lh.localValue("couldNotOpen") + " " + fileName);
+new Notify ("Problem processing " + fileName + " See stack trace.");
+e.printStackTrace();
 return false;
 }
   rootElement = workingDocument.getRootElement();

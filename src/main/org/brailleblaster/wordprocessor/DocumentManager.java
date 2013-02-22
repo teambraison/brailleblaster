@@ -168,10 +168,11 @@ public class DocumentManager {
 		try{
 			if(this.db.startDocument(fileName, "preferences.cfg", null)){
 				setTabTitle(fileName);
+				this.treeView.populateTree(this.db.getDocumentTree());	
 				this.daisy.setText(this.db.getDocumentTree());
+				this.daisy.hasChanged = false;	
 				this.braille.setText(this.db.getDocumentTree());
-				this.daisy.hasChanged = false;
-				this.treeView.populateTree(this.db.getDocumentTree());		
+				this.braille.hasChanged = false;	
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");

@@ -28,9 +28,12 @@
 
 package org.brailleblaster.views;
 
+import nu.xom.Comment;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractContent;
@@ -66,35 +69,14 @@ public void setText(Document doc){
 
 private void setTextHelper(Node e){
 	for(int i = 0; i < e.getChildCount(); i++){
-		setTextHelper(e.getChild(i));
-	}
-	if(!(e instanceof Text)){
-		Element local = (Element)e;
-	
-		if(local.getLocalName().equals("p")){
-			if(e.getChildCount() > 0 && !isTabs(e.getChild(0)) && !isSpaces(e.getChild(0))){
-				view.append(e.getChild(0).getValue() + "\n");
-			}
+		if(!(e.getChild(i) instanceof Text) && !(e.getChild(i) instanceof Comment)){
+			if(!((Element)e.getChild(i)).getLocalName().equals("brl"))
+				setTextHelper(e.getChild(i));
+		}
+		else if(e.getChild(i) instanceof Text){
+			view.append(e.getChild(i).getValue() + "\n");
 		}
 	}
-}
-
-private boolean isTabs(Node n){
-	for(int i = 0; i < n.getValue().length(); i++){
-		if(!(n.getValue().charAt(i) == '\t')){
-			return false;
-		}
-	}
-	return true;
-}
-
-private boolean isSpaces(Node n){
-	for(int i = 0; i < n.getValue().length(); i++){
-		if(!(n.getValue().charAt(i) == ' ')){
-			return false;
-		}
-	}
-	return true;
 }
 
 private class TextContent extends AbstractContent {

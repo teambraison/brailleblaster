@@ -115,10 +115,10 @@ public class TreeView extends AbstractView {
 	
 	private void populateHelper(Element e, TreeItem item){
 		Elements n = e.getChildElements();
-		
+
 		for(int i = 0; i < n.size(); i++){
 			Element e2 = n.get(i);
-        	TreeItem temp = new TreeItem(item, 0);
+			TreeItem temp = new TreeItem(item, 0);
         	temp.setText(e2.getLocalName());
         	populateHelper(e2, temp);
 		}

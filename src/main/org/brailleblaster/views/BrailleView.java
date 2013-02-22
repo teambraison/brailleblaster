@@ -28,6 +28,7 @@
 
 package org.brailleblaster.views;
 
+import nu.xom.Comment;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -39,11 +40,12 @@ import org.eclipse.swt.widgets.Group;
 
 
 public class BrailleView extends AbstractView {
-
+	int total;
+	
 	public BrailleView(Group documentWindow) {
 		// super (documentWindow, 56, 100, 12, 92);
 		super(documentWindow, 58, 100, 0, 100);
-
+		this.total = 0;
 	}
 
 	/*
@@ -65,38 +67,27 @@ public class BrailleView extends AbstractView {
 		for(int i = 0; i < e.getChildCount(); i++){
 			setTextHelper(e.getChild(i));
 		}
-		if(!isTextNode(e)){
-			Element local = (Element)e;
 		
-			if(local.getLocalName().equals("brl")){
-				for(int i = 0; i < e.getChildCount(); i++){
-					if(e.getChild(i).getChildCount() == 0 && !e.getChild(i).getValue().equals("")){
+		if(!(e instanceof Text) && !(e instanceof Comment)){
+			Element local = (Element)e;
+	
+			if(local.getLocalName().equals("brl") && local.getChildCount() > 1){
+				for(int i = 0; i < local.getChildCount(); i++){
+					if(e.getChild(i) instanceof Text){
 						view.append(e.getChild(i).getValue());
 					}
-					else if(e.getChild(i).getValue().equals("") && e.getChild(i).getChildCount() == 0){
-						Element temp = (Element) e.getChild(i);
-						if(!temp.getLocalName().equals("newpage")){
+					else {
+						Element temp = (Element)e.getChild(i);
+						if(temp.getLocalName().equals("span")){
+							view.append("\nPage " + temp.getChild(0).getValue().trim());
+						}
+						else if(temp.getLocalName().equals("newline")){
 							view.append("\n");
 						}
-						else {
-							if(temp.getAttributeValue("brlnumber").equals("1")){
-								view.append("Page" + temp.getAttributeValue("brlnumber"));
-							}
-							else {
-								view.append("\nPage" + temp.getAttributeValue("brlnumber"));
-							}
-						}
 					}
-					//if(i == e.getChildCount() - 1){
-					//	view.append("\n");
-					//}
 				}
-			}
+			}	
 		}
-	}
-	
-	public boolean isTextNode(Node n){
-		return (n instanceof Text);
 	}
 
 	class BrailleContent extends AbstractContent {

@@ -158,7 +158,8 @@ class BBMenu {
 			}
 		});
 		openItem = new MenuItem(fileMenu, SWT.PUSH);
-		openItem.setText(lh.localValue("&Open") );
+		openItem.setText(lh.localValue("&Open") + "\tCtrl + O");
+		openItem.setAccelerator(SWT.MOD1 + 'O');
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {

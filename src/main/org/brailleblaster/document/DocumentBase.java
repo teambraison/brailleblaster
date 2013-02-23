@@ -36,6 +36,7 @@ import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.liblouis.liblouisutdml;
 import nu.xom.Document;
 import nu.xom.Node;
+import nu.xom.Element;
 import nu.xom.Nodes;
 import java.io.InputStream;
 import org.brailleblaster.util.FileUtils;
@@ -184,6 +185,59 @@ return false;
 }
 success = sm.makeSemantics (outFile);
 return success;
+}
+
+public Element element;
+public String style;
+public String action;
+public String macro;
+public String parameters;
+public int start;
+public int end;
+public boolean newStyle;
+public boolean insideStyle;
+
+private int nextSemEntry;
+
+public void startSemantics () {
+nextSemEntry = 0;
+next();
+}
+
+private Semantics.ElementSemantics elemSem = null;
+
+public void next() {
+elemSem = sm.semanticsList.get(nextSemEntry);
+nextSemEntry++;
+this.element = elemSem.element;
+Semantics.SemanticEntry semEnt = 
+sm.semanticsTable.get(elemSem.semanticsIndex);
+if (semEnt.operation.equalsIgnoreCase ("style")) {
+this.style = semEnt.operand;
+} else {
+this.style = null;
+}
+if (semEnt.operation.equalsIgnoreCase ("action")) {
+this.action = semEnt.operand;
+} else {
+this.action = null;
+}
+if (semEnt.operation.equalsIgnoreCase ("macro")) {
+this.macro = semEnt.operand;
+} else {
+this.macro = null;
+}
+this.parameters = semEnt.parameters;
+this.start = elemSem.start;
+this.end = elemSem.end;
+}
+
+public void setLimits (int start, int end) {
+elemSem.start = start;
+elemSem.end = end;
+}
+
+public void finePosition (int cursorPos) {
 }
 
 }

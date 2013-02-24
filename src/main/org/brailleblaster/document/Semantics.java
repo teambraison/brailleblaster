@@ -530,27 +530,9 @@ private int hasSemantics (Element element) {
  * Revise the semanticsList after an edit. 
  * @param startPos: the position at whichh to begin the revision.
  */
-private void wReviseSemanticList (int startPos) {
+void wReviseSemanticList (int startPos) {
 }
  
-/**
- * This method is used by the readAndEdit method to carry out the 
- * appropriate operations for each element in the semanticsList.
- */
-private void doSemantics (Element element) {
-}
-
-/**
- * This method enables the user to read and edit the contents of the 
- * document. It moves around in the parse tree, following the user's 
- * scrolling and cursor movements. The doStyleOrAction method is called 
- * for each element in the semanticsList.
- */
-void readAndEdit() {
-for (int i = 0; i < semanticsList.size(); i++) {
-}
-}
-
 /**
  * Return a nodeset.
  * @param node beginning node

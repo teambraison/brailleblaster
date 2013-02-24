@@ -37,6 +37,7 @@ import org.liblouis.liblouisutdml;
 import nu.xom.Document;
 import nu.xom.Node;
 import nu.xom.Element;
+import nu.xom.Text;
 import nu.xom.Nodes;
 import java.io.InputStream;
 import org.brailleblaster.util.FileUtils;
@@ -48,6 +49,10 @@ import org.brailleblaster.util.FileUtils;
  methods in this class. Thus they have no need to worry about the 
  * vocabulary of the particular document, unless they are displaying a 
  * tree view. 
+ * See the comment "for views" for fields and methods that can be used 
+ * in other views.
+ * NOTE: Views must use the instance of DocumenBase created when the 
+ * document was opened.
  */
 public class DocumentBase {
 
@@ -187,11 +192,21 @@ success = sm.makeSemantics (outFile);
 return success;
 }
 
+/**
+ * for views The following fields provide the abstraction of the 
+ * document, and the methods provide The means of stepping through the 
+ * document, seting the fields accordingly. They also provide the means 
+ * of indicating the start and end of segments of text in a StyledText 
+ * control and of finding the values of the fields corresponding to a 
+ * cursor position.
+ */
 public Element element;
+public Text text;
 public String style;
 public String action;
 public String macro;
 public String parameters;
+public int styleNesting;
 public int start;
 public int end;
 public boolean newStyle;
@@ -199,6 +214,10 @@ public boolean insideStyle;
 
 private int nextSemEntry;
 
+/**
+ * This method begins the process of providing the semantic or abstract 
+ * information about a document.
+ */
 public void startSemantics () {
 nextSemEntry = 0;
 next();
@@ -206,6 +225,11 @@ next();
 
 private Semantics.ElementSemantics elemSem = null;
 
+/**
+ * This method supplies the information for the next significant portion 
+ * of the document. Note that not all elements are considered as 
+ * significant.
+ */
 public void next() {
 elemSem = sm.semanticsList.get(nextSemEntry);
 nextSemEntry++;
@@ -232,12 +256,20 @@ this.start = elemSem.start;
 this.end = elemSem.end;
 }
 
+/**
+ * This method communicates the beginning and end positions of a segment 
+ * of text in a StyledText control to the underlying semantic or 
+ * abstract representation.
+ */
 public void setLimits (int start, int end) {
 elemSem.start = start;
 elemSem.end = end;
 }
 
-public void finePosition (int cursorPos) {
+/**
+ * This method sets the fields to correspond to a given cursor position.
+ */
+public void findPosition (int cursorPos) {
 }
 
 }

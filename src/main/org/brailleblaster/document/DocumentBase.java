@@ -200,16 +200,62 @@ return success;
  * control and of finding the values of the fields corresponding to a 
  * cursor position.
  */
+/**
+ * Element that is the principal of these fields.
+ */
 public Element element;
+
+/**
+ * Text node asociated with this element. WARNING: this field may be 
+  * null.
+ */
 public Text text;
+/**
+ * The name of the style associated with this element.
+ */
 public String style;
+
+/**
+ * The name of the action associated with this element, may be null.
+ */
 public String action;
+
+/**
+ * The macro associated with this element, may be null.
+ */
 public String macro;
+
+/**
+ * Parameters associated with this style, action or macro; may be null.
+ */
 public String parameters;
+
+/**
+ * Depth to which this style is nested within other styles; document 
+ * style is 0.
+ */
 public int styleNesting;
+
+/**
+ * Start of the text in a StyledText control associated with this Text 
+ * node.
+ */
 public int start;
+
+/**
+ * Endo f the text in a StyledText control associated with this Text 
+  * node.
+ */
 public int end;
+
+/**
+ * Beginning a set of style fields.
+ */
 public boolean newStyle;
+
+/**
+ * Inside a style, such as when handling emphasis, math or graphic.
+ */
 public boolean insideStyle;
 
 private int nextSemEntry;

@@ -31,9 +31,7 @@ package org.brailleblaster.views;
 import nu.xom.Comment;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.Nodes;
 import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractContent;
@@ -70,8 +68,9 @@ public void setText(Document doc){
 private void setTextHelper(Node e){
 	for(int i = 0; i < e.getChildCount(); i++){
 		if(!(e.getChild(i) instanceof Text) && !(e.getChild(i) instanceof Comment)){
-			if(!((Element)e.getChild(i)).getLocalName().equals("brl"))
+			if(!((Element)e.getChild(i)).getLocalName().equals("brl")){
 				setTextHelper(e.getChild(i));
+			}
 		}
 		else if(e.getChild(i) instanceof Text){
 			view.append(e.getChild(i).getValue() + "\n");

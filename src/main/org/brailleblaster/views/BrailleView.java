@@ -68,28 +68,17 @@ public class BrailleView extends AbstractView {
 			setTextHelper(e.getChild(i));
 		}
 		
-		if(!(e instanceof Text) && !(e instanceof Comment)){
-			Element local = (Element)e;
-	
-			if(local.getLocalName().equals("brl") && local.getChildCount() > 1){
-				for(int i = 0; i < local.getChildCount(); i++){
-					if(e.getChild(i) instanceof Text){
-						view.append(e.getChild(i).getValue());
-					}
-					else {
-						Element temp = (Element)e.getChild(i);
-						if(temp.getLocalName().equals("span")){
-							view.append("\nPage " + temp.getChild(0).getValue().trim());
-						}
-						else if(temp.getLocalName().equals("newline")){
-							view.append("\n");
-						}
-					}
-				}
-			}	
+		if(e instanceof Text){
+			Element parent = (Element)e.getParent();
+			if(parent.getLocalName().equals("brl")){
+				view.append(e.getValue() + "\n");
+			}
+		}
+		else if(!(e instanceof Comment) && ((Element)e).getLocalName().equals("newpage")){
+			view.append("\n");
 		}
 	}
-
+	
 	class BrailleContent extends AbstractContent {
 	}
 }

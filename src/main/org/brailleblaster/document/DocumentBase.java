@@ -158,8 +158,8 @@ configWithUTD = configSettings + "formatFor utd\n mode notUC\n";
 }
 String outFile = BBIni.getTempFilesPath() + fileSep + 
 "outFile.utd";
-String logFile = null;//BBIni.getLogFilesPath() + fileSep + 
-//"liblouisutdml.log";
+String logFile = BBIni.getLogFilesPath() + fileSep + 
+"liblouisutdml.log";
 boolean success = false;
 int extPos = completePath.lastIndexOf (".") + 1;
 String ext = completePath.substring (extPos);

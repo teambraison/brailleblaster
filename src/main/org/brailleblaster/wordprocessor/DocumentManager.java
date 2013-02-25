@@ -35,7 +35,6 @@ package org.brailleblaster.wordprocessor;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import nu.xom.Document;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.DocumentBase;

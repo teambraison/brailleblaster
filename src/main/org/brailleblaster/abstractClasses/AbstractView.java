@@ -31,18 +31,15 @@ package org.brailleblaster.abstractClasses;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.events.*;
 
 public abstract class AbstractView {
 	public StyledText view;
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
-
+	
 	public AbstractView() {
 	}
 
@@ -71,7 +68,7 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
-
+	
 	void handleKeystrokes(VerifyEvent event) {
 		hasChanged = true;
 		event.doit = true;

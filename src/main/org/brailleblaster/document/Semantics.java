@@ -463,19 +463,26 @@ Element element;
 String elementName;
 for (int i = 0; i < node.getChildCount(); i++) {
 newNode = node.getChild(i);
-if (newNode instanceof Element) {
+if (!(newNode instanceof Element)) {
+continue;
+}
 element = (Element)newNode;
-int semanticsIndex;
-if ((semanticsIndex = hasSemantics(element)) != -1) {
+int semanticsIndex = hasSemantics(element);
+if (semanticsIndex != -1) {
+SemanticEntry semEnt = semanticsTable.get (semanticsIndex);
+if (semEnt.operation.equalsIgnoreCase ("action") && 
+semEnt.operand.equalsIgnoreCase ("skip")) {
+continue;
+}
 ElementSemantics elementEntry = new ElementSemantics(element, 
 semanticsIndex);
 elementEntry.setDepth (depth);
 semanticsList.add (elementEntry);
 }
 elementName = element.getLocalName();
-if (!(elementName.equalsIgnoreCase("brl") || elementName.equalsIgnoreCase("math"))) {
+if (!(elementName.equalsIgnoreCase("brl") 
+|| elementName.equalsIgnoreCase("math"))) {
 findSemantics (element, depth++);
-}
 }
 }
 }

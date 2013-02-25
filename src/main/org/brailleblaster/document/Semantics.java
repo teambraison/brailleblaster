@@ -77,6 +77,7 @@ Document workingDocument;
  * Root element of workingDocument
  */
 private Element rootElement;
+private String rootName;
 
 Styles st;
 Actions act;
@@ -288,6 +289,11 @@ if (completePath == null) {
   if (parts.length > 3) {
   se.setParameters (parts[3]);
   }
+  if (se.markup.equalsIgnoreCase (rootName)) {
+  recordError (fileName, lineNumber, 
+  "the root element may not be used as markup");
+  continue;
+  }
   if (!(se.operation.equalsIgnoreCase ("style") || 
   se.operation.equalsIgnoreCase ("action") || se.operation.equalsIgnoreCase 
   ("macro"))) {
@@ -335,7 +341,7 @@ if (completePath == null) {
 private void makeSemanticsTable() {
   internetAccessRequired = false;
   newEntries = false;
-  String rootName = rootElement.getLocalName();
+  rootName = rootElement.getLocalName();
   String fileName = rootName + ".bbs";
   compileFile (fileName);
 }

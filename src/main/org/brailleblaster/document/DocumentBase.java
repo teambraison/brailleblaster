@@ -258,14 +258,14 @@ public boolean newStyle;
  */
 public boolean insideStyle;
 
-private int nextSemEntry;
+private int nextElemSem;
 
 /**
  * This method begins the process of providing the semantic or abstract 
  * information about a document.
  */
 public void startSemantics () {
-nextSemEntry = 0;
+nextElemSem = 0;
 next();
 }
 
@@ -276,9 +276,12 @@ private Semantics.ElementSemantics elemSem = null;
  * of the document. Note that not all elements are considered as 
  * significant.
  */
-public void next() {
-elemSem = sm.semanticsList.get(nextSemEntry);
-nextSemEntry++;
+public boolean next() {
+if (nextElemSem >= sm.semanticsList.size()) {
+return false;
+}
+elemSem = sm.semanticsList.get(nextElemSem);
+nextElemSem++;
 this.element = elemSem.element;
 Semantics.SemanticEntry semEnt = 
 sm.semanticsTable.get(elemSem.semanticsIndex);
@@ -300,6 +303,7 @@ this.macro = null;
 this.parameters = semEnt.parameters;
 this.start = elemSem.start;
 this.end = elemSem.end;
+return true;
 }
 
 /**

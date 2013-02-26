@@ -107,7 +107,7 @@ sign ¥ 45-13456				yen	sign																		x00A5
 sign § 346						section sign																x00A7
 sign © 236-14-356		copyright			x00A9
 # sign « 45-2356				left-pointing double angle quotation mark		x00AB
-sign « 256				left-pointing double angle quotation mark		x00AB
+punctuation « 256				left-pointing double angle quotation mark		x00AB
 sign ° 5-356					degree sign																	x00B0
 
 sign ² 4-6-126				superscript 2 sign													x00B2
@@ -115,7 +115,7 @@ sign ³ 4-6-146				superscript 3 sign													x00B3
 sign \x00B4 6					acute sign dec-180
 sign ¹ 1-27						superscript 1 sign													x00B9
 # sign » 2356-12				right-pointing double angle quotation mark	x00BB
-sign » 256				right-pointing double angle quotation mark	x00BB
+punctuation » 256				right-pointing double angle quotation mark	x00BB
 math ¼ 6-16-34-1456		vulgar fraction one quarter								x00BC
 
 math ½ 6-16-34-126		vulgar fraction one half									x00BD
@@ -178,12 +178,22 @@ capsign 6							# single capital letter indicator
 begcaps 6-6						# a block of consecutive capital letters indicator
 endcaps 56
 
-begital 23
-begbold 23
-begunder 456
-endital 56
-endbold 56
-endunder 456
+lenitalphrase 1
+lenboldphrase 1
+
+firstwordital 23
+firstletterital 23
+firstwordbold 23
+firstletterbold 23
+firstwordunder 23
+firstletterunder 23
+
+lastworditalafter 56
+lastletterital 56
+lastwordboldafter 56
+lastletterbold 56
+lastwordunderafter 56
+lastletterunder 56
 
 midnum , 2
 midnum . 3
@@ -205,9 +215,6 @@ endnum g 56-1245
 endnum h 56-125
 endnum i 56-24
 endnum j 56-245
-repeated \s 0		espaces
-repeated \t 0		tabulations
-repeated \x00a0 0		espaces insécables
 
 repeated ... 3-3-3		points de suite
 repeated --- 36-36-36

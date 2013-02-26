@@ -16,10 +16,12 @@ table_files = \
 	ca-chardefs.cti \
 	ca-g1.ctb \
 	chardefs.cti \
+	chardefs-ueb.cti \
 	ckb-chardefs.cti \
 	ckb-g1.ctb \
 	ckb-translation.ctb \
 	compress.ctb \
+	controlchars.cti \
 	corrections.ctb \
 	countries.cti \
 	cs-chardefs.cti \
@@ -53,14 +55,17 @@ table_files = \
 	de-g1-core.ctb \
 	de-g2-core.ctb \
 	devanagari.cti \
-	digits6Dots.uti \
 	digits6DotsPlusDot6.uti \
+	digits6Dots.uti \
 	digits8Dots.uti \
 	dra.ctb \
 	en_CA.ctb \
 	en-chess.ctb \
+	en-gb-comp8.ctb \
 	en-gb-g1.utb \
 	en-GB-g2.ctb \
+	en-ueb-g1.ctb \
+	en-ueb-g2.ctb \
 	en-us-brf.dis \
 	en-us-comp6.ctb \
 	en-us-comp8.ctb \
@@ -96,9 +101,6 @@ table_files = \
 	Fr-Fr-g2.ctb \
 	ga.ctb \
 	gd.ctb \
-	gez-chardefs.cti \
-	gez-g1.ctb \
-	gez-translation.ctb \
 	gon.ctb \
 	gr-bb.ctb \
 	gr-gr-g1.utb \
@@ -112,10 +114,11 @@ table_files = \
 	hu-backtranslate-correction.dis \
 	hu-chardefs.cti \
 	hu-exceptionwords.cti \
-	hu-hu-g1.ctb \
 	hu-hu-comp8.ctb \
+	hu-hu-g1.ctb \
 	hy.ctb \
 	hyph_cs_CZ.dic \
+	hyph_da_DK.dic \
 	hyph_de_DE.dic \
 	hyph_en_US.dic \
 	hyph_es_ES.dic \
@@ -126,15 +129,20 @@ table_files = \
 	hyph_no_NO.dic \
 	hyph_pl_PL.dic \
 	hyph_pt_PT.dic \
+	hyph_ru.dic \
 	hyph_sv_SE.dic \
 	is-chardefs6.cti \
 	is-chardefs8.cti \
 	is.ctb \
-	it-it-g1.utb \
-	it-it-g1.utb2 \
+	it-it-comp6.utb \
+	it-it-comp8.utb \
+	iu-ca-g1.ctb \
 	kannada.cti \
 	kha.ctb \
 	kn.ctb \
+	ko.cti \
+	ko-g1.ctb \
+	ko-g2.ctb \
 	kok.ctb \
 	kru.ctb \
 	lang2table \
@@ -184,8 +192,11 @@ table_files = \
 	pt-pt-g1.utb \
 	pt-pt-g2.ctb \
 	ro.ctb \
+	ru-chardefs.cti \
+	ru-compbrl.ctb \
 	ru.ctb \
-	ru-ru-comp8 \
+	ru-letters.dis \
+	ru-litbrl.ctb \
 	ru-ru.dis \
 	ru-ru-g1.utb \
 	sa.ctb \
@@ -224,7 +235,6 @@ table_files = \
 	vi.ctb \
 	wiskunde-chardefs.cti \
 	wiskunde.ctb \
-	wiskunde_edit.cti \
 	wiskunde-translation.ctb \
 	zh-hk.ctb \
 	zh-tw.ctb 

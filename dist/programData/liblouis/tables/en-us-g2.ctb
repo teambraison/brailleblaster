@@ -58,6 +58,7 @@ always aer = Rosenlaer
 begword aforem 1-123456-15-134 aforementioned 
 word aforesaid 1-123456-15-234-145
 always afr 1-124-1235
+always africa 1-124-1235-24-14-1
 sufword after 1-124
 contraction af
 always afternoon 1-124-1345 afternoons
@@ -677,6 +678,7 @@ always spirit 456-234
 midendword ssword 234-234-45-2456 crossword 
 partword st 34
 always sth 234-1456
+always st. 34-256
 always sthe 234-2346
 word still 34
 always stime 234-5-2345
@@ -1069,6 +1071,5 @@ context _$d["A"] @56-1
 # problems handled with multipass opcodes
 pass2 @36-36-36 @36-36
 pass2 @6-236-3456 @3-3456
-pass2 $s1-10 @0
 pass2 @6-56 @56-6
 

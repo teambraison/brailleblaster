@@ -1,4 +1,4 @@
-# Multiple Blank, Tab, etc. Suppression Table
+# liblouis: some control characters
 
 #  Based on the Linux screenreader BRLTTY, copyright (C) 1999-2006 by
 #  The BRLTTY Team
@@ -28,22 +28,6 @@
 #
 #  Maintained by John J. Boyer john.boyer@abilitiessoft.com
 
-space \s 0 blank
-space \t 9 tab
-space \x000a 0 newline
-space \x000c 0
-space \x000d 0 carriage return
-space \x001b 1b escape character for html back-translation
-space \x00A0 a NO-BREAK SPACE <noBreak> 0020 NON-BREAKING SPACE 
-
-# Sequences which should be represented by blank spaces
-repeated \s 0
-repeated \t 0
-
-# cut down lines of hyphens, underscores, etc.
-repeated --- 36
-repeated ___ 456
-repeated === 123456
-
-pass2 $s1-10 @0
-
+space \x000a a1 newline
+space \x000c a2 forms feed
+space \x000d a3 carriage return

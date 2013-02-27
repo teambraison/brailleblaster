@@ -33,6 +33,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -50,15 +51,19 @@ public class BBToolBar {
 		toolBar = new ToolBar(shell, SWT.HORIZONTAL);
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
-		location.right = new FormAttachment(50);
+		location.right = new FormAttachment(30);
 		location.top = new FormAttachment(4);
 		toolBar.setLayoutData(location);
+		
+		// Path to dist folder.
+		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf("\\"));
+		
 		// FO
 		String tlabel;
-
 		ToolItem openItem = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Open");
 		openItem.setText(tlabel.replace("&", ""));
+		openItem.setImage(new Image(null, distPath  + "\\Images\\open.png"));
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -74,6 +79,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("&Save");
 		saveItem.setText(tlabel.replace("&", ""));
+		saveItem.setImage(new Image(null, distPath  + "\\Images\\save.png"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.fileSave();
@@ -84,6 +90,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("&Translate");
 		translateItem.setText(tlabel.replace("&", ""));
+		translateItem.setImage(new Image(null, distPath  + "\\Images\\translate.png"));
 		// FO
 		translateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -95,6 +102,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("Emboss&Now!");
 		embossNow.setText(tlabel.replace("&", ""));
+		embossNow.setImage(new Image(null, distPath  + "\\Images\\emboss.png"));
 		embossNow.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.fileEmbossNow();
@@ -112,6 +120,7 @@ public class BBToolBar {
 		ToolItem daisyPrint = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Print");
 		daisyPrint.setText(tlabel.replace("&", ""));
+		daisyPrint.setImage(new Image(null, distPath  + "\\Images\\print.png"));
 		daisyPrint.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.daisyPrint();
@@ -121,7 +130,7 @@ public class BBToolBar {
 		toolBar.pack();
 
 		FormData bloc = new FormData();
-		bloc.left = new FormAttachment(68);
+		bloc.left = new FormAttachment(30);
 		bloc.right = new FormAttachment(78);
 		bloc.top = new FormAttachment(5);
 		Button checkBrailleItem = new Button(shell, SWT.CHECK);

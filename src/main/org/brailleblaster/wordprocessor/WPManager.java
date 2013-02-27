@@ -56,6 +56,7 @@ public class WPManager {
     private FormData location;
     private BBMenu bbMenu;
     private BBStatusBar statusBar;
+    private BBToolBar toolBar;
     private LinkedList<DocumentManager> managerList;
     
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
@@ -74,12 +75,15 @@ public class WPManager {
 		this.location = new FormData();
 	    this.location.left = new FormAttachment(0);
 	    this.location.right = new FormAttachment(100);
-	    this.location.top = new FormAttachment (3);
+	    this.location.top = new FormAttachment (20);
 	    this.location.bottom = new FormAttachment(98);
 	    this.folder.setLayoutData (this.location);
 	   
 	    this.statusBar = new BBStatusBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
+	    
+	    // Toolbar.
+	    toolBar = new BBToolBar(shell);
 	    
 	    this.managerList = new LinkedList<DocumentManager>();
 	    this.managerList.add(new DocumentManager(this, null));

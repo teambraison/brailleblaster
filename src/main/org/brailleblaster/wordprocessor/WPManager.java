@@ -83,7 +83,7 @@ public class WPManager {
 	    this.bbMenu = new BBMenu(this);
 	    
 	    // Toolbar.
-	    toolBar = new BBToolBar(shell);
+	    toolBar = new BBToolBar(shell, this);
 	    
 	    this.managerList = new LinkedList<DocumentManager>();
 	    this.managerList.add(new DocumentManager(this, null));

@@ -179,7 +179,7 @@ class BBMenu {
 			}
 		});
 
-		recentItem = new MenuItem(fileMenu, SWT.PUSH);
+		recentItem = new MenuItem (fileMenu, SWT.CASCADE);
 		recentItem.setText(lh.localValue("&Recent"));
 		recentItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -188,6 +188,24 @@ class BBMenu {
 				wp.getList().get(index).rd.open();
 			}
 		});
+		
+		////////////////////////////
+		// Populate Recent Documents
+		
+			// Create submenu, and add it to "Recent Document" menu item.
+			Menu subMen = new Menu(wp.getShell(), SWT.DROP_DOWN);
+			recentItem.setMenu(subMen);
+			
+			// Open 'recent files' file.
+			
+			
+			MenuItem biscuit = new MenuItem(subMen, SWT.PUSH);
+			biscuit.setText(lh.localValue("&biscuit"));
+
+		// Populate Recent Documents
+		////////////////////////////
+		
+		
 		importItem = new MenuItem(fileMenu, SWT.PUSH);
 		importItem.setText(lh.localValue("&Import"));
 		importItem.addSelectionListener(new SelectionAdapter() {

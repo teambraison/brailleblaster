@@ -46,7 +46,7 @@ public class BBToolBar {
 	private ToolBar toolBar;
 
 	// FO
-	public BBToolBar(Shell shell) {
+	public BBToolBar(Shell shell, final WPManager wp) {
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.HORIZONTAL);
 		FormData location = new FormData();
@@ -70,7 +70,15 @@ public class BBToolBar {
 					// dm.setReturn (WP.OpenDocumentGetFile);
 				} 
 				else {
-					// dm.fileOpen();
+//					dm.fileOpen();
+					int index= wp.getFolder().getSelectionIndex();
+					if(index == -1){
+						wp.addDocumentManager(null);
+						wp.getList().getFirst().fileOpenDialog(wp);
+					}
+					else {
+						wp.getList().get(index).fileOpenDialog(wp);
+					}
 				}
 			}
 		});

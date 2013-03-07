@@ -91,7 +91,8 @@ public class WPManager {
 		this.shell.addListener(SWT.Close, new Listener() { 
 	        public void handleEvent(Event event) { 
 	           System.out.println("Main Shell handling Close event, about to dipose the main Display"); 
-	           display.dispose(); 
+	           display.dispose();
+	           bbMenu.writeRecentsToFile();
 	        } 
 	     });
 		
@@ -162,5 +163,9 @@ public class WPManager {
     
     public BBStatusBar getStatusBar(){
     	return this.statusBar;
+    }
+    
+    public BBMenu getMainMenu() {
+    	return bbMenu;
     }
 }

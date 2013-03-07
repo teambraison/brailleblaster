@@ -73,7 +73,7 @@ public class DocumentManager {
 	TextView daisy;
 	BrailleView braille;
 	FormLayout layout;
-	DocumentBase db;
+	public DocumentBase db;
 	Control [] tabList;
 	static int docCount = 0;
 	String documentName = null;
@@ -206,8 +206,8 @@ public class DocumentManager {
 				setViews(this.db.getDocumentTree().getRootElement(), this.treeView.getRoot());			
 				this.daisy.hasChanged = false;	
 				this.braille.hasChanged = false;		
-				//list.getLast().list.removeLast();
-				//this.daisy.addListeners(this);	
+				list.getLast().list.removeLast();
+				this.daisy.addListeners(this);	
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -313,6 +313,31 @@ public class DocumentManager {
 		}
 	}
 	
+	public int findClosest(int location){
+		for(int i = 0; i < list.size() - 1; i++){
+			if(location >= list.get(i).offset && location < list.get(i + 1).offset){
+				return i;
+			}
+		}
+		if(location > this.list.get(this.list.size() - 1).offset){
+					return this.list.size() - 1;
+		}
+		else {
+			return -1;
+		}
+	}
+	
+	public void changeNodeText(int nodeNum, String text){
+		Text temp = (Text)this.list.get(nodeNum).n;
+		temp.setValue(text);
+		System.out.println(this.list.get(nodeNum).n.getValue());
+	}
+	
+	public void updateOffsets(int nodeNum, int offset){
+		for(int i = nodeNum + 1; i < list.size(); i++)
+			list.get(i).offset +=offset;
+	}
+	
 	public void changeFocus(){
 		TreeItem[] temp = this.treeView.tree.getSelection();
 		TextMapElement me = (TextMapElement)temp[0].getData();
@@ -320,6 +345,25 @@ public class DocumentManager {
 			this.daisy.view.setFocus();
 			this.daisy.view.setCaretOffset(me.offset);
 		}
+	}
+	
+	public void updateFields(int nodeNum, int offset){
+		int start = list.get(nodeNum).list.getFirst().offset;
+		int end = 0;
+		
+		for(int i = 0; i < list.get(nodeNum).list.size(); i++){
+			end += list.get(nodeNum).list.get(i).n.getValue().length() + 1;
+		}
+		
+		changeNodeText(nodeNum, this.daisy.view.getTextRange(this.list.get(nodeNum).offset, this.list.get(nodeNum).n.getValue().length() + offset));
+		updateOffsets(nodeNum, offset);
+		//changeBrailleNodes(nodeNum, list.get(nodeNum).n.getValue());
+	}
+	
+	public void setBrailleFocus(){
+		int index = findClosest(this.daisy.view.getCaretOffset());
+		this.braille.view.setFocus();
+		this.braille.view.setCaretOffset(list.get(index).list.getFirst().offset);
 	}
 	
 	public StyledText getDaisyView(){

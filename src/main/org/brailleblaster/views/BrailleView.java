@@ -28,8 +28,6 @@
 
 package org.brailleblaster.views;
 
-import java.util.LinkedList;
-
 import nu.xom.Comment;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -40,7 +38,6 @@ import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.eclipse.swt.widgets.Group;
 
-
 public class BrailleView extends AbstractView {
 	public int total;
 	
@@ -48,7 +45,6 @@ public class BrailleView extends AbstractView {
 		// super (documentWindow, 56, 100, 12, 92);
 		super(documentWindow, 58, 100, 0, 100);
 		this.total = 0;
-		this.list = new LinkedList<mapElement>();
 	}
 
 	/*

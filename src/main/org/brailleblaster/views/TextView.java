@@ -28,20 +28,15 @@
 
 package org.brailleblaster.views;
 
-import java.util.LinkedList;
-
-import nu.xom.Comment;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.Node;
-import nu.xom.Text;
-
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
+import org.eclipse.swt.custom.ExtendedModifyListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.TreeItem;
-
-
 
 public class TextView extends AbstractView {
 public int total;
@@ -50,7 +45,6 @@ public TextView (Group documentWindow) {
 // super (documentWindow, 0, 55, 12, 92);
 super (documentWindow, 16, 57, 0, 100);
 this.total = 0;
-this.list = new LinkedList<mapElement>();
 }
 
 /* This is a derivative work from 
@@ -61,25 +55,31 @@ public void initializeView(){
 	
 }
 
-public void setText(Document doc){
-	Element e = doc.getRootElement();
-	
-	for(int i = 0; i < e.getChildCount(); i++){
-			this.setTextHelper(e.getChild(i));
-	}
-}
-
-private void setTextHelper(Node e){
-	for(int i = 0; i < e.getChildCount(); i++){
-		if(!(e.getChild(i) instanceof Text) && !(e.getChild(i) instanceof Comment)){
-			if(!((Element)e.getChild(i)).getLocalName().equals("brl")){
-				setTextHelper(e.getChild(i));
+public void addListeners(final DocumentManager dm){
+	view.addTraverseListener(new TraverseListener(){
+		@Override
+		public void keyTraversed(TraverseEvent e) {
+			if(e.keyCode == SWT.TAB && e.stateMask == SWT.CTRL){
+				dm.setBrailleFocus();
 			}
 		}
-		else if(e.getChild(i) instanceof Text){
-			view.append(e.getChild(i).getValue() + "\n");
+	});
+
+	view.addExtendedModifyListener(new ExtendedModifyListener(){
+		@Override
+		public void modifyText(ExtendedModifyEvent e) {
+			if(dm.db.getDocumentTree() != null){
+				if(e.length == 0){
+					int index = dm.findClosest(view.getCaretOffset() + 1);
+					dm.updateFields(index, -1);
+				}
+				else {
+					int index = dm.findClosest(view.getCaretOffset() - 1);
+					dm.updateFields(index, 1);
+				}
+			}
 		}
-	}
+	});	
 }
 
 private class TextContent extends AbstractContent {

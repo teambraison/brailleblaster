@@ -28,9 +28,18 @@
 
 package org.brailleblaster.wordprocessor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsDialog;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -196,12 +205,84 @@ class BBMenu {
 			Menu subMen = new Menu(wp.getShell(), SWT.DROP_DOWN);
 			recentItem.setMenu(subMen);
 			
-			// Open 'recent files' file.
+			// List of recently opened documents.
+			ArrayList<String> recentDocsList = null;
 			
+			// Open file and populate!
+	        try
+	        {
+	        	// Open File.
+	        	BufferedReader reader = new BufferedReader(new FileReader( BBIni.getRecentDocs() ));
+	        	// Init doc list.
+	        	recentDocsList = new ArrayList<String>();
+	        	
+	        	// Record every line into our doc list.
+	            String line = null;
+	            while ((line = reader.readLine()) != null)
+	                recentDocsList.add(line);
+	            
+	            // Close the document.
+	            reader.close();
+	        }
+	        catch (FileNotFoundException e) { /*new Notify(e.getMessage());*/ }
+	        catch (IOException ioe) { /*new Notify(ioe.getMessage());*/ }
 			
-			MenuItem biscuit = new MenuItem(subMen, SWT.PUSH);
-			biscuit.setText(lh.localValue("&biscuit"));
-
+			// For every document that has been previously opened, create a menu entry.
+	        for(int curLine = 0; curLine < recentDocsList.size(); curLine++)
+	        {
+	        	// Create new item under sub menu.
+				MenuItem newItem = new MenuItem(subMen, SWT.PUSH);
+				// Set its text.
+				newItem.setText( recentDocsList.get(curLine) );
+				// Current line.
+				final String curStr = recentDocsList.get(curLine);
+				
+				// Add action!
+				newItem.addSelectionListener(new SelectionAdapter()
+				{
+					// Action to perform when widget selected!
+					public void widgetSelected(SelectionEvent e)
+					{
+						int index= wp.getFolder().getSelectionIndex();
+						if(index == -1){
+							wp.addDocumentManager(null);
+							wp.getList().getFirst().openDocument( curStr );
+						}
+						else {
+							
+							if(wp.getList().get(index).db.getDocumentTree() != null || wp.getList().get(index).daisy.hasChanged || wp.getList().get(index).braille.hasChanged || wp.getList().get(index).documentName != null)
+							{
+								wp.addDocumentManager( curStr );
+							}
+							else
+							{
+								wp.getList().get(index).openDocument(curStr);
+							}
+						}
+						
+					} // public void widgetSelected(SelectionEvent e) {
+					
+				}); // newItem.addSelectionListener(new SelectionAdapter() {
+				
+	        } // for(int curLine = 0; curLine...
+	        
+	        // Clean up recent doc file. Rewrite so there's only 5 entries.
+	        try
+			{
+				// Open file for writing.
+				BufferedWriter bw = new BufferedWriter( new FileWriter( BBIni.getRecentDocs() ) );
+				
+				// Add the file path.
+				for(int curLine = recentDocsList.size() - 1; recentDocsList.size() - 1 - curLine < 5 && curLine >= 0; curLine--) {
+					bw.write( recentDocsList.get(curLine) );
+					bw.newLine();
+		        }
+				
+				// Close the file.
+				bw.close();
+			}
+			catch (IOException e) { /* e.printStackTrace(); */ }
+	        
 		// Populate Recent Documents
 		////////////////////////////
 		

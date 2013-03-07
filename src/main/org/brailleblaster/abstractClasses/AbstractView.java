@@ -28,6 +28,11 @@
 
 package org.brailleblaster.abstractClasses;
 
+import java.util.LinkedList;
+
+import nu.xom.Text;
+
+import org.brailleblaster.views.mapElement;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
@@ -39,6 +44,7 @@ public abstract class AbstractView {
 	public StyledText view;
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
+	public LinkedList <mapElement>list;
 	
 	public AbstractView() {
 	}
@@ -60,6 +66,7 @@ public abstract class AbstractView {
 		// });
 
 		view.addModifyListener(viewMod);
+		view.addKeyListener(keyListener);
 	}
 
 	// Better use a ModifyListener to set the change flag.
@@ -68,6 +75,58 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
+	
+	KeyListener keyListener = new KeyListener(){
+		@Override
+		public void keyPressed(KeyEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {
+			// TODO Auto-generated method stub
+			if(notArrow(e.keyCode)){
+				int nodeNum = getLocation(view.getCaretOffset());
+				changeNodeText(nodeNum, view.getTextRange(list.get(nodeNum).offset, list.get(nodeNum).n.getValue().length() + 1));
+				updateOffsets(nodeNum, 1);
+			}
+			else {
+				int nodeNum = getLocation(view.getCaretOffset());
+				System.out.println(list.get(nodeNum).n.getValue());
+			}
+		}
+	};
+	
+	private void changeNodeText(int nodeNum, String text){
+		Text temp = (Text)this.list.get(nodeNum).n;
+		temp.setValue(text);
+		System.out.println(this.list.get(nodeNum).n.getValue());
+	}
+	
+	private void updateOffsets(int nodeNum, int offset){
+		for(int i = nodeNum + 1; i < list.size(); i++)
+			list.get(i).offset += offset;
+	}
+	
+	private int getLocation(int location){		
+		for(int i = 0; i < list.size() - 1; i++){
+			if(location >= list.get(i).offset && location <= list.get(i + 1).offset){
+				return i;
+			}
+		}
+		if(location > this.list.get(this.list.size() - 1).offset)
+			return this.list.size() - 1;
+		
+		return -1; 
+	}
+	
+	private boolean notArrow(int keyCode){
+		if(keyCode == SWT.ARROW_DOWN || keyCode == SWT.ARROW_LEFT || keyCode == SWT.ARROW_RIGHT || keyCode == SWT.ARROW_UP)
+			return false;
+		else
+			return true;
+	}
 	
 	void handleKeystrokes(VerifyEvent event) {
 		hasChanged = true;

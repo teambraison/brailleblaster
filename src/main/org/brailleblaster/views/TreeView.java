@@ -35,11 +35,17 @@ package org.brailleblaster.views;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -52,26 +58,10 @@ public class TreeView extends AbstractView {
 	public Tree tree;
 	private Control[] tabList;
 	
-	public TreeView(Group documentWindow){
+	public TreeView(final DocumentManager dm, Group documentWindow){
 		super(documentWindow, 0, 15, 0, 100);
 		this.tree = new Tree(view, SWT.NONE);
-		/*
-		 * Code below was used for testing purposes only.
-		 * It should be deleted once Document class is properly implemented
-		try {
-			Builder builder = new Builder();
-			Document doc = builder.build("File:/Users/broller/Documents/TestProject/build.xml");
-			populateTree(doc);
-		}
-		catch(IOException e){
-			System.out.println("IO Error ");
-			e.printStackTrace();
-		}
-		catch (ParsingException e){
-			System.out.println("Parse Error");
-			e.printStackTrace();
-		}
-		*/
+	
 		view.addFocusListener(new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent arg0) {
@@ -84,7 +74,22 @@ public class TreeView extends AbstractView {
 			}
 		});
 		
+		this.tree.addKeyListener(new KeyListener(){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(e.keyCode == SWT.CR){
+					dm.changeFocus();
+				}
+			}
+		});	
+		
 		view.setLayout(new FillLayout());
+		
 		this.tree.pack();
 	}
 	
@@ -115,6 +120,21 @@ public class TreeView extends AbstractView {
         	temp.setText(e2.getLocalName());
         	populateHelper(e2, temp);
 		}
+	}
+	
+	public void setRoot(Element e){
+		TreeItem root = new TreeItem(this.tree, 0);
+		root.setText(e.getLocalName());
+	}
+	
+	public void setTreeItem(Node e, TreeItem item){
+		Element e2 = (Element)e;
+		TreeItem temp = new TreeItem(item, 0);
+    	temp.setText(e2.getLocalName());
+	}
+	
+	public TreeItem getRoot(){
+		return this.tree.getItem(0);
 	}
 	
 	public void clearTree(){

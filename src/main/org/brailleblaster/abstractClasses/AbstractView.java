@@ -28,11 +28,6 @@
 
 package org.brailleblaster.abstractClasses;
 
-import java.util.LinkedList;
-
-import nu.xom.Text;
-
-import org.brailleblaster.views.mapElement;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;

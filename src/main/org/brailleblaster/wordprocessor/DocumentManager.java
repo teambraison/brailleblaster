@@ -35,6 +35,7 @@ package org.brailleblaster.wordprocessor;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -175,21 +176,9 @@ public class DocumentManager {
 			
 			////////////////
 			// Recent Files.
-
-				// Open recent files document for appending.
-				try
-				{
-					// Open file for writing.
-					BufferedWriter bw = new BufferedWriter( new FileWriter( BBIni.getRecentDocs(), true) );
 					
-					// Add the file path.
-					bw.write(tempName);
-					bw.newLine();
-					
-					// Close the file.
-					bw.close();
-				}
-				catch (IOException e) { e.printStackTrace(); }
+				// Update the recent files submenu.
+				wp.getMainMenu().addRecentEntry(tempName);
 				
 			// Recent Files.
 			////////////////

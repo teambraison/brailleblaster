@@ -218,7 +218,6 @@ public final class BBIni {
 		catch (URISyntaxException ue) {
 			url = null;
 		}
-		URL classesRootDir = getClass().getProtectionDomain().getCodeSource().getLocation();
 
 		return url;
 	}

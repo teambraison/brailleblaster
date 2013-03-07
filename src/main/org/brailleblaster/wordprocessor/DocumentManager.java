@@ -33,8 +33,14 @@ package org.brailleblaster.wordprocessor;
 
 
 import java.io.File;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.DocumentBase;
@@ -51,6 +57,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.TreeItem;
 import org.liblouis.liblouisutdml;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
@@ -89,6 +96,9 @@ public class DocumentManager {
 	static int recentFileNameIndex = -1;
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
+	LinkedList<TextMapElement> list = new LinkedList<TextMapElement>();
+	int brailleTotal = 0;
+	int textTotal = 0;
 	
 	//Constructor that sets things up for a new document.
 	DocumentManager(WPManager wp, String docName) {
@@ -99,7 +109,7 @@ public class DocumentManager {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());
 		
-		this.treeView = new TreeView(this.group);
+		this.treeView = new TreeView(this, this.group);
 		this.daisy = new TextView(this.group);
 		this.braille = new BrailleView(this.group);
 		this.item.setControl(this.group);
@@ -167,11 +177,13 @@ public class DocumentManager {
 		try{
 			if(this.db.startDocument(fileName, "preferences.cfg", null)){
 				setTabTitle(fileName);
-				this.treeView.populateTree(this.db.getDocumentTree());	
-				this.daisy.setText(this.db.getDocumentTree());
+				this.treeView.setRoot(this.db.getDocumentTree().getRootElement());
+				//setAttributes(this.db.getDocumentTree().getRootElement());
+				setViews(this.db.getDocumentTree().getRootElement(), this.treeView.getRoot());			
 				this.daisy.hasChanged = false;	
-				this.braille.setText(this.db.getDocumentTree());
-				this.braille.hasChanged = false;	
+				this.braille.hasChanged = false;		
+				//list.getLast().list.removeLast();
+				//this.daisy.addListeners(this);	
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -180,6 +192,52 @@ public class DocumentManager {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+		}
+	}	
+	
+	private void setViews(Node current, TreeItem item){
+		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
+			this.daisy.view.append(current.getValue() + "\n");
+			list.add(new TextMapElement(textTotal, current, item));
+			item.setData(list.getLast());
+			textTotal += current.getValue().length() + 1;
+		}
+		
+		for(int i = 0; i < current.getChildCount(); i++){
+			if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
+				TreeItem temp = new TreeItem(item, 0);
+				temp.setText(((Element)current.getChild(i)).getLocalName());
+				setBraille(current.getChild(i), temp, list.getLast());
+			}
+			else {
+				if(current.getChild(i) instanceof Element){
+					TreeItem temp = new TreeItem(item, 0);
+					temp.setText(((Element)current.getChild(i)).getLocalName());
+					setViews(current.getChild(i), temp);
+				}
+				else {
+					setViews(current.getChild(i), item);
+				}
+			}
+		}
+	}
+	
+	private void setBraille(Node current, TreeItem item, TextMapElement t){
+		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
+			this.braille.view.append(current.getValue() + "\n");
+			t.list.add(new BrailleMapElement(brailleTotal, current));
+			brailleTotal += current.getValue().length() + 1;
+		}
+		
+		for(int i = 0; i < current.getChildCount(); i++){
+			if(current.getChild(i) instanceof Element){
+				TreeItem temp = new TreeItem(item, 0);
+				temp.setText(((Element)current.getChild(i)).getLocalName());
+				setBraille(current.getChild(i), temp, t);
+			}
+			else {
+				setBraille(current.getChild(i), item, t);
+			}
 		}
 	}
 	
@@ -228,6 +286,15 @@ public class DocumentManager {
 			else {
 				this.item.setText("Untitled #" + docCount);
 			}
+		}
+	}
+	
+	public void changeFocus(){
+		TreeItem[] temp = this.treeView.tree.getSelection();
+		TextMapElement me = (TextMapElement)temp[0].getData();
+		if(me != null){
+			this.daisy.view.setFocus();
+			this.daisy.view.setCaretOffset(me.offset);
 		}
 	}
 	

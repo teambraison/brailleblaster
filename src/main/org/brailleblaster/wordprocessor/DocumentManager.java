@@ -82,16 +82,9 @@ public class DocumentManager {
 	String documentName = null;
 	boolean documentChanged = false;
 	RecentDocuments rd;
-	UTD utd;
-	NewDocument newDoc;
-	String configFileList = null;
 	static String tempPath = null;
 	boolean haveOpenedFile = false;
-	String translatedFileName = null;
 	String brailleFileName = null; // FO
-	String daisyWorkFile = null; // FO
-	String tikaWorkFile = null; // FO
-	String newDaisyFile = "utdml-doc"; // FO
 	boolean textAndBraille = false;
 	boolean saveUtdml = false;
 	boolean metaContent = false;
@@ -129,7 +122,6 @@ public class DocumentManager {
 		this.group.setTabList(this.tabList);
 		
 		rd = new RecentDocuments(this);
-		utd = new UTD(this);
 		logger = BBIni.getLogger();
 		
 		docCount++;
@@ -197,8 +189,8 @@ public class DocumentManager {
 				setViews(this.db.getDocumentTree().getRootElement(), this.treeView.getRoot());			
 				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;		
-				list.getLast().list.removeLast();
-				this.text.addListeners(this);	
+				list.getLast().brailleList.removeLast();
+				this.text.addListeners(this);
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -213,7 +205,7 @@ public class DocumentManager {
 	private void setViews(Node current, TreeItem item){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
 			this.text.view.append(current.getValue() + "\n");
-			list.add(new TextMapElement(textTotal, current, item));
+			list.add(new TextMapElement(textTotal, current));
 			item.setData(list.getLast());
 			textTotal += current.getValue().length() + 1;
 		}
@@ -240,7 +232,7 @@ public class DocumentManager {
 	private void setBraille(Node current, TreeItem item, TextMapElement t){
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			this.braille.view.append(current.getValue() + "\n");
-			t.list.add(new BrailleMapElement(brailleTotal, current));
+			t.brailleList.add(new BrailleMapElement(brailleTotal, current));
 			brailleTotal += current.getValue().length() + 1;
 		}
 		
@@ -320,8 +312,8 @@ public class DocumentManager {
 	
 	public void changeNodeText(int nodeNum, String text){
 		Text temp = (Text)this.list.get(nodeNum).n;
-		logger.log(Level.INFO, "Original Text Node Value:\t" + temp.getValue());
-		logger.log(Level.INFO, "New Text Node Value:\t" + text);
+		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
+		logger.log(Level.INFO, "New Text Node Value: " + text);
 		temp.setValue(text);
 		System.out.println(this.list.get(nodeNum).n.getValue());
 	}
@@ -353,44 +345,44 @@ public class DocumentManager {
 		Element e = d.getRootElement().getChildElements("brl").get(0);
 		d.getRootElement().removeChild(e);
 		
-		int startOffset = list.get(index).list.getFirst().offset;
+		int startOffset = list.get(index).brailleList.getFirst().offset;
 		int total = 0;
 		String logString = "";
-		for(int i = 0; i < list.get(index).list.size(); i++){
-			total += list.get(index).list.get(i).n.getValue().length() + 1;
-			logString += list.get(index).list.get(i).n.getValue() + "\n";
+		for(int i = 0; i < list.get(index).brailleList.size(); i++){
+			total += list.get(index).brailleList.get(i).n.getValue().length() + 1;
+			logString += list.get(index).brailleList.get(i).n.getValue() + "\n";
 		}
 		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
 		
-		Element brl = (Element)list.get(index).list.getFirst().n.getParent();
+		Element brl = (Element)list.get(index).brailleList.getFirst().n.getParent();
 		list.get(index).n.getParent().removeChild(brl);
 		list.get(index).n.getParent().appendChild(e);
-		list.get(index).list.clear();
+		list.get(index).brailleList.clear();
 		
 		String insertionString = "";
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
-				list.get(index).list.add(new BrailleMapElement(startOffset, e.getChild(i)));
+				list.get(index).brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
 				startOffset += e.getChild(i).getValue().length() + 1;
-				insertionString += list.get(index).list.getLast().n.getValue() + "\n";
+				insertionString += list.get(index).brailleList.getLast().n.getValue() + "\n";
 			}
 		}		
 		logger.log(Level.INFO, "New Braille Node Value:\n" + insertionString);
-		this.braille.view.replaceTextRange(list.get(index).list.getFirst().offset, total, insertionString);
+		this.braille.view.replaceTextRange(list.get(index).brailleList.getFirst().offset, total, insertionString);
 		updateBrailleOffsets(index, total);
 	}
 	
 	public void updateBrailleOffsets(int index, int originalLength){
 		int total = 0;
-		for(int i = 0; i < list.get(index).list.size(); i++){
-			total += list.get(index).list.get(i).n.getValue().length() + 1;
+		for(int i = 0; i < list.get(index).brailleList.size(); i++){
+			total += list.get(index).brailleList.get(i).n.getValue().length() + 1;
 		}
 		
 		total -= originalLength;
 		
 		for(int i = index + 1; i < list.size(); i++){
-			for(int j = 0; j < list.get(i).list.size(); j++){
-				list.get(i).list.get(j).offset += total;
+			for(int j = 0; j < list.get(i).brailleList.size(); j++){
+				list.get(i).brailleList.get(j).offset += total;
 			}
 		}
 	}
@@ -425,7 +417,7 @@ public class DocumentManager {
 	public void setBrailleFocus(){
 		int index = findClosest(this.text.view.getCaretOffset());
 		this.braille.view.setFocus();
-		this.braille.view.setCaretOffset(list.get(index).list.getFirst().offset);
+		this.braille.view.setCaretOffset(list.get(index).brailleList.getFirst().offset);
 	}
 	
 	public StyledText getDaisyView(){
@@ -449,7 +441,7 @@ public class DocumentManager {
 		try {
 			inbuffer = text.getBytes("UTF-8");
 			int [] outlength = new int[1];
-			outlength[0] = text.length() * 5;
+			outlength[0] = text.length() * 10;
 			
 			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n", 0)){
 				return outlength[0];

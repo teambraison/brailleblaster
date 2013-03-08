@@ -820,10 +820,10 @@ class BBMenu {
 		
 		// Create new item under sub menu.
 		MenuItem newItem = new MenuItem(subMen, SWT.PUSH);
-		// Set its text.
-		newItem.setText( path );
 		// Current line.
-		final String curStr = path;
+		final String curStr = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
+		// Set its text.
+		newItem.setText( curStr );
 		
 		// Add action!
 		newItem.addSelectionListener(new SelectionAdapter()

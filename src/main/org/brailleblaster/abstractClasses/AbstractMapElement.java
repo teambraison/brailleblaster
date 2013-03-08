@@ -2,7 +2,7 @@ package org.brailleblaster.abstractClasses;
 
 import nu.xom.Node;
 
-public class AbstractMapElement<T> {
+public class AbstractMapElement {
 	public int offset;
 	public Node n;
 	

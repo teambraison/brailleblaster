@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsDialog;
-import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -341,7 +340,7 @@ class BBMenu {
 				public void widgetSelected(SelectionEvent e) {
 					for(int i = 0; i < wp.getList().size(); i++){
 						DocumentManager temp = wp.getList().get(i);
-						if(temp.daisy.hasChanged || temp.braille.hasChanged){
+						if(temp.text.hasChanged || temp.braille.hasChanged){
 							temp.fileClose();
 						}
 					}
@@ -839,7 +838,7 @@ class BBMenu {
 				}
 				else {
 					
-					if(wordProc.getList().get(index).db.getDocumentTree() != null || wordProc.getList().get(index).daisy.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
+					if(wordProc.getList().get(index).db.getDocumentTree() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
 					{
 						wordProc.addDocumentManager( curStr );
 					}

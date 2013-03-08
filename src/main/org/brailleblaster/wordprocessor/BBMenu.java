@@ -822,6 +822,7 @@ class BBMenu {
 		MenuItem newItem = new MenuItem(subMen, SWT.PUSH);
 		// Current line.
 		final String curStr = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
+		final String curStr2 = path;
 		// Set its text.
 		newItem.setText( curStr );
 		
@@ -834,17 +835,17 @@ class BBMenu {
 				int index= wordProc.getFolder().getSelectionIndex();
 				if(index == -1){
 					wordProc.addDocumentManager(null);
-					wordProc.getList().getFirst().openDocument( curStr );
+					wordProc.getList().getFirst().openDocument( curStr2 );
 				}
 				else {
 					
 					if(wordProc.getList().get(index).db.getDocumentTree() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
 					{
-						wordProc.addDocumentManager( curStr );
+						wordProc.addDocumentManager( curStr2 );
 					}
 					else
 					{
-						wordProc.getList().get(index).openDocument(curStr);
+						wordProc.getList().get(index).openDocument(curStr2);
 					}
 				}
 				

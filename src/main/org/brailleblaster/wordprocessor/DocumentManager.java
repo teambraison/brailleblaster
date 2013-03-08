@@ -32,18 +32,20 @@
 package org.brailleblaster.wordprocessor;
 
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+import nu.xom.Builder;
+import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.ParsingException;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -71,7 +73,7 @@ public class DocumentManager {
 	Group group;
 	BBStatusBar statusBar;
 	TreeView treeView;
-	TextView daisy;
+	TextView text;
 	BrailleView braille;
 	FormLayout layout;
 	public DocumentBase db;
@@ -114,7 +116,7 @@ public class DocumentManager {
 		this.group.setLayout(new FormLayout());
 		
 		this.treeView = new TreeView(this, this.group);
-		this.daisy = new TextView(this.group);
+		this.text = new TextView(this.group);
 		this.braille = new BrailleView(this.group);
 		this.item.setControl(this.group);
 		
@@ -123,7 +125,7 @@ public class DocumentManager {
 		
 		FontManager.setShellFonts(this.wp.getShell(), this);
 		
-		this.tabList = new Control[]{this.treeView.view, this.daisy.view, this.braille.view};
+		this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
 		this.group.setTabList(this.tabList);
 		
 		rd = new RecentDocuments(this);
@@ -167,7 +169,7 @@ public class DocumentManager {
 		tempName = dialog.open();
 		
 		if(tempName != null){
-			if(this.db.getDocumentTree() != null || this.daisy.hasChanged || this.braille.hasChanged || this.documentName != null){
+			if(this.db.getDocumentTree() != null || this.text.hasChanged || this.braille.hasChanged || this.documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
@@ -193,10 +195,10 @@ public class DocumentManager {
 				this.treeView.setRoot(this.db.getDocumentTree().getRootElement());
 				//setAttributes(this.db.getDocumentTree().getRootElement());
 				setViews(this.db.getDocumentTree().getRootElement(), this.treeView.getRoot());			
-				this.daisy.hasChanged = false;	
+				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;		
 				list.getLast().list.removeLast();
-				this.daisy.addListeners(this);	
+				this.text.addListeners(this);	
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -210,7 +212,7 @@ public class DocumentManager {
 	
 	private void setViews(Node current, TreeItem item){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
-			this.daisy.view.append(current.getValue() + "\n");
+			this.text.view.append(current.getValue() + "\n");
 			list.add(new TextMapElement(textTotal, current, item));
 			item.setData(list.getLast());
 			textTotal += current.getValue().length() + 1;
@@ -265,7 +267,7 @@ public class DocumentManager {
 	}
 	
 	public void fileClose() {
-		if (this.daisy.hasChanged || this.braille.hasChanged) {
+		if (this.text.hasChanged || this.braille.hasChanged) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				this.fileSave();
@@ -276,7 +278,7 @@ public class DocumentManager {
 		brailleFileName = null;
 		documentName = null;
 	
-		this.daisy.hasChanged = false;
+		this.text.hasChanged = false;
 		this.braille.hasChanged = false;
 		
 		this.item.dispose();
@@ -318,6 +320,8 @@ public class DocumentManager {
 	
 	public void changeNodeText(int nodeNum, String text){
 		Text temp = (Text)this.list.get(nodeNum).n;
+		logger.log(Level.INFO, "Original Text Node Value:\t" + temp.getValue());
+		logger.log(Level.INFO, "New Text Node Value:\t" + text);
 		temp.setValue(text);
 		System.out.println(this.list.get(nodeNum).n.getValue());
 	}
@@ -331,32 +335,101 @@ public class DocumentManager {
 		TreeItem[] temp = this.treeView.tree.getSelection();
 		TextMapElement me = (TextMapElement)temp[0].getData();
 		if(me != null){
-			this.daisy.view.setFocus();
-			this.daisy.view.setCaretOffset(me.offset);
+			this.text.view.setFocus();
+			this.text.view.setCaretOffset(me.offset);
 		}
 	}
 	
-	public void updateFields(int nodeNum, int offset){
-		int start = list.get(nodeNum).list.getFirst().offset;
-		int end = 0;
+	public void updateFields(int nodeNum, int offset){		
+		changeNodeText(nodeNum, this.text.view.getTextRange(this.list.get(nodeNum).offset, this.list.get(nodeNum).n.getValue().length() + offset));
+		updateOffsets(nodeNum, offset);
+		changeBrailleNodes(nodeNum, list.get(nodeNum).n.getValue());
+	}
+	
+	public void changeBrailleNodes(int index, String text){
+		String xml = getXMLString(text);
+		Document d = getXML(xml);
 		
-		for(int i = 0; i < list.get(nodeNum).list.size(); i++){
-			end += list.get(nodeNum).list.get(i).n.getValue().length() + 1;
+		Element e = d.getRootElement().getChildElements("brl").get(0);
+		d.getRootElement().removeChild(e);
+		
+		int startOffset = list.get(index).list.getFirst().offset;
+		int total = 0;
+		String logString = "";
+		for(int i = 0; i < list.get(index).list.size(); i++){
+			total += list.get(index).list.get(i).n.getValue().length() + 1;
+			logString += list.get(index).list.get(i).n.getValue() + "\n";
+		}
+		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
+		
+		Element brl = (Element)list.get(index).list.getFirst().n.getParent();
+		list.get(index).n.getParent().removeChild(brl);
+		list.get(index).n.getParent().appendChild(e);
+		list.get(index).list.clear();
+		
+		String insertionString = "";
+		for(int i = 0; i < e.getChildCount(); i++){
+			if(e.getChild(i) instanceof Text){
+				list.get(index).list.add(new BrailleMapElement(startOffset, e.getChild(i)));
+				startOffset += e.getChild(i).getValue().length() + 1;
+				insertionString += list.get(index).list.getLast().n.getValue() + "\n";
+			}
+		}		
+		logger.log(Level.INFO, "New Braille Node Value:\n" + insertionString);
+		this.braille.view.replaceTextRange(list.get(index).list.getFirst().offset, total, insertionString);
+		updateBrailleOffsets(index, total);
+	}
+	
+	public void updateBrailleOffsets(int index, int originalLength){
+		int total = 0;
+		for(int i = 0; i < list.get(index).list.size(); i++){
+			total += list.get(index).list.get(i).n.getValue().length() + 1;
 		}
 		
-		changeNodeText(nodeNum, this.daisy.view.getTextRange(this.list.get(nodeNum).offset, this.list.get(nodeNum).n.getValue().length() + offset));
-		updateOffsets(nodeNum, offset);
-		//changeBrailleNodes(nodeNum, list.get(nodeNum).n.getValue());
+		total -= originalLength;
+		
+		for(int i = index + 1; i < list.size(); i++){
+			for(int j = 0; j < list.get(i).list.size(); j++){
+				list.get(i).list.get(j).offset += total;
+			}
+		}
+	}
+	
+	public Document getXML(String xml){
+		byte [] outbuf = new byte[xml.length() * 10];
+		
+		int total = translateString(xml, outbuf);   
+		if( total != -1){
+			xml = "";
+			for(int i = 0; i < total; i++)
+				xml += (char)outbuf[i];
+			
+			StringReader sr = new StringReader(xml);
+			Builder builder = new Builder();
+			try {
+				return builder.build(sr);
+				
+			} catch (ParsingException | IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+			
+		}
+		return null;
+	}
+	
+	public String getXMLString(String text){
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><string>" + text + "</string>";
 	}
 	
 	public void setBrailleFocus(){
-		int index = findClosest(this.daisy.view.getCaretOffset());
+		int index = findClosest(this.text.view.getCaretOffset());
 		this.braille.view.setFocus();
 		this.braille.view.setCaretOffset(list.get(index).list.getFirst().offset);
 	}
 	
 	public StyledText getDaisyView(){
-		return this.daisy.view;
+		return this.text.view;
 	}
 	
 	public StyledText getBrailleView(){
@@ -365,5 +438,30 @@ public class DocumentManager {
 	
 	public Display getDisplay(){
 		return this.wp.getShell().getDisplay();
+	}
+	
+	public int translateString(String text, byte[] outbuffer) {
+		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
+		String preferenceFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + 
+				BBIni.getFileSep() + "preferences.cfg";
+		
+		byte[] inbuffer;
+		try {
+			inbuffer = text.getBytes("UTF-8");
+			int [] outlength = new int[1];
+			outlength[0] = text.length() * 5;
+			
+			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n", 0)){
+				return outlength[0];
+			}
+			else {
+				System.out.println("An error occurred while translating");
+				return -1;
+			}
+		} 
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return -1;
+		}	
 	}
 }

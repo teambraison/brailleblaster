@@ -74,10 +74,10 @@ public void addListeners(final DocumentManager dm){
 					dm.updateFields(index, -1);
 				}
 				else {
-					int index = dm.findClosest(view.getCaretOffset() - 1);
-					dm.updateFields(index, 1);
+					int index = dm.findClosest(view.getCaretOffset() - e.length);
+					dm.updateFields(index, e.length);
 				}
-			}
+			}			
 		}
 	});	
 }

@@ -92,7 +92,7 @@ public class FontManager {
 		}
 
 		
-		dm.daisy.view.setFont(daisyFont);
+		dm.text.view.setFont(daisyFont);
 		dm.braille.view.setFont(daisyFont);
 		dm.braille.view.setEditable(false);
 

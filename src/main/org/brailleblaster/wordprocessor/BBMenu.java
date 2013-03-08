@@ -198,13 +198,6 @@ class BBMenu {
 		
 		recentItem = new MenuItem (fileMenu, SWT.CASCADE);
 		recentItem.setText(lh.localValue("&Recent"));
-		recentItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				//dm.recentDocuments();
-				int index = wp.getFolder().getSelectionIndex();
-				wp.getList().get(index).rd.open();
-			}
-		});
 		
 		// Setup recent files submenu.
 		subMen = new Menu(wordProc.getShell(), SWT.DROP_DOWN);

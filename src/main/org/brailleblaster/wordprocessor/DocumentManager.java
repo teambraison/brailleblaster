@@ -81,18 +81,12 @@ public class DocumentManager {
 	static int docCount = 0;
 	String documentName = null;
 	boolean documentChanged = false;
-	RecentDocuments rd;
 	static String tempPath = null;
-	boolean haveOpenedFile = false;
-	String brailleFileName = null; // FO
-	boolean textAndBraille = false;
-	boolean saveUtdml = false;
 	boolean metaContent = false;
 	liblouisutdml louisutdml;
 	String logFile = "Translate.log";
 	String configSettings = null;
 	static String recentFileName = null;
-	static int recentFileNameIndex = -1;
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
 	LinkedList<TextMapElement> list = new LinkedList<TextMapElement>();
@@ -121,7 +115,6 @@ public class DocumentManager {
 		this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
 		this.group.setTabList(this.tabList);
 		
-		rd = new RecentDocuments(this);
 		logger = BBIni.getLogger();
 		
 		docCount++;
@@ -265,13 +258,6 @@ public class DocumentManager {
 				this.fileSave();
 			}
 		}
-
-		haveOpenedFile = false;
-		brailleFileName = null;
-		documentName = null;
-	
-		this.text.hasChanged = false;
-		this.braille.hasChanged = false;
 		
 		this.item.dispose();
 	}
@@ -408,8 +394,7 @@ public class DocumentManager {
 			catch(IOException e){
 				e.printStackTrace();
 				return null;
-			}
-			
+			}	
 		}
 		return null;
 	}

@@ -401,7 +401,11 @@ public class DocumentManager {
 			try {
 				return builder.build(sr);
 				
-			} catch (ParsingException | IOException e) {
+			} catch (ParsingException e) {
+				e.printStackTrace();
+				return null;
+			}
+			catch(IOException e){
 				e.printStackTrace();
 				return null;
 			}

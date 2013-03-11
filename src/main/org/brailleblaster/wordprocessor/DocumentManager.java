@@ -44,6 +44,7 @@ import java.util.logging.Logger;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.ParsingException;
 import nu.xom.Text;
@@ -258,7 +259,7 @@ public class DocumentManager {
 				this.fileSave();
 			}
 		}
-		
+		System.out.println(this.db.getDocumentTree().toXML().toString());
 		this.item.dispose();
 	}
 	
@@ -321,38 +322,99 @@ public class DocumentManager {
 	public void updateFields(int nodeNum, int offset){		
 		changeNodeText(nodeNum, this.text.view.getTextRange(this.list.get(nodeNum).offset, this.list.get(nodeNum).n.getValue().length() + offset));
 		updateOffsets(nodeNum, offset);
-		changeBrailleNodes(nodeNum, list.get(nodeNum).n.getValue());
+		if(list.get(nodeNum).brailleList.size() > 0)
+			changeBrailleNodes(nodeNum, list.get(nodeNum).n.getValue());
+		else 
+			insertBrailleNode(nodeNum, list.get(nodeNum).n.getValue());
+	}
+	
+	public void insertBrailleNode(int index, String text){
+		String insertionString = "";
+		String xml = getXMLString(text);
+		Document d = getXML(xml);
+		Element e = d.getRootElement().getChildElements("brl").get(0);
+		d.getRootElement().removeChild(e);
+
+		list.get(index).n.getParent().appendChild(e);
+		
+		int startOffset = list.get(index + 1).brailleList.getFirst().offset;
+		int newOffset = startOffset;
+		for(int i = 0; i < e.getChildCount(); i++){
+			if(e.getChild(i) instanceof Text){
+				list.get(index).brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
+				newOffset += e.getChild(i).getValue().length() + 1;
+				insertionString += list.get(index).brailleList.getLast().n.getValue() + "\n";
+			}
+		}
+
+		this.braille.view.replaceTextRange(startOffset, 0, insertionString);
+		updateBrailleOffsets(index, 0);
 	}
 	
 	public void changeBrailleNodes(int index, String text){
 		String xml = getXMLString(text);
 		Document d = getXML(xml);
-		
-		Element e = d.getRootElement().getChildElements("brl").get(0);
-		d.getRootElement().removeChild(e);
-		
-		int startOffset = list.get(index).brailleList.getFirst().offset;
 		int total = 0;
-		String logString = "";
-		for(int i = 0; i < list.get(index).brailleList.size(); i++){
-			total += list.get(index).brailleList.get(i).n.getValue().length() + 1;
-			logString += list.get(index).brailleList.get(i).n.getValue() + "\n";
-		}
-		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
-		
-		Element brl = (Element)list.get(index).brailleList.getFirst().n.getParent();
-		list.get(index).n.getParent().removeChild(brl);
-		list.get(index).n.getParent().appendChild(e);
-		list.get(index).brailleList.clear();
-		
+		int startOffset = 0;
 		String insertionString = "";
-		for(int i = 0; i < e.getChildCount(); i++){
-			if(e.getChild(i) instanceof Text){
-				list.get(index).brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
-				startOffset += e.getChild(i).getValue().length() + 1;
-				insertionString += list.get(index).brailleList.getLast().n.getValue() + "\n";
+		Element e;
+		
+		if(text.equals("")){
+			e = new Element("brl");
+			Text t = new Text("");
+			e.appendChild(t);
+			startOffset = list.get(index).brailleList.getFirst().offset;
+			String logString = "";
+			for(int i = 0; i < list.get(index).brailleList.size(); i++){
+				total += list.get(index).brailleList.get(i).n.getValue().length() + 1;
+				logString += list.get(index).brailleList.get(i).n.getValue() + "\n";
 			}
-		}		
+			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
+			
+			Element parent = (Element)list.get(index).n.getParent();
+			Elements els = parent.getChildElements("brl");
+			for(int i = 0; i < els.size(); i++){
+				parent.removeChild(els.get(i));
+			}
+			list.get(index).n.getParent().appendChild(e);
+			list.get(index).brailleList.clear();
+
+			list.get(index).brailleList.add(new BrailleMapElement(startOffset, t));
+			startOffset += 1;
+			insertionString = list.get(index).brailleList.getLast().n.getValue() + "\n";
+		}
+		else {
+			e = d.getRootElement().getChildElements("brl").get(0);
+			d.getRootElement().removeChild(e);
+			
+			startOffset = list.get(index).brailleList.getFirst().offset;
+			String logString = "";
+			for(int i = 0; i < list.get(index).brailleList.size(); i++){
+				total += list.get(index).brailleList.get(i).n.getValue().length() + 1;
+				logString += list.get(index).brailleList.get(i).n.getValue() + "\n";
+			}
+			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
+			
+			Element parent = (Element)list.get(index).n.getParent();
+			Elements els = parent.getChildElements("brl");
+			for(int i = 0; i < els.size(); i++){
+				parent.removeChild(els.get(i));
+			}
+			
+			//Element brl = (Element)list.get(index).brailleList.getFirst().n.getParent();
+			//list.get(index).n.getParent().removeChild(brl);
+			list.get(index).n.getParent().appendChild(e);
+			list.get(index).brailleList.clear();
+			
+			for(int i = 0; i < e.getChildCount(); i++){
+				if(e.getChild(i) instanceof Text){
+					list.get(index).brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
+					startOffset += e.getChild(i).getValue().length() + 1;
+					insertionString += list.get(index).brailleList.getLast().n.getValue() + "\n";
+				}
+			}	
+		}
+		
 		logger.log(Level.INFO, "New Braille Node Value:\n" + insertionString);
 		this.braille.view.replaceTextRange(list.get(index).brailleList.getFirst().offset, total, insertionString);
 		updateBrailleOffsets(index, total);

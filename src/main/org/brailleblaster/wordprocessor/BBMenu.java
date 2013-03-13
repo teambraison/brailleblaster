@@ -121,6 +121,7 @@ class BBMenu {
 	WPManager wordProc;
 	ArrayList<String> recentDocsList = null;
 	Menu subMen;
+	final int maxRecentFiles = 5;
 
 	BBMenu(final WPManager wp) {
 		LocaleHandler lh = new LocaleHandler();
@@ -793,7 +794,7 @@ class BBMenu {
 	        catch (IOException ioe) { /*new Notify(ioe.getMessage());*/ }
 			
 			// For every document that has been previously opened, create a menu entry.
-	        for(int curLine = 0; curLine < tempStrList.size(); curLine++)
+	        for(int curLine = 0; curLine < tempStrList.size() && curLine < maxRecentFiles; curLine++)
 	        {
 	        	// Add new entry.
 	        	addRecentEntry(tempStrList.get(curLine));
@@ -808,14 +809,18 @@ class BBMenu {
 	// Adds an entry to recent files menu.
 	public void addRecentEntry(String path)
 	{
-		// Add this to our recent file list.
-		recentDocsList.add(path);
+		// Construct strings from path. These are added to the recent docs list and menu items.
+		// Current line.
+		String[] result = path.split( BBIni.getFileSep() + BBIni.getFileSep() );
+		String fileName = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
+		final String curStr = fileName + "  [" + path + "]";
+		final String curStr2 = path;
+		
+		// Add path to recent document list.
+		recentDocsList.add( path );
 		
 		// Create new item under sub menu.
 		MenuItem newItem = new MenuItem(subMen, SWT.PUSH);
-		// Current line.
-		final String curStr = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
-		final String curStr2 = path;
 		// Set its text.
 		newItem.setText( curStr );
 		
@@ -859,8 +864,12 @@ class BBMenu {
 			// List of recent documents.
 			ArrayList<String> recdocs = wordProc.getMainMenu().getRecentDocumentsList();
 			
+			// Start index.
+			int startIndex = recentDocsList.size() - maxRecentFiles;
+			if(startIndex < 0) startIndex = 0;
+			
 			// Add the file path.
-			for(int curLine = recdocs.size() - 1; recdocs.size() - 1 - curLine < 5 && curLine >= 0; curLine--) {
+			for(int curLine = startIndex; curLine < recentDocsList.size(); curLine++) {
 				bw.write( recdocs.get(curLine) );
 				bw.newLine();
 	        }

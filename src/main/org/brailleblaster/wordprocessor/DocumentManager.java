@@ -35,6 +35,7 @@ package org.brailleblaster.wordprocessor;
 import java.io.File;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -164,9 +165,22 @@ public class DocumentManager {
 			
 			////////////////
 			// Recent Files.
-					
+				
+				// Get recent file list.
+				ArrayList<String> strs = wp.getMainMenu().getRecentDocumentsList();
+				
+				// Search list for duplicate. If one exists, don't add this new one.
+				boolean addNewDoc = true;
+				for(int curStr = 0; curStr < strs.size(); curStr++) {
+					if(strs.get(curStr).compareTo(tempName) == 0) {
+						addNewDoc = false;
+						break;
+					}
+				}
+				
 				// Update the recent files submenu.
-				wp.getMainMenu().addRecentEntry(tempName);
+				if(addNewDoc == true)
+					wp.getMainMenu().addRecentEntry(tempName);
 				
 			// Recent Files.
 			////////////////

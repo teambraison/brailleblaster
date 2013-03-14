@@ -817,10 +817,10 @@ class BBMenu {
 		final String curStr2 = path;
 		
 		// Add path to recent document list.
-		recentDocsList.add( path );
+		recentDocsList.add(0, path);
 		
 		// Create new item under sub menu.
-		MenuItem newItem = new MenuItem(subMen, SWT.PUSH);
+		MenuItem newItem = new MenuItem(subMen, SWT.PUSH, 0);
 		// Set its text.
 		newItem.setText( curStr );
 		
@@ -864,12 +864,12 @@ class BBMenu {
 			// List of recent documents.
 			ArrayList<String> recdocs = wordProc.getMainMenu().getRecentDocumentsList();
 			
-			// Start index.
-			int startIndex = recentDocsList.size() - maxRecentFiles;
-			if(startIndex < 0) startIndex = 0;
+			// Starting index.
+			int startIndex = recentDocsList.size() - 1;
+			if(startIndex >= maxRecentFiles) startIndex = maxRecentFiles - 1;
 			
 			// Add the file path.
-			for(int curLine = startIndex; curLine < recentDocsList.size(); curLine++) {
+			for(int curLine = startIndex; curLine >= 0; curLine--) {
 				bw.write( recdocs.get(curLine) );
 				bw.newLine();
 	        }

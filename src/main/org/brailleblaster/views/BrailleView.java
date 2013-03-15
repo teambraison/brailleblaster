@@ -28,14 +28,12 @@
 
 package org.brailleblaster.views;
 
-import nu.xom.Comment;
-import nu.xom.Document;
-import nu.xom.Element;
 import nu.xom.Node;
-import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.mapping.BrailleMapElement;
+import org.brailleblaster.mapping.TextMapElement;
 import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends AbstractView {
@@ -54,28 +52,27 @@ public class BrailleView extends AbstractView {
 
 	}
 	
-	public void setText(Document doc){
-		Element e = doc.getRootElement();
-		
-		for(int i = 0; i < e.getChildCount(); i++){
-				this.setTextHelper(e.getChild(i));
-		}
+	public void setBraille(Node n, TextMapElement t){
+		view.append(n.getValue() + "\n");
+		t.brailleList.add(new BrailleMapElement(this.total, n));
+		this.total += n.getValue().length() + 1;
 	}
-
-	private void setTextHelper(Node e){
-		for(int i = 0; i < e.getChildCount(); i++){
-			setTextHelper(e.getChild(i));
-		}
-		
-		if(e instanceof Text){
-			Element parent = (Element)e.getParent();
-			if(parent.getLocalName().equals("brl")){
-				view.append(e.getValue() + "\n");
-			}
-		}
-		else if(!(e instanceof Comment) && ((Element)e).getLocalName().equals("newpage")){
-			view.append("\n");
-		}
+	
+	public void updateBraille(TextMapElement t, int total){
+		String insertionString = "";
+		for(int i = 0; i < t.brailleList.size(); i++){
+			insertionString += t.brailleList.get(i).n.getValue() + "\n";
+		}	
+		view.replaceTextRange(t.brailleList.getFirst().offset, total, insertionString);
+	}
+	
+	public void setCursor(int offset){
+		view.setFocus();
+		view.setCaretOffset(offset);
+	}
+	
+	public void removeWhitespace(int offset){
+		view.replaceTextRange(offset, 1, "");
 	}
 	
 	class BrailleContent extends AbstractContent {

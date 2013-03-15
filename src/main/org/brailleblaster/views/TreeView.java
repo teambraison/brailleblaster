@@ -32,20 +32,20 @@
 package org.brailleblaster.views;
 
 
-import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Elements;
 import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.wordprocessor.BBEvent;
 import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -54,7 +54,6 @@ import org.eclipse.swt.widgets.TreeItem;
 public class TreeView extends AbstractView {
 	
 	public Tree tree;
-	private Control[] tabList;
 	
 	public TreeView(final DocumentManager dm, Group documentWindow){
 		super(documentWindow, 0, 15, 0, 100);
@@ -67,8 +66,7 @@ public class TreeView extends AbstractView {
 			}
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				// TODO Auto-generated method stub
-				
+				// TODO Auto-generated method stub	
 			}
 		});
 		
@@ -81,7 +79,14 @@ public class TreeView extends AbstractView {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if(e.keyCode == SWT.CR){
-					dm.changeFocus();
+					TreeItem[] temp = tree.getSelection();
+					TextMapElement me = (TextMapElement)temp[0].getData();
+					if(me != null){
+						Message message = new Message(BBEvent.CHANGE_FOCUS);
+						message.put("offset", me.offset);
+						message.put("sender", "tree");
+						dm.dispatch(message);
+					}
 				}
 			}
 		});	
@@ -95,44 +100,40 @@ public class TreeView extends AbstractView {
 		
 	}
 	
-	public void populateTree(Document doc){
-		TreeItem root = new TreeItem(this.tree, 0);
-		root.setText(doc.getRootElement().getLocalName());
-			
-		Elements rootNode = doc.getRootElement().getChildElements();
-		
-        for(int i = 0; i < rootNode.size(); i++){
-        	Element e = rootNode.get(i);
-        	TreeItem temp = new TreeItem(root, 0);
-        	temp.setText(e.getLocalName());
-        	populateHelper(e, temp);
-        }
-	}
-	
-	private void populateHelper(Element e, TreeItem item){
-		Elements n = e.getChildElements();
-
-		for(int i = 0; i < n.size(); i++){
-			Element e2 = n.get(i);
-			TreeItem temp = new TreeItem(item, 0);
-        	temp.setText(e2.getLocalName());
-        	populateHelper(e2, temp);
-		}
-	}
-	
 	public void setRoot(Element e){
 		TreeItem root = new TreeItem(this.tree, 0);
 		root.setText(e.getLocalName());
 	}
 	
-	public void setTreeItem(Node e, TreeItem item){
+	public TreeItem getRoot(){
+		return this.tree.getItem(0);
+	}
+	
+	public TreeItem newTreeItem(Node e, TreeItem item){
 		Element e2 = (Element)e;
 		TreeItem temp = new TreeItem(item, 0);
     	temp.setText(e2.getLocalName());
+    	return temp;
 	}
 	
-	public TreeItem getRoot(){
-		return this.tree.getItem(0);
+	public void setItemData(TreeItem item, Node n){
+		item.setData(n);
+	}
+	
+	public void removeItem(TextMapElement t){
+		searchTree(this.getRoot(), t);
+	}
+	
+	private void searchTree(TreeItem item, TextMapElement t){
+		for(int i = 0; i < item.getItemCount(); i++){
+			if(item.getItem(i).getData() != null && item.getItem(i).getData().equals(t)){
+				item.getItem(i).dispose();
+				break;
+			}
+			else{
+				searchTree(item.getItem(i), t);
+			}
+		}
 	}
 	
 	public void clearTree(){

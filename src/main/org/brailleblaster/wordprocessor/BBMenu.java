@@ -837,7 +837,7 @@ class BBMenu {
 				}
 				else {
 					
-					if(wordProc.getList().get(index).db.getDocumentTree() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
+					if(wordProc.getList().get(index).document.getDOM() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
 					{
 						wordProc.addDocumentManager( curStr2 );
 					}

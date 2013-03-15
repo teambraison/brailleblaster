@@ -1,4 +1,4 @@
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.mapping;
 
 import nu.xom.Node;
 

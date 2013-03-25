@@ -46,6 +46,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.util.YesNoChoice;
+import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
 import org.brailleblaster.views.TextView;
 import org.brailleblaster.views.TreeView;
@@ -122,8 +123,8 @@ public class DocumentManager {
 
 		FileDialog dialog = new FileDialog(this.wp.getShell(), SWT.OPEN);
 		String filterPath = "/";
-		String[] filterNames = new String[] { "XML", "TEXT", "BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", "*.txt", "*.brf", "*.utd", };
+		String[] filterNames = new String[] { "XML", "XML ZIP", "TEXT", "BRF", "UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.txt", "*.brf", "*.utd", };
 
 		String platform = SWT.getPlatform();
 		if (platform.equals("win32") || platform.equals("wpf")) {
@@ -138,7 +139,18 @@ public class DocumentManager {
 
 		tempName = dialog.open();
 		
-		if(tempName != null){
+		// Don't do any of this if the user failed to choose a file.
+		if(tempName != null)
+		{
+			// If the file opened was an xml zip file, unzip it.
+			if(tempName.endsWith(".zip")) {
+				// Create unzipper.
+				Zipper unzipr = new Zipper();
+				// Unzip and update "opened" file.
+				tempName = unzipr.Unzip(tempName, tempName.substring(0, tempName.lastIndexOf(".")) + "\\");
+			}
+			
+			// Open it.
 			if(this.document.getDOM() != null || this.text.hasChanged || this.braille.hasChanged || this.documentName != null){
 				wp.addDocumentManager(tempName);
 			}
@@ -167,7 +179,8 @@ public class DocumentManager {
 				
 			// Recent Files.
 			////////////////
-		}
+			
+		} // if(tempName != null)
 	}
 	
 	public void openDocument(String fileName){

@@ -189,13 +189,13 @@ public class DocumentManager {
 			if(this.document.startDocument(fileName, "preferences.cfg", null)){
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());
-				initializeViews(this.document.getRootElement(), this.treeView.getRoot());			
-				this.text.hasChanged = false;	
-				this.braille.hasChanged = false;		
+				initializeViews(this.document.getRootElement(), this.treeView.getRoot());				
 				list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
 				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
+				this.text.hasChanged = false;	
+				this.braille.hasChanged = false;	
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");

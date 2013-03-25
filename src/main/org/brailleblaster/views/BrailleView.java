@@ -34,22 +34,39 @@ import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.wordprocessor.Message;
+
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends AbstractView {
 	public int total;
+	private int currentStart, currentEnd;
 	
 	public BrailleView(Group documentWindow) {
-		// super (documentWindow, 56, 100, 12, 92);
 		super(documentWindow, 58, 100, 0, 100);
 		this.total = 0;
 	}
+	
+	public void initializeListeners(final DocumentManager dm){
+		view.addFocusListener(new FocusListener(){
+			@Override
+			public void focusGained(FocusEvent e) {
+				Message message = new Message(BBEvent.GET_CURRENT);
+				dm.dispatch(message);
+				currentStart = (Integer)message.getValue("brailleStart");
+				currentEnd = (Integer)message.getValue("brailleEnd");
+				view.setCaretOffset(currentStart);
+			}
 
-	/*
-	 * This is a derivative work from org.eclipse.swt.custom.DefaultContent.java
-	 */
-	public void initializeView() {
-
+			@Override
+			public void focusLost(FocusEvent e) {
+				// TODO Auto-generated method stub	
+			}
+		});
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
@@ -63,18 +80,18 @@ public class BrailleView extends AbstractView {
 		for(int i = 0; i < t.brailleList.size(); i++){
 			insertionString += t.brailleList.get(i).n.getValue() + "\n";
 		}	
-		view.replaceTextRange(t.brailleList.getFirst().offset, total, insertionString);
-	}
-	
-	public void setCursor(int offset){
-		view.setFocus();
-		view.setCaretOffset(offset);
+		if(t.brailleList.getFirst().offset != -1){
+			view.replaceTextRange(t.brailleList.getFirst().offset, total, insertionString);
+		}
 	}
 	
 	public void removeWhitespace(int offset){
 		view.replaceTextRange(offset, 1, "");
 	}
 	
+	/*
+	 * This is a derivative work from org.eclipse.swt.custom.DefaultContent.java
+	 */
 	class BrailleContent extends AbstractContent {
 	}
 }

@@ -181,6 +181,8 @@ public class DocumentManager {
 				this.braille.hasChanged = false;		
 				list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
+				this.braille.initializeListeners(this);
+				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -193,9 +195,10 @@ public class DocumentManager {
 	}	
 	
 	private void initializeViews(Node current, TreeItem item){
-		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){		
+		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
 			this.text.setText(current, list);
-			item.setData(list.getLast());
+			if(item.getData() == null)
+				item.setData(list.getLast());
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -233,44 +236,40 @@ public class DocumentManager {
 	
 	public void dispatch(Message message){
 		int index;
-		String text;
 		
 		switch(message.type){
-			case CHANGE_FOCUS:
-				if(message.getValue("sender").equals("tree")) {
-					this.text.setCursor((Integer)message.getValue("offset"));
+			case SET_CURRENT:
+				list.checkList();
+				message.put("selection", this.treeView.getSelection());
+				index = list.findClosest(message);
+				if(index == -1){
+					message.put("start", list.getCurrent().offset);
+					message.put("end", list.getCurrent().offset + list.getCurrent().n.getValue().length());
+					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				else {
-					index = list.findClosest(message);
-					int brailleOffset = 0;
-					if(list.get(index).brailleList.size() > 0){
-						brailleOffset = list.get(index).brailleList.getFirst().offset;
-					}
-					this.braille.setCursor(brailleOffset);
+					list.setCurrent(index);
+					list.getCurrentNodeData(message);
+					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				break;
-			case TEXT_INSERTION:
-				index = list.findClosest(message);
-				text = this.text.getString(list.get(index).offset, list.get(index).n.getValue().length() + (Integer)message.getValue("length"));
-				this.document.updateDOM(index, list, text, message);
-				list.updateOffsets(index, message);
-				this.braille.updateBraille(list.get(index), (Integer)message.getValue("brailleLength"));
+			case GET_CURRENT:
+				list.getCurrentNodeData(message);
+				this.treeView.setSelection(list.getCurrent(), message);
 				break;
 			case TEXT_DELETION:
 				index = list.findClosest(message);
-				if(index != -1){
-					text = this.text.getString(list.get(index).offset, list.get(index).n.getValue().length() + (Integer)message.getValue("length"));
-					this.document.updateDOM(index, list, text, message);
-					list.updateOffsets(index, message);
-					if((Integer)message.getValue("brailleLength") != 0){
-						this.braille.updateBraille(list.get(index), (Integer)message.getValue("brailleLength"));
-					}
-					list.checkList();
-				}
+				break;
+			case UPDATE:
+				message.put("selection", this.treeView.getSelection());
+				this.document.updateDOM(list, message);
+				list.updateOffsets(list.getCurrentIndex(), message);
+				this.braille.updateBraille(list.getCurrent(), (Integer)message.getValue("brailleLength"));
+				list.checkList();
 				break;
 			case REMOVE_NODE:
 				index = (Integer)message.getValue("index");
-				this.document.updateDOM(index, list, null, message);
+				this.document.updateDOM(list, message);
 				if(list.get(index).brailleList.getFirst().offset != -1){
 					int carriageReturnLineFeed = 2;
 					this.braille.removeWhitespace(list.get(index).brailleList.getFirst().offset);
@@ -278,7 +277,7 @@ public class DocumentManager {
 					list.updateOffsets(index, message);
 				}
 				list.get(index).brailleList.clear();
-				this.treeView.removeItem(list.get(index));
+				this.treeView.removeItem(list.get(index), message);
 				list.remove(index);
 				System.out.println("Item removed");
 				break;

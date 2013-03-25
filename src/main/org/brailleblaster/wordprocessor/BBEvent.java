@@ -1,8 +1,9 @@
 package org.brailleblaster.wordprocessor;
 
 public enum BBEvent {
-	TEXT_INSERTION,
 	TEXT_DELETION,
+	UPDATE,
 	REMOVE_NODE,
-	CHANGE_FOCUS;
+	SET_CURRENT,
+	GET_CURRENT;
 }

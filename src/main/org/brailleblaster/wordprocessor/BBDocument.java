@@ -106,55 +106,43 @@ public class BBDocument {
 		}
 	}
 	
-	public void updateDOM(int index, MapList list, String text, Message message){
+	public void updateDOM(MapList list, Message message){
 		switch(message.type){
-			case TEXT_INSERTION:
-				textInsertion(index, list, text, message);
-				break;
-			case TEXT_DELETION:
-				textDeletion(index, list, text, message);
+			case UPDATE:
+				updateNode(list, message);
 				break;
 			case REMOVE_NODE:
-				removeNode(list.get(index));
+				removeNode(list.get((Integer)message.getValue("index")));
 				break;
 		default:
+				System.out.println("No available operations for this mesage type");
 			break;
 		}
 	}
 	
-	private void textInsertion(int index, MapList list, String text, Message message){
+	private void updateNode(MapList list, Message message){
 		int total = 0;
-		changeTextNode(list.get(index).n, text);
-		if(list.get(index).brailleList.size() > 0){
-			total = changeBrailleNodes(list.get(index), text);
-		}
-		else {
-			insertBrailleNode(list.get(index), list.get(index +1).brailleList.getFirst().offset, text);
-		}
-		message.put("brailleLength", total);
-	}
-	
-	private void textDeletion(int index, MapList list, String text, Message message){
-		int total = 0;
-		changeTextNode(list.get(index).n, text);
+		String text = (String)message.getValue("newText");
+		changeTextNode(list.getCurrent().n, text);
+		
 		if(text.equals("") || isWhitespace(text)){
-			total = insertEmptyBrailleNode(list.get(index), list.getNextBrailleOffset(index));
+			total = insertEmptyBrailleNode(list.getCurrent(), list.getNextBrailleOffset(list.getCurrentIndex()));
 		}
-		else if(list.get(index).brailleList.size() > 0){
-			total = changeBrailleNodes(list.get(index), text);
+		else if(list.getCurrent().brailleList.size() > 0){
+			total = changeBrailleNodes(list.getCurrent(), text);
 		}
 		else {
-			insertBrailleNode(list.get(index), list.get(index +1).brailleList.getFirst().offset, text);
+			insertBrailleNode(list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().offset, text);
 		}
 		message.put("brailleLength", total);
 	}
-	
+
 	private void changeTextNode(Node n, String text){
 		Text temp = (Text)n;
 		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);
 		logger.log(Level.INFO, "New Text Node Value: " +  temp.getValue());
-		System.out.println(temp.getValue());
+		System.out.println("New Node Value:\t" + temp.getValue());
 	}
 	
 	private int changeBrailleNodes(TextMapElement t, String text){
@@ -165,6 +153,8 @@ public class BBDocument {
 		Element e;
 		
 		e = d.getRootElement().getChildElements("brl").get(0);
+		addNamespace(e);
+		
 		d.getRootElement().removeChild(e);
 		
 		startOffset = t.brailleList.getFirst().offset;
@@ -189,7 +179,7 @@ public class BBDocument {
 				t.brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
 				startOffset += e.getChild(i).getValue().length() + 1;
 				insertionString += t.brailleList.getLast().n.getValue() + "\n";
-				System.out.println(e.getChild(i).getValue());
+				System.out.println("Braille value:\t" + e.getChild(i).getValue());
 			}
 		}	
 			
@@ -199,7 +189,7 @@ public class BBDocument {
 	
 	private int insertEmptyBrailleNode(TextMapElement t, int offset){
 			int startOffset = -1;	
-			Element e = new Element("brl");
+			Element e = new Element("brl", this.doc.getRootElement().getNamespaceURI());
 			Text textNode = new Text("");
 			e.appendChild(textNode);
 			
@@ -216,13 +206,18 @@ public class BBDocument {
 			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
 			
 			Element parent = (Element)t.n.getParent();
-			Elements els = parent.getChildElements("brl");
-			for(int i = 0; i < els.size(); i++){
-				parent.removeChild(els.get(i));
+			if(t.brailleList.size() > 0){
+				Element child = (Element)t.brailleList.getFirst().n.getParent();
+				while(!child.getParent().equals(parent)){
+					child = (Element)child.getParent();
+				};
+				parent.replaceChild(child, e);	
 			}
-			t.n.getParent().appendChild(e);
+			else {
+				t.n.getParent().appendChild(e);
+			}
+		
 			t.brailleList.clear();
-			System.out.println(t.n.getValue().length());
 			t.brailleList.add(new BrailleMapElement(startOffset, textNode));
 			logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
 			return total;
@@ -242,6 +237,15 @@ public class BBDocument {
 				t.brailleList.add(new BrailleMapElement(newOffset, e.getChild(i)));
 				newOffset += e.getChild(i).getValue().length() + 1;
 			}
+		}
+	}
+	
+	private void addNamespace(Element e){
+		e.setNamespaceURI(this.doc.getRootElement().getNamespaceURI());
+		
+		Elements els = e.getChildElements();
+		for(int i = 0; i < els.size(); i++){
+			addNamespace(els.get(i));
 		}
 	}
 	

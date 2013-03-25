@@ -74,5 +74,4 @@ public abstract class AbstractView {
 		event.doit = true;
 	}
 	
-	public abstract void initializeView();
 }

@@ -221,7 +221,8 @@ class BBMenu {
 			}
 		});
 		saveAsItem = new MenuItem(fileMenu, SWT.PUSH);
-		saveAsItem.setText(lh.localValue("Save&As"));
+		saveAsItem.setText(lh.localValue("Save&As") + "\tF12");
+		saveAsItem.setAccelerator(SWT.F12);
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.fileSaveAs();

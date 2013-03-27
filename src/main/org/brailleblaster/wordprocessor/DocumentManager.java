@@ -32,13 +32,20 @@
 package org.brailleblaster.wordprocessor;
 
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -121,22 +128,10 @@ public class DocumentManager {
 	public void fileOpenDialog() {
 		String tempName;
 
-		FileDialog dialog = new FileDialog(this.wp.getShell(), SWT.OPEN);
-		String filterPath = "/";
 		String[] filterNames = new String[] { "XML", "XML ZIP", "TEXT", "BRF", "UTDML working document", };
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.txt", "*.brf", "*.utd", };
-
-		String platform = SWT.getPlatform();
-		if (platform.equals("win32") || platform.equals("wpf")) {
-			filterPath = System.getProperty("user.home");
-			if (filterPath == null){
-				filterPath = "c:\\";
-			}
-		}
-		dialog.setFilterNames(filterNames);
-		dialog.setFilterExtensions(filterExtensions);
-		dialog.setFilterPath(filterPath);
-
+		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
+		
 		tempName = dialog.open();
 		
 		// Don't do any of this if the user failed to choose a file.
@@ -187,6 +182,7 @@ public class DocumentManager {
 		System.out.println(fileName + " is opened here");
 		try{
 			if(this.document.startDocument(fileName, "preferences.cfg", null)){
+				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());
 				initializeViews(this.document.getRootElement(), this.treeView.getRoot());				
@@ -308,6 +304,47 @@ public class DocumentManager {
 			ext = fn.substring(dot + 1);
 		}
 		return ext;
+	}
+	
+	public void saveAs(){
+		String[] filterNames = new String[] { "BRF", "UTDML working document"};
+		String[] filterExtensions = new String[] {"*.brf", "*.utd"};
+		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
+		String filePath = dialog.open();
+		if(filePath != null){
+			String ext = getFileExt(filePath);
+		
+			if(ext.equals("brf")){
+				String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
+				File f = new File(filePath);
+				FileWriter fw;
+				try {
+					fw = new FileWriter(f);
+					BufferedWriter writer = new BufferedWriter(fw);
+					writer.write(text);
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			else if(ext.equals("xml")){
+
+			}
+			else if(ext.equals("utd")) {
+				Document utd = this.document.getUTD();
+				
+				try {
+					FileOutputStream os = new FileOutputStream(filePath);
+				    Serializer serializer = new Serializer(os, "UTF-8");
+				    serializer.setIndent(4);
+				    serializer.write(utd);
+				    os.close();
+				}
+				catch (IOException e) {
+				       e.printStackTrace(); 
+				}  
+			}
+		}
 	}
 	
 	public void fileClose() {

@@ -8,12 +8,17 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nu.xom.Attribute;
 import nu.xom.Builder;
+import nu.xom.Comment;
+import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.ParsingException;
+import nu.xom.ProcessingInstruction;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -311,6 +316,70 @@ public class BBDocument {
 			e.printStackTrace();
 			return -1;
 		}	
+	}
+	
+	public Document getUTD(){
+		Element root = new Element(this.doc.getRootElement().getLocalName());
+		Document brlDoc = new Document(root);
+		addNamespace(root);
+		addAttributes(this.doc.getRootElement(), root);
+		
+		for(int i = 0; i < this.doc.getChildCount(); i++){
+			if(this.doc.getChild(i) instanceof ProcessingInstruction){
+				ProcessingInstruction p = new ProcessingInstruction((ProcessingInstruction)this.doc.getChild(i));
+				brlDoc.insertChild(p, i);
+			}
+			else if(this.doc.getChild(i) instanceof DocType){
+				DocType docType = (DocType)this.doc.getChild(i).copy();
+				brlDoc.insertChild(docType, i);
+			}
+			else if(this.doc.getChild(i) instanceof Comment){
+				Comment c = (Comment)this.doc.getChild(i).copy();
+				brlDoc.insertChild(c, i);
+			}
+		}
+		
+		for(int i = 0; i < this.doc.getRootElement().getChildCount(); i++){
+			if(this.doc.getRootElement().getChild(i) instanceof Element) {
+				Element e = (Element)this.doc.getRootElement().getChild(i).copy();
+				if(e.getLocalName().equals("head")){
+					root.appendChild(e);
+				}
+				else {
+					Element temp = new Element(e.getLocalName());
+					addNamespace(temp);
+					root.appendChild(temp);
+					getBrlNodes(temp, e);
+				}
+			}
+			else if(this.doc.getRootElement().getChild(i) instanceof Comment){
+				Comment c = (Comment)this.doc.getRootElement().getChild(i).copy();
+				root.appendChild(c);
+			}
+		}
+		return brlDoc;
+	}
+	
+	private void addAttributes(Element original, Element copy){
+		for(int i = 0; i < original.getAttributeCount(); i++){
+			Attribute attr = (Attribute)original.getAttribute(i).copy();
+			copy.addAttribute(attr);
+		}
+	}
+	
+	private void getBrlNodes(Element parent, Element e){
+		Elements els = e.getChildElements();
+		
+		for(int i = 0; i < els.size(); i++){
+			if(els.get(i).getLocalName().equals("brl")){
+				Element temp = (Element)els.get(i).copy();
+				addNamespace(temp);
+				parent.appendChild(temp);
+			}
+			else {
+				getBrlNodes(parent, els.get(i));
+			}
+		}
 	}
 	
 	private void removeNode(TextMapElement t){

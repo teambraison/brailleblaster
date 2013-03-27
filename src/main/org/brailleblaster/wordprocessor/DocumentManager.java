@@ -73,7 +73,6 @@ public class DocumentManager {
 	Control [] tabList;
 	static int docCount = 0;
 	String documentName = null;
-	boolean documentChanged = false;
 	boolean metaContent = false;
 	String logFile = "Translate.log";
 	String configSettings = null;
@@ -81,6 +80,7 @@ public class DocumentManager {
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
 	public BBDocument document;
+	boolean simBrailleDisplayed = false;
 	MapList list;
 	
 	//Constructor that sets things up for a new document.
@@ -118,7 +118,7 @@ public class DocumentManager {
 		System.out.println("File save occurs");
 	}
 	
-	public void fileOpenDialog(WPManager wp) {
+	public void fileOpenDialog() {
 		String tempName;
 
 		FileDialog dialog = new FileDialog(this.wp.getShell(), SWT.OPEN);
@@ -152,7 +152,7 @@ public class DocumentManager {
 			
 			// Open it.
 			if(this.document.getDOM() != null || this.text.hasChanged || this.braille.hasChanged || this.documentName != null){
-				wp.addDocumentManager(tempName);
+				this.wp.addDocumentManager(tempName);
 			}
 			else {
 				openDocument(tempName);
@@ -162,7 +162,7 @@ public class DocumentManager {
 			// Recent Files.
 				
 				// Get recent file list.
-				ArrayList<String> strs = wp.getMainMenu().getRecentDocumentsList();
+				ArrayList<String> strs = this.wp.getMainMenu().getRecentDocumentsList();
 				
 				// Search list for duplicate. If one exists, don't add this new one.
 				boolean addNewDoc = true;
@@ -175,7 +175,7 @@ public class DocumentManager {
 				
 				// Update the recent files submenu.
 				if(addNewDoc == true)
-					wp.getMainMenu().addRecentEntry(tempName);
+					this.wp.getMainMenu().addRecentEntry(tempName);
 				
 			// Recent Files.
 			////////////////
@@ -195,7 +195,8 @@ public class DocumentManager {
 				this.braille.initializeListeners(this);
 				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
 				this.text.hasChanged = false;	
-				this.braille.hasChanged = false;	
+				this.braille.hasChanged = false;
+				this.wp.checkToolbarSettings();
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -338,6 +339,10 @@ public class DocumentManager {
 				this.item.setText("Untitled #" + docCount);
 			}
 		}
+	}
+	
+	public void toggleBrailleFont(){
+		FontManager.toggleBrailleFont(this.wp, this);
 	}
 		
 	public StyledText getDaisyView(){

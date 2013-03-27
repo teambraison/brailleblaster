@@ -78,6 +78,9 @@ public class FontManager {
 			if (!shell.getDisplay().loadFont(fontPath)) {
 				new Notify(lh.localValue("fontNotLoadedBraille"));
 			}
+			else {
+				SimBraille = true;
+			}
 		}
 
 		if (Courier) {
@@ -147,21 +150,21 @@ public class FontManager {
 		}
 	}
 	
-	void toggleBrailleFont(WPManager wp, DocumentManager dm) {
+	public static void toggleBrailleFont(WPManager wp, DocumentManager dm) {
 		if (displayBrailleFont) {
 			displayBrailleFont = false;
 		} else {
 			displayBrailleFont = true;
 		}
-		setBrailleFont(wp, dm, displayBrailleFont);
+		setBrailleFont(wp, dm, !dm.simBrailleDisplayed);
 	}
 
-	void setBrailleFont(WPManager wp, DocumentManager dm, boolean toggle) {
-		if (toggle) {
+	private static void setBrailleFont(WPManager wp, DocumentManager dm, boolean toggle) {
+		if (toggle  && SimBraille) {
 			simBrailleFont = new Font(WPManager.getDisplay(),
 					"SimBraille", brailleFontHeight, SWT.NORMAL);
 			dm.braille.view.setFont(simBrailleFont);
-
+			dm.simBrailleDisplayed = true;
 		} 
 		else {
 			if (Courier) {
@@ -172,6 +175,7 @@ public class FontManager {
 						daisyFontHeight, SWT.NORMAL);
 			}
 			dm.braille.view.setFont(simBrailleFont);
+			dm.simBrailleDisplayed = false;
 		}
 	}	
 }

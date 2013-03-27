@@ -188,10 +188,10 @@ class BBMenu {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						wp.getList().getFirst().fileOpenDialog(wp);
+						wp.getList().getFirst().fileOpenDialog();
 					}
 					else {
-						wp.getList().get(index).fileOpenDialog(wp);
+						wp.getList().get(index).fileOpenDialog();
 					}
 				}
 			}
@@ -324,6 +324,7 @@ class BBMenu {
 				int index = wp.getFolder().getSelectionIndex();
 				wp.getList().get(index).fileClose();
 				wp.getList().remove(index);
+				wp.checkToolbarSettings();
 			}
 		});
 		if (!BBIni.getPlatformName().equals("cocoa")) {

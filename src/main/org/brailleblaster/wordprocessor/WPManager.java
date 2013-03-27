@@ -29,6 +29,8 @@
 package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -78,7 +80,7 @@ public class WPManager {
 	    this.location.top = new FormAttachment (20);
 	    this.location.bottom = new FormAttachment(98);
 	    this.folder.setLayoutData (this.location);
-	   
+	    
 	    this.statusBar = new BBStatusBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
 	    
@@ -87,7 +89,18 @@ public class WPManager {
 	    
 	    this.managerList = new LinkedList<DocumentManager>();
 	    this.managerList.add(new DocumentManager(this, null));
-		
+	    this.folder.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub			
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				checkToolbarSettings();
+			}
+	    });
+	    
 		this.shell.addListener(SWT.Close, new Listener() { 
 	        public void handleEvent(Event event) { 
 	           System.out.println("Main Shell handling Close event, about to dipose the main Display"); 
@@ -100,7 +113,7 @@ public class WPManager {
    
         new Welcome(); 
 		this.shell.open();
-        
+		
         while (!display.isDisposed())  { 
 	        try { 
 	           if (!display.readAndDispatch()) { 
@@ -125,6 +138,7 @@ public class WPManager {
 	public void addDocumentManager(String fileName){
 		this.managerList.add(new DocumentManager(this, fileName));
 		setSelection();
+		checkToolbarSettings();
 	}
 
 	public void setSelection(){
@@ -139,6 +153,23 @@ public class WPManager {
         if (new YesNoChoice("The Braille facility is not usable." + " See the log." + " Do you wish to continue?").result == SWT.NO) {
             System.exit(1);
         }
+    }
+    
+    void checkToolbarSettings(){
+    	boolean enabled = true;
+    	
+    	if(this.managerList.size() > 0){
+    		int index = this.getFolder().getSelectionIndex();  
+ 
+    		if(this.getFolder().getItem(index).getText().startsWith("Untitled")){
+    			enabled = false;
+    		}
+    		this.toolBar.toggleCheckBox(enabled, this.getList().get(index).simBrailleDisplayed);
+    	}
+    	else {
+    		enabled = false;
+    		this.toolBar.toggleCheckBox(enabled, false);
+    	}
     }
 
     static int getMaxNumDocs(){

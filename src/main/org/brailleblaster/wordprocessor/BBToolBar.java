@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.ToolItem;
 public class BBToolBar {
 
 	private ToolBar toolBar;
-
+	private Button checkBrailleItem;
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp) {
 		LocaleHandler lh = new LocaleHandler();
@@ -70,14 +70,13 @@ public class BBToolBar {
 					// dm.setReturn (WP.OpenDocumentGetFile);
 				} 
 				else {
-//					dm.fileOpen();
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						wp.getList().getFirst().fileOpenDialog(wp);
+						wp.getList().getFirst().fileOpenDialog();
 					}
 					else {
-						wp.getList().get(index).fileOpenDialog(wp);
+						wp.getList().get(index).fileOpenDialog();
 					}
 				}
 			}
@@ -141,14 +140,23 @@ public class BBToolBar {
 		bloc.left = new FormAttachment(30);
 		bloc.right = new FormAttachment(78);
 		bloc.top = new FormAttachment(5);
-		Button checkBrailleItem = new Button(shell, SWT.CHECK);
+		checkBrailleItem = new Button(shell, SWT.CHECK);
 		checkBrailleItem.setLayoutData(bloc);
 		checkBrailleItem.setText(lh.localValue("viewBraille"));
+		checkBrailleItem.setEnabled(false);
 		checkBrailleItem.pack();
 		checkBrailleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				// dm.toggleBrailleFont();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).toggleBrailleFont();
+				}
 			}
 		});
+	}
+	
+	public void toggleCheckBox(boolean enabled, boolean state){
+		this.checkBrailleItem.setEnabled(enabled);
+		this.checkBrailleItem.setSelection(state);
 	}
 }

@@ -137,20 +137,32 @@ public class DocumentManager {
 		// Don't do any of this if the user failed to choose a file.
 		if(tempName != null)
 		{
-			// If the file opened was an xml zip file, unzip it.
-			if(tempName.endsWith(".zip")) {
-				// Create unzipper.
-				Zipper unzipr = new Zipper();
-				// Unzip and update "opened" file.
-				tempName = unzipr.Unzip(tempName, tempName.substring(0, tempName.lastIndexOf(".")) + "\\");
-			}
-			
 			// Open it.
 			if(this.document.getDOM() != null || this.text.hasChanged || this.braille.hasChanged || this.documentName != null){
 				this.wp.addDocumentManager(tempName);
 			}
 			else {
 				openDocument(tempName);
+			}
+			
+		} // if(tempName != null)
+	}
+	
+	public void openDocument(String fileName){
+		System.out.println(fileName + " is opened here");
+		
+		////////////////////////
+		// Zip and Recent Files.
+		
+			// The data file.
+			String dataFilePath = fileName;
+		
+			// If the file opened was an xml zip file, unzip it.
+			if(fileName.endsWith(".zip")) {
+				// Create unzipper.
+				Zipper unzipr = new Zipper();
+				// Unzip and update "opened" file.
+				dataFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + "\\");
 			}
 			
 			////////////////
@@ -162,7 +174,7 @@ public class DocumentManager {
 				// Search list for duplicate. If one exists, don't add this new one.
 				boolean addNewDoc = true;
 				for(int curStr = 0; curStr < strs.size(); curStr++) {
-					if(strs.get(curStr).compareTo(tempName) == 0) {
+					if(strs.get(curStr).compareTo(fileName) == 0) {
 						addNewDoc = false;
 						break;
 					}
@@ -174,14 +186,12 @@ public class DocumentManager {
 				
 			// Recent Files.
 			////////////////
-			
-		} // if(tempName != null)
-	}
-	
-	public void openDocument(String fileName){
-		System.out.println(fileName + " is opened here");
+
+		// Zip and Recent Files.
+		////////////////////////
+		
 		try{
-			if(this.document.startDocument(fileName, "preferences.cfg", null)){
+			if(this.document.startDocument(dataFilePath, "preferences.cfg", null)){
 				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());

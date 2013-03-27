@@ -184,7 +184,6 @@ class BBMenu {
 					//dm.setReturn(WP.OpenDocumentGetFile);
 				} 
 				else {
-					//dm.fileOpen();
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
@@ -226,6 +225,10 @@ class BBMenu {
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.fileSaveAs();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1 && wp.getList().get(index).documentName != null){
+					wp.getList().get(index).saveAs();
+				}
 			}
 		});
 		

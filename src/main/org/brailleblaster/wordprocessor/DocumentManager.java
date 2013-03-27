@@ -182,7 +182,7 @@ public class DocumentManager {
 				
 				// Update the recent files submenu.
 				if(addNewDoc == true)
-					this.wp.getMainMenu().addRecentEntry(tempName);
+					this.wp.getMainMenu().addRecentEntry(fileName);
 				
 			// Recent Files.
 			////////////////

@@ -323,42 +323,36 @@ public class DocumentManager {
 		String filePath = dialog.open();
 		if(filePath != null){
 			String ext = getFileExt(filePath);
-		
-			if(ext.equals("brf")){
-				try {
+			try {
+				if(ext.equals("brf")){
 					String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
 					File f = new File(filePath);
-					FileWriter fw;
-					fw = new FileWriter(f);
+					FileWriter fw = new FileWriter(f);
 					BufferedWriter writer = new BufferedWriter(fw);
 					writer.write(text);
 					writer.close();
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
-			}
-			else if(ext.equals("xml")){
-				SaveOptionsDialog saveDialog = new SaveOptionsDialog(this.wp.getShell(), SWT.NONE);
-				if(saveDialog.open() == SaveSelection.TEXT_AND_BRAILLE){
+				else if(ext.equals("xml")){
+					SaveOptionsDialog saveDialog = new SaveOptionsDialog(this.wp.getShell(), SWT.NONE);
+					if(saveDialog.open() == SaveSelection.TEXT_AND_BRAILLE){
 					
-				}
-				else if(saveDialog.open() == SaveSelection.TEXT_ONLY){
+					}
+					else if(saveDialog.open() == SaveSelection.TEXT_ONLY){
 					
+					}
 				}
-			}
-			else if(ext.equals("utd")) {				
-				try {
+				else if(ext.equals("utd")) {				
 					FileOutputStream os = new FileOutputStream(filePath);
 				    Serializer serializer = new Serializer(os, "UTF-8");
 				    serializer.write(this.document.getDOM());
 				    os.close();
 				    setTabTitle(filePath);
-				    this.documentName = this.item.getText();
+				    this.documentName = filePath;
 				}
-				catch (IOException e) {
-					e.printStackTrace(); 
-				}  
 			}
+			catch (IOException e) {
+				e.printStackTrace(); 
+			} 
 		}
 	}
 	

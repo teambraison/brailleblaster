@@ -317,7 +317,7 @@ public class DocumentManager {
 	}
 	
 	public void saveAs(){
-		String[] filterNames = new String[] { "BRF", "UTDML working document"};
+		String[] filterNames = new String[] {"BRF", "UTDML"};
 		String[] filterExtensions = new String[] {"*.brf", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
 		String filePath = dialog.open();
@@ -325,10 +325,10 @@ public class DocumentManager {
 			String ext = getFileExt(filePath);
 		
 			if(ext.equals("brf")){
-				String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
-				File f = new File(filePath);
-				FileWriter fw;
 				try {
+					String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
+					File f = new File(filePath);
+					FileWriter fw;
 					fw = new FileWriter(f);
 					BufferedWriter writer = new BufferedWriter(fw);
 					writer.write(text);
@@ -338,20 +338,25 @@ public class DocumentManager {
 				}
 			}
 			else if(ext.equals("xml")){
-
+				SaveOptionsDialog saveDialog = new SaveOptionsDialog(this.wp.getShell(), SWT.NONE);
+				if(saveDialog.open() == SaveSelection.TEXT_AND_BRAILLE){
+					
+				}
+				else if(saveDialog.open() == SaveSelection.TEXT_ONLY){
+					
+				}
 			}
-			else if(ext.equals("utd")) {
-				Document utd = this.document.getUTD();
-				
+			else if(ext.equals("utd")) {				
 				try {
 					FileOutputStream os = new FileOutputStream(filePath);
 				    Serializer serializer = new Serializer(os, "UTF-8");
-				    serializer.setIndent(4);
-				    serializer.write(utd);
+				    serializer.write(this.document.getDOM());
 				    os.close();
+				    setTabTitle(filePath);
+				    this.documentName = this.item.getText();
 				}
 				catch (IOException e) {
-				       e.printStackTrace(); 
+					e.printStackTrace(); 
 				}  
 			}
 		}
@@ -364,7 +369,6 @@ public class DocumentManager {
 				this.fileSave();
 			}
 		}
-		System.out.println(this.document.getDOM().toXML().toString());
 		this.item.dispose();
 	}
 	

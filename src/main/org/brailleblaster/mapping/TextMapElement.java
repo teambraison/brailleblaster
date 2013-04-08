@@ -9,8 +9,8 @@ import org.brailleblaster.abstractClasses.AbstractMapElement;
 public class TextMapElement extends AbstractMapElement {
 	public LinkedList<BrailleMapElement>brailleList;
 	
-	public TextMapElement(int offset, Node n) {
-		super(offset, n);
+	public TextMapElement(int start, int end, Node n) {
+		super(start, end, n);
 		this.brailleList = new LinkedList<BrailleMapElement>();		
 	}
 }

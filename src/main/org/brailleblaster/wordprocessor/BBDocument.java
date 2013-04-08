@@ -8,17 +8,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nu.xom.Attribute;
 import nu.xom.Builder;
-import nu.xom.Comment;
-import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.Nodes;
 import nu.xom.ParsingException;
-import nu.xom.ProcessingInstruction;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -137,7 +132,7 @@ public class BBDocument {
 			total = changeBrailleNodes(list.getCurrent(), text);
 		}
 		else {
-			insertBrailleNode(list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().offset, text);
+			insertBrailleNode(list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start, text);
 		}
 		message.put("brailleLength", total);
 	}
@@ -162,10 +157,10 @@ public class BBDocument {
 		
 		d.getRootElement().removeChild(e);
 		
-		startOffset = t.brailleList.getFirst().offset;
+		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
 		for(int i = 0; i < t.brailleList.size(); i++){
-			total += t.brailleList.get(i).n.getValue().length() + 1;
+			total += t.brailleList.get(i).n.getValue().length();
 			logString += t.brailleList.get(i).n.getValue() + "\n";
 		}
 		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
@@ -181,9 +176,9 @@ public class BBDocument {
 			
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
-				t.brailleList.add(new BrailleMapElement(startOffset, e.getChild(i)));
-				startOffset += e.getChild(i).getValue().length() + 1;
-				insertionString += t.brailleList.getLast().n.getValue() + "\n";
+				t.brailleList.add(new BrailleMapElement(startOffset, e.getChild(i).getValue().length(),e.getChild(i)));
+				startOffset += e.getChild(i).getValue().length();
+				insertionString += t.brailleList.getLast().n.getValue();
 				System.out.println("Braille value:\t" + e.getChild(i).getValue());
 			}
 		}	
@@ -199,13 +194,13 @@ public class BBDocument {
 			e.appendChild(textNode);
 			
 			if(t.brailleList.size() > 0)
-				startOffset = t.brailleList.getFirst().offset;
+				startOffset = t.brailleList.getFirst().start;
 			
 			int total = 0;
 			
 			String logString = "";
 			for(int i = 0; i < t.brailleList.size(); i++){
-				total += t.brailleList.get(i).n.getValue().length() + 1;
+				total += t.brailleList.get(i).n.getValue().length();
 				logString += t.brailleList.get(i).n.getValue() + "\n";
 			}
 			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
@@ -223,7 +218,7 @@ public class BBDocument {
 			}
 		
 			t.brailleList.clear();
-			t.brailleList.add(new BrailleMapElement(startOffset, textNode));
+			t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
 			logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
 			return total;
 	}
@@ -239,7 +234,7 @@ public class BBDocument {
 		int newOffset = startingOffset;
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
-				t.brailleList.add(new BrailleMapElement(newOffset, e.getChild(i)));
+				t.brailleList.add(new BrailleMapElement(newOffset, newOffset + e.getChild(i).getValue().length(),e.getChild(i)));
 				newOffset += e.getChild(i).getValue().length() + 1;
 			}
 		}
@@ -316,6 +311,25 @@ public class BBDocument {
 			e.printStackTrace();
 			return -1;
 		}	
+	}
+	
+	public Document getNewXML(){
+		Document d = new Document(this.doc);
+		removeAllBraille(d.getRootElement());
+		return d;
+	}
+	
+	private void removeAllBraille(Element e){
+		Elements els = e.getChildElements();
+		
+		for(int i = 0; i < els.size(); i++){
+			if(els.get(i).getLocalName().equals("brl")){
+				e.removeChild(els.get(i));
+			}
+			else {
+				removeAllBraille(els.get(i));
+			}
+		}
 	}
 	
 	private void removeNode(TextMapElement t){

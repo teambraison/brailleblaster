@@ -12,118 +12,141 @@ public class MapList extends LinkedList<TextMapElement>{
 	private static final long serialVersionUID = 1L;
 	DocumentManager dm;
 	private TextMapElement current;
-	private int currentIndex, currentLength, prevEnd, nextStart;
+	private int currentIndex;
+	public int prevEnd, nextStart;
 	
 	public MapList(DocumentManager dm){
 		this.dm = dm;
 	}
 	
 	public int findClosest(Message message){
-		int location = (Integer)message.getValue("offset"); 
-		for(int i = 0; i < this.size() - 1; i++){
-			if(location >= this.get(i).offset && location < this.get(i + 1).offset){
-				if(message.type == BBEvent.SET_CURRENT || message.type == BBEvent.TEXT_DELETION){
-					return checkConditions(i, message);
+		int location = (Integer)message.getValue("offset");
+		int nodeIndex = getNodeIndex((TextMapElement)message.getValue("selection"));
+		
+		if(location <= this.get(0).start){
+			return 0;
+		}
+		else if(location >= this.getLast().end){
+			return this.indexOf(this.getLast());
+		}
+
+		for(int i = 0; i < this.size(); i++){
+			if(location >= this.get(i).start && location <= this.get(i).end){
+				if(location == this.get(i).end && location == this.get(i + 1).start){
+					if(checkForSpace(i)){
+						return i + 1;
+					}
+					
+					if(i == nodeIndex){
+						return i;
+					}
+					else if( i + 1 == nodeIndex) {
+						return i + 1;
+					}
 				}
-				else {
+				else{
 					return i;
 				}
 			}
-		}
-		if(location >= this.get(this.size() - 1).offset){
-			if(message.type == BBEvent.SET_CURRENT || message.type == BBEvent.TEXT_DELETION){
-				return checkConditions(this.size() - 1, message);
-			}
-			else {
-				return this.size() - 1;
-			}
-		}
-		else {
-			return -1;
-		}
-	}
-	
-	private int checkConditions(int index, Message message){
-		if(checkBoundary(index, (Integer)message.getValue("offset"))){
-			if(message.type == BBEvent.SET_CURRENT && hasNoBreak(index)){
-				if(message.getValue("selection") != null && !(message.getValue("selection")).equals(this.get(index))){
-					return index - 1;
+			else if(location > this.get(i).end && location < this.get(i + 1).start){
+				if(location - this.get(i).end > this.get(i + 1).start - location){
+					return i;
 				}
-			}
-			else if(message.type == BBEvent.TEXT_DELETION){
-				if(hasNoBreak(index)){
-					if((Integer)message.getValue("deletionType") == SWT.BS){
-						message.put("update", true);
-						return index - 1;
-					}
+				else if(location - this.get(i).end < this.get(i + 1).start - location){
+					return i + 1;
 				}
 				else {
-					System.out.println("No changes made, adjust offsets");
-					this.updateOffsets(index - 1, message);
-					this.checkList();
-					message.put("update", false);
-					return -1;
+					if(i == nodeIndex){
+						return i;
+					}
+					else if( i + 1 == nodeIndex) {
+						return i + 1;
+					}
+					else {
+						return i;
+					}
 				}
 			}
 		}
-		return index;
+			
+		return -1;
 	}
 	
-	private boolean checkBoundary(int index, int offset){
-		if(this.get(index).offset == offset && offset != 0)
+	private boolean checkForSpace(int index){
+		char firstChar = this.get(index).n.getValue().charAt(this.get(index).n.getValue().length() - 1);
+		char nextChar =  this.get(index + 1).n.getValue().charAt(0);
+		
+		if( firstChar == ' ' && nextChar != ' '){
 			return true;
-		else
-			return false;
+		}
+		
+		return false;
 	}
-	
-	private boolean hasNoBreak(int index){
-		if(this.get(index - 1).offset + this.get(index - 1).n.getValue().length() == this.get(index).offset)
-			return true;
-		else 
-			return false;
-	}
-	
+		
 	public void updateOffsets(int index, Message message){
-		if(index == this.size() - 1 && (Integer)message.getValue("newPosition") != null){
-			if((Integer)message.getValue("newPosition") != this.current.offset){
-				updateTextOffsets(index - 1, -1);
-			}
-			else {
-				updateTextOffsets(index, (Integer)message.getValue("length"));
-			}
-		}
-		else {
-			updateTextOffsets(index, (Integer)message.getValue("length"));
-		}
-		if(message.getValue("brailleLength") != null && this.get(index).brailleList.getFirst().offset != 1){
+		updateTextOffsets(index, (Integer)message.getValue("length"));
+		
+		if(message.getValue("brailleLength") != null){
 			updateBrailleOffsets(index, (Integer)message.getValue("brailleLength"));
 		}
 	}
 	
 	private void updateTextOffsets(int nodeNum, int offset){
-		for(int i = nodeNum + 1; i < this.size(); i++)
-			this.get(i).offset +=offset;
+		this.get(nodeNum).end += offset;
+		
+		for(int i = nodeNum + 1; i < this.size(); i++){
+			this.get(i).start +=offset;
+			this.get(i).end += offset;
+		}
+	}
+	
+	public void shiftOffsetsFromIndex(int index, int offset){
+		for(int i = index; i < this.size(); i++){
+			this.get(i).start +=offset;
+			this.get(i).end += offset;
+			if(hasBraille(i)){
+				for(int j = 0; j < this.get(i).brailleList.size(); j++){
+					this.get(i).brailleList.get(j).start += offset;
+					this.get(i).brailleList.get(j).end += offset;
+				}
+			}
+		}
+	}
+	
+	public void shiftOffsetsAfterIndex(int index, int offset){
+		for(int i = index + 1; i < this.size(); i++){
+			this.get(i).start +=offset;
+			this.get(i).end += offset;
+			
+			if(hasBraille(i)){
+				for(int j = 0; j < this.get(i).brailleList.size(); j++){
+					this.get(i).brailleList.get(j).start += offset;
+					this.get(i).brailleList.get(j).end += offset;
+				}
+			}
+		}
 	}
 	
 	private void updateBrailleOffsets(int index, int originalLength){
 		int total = 0;
 		for(int i = 0; i < this.get(index).brailleList.size(); i++){
-			if(this.get(index).brailleList.get(i).offset != -1)
-			total += this.get(index).brailleList.get(i).n.getValue().length() + 1;
+			if(this.get(index).brailleList.get(i).start != -1)
+			total += this.get(index).brailleList.get(i).n.getValue().length();
 		}
 		
 		total -= originalLength;
 		
 		for(int i = index + 1; i < this.size(); i++){
 			for(int j = 0; j < this.get(i).brailleList.size(); j++){
-				this.get(i).brailleList.get(j).offset += total;
+				this.get(i).brailleList.get(j).start += total;
+				this.get(i).brailleList.get(j).end += total;
 			}
 		}
 	}
 	
 	public void checkList(){
 		for(int i = 0; i < this.size() - 1; i++){
-			if(this.get(i).offset == this.get(i + 1).offset){
+			if(this.get(i).start == this.get(i + 1).start){
 				Message m = new Message(BBEvent.REMOVE_NODE);
 				m.put("index", i);
 				m.put("length",  this.get(i).n.getValue().length());
@@ -135,7 +158,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 		
 		for(int i = 1; i < this.size() - 2; i++){
-			if(this.get(i - 1).offset + this.get(i - 1).n.getValue().length() + 1 == this.get(i + 1).offset){
+			if(this.get(i - 1).start + this.get(i - 1).n.getValue().length() + 1 == this.get(i + 1).start && this.get(i).n.getValue().length() == 0){
 				Message m = new Message(BBEvent.REMOVE_NODE);
 				m.put("index", i);
 				m.put("length",  this.get(i).n.getValue().length());
@@ -147,7 +170,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 		
 		if(this.get(this.size() - 1).n.getValue().length() == 0){
-			if(this.get(this.size() - 1).offset == this.prevEnd || this.get(this.size() - 1).offset == 0){
+			if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
 				Message m = new Message(BBEvent.REMOVE_NODE);
 				m.put("index", this.size() - 1);
 				m.put("length",  this.get(this.size() - 1).n.getValue().length());
@@ -161,16 +184,15 @@ public class MapList extends LinkedList<TextMapElement>{
 	public int getNextBrailleOffset(int index){
 		int i = index + 1;
 		while(i < this.size()){
-			//i++;
-			if(this.get(i).brailleList.size() > 0 && this.get(i).brailleList.getFirst().offset != -1)
-				return this.get(i).brailleList.getFirst().offset;
+			if(this.get(i).brailleList.size() > 0 && this.get(i).brailleList.getFirst().start != -1)
+				return this.get(i).brailleList.getFirst().start;
 			i++;
 		}
 		
 		i = index - 1;
 		while(i >= 0){
-			if(this.get(i).brailleList.size() > 0 && this.get(i).brailleList.getFirst().offset != -1)
-				return this.get(i).brailleList.getFirst().offset;
+			if(this.get(i).brailleList.size() > 0 && this.get(i).brailleList.getFirst().start != -1)
+				return this.get(i).brailleList.getFirst().start;
 		}
 		return 0;
 	}
@@ -178,14 +200,14 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void setCurrent(int index){
 		this.current = this.get(index);
 		this.currentIndex = index;
-		this.currentLength = this.current.n.getValue().length();
+		
 		if(index > 0)
-			this.prevEnd = this.get(index -1).offset + this.get(index - 1).n.getValue().length();
+			this.prevEnd = this.get(index -1).end;
 		else
 			this.prevEnd = -1;
 		
 		if(index != this.size() - 1)
-			this.nextStart = this.get(index + 1).offset;
+			this.nextStart = this.get(index + 1).start;
 		else
 			this.nextStart = -1;
 	}
@@ -193,7 +215,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	public TextMapElement getCurrent(){
 		if(this.current == null){
 			Message message = new Message(BBEvent.SET_CURRENT);
-			message.put("offset", this.getFirst().offset);
+			message.put("offset", this.getFirst().start);
 			dm.dispatch(message);
 			return this.current;
 		}
@@ -204,17 +226,13 @@ public class MapList extends LinkedList<TextMapElement>{
 	public int getCurrentIndex(){
 		if(this.current == null){
 			Message message = new Message(BBEvent.SET_CURRENT);
-			message.put("offset", this.getFirst().offset);
+			message.put("offset", this.getFirst().start);
 			dm.dispatch(message);
 			return this.currentIndex;
 		}
 		else {
 			return this.currentIndex;
 		}
-	}
-	
-	private int getCurrentOffset(){
-		return this.current.offset;
 	}
 	
 	private int getCurrentBrailleLength(){
@@ -230,7 +248,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		if(this.current.brailleList.size() == 0)
 			return 0;
 		else
-			return this.current.brailleList.getFirst().offset;
+			return this.current.brailleList.getFirst().start;
 	}
 	
 	public void getCurrentNodeData(Message m){
@@ -239,11 +257,23 @@ public class MapList extends LinkedList<TextMapElement>{
 			setCurrent(index);
 		}
 		
-		m.put("start", this.current.offset);
-		m.put("end", this.current.offset + this.currentLength);
+		m.put("start", this.current.start);
+		m.put("end", this.current.end);
 		m.put("previous", this.prevEnd);
 		m.put("next", this.nextStart);
 		m.put("brailleStart", getCurrentBrailleOffset());
 		m.put("brailleEnd", getCurrentBrailleLength());
+	//	System.out.println("Current Node Data\nStart:\t" + this.current.start + " End\t" + this.current.end + "\nPrevious:\t" + this.prevEnd + " Next\t" + this.nextStart);
+	}
+	
+	private int getNodeIndex(TextMapElement t){
+		return this.indexOf(t);
+	}
+	
+	public boolean hasBraille(int index){
+		if(this.get(index).brailleList.size() > 0)
+			return true;
+		else
+			return false;
 	}
 }

@@ -29,16 +29,21 @@
 package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 
 public abstract class AbstractView {
 	public StyledText view;
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
+	protected int total;
+	protected int spaceBeforeText, spaceAfterText;
 	
 	public AbstractView() {
 	}
@@ -74,4 +79,42 @@ public abstract class AbstractView {
 		event.doit = true;
 	}
 	
+	protected void insertAfter(int position, String text){
+		int previousPosition = view.getCaretOffset();
+		this.view.setCaretOffset(position);
+		this.view.insert(text);
+		this.spaceAfterText += text.length();
+		this.view.setCaretOffset(previousPosition);
+	}
+	
+	protected void insertBefore(int position, String text){
+		int previousPosition = view.getCaretOffset();
+		this.view.setCaretOffset(position);
+		this.view.insert(text);
+		this.spaceBeforeText += text.length();
+		this.view.setCaretOffset(previousPosition);
+	}
+	
+	protected String makeInsertionString(int length, char c){
+		String insertionString = "";
+		for(int i = 0; i < length; i++){
+			insertionString += c;
+		}
+		
+		return insertionString;
+	}
+	
+	protected void setFontRange(int length, int style){
+		StyleRange styleRange = new StyleRange();
+		styleRange.start = this.total;
+		styleRange.length = length;
+		styleRange.fontStyle = style;
+		this.view.setStyleRange(styleRange);
+	}
+	
+	protected int getFontWidth(){
+		GC gc = new GC(this.view);
+		FontMetrics fm =gc.getFontMetrics();
+		return fm.getAverageCharWidth();
+	}
 }

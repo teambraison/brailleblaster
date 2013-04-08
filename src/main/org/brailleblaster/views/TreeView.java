@@ -84,7 +84,7 @@ public class TreeView extends AbstractView {
 				if(items[0].getData() != null){
 					TextMapElement temp = (TextMapElement)items[0].getData();
 					Message message = new Message(BBEvent.SET_CURRENT);
-					message.put("offset", temp.offset);
+					message.put("offset", temp.start);
 					dm.dispatch(message);
 				}
 			}

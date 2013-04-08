@@ -37,7 +37,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
+
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -62,7 +62,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TreeItem;
@@ -78,6 +77,7 @@ public class DocumentManager {
 	BrailleView braille;
 	FormLayout layout;
 	Control [] tabList;
+	BBSemanticsTable styles;
 	static int docCount = 0;
 	String documentName = null;
 	boolean metaContent = false;
@@ -92,6 +92,7 @@ public class DocumentManager {
 	
 	//Constructor that sets things up for a new document.
 	DocumentManager(WPManager wp, String docName) {
+		this.styles = new BBSemanticsTable();
 		this.documentName = docName;
 		this.list = new MapList(this);
 		this.wp = wp;
@@ -99,8 +100,8 @@ public class DocumentManager {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());		
 		this.treeView = new TreeView(this, this.group);
-		this.text = new TextView(this.group);
-		this.braille = new BrailleView(this.group);
+		this.text = new TextView(this.group, this.styles);
+		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
 		
 		this.document = new BBDocument(this);
@@ -259,12 +260,11 @@ public class DocumentManager {
 		
 		switch(message.type){
 			case SET_CURRENT:
-				list.checkList();
+	//			list.checkList();
 				message.put("selection", this.treeView.getSelection());
 				index = list.findClosest(message);
 				if(index == -1){
-					message.put("start", list.getCurrent().offset);
-					message.put("end", list.getCurrent().offset + list.getCurrent().n.getValue().length());
+					list.getCurrentNodeData(message);
 					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				else {
@@ -274,11 +274,23 @@ public class DocumentManager {
 				}
 				break;
 			case GET_CURRENT:
+				message.put("selection", this.treeView.getSelection());
 				list.getCurrentNodeData(message);
 				this.treeView.setSelection(list.getCurrent(), message);
 				break;
 			case TEXT_DELETION:
-				index = list.findClosest(message);
+				if((Integer)message.getValue("deletionType") == SWT.BS){
+					if(list.hasBraille(list.getCurrentIndex())){
+						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start,  (Integer)message.getValue("length"));
+					}
+					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
+				}
+				else if((Integer)message.getValue("deletionType") == SWT.DEL){
+					list.shiftOffsetsAfterIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
+					if(list.hasBraille(list.getCurrentIndex())){
+						this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"));
+					}
+				}
 				break;
 			case UPDATE:
 				message.put("selection", this.treeView.getSelection());
@@ -290,16 +302,13 @@ public class DocumentManager {
 			case REMOVE_NODE:
 				index = (Integer)message.getValue("index");
 				this.document.updateDOM(list, message);
-				if(list.get(index).brailleList.getFirst().offset != -1){
-					int carriageReturnLineFeed = 2;
-					this.braille.removeWhitespace(list.get(index).brailleList.getFirst().offset);
-					message.put("brailleLength", carriageReturnLineFeed);
-					list.updateOffsets(index, message);
-				}
 				list.get(index).brailleList.clear();
 				this.treeView.removeItem(list.get(index), message);
 				list.remove(index);
 				System.out.println("Item removed");
+				break;
+			case ADJUST_ALIGNMENT:
+				this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
 				break;
 			default:
 				break;
@@ -317,8 +326,8 @@ public class DocumentManager {
 	}
 	
 	public void saveAs(){
-		String[] filterNames = new String[] {"BRF", "UTDML"};
-		String[] filterExtensions = new String[] {"*.brf", "*.utd"};
+		String[] filterNames = new String[] {"XML", "BRF", "UTDML"};
+		String[] filterExtensions = new String[] {".xml","*.brf", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
 		String filePath = dialog.open();
 		if(filePath != null){
@@ -333,13 +342,13 @@ public class DocumentManager {
 					writer.close();
 				}
 				else if(ext.equals("xml")){
-					SaveOptionsDialog saveDialog = new SaveOptionsDialog(this.wp.getShell(), SWT.NONE);
-					if(saveDialog.open() == SaveSelection.TEXT_AND_BRAILLE){
-					
-					}
-					else if(saveDialog.open() == SaveSelection.TEXT_ONLY){
-					
-					}
+					Document newDoc = this.document.getNewXML();
+					FileOutputStream os = new FileOutputStream(filePath);
+				    Serializer serializer = new Serializer(os, "UTF-8");
+				    serializer.write(newDoc);
+				    os.close();
+				    setTabTitle(filePath);
+				    this.documentName = filePath;
 				}
 				else if(ext.equals("utd")) {				
 					FileOutputStream os = new FileOutputStream(filePath);

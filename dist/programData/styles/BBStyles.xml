@@ -2,9 +2,9 @@
 	<styles>
 		<document>
 			<linesBefore>0</linesBefore>
-			<linesAfter>0</lineAfter>
-			<leftMargin>0</lineAfter>
-			<firstLineIndent>0</firstLineAfter>
+			<linesAfter>0</linesAfter>
+			<leftMargin>0</leftMargin>
+			<firstLineIndent>0</firstLineIndent>
 			<skipNumberLines>false</skipNumberLines>
 			<format>leftJustified</format>
 			<newPageBefore>false</newPageBefore>
@@ -14,14 +14,14 @@
 			<keepWithNext>false</keepWithNext>
 			<dontSplit>false</dontSplit>
 			<orphanControl>0</orphanControl>
-			<newlineAfter>true</newLineAfter>
+			<newLineAfter>true</newLineAfter>
 		</document>
 		<para>
 			<firstLineIndent>2</firstLineIndent>
 		</para>
 		<heading1>
 			<linesBefore>1</linesBefore>
-			<format>centered</format>
+			<format>16777216</format>
 			<linesAfter>1</linesAfter>
 		</heading1>
 		<heading2>
@@ -38,10 +38,15 @@
 			<firstLineIndent>-2</firstLineIndent>
 			<leftMargin>2</leftMargin>
 		</list>
+		<italicx>
+			<Font>italic</Font>
+		</italicx>
+		<pagenum>
+		</pagenum>
 	</styles>
 	<actions>
 		<italicx>
-			<Font>italic<Font>
-		<italicx>
+			<Font>italic</Font>
+		</italicx>
 	</actions>
 </BB>

@@ -3,11 +3,12 @@ package org.brailleblaster.abstractClasses;
 import nu.xom.Node;
 
 public class AbstractMapElement {
-	public int offset;
+	public int start, end;
 	public Node n;
 	
-	public AbstractMapElement(int offset, Node n){
-		this.offset = offset;
+	public AbstractMapElement(int start, int end, Node n){
+		this.start = start;
+		this.end = end;
 		this.n = n;
 	}
 }

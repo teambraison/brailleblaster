@@ -30,12 +30,17 @@ package org.brailleblaster.views;
 
 import java.util.LinkedList;
 
+import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.wordprocessor.BBSemanticsTable;
+import org.brailleblaster.wordprocessor.BBSemanticsTable.Styles;
+import org.brailleblaster.wordprocessor.BBSemanticsTable.StylesType;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.SWT;
@@ -53,84 +58,110 @@ import org.eclipse.swt.widgets.Group;
 
 
 public class TextView extends AbstractView {
-	public int total;
 	private int oldCursorPosition = -1;
 	private int currentChar;
-	private int currentStart, currentEnd, previous, next;
+	private int currentStart, currentEnd, previousEnd, nextStart;
 	private int currentChanges = 0;
 	private boolean textChanged;
+	private BBSemanticsTable stylesTable;
 	
-	public TextView (Group documentWindow) {
+	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, 16, 57, 0, 100);
+		this.stylesTable = table;
 		this.total = 0;
+		this.spaceBeforeText = 0;
+		this.spaceAfterText = 0;
 	}
 
-	public void initializeListeners(final DocumentManager dm){		
+	public void initializeListeners(final DocumentManager dm){	
 		view.addVerifyKeyListener(new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
 				currentChar = e.keyCode;
+				
+				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT){
+					Message message = new Message(BBEvent.ADJUST_ALIGNMENT);
+					message.put("sender", "text");
+					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
+						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
+						message.put("alignment", SWT.CENTER);
+					}
+					else {
+						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.LEFT);
+						message.put("alignment", SWT.LEFT);
+					}
+					dm.dispatch(message);
+					e.doit = false;
+				}
 			}		
 		});
-
+		
 		view.addExtendedModifyListener(new ExtendedModifyListener(){
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
-					if(e.length > 0){
-						handleTextInsertion(e.length);
-					}
-					else {
-						int offset = view.getCaretOffset() - oldCursorPosition;
-						if(currentChar == SWT.BS){
-							if(oldCursorPosition == currentStart && currentStart != currentEnd) { 
-								currentStart += offset;
-								currentEnd += offset;
-								incrementNext(offset);
-								sendDeleteSpaceMessage(dm, oldCursorPosition, offset);
-							}
-							else if(currentStart == currentEnd && currentStart + offset == previous){
-								currentStart += offset;
-								makeTextViewChange(offset);
-							}
-							else {
-								makeTextViewChange(offset);
-							}
+				if(e.length > 0){
+					makeTextChange(e.length);
+				}
+				else {
+					int offset = view.getCaretOffset() - oldCursorPosition;
+					
+					if(currentChar == SWT.BS){
+						if(oldCursorPosition == currentStart && view.getCaretOffset() >= previousEnd){
+							shiftLeft(offset);
+							sendDeleteSpaceMessage(dm, offset);
 						}
-						else if(currentChar == SWT.DEL){
-							if(offset == 0)
-								offset = -1;
-							
-							if(currentStart == currentEnd){
-								incrementNext(offset);
-								currentChanges += offset;
-								textChanged = true;
-							}
-							else if(view.getCaretOffset() == currentEnd && view.getCaretOffset() != next){
-								sendDeleteSpaceMessage(dm, oldCursorPosition + 1, -1);
-								incrementNext(offset);
-							}
-							else if(view.getCaretOffset() == currentEnd && view.getCaretOffset() == next) {
-								if(textChanged == true){
-									sendUpdate(dm);	
-								}
-								view.setCaretOffset(view.getCaretOffset() + 1);
-								setCurrent(dm);
-								makeTextViewChange(offset);
-								view.setCaretOffset(view.getCaretOffset() - 1);
-							}
-							else {
-								makeTextViewChange(offset);
-							}
+						else if(oldCursorPosition == currentStart && view.getCaretOffset() < previousEnd){
+							if(textChanged == true)
+								sendUpdate(dm);
+							setCurrent(dm);
+							makeTextChange(offset);
+						}
+						else if(oldCursorPosition > currentEnd){
+							shiftLeft(offset);
+							currentChar = SWT.DEL;
+							sendDeleteSpaceMessage(dm, offset);
+						}
+						else{
+							makeTextChange(offset);
+						}
+					}
+					else if(currentChar == SWT.DEL){
+						if(offset == 0){
+							offset = -1;
 						}
 						
-						if(currentStart == currentEnd && (currentStart == previous || currentStart == next)){
-							if(currentStart == currentEnd && textChanged == true){
-								sendUpdate(dm);	
-								setCurrent(dm);
-							}
+						if(oldCursorPosition == currentEnd && oldCursorPosition < nextStart){
+							nextStart += offset;
+							sendDeleteSpaceMessage(dm, offset);
+						}
+						else if(oldCursorPosition == currentEnd && view.getCaretOffset() == nextStart){
+							if(textChanged == true)
+								sendUpdate(dm);
+							view.setCaretOffset(view.getCaretOffset() + 1);
+							setCurrent(dm);
+							view.setCaretOffset(view.getCaretOffset() - 1);
+							makeTextChange(offset);
+						}
+						else if(oldCursorPosition < currentStart && previousEnd == -1){
+							nextStart += offset;
+							currentStart += offset;
+							currentEnd += offset;
+							currentChar = SWT.BS;
+							sendDeleteSpaceMessage(dm, offset);
+						}
+						else {
+							makeTextChange(offset);
 						}				
-					}		
+					}
+					
+					if(currentStart == currentEnd && (currentStart == previousEnd || currentStart == nextStart)){
+						if(currentStart == currentEnd && textChanged == true){
+							sendUpdate(dm);	
+							setCurrent(dm);
+						}
+					}
+				}
 			}
 		});	
 		
@@ -156,8 +187,9 @@ public class TextView extends AbstractView {
 		view.addCaretListener(new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
+		//		System.out.println("Current Cursor Positon:\t" + view.getCaretOffset());
 				if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP){
-					if(e.caretOffset > currentEnd || e.caretOffset < currentStart){
+					if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
 						if(textChanged == true){
 							sendUpdate(dm);
 						}
@@ -193,10 +225,7 @@ public class TextView extends AbstractView {
 	
 	private void sendUpdate(DocumentManager dm){
 			Message updateMessage = new Message(BBEvent.UPDATE);
-			updateMessage.put("offset", oldCursorPosition);
-			if(next == -1)
-				updateMessage.put("newPosition", currentStart);
-			
+			updateMessage.put("offset", view.getCaretOffset());
 			updateMessage.put("newText", getString(currentStart, currentEnd - currentStart));
 			updateMessage.put("length", currentChanges);
 			dm.dispatch(updateMessage);
@@ -211,9 +240,8 @@ public class TextView extends AbstractView {
 		setViewData(message);
 	}
 	
-	private void sendDeleteSpaceMessage(DocumentManager dm, int start, int offset){
+	private void sendDeleteSpaceMessage(DocumentManager dm, int offset){
 		Message message = new Message(BBEvent.TEXT_DELETION);
-		message.put("offset", start);
 		message.put("length", offset);
 		message.put("deletionType", currentChar);
 		message.put("update", false);
@@ -234,18 +262,11 @@ public class TextView extends AbstractView {
 	private void setViewData(Message message){
 		currentStart = (Integer)message.getValue("start");
 		currentEnd = (Integer)message.getValue("end");
-		previous = (Integer)message.getValue("previous");
-		next = (Integer)message.getValue("next");
+		previousEnd = (Integer)message.getValue("previous");
+		nextStart = (Integer)message.getValue("next");
 	}
 	
-	private void handleTextInsertion(int length){
-		currentEnd += length;
-		incrementNext(length);
-		currentChanges += length;
-		textChanged = true;
-	}
-	
-	private void makeTextViewChange(int offset){
+	private void makeTextChange(int offset){
 		currentEnd += offset;
 		incrementNext(offset);
 		currentChanges += offset;
@@ -253,9 +274,15 @@ public class TextView extends AbstractView {
 	}
 	
 	private void incrementNext(int offset){
-		if(next != -1){
-			next += offset;
+		if(nextStart != -1){
+			nextStart += offset;
 		}
+	}
+	
+	private void shiftLeft(int offset){
+		currentStart += offset;
+		currentEnd += offset;
+		nextStart+= offset;
 	}
 	
 	public void setCursor(int offset){
@@ -264,11 +291,101 @@ public class TextView extends AbstractView {
 	}
 
 	public void setText(Node n, LinkedList<TextMapElement>list){
-		view.append(n.getValue() + "\n");
-		list.add(new TextMapElement(this.total, n));
-		this.total += n.getValue().length() + 1;
+		String key = this.stylesTable.getKeyFromAttribute(n);
+		
+		view.append(n.getValue());
+		if(this.stylesTable.containsKey(key)){
+			Styles temp = this.stylesTable.get(key);
+			handleStyle(temp, n);
+		}
+		
+		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + n.getValue().length(),n));
+		this.total += this.spaceBeforeText + n.getValue().length() + this.spaceAfterText;
+		this.spaceAfterText = 0;
+		this.spaceBeforeText = 0;
+		view.setCaretOffset(0);
+	}
+	
+	private void handleStyle(Styles style, Node n){
+		String viewText = n.getValue();
+		for (StylesType styleType : style.getKeySet()) {
+			switch(styleType){
+				case linesBefore:
+					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+					insertBefore(this.spaceBeforeText + this.total, textBefore);
+					break;
+				case linesAfter:
+					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)), '\n');
+					insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+					break;
+				case firstLineIndent: 
+					if(isFirst(n)){
+						int spaces = Integer.valueOf((String)style.get(styleType));
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText) , 1, spaces * getFontWidth());
+					}
+					break;
+				case format:
+					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf((String)style.get(styleType)));	
+					break;	
+				case Font:
+					 setFontRange( n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
+					 break;
+				default:
+					System.out.println(styleType);
+			}
+		}
+		
+		Element parent = (Element)n.getParent();
+		
+		if(parent.getLocalName().equals("em") || parent.getLocalName().equals("strong")){
+			Element grandParent = (Element)parent.getParent();
+			while(grandParent.getLocalName().equals("em") || grandParent.getLocalName().equals("strong")){
+				grandParent = (Element)grandParent.getParent();
+			}
+			int textNodes = 0;
+			for(int i = 0; i < grandParent.getChildCount(); i++){
+				if(grandParent.getChild(i) instanceof Element && !((Element)grandParent.getChild(i)).getLocalName().equals("brl")){
+					textNodes++;
+				}
+			}
+			
+			if(textNodes - 1 == grandParent.indexOf(parent)){
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+			}
+		}
+		else if(isLast(n)){
+			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+		}
 	}
 
+	private boolean isFirst(Node n){
+		Element parent = (Element)n.getParent();
+		if(parent.indexOf(n) == 0){
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	private boolean isLast(Node n){
+		boolean isLast = false;
+		Element parent = (Element)n.getParent();
+		
+		for(int i = 0; i < parent.getChildCount(); i++){
+			if(parent.getChild(i) instanceof Text){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else{
+					isLast = false;
+				}
+			}
+		}
+		
+		return isLast;
+	}
+	
 	public String getString(int start, int length){
 		return view.getTextRange(start, length);
 	}

@@ -127,6 +127,15 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 	}
 	
+	public void adjustOffsets(int index, Message message){
+		if(message.getValue("start") != null){
+			this.get(index).start -= (Integer)message.getValue("start");
+		}
+		
+		if(message.getValue("end") != null){
+			this.get(index).end += (Integer)message.getValue("end");
+		}
+	}
 	private void updateBrailleOffsets(int index, int originalLength){
 		int total = 0;
 		for(int i = 0; i < this.get(index).brailleList.size(); i++){
@@ -214,9 +223,10 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public TextMapElement getCurrent(){
 		if(this.current == null){
-			Message message = new Message(BBEvent.SET_CURRENT);
-			message.put("offset", this.getFirst().start);
-			dm.dispatch(message);
+			//Message message = new Message(BBEvent.SET_CURRENT);
+			//message.put("offset", this.getFirst().start);
+			//dm.dispatch(message);
+			setCurrent(0);
 			return this.current;
 		}
 		else {
@@ -263,7 +273,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("next", this.nextStart);
 		m.put("brailleStart", getCurrentBrailleOffset());
 		m.put("brailleEnd", getCurrentBrailleLength());
-	//	System.out.println("Current Node Data\nStart:\t" + this.current.start + " End\t" + this.current.end + "\nPrevious:\t" + this.prevEnd + " Next\t" + this.nextStart);
+		//System.out.println("Current Node Data\nStart:\t" + this.current.start + " End\t" + this.current.end + "\nPrevious:\t" + this.prevEnd + " Next\t" + this.nextStart);
 	}
 	
 	private int getNodeIndex(TextMapElement t){

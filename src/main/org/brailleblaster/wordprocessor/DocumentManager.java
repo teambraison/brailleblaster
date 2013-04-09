@@ -218,8 +218,7 @@ public class DocumentManager {
 	private void initializeViews(Node current, TreeItem item){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
 			this.text.setText(current, list);
-			if(item.getData() == null)
-				item.setData(list.getLast());
+			this.treeView.setItemData(item, list.getLast());
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -261,7 +260,7 @@ public class DocumentManager {
 		switch(message.type){
 			case SET_CURRENT:
 	//			list.checkList();
-				message.put("selection", this.treeView.getSelection());
+				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				index = list.findClosest(message);
 				if(index == -1){
 					list.getCurrentNodeData(message);
@@ -274,7 +273,7 @@ public class DocumentManager {
 				}
 				break;
 			case GET_CURRENT:
-				message.put("selection", this.treeView.getSelection());
+				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				list.getCurrentNodeData(message);
 				this.treeView.setSelection(list.getCurrent(), message);
 				break;
@@ -293,7 +292,7 @@ public class DocumentManager {
 				}
 				break;
 			case UPDATE:
-				message.put("selection", this.treeView.getSelection());
+				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				this.document.updateDOM(list, message);
 				list.updateOffsets(list.getCurrentIndex(), message);
 				this.braille.updateBraille(list.getCurrent(), (Integer)message.getValue("brailleLength"));
@@ -309,6 +308,12 @@ public class DocumentManager {
 				break;
 			case ADJUST_ALIGNMENT:
 				this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+				break;
+			case ADJUST_INDENT:
+				this.braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+				break;
+			case ADJUST_RANGE:
+				list.adjustOffsets(list.getCurrentIndex(), message);
 				break;
 			default:
 				break;

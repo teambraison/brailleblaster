@@ -215,6 +215,9 @@ public class BrailleView extends AbstractView {
 		view.setLineAlignment(view.getLineAtOffset(startPosition), 1, alignment);
 	}
 	
+	public void changeIndent(int start, Message message){
+		view.setLineIndent(view.getLineAtOffset(start), 1, (Integer)message.getValue("indent"));
+	}
 	/*
 	 * This is a derivative work from org.eclipse.swt.custom.DefaultContent.java
 	 */

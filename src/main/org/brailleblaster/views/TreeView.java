@@ -32,6 +32,8 @@
 package org.brailleblaster.views;
 
 
+import java.util.ArrayList;
+
 import nu.xom.Element;
 import nu.xom.Node;
 
@@ -82,7 +84,8 @@ public class TreeView extends AbstractView {
 				TreeItem [] items = t.getSelection();
 
 				if(items[0].getData() != null){
-					TextMapElement temp = (TextMapElement)items[0].getData();
+					ArrayList<TextMapElement>list = getList(items[0]);
+					TextMapElement temp = list.get(0);
 					Message message = new Message(BBEvent.SET_CURRENT);
 					message.put("offset", temp.start);
 					dm.dispatch(message);
@@ -111,8 +114,12 @@ public class TreeView extends AbstractView {
     	return temp;
 	}
 	
-	public void setItemData(TreeItem item, Node n){
-		item.setData(n);
+	public void setItemData(TreeItem item, TextMapElement t){
+		if(item.getData() == null){
+			item.setData(new ArrayList<TextMapElement>());
+		}
+		
+		getList(item).add(t);
 	}
 	
 	public void setSelection(TextMapElement t, Message m){
@@ -124,28 +131,52 @@ public class TreeView extends AbstractView {
 	
 	public void removeItem(TextMapElement t, Message m){
 		searchTree(this.getRoot(), t, m);
-		if((TreeItem)m.getValue("item") != null)
-			((TreeItem)m.getValue("item")).dispose();
-	}
-	
-	private void searchTree(TreeItem item, TextMapElement t, Message m){
-		for(int i = 0; i < item.getItemCount(); i++){
-			if(item.getItem(i).getData() != null && item.getItem(i).getData().equals(t)){
-				m.put("item",item.getItem(i));
-				break;
-			}
-			else{
-				searchTree(item.getItem(i), t, m);
-			}
+		if((TreeItem)m.getValue("item") != null){
+			TreeItem item = (TreeItem)m.getValue("item");
+			int index = (Integer)m.getValue("index");
+			ArrayList<TextMapElement> list = getList(item);
+			list.remove(index);
+			if(list.size() == 0)
+				((TreeItem)m.getValue("item")).dispose();
 		}
 	}
 	
-	public TextMapElement getSelection(){
+	private void searchTree(TreeItem item, TextMapElement t, Message m){
+		boolean found = false;
+		
+		for(int i = 0; i < item.getItemCount() && !found; i++){
+			if(item.getItem(i).getData() != null){
+				ArrayList<TextMapElement>list = getList(item.getItem(i));
+				for(int j = 0; j < list.size(); j++){
+					if(list.get(j).equals(t)){
+						m.put("item",item.getItem(i));
+						m.put("index", j);
+						found = true;
+						break;
+					}
+				}
+			}
+			
+			if(!found)
+				searchTree(item.getItem(i), t, m);
+		}
+	}
+	
+	public TextMapElement getSelection(TextMapElement t){
 		TreeItem [] arr = this.tree.getSelection();
-		if(arr.length > 0 && arr[0].getData() != null)
-			return (TextMapElement)arr[0].getData();
-		else
-			return null;
+		if(arr.length > 0 && arr[0].getData() != null){
+			ArrayList<TextMapElement>list = getList(arr[0]);
+			for(int i = 0; i < list.size(); i++)
+				if(list.get(i).equals(t))
+					return (TextMapElement)list.get(i);
+		}
+		
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private ArrayList<TextMapElement> getList(TreeItem item){
+		return (ArrayList<TextMapElement>)item.getData();
 	}
 	
 	public void clearTree(){

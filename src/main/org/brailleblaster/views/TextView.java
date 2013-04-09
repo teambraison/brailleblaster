@@ -94,6 +94,15 @@ public class TextView extends AbstractView {
 					dm.dispatch(message);
 					e.doit = false;
 				}
+				
+				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0){
+					Message message = new Message(BBEvent.ADJUST_INDENT);
+					message.put("sender", "text");
+					message.put("indent", 0);
+					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
+					dm.dispatch(message);
+					e.doit = false;
+				}
 			}		
 		});
 		
@@ -101,6 +110,20 @@ public class TextView extends AbstractView {
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
 				if(e.length > 0){
+					if(oldCursorPosition > currentEnd){
+						Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+						adjustmentMessage.put("end", oldCursorPosition - currentEnd);
+						dm.dispatch(adjustmentMessage);
+						currentEnd += oldCursorPosition - currentEnd;
+						nextStart += oldCursorPosition - currentEnd;
+					}
+					else if(oldCursorPosition < currentStart){
+						Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+						adjustmentMessage.put("start", currentStart - oldCursorPosition);
+						dm.dispatch(adjustmentMessage);
+						currentStart -= currentStart - oldCursorPosition;
+						
+					}
 					makeTextChange(e.length);
 				}
 				else {
@@ -187,7 +210,7 @@ public class TextView extends AbstractView {
 		view.addCaretListener(new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-		//		System.out.println("Current Cursor Positon:\t" + view.getCaretOffset());
+				//System.out.println("Current Cursor Positon:\t" + view.getCaretOffset());
 				if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP){
 					if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
 						if(textChanged == true){
@@ -227,6 +250,7 @@ public class TextView extends AbstractView {
 			Message updateMessage = new Message(BBEvent.UPDATE);
 			updateMessage.put("offset", view.getCaretOffset());
 			updateMessage.put("newText", getString(currentStart, currentEnd - currentStart));
+			//System.out.println("Current Changes are " + currentChanges);
 			updateMessage.put("length", currentChanges);
 			dm.dispatch(updateMessage);
 			currentChanges = 0;

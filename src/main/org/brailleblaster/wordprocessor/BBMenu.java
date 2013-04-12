@@ -218,6 +218,10 @@ class BBMenu {
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.fileSave();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1 && wp.getList().get(index).documentName != null){
+					wp.getList().get(index).fileSave();
+				}
 			}
 		});
 		saveAsItem = new MenuItem(fileMenu, SWT.PUSH);

@@ -34,9 +34,11 @@ package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -89,6 +91,8 @@ public class DocumentManager {
 	public BBDocument document;
 	boolean simBrailleDisplayed = false;
 	MapList list;
+	String zippedPath;
+	String workingFilePath;
 	
 	//Constructor that sets things up for a new document.
 	DocumentManager(WPManager wp, String docName) {
@@ -123,7 +127,46 @@ public class DocumentManager {
 	}
 
 	public void fileSave(){
-		System.out.println("File save occurs");
+		
+		// Borrowed from Save As function. Different document types require 
+		// different save methods.
+		try {
+			if(workingFilePath.endsWith("xml")){
+				Document newDoc = this.document.getNewXML();
+				FileOutputStream os = new FileOutputStream(workingFilePath);
+			    Serializer serializer = new Serializer(os, "UTF-8");
+			    serializer.write(newDoc);
+			    os.close();
+			}
+			else if(workingFilePath.endsWith("utd")) {				
+				FileOutputStream os = new FileOutputStream(workingFilePath);
+			    Serializer serializer = new Serializer(os, "UTF-8");
+			    serializer.write(this.document.getDOM());
+			    os.close();
+			}
+			else if(workingFilePath.endsWith("brf")){
+				String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
+				File f = new File(workingFilePath);
+				FileWriter fw = new FileWriter(f);
+				BufferedWriter writer = new BufferedWriter(fw);
+				writer.write(text);
+				writer.close();
+			}
+			
+			// If the document came from a zip file, then rezip it.
+			if(zippedPath.length() > 0)
+			{
+				// Create zipper.
+				Zipper zpr = new Zipper();
+				// Input string.
+				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + "\\";
+				// Zip it!
+				zpr.Zip(inPath, zippedPath);
+			}
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		} 
 	}
 	
 	public void fileOpenDialog() {
@@ -152,18 +195,25 @@ public class DocumentManager {
 	public void openDocument(String fileName){
 		System.out.println(fileName + " is opened here");
 		
+		// Update file we're about to work on.
+		workingFilePath = fileName;
+		
 		////////////////////////
 		// Zip and Recent Files.
-		
-			// The data file.
-			String dataFilePath = fileName;
 		
 			// If the file opened was an xml zip file, unzip it.
 			if(fileName.endsWith(".zip")) {
 				// Create unzipper.
 				Zipper unzipr = new Zipper();
 				// Unzip and update "opened" file.
-				dataFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + "\\");
+				workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + "\\");
+				
+				// Store paths.
+				zippedPath = fileName;
+			}
+			else {
+				// There is no zip file to deal with.
+				zippedPath = "";
 			}
 			
 			////////////////
@@ -192,7 +242,7 @@ public class DocumentManager {
 		////////////////////////
 		
 		try{
-			if(this.document.startDocument(dataFilePath, "preferences.cfg", null)){
+			if(this.document.startDocument(workingFilePath, "preferences.cfg", null)){
 				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());

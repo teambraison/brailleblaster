@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -321,6 +322,11 @@ public class BBDocument {
 	
 	private void removeAllBraille(Element e){
 		Elements els = e.getChildElements();
+		
+		if(e instanceof Element && e.getAttribute("semantics") != null){
+			Attribute attr = e.getAttribute("semantics");
+			e.removeAttribute(attr);
+		}
 		
 		for(int i = 0; i < els.size(); i++){
 			if(els.get(i).getLocalName().equals("brl")){

@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2010, 2011 DocArch <http://www.docarch.be>.
+#  Copyright (C) 2010, 2011 by DocArch <http://www.docarch.be>
 #
 #  This file is part of liblouis.
 #
@@ -17,18 +17,28 @@
 #  License along with liblouis. If not, see
 #  <http://www.gnu.org/licenses/>.
 #
-#-------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
+#  odt2braille - Braille authoring in OpenOffice.org.
+# ----------------------------------------------------------------------------------------------
 #
-#  Flemish Braille Math Code (a.k.a. Woluwe code)
+#  Spanish Braille
 #     Created and maintained by Bert Frees <bertfrees@gmail.com>
-#     See also: « Handleiding Braillesymbolen Wiskunde »
-#              (Gilbert Notaert, Marc Suij en Emmanuel Vandekerkhove, G.on Woluwe, 1984)
+#	  with the assistance of Carles Sadurní Anguita <http://www.transcriptor.net/>
 #
 # ----------------------------------------------------------------------------------------------
 
-include wiskunde-chardefs.cti
-include nl-BE-chardefs.cti
-include braille-patterns.cti
-include wiskunde-translation.cti
+# ---------------------------------------
+# Digits
+# ---------------------------------------
+
+include litdigits6Dots.uti
+
+# ---------------------------------------
+# Braille indicator opcodes
+# ---------------------------------------
+
+numsign 3456
+capsign 46
+begcaps 46-46
 
 # ----------------------------------------------------------------------------------------------

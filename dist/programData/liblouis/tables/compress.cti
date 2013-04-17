@@ -1,12 +1,12 @@
-# liblouis: U.S. character-to-dot mapping.
-#
+# Multiple Blank, Tab, etc. Suppression Table
+
 #  Based on the Linux screenreader BRLTTY, copyright (C) 1999-2006 by
 #  The BRLTTY Team
 #
-#  Copyright (C) 2004, 2005, 2006
+#  Copyright (C) 2004, 2005, 2013
 #  ViewPlus Technologies, Inc. www.viewplus.com
 #  and
-#  JJB Software, Inc. www.jjb-software.com
+#  Abilitiessoft, Inc. www.abilitiessoft.com
 #  All rights reserved
 #
 #  This file is free software; you can redistribute it and/or modify it
@@ -28,46 +28,22 @@
 #
 #  Maintained by John J. Boyer john.boyer@abilitiessoft.com
 
-display 0 356
-display 1 2
-display 2 23
-display 3 25
-display 4 256
-display 5 26
-display 6 235
-display 7 2356
-display 8 236
-display 9 35
-display ( 12356
-display } 12456
-display ] 124567
-display ? 1456
-display : 156
-display ) 23456
-display ! 2346
-display { 246
-display [ 2467
-display ' 3
-display - 36
-display . 46
-display " 5
-display ; 56
-display , 6
-display & 12346
-display $ 1246
-display | 1256
-display \\ 12567
-display % 146
-display * 16
-display # 3456
-display ` 4
-display _ 456
-display ^ 457
-display @ 47
-display = 123456
-display < 126
-display / 34
-display > 345
-display + 346
-display ~ 45
+space \s 0 blank
+space \t 9 tab
+space \x000a 0 newline
+space \x000c 0
+space \x000d 0 carriage return
+space \x001b 1b escape character for html back-translation
+space \x00A0 a NO-BREAK SPACE <noBreak> 0020 NON-BREAKING SPACE 
+
+# Sequences which should be represented by blank spaces
+repeated \s 0
+repeated \t 0
+
+# cut down lines of hyphens, underscores, etc.
+repeated --- 36
+repeated ___ 456
+repeated === 123456
+
+pass2 $s1-10 @0
 

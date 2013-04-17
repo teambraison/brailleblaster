@@ -19,14 +19,14 @@ table_files = \
 	chardefs-ueb.cti \
 	ckb-chardefs.cti \
 	ckb-g1.ctb \
-	ckb-translation.ctb \
-	compress.ctb \
+	ckb-translation.cti \
+	compress.cti \
 	controlchars.cti \
-	corrections.ctb \
+	corrections.cti \
 	countries.cti \
 	cs-chardefs.cti \
 	cs-g1.ctb \
-	cs-translation.ctb \
+	cs-translation.cti \
 	cy-cy-g1.utb \
 	cy-cy-g2.ctb \
 	Cz-Cz-g1.utb \
@@ -51,9 +51,9 @@ table_files = \
 	de-de-g2.ctb \
 	de-eurobrl6.dis \
 	de-eurobrl6u.dis \
-	de-g0-core.utb \
-	de-g1-core.ctb \
-	de-g2-core.ctb \
+	de-g0-core.uti \
+	de-g1-core.cti \
+	de-g2-core.cti \
 	devanagari.cti \
 	digits6DotsPlusDot6.uti \
 	digits6Dots.uti \
@@ -71,7 +71,6 @@ table_files = \
 	en-us-comp8.ctb \
 	en-us-compbrl.ctb \
 	en-us-g1.ctb \
-	en-us-g1.utb \
 	en-us-g2.ctb \
 	en-us-interline.ctb \
 	en-us-mathtext.ctb \
@@ -82,7 +81,7 @@ table_files = \
 	es-g1.ctb \
 	es-new.dis \
 	es-old.dis \
-	es-translation.ctb \
+	es-translation.cti \
 	et.ctb \
 	et-g0.utb \
 	ethio-g1.ctb \
@@ -125,8 +124,9 @@ table_files = \
 	hyph_fr_FR.dic \
 	hyph_hu_HU.dic \
 	hyph_it_IT.dic \
+	hyph_nb_NO.dic \
 	hyph_nl_NL.dic \
-	hyph_no_NO.dic \
+	hyph_nn_NO.dic \
 	hyph_pl_PL.dic \
 	hyph_pt_PT.dic \
 	hyph_ru.dic \
@@ -148,6 +148,7 @@ table_files = \
 	lang2table \
 	latinLetterDef6Dots.uti \
 	latinLetterDef8Dots.uti \
+	litdigits6Dots.uti \
 	loweredDigits6Dots.uti \
 	loweredDigits8Dots.uti \
 	lt.ctb \
@@ -172,7 +173,7 @@ table_files = \
 	nl-BE.dis \
 	nl-BE-g1.ctb \
 	nl-be-g1.utb \
-	nl-BE-translation.ctb \
+	nl-BE-translation.cti \
 	Nl-Nl-g1.utb \
 	no-no.ctb \
 	no-no.dis \
@@ -211,7 +212,7 @@ table_files = \
 	spaces.ctb \
 	sr-chardefs.cti \
 	sr-g1.ctb \
-	sr-translation.ctb \
+	sr-translation.cti \
 	sv-1989.ctb \
 	sv-1996.ctb \
 	ta.ctb \
@@ -235,7 +236,7 @@ table_files = \
 	vi.ctb \
 	wiskunde-chardefs.cti \
 	wiskunde.ctb \
-	wiskunde-translation.ctb \
+	wiskunde-translation.cti \
 	zh-hk.ctb \
 	zh-tw.ctb 
 

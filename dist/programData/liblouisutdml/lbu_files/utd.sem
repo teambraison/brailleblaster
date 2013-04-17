@@ -9,6 +9,4 @@ utdnewpage newpage,brlnumber
 utdnewline newline,xy
 utdgraphic xxx
 newentries no
-# FO
-notranslate locked
 

@@ -31,138 +31,59 @@
 
 package org.brailleblaster.printers;
 
-import java.awt.*;
-import java.awt.print.PageFormat;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.util.Notify;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.eclipse.swt.*;
+import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.printing.*;
 
-public class PrintersManager implements Printable {
+public class PrintersManager {
 
-    int[] pageBreaks;  // array of page break line positions.
-
-    String[] textLines;
-    StringBuffer textToPrint = new StringBuffer();
-    final int MAX_CHAR = 90;
-    
-    LocaleHandler lh = new LocaleHandler();
-    
-    static Logger logger;
-    
-    public PrintersManager (String text) {
-    	
+	StyledText text;
+	Font font;
+	Color foregroundColor, backgroundColor;
+	
+	Printer printer;
+	GC gc;
+	FontData[] printerFontData;
+	RGB printerForeground, printerBackground;
+	Logger logger;
+	
+	int lineHeight = 0;
+	int tabWidth = 0;
+	int leftMargin, rightMargin, topMargin, bottomMargin;
+	int x, y;
+	int index, end;
+	String textToPrint;
+	String tabs;
+	StringBuffer wordBuffer;
+	 PrintDialog dialog;
+	 
+    public PrintersManager (Shell shell, StyledText st) {
     	logger = BBIni.getLogger();
-    	
-        char c = 0;
-    	for (int i = 0; i < text.length(); i++) {
-        	if ( (c = text.charAt(i)) == 0x0d) {
-    			this.textToPrint.append(" ");
-        	} else {
-        		this.textToPrint.append(c);
-        	}
-    	}
-    }
-    
-    private void initTextLines() {
-    	int numLines = 0;
-    	int numChar = 0;
-    	int j = 0;
-        char c = 0;
-        if (textLines == null) {
-        	for (j = 0; j < textToPrint.length(); j++) { 
-        		if ((++numChar > MAX_CHAR) || (textToPrint.charAt(j) == 0x0a) ){
-        			numLines++;
-        			numChar = 0;
-        		} 
-        	}
-
-        	if (c != 0x0a) {
-        		textToPrint.append("\n");
-        		numLines++;
-        	}
-        	textLines = new String[numLines];
-        	int end = 0;
-        	int start = 0;
-        	numChar = 0;
-        	int i = 0;
-            while (i < numLines) {
-            	for (end = start; end < textToPrint.length(); end++) {  
-            		if (((c=textToPrint.charAt(end)) == 0x0a) || (++numChar > MAX_CHAR)) {
-                    	textLines[i++] = textToPrint.substring(start, end);
-                    	numChar = 0;
-                        start = end + 1;
-            		}
-            	}
-            }
-        }
+    	this.text = st;
+    	this.textToPrint = st.getText() + "\n";
+    	this.dialog = new PrintDialog(shell, SWT.SHELL_TRIM);
     }
 
-    public int print(Graphics g, PageFormat pf, int pageIndex)
-             throws PrinterException {
+    public void beginPrintJob() {
+    	PrinterData data = dialog.open();
+		if (data == null) return;
+		if (data.printToFile) {
+			data.fileName = "print.out"; 
+		}
 
-        Font font = new Font("Serif", Font.PLAIN, 10);
-        FontMetrics metrics = g.getFontMetrics(font);
-        int lineHeight = metrics.getHeight();
-
-        if (pageBreaks == null) {
-            initTextLines();
-            int linesPerPage = ((int)(pf.getImageableHeight()/lineHeight)) - 2;
-            int numBreaks = (textLines.length-1)/linesPerPage;
-            pageBreaks = new int[numBreaks];
-            for (int b=0; b<numBreaks; b++) {
-                pageBreaks[b] = (b+1)*linesPerPage; 
-            }
-        }
-
-        if (pageIndex > pageBreaks.length) {
-            return NO_SUCH_PAGE;
-        }
-
-        /* User (0,0) is typically outside the imageable area, so we must
-         * translate by the X and Y values in the PageFormat to avoid clipping
-         * Since we are drawing text we
-         */
-        Graphics2D g2d = (Graphics2D)g;
-        g2d.translate(pf.getImageableX(), pf.getImageableY());
-
-        /* Draw each line that is on this page.
-         * Increment 'y' position by lineHeight for each line.
-         */
-        
-        int y = lineHeight; 
-        int start = (pageIndex == 0) ? 0 : pageBreaks[pageIndex-1];
-        int end   = (pageIndex == pageBreaks.length)
-                         ? textLines.length : pageBreaks[pageIndex];
-        for (int line=start; line<end; line++) {
-            y += lineHeight;
-            g.drawString(textLines[line], 36, y);
-        }
-
-        /* tell the caller that this page is part of the printed document */
-        return PAGE_EXISTS;
-    }
-
-    public void printText() {
-       	 
-         PrinterJob job = PrinterJob.getPrinterJob();
-         job.setPrintable(this);
-         boolean ok = job.printDialog();
-         if (ok) {
-             try {
-                  job.print();
-             } catch (PrinterException ex) {
-            	 logger.log(Level.SEVERE, lh.localValue("cannotPrint") + " " + job.getPrintService().getName());
-//            	 System.err.println(ex.getMessage());
-            	 new Notify(lh.localValue("cannotPrint") + " " + job.getPrintService().getName()) ;
-             }
-         }
+		printerFontData = this.text.getFont().getFontData();
+		printerForeground = this.text.getForeground().getRGB();
+		printerBackground = this.text.getBackground().getRGB();
+		
+		printer = new Printer(data);
+		
+		Runnable thread = text.print(printer);
+		thread.run();
     }
 }
 

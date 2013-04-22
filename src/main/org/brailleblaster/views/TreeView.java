@@ -88,6 +88,10 @@ public class TreeView extends AbstractView {
 					TextMapElement temp = list.get(0);
 					Message message = new Message(BBEvent.SET_CURRENT);
 					message.put("offset", temp.start);
+					if(items[0].getText().equals("brl")){
+						message.put("isBraille", true);
+						message.put("offset", temp.brailleList.getFirst().start);
+					}
 					dm.dispatch(message);
 				}
 			}

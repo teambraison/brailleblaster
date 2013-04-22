@@ -115,8 +115,8 @@ public class BBDocument {
 			case REMOVE_NODE:
 				removeNode(list.get((Integer)message.getValue("index")));
 				break;
-		default:
-				System.out.println("No available operations for this mesage type");
+			default:
+				System.out.println("No available operations for this message type");
 			break;
 		}
 	}
@@ -127,10 +127,10 @@ public class BBDocument {
 		changeTextNode(list.getCurrent().n, text);
 		
 		if(text.equals("") || isWhitespace(text)){
-			total = insertEmptyBrailleNode(list.getCurrent(), list.getNextBrailleOffset(list.getCurrentIndex()));
+			total = insertEmptyBrailleNode(list.getCurrent(), list.getNextBrailleOffset(list.getCurrentIndex()), message);
 		}
 		else if(list.getCurrent().brailleList.size() > 0){
-			total = changeBrailleNodes(list.getCurrent(), text);
+			total = changeBrailleNodes(list.getCurrent(), message);
 		}
 		else {
 			insertBrailleNode(list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start, text);
@@ -146,8 +146,8 @@ public class BBDocument {
 		System.out.println("New Node Value:\t" + temp.getValue());
 	}
 	
-	private int changeBrailleNodes(TextMapElement t, String text){
-		Document d = getStringTranslation(text);
+	private int changeBrailleNodes(TextMapElement t, Message message){
+		Document d = getStringTranslation((String)message.getValue("newText"));
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
@@ -155,13 +155,15 @@ public class BBDocument {
 		
 		e = d.getRootElement().getChildElements("brl").get(0);
 		addNamespace(e);
-		
 		d.getRootElement().removeChild(e);
 		
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
 		for(int i = 0; i < t.brailleList.size(); i++){
 			total += t.brailleList.get(i).n.getValue().length();
+			if(afterNewlineElement(t.brailleList.get(i).n) && i > 0){
+				total++;
+			}
 			logString += t.brailleList.get(i).n.getValue() + "\n";
 		}
 		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
@@ -174,21 +176,28 @@ public class BBDocument {
 		parent.replaceChild(child, e);	
 
 		t.brailleList.clear();
-			
+		
+		boolean first = true;
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
-				t.brailleList.add(new BrailleMapElement(startOffset, e.getChild(i).getValue().length(),e.getChild(i)));
+				if(afterNewlineElement(e.getChild(i)) && !first){
+					insertionString += "\n";
+					startOffset++;
+				}
+				t.brailleList.add(new BrailleMapElement(startOffset, startOffset + e.getChild(i).getValue().length(),e.getChild(i)));
 				startOffset += e.getChild(i).getValue().length();
 				insertionString += t.brailleList.getLast().n.getValue();
-				System.out.println("Braille value:\t" + e.getChild(i).getValue());
+				first =false;
 			}
 		}	
 			
 		logger.log(Level.INFO, "New Braille Node Value:\n" + insertionString);
+		message.put("newBrailleText", insertionString);
+		message.put("newBrailleLength", insertionString.length());
 		return total;
 	}
 	
-	private int insertEmptyBrailleNode(TextMapElement t, int offset){
+	private int insertEmptyBrailleNode(TextMapElement t, int offset, Message message){
 			int startOffset = -1;	
 			Element e = new Element("brl", this.doc.getRootElement().getNamespaceURI());
 			Text textNode = new Text("");
@@ -221,6 +230,9 @@ public class BBDocument {
 			t.brailleList.clear();
 			t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
 			logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
+			String text = textNode.getValue();
+			message.put("newBrailleText", textNode.getValue());
+			message.put("newBrailleLength", textNode.getValue().length());
 			return total;
 	}
 	
@@ -323,7 +335,16 @@ public class BBDocument {
 	private void removeAllBraille(Element e){
 		Elements els = e.getChildElements();
 		
-		if(e instanceof Element && e.getAttribute("semantics") != null){
+		if(e instanceof Element && e.getLocalName().equals("meta")){
+			if(e.getAttributeValue("name").equals("utd"))
+				e.getParent().removeChild(e);
+			else {
+				Attribute attr = e.getAttribute("semantics");
+				e.removeAttribute(attr);
+			}
+				
+		}
+		else if(e instanceof Element && e.getAttribute("semantics") != null){
 			Attribute attr = e.getAttribute("semantics");
 			e.removeAttribute(attr);
 		}
@@ -370,5 +391,17 @@ public class BBDocument {
 	
 	public Document getDOM(){
 		return doc;
+	}
+	
+	private boolean afterNewlineElement(Node n){
+		Element parent = (Element)n.getParent();
+		int index = parent.indexOf(n);
+		if(parent.indexOf(n) > 0){
+			if(parent.getChild(index - 1) instanceof Element && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

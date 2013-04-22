@@ -205,7 +205,7 @@ class BBMenu {
 		
 		// Reads recent file list... from file.
 		readRecentFiles();
-		
+		/*
 		importItem = new MenuItem(fileMenu, SWT.PUSH);
 		importItem.setText(lh.localValue("&Import"));
 		importItem.addSelectionListener(new SelectionAdapter() {
@@ -213,6 +213,7 @@ class BBMenu {
 				//dm.importDocument();
 			}
 		});
+		*/
 		saveItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveItem.setText(lh.localValue("&Save"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
@@ -229,14 +230,13 @@ class BBMenu {
 		saveAsItem.setAccelerator(SWT.F12);
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.fileSaveAs();
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1 && wp.getList().get(index).documentName != null){
 					wp.getList().get(index).saveAs();
 				}
 			}
 		});
-		
+		/*
 		saveAsItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveAsItem.setText(lh.localValue("Save&Braille"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
@@ -244,7 +244,7 @@ class BBMenu {
 				//dm.brailleSave();
 			}
 		});
-		
+		*/
 		embosserSetupItem = new MenuItem(fileMenu, SWT.PUSH);
 		embosserSetupItem.setText(lh.localValue("&EmbosserSetup"));
 		embosserSetupItem.setEnabled(false); /* FO */
@@ -272,7 +272,7 @@ class BBMenu {
 		});
 **/		
 		embossNowItem = new MenuItem(fileMenu, SWT.PUSH);
-		embossNowItem.setText(lh.localValue("Emboss&Now!"));
+		embossNowItem.setText(lh.localValue("E&mboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.fileEmbossNow();
@@ -307,12 +307,14 @@ class BBMenu {
 		});
 **/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
-		printItem.setText(lh.localValue("&Print"));
-//		printItem.setEnabled(false); 
+		printItem.setText(lh.localValue("&Print") + "\tCtrl + P");
+		printItem.setAccelerator(SWT.MOD1 + 'p');
 		printItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				dm.placeholder();
-				//dm.daisyPrint();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).textPrint();
+				}
 			}
 		});
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);

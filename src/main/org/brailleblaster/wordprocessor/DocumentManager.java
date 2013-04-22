@@ -54,6 +54,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
@@ -250,7 +251,7 @@ public class DocumentManager {
 				list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
-				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
+//				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
 				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;
 				this.wp.checkToolbarSettings();
@@ -291,6 +292,7 @@ public class DocumentManager {
 	private void initializeBraille(Node current, TreeItem item, TextMapElement t){
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			this.braille.setBraille(current, t);
+		//	this.treeView.setItemData(item, list.getLast());
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -308,24 +310,55 @@ public class DocumentManager {
 		int index;
 		
 		switch(message.type){
-			case SET_CURRENT:
-	//			list.checkList();
-				message.put("selection", this.treeView.getSelection(list.getCurrent()));
-				index = list.findClosest(message);
-				if(index == -1){
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
-				}
-				else {
-					list.setCurrent(index);
+			case INCREMENT:
+				index = list.getCurrentIndex();
+				if(index < list.size() - 1){
+					list.setCurrent(index + 1);
 					list.getCurrentNodeData(message);
 					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				break;
-			case GET_CURRENT:
-				message.put("selection", this.treeView.getSelection(list.getCurrent()));
+			case DECREMENT:
+			index = list.getCurrentIndex();
+			if(index > 0){
+				list.setCurrent(index - 1);
 				list.getCurrentNodeData(message);
 				this.treeView.setSelection(list.getCurrent(), message);
+			}
+			break;
+			case SET_CURRENT:
+	//			list.checkList();
+				if(message.getValue("isBraille") != null){
+					index = list.findClosestBraille(message);
+					list.setCurrent(index);
+					list.getCurrentNodeData(message);
+					this.treeView.setSelection(list.getCurrent(), message);
+				}
+				else {
+					message.put("selection", this.treeView.getSelection(list.getCurrent()));
+					index = list.findClosest(message);
+					if(index == -1){
+						list.getCurrentNodeData(message);
+						this.treeView.setSelection(list.getCurrent(), message);
+					}
+					else {
+						list.setCurrent(index);
+						list.getCurrentNodeData(message);
+						this.treeView.setSelection(list.getCurrent(), message);
+					}
+				}
+				break;
+			case GET_CURRENT:
+				if(message.getValue("sender").equals("text")){
+					message.put("selection", this.treeView.getSelection(list.getCurrent()));
+					list.getCurrentNodeData(message);
+					this.treeView.setSelection(list.getCurrent(), message);
+				}
+				else {
+					message.put("selection", this.treeView.getSelection(list.getCurrent()));
+					list.getCurrentNodeData(message);
+					this.treeView.setSelection(list.getCurrent(), message);
+				}
 				break;
 			case TEXT_DELETION:
 				if((Integer)message.getValue("deletionType") == SWT.BS){
@@ -345,7 +378,7 @@ public class DocumentManager {
 				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				this.document.updateDOM(list, message);
 				list.updateOffsets(list.getCurrentIndex(), message);
-				this.braille.updateBraille(list.getCurrent(), (Integer)message.getValue("brailleLength"));
+				this.braille.updateBraille(list.getCurrent(), message);
 				list.checkList();
 				break;
 			case REMOVE_NODE:
@@ -448,6 +481,11 @@ public class DocumentManager {
 				this.item.setText("Untitled #" + docCount);
 			}
 		}
+	}
+	
+	public void textPrint(){
+		PrintersManager pn = new PrintersManager(this.wp.getShell(), this.text.view);
+		pn.beginPrintJob();	
 	}
 	
 	public void toggleBrailleFont(){

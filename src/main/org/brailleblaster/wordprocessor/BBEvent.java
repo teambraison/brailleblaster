@@ -1,6 +1,8 @@
 package org.brailleblaster.wordprocessor;
 
 public enum BBEvent {
+	INCREMENT,
+	DECREMENT,
 	TEXT_DELETION,
 	UPDATE,
 	REMOVE_NODE,

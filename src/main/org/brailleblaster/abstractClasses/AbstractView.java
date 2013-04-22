@@ -104,12 +104,18 @@ public abstract class AbstractView {
 		return insertionString;
 	}
 	
-	protected void setFontRange(int length, int style){
+	protected void setFontRange(int start, int length, int style){
 		StyleRange styleRange = new StyleRange();
-		styleRange.start = this.total;
+		styleRange.start = start;
 		styleRange.length = length;
 		styleRange.fontStyle = style;
 		this.view.setStyleRange(styleRange);
+	}
+	
+	protected void updateRange(StyleRange style, int start, int length){
+		style.start = start;
+		style.length = length;
+		this.view.setStyleRange(style);
 	}
 	
 	protected int getFontWidth(){

@@ -109,15 +109,45 @@ public class BBSemanticsTable {
 		return this.table.get(key);
 	}
 	
-	public String getKeyFromAttribute(Node n){
-		String pair = ((Element)n.getParent()).getAttributeValue("semantics");
+	public String getKeyFromAttribute(Element e){
+		String pair = e.getAttributeValue("semantics");
 		
 		if(pair == null){
-			return null;
+			return "no";
 		}
 		else {
 			String[] tokens = pair.split(",");
 			return tokens[1];	
+		}
+	}
+	
+	public Styles makeStylesElement(String key, Node n){
+		Styles temp = this.table.get(key);
+		
+		if(temp != null){
+			Element e = (Element)n.getParent();
+			String nextKey = getKeyFromAttribute(e);
+			while(!nextKey.equals("document")){
+				if(this.table.containsKey(nextKey)){
+					makeComposite(nextKey,temp);
+				}
+				e = (Element)e.getParent();
+				nextKey = getKeyFromAttribute(e);
+			}
+		}
+		else {
+			temp = new Styles(key);
+		}
+		
+		return temp;
+	}
+	
+	private void makeComposite(String key, Styles st){
+		Styles newStyle = this.table.get(key);
+		for (StylesType styleType : newStyle.getKeySet()) {
+			if(!st.contains(styleType)){
+				st.put(styleType, (String)newStyle.get(styleType));
+			}
 		}
 	}
 }

@@ -363,7 +363,7 @@ public class DocumentManager {
 			case TEXT_DELETION:
 				if((Integer)message.getValue("deletionType") == SWT.BS){
 					if(list.hasBraille(list.getCurrentIndex())){
-						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start,  (Integer)message.getValue("length"));
+						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"));
 					}
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
 				}

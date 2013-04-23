@@ -52,11 +52,13 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends AbstractView {
-	private int currentStart, currentEnd;
+	private int currentStart, currentEnd, nextStart, previousEnd;
 	private BBSemanticsTable stylesTable;
 	private int oldCursorPosition = -1;
 	
@@ -70,7 +72,6 @@ public class BrailleView extends AbstractView {
 	
 	public void initializeListeners(final DocumentManager dm){
 		view.addVerifyKeyListener(new VerifyKeyListener(){
-
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
@@ -84,9 +85,9 @@ public class BrailleView extends AbstractView {
 				Message message = new Message(BBEvent.GET_CURRENT);
 				message.put("sender", "braille");
 				dm.dispatch(message);
-				currentStart = (Integer)message.getValue("brailleStart");
-				currentEnd = (Integer)message.getValue("brailleEnd");
-				
+				//currentStart = (Integer)message.getValue("brailleStart");
+				//currentEnd = (Integer)message.getValue("brailleEnd");
+				setViewData(message);
 				if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd){
 					view.setCaretOffset((Integer)message.getValue("brailleStart"));
 					oldCursorPosition = view.getCaretOffset();
@@ -127,6 +128,21 @@ public class BrailleView extends AbstractView {
 			}
 		});
 		
+		view.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.CONTROL && e.keyCode == SWT.ARROW_DOWN && nextStart != -1){
+					sendIncrementCurrent(dm);
+					view.setCaretOffset(currentStart);
+					e.doit = false;
+				}
+				else if(e.stateMask == SWT.CONTROL && e.keyCode == SWT.ARROW_UP && previousEnd != -1){
+					sendDecrementCurrent(dm);
+					view.setCaretOffset(currentStart);
+					e.doit = false;
+				}
+			}
+		});
 	}
 	
 	private void setCurrent(DocumentManager dm){
@@ -141,6 +157,20 @@ public class BrailleView extends AbstractView {
 	private void setViewData(Message message){
 		currentStart = (Integer)message.getValue("brailleStart");
 		currentEnd = (Integer)message.getValue("brailleEnd");
+		nextStart = (Integer)message.getValue("nextBrailleStart");
+		previousEnd = (Integer)message.getValue("previousBrailleEnd");
+	}
+	
+	private void sendIncrementCurrent(DocumentManager dm){
+		Message message = new Message(BBEvent.INCREMENT);
+		dm.dispatch(message);
+		setViewData(message);
+	}
+	
+	private void sendDecrementCurrent(DocumentManager dm){
+		Message message = new Message(BBEvent.DECREMENT);
+		dm.dispatch(message);
+		setViewData(message);
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
@@ -269,7 +299,7 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void removeWhitespace(int start, int length){
-		view.replaceTextRange(start + length, Math.abs(length), "");
+		view.replaceTextRange(start, Math.abs(length), "");
 	}
 	
 	public void changeAlignment(int startPosition, int alignment){

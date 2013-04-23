@@ -139,6 +139,7 @@ public class BBDocument {
 	}
 
 	private void changeTextNode(Node n, String text){
+		text = text.replace("\n", "");
 		Text temp = (Text)n;
 		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);

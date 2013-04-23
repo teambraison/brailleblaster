@@ -13,7 +13,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	DocumentManager dm;
 	private TextMapElement current;
 	private int currentIndex;
-	public int prevEnd, nextStart;
+	private int prevEnd, nextStart, prevBraille, nextBraille;
 	
 	public MapList(DocumentManager dm){
 		this.dm = dm;
@@ -232,13 +232,13 @@ public class MapList extends LinkedList<TextMapElement>{
 			this.nextStart = this.get(index + 1).start;
 		else
 			this.nextStart = -1;
+		
+		this.nextBraille = getNextBraille(index);
+		this.prevBraille = getPreviousBraille(index);
 	}
 	
 	public TextMapElement getCurrent(){
 		if(this.current == null){
-			//Message message = new Message(BBEvent.SET_CURRENT);
-			//message.put("offset", this.getFirst().start);
-			//dm.dispatch(message);
 			setCurrent(0);
 			return this.current;
 		}
@@ -272,6 +272,30 @@ public class MapList extends LinkedList<TextMapElement>{
 			return this.current.brailleList.getFirst().start;
 	}
 	
+	private int getNextBraille(int index){
+		int localIndex = index + 1;
+		
+		while(localIndex < this.size() && this.get(localIndex).brailleList.size() == 0)
+			index++;
+		
+		if(localIndex < this.size())
+			return this.get(localIndex).brailleList.getFirst().start;
+		
+		return -1;
+	}
+	
+	private int getPreviousBraille(int index){
+		int localIndex = index - 1;
+		
+		while(localIndex >= 0 && this.get(localIndex).brailleList.size() == 0)
+			localIndex--;
+		
+		if(localIndex >= 0)
+			return this.get(localIndex).brailleList.getLast().end;
+		
+		return -1;
+	}
+	
 	public void getCurrentNodeData(Message m){
 		if(this.current == null){
 			int index = findClosest(m);
@@ -284,6 +308,8 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("next", this.nextStart);
 		m.put("brailleStart", getCurrentBrailleOffset());
 		m.put("brailleEnd", getCurrentBrailleEnd());
+		m.put("nextBrailleStart", this.nextBraille);
+		m.put("previousBrailleEnd", this.prevBraille);
 	}
 	
 	private int getNodeIndex(TextMapElement t){

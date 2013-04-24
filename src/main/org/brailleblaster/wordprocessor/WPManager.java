@@ -60,6 +60,7 @@ public class WPManager {
     private BBStatusBar statusBar;
     private BBToolBar toolBar;
     private LinkedList<DocumentManager> managerList;
+    private StyleManager sm;
     
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
     
@@ -83,6 +84,8 @@ public class WPManager {
 	    
 	    this.statusBar = new BBStatusBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
+	    
+		this.sm = new StyleManager(this);
 	    
 	    // Toolbar.
 	    toolBar = new BBToolBar(shell, this);
@@ -198,5 +201,9 @@ public class WPManager {
     
     public BBMenu getMainMenu() {
     	return bbMenu;
+    }
+    
+    public StyleManager getStyleManager() {
+    	return sm;
     }
 }

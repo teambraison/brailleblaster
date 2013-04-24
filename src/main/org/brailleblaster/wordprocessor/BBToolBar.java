@@ -89,7 +89,40 @@ public class BBToolBar {
 		saveItem.setImage(new Image(null, distPath  + "\\Images\\save.png"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				// dm.fileSave();
+				if (BBIni.debugging()) {
+					// dm.setReturn (WP.OpenDocumentGetFile);
+				} 
+				else {
+					int index= wp.getFolder().getSelectionIndex();
+					if(index == -1){
+						wp.addDocumentManager(null);
+						wp.getList().getFirst().fileSave();
+					}
+					else {
+						wp.getList().get(index).fileSave();
+					}
+				}
+			}
+		});
+		
+		ToolItem saveAsItem = new ToolItem(toolBar, SWT.PUSH);
+		saveAsItem.setText("Save As");
+		saveAsItem.setImage(new Image(null, distPath  + "\\Images\\saveAs.png"));
+		saveAsItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (BBIni.debugging()) {
+					// dm.setReturn (WP.OpenDocumentGetFile);
+				} 
+				else {
+					int index= wp.getFolder().getSelectionIndex();
+					if(index == -1){
+						wp.addDocumentManager(null);
+						wp.getList().getFirst().saveAs();
+					}
+					else {
+						wp.getList().get(index).saveAs();
+					}
+				}
 			}
 		});
 

@@ -168,7 +168,7 @@ class BBMenu {
 		newItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
-					//dm.setReturn(WP.NewDocument);
+
 				} else {
 					System.out.println("New Document Tab created");
 					wp.addDocumentManager(null);
@@ -181,7 +181,7 @@ class BBMenu {
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
-					//dm.setReturn(WP.OpenDocumentGetFile);
+
 				} 
 				else {
 					int index= wp.getFolder().getSelectionIndex();
@@ -216,9 +216,9 @@ class BBMenu {
 		*/
 		saveItem = new MenuItem(fileMenu, SWT.PUSH);
 		saveItem.setText(lh.localValue("&Save"));
+		saveItem.setAccelerator(SWT.MOD1 + 'S');
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.fileSave();
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1 && wp.getList().get(index).documentName != null){
 					wp.getList().get(index).fileSave();
@@ -470,8 +470,16 @@ class BBMenu {
 		stylePanelItem.setText(lh.localValue("&StylePanel"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.getStyleManager().stylePanel();
-				System.out.println("Empty method");
+//				dm.getStyleManager().stylePanel();
+				if (BBIni.debugging()) {
+
+				} 
+				else {
+					wp.getStyleManager().stylePanel();
+				}
+				
+//				System.out.println("Empty method");
+				System.out.println("Open Style Panel");
 			}
 		});
 

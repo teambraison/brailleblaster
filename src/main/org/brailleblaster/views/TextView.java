@@ -61,7 +61,6 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Group;
 
-
 public class TextView extends AbstractView {
 	private int oldCursorPosition = -1;
 	private int currentChar;
@@ -72,6 +71,13 @@ public class TextView extends AbstractView {
 	private BBSemanticsTable stylesTable;
 	private StyleRange range;
 	private int[] selectionArray;
+	private SelectionListener selectionListener;
+	private VerifyKeyListener verifyListener;
+	private ExtendedModifyListener modListener;
+	private FocusListener focusListener;
+	private CaretListener caretListener;
+	private TraverseListener traverseListener;
+	private MouseListener mouseListener;
 	
 	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, 16, 57, 0, 100);
@@ -83,7 +89,7 @@ public class TextView extends AbstractView {
 	}
 
 	public void initializeListeners(final DocumentManager dm){	
-		view.addSelectionListener(new SelectionListener(){
+		view.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
@@ -98,13 +104,18 @@ public class TextView extends AbstractView {
 					selectionLength = selectionArray[1];
 				}
 			}		
+			
 		});
 		
-		view.addVerifyKeyListener(new VerifyKeyListener(){
+		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
 				currentChar = e.keyCode;
+				
+				if(e.stateMask == SWT.CONTROL && e.keyCode == 'a'){
+					selectAll();
+				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT){
 					Message message = new Message(BBEvent.ADJUST_ALIGNMENT);
@@ -119,6 +130,8 @@ public class TextView extends AbstractView {
 					}
 					dm.dispatch(message);
 					e.doit = false;
+					selectionLength = -1;
+					selectionStart = -1;
 				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0){
@@ -132,36 +145,88 @@ public class TextView extends AbstractView {
 			}		
 		});
 		
-		view.addExtendedModifyListener(new ExtendedModifyListener(){
+		view.addExtendedModifyListener(modListener = new ExtendedModifyListener(){
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
 				if(e.length > 0){
-					if(oldCursorPosition > currentEnd){
-						Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
-						adjustmentMessage.put("end", oldCursorPosition - currentEnd);
-						dm.dispatch(adjustmentMessage);
-						currentEnd += oldCursorPosition - currentEnd;
-						nextStart += oldCursorPosition - currentEnd;
-						
+					int changes = e.length;
+					if(e.replacedText.length() > 0){
+						if(e.start + e.replacedText.length() > currentEnd){
+							view.setCaretOffset(e.start);
+							setCurrent(dm);
+							
+							if(currentChanges > 0){
+								sendUpdate(dm);
+							}
+							
+							if(selectionStart < currentStart){
+								Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+								adjustmentMessage.put("start", currentStart - selectionStart);
+								dm.dispatch(adjustmentMessage);
+								currentStart -= currentStart - selectionStart;
+							}
+							else if(selectionStart > currentEnd){
+								Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+								adjustmentMessage.put("end", selectionStart - currentEnd);
+								dm.dispatch(adjustmentMessage);
+								currentEnd += selectionStart - currentEnd;
+								nextStart += selectionStart - currentEnd;	
+							}
+								
+							int placeholder = currentStart;
+							if(e.length < e.replacedText.length()){
+								selectionStart += e.length;
+								selectionLength -= e.length;
+							}
+							else {
+								selectionLength -= currentEnd - e.start;
+								makeTextChange(changes - (currentEnd - e.start));
+								sendUpdate(dm);
+								selectionStart = currentEnd;
+							}
+					
+							deleteSelection(dm);
+							view.setCaretOffset(placeholder);
+							setCurrent(dm);
+							view.setCaretOffset(e.start + e.length);
+						}
+						else {
+							changes -= e.replacedText.length();
+							makeTextChange(changes);
+						}
 					}
-					else if(oldCursorPosition < currentStart){
-						Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
-						adjustmentMessage.put("start", currentStart - oldCursorPosition);
-						dm.dispatch(adjustmentMessage);
-						currentStart -= currentStart - oldCursorPosition;
+					else {
+						if(oldCursorPosition > currentEnd){
+							Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+							adjustmentMessage.put("end", oldCursorPosition - currentEnd);
+							dm.dispatch(adjustmentMessage);
+							currentEnd += oldCursorPosition - currentEnd;
+							nextStart += oldCursorPosition - currentEnd;
+						}
 						
-					}
-					makeTextChange(e.length);
-					range = view.getStyleRangeAtOffset(currentStart);
-					if(range != null){
-						updateRange(range, currentStart, currentEnd - currentStart);
+						if(oldCursorPosition < currentStart){
+							Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
+							adjustmentMessage.put("start", currentStart - oldCursorPosition);
+							dm.dispatch(adjustmentMessage);
+							currentStart -= currentStart - oldCursorPosition;	
+						}
+					
+						makeTextChange(changes);
 					}
 					
+					if(currentStart < view.getCharCount()){
+						range = view.getStyleRangeAtOffset(currentStart);
+						if(range != null){
+							updateRange(range, currentStart, currentEnd - currentStart);
+						}
+					}
 				}
 				else {
 					int offset = view.getCaretOffset() - oldCursorPosition;
 					
 					if(selectionLength > 0){
+						view.setCaretOffset(selectionStart);
+						setCurrent(dm);
 						deleteSelection(dm);
 					}
 					else if(currentChar == SWT.BS){
@@ -223,7 +288,7 @@ public class TextView extends AbstractView {
 			}
 		});	
 		
-		view.addFocusListener(new FocusListener(){
+		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
 				Message message = new Message(BBEvent.GET_CURRENT);
@@ -242,10 +307,9 @@ public class TextView extends AbstractView {
 			}
 		});
 		
-		view.addCaretListener(new CaretListener(){
+		view.addCaretListener(caretListener = new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-				//System.out.println("Current Cursor Positon:\t" + view.getCaretOffset());
 				if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP){
 					if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
 						if(textChanged == true){
@@ -257,7 +321,7 @@ public class TextView extends AbstractView {
 			}
 		});
 		
-		view.addMouseListener(new MouseListener(){
+		view.addMouseListener(mouseListener = new MouseListener(){
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				// TODO Auto-generated method stub	
@@ -280,7 +344,7 @@ public class TextView extends AbstractView {
 			}		
 		});
 		
-		view.addTraverseListener(new TraverseListener(){
+		view.addTraverseListener(traverseListener = new TraverseListener(){
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.CONTROL && e.keyCode == SWT.ARROW_DOWN && nextStart != -1){
@@ -301,6 +365,15 @@ public class TextView extends AbstractView {
 				}
 			}
 		});
+	}
+	
+	public void removeListeners(){
+		view.removeSelectionListener(selectionListener);
+		view.removeExtendedModifyListener(modListener);
+		view.removeFocusListener(focusListener);
+		view.removeVerifyKeyListener(verifyListener);
+		view.removeMouseListener(mouseListener);
+		view.addTraverseListener(traverseListener);
 	}
 	
 	private void sendUpdate(DocumentManager dm){
@@ -518,6 +591,67 @@ public class TextView extends AbstractView {
 		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd){
 			makeTextChange(-selectionLength);
 		}
+		else if(selectionStart + selectionLength > currentEnd && selectionStart + selectionLength >= nextStart || previousEnd == -1){	
+			int changes = 0;
+			while(selectionLength > 0){
+				if(selectionStart > currentStart && selectionStart != currentEnd){
+					changes = currentEnd - selectionStart;
+					makeTextChange(-changes);
+					selectionLength -= changes;
+					sendUpdate(dm);
+					setCurrent(dm);
+				}
+				else if(selectionStart == currentEnd && selectionStart != nextStart){
+					changes = nextStart - currentEnd;
+
+					if(selectionLength < changes)
+						changes = selectionLength;
+					
+					if(currentChar != SWT.DEL)
+						currentChar = SWT.DEL;
+					
+					sendDeleteSpaceMessage(dm, -changes);
+					selectionLength -= changes;
+					view.setCaretOffset(nextStart);
+					setCurrent(dm);
+					view.setCaretOffset(currentStart);
+				}
+				else if(selectionStart < currentStart && previousEnd == -1){
+					changes = currentStart - selectionStart;
+					selectionLength -= changes;
+					currentChar = SWT.BS;
+					sendDeleteSpaceMessage(dm, -changes);
+					currentChar =SWT.DEL;
+					view.setCaretOffset(currentStart);
+					setCurrent(dm);
+					view.setCaretOffset(currentStart);
+				}
+				else if(selectionStart == currentStart){
+					if(currentStart == currentEnd){
+						view.setCaretOffset(nextStart);
+						setCurrent(dm);
+						view.setCaretOffset(currentStart);	
+					}
+					
+					if(currentEnd - currentStart < selectionLength){
+						changes = currentEnd - currentStart;
+						makeTextChange(-changes);
+						selectionLength -= changes;
+						sendUpdate(dm);
+						setCurrent(dm);
+					}
+					else {
+						makeTextChange(-selectionLength);
+						sendUpdate(dm);
+		//				setCurrent(dm);
+						selectionLength = 0;
+					}
+				}
+				else {
+					sendIncrementCurrent(dm);
+				}
+			}
+		}
 		
 		selectionStart = -1;
 		selectionLength = -1;
@@ -557,6 +691,24 @@ public class TextView extends AbstractView {
 		return view.getTextRange(start, length);
 	}
 
+	public void copy(){
+		view.copy();
+	}
+	
+	public void selectAll(){
+		view.selectAll();
+		selectionStart = 0;
+		selectionLength = view.getCharCount();
+	}
+	
+	public void cut(){
+		view.cut();
+	}
+	
+	public void paste(){
+		view.paste();
+	}
+	
 	/* This is a derivative work from 
 	 * org.eclipse.swt.custom.DefaultContent.java 
 	*/

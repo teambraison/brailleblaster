@@ -74,10 +74,12 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	private boolean checkForSpace(int index){
 		char firstChar = this.get(index).n.getValue().charAt(this.get(index).n.getValue().length() - 1);
-		char nextChar =  this.get(index + 1).n.getValue().charAt(0);
-		
-		if( firstChar == ' ' && nextChar != ' '){
-			return true;
+
+		if(this.get(index + 1).n.getValue().length() > 0){
+			char nextChar =  this.get(index + 1).n.getValue().charAt(0);
+			if( firstChar == ' ' && nextChar != ' '){
+				return true;
+			}
 		}
 		
 		return false;
@@ -148,10 +150,14 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void adjustOffsets(int index, Message message){
 		if(message.getValue("start") != null){
 			this.get(index).start -= (Integer)message.getValue("start");
+			if(this.get(index).brailleList.size() > 0)
+				this.get(index).brailleList.getFirst().start -= (Integer)message.getValue("start");
 		}
 		
 		if(message.getValue("end") != null){
 			this.get(index).end += (Integer)message.getValue("end");
+			if(this.get(index).brailleList.size() > 0)
+				this.get(index).brailleList.getLast().end += (Integer)message.getValue("end");
 		}
 	}
 	
@@ -191,7 +197,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			}
 		}
 		
-		if(this.get(this.size() - 1).n.getValue().length() == 0){
+		if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
 			if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
 				Message m = new Message(BBEvent.REMOVE_NODE);
 				m.put("index", this.size() - 1);

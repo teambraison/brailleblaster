@@ -18,4 +18,8 @@ public class Message {
 	public <T> Object getValue(String key){
 		return args.get(key);
 	}
+	
+	public void clearMessage(){
+		this.args.clear();
+	}
 }

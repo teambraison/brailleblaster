@@ -44,7 +44,7 @@ public abstract class AbstractView {
 	public boolean hasChanged = false;
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
-	
+
 	public AbstractView() {
 	}
 
@@ -58,12 +58,6 @@ public abstract class AbstractView {
 		location.bottom = new FormAttachment(bottom);
 		view.setLayoutData(location);
 
-		// view.addVerifyKeyListener (new VerifyKeyListener() {
-		// public void verifyKey (VerifyEvent event) {
-		// handleKeystrokes (event);
-		// }
-		// });
-
 		view.addModifyListener(viewMod);
 	}
 
@@ -73,11 +67,6 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
-	
-	void handleKeystrokes(VerifyEvent event) {
-		hasChanged = true;
-		event.doit = true;
-	}
 	
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();

@@ -248,7 +248,7 @@ public class DocumentManager {
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());
 				initializeViews(this.document.getRootElement(), this.treeView.getRoot());				
-				list.getLast().brailleList.removeLast();
+	//			list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
 //				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
@@ -327,7 +327,7 @@ public class DocumentManager {
 			}
 			break;
 			case SET_CURRENT:
-	//			list.checkList();
+				list.checkList();
 				if(message.getValue("isBraille") != null){
 					index = list.findClosestBraille(message);
 					list.setCurrent(index);
@@ -388,6 +388,8 @@ public class DocumentManager {
 				this.treeView.removeItem(list.get(index), message);
 				list.remove(index);
 				System.out.println("Item removed");
+				if(list.size() == 0)
+					this.text.removeListeners();
 				break;
 			case ADJUST_ALIGNMENT:
 				this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));

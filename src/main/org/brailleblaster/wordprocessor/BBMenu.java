@@ -379,27 +379,30 @@ class BBMenu {
 			}
 		});
 		cutItem = new MenuItem(editMenu, SWT.PUSH);
-		cutItem.setText(lh.localValue("&Cut"));
-		cutItem.setEnabled(false);
+		cutItem.setText(lh.localValue("&Cut") + "\tCtrl + X");
 		cutItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).text.copy();
 			}
 		});
 		copyItem = new MenuItem(editMenu, SWT.PUSH);
-		copyItem.setText(lh.localValue("&Copy"));
-		copyItem.setEnabled(false);
+		copyItem.setText(lh.localValue("&Copy") + "\tCtrl + C");
 		copyItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).text.copy();
 			}
 		});
 		pasteItem = new MenuItem(editMenu, SWT.PUSH);
-		pasteItem.setText(lh.localValue("&Paste"));
-		pasteItem.setEnabled(false);
+		pasteItem.setText(lh.localValue("&Paste") + "\tCtrl + V");
 		pasteItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).text.paste();
 			}
 		});
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
@@ -459,11 +462,14 @@ class BBMenu {
 			}
 		});
 		selectAllItem = new MenuItem(editMenu, SWT.PUSH);
-		selectAllItem.setText(lh.localValue("&SelectAll"));
-		selectAllItem.setEnabled(false);
+		selectAllItem.setText(lh.localValue("&SelectAll") + "\tCtrl + A");
+		//selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).text.selectAll();
+				}
 			}
 		});
 		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);

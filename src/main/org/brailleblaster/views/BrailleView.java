@@ -96,7 +96,7 @@ public class BrailleView extends AbstractView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				// TODO Auto-generated method stub	
+				
 			}
 		});
 		
@@ -286,15 +286,17 @@ public class BrailleView extends AbstractView {
 		int total = (Integer)message.getValue("brailleLength");
 		int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
 		int lineIndent = this.view.getLineIndent(startLine);
-		StyleRange range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start);
 
 		String insertionString = (String)message.getValue("newBrailleText");
-		
 		if(t.brailleList.getFirst().start != -1){
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
 			view.setLineIndent(startLine, 1, lineIndent);
-			if(range != null)
-				updateRange(range, t.brailleList.getFirst().start, insertionString.length());
+			
+			if(t.brailleList.getFirst().start < view.getCharCount()){
+				StyleRange range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start);
+				if(range != null)
+					updateRange(range, t.brailleList.getFirst().start, insertionString.length());
+			}
 		}
 	}
 	

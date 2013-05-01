@@ -160,8 +160,10 @@ public class BBDocument {
 		
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
+		
 		for(int i = 0; i < t.brailleList.size(); i++){
-			total += t.brailleList.get(i).n.getValue().length();
+			//total += t.brailleList.get(i).n.getValue().length();
+			total += t.brailleList.get(i).end - t.brailleList.get(i).start;
 			if(afterNewlineElement(t.brailleList.get(i).n) && i > 0){
 				total++;
 			}
@@ -204,15 +206,22 @@ public class BBDocument {
 			Text textNode = new Text("");
 			e.appendChild(textNode);
 			
-			if(t.brailleList.size() > 0)
+			int total = 0;
+			String logString = "";
+			
+			if(t.brailleList.size() > 0){
 				startOffset = t.brailleList.getFirst().start;
 			
-			int total = 0;
-			
-			String logString = "";
-			for(int i = 0; i < t.brailleList.size(); i++){
-				total += t.brailleList.get(i).n.getValue().length();
-				logString += t.brailleList.get(i).n.getValue() + "\n";
+				boolean first = true;
+				for(int i = 0; i < t.brailleList.size(); i++){
+					String text = t.brailleList.get(i).n.getValue();
+					total += t.brailleList.get(i).n.getValue().length();
+					logString += t.brailleList.get(i).n.getValue() + "\n";
+					if(afterNewlineElement(t.brailleList.get(i).n) && !first){
+						total++;
+					}
+					first = false;
+				}
 			}
 			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
 			

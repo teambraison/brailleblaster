@@ -72,15 +72,14 @@ class Style {
 	 * @param styleName
 	 */
 	public Style(String styleName){
-		// TODO: Get this working again. Can't find language files for some raisin.
-//		this.styleName = styleName;
-//		ResourceBundle labels = ResourceBundle.getBundle(styleName);
-//		Enumeration bundleKeys = labels.getKeys();
-//		while (bundleKeys.hasMoreElements()) {
-//			String key = (String)bundleKeys.nextElement();
-//			String value = labels.getString(key);
-//			styleSet.put(key, value);
-//		}
+		this.styleName = styleName;
+		ResourceBundle labels = ResourceBundle.getBundle(styleName);
+		Enumeration bundleKeys = labels.getKeys();
+		while (bundleKeys.hasMoreElements()) {
+			String key = (String)bundleKeys.nextElement();
+			String value = labels.getString(key);
+			styleSet.put(key, value);
+		}
 		this.isBuildIn = false; 
 	}	
 	

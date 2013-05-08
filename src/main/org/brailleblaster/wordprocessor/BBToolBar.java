@@ -57,8 +57,8 @@ public class BBToolBar {
 		toolBar.setLayoutData(location);
 		
 		// Path to dist folder.
-		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf("\\"));
-		distPath += "\\programData";
+		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
+		distPath += sep + "programData";
 		
 		// FO
 		String tlabel;

@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import org.brailleblaster.BBIni;
 
 public class Zipper {
 	
@@ -65,12 +66,12 @@ public class Zipper {
       			
       			// If this is the xml file, hold onto its path.
       			if( entry.getName().toLowerCase().endsWith(".xml") ) {
-      				xmlUnzippedPath = extractPath + entry.getName().replace("/", "\\");
+      				xmlUnzippedPath = extractPath + entry.getName().replace("/", BBIni.getFileSep());
       				entry.getName();
       			}
       			
 				 // Get path + filename that we'll be saving out to.
-	      		String unzipPath = extractPath + entry.getName().replace("/", "\\");
+	      		String unzipPath = extractPath + entry.getName().replace("/", BBIni.getFileSep());
 	      		
       			
       			// Create any subdirectories that this file may need.
@@ -161,7 +162,7 @@ public class Zipper {
 	    		}
 	    		
 	    		// Get the full path to the input file.
-	    		String unzippedEntryPath = files.get(curE).getPath().replace("/", "\\");
+	    		String unzippedEntryPath = files.get(curE).getPath().replace("/", BBIni.getFileSep());
 				    
 			    // Prepare the zip for writing.
 			    zipout.putNextEntry(curEntry);
@@ -203,10 +204,10 @@ public class Zipper {
 	{
 		// Create string path for file in zip.
 		String fileName = zipE.getName();
-		fileName = fileName.replace("/", "\\");
-		String filePath = selectedZip.replace("/", "\\");
-		filePath = filePath.substring( 0, filePath.lastIndexOf("\\") );
-		filePath += "\\temp\\";
+		fileName = fileName.replace("/", BBIni.getFileSep());
+		String filePath = selectedZip.replace("/", BBIni.getFileSep());
+		filePath = filePath.substring( 0, filePath.lastIndexOf(BBIni.getFileSep()) );
+		filePath += BBIni.getFileSep( ) + "temp" + BBIni.getFileSep();
 		return filePath += fileName;
 	}
 	
@@ -217,7 +218,7 @@ public class Zipper {
 		String filePath = path;
 		
 		// Grab the shorter path.
-		filePath = filePath.substring( 0, filePath.lastIndexOf("\\") );
+		filePath = filePath.substring( 0, filePath.lastIndexOf(BBIni.getFileSep()) );
 		
 		// Don't even bother with the C:\ drive.
 		if(filePath.length() < 3)

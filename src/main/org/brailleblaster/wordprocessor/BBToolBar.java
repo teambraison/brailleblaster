@@ -47,6 +47,7 @@ public class BBToolBar {
 	private Button checkBrailleItem;
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp) {
+		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.HORIZONTAL);
 		FormData location = new FormData();
@@ -64,7 +65,7 @@ public class BBToolBar {
 		ToolItem openItem = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Open");
 		openItem.setText(tlabel.replace("&", ""));
-		openItem.setImage(new Image(null, distPath  + "\\Images\\open.png"));
+		openItem.setImage(new Image(null, distPath + sep + "Images" + sep + "open.png"));
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -87,7 +88,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("&Save");
 		saveItem.setText(tlabel.replace("&", ""));
-		saveItem.setImage(new Image(null, distPath  + "\\Images\\save.png"));
+		saveItem.setImage(new Image(null, distPath  + sep + "Images" + sep + "save.png"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -108,7 +109,7 @@ public class BBToolBar {
 		
 		ToolItem saveAsItem = new ToolItem(toolBar, SWT.PUSH);
 		saveAsItem.setText("Save As");
-		saveAsItem.setImage(new Image(null, distPath  + "\\Images\\saveAs.png"));
+		saveAsItem.setImage(new Image(null, distPath  + sep + "Images" + sep + "saveAs.png"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
@@ -131,7 +132,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("&Translate");
 		translateItem.setText(tlabel.replace("&", ""));
-		translateItem.setImage(new Image(null, distPath  + "\\Images\\translate.png"));
+		translateItem.setImage(new Image(null, distPath  + sep + "Images" + sep + "translate.png"));
 		// FO
 		translateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -143,7 +144,7 @@ public class BBToolBar {
 		// FO
 		tlabel = lh.localValue("Emboss&Now!");
 		embossNow.setText(tlabel.replace("&", ""));
-		embossNow.setImage(new Image(null, distPath  + "\\Images\\emboss.png"));
+		embossNow.setImage(new Image(null, distPath  + sep + "Images" + sep + "emboss.png"));
 		embossNow.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.fileEmbossNow();
@@ -161,7 +162,7 @@ public class BBToolBar {
 		ToolItem daisyPrint = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Print");
 		daisyPrint.setText(tlabel.replace("&", ""));
-		daisyPrint.setImage(new Image(null, distPath  + "\\Images\\print.png"));
+		daisyPrint.setImage(new Image(null, distPath  + sep + "Images" + sep + "print.png"));
 		daisyPrint.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.daisyPrint();

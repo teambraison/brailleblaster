@@ -124,6 +124,8 @@ public class BBDocument {
 	private void updateNode(MapList list, Message message){
 		int total = 0;
 		String text = (String)message.getValue("newText");
+		text = text.replace("\n", "");
+		message.put("newText", text);
 		changeTextNode(list.getCurrent().n, text);
 		
 		if(text.equals("") || isWhitespace(text)){
@@ -139,7 +141,6 @@ public class BBDocument {
 	}
 
 	private void changeTextNode(Node n, String text){
-		text = text.replace("\n", "");
 		Text temp = (Text)n;
 		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);

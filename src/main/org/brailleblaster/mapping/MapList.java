@@ -1,5 +1,6 @@
 package org.brailleblaster.mapping;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.brailleblaster.wordprocessor.BBEvent;
@@ -14,7 +15,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	private TextMapElement current;
 	private int currentIndex;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
-	
+		
 	public MapList(DocumentManager dm){
 		this.dm = dm;
 	}
@@ -106,7 +107,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void updateOffsets(int index, Message message){
 		updateTextOffsets(index, (Integer)message.getValue("length"));
 		
-		if(message.getValue("brailleLength") != null){
+		if(message.contains("brailleLength")){
 			updateBrailleOffsets(index, message);
 		}
 	}
@@ -117,6 +118,17 @@ public class MapList extends LinkedList<TextMapElement>{
 		for(int i = nodeNum + 1; i < this.size(); i++){
 			this.get(i).start +=offset;
 			this.get(i).end += offset;
+		}
+	}
+	
+	private void updateBrailleOffsets(int index, Message message){
+		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
+		
+		for(int i = index + 1; i < this.size(); i++){
+			for(int j = 0; j < this.get(i).brailleList.size(); j++){
+				this.get(i).brailleList.get(j).start += total;
+				this.get(i).brailleList.get(j).end += total;
+			}
 		}
 	}
 	
@@ -148,30 +160,19 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 	
 	public void adjustOffsets(int index, Message message){
-		if(message.getValue("start") != null){
+		if(message.contains("start")){
 			this.get(index).start -= (Integer)message.getValue("start");
 			if(this.get(index).brailleList.size() > 0)
 				this.get(index).brailleList.getFirst().start -= (Integer)message.getValue("start");
 		}
 		
-		if(message.getValue("end") != null){
+		if(message.contains("end")){
 			this.get(index).end += (Integer)message.getValue("end");
 			if(this.get(index).brailleList.size() > 0)
 				this.get(index).brailleList.getLast().end += (Integer)message.getValue("end");
 		}
 	}
-	
-	private void updateBrailleOffsets(int index, Message message){
-		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
-		
-		for(int i = index + 1; i < this.size(); i++){
-			for(int j = 0; j < this.get(i).brailleList.size(); j++){
-				this.get(i).brailleList.get(j).start += total;
-				this.get(i).brailleList.get(j).end += total;
-			}
-		}
-	}
-	
+
 	public void checkList(){
 		for(int i = 0; i < this.size() - 1; i++){
 			if(this.get(i).start == this.get(i + 1).start){
@@ -282,7 +283,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		int localIndex = index + 1;
 		
 		while(localIndex < this.size() && this.get(localIndex).brailleList.size() == 0)
-			index++;
+			localIndex++;
 		
 		if(localIndex < this.size())
 			return this.get(localIndex).brailleList.getFirst().start;
@@ -302,6 +303,17 @@ public class MapList extends LinkedList<TextMapElement>{
 		return -1;
 	}
 	
+	private ArrayList<BrailleMapElement> getPageRanges(){
+		ArrayList<BrailleMapElement> list = new ArrayList<BrailleMapElement>();
+		for(int i = 0; i < this.current.brailleList.size(); i++){
+			if(this.current.brailleList.get(i).pagenum){
+				list.add(this.current.brailleList.get(i));
+			}
+		}
+		
+		return list;
+	}
+	
 	public void getCurrentNodeData(Message m){
 		if(this.current == null){
 			int index = findClosest(m);
@@ -316,6 +328,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("brailleEnd", getCurrentBrailleEnd());
 		m.put("nextBrailleStart", this.nextBraille);
 		m.put("previousBrailleEnd", this.prevBraille);
+		m.put("pageRanges", getPageRanges());
 	}
 	
 	private int getNodeIndex(TextMapElement t){

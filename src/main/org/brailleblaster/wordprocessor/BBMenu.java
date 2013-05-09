@@ -215,7 +215,7 @@ class BBMenu {
 		});
 		*/
 		saveItem = new MenuItem(fileMenu, SWT.PUSH);
-		saveItem.setText(lh.localValue("&Save"));
+		saveItem.setText(lh.localValue("&Save") + "\tCtrl + S");
 		saveItem.setAccelerator(SWT.MOD1 + 'S');
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {

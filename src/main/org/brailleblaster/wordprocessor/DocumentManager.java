@@ -319,16 +319,16 @@ public class DocumentManager {
 				}
 				break;
 			case DECREMENT:
-			index = list.getCurrentIndex();
-			if(index > 0){
-				list.setCurrent(index - 1);
-				list.getCurrentNodeData(message);
-				this.treeView.setSelection(list.getCurrent(), message);
-			}
-			break;
+				index = list.getCurrentIndex();
+				if(index > 0){
+					list.setCurrent(index - 1);
+					list.getCurrentNodeData(message);
+					this.treeView.setSelection(list.getCurrent(), message);
+				}
+				break;
 			case SET_CURRENT:
 				list.checkList();
-				if(message.getValue("isBraille") != null){
+				if(message.contains("isBraille")){
 					index = list.findClosestBraille(message);
 					list.setCurrent(index);
 					list.getCurrentNodeData(message);
@@ -346,15 +346,21 @@ public class DocumentManager {
 						list.getCurrentNodeData(message);
 						this.treeView.setSelection(list.getCurrent(), message);
 					}
+					this.text.positionFromStart = 0;
+					this.braille.positionFromStart = 0;
 				}
 				break;
 			case GET_CURRENT:
 				if(message.getValue("sender").equals("text")){
+					message.put("lastPosition", this.braille.positionFromStart);
+					message.put("element", list.getCurrent().n);
 					message.put("selection", this.treeView.getSelection(list.getCurrent()));
 					list.getCurrentNodeData(message);
 					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				else {
+					message.put("lastPosition", this.text.positionFromStart);
+					message.put("element", list.getCurrent().n);
 					message.put("selection", this.treeView.getSelection(list.getCurrent()));
 					list.getCurrentNodeData(message);
 					this.treeView.setSelection(list.getCurrent(), message);
@@ -377,8 +383,9 @@ public class DocumentManager {
 			case UPDATE:
 				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				this.document.updateDOM(list, message);
-				list.updateOffsets(list.getCurrentIndex(), message);
 				this.braille.updateBraille(list.getCurrent(), message);
+				this.text.reformatText(list.getCurrent().n, message, this);
+				list.updateOffsets(list.getCurrentIndex(), message);
 				list.checkList();
 				break;
 			case REMOVE_NODE:

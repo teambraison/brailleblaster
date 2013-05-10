@@ -179,6 +179,7 @@ public class BrailleView extends AbstractView {
 		setViewData(message);
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("brailleStart");
 		currentEnd = (Integer)message.getValue("brailleEnd");

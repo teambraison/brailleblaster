@@ -101,6 +101,13 @@ public class WPManager {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				checkToolbarSettings();
+				int index = folder.getSelectionIndex();
+				if(managerList.get(index).text.view.getCharCount() > 0) {
+					int wordCount = managerList.get(index).text.getWordCount();
+					statusBar.setText("Words: " + wordCount);
+				}
+				else
+					statusBar.setText("Words: " + 0);
 			}
 	    });
 	    

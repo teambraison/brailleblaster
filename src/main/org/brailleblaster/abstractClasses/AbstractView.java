@@ -51,7 +51,7 @@ public abstract class AbstractView {
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart;
-	public static int cursorOffset;
+	public static int cursorOffset, currentLine, words;
 	
 	public AbstractView() {
 	}
@@ -156,6 +156,29 @@ public abstract class AbstractView {
 		catch(Exception ex){
 			return null;
 		}
+	}
+	
+	public int getWordCount(){
+		String text = view.getText();
+		int wordCount = 0;
+		int i = 0;
+		while(i < text.length() && text.charAt(i) == ' '){
+			i++;
+		}
+		
+		for(;i < text.length(); i++){
+			if(text.charAt(i) == ' '){
+				wordCount++;
+				while(i < text.length() && text.charAt(i) == ' '){
+					i++;
+				}
+			}
+		}
+		
+		if(text.charAt(text.length() - 1) == ' ')
+			wordCount--;
+		
+		return wordCount;
 	}
 	
 	protected abstract void setViewData(Message message);

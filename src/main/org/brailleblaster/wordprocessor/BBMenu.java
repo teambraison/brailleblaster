@@ -490,11 +490,13 @@ class BBMenu {
 		});
 
 		nextElementItem = new MenuItem(editMenu, SWT.PUSH);
-		nextElementItem.setText(lh.localValue("&NexstElement"));
-		nextElementItem.setEnabled(false);
+		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).nextElement();
 			}
 		});
 		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);

@@ -13,7 +13,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	private static final long serialVersionUID = 1L;
 	DocumentManager dm;
 	private TextMapElement current;
-	private int currentIndex;
+	private int currentIndex = -1;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
 		
 	public MapList(DocumentManager dm){
@@ -333,6 +333,20 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	private int getNodeIndex(TextMapElement t){
 		return this.indexOf(t);
+	}
+	
+	public void incrementCurrent(Message message){
+		if(this.currentIndex < this.size() - 1){
+			setCurrent(this.currentIndex + 1);
+			getCurrentNodeData(message);
+		}
+	}
+	
+	public void decrementCurrent(Message message){
+		if(this.currentIndex > 0){
+			setCurrent(this.currentIndex - 1);
+			getCurrentNodeData(message);
+		}
 	}
 	
 	public boolean hasBraille(int index){

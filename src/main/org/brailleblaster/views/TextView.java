@@ -165,6 +165,10 @@ public class TextView extends AbstractView {
 				setViewData(message);
 		//		if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd)
 			//		view.setCaretOffset((Integer)message.getValue("start"));
+				Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
+				statusMessage.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
+				dm.dispatch(statusMessage);
+				currentLine = view.getLineAtOffset(view.getCaretOffset());
 			}
 
 			@Override
@@ -188,8 +192,7 @@ public class TextView extends AbstractView {
 				else {
 					positionFromStart -= count;
 					cursorOffset = count;
-				}
-				
+				}			
 			}
 		});
 		
@@ -205,6 +208,13 @@ public class TextView extends AbstractView {
 							setCurrent(dm);
 						}
 					}
+				}
+				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
+					Message message = new Message(BBEvent.UPDATE_STATUSBAR);
+					words = getWordCount();
+					message.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
+					dm.dispatch(message);
+					currentLine = view.getLineAtOffset(view.getCaretOffset());
 				}
 			}
 		});

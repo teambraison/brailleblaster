@@ -34,11 +34,9 @@ package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -74,7 +72,6 @@ public class DocumentManager {
 	WPManager wp;
 	TabItem item;
 	Group group;
-	BBStatusBar statusBar;
 	TreeView treeView;
 	TextView text;
 	BrailleView braille;
@@ -114,6 +111,7 @@ public class DocumentManager {
 		
 		this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
 		this.group.setTabList(this.tabList);
+		this.wp.getStatusBar().setText("Words: " + 0);
 		
 		logger = BBIni.getLogger();
 		
@@ -255,6 +253,7 @@ public class DocumentManager {
 				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;
 				this.wp.checkToolbarSettings();
+				this.wp.getStatusBar().setText("Words: " + this.text.getWordCount());
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -311,20 +310,12 @@ public class DocumentManager {
 		
 		switch(message.type){
 			case INCREMENT:
-				index = list.getCurrentIndex();
-				if(index < list.size() - 1){
-					list.setCurrent(index + 1);
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
-				}
+				list.incrementCurrent(message);
+				this.treeView.setSelection(list.getCurrent(), message);
 				break;
 			case DECREMENT:
-				index = list.getCurrentIndex();
-				if(index > 0){
-					list.setCurrent(index - 1);
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
-				}
+				list.decrementCurrent(message);
+				this.treeView.setSelection(list.getCurrent(), message);
 				break;
 			case SET_CURRENT:
 				list.checkList();
@@ -353,18 +344,14 @@ public class DocumentManager {
 			case GET_CURRENT:
 				if(message.getValue("sender").equals("text")){
 					message.put("lastPosition", this.braille.positionFromStart);
-					message.put("element", list.getCurrent().n);
-					message.put("selection", this.treeView.getSelection(list.getCurrent()));
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
 				}
 				else {
 					message.put("lastPosition", this.text.positionFromStart);
-					message.put("element", list.getCurrent().n);
-					message.put("selection", this.treeView.getSelection(list.getCurrent()));
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
 				}
+				message.put("element", list.getCurrent().n);
+				message.put("selection", this.treeView.getSelection(list.getCurrent()));
+				list.getCurrentNodeData(message);
+				this.treeView.setSelection(list.getCurrent(), message);
 				break;
 			case TEXT_DELETION:
 				if((Integer)message.getValue("deletionType") == SWT.BS){
@@ -397,6 +384,9 @@ public class DocumentManager {
 				System.out.println("Item removed");
 				if(list.size() == 0)
 					this.text.removeListeners();
+				break;
+			case UPDATE_STATUSBAR:
+				this.wp.getStatusBar().setText((String)message.getValue("line"));
 				break;
 			case ADJUST_ALIGNMENT:
 				this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
@@ -489,6 +479,19 @@ public class DocumentManager {
 			else {
 				this.item.setText("Untitled #" + docCount);
 			}
+		}
+	}
+	public void nextElement(){
+		if(list.size() != 0 ){
+			Message message = new Message(BBEvent.INCREMENT);
+			dispatch(message);	
+		}
+		
+		if(text.view.isFocusControl()){
+			text.view.setCaretOffset(list.getCurrent().start);
+		}
+		else if(braille.view.isFocusControl()){
+			braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 		}
 	}
 	

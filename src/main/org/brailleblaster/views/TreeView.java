@@ -47,6 +47,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;
@@ -95,6 +97,19 @@ public class TreeView extends AbstractView {
 					}
 					cursorOffset = 0;
 					dm.dispatch(message);
+				}
+			}
+		});
+		
+		this.tree.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
+					sendIncrementCurrent(dm);
+					e.doit = false;
+				}
+				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP){
+					sendDecrementCurrent(dm);
 				}
 			}
 		});

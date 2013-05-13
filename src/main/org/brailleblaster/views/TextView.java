@@ -163,8 +163,10 @@ public class TextView extends AbstractView {
 			    message.put("offset",view.getCaretOffset());
 				dm.dispatch(message);
 				setViewData(message);
-		//		if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd)
-			//		view.setCaretOffset((Integer)message.getValue("start"));
+				if(oldCursorPosition == -1 && positionFromStart == 0){
+					view.setCaretOffset((Integer)message.getValue("start"));
+				}
+
 				Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
 				statusMessage.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
 				dm.dispatch(statusMessage);
@@ -175,24 +177,11 @@ public class TextView extends AbstractView {
 			public void focusLost(FocusEvent e) {
 				if(textChanged == true)
 					sendUpdate(dm);	
-				int count = 0;
-				positionFromStart = view.getCaretOffset() - currentStart;
-				if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
-					String text = view.getTextRange(currentStart, positionFromStart);
-					count = text.length() - text.replaceAll("\n", "").length();
-					positionFromStart -= count;
-					cursorOffset = count;
-				}
-				else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
-					String text = view.getTextRange(currentStart, positionFromStart);
-					count = text.length() - text.replaceAll("\n", "").length();
-					cursorOffset = (currentStart + positionFromStart) - currentEnd;
-					positionFromStart = 99999;
-				}
-				else {
-					positionFromStart -= count;
-					cursorOffset = count;
-				}			
+				
+				setPositionFromStart();
+				Message message = new Message(BBEvent.UPDATE_CURSORS);
+				message.put("sender", "text");
+				dm.dispatch(message);
 			}
 		});
 		
@@ -337,7 +326,6 @@ public class TextView extends AbstractView {
 		if(currentStart < view.getCharCount()){
 			range = getStyleRange();
 		}
-		setCursorPosition(message);
 	}
 	
 	private void makeTextChange(int offset){
@@ -743,7 +731,14 @@ public class TextView extends AbstractView {
 		view.paste();
 	}
 	
-	public void setCursorPosition(Message message){
+	public void updateCursorPosition(Message message){
+		setViewData(message);
+		setCursorPosition(message);
+		setPositionFromStart();
+	}
+	
+	private void setCursorPosition(Message message){
+		int offset = (Integer)message.getValue("offset");
 		if(message.contains("element")){
 			Element e = getBrlNode((Node)message.getValue("element"));
 			int pos;
@@ -761,9 +756,9 @@ public class TextView extends AbstractView {
 					else if((Integer)message.getValue("lastPosition") == arr.length)
 						pos = currentEnd;
 					else if((Integer)message.getValue("lastPosition") > arr.length)
-						pos = currentEnd + cursorOffset;
+						pos = currentEnd + offset;
 					else 
-						pos = currentStart + arr[(Integer)message.getValue("lastPosition")] + cursorOffset;
+						pos = currentStart + arr[(Integer)message.getValue("lastPosition")] + offset;
 				}
 				
 				view.setCaretOffset(pos);
@@ -771,6 +766,27 @@ public class TextView extends AbstractView {
 			else {
 				view.setCaretOffset(currentStart);
 			}
+		}
+	}
+	
+	private void setPositionFromStart(){
+		int count = 0;
+		positionFromStart = view.getCaretOffset() - currentStart;
+		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			positionFromStart -= count;
+			cursorOffset = count;
+		}
+		else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			cursorOffset = (currentStart + positionFromStart) - currentEnd;
+			positionFromStart = 99999;
+		}
+		else {
+			positionFromStart -= count;
+			cursorOffset = count;
 		}
 	}
 	

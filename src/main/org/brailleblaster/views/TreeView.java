@@ -97,6 +97,10 @@ public class TreeView extends AbstractView {
 					}
 					cursorOffset = 0;
 					dm.dispatch(message);
+					
+					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
+					cursorMessage.put("sender", "tree");
+					dm.dispatch(cursorMessage);
 				}
 			}
 		});
@@ -106,10 +110,17 @@ public class TreeView extends AbstractView {
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
 					sendIncrementCurrent(dm);
+					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
+					cursorMessage.put("sender", "tree");
+					dm.dispatch(cursorMessage);
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP){
 					sendDecrementCurrent(dm);
+					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
+					cursorMessage.put("sender", "tree");
+					dm.dispatch(cursorMessage);
+					e.doit = false;
 				}
 			}
 		});

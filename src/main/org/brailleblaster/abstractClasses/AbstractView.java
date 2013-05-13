@@ -50,8 +50,8 @@ public abstract class AbstractView {
 	public boolean hasChanged = false;
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
-	public int positionFromStart;
-	public static int cursorOffset, currentLine, words;
+	public int positionFromStart, cursorOffset;
+	public static int currentLine, words;
 	
 	public AbstractView() {
 	}

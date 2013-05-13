@@ -317,6 +317,25 @@ public class DocumentManager {
 				list.decrementCurrent(message);
 				this.treeView.setSelection(list.getCurrent(), message);
 				break;
+			case UPDATE_CURSORS:
+				message.put("element", list.getCurrent().n);
+				if(message.getValue("sender").equals("text")){
+					message.put("lastPosition", this.text.positionFromStart);
+					message.put("offset", this.text.cursorOffset);
+					list.getCurrentNodeData(message);
+					this.braille.updateCursorPosition(message);
+				}
+				else if(message.getValue("sender").equals("braille")) {
+					message.put("lastPosition", this.braille.positionFromStart);
+					message.put("offset", this.braille.cursorOffset);
+					list.getCurrentNodeData(message);
+					this.text.updateCursorPosition(message);
+				}
+				else {
+					this.text.view.setCaretOffset(list.getCurrent().start);
+					this.braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+				}
+				break;
 			case SET_CURRENT:
 				list.checkList();
 				if(message.contains("isBraille")){
@@ -342,13 +361,6 @@ public class DocumentManager {
 				}
 				break;
 			case GET_CURRENT:
-				if(message.getValue("sender").equals("text")){
-					message.put("lastPosition", this.braille.positionFromStart);
-				}
-				else {
-					message.put("lastPosition", this.text.positionFromStart);
-				}
-				message.put("element", list.getCurrent().n);
 				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				list.getCurrentNodeData(message);
 				this.treeView.setSelection(list.getCurrent(), message);

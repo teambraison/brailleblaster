@@ -88,33 +88,22 @@ public class BrailleView extends AbstractView {
 				message.put("sender", "braille");
 				dm.dispatch(message);
 				setViewData(message);
+				if(oldCursorPosition == -1 && positionFromStart  == 0){
+					view.setCaretOffset((Integer)message.getValue("brailleStart"));
+				}
 		//		if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd){
 		//			view.setCaretOffset((Integer)message.getValue("brailleStart"));
-		//			oldCursorPosition = view.getCaretOffset();
+		//		    oldCursorPosition = view.getCaretOffset();
 		//		}
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				int count = 0;
-				positionFromStart = view.getCaretOffset() - currentStart;
-				if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
-					String text = view.getTextRange(currentStart, positionFromStart);
-					count = text.length() - text.replaceAll("\n", "").length();
-					positionFromStart -= count;
-					positionFromStart -= checkPageRange(currentStart + positionFromStart);
-					cursorOffset = count;
-				}
-				else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
-					String text = view.getTextRange(currentStart, positionFromStart);
-					count = text.length() - text.replaceAll("\n", "").length();
-					cursorOffset = (currentStart + positionFromStart) - currentEnd;
-					positionFromStart = 99999;
-				}	
-				else {
-					positionFromStart -= count;
-					cursorOffset = count;
-				}
+				setPositionFromStart();
+				
+				Message message = new Message(BBEvent.UPDATE_CURSORS);
+				message.put("sender", "braille");
+				dm.dispatch(message);
 			}
 		});
 		
@@ -187,7 +176,6 @@ public class BrailleView extends AbstractView {
 		previousEnd = (Integer)message.getValue("previousBrailleEnd");
 		this.pageRanges.clear();
 		setPageRange((ArrayList<BrailleMapElement>)message.getValue("pageRanges"));
-		setCursorPosition(message);
 	}
 	
 	private void setPageRange(ArrayList<BrailleMapElement> list){
@@ -336,7 +324,36 @@ public class BrailleView extends AbstractView {
 		view.setLineIndent(view.getLineAtOffset(start), 1, (Integer)message.getValue("indent"));
 	}
 	
+	public void updateCursorPosition(Message message){
+		setViewData(message);
+		setCursorPosition(message);
+		setPositionFromStart();
+	}
+	
+	private void setPositionFromStart(){
+		int count = 0;
+		positionFromStart = view.getCaretOffset() - currentStart;
+		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			positionFromStart -= count;
+			positionFromStart -= checkPageRange(currentStart + positionFromStart);
+			cursorOffset = count;
+		}
+		else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			cursorOffset = (currentStart + positionFromStart) - currentEnd;
+			positionFromStart = 99999;
+		}	
+		else {
+			positionFromStart -= count;
+			cursorOffset = count;
+		}
+	}
+	
 	private void setCursorPosition(Message message){
+		int offset = (Integer)message.getValue("offset");
 		if(message.contains("element")){
 			Element e = getBrlNode((Node)message.getValue("element"));
 			int pos;
@@ -352,10 +369,10 @@ public class BrailleView extends AbstractView {
 					if((Integer)message.getValue("lastPosition") < 0 && currentStart > 0)
 						pos = currentStart + (Integer)message.getValue("lastPosition");	
 					else if((Integer)message.getValue("lastPosition") == 99999){
-						pos = currentEnd + cursorOffset;
+						pos = currentEnd + offset;
 					}
 					else {
-						pos = currentStart + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + cursorOffset;
+						pos = currentStart + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + offset;
 						pos += checkPageRange(pos);
 					}
 				}

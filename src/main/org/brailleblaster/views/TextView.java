@@ -31,6 +31,7 @@ package org.brailleblaster.views;
 import java.util.LinkedList;
 
 import nu.xom.Element;
+import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.Text;
 
@@ -356,7 +357,7 @@ public class TextView extends AbstractView {
 		String key = this.stylesTable.getKeyFromAttribute((Element)n.getParent());
 		Styles style = this.stylesTable.makeStylesElement(key, n);
 		
-		view.append(appendToView(n));
+		view.append(n.getValue());
 		handleStyle(style, n);
 		
 		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + n.getValue().length() + this.escapeChars,n));
@@ -373,10 +374,10 @@ public class TextView extends AbstractView {
 
 		int indent = view.getLineIndent(view.getLineAtOffset(currentStart));
 		StyleRange range = getStyleRange();
-		String reformattedText =  appendToView(n).substring(1);
+		//String reformattedText =  appendToView(n).substring(1);
 
-		view.replaceTextRange(currentStart, currentEnd - currentStart, reformattedText);
-		message.put("length", (reformattedText.length() + this.spaceAfterText) - (Integer)message.getValue("length"));
+		view.replaceTextRange(currentStart, currentEnd - currentStart, n.getValue());
+		message.put("length", (n.getValue().length() + this.spaceAfterText) - (Integer)message.getValue("length"));
 		view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
 		checkStyleRange(range);
 	
@@ -453,8 +454,8 @@ public class TextView extends AbstractView {
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
-	//				String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-	//				insertBefore(this.spaceBeforeText + this.total, textBefore);
+					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+					insertBefore(this.spaceBeforeText + this.total, textBefore);
 					break;
 				case linesAfter:
 					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)), '\n');
@@ -473,12 +474,30 @@ public class TextView extends AbstractView {
 					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
 				case leftMargin:
-				//	this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+					this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
 					break;
 				default:
-				//	System.out.println(styleType);
+					System.out.println(styleType);
 			}
-		}	
+		}
+		
+		Element parent = (Element)n.getParent();
+		
+		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
+			Element grandParent = (Element)parent.getParent();
+			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
+				grandParent = (Element)grandParent.getParent();
+			}
+			
+			if(grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+			}
+		}
+		else if(isLast(n)){
+			Elements els = parent.getChildElements();
+			if(els.get(els.size() - 1).getLocalName().equals("brl"))
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+		}
 	}
 	
 	private void handleTextEdit(DocumentManager dm, ExtendedModifyEvent e){
@@ -710,6 +729,25 @@ public class TextView extends AbstractView {
 			return false;
 	}
 	
+	private boolean isLast(Node n){
+		boolean isLast = false;
+		Element parent = (Element)n.getParent();
+		
+		for(int i = 0; i < parent.getChildCount(); i++){
+			if(parent.getChild(i) instanceof Text){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else{
+					isLast = false;
+				}
+			}
+		}
+		
+		return isLast;
+	}
+	
+	
 	public String getString(int start, int length){
 		return view.getTextRange(start, length);
 	}
@@ -796,6 +834,7 @@ public class TextView extends AbstractView {
 		}
 		return null;
 	}
+	
 	private void checkStyleRange(StyleRange range){
 		if(range != null){
 			updateRange(range, currentStart, currentEnd - currentStart);

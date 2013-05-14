@@ -1,6 +1,8 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,6 +17,7 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.ParsingException;
+import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -52,10 +55,10 @@ public class BBDocument {
 		String configFileWithPath = fu.findInProgramData ("liblouisutdml" + fileSep + "lbu_files" + fileSep + configFile);
 		String configWithUTD;
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n";
+			configWithUTD = "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n";
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
 		}
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -93,6 +96,7 @@ public class BBDocument {
 		Builder parser = new Builder();
 		try {
 			this.doc = parser.build (file);
+			removeBraillePageNumber();
 			return true;
 		} 
 		catch (ParsingException e) {
@@ -178,7 +182,6 @@ public class BBDocument {
 			child = (Element)child.getParent();
 		};
 		parent.replaceChild(child, e);	
-
 		t.brailleList.clear();
 		
 		boolean first = true;
@@ -249,7 +252,6 @@ public class BBDocument {
 	
 	private void insertBrailleNode(TextMapElement t, int startingOffset, String text){
 		Document d = getStringTranslation(text);
-		
 		Element e = d.getRootElement().getChildElements("brl").get(0);
 		d.getRootElement().removeChild(e);
 
@@ -323,7 +325,7 @@ public class BBDocument {
 			int [] outlength = new int[1];
 			outlength[0] = text.length() * 10;
 			
-			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n", 0)){
+			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n", 0)){
 				return outlength[0];
 			}
 			else {
@@ -414,5 +416,55 @@ public class BBDocument {
 		}
 		
 		return false;
+	}
+	
+	private void removeBraillePageNumber(){
+		Elements e = this.doc.getRootElement().getChildElements();
+		
+		for(int i = 0; i < e.size(); i++){
+			if(e.get(i).getAttributeValue("semantics").equals("style,document")){
+				Elements els = e.get(i).getChildElements();
+				for(int j = 0; j < els.size(); j++){
+					if(els.get(j).getLocalName().equals("brl"))
+						e.get(i).removeChild(j);
+				}
+			}
+		}
+	}
+	
+	public boolean createBrlFile(String filePath){				
+		Document temp = getNewXML();
+		String infile = createTempFile(temp);
+		
+		if(infile.equals(""))
+			return false;
+		
+		String[] arr = {infile, filePath};
+		boolean result = liblouisutdml.getInstance().file2brl(arr);
+		deleteTempFile(infile);
+		return result;
+	}
+	
+	private String createTempFile(Document newDoc){
+		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempXML.xml";
+		FileOutputStream os;
+		try {
+			os = new FileOutputStream(filePath);
+			Serializer serializer;
+			serializer = new Serializer(os, "UTF-8"); 
+			serializer.write(newDoc);
+			os.close();
+			return filePath;
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	    
+	    return "";
+	}
+	
+	private void deleteTempFile(String filePath){
+		File f = new File(filePath);
+		f.delete();
 	}
 }

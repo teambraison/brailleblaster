@@ -144,12 +144,7 @@ public class DocumentManager {
 			    os.close();
 			}
 			else if(workingFilePath.endsWith("brf")){
-				String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
-				File f = new File(workingFilePath);
-				FileWriter fw = new FileWriter(f);
-				BufferedWriter writer = new BufferedWriter(fw);
-				writer.write(text);
-				writer.close();
+				this.document.createBrlFile(workingFilePath);
 			}
 			
 			// If the document came from a zip file, then rezip it.
@@ -246,10 +241,11 @@ public class DocumentManager {
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement());
 				initializeViews(this.document.getRootElement(), this.treeView.getRoot());				
-	//			list.getLast().brailleList.removeLast();
+				//list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
-//				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
+				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
+				this.braille.view.replaceTextRange(this.braille.view.getCharCount() - 1, 1, "");
 				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;
 				this.wp.checkToolbarSettings();
@@ -277,11 +273,11 @@ public class DocumentManager {
 				initializeBraille(current.getChild(i), temp, list.getLast());
 			}
 			else {
-				if(current.getChild(i) instanceof Element){
+				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
 					TreeItem temp = this.treeView.newTreeItem(current.getChild(i), item);
 					initializeViews(current.getChild(i), temp);
 				}
-				else {
+				else if(!(current.getChild(i) instanceof Element)) {
 					initializeViews(current.getChild(i), item);
 				}
 			}
@@ -433,12 +429,7 @@ public class DocumentManager {
 			String ext = getFileExt(filePath);
 			try {
 				if(ext.equals("brf")){
-					String text = this.braille.view.getTextRange(0, this.braille.view.getCharCount());
-					File f = new File(filePath);
-					FileWriter fw = new FileWriter(f);
-					BufferedWriter writer = new BufferedWriter(fw);
-					writer.write(text);
-					writer.close();
+					this.document.createBrlFile(filePath);
 				}
 				else if(ext.equals("xml")){
 					Document newDoc = this.document.getNewXML();

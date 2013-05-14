@@ -91,10 +91,6 @@ public class BrailleView extends AbstractView {
 				if(oldCursorPosition == -1 && positionFromStart  == 0){
 					view.setCaretOffset((Integer)message.getValue("brailleStart"));
 				}
-		//		if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd){
-		//			view.setCaretOffset((Integer)message.getValue("brailleStart"));
-		//		    oldCursorPosition = view.getCaretOffset();
-		//		}
 			}
 
 			@Override
@@ -188,12 +184,7 @@ public class BrailleView extends AbstractView {
 	public void setBraille(Node n, TextMapElement t){
 		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
 		Styles style = this.stylesTable.makeStylesElement(key, n);
-		
-		if(insertNewLine(n)){
-			view.append("\n");
-			this.total++;
-		}
-		
+			
 		view.append(n.getValue());
 		handleStyle(style, n, (Element)t.n.getParent());
 		
@@ -220,8 +211,8 @@ public class BrailleView extends AbstractView {
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
-	//				String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-	//				insertBefore(this.spaceBeforeText + this.total, textBefore);
+					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+					insertBefore(this.spaceBeforeText + this.total, textBefore);
 					break;
 				case linesAfter:
 					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
@@ -239,9 +230,26 @@ public class BrailleView extends AbstractView {
 				case Font:
 					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
+				case leftMargin:
+					this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+					break;
 				default:
-					//System.out.println(styleType);
+					System.out.println(styleType);
 			}
+		}
+		
+		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
+			Element grandParent = (Element)parent.getParent();
+			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
+				grandParent = (Element)grandParent.getParent();
+			}
+			
+			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+			}
+		}
+		else if(isLast(n)){
+			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
 	}
 	
@@ -294,6 +302,38 @@ public class BrailleView extends AbstractView {
 			return false;
 	}
 	
+	private boolean isLast(Node n){
+		boolean isLast = false;
+		Element parent = (Element)n.getParent();
+		
+		for(int i = 0; i < parent.getChildCount(); i++){
+			if(parent.getChild(i) instanceof Text){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else{
+					isLast = false;
+				}
+			}
+		}
+		
+		if(isLast){
+			Element grandParent = (Element)parent.getParent();
+			for(int i = 0; i < grandParent.getChildCount(); i++){
+				if(grandParent.getChild(i) instanceof Element){
+					if(grandParent.getChild(i).equals(parent)){
+						isLast = true;
+					}
+					else{
+						isLast = false;
+					}
+				}
+			}
+		}
+		
+		return isLast;
+	}
+	
 	public void updateBraille(TextMapElement t, Message message){
 		int total = (Integer)message.getValue("brailleLength");
 		int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
@@ -310,6 +350,7 @@ public class BrailleView extends AbstractView {
 					updateRange(range, t.brailleList.getFirst().start, insertionString.length());
 			}
 		}
+		
 	}
 	
 	public void removeWhitespace(int start, int length){

@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.TreeItem;
 
 
 public class TreeView extends AbstractView {
-	
 	public Tree tree;
 	
 	public TreeView(final DocumentManager dm, Group documentWindow){
@@ -70,7 +69,7 @@ public class TreeView extends AbstractView {
 			}
 			@Override
 			public void focusLost(FocusEvent e) {
-				// TODO Auto-generated method stub	
+			
 			}
 		});	
 		
@@ -81,27 +80,40 @@ public class TreeView extends AbstractView {
 			}
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {				
-				Tree t = (Tree)e.getSource();
-				TreeItem [] items = t.getSelection();
+			public void widgetSelected(SelectionEvent e) {	
+				if(!getLock()){
+					Tree t = (Tree)e.getSource();
+					TreeItem [] items = t.getSelection();
 
-				if(items[0].getData() != null){
-					ArrayList<TextMapElement>list = getList(items[0]);
-					TextMapElement temp = list.get(0);
-					Message message = new Message(BBEvent.SET_CURRENT);
-					message.put("sender", "tree");
-					message.put("offset", temp.start);
-					if(items[0].getText().equals("brl")){
-						message.put("isBraille", true);
-						message.put("offset", temp.brailleList.getFirst().start);
+					if(items[0].getData() != null){
+						ArrayList<TextMapElement>list = getList(items[0]);
+						TextMapElement temp = list.get(0);
+						Message message = new Message(BBEvent.SET_CURRENT);
+						message.put("sender", "tree");
+						message.put("offset", temp.start);
+						if(items[0].getText().equals("brl")){
+							message.put("isBraille", true);
+							message.put("offset", temp.brailleList.getFirst().start);
+						}
+						cursorOffset = 0;
+						dm.dispatch(message);						
 					}
-					cursorOffset = 0;
-					dm.dispatch(message);
-					
-					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
-					cursorMessage.put("sender", "tree");
-					dm.dispatch(cursorMessage);
 				}
+			}
+		});
+		
+		this.tree.addFocusListener(new FocusListener(){
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
+				cursorMessage.put("sender", "tree");
+				dm.dispatch(cursorMessage);
 			}
 		});
 		
@@ -128,6 +140,7 @@ public class TreeView extends AbstractView {
 		view.setLayout(new FillLayout());
 		
 		this.tree.pack();
+		setListenerLock(false);
 	}
 	
 	public void setRoot(Element e){
@@ -155,13 +168,16 @@ public class TreeView extends AbstractView {
 	}
 	
 	public void setSelection(TextMapElement t, Message m){
+		setListenerLock(true);
 		searchTree(this.getRoot(), t, m);
 		if(m.getValue("item") != null){		
 			this.tree.setSelection(((TreeItem)m.getValue("item")));
 		}
+		setListenerLock(false);
 	}
 	
 	public void removeItem(TextMapElement t, Message m){
+		setListenerLock(true);
 		searchTree(this.getRoot(), t, m);
 		if((TreeItem)m.getValue("item") != null){
 			TreeItem item = (TreeItem)m.getValue("item");
@@ -172,6 +188,7 @@ public class TreeView extends AbstractView {
 				item.dispose();
 			}
 		}
+		setListenerLock(false);
 	}
 	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
@@ -196,14 +213,17 @@ public class TreeView extends AbstractView {
 	}
 	
 	public TextMapElement getSelection(TextMapElement t){
+		setListenerLock(true);
 		TreeItem [] arr = this.tree.getSelection();
 		if(arr.length > 0 && arr[0].getData() != null){
 			ArrayList<TextMapElement>list = getList(arr[0]);
 			for(int i = 0; i < list.size(); i++)
-				if(list.get(i).equals(t))
+				if(list.get(i).equals(t)){
+					setListenerLock(false);
 					return (TextMapElement)list.get(i);
+				}
 		}
-		
+		setListenerLock(false);
 		return null;
 	}
 	

@@ -67,7 +67,7 @@ public class TextView extends AbstractView {
 	private int currentStart, currentEnd, previousEnd, nextStart, selectionStart, selectionLength;
 	private int currentChanges = 0;
 	private int escapeChars;
-	private boolean textChanged, reformatting;
+	private boolean textChanged;
 	private BBSemanticsTable stylesTable;
 	private StyleRange range;
 	private int[] selectionArray;
@@ -131,7 +131,7 @@ public class TextView extends AbstractView {
 					setSelection(-1, -1);
 				}
 				
-				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0){
+				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
 					Message message = new Message(BBEvent.ADJUST_INDENT);
 					message.put("sender", "text");
 					message.put("indent", 0);
@@ -145,7 +145,7 @@ public class TextView extends AbstractView {
 		view.addExtendedModifyListener(modListener = new ExtendedModifyListener(){
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
-				if(reformatting == false){
+				if(!getLock()){
 					if(e.length > 0){
 						handleTextEdit(dm, e);
 					}
@@ -189,7 +189,7 @@ public class TextView extends AbstractView {
 		view.addCaretListener(caretListener = new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-				if(reformatting == false){
+				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
 							if(textChanged == true){
@@ -199,6 +199,7 @@ public class TextView extends AbstractView {
 						}
 					}
 				}
+				
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
 					Message message = new Message(BBEvent.UPDATE_STATUSBAR);
 					words = getWordCount();
@@ -253,6 +254,8 @@ public class TextView extends AbstractView {
 				}
 			}
 		});
+		
+		setListenerLock(false);
 	}
 	
 	public void removeListeners(){
@@ -370,7 +373,7 @@ public class TextView extends AbstractView {
 	
 	public void reformatText(Node n, Message message, DocumentManager dm){
 		int pos = view.getCaretOffset();
-		reformatting  = true;
+		setListenerLock(true);
 
 		int indent = view.getLineIndent(view.getLineAtOffset(currentStart));
 		StyleRange range = getStyleRange();
@@ -385,7 +388,7 @@ public class TextView extends AbstractView {
 		this.spaceAfterText = 0;
 		this.spaceBeforeText = 0;
 		this.escapeChars = 0;
-		reformatting = false;
+		setListenerLock(false);
 	}
 	
 	private String appendToView(Node n){
@@ -578,7 +581,7 @@ public class TextView extends AbstractView {
 	
 	private void handleTextDeletion(DocumentManager dm, ExtendedModifyEvent e){
 		int offset = view.getCaretOffset() - oldCursorPosition;
-		
+		setListenerLock(true);
 		if(selectionLength > 0){
 			view.setCaretOffset(selectionStart);
 			setCurrent(dm);
@@ -635,6 +638,7 @@ public class TextView extends AbstractView {
 				setCurrent(dm);
 			}
 		}
+		setListenerLock(false);
 	}
 
 	private void deleteSelection(DocumentManager dm){
@@ -770,9 +774,11 @@ public class TextView extends AbstractView {
 	}
 	
 	public void updateCursorPosition(Message message){
+		setListenerLock(true);
 		setViewData(message);
 		setCursorPosition(message);
 		setPositionFromStart();
+		setListenerLock(false);
 	}
 	
 	private void setCursorPosition(Message message){

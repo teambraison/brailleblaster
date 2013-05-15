@@ -125,8 +125,10 @@ public class BrailleView extends AbstractView {
 		view.addCaretListener(new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
-					setCurrent(dm);
+				if(!getLock()){
+					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
+						setCurrent(dm);
+					}
 				}
 				
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
@@ -153,6 +155,8 @@ public class BrailleView extends AbstractView {
 				}
 			}
 		});
+		
+		setListenerLock(false);
 	}
 	
 	private void setCurrent(DocumentManager dm){
@@ -341,7 +345,9 @@ public class BrailleView extends AbstractView {
 
 		String insertionString = (String)message.getValue("newBrailleText");
 		if(t.brailleList.getFirst().start != -1){
+			setListenerLock(true);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
+			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
 			
 			if(t.brailleList.getFirst().start < view.getCharCount()){
@@ -354,7 +360,9 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void removeWhitespace(int start, int length){
+		setListenerLock(true);
 		view.replaceTextRange(start, Math.abs(length), "");
+		setListenerLock(false);
 	}
 	
 	public void changeAlignment(int startPosition, int alignment){
@@ -366,9 +374,11 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void updateCursorPosition(Message message){
+		setListenerLock(true);
 		setViewData(message);
 		setCursorPosition(message);
 		setPositionFromStart();
+		setListenerLock(false);
 	}
 	
 	private void setPositionFromStart(){

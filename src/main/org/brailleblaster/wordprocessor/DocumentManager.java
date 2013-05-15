@@ -327,9 +327,14 @@ public class DocumentManager {
 					list.getCurrentNodeData(message);
 					this.text.updateCursorPosition(message);
 				}
-				else {
-					this.text.view.setCaretOffset(list.getCurrent().start);
-					this.braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+				else if(message.getValue("sender").equals("tree")){
+					message.put("lastPosition", this.text.positionFromStart);
+					message.put("offset", this.text.cursorOffset);
+					list.getCurrentNodeData(message);
+					this.braille.updateCursorPosition(message);
+					message.put("lastPosition", this.braille.positionFromStart);
+					message.put("offset", this.braille.cursorOffset);
+					this.text.updateCursorPosition(message);
 				}
 				break;
 			case SET_CURRENT:

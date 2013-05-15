@@ -52,6 +52,7 @@ public abstract class AbstractView {
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset;
 	public static int currentLine, words;
+	protected boolean locked;
 	
 	public AbstractView() {
 	}
@@ -179,6 +180,14 @@ public abstract class AbstractView {
 			wordCount--;
 		
 		return wordCount;
+	}
+	
+	protected void setListenerLock(boolean setting){
+		this.locked = setting;
+	}
+	
+	protected boolean getLock(){
+		return this.locked;
 	}
 	
 	protected abstract void setViewData(Message message);

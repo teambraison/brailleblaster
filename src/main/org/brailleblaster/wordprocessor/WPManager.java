@@ -102,12 +102,14 @@ public class WPManager {
 			public void widgetSelected(SelectionEvent e) {
 				checkToolbarSettings();
 				int index = folder.getSelectionIndex();
-				if(managerList.get(index).text.view.getCharCount() > 0) {
-					int wordCount = managerList.get(index).text.getWordCount();
-					statusBar.setText("Words: " + wordCount);
+				if(managerList.size() > 0){
+					if(managerList.get(index).text.view.getCharCount() > 0) {
+						int wordCount = managerList.get(index).text.getWordCount();
+						statusBar.setText("Words: " + wordCount);
+					}
+					else
+						statusBar.setText("Words: " + 0);
 				}
-				else
-					statusBar.setText("Words: " + 0);
 			}
 	    });
 	    

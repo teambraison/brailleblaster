@@ -139,6 +139,12 @@ public class TextView extends AbstractView {
 					dm.dispatch(message);
 					e.doit = false;
 				}
+				
+				if(selectionLength > 0){
+					saveStyleState(selectionStart);
+				}
+				else
+					saveStyleState(currentStart);
 			}		
 		});
 		
@@ -276,6 +282,7 @@ public class TextView extends AbstractView {
 			dm.dispatch(updateMessage);
 			currentChanges = 0;
 			textChanged = false;
+			restoreStyleState(currentStart);
 	}
 	
 	private void setCurrent(DocumentManager dm){

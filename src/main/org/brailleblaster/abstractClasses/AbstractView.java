@@ -53,6 +53,7 @@ public abstract class AbstractView {
 	public int positionFromStart, cursorOffset;
 	public static int currentLine, words;
 	protected boolean locked;
+	protected static int currentAlignment;
 	
 	public AbstractView() {
 	}
@@ -188,6 +189,16 @@ public abstract class AbstractView {
 	
 	protected boolean getLock(){
 		return this.locked;
+	}
+	
+	protected void saveStyleState(int start){
+		int line = this.view.getLineAtOffset(start);
+		currentAlignment = view.getLineAlignment(line);
+	}
+	
+	protected void restoreStyleState(int start){
+		int line = this.view.getLineAtOffset(start);
+		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
 	protected abstract void setViewData(Message message);

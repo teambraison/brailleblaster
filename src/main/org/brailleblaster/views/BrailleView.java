@@ -347,6 +347,7 @@ public class BrailleView extends AbstractView {
 		if(t.brailleList.getFirst().start != -1){
 			setListenerLock(true);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
+			restoreStyleState(t.brailleList.getFirst().start);
 			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
 			

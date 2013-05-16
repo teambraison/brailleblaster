@@ -111,9 +111,11 @@ public class TreeView extends AbstractView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
-				cursorMessage.put("sender", "tree");
-				dm.dispatch(cursorMessage);
+				if(tree.getItemCount() > 0){
+					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
+					cursorMessage.put("sender", "tree");
+					dm.dispatch(cursorMessage);
+				}
 			}
 		});
 		

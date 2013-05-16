@@ -297,15 +297,15 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+	
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPreviewItem.setText(lh.localValue("PrintP&review"));
-		printPreviewItem.setEnabled(false); 
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+	
 			}
 		});
-**/
+*/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print") + "\tCtrl + P");
 		printItem.setAccelerator(SWT.MOD1 + 'p');
@@ -317,6 +317,7 @@ class BBMenu {
 				}
 			}
 		});
+		
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);
 		languageItem.setText(lh.localValue("&Language"));
 		languageItem.setEnabled(false); /* FO */

@@ -244,7 +244,6 @@ public class BBDocument {
 			t.brailleList.clear();
 			t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
 			logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
-			String text = textNode.getValue();
 			message.put("newBrailleText", textNode.getValue());
 			message.put("newBrailleLength", textNode.getValue().length());
 			return total;

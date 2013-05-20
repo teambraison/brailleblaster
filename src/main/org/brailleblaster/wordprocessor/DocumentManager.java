@@ -234,10 +234,11 @@ public class DocumentManager {
 		
 		try{
 			if(this.document.startDocument(workingFilePath, "preferences.cfg", null)){
+				this.wp.getStatusBar().setText("Loading");
 				this.documentName = fileName;
 				setTabTitle(fileName);
-				this.treeView.setRoot(this.document.getRootElement());
-				initializeViews(this.document.getRootElement(), this.treeView.getRoot());				
+				this.treeView.setRoot(this.document.getRootElement(), this);
+				initializeViews(this.document.getRootElement());				
 				//list.getLast().brailleList.removeLast();
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
@@ -258,42 +259,37 @@ public class DocumentManager {
 		}
 	}	
 	
-	private void initializeViews(Node current, TreeItem item){
+	private void initializeViews(Node current){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
 			this.text.setText(current, list);
-			this.treeView.setItemData(item, list.getLast());
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
 			if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
-				TreeItem temp = this.treeView.newTreeItem(current.getChild(i), item);
-				initializeBraille(current.getChild(i), temp, list.getLast());
+				initializeBraille(current.getChild(i), list.getLast());
 			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
-					TreeItem temp = this.treeView.newTreeItem(current.getChild(i), item);
-					initializeViews(current.getChild(i), temp);
+					initializeViews(current.getChild(i));
 				}
 				else if(!(current.getChild(i) instanceof Element)) {
-					initializeViews(current.getChild(i), item);
+					initializeViews(current.getChild(i));
 				}
 			}
 		}
 	}
 	
-	private void initializeBraille(Node current, TreeItem item, TextMapElement t){
+	private void initializeBraille(Node current, TextMapElement t){
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			this.braille.setBraille(current, t);
-		//	this.treeView.setItemData(item, list.getLast());
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
 			if(current.getChild(i) instanceof Element){
-				TreeItem temp = this.treeView.newTreeItem(current.getChild(i), item);
-				initializeBraille(current.getChild(i), temp, t);
+				initializeBraille(current.getChild(i), t);
 			}
 			else {
-				initializeBraille(current.getChild(i), item, t);
+				initializeBraille(current.getChild(i), t);
 			}
 		}
 	}
@@ -304,11 +300,13 @@ public class DocumentManager {
 		switch(message.type){
 			case INCREMENT:
 				list.incrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message);
+				this.treeView.setSelection(list.getCurrent(), message, this);
+				resetCursorData();
 				break;
 			case DECREMENT:
 				list.decrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message);
+				this.treeView.setSelection(list.getCurrent(), message, this);
+				resetCursorData();
 				break;
 			case UPDATE_CURSORS:
 				message.put("element", list.getCurrent().n);
@@ -340,28 +338,27 @@ public class DocumentManager {
 					index = list.findClosestBraille(message);
 					list.setCurrent(index);
 					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message);
+					this.treeView.setSelection(list.getCurrent(), message, this);
 				}
 				else {
 					message.put("selection", this.treeView.getSelection(list.getCurrent()));
 					index = list.findClosest(message);
 					if(index == -1){
 						list.getCurrentNodeData(message);
-						this.treeView.setSelection(list.getCurrent(), message);
+						this.treeView.setSelection(list.getCurrent(), message, this);
 					}
 					else {
 						list.setCurrent(index);
 						list.getCurrentNodeData(message);
-						this.treeView.setSelection(list.getCurrent(), message);
+						this.treeView.setSelection(list.getCurrent(), message, this);
 					}
-					this.text.positionFromStart = 0;
-					this.braille.positionFromStart = 0;
+					resetCursorData();
 				}
 				break;
 			case GET_CURRENT:
 				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				list.getCurrentNodeData(message);
-				this.treeView.setSelection(list.getCurrent(), message);
+				this.treeView.setSelection(list.getCurrent(), message, this);
 				break;
 			case TEXT_DELETION:
 				if((Integer)message.getValue("deletionType") == SWT.BS){
@@ -406,6 +403,9 @@ public class DocumentManager {
 				break;
 			case ADJUST_RANGE:
 				list.adjustOffsets(list.getCurrentIndex(), message);
+				break;
+			case GET_TEXT_MAP_ELEMENTS:
+				list.findTextMapElements(message);
 				break;
 			default:
 				break;
@@ -498,6 +498,13 @@ public class DocumentManager {
 		else if(braille.view.isFocusControl()){
 			braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 		}
+	}
+	
+	private void resetCursorData(){
+		this.text.positionFromStart = 0;
+		this.text.cursorOffset = 0;
+		this.braille.positionFromStart = 0;
+		this.braille.cursorOffset = 0;
 	}
 	
 	public void textPrint(){

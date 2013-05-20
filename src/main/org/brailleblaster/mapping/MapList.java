@@ -3,10 +3,11 @@ package org.brailleblaster.mapping;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import nu.xom.Text;
+
 import org.brailleblaster.wordprocessor.BBEvent;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
-import org.eclipse.swt.SWT;
 
 public class MapList extends LinkedList<TextMapElement>{
 	 
@@ -354,5 +355,21 @@ public class MapList extends LinkedList<TextMapElement>{
 			return true;
 		else
 			return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void findTextMapElements(Message message){
+		ArrayList<Text>textList = (ArrayList<Text>)message.getValue("nodes");
+		ArrayList<TextMapElement> itemList = (ArrayList<TextMapElement>)message.getValue("itemList");
+		
+		int pos = 0;
+		for(int i = 0; i < textList.size(); i++){
+			for(int j = pos; j < this.size(); j++){
+				if(textList.get(i).equals(this.get(j).n)){
+					itemList.add(this.get(j));
+					pos = j + 1;
+				}
+			}
+		}
 	}
 }

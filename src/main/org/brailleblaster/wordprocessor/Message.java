@@ -26,4 +26,8 @@ public class Message {
 	public boolean contains(String key){
 		return this.args.containsKey(key);
 	}
+	
+	public void remove(String key){
+		this.args.remove(key);
+	}
 }

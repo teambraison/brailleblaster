@@ -31,6 +31,7 @@ package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -67,7 +68,6 @@ public class WPManager {
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
     public WPManager(String fileName) {
     	checkLiblouisutdml();
-    	 
         display = new Display();
     	this.shell = new Shell(display, SWT.SHELL_TRIM);
         this.shell.setText("BrailleBlaster"); 

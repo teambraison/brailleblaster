@@ -59,6 +59,7 @@ public class WPManager {
     private FormData location;
     private BBMenu bbMenu;
     private BBStatusBar statusBar;
+    private BBProgressBar pb;
     private BBToolBar toolBar;
     private LinkedList<DocumentManager> managerList;
     private StyleManager sm;
@@ -83,6 +84,7 @@ public class WPManager {
 	    this.folder.setLayoutData (this.location);
 	    
 	    this.statusBar = new BBStatusBar(this.shell);
+	    this.pb = new BBProgressBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
 	    
 		this.sm = new StyleManager(this);
@@ -104,8 +106,7 @@ public class WPManager {
 				int index = folder.getSelectionIndex();
 				if(managerList.size() > 0){
 					if(managerList.get(index).text.view.getCharCount() > 0) {
-						int wordCount = managerList.get(index).text.getWordCount();
-						statusBar.setText("Words: " + wordCount);
+						statusBar.setText("Words: " + managerList.get(index).text.words);
 					}
 					else
 						statusBar.setText("Words: " + 0);
@@ -210,6 +211,10 @@ public class WPManager {
     
     public BBMenu getMainMenu() {
     	return bbMenu;
+    }
+    
+    public BBProgressBar getProgressBar(){
+    	return this.pb;
     }
     
     public StyleManager getStyleManager() {

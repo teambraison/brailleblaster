@@ -1,3 +1,31 @@
+/* BrailleBlaster Braille Transcription Application
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.txt
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
@@ -130,6 +158,7 @@ public class BBDocument {
 		String text = (String)message.getValue("newText");
 		text = text.replace("\n", "");
 		message.put("newText", text);
+		calculateDifference(list.getCurrent().n.getValue(), text, message);
 		changeTextNode(list.getCurrent().n, text);
 		
 		if(text.equals("") || isWhitespace(text)){
@@ -465,5 +494,17 @@ public class BBDocument {
 	private void deleteTempFile(String filePath){
 		File f = new File(filePath);
 		f.delete();
+	}
+	
+	private void calculateDifference(String oldString, String newString, Message m){
+		String [] tokens1 = oldString.split(" ");
+		String [] tokens2 = newString.split(" ");
+		
+		int diff = tokens2.length - tokens1.length;
+		if(newString.equals("")){
+			diff = 0 - tokens1.length;
+		}
+		
+		m.put("diff", diff);
 	}
 }

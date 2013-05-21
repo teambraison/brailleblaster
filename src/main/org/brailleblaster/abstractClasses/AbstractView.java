@@ -50,8 +50,8 @@ public abstract class AbstractView {
 	public boolean hasChanged = false;
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
-	public int positionFromStart, cursorOffset;
-	public static int currentLine, words;
+	public int positionFromStart, cursorOffset, words;
+	public static int currentLine;
 	protected boolean locked;
 	protected static int currentAlignment;
 	
@@ -160,27 +160,9 @@ public abstract class AbstractView {
 		}
 	}
 	
-	public int getWordCount(){
-		String text = view.getText();
-		int wordCount = 0;
-		int i = 0;
-		while(i < text.length() && text.charAt(i) == ' '){
-			i++;
-		}
-		
-		for(;i < text.length(); i++){
-			if(text.charAt(i) == ' '){
-				wordCount++;
-				while(i < text.length() && text.charAt(i) == ' '){
-					i++;
-				}
-			}
-		}
-		
-		if(text.charAt(text.length() - 1) == ' ')
-			wordCount--;
-		
-		return wordCount;
+	public int getWordCount(String text){		
+		String [] tokens = text.split(" ");
+		return tokens.length;
 	}
 	
 	protected void setListenerLock(boolean setting){

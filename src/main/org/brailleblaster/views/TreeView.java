@@ -75,7 +75,7 @@ public class TreeView extends AbstractView {
 	
 	public TreeView(final DocumentManager dm, Group documentWindow){
 		super(documentWindow, 0, 15, 0, 100);
-		this.tree = new Tree(view, SWT.NONE);
+		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
 	
 		view.addFocusListener(new FocusListener(){
 			@Override
@@ -286,7 +286,7 @@ public class TreeView extends AbstractView {
 	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
 		boolean found = false;
-		
+
 		for(int i = 0; i < item.getItemCount() && !found; i++){
 			if(((TreeItemData)item.getItem(i).getData()).textMapList != null){
 				ArrayList<TextMapElement>list = getList(item.getItem(i));
@@ -365,34 +365,36 @@ public class TreeView extends AbstractView {
 	
 	private void resetTree(TreeItem currentItem){
 		ArrayList<TreeItem>previousParents = new ArrayList<TreeItem>();
-		previousParents.add(previousItem);
-		TreeItem parent = previousItem.getParentItem();
+
+		if(!previousItem.isDisposed()){
+			previousParents.add(previousItem);
+			TreeItem parent = previousItem.getParentItem();
 		
-		while(parent != null){
-			previousParents.add(parent);
-			parent = parent.getParentItem();
-		}
+			while(parent != null){
+				previousParents.add(parent);
+				parent = parent.getParentItem();
+			}
 		
-		parent = currentItem.getParentItem();
-		boolean match = false;
-		int location = -1;
+			parent = currentItem.getParentItem();
+			boolean match = false;
+			int location = -1;
 		
-		while(parent != null && !match){
-			for(int i = 0; i < previousParents.size(); i++){
-				if(previousParents.get(i).equals(parent)){
-					match = true;
-					location = i - 1;
+			while(parent != null && !match){
+				for(int i = 0; i < previousParents.size(); i++){
+					if(previousParents.get(i).equals(parent)){
+						match = true;
+						location = i - 1;
+					}
+				}
+				parent = parent.getParentItem();
+			}
+			
+			if(match){
+				for(int i = location; i >= 0; i--){
+					previousParents.get(i).setExpanded(false);
 				}
 			}
-			parent = parent.getParentItem();
 		}
-		
-		if(match){
-			for(int i = location; i >= 0; i--){
-				previousParents.get(i).setExpanded(false);
-			}
-		}
-		
 	}
 	
 	public void clearTree(){

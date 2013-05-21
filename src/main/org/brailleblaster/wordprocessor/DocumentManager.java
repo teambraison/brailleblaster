@@ -108,7 +108,7 @@ public class DocumentManager {
 		
 		this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
 		this.group.setTabList(this.tabList);
-		this.wp.getStatusBar().setText("Words: " + 0);
+	//	this.wp.getStatusBar().setText("Words: " + 0);
 		
 		logger = BBIni.getLogger();
 		
@@ -234,20 +234,24 @@ public class DocumentManager {
 		
 		try{
 			if(this.document.startDocument(workingFilePath, "preferences.cfg", null)){
-				this.wp.getStatusBar().setText("Loading");
+				this.wp.getStatusBar().resetLocation(6,100,100);
+				this.wp.getProgressBar().start();
+				this.wp.getStatusBar().setText("Loading...");
 				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement(), this);
 				initializeViews(this.document.getRootElement());				
 				//list.getLast().brailleList.removeLast();
-				this.text.initializeListeners(this);
-				this.braille.initializeListeners(this);
 				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
 				this.braille.view.replaceTextRange(this.braille.view.getCharCount() - 1, 1, "");
+				this.text.initializeListeners(this);
+				this.braille.initializeListeners(this);
 				this.text.hasChanged = false;	
 				this.braille.hasChanged = false;
 				this.wp.checkToolbarSettings();
-				this.wp.getStatusBar().setText("Words: " + this.text.getWordCount());
+				this.wp.getStatusBar().resetLocation(0,100,100);
+				this.wp.getProgressBar().stop();
+				this.wp.getStatusBar().setText("Words: " +this.text.words);
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -300,12 +304,14 @@ public class DocumentManager {
 		switch(message.type){
 			case INCREMENT:
 				list.incrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message, this);
+				if(list.size() > 0)
+					this.treeView.setSelection(list.getCurrent(), message, this);
 				resetCursorData();
 				break;
 			case DECREMENT:
 				list.decrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message, this);
+				if(list.size() > 0)
+					this.treeView.setSelection(list.getCurrent(), message, this);
 				resetCursorData();
 				break;
 			case UPDATE_CURSORS:
@@ -342,7 +348,7 @@ public class DocumentManager {
 				}
 				else {
 					message.put("selection", this.treeView.getSelection(list.getCurrent()));
-					index = list.findClosest(message);
+					index = list.findClosest(message, 0, list.size() - 1);
 					if(index == -1){
 						list.getCurrentNodeData(message);
 						this.treeView.setSelection(list.getCurrent(), message, this);
@@ -358,9 +364,11 @@ public class DocumentManager {
 			case GET_CURRENT:
 				message.put("selection", this.treeView.getSelection(list.getCurrent()));
 				list.getCurrentNodeData(message);
-				this.treeView.setSelection(list.getCurrent(), message, this);
+				if(list.size() > 0)
+					this.treeView.setSelection(list.getCurrent(), message, this);
 				break;
 			case TEXT_DELETION:
+				list.checkList();
 				if((Integer)message.getValue("deletionType") == SWT.BS){
 					if(list.hasBraille(list.getCurrentIndex())){
 						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"));
@@ -388,7 +396,7 @@ public class DocumentManager {
 				list.get(index).brailleList.clear();
 				this.treeView.removeItem(list.get(index), message);
 				list.remove(index);
-				System.out.println("Item removed");
+				System.out.println("Item removed");				
 				if(list.size() == 0)
 					this.text.removeListeners();
 				break;

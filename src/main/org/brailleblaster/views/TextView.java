@@ -79,7 +79,7 @@ public class TextView extends AbstractView {
 	private TraverseListener traverseListener;
 	private MouseListener mouseListener;
 	private int originalStart, originalEnd;
-
+	
 	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, 16, 57, 0, 100);
 		this.stylesTable = table;
@@ -115,7 +115,7 @@ public class TextView extends AbstractView {
 					selectAll();
 				}
 				
-				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT){
+				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){
 					Message message = new Message(BBEvent.ADJUST_ALIGNMENT);
 					message.put("sender", "text");
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
@@ -174,10 +174,7 @@ public class TextView extends AbstractView {
 					view.setCaretOffset((Integer)message.getValue("start"));
 				}
 
-				Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
-				statusMessage.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
-				dm.dispatch(statusMessage);
-				currentLine = view.getLineAtOffset(view.getCaretOffset());
+				sendStatusBarUpdate(dm);
 			}
 
 			@Override
@@ -207,11 +204,7 @@ public class TextView extends AbstractView {
 				}
 				
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
-					Message message = new Message(BBEvent.UPDATE_STATUSBAR);
-					words = getWordCount();
-					message.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
-					dm.dispatch(message);
-					currentLine = view.getLineAtOffset(view.getCaretOffset());
+					sendStatusBarUpdate(dm);
 				}
 			}
 		});
@@ -260,7 +253,7 @@ public class TextView extends AbstractView {
 				}
 			}
 		});
-		
+
 		setListenerLock(false);
 	}
 	
@@ -280,6 +273,8 @@ public class TextView extends AbstractView {
 			updateMessage.put("length", originalEnd - originalStart);
 		//	updateMessage.put("length", currentChanges);
 			dm.dispatch(updateMessage);
+			words += (Integer)updateMessage.getValue("diff");
+			sendStatusBarUpdate(dm);
 			currentChanges = 0;
 			textChanged = false;
 			restoreStyleState(currentStart);
@@ -326,6 +321,13 @@ public class TextView extends AbstractView {
 		}
 	}
 	
+	private void sendStatusBarUpdate(DocumentManager dm){
+		Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
+		statusMessage.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
+		dm.dispatch(statusMessage);
+		currentLine = view.getLineAtOffset(view.getCaretOffset());
+	}
+	
 	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("start");
 		currentEnd = (Integer)message.getValue("end");
@@ -334,6 +336,7 @@ public class TextView extends AbstractView {
 		
 		originalStart = currentStart;
 		originalEnd = currentEnd;
+		
 		if(currentStart < view.getCharCount()){
 			range = getStyleRange();
 		}
@@ -376,6 +379,7 @@ public class TextView extends AbstractView {
 		this.spaceBeforeText = 0;
 		this.escapeChars = 0;
 		view.setCaretOffset(0);
+		words += getWordCount(n.getValue());
 	}
 	
 	public void reformatText(Node n, Message message, DocumentManager dm){
@@ -642,6 +646,9 @@ public class TextView extends AbstractView {
 		if(currentStart == currentEnd && (currentStart == previousEnd || currentStart == nextStart)){
 			if(currentStart == currentEnd && textChanged == true){
 				sendUpdate(dm);	
+				setCurrent(dm);
+			}
+			else {
 				setCurrent(dm);
 			}
 		}

@@ -50,5 +50,14 @@ class BBStatusBar {
 	void setText (String text) {
 		statusBar.setText (text);
 	}
+	
+	void resetLocation(int left, int right, int bottom){
+		FormData data = (FormData)this.statusBar.getLayoutData();
+		data.left = new FormAttachment(left);
+		data.right = new FormAttachment(right);
+		data.bottom = new FormAttachment(bottom);
+		statusBar.setLayoutData (data);
+		this.statusBar.getParent().layout();
+	}
 }
 

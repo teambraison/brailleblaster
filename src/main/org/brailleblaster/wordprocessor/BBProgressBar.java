@@ -48,17 +48,22 @@ public class BBProgressBar {
 		location.right = new FormAttachment(6);
 		location.bottom = new FormAttachment(100);
 		this.pb.setLayoutData (location);
-		this.pb.setSelection(100);
+		this.pb.setSelection(0);
 		this.pb.setVisible(false);
 		this.pb.setMaximum(this.maximum);
 	}
 	
 	public void start(){
 		pb.setVisible(true);
-		pb.getDisplay().getCurrent().update();	
+		//pb.getDisplay().getCurrent().update();	
+		 for (int i=0; i<=pb.getMaximum (); i++) {
+			    try {Thread.sleep (50);} catch (Throwable th) {}
+			    pb.setSelection (i);
+		}
 	}
 	
 	public void stop(){
 		this.pb.setVisible(false);
+		this.pb.setSelection(0);
 	}
 }

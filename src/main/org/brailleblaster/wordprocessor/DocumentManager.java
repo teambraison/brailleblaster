@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -50,6 +51,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
@@ -62,7 +64,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.TreeItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class DocumentManager {
@@ -235,8 +236,8 @@ public class DocumentManager {
 		try{
 			if(this.document.startDocument(workingFilePath, "preferences.cfg", null)){
 				this.wp.getStatusBar().resetLocation(6,100,100);
-				this.wp.getProgressBar().start();
 				this.wp.getStatusBar().setText("Loading...");
+				this.wp.getProgressBar().start();
 				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement(), this);
@@ -251,7 +252,7 @@ public class DocumentManager {
 				this.wp.checkToolbarSettings();
 				this.wp.getStatusBar().resetLocation(0,100,100);
 				this.wp.getProgressBar().stop();
-				this.wp.getStatusBar().setText("Words: " +this.text.words);
+				this.wp.getStatusBar().setText("Words: " + this.text.words);
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -274,6 +275,7 @@ public class DocumentManager {
 			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
+					checkSemantics((Element)current.getChild(i));
 					initializeViews(current.getChild(i));
 				}
 				else if(!(current.getChild(i) instanceof Element)) {
@@ -534,5 +536,13 @@ public class DocumentManager {
 	
 	public Display getDisplay(){
 		return this.wp.getShell().getDisplay();
+	}
+	
+	private void checkSemantics(Element e){
+		if(!e.getLocalName().equals("meta") && e.getAttributeValue("semantics") == null){
+			Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
+			Attribute attr = new Attribute("semantics", "style,para");
+			e.addAttribute(attr);
+		}
 	}
 }

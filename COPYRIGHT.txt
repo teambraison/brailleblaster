@@ -10,7 +10,7 @@
    All rights reserved
   
    This file may contain code borrowed from files produced by various 
-   Java development teams. These are gratefully acknoledged.
+   Java development teams. These are gratefully acknowledged.
   
    This file is free software; you can redistribute it and/or modify it
    under the terms of the Apache 2.0 License, as given at

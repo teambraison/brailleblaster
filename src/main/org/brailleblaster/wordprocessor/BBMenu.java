@@ -84,6 +84,7 @@ class BBMenu {
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
 	MenuItem stylePanelItem;
+	MenuItem configDlgItem;
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -487,6 +488,16 @@ class BBMenu {
 //				System.out.println("Empty method");
 				System.out.println("Open Style Panel");
 			}
+		});
+		
+		// Config files.
+		configDlgItem = new MenuItem(editMenu, SWT.PUSH);
+		configDlgItem.setText( "Config Files" );
+		configDlgItem.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+//			
+			ConfigFileDialog cfd = new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
+		}
 		});
 
 		nextElementItem = new MenuItem(editMenu, SWT.PUSH);

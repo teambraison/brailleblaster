@@ -41,6 +41,9 @@
 		<italicx>
 			<Font>italic</Font>
 		</italicx>
+		<boldx>
+			<Font>italic</Font>
+		</boldx>
 		<pagenum>
 		</pagenum>
 	</styles>
@@ -48,5 +51,8 @@
 		<italicx>
 			<Font>italic</Font>
 		</italicx>
+		<boldx>
+			<Font>italic</Font>
+		</boldx>
 	</actions>
 </BB>

@@ -1,25 +1,55 @@
+/* BrailleBlaster Braille Transcription Application
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.txt
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
 package org.brailleblaster.mapping;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+
+import nu.xom.Text;
 
 import org.brailleblaster.wordprocessor.BBEvent;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
-import org.eclipse.swt.SWT;
 
 public class MapList extends LinkedList<TextMapElement>{
 	 
 	private static final long serialVersionUID = 1L;
 	DocumentManager dm;
 	private TextMapElement current;
-	private int currentIndex;
+	private int currentIndex = -1;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
-	
+		
 	public MapList(DocumentManager dm){
 		this.dm = dm;
 	}
 	
-	public int findClosest(Message message){
+	public int findClosest(Message message, int low, int high){
 		int location = (Integer)message.getValue("offset");
 		int nodeIndex = getNodeIndex((TextMapElement)message.getValue("selection"));
 		
@@ -29,54 +59,64 @@ public class MapList extends LinkedList<TextMapElement>{
 		else if(location >= this.getLast().end){
 			return this.indexOf(this.getLast());
 		}
-
-		for(int i = 0; i < this.size(); i++){
-			if(location >= this.get(i).start && location <= this.get(i).end){
-				if(location == this.get(i).end && location == this.get(i + 1).start){
-					if(checkForSpace(i)){
-						return i + 1;
-					}
-					
-					if(i == nodeIndex){
-						return i;
-					}
-					else if( i + 1 == nodeIndex) {
-						return i + 1;
-					}
+		
+		int mid = low  + ((high - low) / 2);
+		
+		TextMapElement currentElement = this.get(mid);
+		if(location >= currentElement.start && location <= currentElement.end){
+			if(location == currentElement.end && location == this.get(mid + 1).start){
+				if(checkForSpace(mid)){
+					return mid + 1;
 				}
-				else{
-					return i;
+				
+				if(mid == nodeIndex){
+					return mid;
+				}
+				else if( mid + 1 == nodeIndex) {
+					return mid + 1;
 				}
 			}
-			else if(location > this.get(i).end && location < this.get(i + 1).start){
-				if(location - this.get(i).end > this.get(i + 1).start - location){
-					return i;
+			else{
+				return mid;
+			}
+		}
+		else if(location > currentElement.end && location < this.get(mid + 1).start){
+			if(location - currentElement.end > this.get(mid + 1).start - location){
+				return mid;
+			}
+			else if(location - currentElement.end < this.get(mid + 1).start - location){
+				return mid + 1;
+			}
+			else {
+				if(mid == nodeIndex){
+					return mid;
 				}
-				else if(location - this.get(i).end < this.get(i + 1).start - location){
-					return i + 1;
+				else if( mid + 1 == nodeIndex) {
+					return mid + 1;
 				}
 				else {
-					if(i == nodeIndex){
-						return i;
-					}
-					else if( i + 1 == nodeIndex) {
-						return i + 1;
-					}
-					else {
-						return i;
-					}
+					return mid;
 				}
 			}
 		}
 			
-		return -1;
+		if(low > high){
+			return -1;
+		}
+		else if(location < this.get(mid).start)
+			return findClosest(message, low, mid - 1);
+		else
+			return findClosest(message, mid + 1, high);
 	}
 	
 	private boolean checkForSpace(int index){
+		if(this.get(index).n.getValue().length() == 0)
+			return true;
+		
 		char firstChar = this.get(index).n.getValue().charAt(this.get(index).n.getValue().length() - 1);
-
-		if(this.get(index + 1).n.getValue().length() > 0){
-			char nextChar =  this.get(index + 1).n.getValue().charAt(0);
+		String nextElementText = this.get(index + 1).n.getValue(); 
+		if(nextElementText.length() > 0){
+			char nextChar =  nextElementText.charAt(0);
 			if( firstChar == ' ' && nextChar != ' '){
 				return true;
 			}
@@ -106,7 +146,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void updateOffsets(int index, Message message){
 		updateTextOffsets(index, (Integer)message.getValue("length"));
 		
-		if(message.getValue("brailleLength") != null){
+		if(message.contains("brailleLength")){
 			updateBrailleOffsets(index, message);
 		}
 	}
@@ -117,6 +157,17 @@ public class MapList extends LinkedList<TextMapElement>{
 		for(int i = nodeNum + 1; i < this.size(); i++){
 			this.get(i).start +=offset;
 			this.get(i).end += offset;
+		}
+	}
+	
+	private void updateBrailleOffsets(int index, Message message){
+		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
+		
+		for(int i = index + 1; i < this.size(); i++){
+			for(int j = 0; j < this.get(i).brailleList.size(); j++){
+				this.get(i).brailleList.get(j).start += total;
+				this.get(i).brailleList.get(j).end += total;
+			}
 		}
 	}
 	
@@ -148,63 +199,56 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 	
 	public void adjustOffsets(int index, Message message){
-		if(message.getValue("start") != null){
+		if(message.contains("start")){
 			this.get(index).start -= (Integer)message.getValue("start");
 			if(this.get(index).brailleList.size() > 0)
 				this.get(index).brailleList.getFirst().start -= (Integer)message.getValue("start");
 		}
 		
-		if(message.getValue("end") != null){
+		if(message.contains("end")){
 			this.get(index).end += (Integer)message.getValue("end");
 			if(this.get(index).brailleList.size() > 0)
 				this.get(index).brailleList.getLast().end += (Integer)message.getValue("end");
 		}
 	}
-	
-	private void updateBrailleOffsets(int index, Message message){
-		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
-		
-		for(int i = index + 1; i < this.size(); i++){
-			for(int j = 0; j < this.get(i).brailleList.size(); j++){
-				this.get(i).brailleList.get(j).start += total;
-				this.get(i).brailleList.get(j).end += total;
-			}
-		}
-	}
-	
+
 	public void checkList(){
-		for(int i = 0; i < this.size() - 1; i++){
-			if(this.get(i).start == this.get(i + 1).start){
-				Message m = new Message(BBEvent.REMOVE_NODE);
-				m.put("index", i);
-				m.put("length",  this.get(i).n.getValue().length());
-				System.out.println("Node 1:\t" + this.get(i).n.getValue());
-				System.out.println("Node 2:\t" + this.get(i + 1).n.getValue());
-				this.dm.dispatch(m);
-				break;
-			}
-		}
+		if(this.currentIndex != -1){
+			int index = this.currentIndex;
+			int next = index + 1;
+			int previous = index - 1;
 		
-		for(int i = 1; i < this.size() - 2; i++){
-			if(this.get(i - 1).start + this.get(i - 1).n.getValue().length() + 1 == this.get(i + 1).start && this.get(i).n.getValue().length() == 0){
-				Message m = new Message(BBEvent.REMOVE_NODE);
-				m.put("index", i);
-				m.put("length",  this.get(i).n.getValue().length());
-				System.out.println("Node 1:\t" + this.get(i).n.getValue());
-				System.out.println("Node 2:\t" + this.get(i + 1).n.getValue());
-				this.dm.dispatch(m);
-				break;
+			if(next < this.size()){	
+				if(this.get(index).start == this.get(next).start){
+					Message m = new Message(BBEvent.REMOVE_NODE);
+					m.put("index", index);
+					m.put("length",  this.get(index).n.getValue().length());
+					System.out.println("Node 1:\t" + this.get(index).n.getValue());
+					System.out.println("Node 2:\t" + this.get(next).n.getValue());
+					this.dm.dispatch(m);
+				}
 			}
-		}
 		
-		if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
-			if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
-				Message m = new Message(BBEvent.REMOVE_NODE);
-				m.put("index", this.size() - 1);
-				m.put("length",  this.get(this.size() - 1).n.getValue().length());
-				System.out.println("Node 1:\t" + this.get(this.size() - 1).n.getValue());
-				System.out.println("Node 2:\t none");
-				this.dm.dispatch(m);
+			if(previous >= 0 && next < this.size()){
+				if(this.get(previous).start + this.get(previous).n.getValue().length() + 1 == this.get(next).start && this.get(index).n.getValue().length() == 0){
+					Message m = new Message(BBEvent.REMOVE_NODE);
+					m.put("index", index);
+					m.put("length",  this.get(index).n.getValue().length());
+					System.out.println("Node 1:\t" + this.get(index).n.getValue());
+					System.out.println("Node 2:\t" + this.get(next).n.getValue());
+					this.dm.dispatch(m);
+				}
+			}
+		
+			if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
+				if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
+					Message m = new Message(BBEvent.REMOVE_NODE);
+					m.put("index", this.size() - 1);
+					m.put("length",  this.get(this.size() - 1).n.getValue().length());
+					System.out.println("Node 1:\t" + this.get(this.size() - 1).n.getValue());
+					System.out.println("Node 2:\t none");
+					this.dm.dispatch(m);
+				}
 			}
 		}
 	}
@@ -282,7 +326,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		int localIndex = index + 1;
 		
 		while(localIndex < this.size() && this.get(localIndex).brailleList.size() == 0)
-			index++;
+			localIndex++;
 		
 		if(localIndex < this.size())
 			return this.get(localIndex).brailleList.getFirst().start;
@@ -302,9 +346,20 @@ public class MapList extends LinkedList<TextMapElement>{
 		return -1;
 	}
 	
+	private ArrayList<BrailleMapElement> getPageRanges(){
+		ArrayList<BrailleMapElement> list = new ArrayList<BrailleMapElement>();
+		for(int i = 0; i < this.current.brailleList.size(); i++){
+			if(this.current.brailleList.get(i).pagenum){
+				list.add(this.current.brailleList.get(i));
+			}
+		}
+		
+		return list;
+	}
+	
 	public void getCurrentNodeData(Message m){
 		if(this.current == null){
-			int index = findClosest(m);
+			int index = findClosest(m, 0, this.size() - 1);
 			setCurrent(index);
 		}
 		
@@ -316,10 +371,25 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("brailleEnd", getCurrentBrailleEnd());
 		m.put("nextBrailleStart", this.nextBraille);
 		m.put("previousBrailleEnd", this.prevBraille);
+		m.put("pageRanges", getPageRanges());
 	}
 	
 	private int getNodeIndex(TextMapElement t){
 		return this.indexOf(t);
+	}
+	
+	public void incrementCurrent(Message message){
+		if(this.currentIndex < this.size() - 1){
+			setCurrent(this.currentIndex + 1);
+			getCurrentNodeData(message);
+		}
+	}
+	
+	public void decrementCurrent(Message message){
+		if(this.currentIndex > 0){
+			setCurrent(this.currentIndex - 1);
+			getCurrentNodeData(message);
+		}
 	}
 	
 	public boolean hasBraille(int index){
@@ -327,5 +397,21 @@ public class MapList extends LinkedList<TextMapElement>{
 			return true;
 		else
 			return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void findTextMapElements(Message message){
+		ArrayList<Text>textList = (ArrayList<Text>)message.getValue("nodes");
+		ArrayList<TextMapElement> itemList = (ArrayList<TextMapElement>)message.getValue("itemList");
+		
+		int pos = 0;
+		for(int i = 0; i < textList.size(); i++){
+			for(int j = pos; j < this.size(); j++){
+				if(textList.get(i).equals(this.get(j).n)){
+					itemList.add(this.get(j));
+					pos = j + 1;
+				}
+			}
+		}
 	}
 }

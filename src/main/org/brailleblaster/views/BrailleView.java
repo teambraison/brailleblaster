@@ -28,11 +28,12 @@
 
 package org.brailleblaster.views;
 
+import java.util.ArrayList;
+
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
-import org.brailleblaster.abstractClasses.AbstractContent;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
@@ -61,6 +62,7 @@ public class BrailleView extends AbstractView {
 	private int currentStart, currentEnd, nextStart, previousEnd;
 	private BBSemanticsTable stylesTable;
 	private int oldCursorPosition = -1;
+	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	
 	public BrailleView(Group documentWindow, BBSemanticsTable table) {
 		super(documentWindow, 58, 100, 0, 100);
@@ -85,18 +87,19 @@ public class BrailleView extends AbstractView {
 				Message message = new Message(BBEvent.GET_CURRENT);
 				message.put("sender", "braille");
 				dm.dispatch(message);
-				//currentStart = (Integer)message.getValue("brailleStart");
-				//currentEnd = (Integer)message.getValue("brailleEnd");
 				setViewData(message);
-				if(oldCursorPosition == -1 || oldCursorPosition < currentStart || oldCursorPosition > currentEnd){
+				if(oldCursorPosition == -1 && positionFromStart  == 0){
 					view.setCaretOffset((Integer)message.getValue("brailleStart"));
-					oldCursorPosition = view.getCaretOffset();
 				}
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
+				setPositionFromStart();
 				
+				Message message = new Message(BBEvent.UPDATE_CURSORS);
+				message.put("sender", "braille");
+				dm.dispatch(message);
 			}
 		});
 		
@@ -122,8 +125,18 @@ public class BrailleView extends AbstractView {
 		view.addCaretListener(new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
-					setCurrent(dm);
+				if(!getLock()){
+					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
+						setCurrent(dm);
+					}
+				
+				
+					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
+						Message message = new Message(BBEvent.UPDATE_STATUSBAR);
+						message.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
+						dm.dispatch(message);
+						currentLine = view.getLineAtOffset(view.getCaretOffset());
+					}
 				}
 			}
 		});
@@ -143,6 +156,8 @@ public class BrailleView extends AbstractView {
 				}
 			}
 		});
+		
+		setListenerLock(false);
 	}
 	
 	private void setCurrent(DocumentManager dm){
@@ -154,34 +169,27 @@ public class BrailleView extends AbstractView {
 		setViewData(message);
 	}
 	
-	private void setViewData(Message message){
+	@SuppressWarnings("unchecked")
+	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("brailleStart");
 		currentEnd = (Integer)message.getValue("brailleEnd");
 		nextStart = (Integer)message.getValue("nextBrailleStart");
 		previousEnd = (Integer)message.getValue("previousBrailleEnd");
+		this.pageRanges.clear();
+		setPageRange((ArrayList<BrailleMapElement>)message.getValue("pageRanges"));
 	}
 	
-	private void sendIncrementCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.INCREMENT);
-		dm.dispatch(message);
-		setViewData(message);
-	}
-	
-	private void sendDecrementCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.DECREMENT);
-		dm.dispatch(message);
-		setViewData(message);
+	private void setPageRange(ArrayList<BrailleMapElement> list){
+		this.pageRanges.clear();
+		for(int i = 0; i < list.size(); i++){
+			this.pageRanges.add(list.get(i));
+		}
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
 		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
 		Styles style = this.stylesTable.makeStylesElement(key, n);
-		
-		if(insertNewLine(n)){
-			view.append("\n");
-			this.total++;
-		}
-		
+			
 		view.append(n.getValue());
 		handleStyle(style, n, (Element)t.n.getParent());
 		
@@ -208,8 +216,8 @@ public class BrailleView extends AbstractView {
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
-	//				String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-	//				insertBefore(this.spaceBeforeText + this.total, textBefore);
+					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+					insertBefore(this.spaceBeforeText + this.total, textBefore);
 					break;
 				case linesAfter:
 					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
@@ -227,9 +235,26 @@ public class BrailleView extends AbstractView {
 				case Font:
 					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
+				case leftMargin:
+					this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+					break;
 				default:
-					//System.out.println(styleType);
+					System.out.println(styleType);
 			}
+		}
+		
+		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
+			Element grandParent = (Element)parent.getParent();
+			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
+				grandParent = (Element)grandParent.getParent();
+			}
+			
+			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+			}
+		}
+		else if(isLast(n)){
+			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
 	}
 	
@@ -282,6 +307,38 @@ public class BrailleView extends AbstractView {
 			return false;
 	}
 	
+	private boolean isLast(Node n){
+		boolean isLast = false;
+		Element parent = (Element)n.getParent();
+		
+		for(int i = 0; i < parent.getChildCount(); i++){
+			if(parent.getChild(i) instanceof Text){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else{
+					isLast = false;
+				}
+			}
+		}
+		
+		if(isLast){
+			Element grandParent = (Element)parent.getParent();
+			for(int i = 0; i < grandParent.getChildCount(); i++){
+				if(grandParent.getChild(i) instanceof Element){
+					if(grandParent.getChild(i).equals(parent)){
+						isLast = true;
+					}
+					else{
+						isLast = false;
+					}
+				}
+			}
+		}
+		
+		return isLast;
+	}
+	
 	public void updateBraille(TextMapElement t, Message message){
 		int total = (Integer)message.getValue("brailleLength");
 		int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
@@ -289,7 +346,10 @@ public class BrailleView extends AbstractView {
 
 		String insertionString = (String)message.getValue("newBrailleText");
 		if(t.brailleList.getFirst().start != -1){
+			setListenerLock(true);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
+			restoreStyleState(t.brailleList.getFirst().start);
+			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
 			
 			if(t.brailleList.getFirst().start < view.getCharCount()){
@@ -298,10 +358,13 @@ public class BrailleView extends AbstractView {
 					updateRange(range, t.brailleList.getFirst().start, insertionString.length());
 			}
 		}
+		
 	}
 	
 	public void removeWhitespace(int start, int length){
+		setListenerLock(true);
 		view.replaceTextRange(start, Math.abs(length), "");
+		setListenerLock(false);
 	}
 	
 	public void changeAlignment(int startPosition, int alignment){
@@ -311,9 +374,90 @@ public class BrailleView extends AbstractView {
 	public void changeIndent(int start, Message message){
 		view.setLineIndent(view.getLineAtOffset(start), 1, (Integer)message.getValue("indent"));
 	}
-	/*
-	 * This is a derivative work from org.eclipse.swt.custom.DefaultContent.java
-	 */
-	class BrailleContent extends AbstractContent {
+	
+	public void updateCursorPosition(Message message){
+		setListenerLock(true);
+		setViewData(message);
+		setCursorPosition(message);
+		setPositionFromStart();
+		setListenerLock(false);
+	}
+	
+	private void setPositionFromStart(){
+		int count = 0;
+		positionFromStart = view.getCaretOffset() - currentStart;
+		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			positionFromStart -= count;
+			positionFromStart -= checkPageRange(currentStart + positionFromStart);
+			cursorOffset = count;
+		}
+		else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
+			String text = view.getTextRange(currentStart, positionFromStart);
+			count = text.length() - text.replaceAll("\n", "").length();
+			cursorOffset = (currentStart + positionFromStart) - currentEnd;
+			positionFromStart = 99999;
+		}	
+		else {
+			positionFromStart -= count;
+			cursorOffset = count;
+		}
+	}
+	
+	private void setCursorPosition(Message message){
+		int offset = (Integer)message.getValue("offset");
+		if(message.contains("element")){
+			Element e = getBrlNode((Node)message.getValue("element"));
+			int pos;
+			if(e != null){
+				int [] arr = getIndexArray(e);
+				if(arr == null){
+					if((Integer)message.getValue("lastPosition") == 0)
+						pos = currentStart;
+					else
+						pos = currentEnd;
+				}
+				else {
+					if((Integer)message.getValue("lastPosition") < 0 && currentStart > 0)
+						pos = currentStart + (Integer)message.getValue("lastPosition");	
+					else if((Integer)message.getValue("lastPosition") == 99999){
+						pos = currentEnd + offset;
+					}
+					else {
+						pos = currentStart + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + offset;
+						pos += checkPageRange(pos);
+					}
+				}
+				view.setCaretOffset(pos);
+			}
+			else {
+				view.setCaretOffset(currentStart);
+			}
+		}
+	}
+	
+	private int checkPageRange(int position){
+		int offset = 0;
+		for(int i = 0; i < this.pageRanges.size(); i++){
+			if(position + offset > this.pageRanges.get(i).start){
+				offset += this.pageRanges.get(i).end - this.pageRanges.get(i).start;
+			}
+		}
+			
+		return offset;	
+	}
+	
+	private int findCurrentPosition(int [] indexes, int textPos){
+		for(int i = 0; i < indexes.length; i++){
+			if(textPos == indexes[i]){
+				return i;
+			}
+			else if(textPos < indexes[i]){
+				return i - 1;
+			}
+		}
+		
+		return indexes.length;
 	}
 }

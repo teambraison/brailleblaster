@@ -31,6 +31,7 @@ package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -58,6 +59,7 @@ public class WPManager {
     private FormData location;
     private BBMenu bbMenu;
     private BBStatusBar statusBar;
+    private BBProgressBar pb;
     private BBToolBar toolBar;
     private LinkedList<DocumentManager> managerList;
     private StyleManager sm;
@@ -67,7 +69,6 @@ public class WPManager {
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
     public WPManager(String fileName) {
     	checkLiblouisutdml();
-    	 
         display = new Display();
     	this.shell = new Shell(display, SWT.SHELL_TRIM);
         this.shell.setText("BrailleBlaster"); 
@@ -83,6 +84,7 @@ public class WPManager {
 	    this.folder.setLayoutData (this.location);
 	    
 	    this.statusBar = new BBStatusBar(this.shell);
+	    this.pb = new BBProgressBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
 	    
 		this.sm = new StyleManager(this);
@@ -101,6 +103,14 @@ public class WPManager {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				checkToolbarSettings();
+				int index = folder.getSelectionIndex();
+				if(managerList.size() > 0){
+					if(managerList.get(index).text.view.getCharCount() > 0) {
+						statusBar.setText("Words: " + managerList.get(index).text.words);
+					}
+					else
+						statusBar.setText("Words: " + 0);
+				}
 			}
 	    });
 	    
@@ -201,6 +211,10 @@ public class WPManager {
     
     public BBMenu getMainMenu() {
     	return bbMenu;
+    }
+    
+    public BBProgressBar getProgressBar(){
+    	return this.pb;
     }
     
     public StyleManager getStyleManager() {

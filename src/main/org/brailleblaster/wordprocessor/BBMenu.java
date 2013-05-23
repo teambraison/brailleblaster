@@ -216,7 +216,7 @@ class BBMenu {
 		});
 		*/
 		saveItem = new MenuItem(fileMenu, SWT.PUSH);
-		saveItem.setText(lh.localValue("&Save"));
+		saveItem.setText(lh.localValue("&Save") + "\tCtrl + S");
 		saveItem.setAccelerator(SWT.MOD1 + 'S');
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -298,15 +298,15 @@ class BBMenu {
 				dm.placeholder();
 			}
 		});
+	
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
 		printPreviewItem.setText(lh.localValue("PrintP&review"));
-		printPreviewItem.setEnabled(false); 
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				dm.placeholder();
+	
 			}
 		});
-**/
+*/
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print") + "\tCtrl + P");
 		printItem.setAccelerator(SWT.MOD1 + 'p');
@@ -318,6 +318,7 @@ class BBMenu {
 				}
 			}
 		});
+		
 		languageItem = new MenuItem(fileMenu, SWT.PUSH);
 		languageItem.setText(lh.localValue("&Language"));
 		languageItem.setEnabled(false); /* FO */
@@ -501,11 +502,13 @@ class BBMenu {
 		});
 
 		nextElementItem = new MenuItem(editMenu, SWT.PUSH);
-		nextElementItem.setText(lh.localValue("&NexstElement"));
-		nextElementItem.setEnabled(false);
+		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).nextElement();
 			}
 		});
 		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);

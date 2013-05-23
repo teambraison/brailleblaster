@@ -109,6 +109,8 @@ public class ConfigFileDialog extends Dialog {
 		
 		// show the SWT window
 		configShell.pack();
+		// Resize window.
+		configShell.setSize(200, 230);
 		configShell.open();
 		while (!configShell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -139,10 +141,10 @@ public class ConfigFileDialog extends Dialog {
 		// Create grid layout.
 		GridLayout gridLayout = new GridLayout ();
 		configShell.setLayout (gridLayout);
-		gridLayout.marginTop = 15;
-		gridLayout.marginBottom = 15;
-		gridLayout.marginLeft = 10; 
-		gridLayout.marginRight = 10; 
+		gridLayout.marginTop = 10;
+		gridLayout.marginBottom = 10;
+		gridLayout.marginLeft = 3; 
+		gridLayout.marginRight = 3; 
 		gridLayout.numColumns = 1;
 		//gridLayout.horizontalSpacing = 15;
 		gridLayout.makeColumnsEqualWidth = false;
@@ -150,9 +152,13 @@ public class ConfigFileDialog extends Dialog {
 		// Label next to file name combo box. 
 		Label name = new Label(configShell, SWT.HORIZONTAL);
 		name.setText("Config Filename");
+		
+		// So our combos and buttons take up whole width of dialog.
+		GridData fillGD = new GridData(GridData.FILL_HORIZONTAL);
 
 		// Combo box that houses filenames.
 		fileNameCombo = new Combo (configShell, SWT.DROP_DOWN);
+		fileNameCombo.setLayoutData(fillGD);
 		
 		// Label next to variable name combo box. 
 		Label name2 = new Label(configShell, SWT.HORIZONTAL);
@@ -160,6 +166,8 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Combo box that houses variable names.
 		variableCombo = new Combo (configShell, SWT.DROP_DOWN);
+		GridData varFillGD = new GridData(GridData.FILL_HORIZONTAL);
+		variableCombo.setLayoutData(varFillGD);
 		
 		// Label next to variable value combo box. 
 		Label name3 = new Label(configShell, SWT.HORIZONTAL);
@@ -167,8 +175,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Holds value associated with variable in variable name box.
 		txt = new Text(configShell, SWT.SINGLE);
-		GridData textGD = new GridData(GridData.FILL_HORIZONTAL);
-		txt.setLayoutData(textGD);
+		txt.setLayoutData(fillGD);
 		
 		// Accessible names.
 		Accessible accName = name.getAccessible();
@@ -187,7 +194,7 @@ public class ConfigFileDialog extends Dialog {
 		accNameCombo3.addRelation(ACC.RELATION_LABELLED_BY, accName3);
 		
 		// Grid Data.
-		GridData data = new GridData(GridData.FILL_HORIZONTAL);
+		GridData data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 2;
 		
 		// Set up Apply Button.

@@ -1,6 +1,36 @@
+/* BrailleBlaster Braille Transcription Application
+  *
+  * Copyright (C) 2010, 2012
+  * ViewPlus Technologies, Inc. www.viewplus.com
+  * and
+  * Abilitiessoft, Inc. www.abilitiessoft.com
+  * All rights reserved
+  *
+  * This file may contain code borrowed from files produced by various 
+  * Java development teams. These are gratefully acknoledged.
+  *
+  * This file is free software; you can redistribute it and/or modify it
+  * under the terms of the Apache 2.0 License, as given at
+  * http://www.apache.org/licenses/
+  *
+  * This file is distributed in the hope that it will be useful, but
+  * WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
+  * See the Apache 2.0 License for more details.
+  *
+  * You should have received a copy of the Apache 2.0 License along with 
+  * this program; see the file LICENSE.txt
+  * If not, see
+  * http://www.apache.org/licenses/
+  *
+  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+*/
+
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -15,6 +45,7 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.ParsingException;
+import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -52,10 +83,10 @@ public class BBDocument {
 		String configFileWithPath = fu.findInProgramData ("liblouisutdml" + fileSep + "lbu_files" + fileSep + configFile);
 		String configWithUTD;
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n";
+			configWithUTD = "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n";
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
 		}
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -93,6 +124,7 @@ public class BBDocument {
 		Builder parser = new Builder();
 		try {
 			this.doc = parser.build (file);
+			removeBraillePageNumber();
 			return true;
 		} 
 		catch (ParsingException e) {
@@ -124,6 +156,9 @@ public class BBDocument {
 	private void updateNode(MapList list, Message message){
 		int total = 0;
 		String text = (String)message.getValue("newText");
+		text = text.replace("\n", "");
+		message.put("newText", text);
+		calculateDifference(list.getCurrent().n.getValue(), text, message);
 		changeTextNode(list.getCurrent().n, text);
 		
 		if(text.equals("") || isWhitespace(text)){
@@ -139,7 +174,6 @@ public class BBDocument {
 	}
 
 	private void changeTextNode(Node n, String text){
-		text = text.replace("\n", "");
 		Text temp = (Text)n;
 		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);
@@ -177,7 +211,6 @@ public class BBDocument {
 			child = (Element)child.getParent();
 		};
 		parent.replaceChild(child, e);	
-
 		t.brailleList.clear();
 		
 		boolean first = true;
@@ -240,7 +273,6 @@ public class BBDocument {
 			t.brailleList.clear();
 			t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
 			logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
-			String text = textNode.getValue();
 			message.put("newBrailleText", textNode.getValue());
 			message.put("newBrailleLength", textNode.getValue().length());
 			return total;
@@ -248,7 +280,6 @@ public class BBDocument {
 	
 	private void insertBrailleNode(TextMapElement t, int startingOffset, String text){
 		Document d = getStringTranslation(text);
-		
 		Element e = d.getRootElement().getChildElements("brl").get(0);
 		d.getRootElement().removeChild(e);
 
@@ -322,7 +353,7 @@ public class BBDocument {
 			int [] outlength = new int[1];
 			outlength[0] = text.length() * 10;
 			
-			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n", 0)){
+			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n", 0)){
 				return outlength[0];
 			}
 			else {
@@ -413,5 +444,67 @@ public class BBDocument {
 		}
 		
 		return false;
+	}
+	
+	private void removeBraillePageNumber(){
+		Elements e = this.doc.getRootElement().getChildElements();
+		
+		for(int i = 0; i < e.size(); i++){
+			if(e.get(i).getAttributeValue("semantics").equals("style,document")){
+				Elements els = e.get(i).getChildElements();
+				for(int j = 0; j < els.size(); j++){
+					if(els.get(j).getLocalName().equals("brl"))
+						e.get(i).removeChild(j);
+				}
+			}
+		}
+	}
+	
+	public boolean createBrlFile(String filePath){				
+		Document temp = getNewXML();
+		String infile = createTempFile(temp);
+		
+		if(infile.equals(""))
+			return false;
+		
+		String[] arr = {infile, filePath};
+		boolean result = liblouisutdml.getInstance().file2brl(arr);
+		deleteTempFile(infile);
+		return result;
+	}
+	
+	private String createTempFile(Document newDoc){
+		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempXML.xml";
+		FileOutputStream os;
+		try {
+			os = new FileOutputStream(filePath);
+			Serializer serializer;
+			serializer = new Serializer(os, "UTF-8"); 
+			serializer.write(newDoc);
+			os.close();
+			return filePath;
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	    
+	    return "";
+	}
+	
+	private void deleteTempFile(String filePath){
+		File f = new File(filePath);
+		f.delete();
+	}
+	
+	private void calculateDifference(String oldString, String newString, Message m){
+		String [] tokens1 = oldString.split(" ");
+		String [] tokens2 = newString.split(" ");
+		
+		int diff = tokens2.length - tokens1.length;
+		if(newString.equals("")){
+			diff = 0 - tokens1.length;
+		}
+		
+		m.put("diff", diff);
 	}
 }

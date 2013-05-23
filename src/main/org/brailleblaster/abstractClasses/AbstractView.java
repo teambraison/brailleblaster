@@ -28,6 +28,12 @@
 
 package org.brailleblaster.abstractClasses;
 
+import nu.xom.Element;
+import nu.xom.Node;
+
+import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -44,7 +50,11 @@ public abstract class AbstractView {
 	public boolean hasChanged = false;
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
-
+	public int positionFromStart, cursorOffset, words;
+	public static int currentLine;
+	protected boolean locked;
+	protected static int currentAlignment;
+	
 	public AbstractView() {
 	}
 
@@ -67,6 +77,18 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
+	
+	protected void sendIncrementCurrent(DocumentManager dm){
+		Message message = new Message(BBEvent.INCREMENT);
+		dm.dispatch(message);
+		setViewData(message);
+	}
+	
+	protected void sendDecrementCurrent(DocumentManager dm){
+		Message message = new Message(BBEvent.DECREMENT);
+		dm.dispatch(message);
+		setViewData(message);
+	}
 	
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();
@@ -112,4 +134,54 @@ public abstract class AbstractView {
 		FontMetrics fm =gc.getFontMetrics();
 		return fm.getAverageCharWidth();
 	}
+	
+	protected Element getBrlNode(Node n){
+		Element e = (Element)n.getParent();
+		int index = e.indexOf(n);
+		if(index != e.getChildCount() - 1)
+			return (Element)e.getChild(index + 1);
+		else
+			return null;
+	}
+	
+	protected int[] getIndexArray(Element e){
+		int[] indexArray;
+		try {
+			String arr = e.getAttributeValue("index");
+			String[] tokens = arr.split(" ");
+			indexArray = new int[tokens.length];
+			for(int i = 0; i < tokens.length; i++){
+				indexArray[i] = Integer.valueOf(tokens[i]);
+			}
+			return indexArray;
+		}
+		catch(Exception ex){
+			return null;
+		}
+	}
+	
+	public int getWordCount(String text){		
+		String [] tokens = text.split(" ");
+		return tokens.length;
+	}
+	
+	protected void setListenerLock(boolean setting){
+		this.locked = setting;
+	}
+	
+	protected boolean getLock(){
+		return this.locked;
+	}
+	
+	protected void saveStyleState(int start){
+		int line = this.view.getLineAtOffset(start);
+		currentAlignment = view.getLineAlignment(line);
+	}
+	
+	protected void restoreStyleState(int start){
+		int line = this.view.getLineAtOffset(start);
+		view.setLineAlignment(line, 1, currentAlignment);
+	}
+	
+	protected abstract void setViewData(Message message);
 }

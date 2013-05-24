@@ -101,8 +101,28 @@ public class TreeView extends AbstractView {
 					TreeItem [] items = t.getSelection();
 					
 					if(!items[0].equals(root)){
+						if(!previousItem.isDisposed() && !previousItem.equals(root) && !isParent(previousItem, items[0]) && previousItem.getItemCount() > 0){
+							depopulateItemChildren(previousItem);
+							previousItem.setExpanded(false);
+						}
+						
+						if(items[0].getItemCount() == 0){
+							populateItemChildren(items[0], ((TreeItemData)items[0].getData()).element, dm);
+							items[0].setExpanded(false);
+						}
+					
+						resetTree(items[0]);
 						previousItem = items[0];
-					}			
+					}
+					else {
+						if(!previousItem.equals(root)){
+							if(!previousItem.equals(root) && previousItem.getItemCount() > 0){
+								depopulateItemChildren(previousItem);
+								previousItem.setExpanded(false);
+							}
+						}
+						items[0].setExpanded(false);
+					}
 				
 					if(((TreeItemData)items[0].getData()).textMapList.size() > 0){
 						ArrayList<TextMapElement>list = getList(items[0]);
@@ -137,27 +157,7 @@ public class TreeView extends AbstractView {
 				}
 			}
 		});
-		
-		this.tree.addTreeListener(new TreeListener(){
-			@Override
-			public void treeCollapsed(TreeEvent e) {
-				TreeItem [] items = ((TreeItem)e.item).getItems();
-				for(int i = 0; i < items.length; i++){
-					depopulateItemChildren(items[i]);
-				}
-			}
-
-			@Override
-			public void treeExpanded(TreeEvent e) {
-				TreeItem [] items = ((TreeItem)e.item).getItems();
-				for(int i = 0; i < items.length; i++){
-					if(items[i].getItemCount() == 0)
-						populateItemChildren(items[i], ((TreeItemData)items[i].getData()).element, dm);
-				}
-				
-			}			
-		});
-		
+	
 		this.tree.addTraverseListener(new TraverseListener(){
 			@Override
 			public void keyTraversed(TraverseEvent e) {
@@ -211,13 +211,11 @@ public class TreeView extends AbstractView {
 	}
 	
 	private void depopulateItemChildren(TreeItem item){
-		if(!item.getExpanded()){
 			TreeItem [] items = item.getItems();
 		
 			for(int i = 0; i < items.length; i++){
 				items[i].dispose();
 			}
-		}
 	}
 	
 	public void setRoot(Element e, DocumentManager dm){
@@ -253,10 +251,13 @@ public class TreeView extends AbstractView {
 		searchTree(this.getRoot(), t, m);
 		if(m.getValue("item") != null){		
 			if(m.contains("item")){
-				previousItem = this.tree.getSelection()[0];
 				this.tree.setSelection(((TreeItem)m.getValue("item")));
 				if(((TreeItem)m.getValue("item")).getItemCount() == 0)
 					populateItemChildren(((TreeItem)m.getValue("item")), (Element)t.n.getParent(), dm);
+				
+				resetTree(((TreeItem)m.getValue("item")));
+				previousItem = this.tree.getSelection()[0];
+				previousItem.setExpanded(false);
 			}
 		}
 		else {
@@ -264,8 +265,11 @@ public class TreeView extends AbstractView {
 			buildTreeFromElement(parent, dm);
 			searchTree(this.getRoot(), t, m);
 			this.tree.setSelection(((TreeItem)m.getValue("item")));
+			resetTree(((TreeItem)m.getValue("item")));
+			previousItem = this.tree.getSelection()[0];
+			previousItem.setExpanded(false);
 		}
-		resetTree(((TreeItem)m.getValue("item")));
+	
 		setListenerLock(false);
 	}
 	
@@ -278,6 +282,7 @@ public class TreeView extends AbstractView {
 			ArrayList<TextMapElement> list = getList(item);
 			list.remove(index);
 			if(list.size() == 0){
+				previousItem = item.getParentItem();
 				item.dispose();
 			}
 		}
@@ -339,8 +344,9 @@ public class TreeView extends AbstractView {
 			item = findElementInTree(this.root, e);
 		}
 		
-		if(item.getItemCount() == 0)
+		if(item.getItemCount() == 0){
 			populateItemChildren(item, e, dm);
+		}
 	}
 	
 	public TextMapElement getSelection(TextMapElement t){
@@ -365,8 +371,8 @@ public class TreeView extends AbstractView {
 	
 	private void resetTree(TreeItem currentItem){
 		ArrayList<TreeItem>previousParents = new ArrayList<TreeItem>();
-
-		if(!previousItem.isDisposed()){
+		boolean match = false;
+		if(!previousItem.isDisposed() && !previousItem.equals(currentItem)){
 			previousParents.add(previousItem);
 			TreeItem parent = previousItem.getParentItem();
 		
@@ -375,8 +381,7 @@ public class TreeView extends AbstractView {
 				parent = parent.getParentItem();
 			}
 		
-			parent = currentItem.getParentItem();
-			boolean match = false;
+			parent = currentItem;
 			int location = -1;
 		
 			while(parent != null && !match){
@@ -390,11 +395,27 @@ public class TreeView extends AbstractView {
 			}
 			
 			if(match){
-				for(int i = location; i >= 0; i--){
-					previousParents.get(i).setExpanded(false);
+				if(location >= 0){
+					depopulateItemChildren(previousParents.get(location));	
+					previousParents.get(location).setExpanded(false);
 				}
 			}
 		}
+	}
+	
+	private boolean isParent(TreeItem parent, TreeItem child){
+		if(parent.equals(root))
+			return true;
+		
+		TreeItem nextElement = child.getParentItem();
+		while(nextElement != null){
+			if(nextElement.equals(parent))
+				return true;
+			
+			nextElement = nextElement.getParentItem();
+		}
+			
+		return false;	
 	}
 	
 	public void clearTree(){

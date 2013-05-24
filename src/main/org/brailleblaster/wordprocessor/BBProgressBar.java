@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Shell;
 public class BBProgressBar {
 	ProgressBar pb;
 	int maximum = 100;
+	boolean done;
 	
 	public BBProgressBar(Shell shell){
 		this.pb = new ProgressBar(shell, SWT.SMOOTH);
@@ -51,14 +52,20 @@ public class BBProgressBar {
 		this.pb.setSelection(0);
 		this.pb.setVisible(false);
 		this.pb.setMaximum(this.maximum);
+		this.done = false;
 	}
 	
 	public void start(){
 		pb.setVisible(true);
 		//pb.getDisplay().getCurrent().update();	
 		 for (int i=0; i<=pb.getMaximum (); i++) {
-			    try {Thread.sleep (50);} catch (Throwable th) {}
-			    pb.setSelection (i);
+			    try {
+			    	Thread.sleep (50);
+			    } catch (Throwable th) 
+			    {
+			    	
+			    }
+			    pb.setSelection (pb.getSelection() + 1);
 		}
 	}
 	

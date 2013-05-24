@@ -79,6 +79,7 @@ public class TextView extends AbstractView {
 	private TraverseListener traverseListener;
 	private MouseListener mouseListener;
 	private int originalStart, originalEnd;
+	private String charAtOffset;
 	
 	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, 16, 57, 0, 100);
@@ -101,6 +102,7 @@ public class TextView extends AbstractView {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
 					setSelection(selectionArray[0], selectionArray[1]);
+					charAtOffset = view.getText(selectionArray[0], selectionArray[0]);
 				}
 			}			
 		});
@@ -130,7 +132,7 @@ public class TextView extends AbstractView {
 					e.doit = false;
 					setSelection(-1, -1);
 				}
-				
+				/*
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
 					Message message = new Message(BBEvent.ADJUST_INDENT);
 					message.put("sender", "text");
@@ -139,7 +141,7 @@ public class TextView extends AbstractView {
 					dm.dispatch(message);
 					e.doit = false;
 				}
-				
+				*/
 				if(selectionLength > 0){
 					saveStyleState(selectionStart);
 				}
@@ -198,6 +200,8 @@ public class TextView extends AbstractView {
 							if(textChanged == true){
 								sendUpdate(dm);
 							}
+							if(view.getCaretOffset() > currentEnd && view.getCaretOffset() < nextStart)
+								charAtOffset = view.getText(view.getCaretOffset(), view.getCaretOffset());
 							setCurrent(dm);
 						}
 					}
@@ -283,8 +287,11 @@ public class TextView extends AbstractView {
 	private void setCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.SET_CURRENT);
 		message.put("offset", view.getCaretOffset());
+		if(charAtOffset != null)
+			message.put("char", charAtOffset);
 		dm.dispatch(message);
 		setViewData(message);
+		charAtOffset = null;
 	}
 	
 	private void sendDeleteSpaceMessage(DocumentManager dm, int offset, int key){
@@ -477,8 +484,9 @@ public class TextView extends AbstractView {
 					break;
 				case firstLineIndent: 
 					if(isFirst(n)){
-						int spaces = Integer.valueOf((String)style.get(styleType));
-						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText + this.escapeChars) , 1, spaces * getFontWidth());
+						insertBefore(this.spaceBeforeText + this.total, "\t");	
+					//	int spaces = Integer.valueOf((String)style.get(styleType));
+					//	this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText + this.escapeChars) , 1, spaces * getFontWidth());
 					}
 					break;
 				case format:
@@ -488,7 +496,7 @@ public class TextView extends AbstractView {
 					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
 				case leftMargin:
-					this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+			//		this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
 					break;
 				default:
 					System.out.println(styleType);
@@ -517,10 +525,14 @@ public class TextView extends AbstractView {
 	private void handleTextEdit(DocumentManager dm, ExtendedModifyEvent e){
 		int changes = e.length;
 		int replacedTextLength = e.replacedText.length();
-	
+		int placeholder;
 		if(replacedTextLength > 0){
-			if(e.start < currentStart)
+			if(e.start < currentStart){
+				placeholder = view.getCaretOffset();
+				view.setCaretOffset(e.start);
 				setCurrent(dm);
+				view.setCaretOffset(placeholder);
+			}
 			
 			if(e.start + replacedTextLength > currentEnd){
 				view.setCaretOffset(e.start);
@@ -537,7 +549,7 @@ public class TextView extends AbstractView {
 					sendAdjustRangeMessage(dm, "end", selectionStart - currentEnd);	
 				}
 					
-				int placeholder = currentStart;
+				placeholder = currentStart;
 				if(e.length < e.replacedText.length()){
 					setSelection(selectionStart + e.length, selectionLength - e.length);
 					if(selectionStart == currentEnd)
@@ -637,6 +649,14 @@ public class TextView extends AbstractView {
 			else if(oldCursorPosition < currentStart && previousEnd == -1){
 				shiftLeft(offset);
 				sendDeleteSpaceMessage(dm, offset, SWT.BS);
+			}
+			else if(oldCursorPosition < currentStart && oldCursorPosition > previousEnd){
+				shiftLeft(offset);
+				sendDeleteSpaceMessage(dm, offset, SWT.BS);
+			}
+			else if(oldCursorPosition > currentEnd && oldCursorPosition < nextStart){
+				shiftLeft(offset);
+				sendDeleteSpaceMessage(dm, offset, SWT.DEL);
 			}
 			else {
 				makeTextChange(offset);

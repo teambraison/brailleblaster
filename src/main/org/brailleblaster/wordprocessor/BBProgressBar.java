@@ -65,7 +65,7 @@ public class BBProgressBar {
 			    {
 			    	
 			    }
-			    pb.setSelection (pb.getSelection() + 1);
+			    pb.setSelection (i);
 		}
 	}
 	

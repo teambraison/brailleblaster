@@ -156,8 +156,6 @@ public class BBDocument {
 	private void updateNode(MapList list, Message message){
 		int total = 0;
 		String text = (String)message.getValue("newText");
-		text = text.replace("\n", "");
-		message.put("newText", text);
 		calculateDifference(list.getCurrent().n.getValue(), text, message);
 		changeTextNode(list.getCurrent().n, text);
 		

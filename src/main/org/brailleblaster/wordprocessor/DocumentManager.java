@@ -253,6 +253,7 @@ public class DocumentManager {
 				this.wp.getStatusBar().resetLocation(0,100,100);
 				this.wp.getProgressBar().stop();
 				this.wp.getStatusBar().setText("Words: " + this.text.words);
+				this.braille.setWords(this.text.words);
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -373,14 +374,14 @@ public class DocumentManager {
 				list.checkList();
 				if((Integer)message.getValue("deletionType") == SWT.BS){
 					if(list.hasBraille(list.getCurrentIndex())){
-						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"));
+						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
 					}
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
 				}
 				else if((Integer)message.getValue("deletionType") == SWT.DEL){
 					list.shiftOffsetsAfterIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
 					if(list.hasBraille(list.getCurrentIndex())){
-						this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"));
+						this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
 					}
 				}
 				break;
@@ -403,6 +404,7 @@ public class DocumentManager {
 					this.text.removeListeners();
 				break;
 			case UPDATE_STATUSBAR:
+				this.braille.setWords(this.text.words);
 				this.wp.getStatusBar().setText((String)message.getValue("line"));
 				break;
 			case ADJUST_ALIGNMENT:

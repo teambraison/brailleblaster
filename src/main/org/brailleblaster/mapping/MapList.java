@@ -441,6 +441,7 @@ public class MapList extends LinkedList<TextMapElement>{
 				if(textList.get(i).equals(this.get(j).n)){
 					itemList.add(this.get(j));
 					pos = j + 1;
+					break;
 				}
 			}
 		}

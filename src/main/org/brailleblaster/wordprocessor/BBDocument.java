@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,9 +66,11 @@ public class BBDocument {
 	private FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();;
 	private DocumentManager dm;
+	private ArrayList<String>missingSemanticsList;
 	
 	public BBDocument(DocumentManager dm){		
 		this.dm = dm;
+		this.missingSemanticsList = new ArrayList<String>();
 	}
 	
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
@@ -504,5 +507,26 @@ public class BBDocument {
 		}
 		
 		m.put("diff", diff);
+	}
+	
+	public void checkSemantics(Element e){
+		if(!e.getLocalName().equals("meta") && e.getAttributeValue("semantics") == null){
+			//Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
+			Attribute attr = new Attribute("semantics", "style,para");
+			e.addAttribute(attr);
+			if(!this.missingSemanticsList.contains(e.getLocalName()))
+				this.missingSemanticsList.add(e.getLocalName());
+		}
+	}
+	
+	public void notifyUser(){
+		if(this.missingSemanticsList.size() > 0){
+			String text = "No semantic attribute exists for the following element(s): \n";
+			for(int i = 0; i < this.missingSemanticsList.size(); i++){
+				text += this.missingSemanticsList.get(i) + "\n";
+			}
+			text += "Please check your document and consider editing the configuration files.";
+			new Notify(text);
+		}
 	}
 }

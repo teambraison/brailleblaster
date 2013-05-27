@@ -241,7 +241,8 @@ public class DocumentManager {
 				this.documentName = fileName;
 				setTabTitle(fileName);
 				this.treeView.setRoot(this.document.getRootElement(), this);
-				initializeViews(this.document.getRootElement());				
+				initializeViews(this.document.getRootElement());
+				this.document.notifyUser();
 				//list.getLast().brailleList.removeLast();
 				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
 				this.braille.view.replaceTextRange(this.braille.view.getCharCount() - 1, 1, "");
@@ -276,7 +277,7 @@ public class DocumentManager {
 			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
-					checkSemantics((Element)current.getChild(i));
+					this.document.checkSemantics((Element)current.getChild(i));
 					initializeViews(current.getChild(i));
 				}
 				else if(!(current.getChild(i) instanceof Element)) {

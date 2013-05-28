@@ -178,4 +178,8 @@ public class FontManager {
 			dm.simBrailleDisplayed = false;
 		}
 	}	
+	
+	public static Font getFont(){
+		return daisyFont;
+	}
 }

@@ -299,14 +299,19 @@ class BBMenu {
 			}
 		});
 	
+*/	
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
-		printPreviewItem.setText(lh.localValue("PrintP&review"));
+		printPreviewItem.setText(lh.localValue("PrintP&review") + "\tAlt + HOME");
+		printPreviewItem.setAccelerator(SWT.MOD3 + SWT.HOME);
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-	
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).printPreview();
+				}
 			}
 		});
-*/
+		
 		printItem = new MenuItem(fileMenu, SWT.PUSH);
 		printItem.setText(lh.localValue("&Print") + "\tCtrl + P");
 		printItem.setAccelerator(SWT.MOD1 + 'p');

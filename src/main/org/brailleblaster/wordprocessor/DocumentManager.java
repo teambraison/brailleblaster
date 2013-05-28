@@ -50,6 +50,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
@@ -523,6 +524,12 @@ public class DocumentManager {
 	public void textPrint(){
 		PrintersManager pn = new PrintersManager(this.wp.getShell(), this.text.view);
 		pn.beginPrintJob();	
+	}
+	
+	public void printPreview(){
+		if(this.braille.view.getCharCount() > 0){
+			PrintPreview pv = new PrintPreview(this.getDisplay(), this.document);
+		}
 	}
 	
 	public void toggleBrailleFont(){

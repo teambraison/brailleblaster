@@ -64,7 +64,7 @@ public class BBDocument {
 	private static String fileSep = BBIni.getFileSep();
 	private liblouisutdml lutdml = liblouisutdml.getInstance();
 	private FileUtils fu = new FileUtils();
-	static Logger logger = BBIni.getLogger();;
+	static Logger logger = BBIni.getLogger();
 	private DocumentManager dm;
 	private ArrayList<String>missingSemanticsList;
 	
@@ -115,6 +115,7 @@ public class BBDocument {
 		}
 		new CheckLiblouisutdmlLog().displayLog();
 		
+		
 		return false;
 	}
 	
@@ -148,7 +149,7 @@ public class BBDocument {
 				updateNode(list, message);
 				break;
 			case REMOVE_NODE:
-				removeNode(list.get((Integer)message.getValue("index")));
+				removeNode(list.get((Integer)message.getValue("index")), message);
 				break;
 			default:
 				System.out.println("No available operations for this message type");
@@ -183,15 +184,22 @@ public class BBDocument {
 	}
 	
 	private int changeBrailleNodes(TextMapElement t, Message message){
-		Document d = getStringTranslation((String)message.getValue("newText"));
+		Document d = getStringTranslation(t, (String)message.getValue("newText"));
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
 		Element e;
-		
-		e = d.getRootElement().getChildElements("brl").get(0);
-		addNamespace(e);
-		d.getRootElement().removeChild(e);
+		Elements els = d.getRootElement().getChildElements();
+		if(els.get(0).getLocalName().equals("strong")){
+			e = els.get(0).getChildElements().get(0);
+			addNamespace(e);
+			d.getRootElement().getChildElements().get(0).removeChild(e);
+		}
+		else {
+			e = d.getRootElement().getChildElements("brl").get(0);
+			addNamespace(e);
+			d.getRootElement().removeChild(e);
+		}
 		
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
@@ -280,10 +288,10 @@ public class BBDocument {
 	}
 	
 	private void insertBrailleNode(TextMapElement t, int startingOffset, String text){
-		Document d = getStringTranslation(text);
+		Document d = getStringTranslation(t, text);
 		Element e = d.getRootElement().getChildElements("brl").get(0);
+		
 		d.getRootElement().removeChild(e);
-
 		t.n.getParent().appendChild(e);
 		
 		int newOffset = startingOffset;
@@ -308,7 +316,15 @@ public class BBDocument {
 		return doc.getRootElement();
 	}
 	
-	public Document getStringTranslation(String text){
+	public Document getStringTranslation(TextMapElement t, String text){
+		Element parent = (Element)t.n.getParent();
+		while(!parent.getAttributeValue("semantics").contains("style")){
+			if(parent.getAttributeValue("semantics").equals("action,italicx")){
+				text = "<strong>" + text + "</strong>";
+				break;
+			}
+			parent = (Element)parent.getParent();
+		}
 		String xml = getXMLString(text);
 		return getXML(xml);
 	}
@@ -354,7 +370,7 @@ public class BBDocument {
 			int [] outlength = new int[1];
 			outlength[0] = text.length() * 10;
 			
-			if(liblouisutdml.getInstance().translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n", 0)){
+			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n", 0)){
 				return outlength[0];
 			}
 			else {
@@ -401,7 +417,7 @@ public class BBDocument {
 		}
 	}
 	
-	private void removeNode(TextMapElement t){
+	private void removeNode(TextMapElement t, Message message){
 		if(hasNonBrailleChildren((Element)t.n.getParent())){
 			Element e = (Element)t.brailleList.getFirst().n.getParent();
 			t.n.getParent().removeChild(e);
@@ -409,6 +425,15 @@ public class BBDocument {
 		}
 		else {
 			Element parent = (Element)t.n.getParent();
+			while(!parent.getAttributeValue("semantics").contains("style")){
+				if(((Element)parent.getParent()).getChildElements().size() <= 1){
+					parent = (Element)parent.getParent();
+				}
+				else
+					break;
+			}
+			
+			message.put("element", parent);
 			parent.getParent().removeChild(parent);
 		}
 	}
@@ -510,11 +535,11 @@ public class BBDocument {
 	}
 	
 	public void checkSemantics(Element e){
-		if(!e.getLocalName().equals("meta") && e.getAttributeValue("semantics") == null){
+		if(e.getAttributeValue("semantics") == null){
 			//Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
 			Attribute attr = new Attribute("semantics", "style,para");
 			e.addAttribute(attr);
-			if(!this.missingSemanticsList.contains(e.getLocalName()))
+			if(!e.getLocalName().equals("meta") && !this.missingSemanticsList.contains(e.getLocalName()))
 				this.missingSemanticsList.add(e.getLocalName());
 		}
 	}

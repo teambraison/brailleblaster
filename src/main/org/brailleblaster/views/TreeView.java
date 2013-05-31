@@ -188,7 +188,7 @@ public class TreeView extends AbstractView {
 		ArrayList<Text>textList = new ArrayList<Text>();
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
-			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") ){
+			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));
@@ -284,6 +284,16 @@ public class TreeView extends AbstractView {
 			if(list.size() == 0){
 				previousItem = item.getParentItem();
 				item.dispose();
+				
+				if(m.contains("element")){
+					m.remove("item");
+					searchTreeForElement(this.root, (Element)m.getValue("element"), m);
+					if((TreeItem)m.getValue("item") != null){
+						item = (TreeItem)m.getValue("item");
+						previousItem = item.getParentItem();
+						item.dispose();
+					}
+				}
 			}
 		}
 		setListenerLock(false);

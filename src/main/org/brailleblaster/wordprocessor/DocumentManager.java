@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -52,7 +51,6 @@ import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
-import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
@@ -278,8 +276,10 @@ public class DocumentManager {
 			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
-					this.document.checkSemantics((Element)current.getChild(i));
-					initializeViews(current.getChild(i));
+					Element currentChild = (Element)current.getChild(i);
+					this.document.checkSemantics(currentChild);
+					if(!currentChild.getLocalName().equals("meta") & !currentChild.getAttributeValue("semantics").contains("skip"))
+						initializeViews(currentChild);
 				}
 				else if(!(current.getChild(i) instanceof Element)) {
 					initializeViews(current.getChild(i));
@@ -546,13 +546,5 @@ public class DocumentManager {
 	
 	public Display getDisplay(){
 		return this.wp.getShell().getDisplay();
-	}
-	
-	private void checkSemantics(Element e){
-		if(!e.getLocalName().equals("meta") && e.getAttributeValue("semantics") == null){
-			Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
-			Attribute attr = new Attribute("semantics", "style,para");
-			e.addAttribute(attr);
-		}
 	}
 }

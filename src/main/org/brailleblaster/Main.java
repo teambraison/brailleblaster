@@ -32,7 +32,6 @@
 package org.brailleblaster;
 
 import org.brailleblaster.wordprocessor.WPManager;
-import org.eclipse.swt.widgets.Display;
 import org.liblouis.liblouisutdml;
 
 /**

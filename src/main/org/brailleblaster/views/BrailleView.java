@@ -159,7 +159,7 @@ public class BrailleView extends AbstractView {
 				}
 			}
 		});
-		
+	
 		setListenerLock(false);
 	}
 	
@@ -222,12 +222,16 @@ public class BrailleView extends AbstractView {
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
-					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-					insertBefore(this.spaceBeforeText + this.total, textBefore);
+					if(isFirst(n)){
+						String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+						insertBefore(this.spaceBeforeText + this.total, textBefore);
+					}
 					break;
 				case linesAfter:
-					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-					insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+					if(isLast(n)){
+						String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+						insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+					}
 					break;
 				case firstLineIndent: 
 					if(isFirst(n)){

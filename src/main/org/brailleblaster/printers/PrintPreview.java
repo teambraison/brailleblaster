@@ -12,14 +12,11 @@ import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -60,6 +57,7 @@ public class PrintPreview {
 			} catch (FileNotFoundException e) {
 				new Notify("Print Preview failed to open properly.  Check to ensure your document does not contain errors");
 				e.printStackTrace();
+				this.f.delete();
 				this.view.getShell().dispose();
 			}
 		}

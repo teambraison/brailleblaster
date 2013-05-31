@@ -31,7 +31,6 @@ package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -45,6 +44,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.YesNoChoice;
+
 import java.util.LinkedList;
 
 public class WPManager {

@@ -195,7 +195,7 @@ public class TextView extends AbstractView {
 			@Override
 			public void caretMoved(CaretEvent e) {
 				if(!getLock()){
-					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP){
+					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
 							if(textChanged == true){
 								sendUpdate(dm);
@@ -472,15 +472,28 @@ public class TextView extends AbstractView {
 	
 	private void handleStyle(Styles style, Node n){
 		String viewText = n.getValue();
+		
+		Element parent = (Element)n.getParent();
+		if(parent.indexOf(n) > 0){
+			int priorIndex = parent.indexOf(n) - 1;
+			if(parent.getChild(priorIndex) instanceof Element && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
+				insertBefore(this.spaceBeforeText + this.total, "\n");
+			}
+		}
+		
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
-					String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-					insertBefore(this.spaceBeforeText + this.total, textBefore);
+					if(isFirst(n)){
+						String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+						insertBefore(this.total - this.spaceBeforeText, textBefore);
+					}
 					break;
 				case linesAfter:
-					String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)), '\n');
-					insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+					if(isLast(n)){
+						String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)), '\n');
+						insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+					}
 					break;
 				case firstLineIndent: 
 					if(isFirst(n)){
@@ -503,21 +516,19 @@ public class TextView extends AbstractView {
 			}
 		}
 		
-		Element parent = (Element)n.getParent();
-		
 		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
 			Element grandParent = (Element)parent.getParent();
 			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
 				grandParent = (Element)grandParent.getParent();
 			}
 			
-			if(grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
+			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
 				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 			}
 		}
 		else if(isLast(n)){
 			Elements els = parent.getChildElements();
-			if(els.get(els.size() - 1).getLocalName().equals("brl"))
+			if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
 				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
 	}

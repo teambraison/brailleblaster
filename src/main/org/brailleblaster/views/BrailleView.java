@@ -31,6 +31,7 @@ package org.brailleblaster.views;
 import java.util.ArrayList;
 
 import nu.xom.Element;
+import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.Text;
 
@@ -219,12 +220,20 @@ public class BrailleView extends AbstractView {
 	
 	private void handleStyle(Styles style, Node n, Element parent){
 		String viewText = n.getValue();
+		Element brailleParent = (Element)n.getParent();
+		int index = parent.indexOf(brailleParent);
+		if(index > 1){
+			if(parent.getChild(index - 2) instanceof Element && ((Element)parent.getChild(index - 2)).getLocalName().equals("br")){
+				insertBefore(this.spaceBeforeText + this.total, "\n");
+			}
+		}
+		
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
 					if(isFirst(n)){
 						String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-						insertBefore(this.spaceBeforeText + this.total, textBefore);
+						insertBefore(this.total - this.spaceBeforeText, textBefore);
 					}
 					break;
 				case linesAfter:
@@ -283,6 +292,15 @@ public class BrailleView extends AbstractView {
 		
 		if(parent.indexOf(n) == i){
 			Element grandParent = (Element)parent.getParent();
+			Elements els = grandParent.getChildElements();
+			
+			for(int j = 0; j < els.size(); j++){
+				if(els.get(j).getLocalName().equals("brl") && els.get(j).equals(parent))
+					break;
+				else
+					return false;
+			}
+			
 			if(grandParent.getLocalName().equals("em") || grandParent.getLocalName().equals("strong")){
 				return isFirstElement(grandParent);
 			}

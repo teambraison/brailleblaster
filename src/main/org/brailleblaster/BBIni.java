@@ -200,6 +200,7 @@ public final class BBIni {
 	private String getBrailleblasterPath(Object classToUse)  {
 		//Option to use an environment variable (mostly for testing withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
+		
 		if (url != null) {
 			url = "file:/" + url;
 		} 
@@ -218,7 +219,7 @@ public final class BBIni {
 		catch (URISyntaxException ue) {
 			url = null;
 		}
-
+		
 		return url;
 	}
 

@@ -51,7 +51,6 @@ import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
-import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
@@ -64,6 +63,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.TreeItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class DocumentManager {
@@ -537,8 +537,43 @@ public class DocumentManager {
 		}
 	}
 	
-	public void refresh(){
-		/*
+	public void refresh(){	
+		int currentOffset;
+		Message m = new Message(BBEvent.SET_CURRENT);
+		
+		if(this.text.view.isFocusControl()){
+			currentOffset = this.text.view.getCaretOffset();
+			resetViews();
+			this.text.view.setCaretOffset(currentOffset);
+			m.put("sender", "text");
+			m.put("offset", currentOffset);
+			this.dispatch(m);
+		}
+		else if(this.braille.view.isFocusControl()){
+			currentOffset = this.braille.view.getCaretOffset();
+			resetViews();
+			this.braille.view.setCaretOffset(currentOffset);
+			m.put("sender", "braille");
+			m.put("offset", currentOffset);
+			this.dispatch(m);
+		}
+		else if(this.treeView.tree.isFocusControl()){	
+			currentOffset = list.getCurrent().start;
+			resetViews();
+			m.put("offset", currentOffset);
+			this.dispatch(m);
+		}
+		else {
+			currentOffset = this.text.view.getCaretOffset();
+			resetViews();
+			m.put("offset", currentOffset);
+			this.dispatch(m);
+			this.text.view.setCaretOffset(currentOffset);
+			this.text.setPositionFromStart();
+		}
+	}
+	
+	private void resetViews(){
 		list.clear();
 		this.text.removeListeners();
 		this.text.resetView();
@@ -548,8 +583,6 @@ public class DocumentManager {
 		updateTempFile();
 		this.document.deleteDOM();
 		initializeAllViews(this.documentName, this.document.getOutfile());
-		*/
-		new Notify("Under Construction");
 	}
 	
 	private void updateTempFile(){

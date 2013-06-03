@@ -51,8 +51,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.events.TreeEvent;
-import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;

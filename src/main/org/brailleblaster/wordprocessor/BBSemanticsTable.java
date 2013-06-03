@@ -1,11 +1,15 @@
 package org.brailleblaster.wordprocessor;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.util.Notify;
+import org.eclipse.swt.SWT;
 
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -30,7 +34,7 @@ public class BBSemanticsTable {
 		keepWithNext,
 		dontSplit,
 		orphanControl,
-		newLineAfter,
+		newlineAfter,
 		Font;
 	}
 	
@@ -68,37 +72,56 @@ public class BBSemanticsTable {
 	HashMap<String,Styles> table;
 	
 	public BBSemanticsTable(){
-		File file = new File(BBIni.getProgramDataPath() + BBIni.getFileSep() + "styles" + BBIni.getFileSep() + "BBStyles.xml");
-		Builder builder = new Builder();
 		try {
-			this.doc = builder.build(file);
 			this.table = new HashMap<String, Styles>();
-			makeHashTable(this.doc.getRootElement().getFirstChildElement("styles"));
-			
-		} catch (ValidityException e) {
+			FileReader file = new FileReader(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "preferences.cfg");
+			BufferedReader reader = new BufferedReader(file);
+			makeHashTable(reader);
+			reader.close();
+			makeStylesObject("italicx");
+			insertValue("italicx","\tFont italic");
+		}
+		catch(Exception e){
 			e.printStackTrace();
-		} catch (ParsingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			new Notify("The application failed to load due to errors in preferences.cfg");
 		}
 	}
 	
-	private void makeHashTable(Element e){
-		Elements els = e.getChildElements();
-		for(int i = 0; i < els.size(); i++){
-			makeStylesObject(els.get(i));
-		}
-	}
-	
-	private void makeStylesObject(Element e){
-		Styles temp = new Styles(e.getLocalName());
-		Elements els = e.getChildElements();
-		for(int i = 0; i < els.size(); i++){
-			temp.put(StylesType.valueOf(els.get(i).getLocalName()), els.get(i).getValue());
-		}
+	private void makeHashTable(BufferedReader reader) throws IOException{
+		String currentLine;
+		String styleName;
 		
-		this.table.put(e.getLocalName(), temp);
+		while ((currentLine = reader.readLine()) != null) {
+			if(currentLine.length() > 0 && currentLine.charAt(0) != '#'){				
+				if(currentLine.length() >= 5 && currentLine.substring(0, 5).equals("style")){
+					styleName = currentLine.substring(6, currentLine.length()).trim();
+					makeStylesObject(styleName);
+					while((currentLine  = reader.readLine()) != null && currentLine.length() > 0){
+						if(currentLine.length() >= 5 && currentLine.substring(0, 5).equals("style")){
+							styleName = currentLine.substring(6, currentLine.length()).trim();
+							makeStylesObject(styleName);
+						}
+						else if(!currentLine.contains("#"))
+							insertValue(styleName, currentLine);
+					}
+				}
+			}
+		}
+	}
+	
+	private void makeStylesObject(String key){
+		Styles temp = new Styles(key);
+		this.table.put(key, temp);
+	}
+	
+	private void insertValue(String styleName, String keyValuePair){
+		Styles temp = this.table.get(styleName);
+		String [] tokens = keyValuePair.split(" ");
+		
+		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered")){
+			tokens[1] = String.valueOf(SWT.CENTER);
+		}
+		temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
 	}
 	
 	public boolean containsKey(String key){

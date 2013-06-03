@@ -137,6 +137,9 @@ public class BBToolBar {
 		translateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				// dm.translateView(true);
+				int index = wp.getFolder().getSelectionIndex();
+				if(index  > -1)
+					wp.getList().get(index).refresh();
 			}
 		});
 

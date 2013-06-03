@@ -655,7 +655,9 @@ class BBMenu {
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.translateView(true);
+				int index = wp.getFolder().getSelectionIndex();
+				if(index  > -1)
+					wp.getList().get(index).refresh();
 			}
 		});
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
@@ -671,7 +673,7 @@ class BBMenu {
 				.setText(lh.localValue("&TranslationTemplates"));
 		translationTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				
 			}
 		});
 		translateItem.setMenu(translateMenu);

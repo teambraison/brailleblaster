@@ -436,4 +436,15 @@ public class TreeView extends AbstractView {
 	protected void setViewData(Message message) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void resetView() {
+		setListenerLock(true);
+		this.root.setExpanded(false);
+		depopulateItemChildren(this.root);
+		this.root.dispose();
+		this.root = null;
+		this.previousItem = null;
+		setListenerLock(false);
+	}
 }

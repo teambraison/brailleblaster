@@ -164,6 +164,7 @@ public class BrailleView extends AbstractView {
 		setListenerLock(false);
 	}
 	
+	
 	private void setCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.SET_CURRENT);
 		message.put("sender", "braille");
@@ -194,6 +195,7 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
+		setListenerLock(true);
 		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
 		Styles style = this.stylesTable.makeStylesElement(key, n);
 			
@@ -204,6 +206,7 @@ public class BrailleView extends AbstractView {
 		this.total += this.spaceBeforeText + n.getValue().length() + this.spaceAfterText;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
+		setListenerLock(false);
 	}
 	
 	private boolean insertNewLine(Node n){
@@ -501,5 +504,16 @@ public class BrailleView extends AbstractView {
 	
 	public void setWords(int words){
 		this.words = words;
+	}
+
+	@Override
+	public void resetView() {
+		setListenerLock(true);
+		view.setText("");
+		this.total = 0;
+		this.spaceBeforeText = 0;
+		this.spaceAfterText = 0;
+		oldCursorPosition = -1;
+		setListenerLock(false);
 	}
 }

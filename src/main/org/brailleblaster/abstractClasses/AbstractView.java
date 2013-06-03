@@ -184,4 +184,5 @@ public abstract class AbstractView {
 	}
 	
 	protected abstract void setViewData(Message message);
+	public abstract void resetView();
 }

@@ -554,4 +554,13 @@ public class BBDocument {
 			new Notify(text);
 		}
 	}
+	
+	public String getOutfile(){
+		return BBIni.getTempFilesPath() + fileSep + "outFile.utd";
+	}
+	
+	public void deleteDOM(){
+		this.doc = null;
+		System.gc();
+	}
 }

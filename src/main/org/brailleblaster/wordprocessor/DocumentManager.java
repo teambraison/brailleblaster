@@ -51,6 +51,7 @@ import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
@@ -232,8 +233,12 @@ public class DocumentManager {
 		// Zip and Recent Files.
 		////////////////////////
 		
+		initializeAllViews(fileName, workingFilePath);
+	}	
+	
+	private void initializeAllViews(String fileName, String filePath){
 		try{
-			if(this.document.startDocument(workingFilePath, "preferences.cfg", null)){
+			if(this.document.startDocument(filePath, "preferences.cfg", null)){
 				this.wp.getStatusBar().resetLocation(6,100,100);
 				this.wp.getStatusBar().setText("Loading...");
 				this.wp.getProgressBar().start();
@@ -263,7 +268,7 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-	}	
+	}
 	
 	private void initializeViews(Node current){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
@@ -529,6 +534,34 @@ public class DocumentManager {
 	public void printPreview(){
 		if(this.braille.view.getCharCount() > 0){
 			PrintPreview pv = new PrintPreview(this.getDisplay(), this.document);
+		}
+	}
+	
+	public void refresh(){
+		/*
+		list.clear();
+		this.text.removeListeners();
+		this.text.resetView();
+		this.braille.resetView();
+		this.treeView.resetView();
+		this.text.words = 0;
+		updateTempFile();
+		this.document.deleteDOM();
+		initializeAllViews(this.documentName, this.document.getOutfile());
+		*/
+		new Notify("Under Construction");
+	}
+	
+	private void updateTempFile(){
+		try {
+			String tempFile = this.document.getOutfile();
+			FileOutputStream os = new FileOutputStream(tempFile);
+	    	Serializer serializer = new Serializer(os, "UTF-8");
+	    	serializer.write(this.document.getDOM());
+	    	os.close();
+		}
+		catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	

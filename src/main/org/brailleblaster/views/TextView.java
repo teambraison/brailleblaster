@@ -896,4 +896,18 @@ public class TextView extends AbstractView {
 		selectionStart = start;
 		selectionLength = length;
 	}
+
+	@Override
+	public void resetView() {
+		setListenerLock(true);
+		view.setText("");
+		this.total = 0;
+		this.spaceBeforeText = 0;
+		this.spaceAfterText = 0;
+		this.escapeChars = 0;
+		oldCursorPosition = -1;
+		currentChanges = 0;
+		textChanged = false;
+		setListenerLock(false);
+	}
 }

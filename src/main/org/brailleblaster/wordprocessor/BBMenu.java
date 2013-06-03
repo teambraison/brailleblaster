@@ -652,7 +652,8 @@ class BBMenu {
 		// Set up translate menu
 		Menu translateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		xtranslateItem = new MenuItem(translateMenu, SWT.PUSH);
-		xtranslateItem.setText(lh.localValue("&Translate"));
+		xtranslateItem.setText(lh.localValue("&Translate") + "\tF5");
+		xtranslateItem.setAccelerator(SWT.F5);
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				int index = wp.getFolder().getSelectionIndex();

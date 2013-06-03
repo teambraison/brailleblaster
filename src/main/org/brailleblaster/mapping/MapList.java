@@ -38,7 +38,7 @@ import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
 
 public class MapList extends LinkedList<TextMapElement>{
-	 
+	
 	private static final long serialVersionUID = 1L;
 	DocumentManager dm;
 	private TextMapElement current;

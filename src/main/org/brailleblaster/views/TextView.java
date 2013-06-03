@@ -267,7 +267,8 @@ public class TextView extends AbstractView {
 		view.removeFocusListener(focusListener);
 		view.removeVerifyKeyListener(verifyListener);
 		view.removeMouseListener(mouseListener);
-		view.addTraverseListener(traverseListener);
+		view.removeTraverseListener(traverseListener);
+		view.removeCaretListener(caretListener);
 	}
 	
 	private void sendUpdate(DocumentManager dm){

@@ -176,7 +176,7 @@ public class BBToolBar {
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(30);
-		bloc.right = new FormAttachment(78);
+		bloc.right = new FormAttachment(37);
 		bloc.top = new FormAttachment(5);
 		checkBrailleItem = new Button(shell, SWT.CHECK);
 		checkBrailleItem.setLayoutData(bloc);

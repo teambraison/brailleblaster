@@ -859,7 +859,7 @@ public class TextView extends AbstractView {
 		}
 	}
 	
-	private void setPositionFromStart(){
+	public void setPositionFromStart(){
 		int count = 0;
 		positionFromStart = view.getCaretOffset() - currentStart;
 		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){

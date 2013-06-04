@@ -279,7 +279,7 @@ public class TreeView extends AbstractView {
 			int index = (Integer)m.getValue("index");
 			ArrayList<TextMapElement> list = getList(item);
 			list.remove(index);
-			if(list.size() == 0){
+			if(list.size() == 0 && item.getItemCount() == 0){
 				previousItem = item.getParentItem();
 				item.dispose();
 				

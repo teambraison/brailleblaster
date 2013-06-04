@@ -38,8 +38,38 @@ import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
 
 public class MapList extends LinkedList<TextMapElement>{
+	private class UpdaterThread extends Thread {
+		private int start;
+		private int end;
+		private int offset, brailleOffset;
+		MapList list;
+		
+		private UpdaterThread(MapList list, int start, int end, int offset, int brailleOffset){
+			this.list = list;
+			this.start = start;
+			this.end = end;
+			this.offset = offset;
+			this.brailleOffset = brailleOffset;
+		}
+		
+		public void run(){
+			for(int i = start; i < end; i++){
+				list.get(i).start +=offset;
+				list.get(i).end += offset;
+				
+				if(hasBraille(i)){
+					for(int j = 0; j < list.get(i).brailleList.size(); j++){
+						list.get(i).brailleList.get(j).start += brailleOffset;
+						list.get(i).brailleList.get(j).end += brailleOffset;
+					}
+				}
+			}
+			
+		}
+	}
 	
 	private static final long serialVersionUID = 1L;
+	private static final int PROCESSORS = Runtime.getRuntime().availableProcessors();
 	DocumentManager dm;
 	private TextMapElement current;
 	private int currentIndex = -1;
@@ -173,56 +203,71 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 		
 	public void updateOffsets(int index, Message message){
-		updateTextOffsets(index, (Integer)message.getValue("length"));
-		
-		if(message.contains("brailleLength")){
-			updateBrailleOffsets(index, message);
-		}
-	}
-	
-	private void updateTextOffsets(int nodeNum, int offset){
-		this.get(nodeNum).end += offset;
-		
-		for(int i = nodeNum + 1; i < this.size(); i++){
-			this.get(i).start +=offset;
-			this.get(i).end += offset;
-		}
-	}
-	
-	private void updateBrailleOffsets(int index, Message message){
+		int offset = (Integer)message.getValue("length");
 		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
 		
-		for(int i = index + 1; i < this.size(); i++){
-			for(int j = 0; j < this.get(i).brailleList.size(); j++){
-				this.get(i).brailleList.get(j).start += total;
-				this.get(i).brailleList.get(j).end += total;
+		this.get(index).end += offset;
+		
+		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
+		int length = (this.size() - index) / PROCESSORS;
+		int start = index + 1;
+
+		for(int i = 0; i < arr.length; i++){
+			if(i == arr.length - 1){
+				if(start == index + 1)
+					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
+				else
+					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
+			}
+			else {	
+				if(start == index + 1 )
+					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
+				else
+					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
+			}
+			
+			arr[i].start();
+			start += length;
+		}
+			
+		for (int i = 0; i < arr.length; i++) {
+		    try {
+		    		arr[i].join();
+		    } catch (InterruptedException e) {
+			   	e.printStackTrace();
 			}
 		}
 	}
+
 	
 	public void shiftOffsetsFromIndex(int index, int offset){
-		for(int i = index; i < this.size(); i++){
-			this.get(i).start +=offset;
-			this.get(i).end += offset;
-			if(hasBraille(i)){
-				for(int j = 0; j < this.get(i).brailleList.size(); j++){
-					this.get(i).brailleList.get(j).start += offset;
-					this.get(i).brailleList.get(j).end += offset;
-				}
+		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
+		int length = (this.size() - index) / PROCESSORS;
+		int start = index;
+
+		for(int i = 0; i < arr.length; i++){
+			if(i == arr.length - 1){
+				if(start == index)
+					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
+				else
+					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
 			}
-		}
-	}
-	
-	public void shiftOffsetsAfterIndex(int index, int offset){
-		for(int i = index + 1; i < this.size(); i++){
-			this.get(i).start +=offset;
-			this.get(i).end += offset;
+			else {	
+				if(start == index)
+					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
+				else
+					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
+			}
 			
-			if(hasBraille(i)){
-				for(int j = 0; j < this.get(i).brailleList.size(); j++){
-					this.get(i).brailleList.get(j).start += offset;
-					this.get(i).brailleList.get(j).end += offset;
-				}
+			arr[i].start();
+			start += length;
+		}
+			
+		for (int i = 0; i < arr.length; i++) {
+		    try {
+		    		arr[i].join();
+		    } catch (InterruptedException e) {
+			   	e.printStackTrace();
 			}
 		}
 	}

@@ -345,7 +345,7 @@ public class TreeView extends AbstractView {
 			return null;
 	}
 	
-	private void buildTreeFromElement(Element e, DocumentManager dm){
+	private void buildTreeFromElement(Element e, DocumentManager dm){	
 		TreeItem item = findElementInTree(this.root, e);
 		if(item == null){
 			buildTreeFromElement((Element)e.getParent(), dm);

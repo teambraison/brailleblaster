@@ -93,6 +93,7 @@ class BBMenu {
 	MenuItem keybdBrlToggleItem;
 	MenuItem cursorFollowItem;
 	MenuItem dragCursorItem;
+	MenuItem refreshItem;
 	MenuItem increaseFontSizeItem;
 	MenuItem decreaseFontSizeItem;
 	MenuItem increaseContrastItem;
@@ -579,6 +580,16 @@ class BBMenu {
 
 		// Set up view menu
 		Menu viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
+		refreshItem = new MenuItem(viewMenu, SWT.PUSH);
+		refreshItem.setText("Refresh\tF5");
+		refreshItem.setAccelerator(SWT.F5);
+		refreshItem.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e) {
+				int index = wp.getFolder().getSelectionIndex();
+				if(index  > -1)
+					wp.getList().get(index).refresh();
+			}
+		});
 		increaseFontSizeItem = new MenuItem(viewMenu, SWT.PUSH);
 		increaseFontSizeItem.setText(lh.localValue("&IncreaseFontSize") + "\tCtrl + '+'");
 		increaseFontSizeItem.setAccelerator(SWT.MOD1 + '+');
@@ -652,13 +663,10 @@ class BBMenu {
 		// Set up translate menu
 		Menu translateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		xtranslateItem = new MenuItem(translateMenu, SWT.PUSH);
-		xtranslateItem.setText(lh.localValue("&Translate") + "\tF5");
-		xtranslateItem.setAccelerator(SWT.F5);
+		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				int index = wp.getFolder().getSelectionIndex();
-				if(index  > -1)
-					wp.getList().get(index).refresh();
+				
 			}
 		});
 		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
@@ -670,8 +678,7 @@ class BBMenu {
 			}
 		});
 		translationTemplatesItem = new MenuItem(translateMenu, SWT.PUSH);
-		translationTemplatesItem
-				.setText(lh.localValue("&TranslationTemplates"));
+		translationTemplatesItem.setText(lh.localValue("&TranslationTemplates"));
 		translationTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				

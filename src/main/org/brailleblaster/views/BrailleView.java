@@ -399,7 +399,7 @@ public class BrailleView extends AbstractView {
 		message.put("sender", "braille");
 		dm.dispatch(message);
 		setViewData(message);
-
+	
 		if(c == SWT.DEL && view.getText(start, start).equals("\t") && (start != currentEnd && start != previousEnd)){
 			start--;
 		}

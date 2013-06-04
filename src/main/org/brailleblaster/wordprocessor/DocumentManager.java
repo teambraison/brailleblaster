@@ -386,7 +386,7 @@ public class DocumentManager {
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
 				}
 				else if((Integer)message.getValue("deletionType") == SWT.DEL){
-					list.shiftOffsetsAfterIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
+					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"));
 					if(list.hasBraille(list.getCurrentIndex())){
 						this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
 					}

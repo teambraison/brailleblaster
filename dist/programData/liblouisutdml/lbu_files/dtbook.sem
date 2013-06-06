@@ -158,7 +158,7 @@ no covertitle
 no dt
 no tfoot
 no title
-no hd
+heading4 hd
 no abbr
 no level5
 no cite

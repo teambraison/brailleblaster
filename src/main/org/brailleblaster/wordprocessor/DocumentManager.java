@@ -151,7 +151,9 @@ public class DocumentManager {
 				// Create zipper.
 				Zipper zpr = new Zipper();
 				// Input string.
-				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + "\\";
+				String sp = BBIni.getFileSep();
+				String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
+//				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
 				// Zip it!
 				zpr.Zip(inPath, zippedPath);
 			}
@@ -198,8 +200,10 @@ public class DocumentManager {
 				// Create unzipper.
 				Zipper unzipr = new Zipper();
 				// Unzip and update "opened" file.
-				workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + "\\");
-				
+//				workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
+				String sp = BBIni.getFileSep();
+				String tempOutPath = BBIni.getTempFilesPath() + fileName.substring(fileName.lastIndexOf(sp), fileName.lastIndexOf(".")) + sp;
+				workingFilePath = unzipr.Unzip(fileName, tempOutPath);
 				// Store paths.
 				zippedPath = fileName;
 			}
@@ -232,7 +236,7 @@ public class DocumentManager {
 
 		// Zip and Recent Files.
 		////////////////////////
-		
+				
 		initializeAllViews(fileName, workingFilePath);
 	}	
 	

@@ -228,8 +228,12 @@ public class ConfigFileDialog extends Dialog {
 				} // for(int curVar = 0...
 				
 				try {
-					// Open file fore writing.
-					BufferedWriter bw = new BufferedWriter( new FileWriter(new File(cfgf.configFilePath), false) );
+					// Open file for writing.
+					String sp = BBIni.getFileSep();
+					String filePath = cfgf.configFilePath;
+					String fileName = filePath.substring(filePath.lastIndexOf(sp), filePath.length());
+					filePath = BBIni.getUserProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + fileName;
+					BufferedWriter bw = new BufferedWriter( new FileWriter(new File(filePath), false) );
 					
 					// For every line, save it to file.
 					for(int curVar = 0; curVar < cfgf.lines.size(); curVar++)
@@ -314,7 +318,7 @@ public class ConfigFileDialog extends Dialog {
 	{
 		// Config file directory. 
 		String configDir = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
-				
+		
 		// Iterate over every file and populate our filename combo box.
 		File dir = new File(configDir);
 		for(File child : dir.listFiles())
@@ -323,12 +327,28 @@ public class ConfigFileDialog extends Dialog {
 			if( !child.getPath().endsWith(".cfg") )
 				continue;
 			
-			// Create new config.
-			ConfigFile newCFG = new ConfigFile();
-			newCFG.lines = new ArrayList<ConfigEntry>();
+			////////////////////
+			// Local or Default.
+			
+				String configFileWithPath = "temp";
+				String sp = BBIni.getFileSep();
+				String fileName = child.getPath().substring(child.getPath().lastIndexOf(sp), child.getPath().length());
+				String fullPath = BBIni.getUserProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + fileName;
+				File f = new File(fullPath);
+				if( f.exists() && f.isFile() ) {
+					configFileWithPath = fullPath;
+				}
+				else {
+					configFileWithPath = child.getPath();
+				}
+				ConfigFile newCFG = new ConfigFile();
+				newCFG.lines = new ArrayList<ConfigEntry>();
+			
+			// Local or Default.
+			////////////////////
 			
 			// Get full path.
-			newCFG.configFilePath = child.getPath();
+			newCFG.configFilePath = configFileWithPath;
 			
 			// Load file, line by line.
 			BufferedReader br;

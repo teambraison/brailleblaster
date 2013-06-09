@@ -107,7 +107,14 @@ public class MapList extends LinkedList<TextMapElement>{
 				}
 			}
 			else if(location == currentElement.start && location == this.get(mid - 1).end){
-				return mid - 1;
+				if(checkForSpace(mid - 1)){
+					return mid;
+				}
+				
+				if(nodeIndex == mid - 1)
+					return mid - 1;
+				else
+					return mid;
 			}
 			else{
 				return mid;

@@ -378,11 +378,12 @@ public class TextView extends AbstractView {
 		String key = this.stylesTable.getKeyFromAttribute((Element)n.getParent());
 		Styles style = this.stylesTable.makeStylesElement(key, n);
 		
-		view.append(n.getValue());
-		handleStyle(style, n);
+		String text = n.getValue().replace("\n","");
+		view.append(text);
+		handleStyle(style, n, text);
 		
-		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + n.getValue().length() + this.escapeChars,n));
-		this.total += this.spaceBeforeText + n.getValue().length() + this.spaceAfterText + this.escapeChars;
+		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + text.length() + this.escapeChars,n));
+		this.total += this.spaceBeforeText + text.length() + this.spaceAfterText + this.escapeChars;
 		this.spaceAfterText = 0;
 		this.spaceBeforeText = 0;
 		this.escapeChars = 0;
@@ -471,16 +472,9 @@ public class TextView extends AbstractView {
 		return text;
 	}
 	
-	private void handleStyle(Styles style, Node n){
-		String viewText = n.getValue();
-		
+	private void handleStyle(Styles style, Node n, String viewText){			
 		Element parent = (Element)n.getParent();
-		if(parent.indexOf(n) > 0){
-			int priorIndex = parent.indexOf(n) - 1;
-			if(parent.getChild(priorIndex) instanceof Element && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
-				insertBefore(this.spaceBeforeText + this.total, "\n");
-			}
-		}
+		checkForLineBreak(parent, n);
 		
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
@@ -497,40 +491,41 @@ public class TextView extends AbstractView {
 					}
 					break;
 				case firstLineIndent: 
-					if(isFirst(n)){
+					if(isFirst(n) && Integer.valueOf((String)style.get(styleType)) != -2){
 						insertBefore(this.spaceBeforeText + this.total, "\t");	
-					//	int spaces = Integer.valueOf((String)style.get(styleType));
-					//	this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText + this.escapeChars) , 1, spaces * getFontWidth());
+				//		int spaces = Integer.valueOf((String)style.get(styleType));
+				//		this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText + this.escapeChars) , 1, spaces * getFontWidth());
 					}
 					break;
 				case format:
 					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf((String)style.get(styleType)));	
 					break;	
 				case Font:
-					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
+					 setFontRange(this.total, viewText.length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
 				case leftMargin:
-			//		this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+				//	this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
 					break;
 				default:
 					System.out.println(styleType);
 			}
 		}
 		
-		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
+		if(parent.getAttributeValue("semantics").contains("action")){
 			Element grandParent = (Element)parent.getParent();
-			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
+			while(grandParent.getAttributeValue("semantics").contains("action")){
+				parent = grandParent;
 				grandParent = (Element)grandParent.getParent();
 			}
 			
 			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
-				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+				insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
 			}
 		}
 		else if(isLast(n)){
 			Elements els = parent.getChildElements();
 			if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
-				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+				insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
 		}
 	}
 	
@@ -752,7 +747,7 @@ public class TextView extends AbstractView {
 	private boolean isFirst(Node n){
 		Element parent = (Element)n.getParent();
 		if(parent.indexOf(n) == 0){
-			if(parent.getLocalName().equals("em") || parent.getLocalName().equals("strong")){
+			if(parent.getAttributeValue("semantics").contains("action")){
 				return isFirstElement(parent);
 			}
 			else 
@@ -765,7 +760,7 @@ public class TextView extends AbstractView {
 	
 	private boolean isFirstElement(Element child){
 		Element parent = (Element)child.getParent();
-		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para")){
+		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
 			if(parent.indexOf(child) != 0)
 				return false;
 			
@@ -788,13 +783,29 @@ public class TextView extends AbstractView {
 				if(parent.getChild(i).equals(n)){
 					isLast = true;
 				}
-				else{
+				else {
+					isLast = false;
+				}
+			}
+			else if((parent.getChild(i) instanceof Element && !((Element)parent.getChild(i)).getLocalName().equals("brl"))){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else if(parent.getLocalName().equals("li")){
+					if(!((Element)parent.getChild(i)).getLocalName().equals("list") && !((Element)parent.getChild(i)).getLocalName().equals("p"))
+						isLast = false;
+				}
+				else if(!((i == parent.getChildCount() - 1) && ((Element)parent.getChild(i)).getLocalName().equals("br"))) {
 					isLast = false;
 				}
 			}
 		}
 		
-		return isLast;
+		if(isLast == true && parent.getAttributeValue("semantics").contains("action")){
+			return isLast(parent);
+		}
+		else
+			return isLast;
 	}
 	
 	

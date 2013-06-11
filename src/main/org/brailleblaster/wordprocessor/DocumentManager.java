@@ -63,7 +63,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.TreeItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class DocumentManager {

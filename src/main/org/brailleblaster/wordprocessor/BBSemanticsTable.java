@@ -145,7 +145,8 @@ public class BBSemanticsTable {
 	}
 	
 	public Styles makeStylesElement(String key, Node n){
-		Styles temp = this.table.get(key);
+		Styles temp = new Styles(key);
+		makeComposite(key, temp);
 		
 		if(temp != null){
 			Element e = (Element)n.getParent();
@@ -158,18 +159,17 @@ public class BBSemanticsTable {
 				nextKey = getKeyFromAttribute(e);
 			}
 		}
-		else {
-			temp = new Styles(key);
-		}
 		
 		return temp;
 	}
 	
 	private void makeComposite(String key, Styles st){
 		Styles newStyle = this.table.get(key);
-		for (StylesType styleType : newStyle.getKeySet()) {
-			if(!st.contains(styleType)){
-				st.put(styleType, (String)newStyle.get(styleType));
+		if(newStyle != null){
+			for (StylesType styleType : newStyle.getKeySet()) {
+				if(!st.contains(styleType)){
+					st.put(styleType, (String)newStyle.get(styleType));
+				}
 			}
 		}
 	}

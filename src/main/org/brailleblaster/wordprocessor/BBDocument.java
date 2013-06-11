@@ -86,30 +86,9 @@ public class BBDocument {
 		String configFileWithPath = "temp";
 		String configWithUTD;
 		
-		/////////////////////////////
-		// Local or Default Configs?
+		// Use the default; we don't have a local version.
+		configFileWithPath = fu.findInProgramData (configFile);
 
-			// Does the config exist locally?
-				
-			// Build file path to check.
-			String sp = BBIni.getFileSep();
-			String paf = BBIni.getUserProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + sp + "preferences.cfg";
-			
-			// Check it.
-			File f = new File(paf);
-			if( f.exists() && f.isFile() )
-			{
-				// We have a local file; point to it.
-				configFileWithPath = paf;
-			}
-			else
-			{
-				// Use the default; we don't have a local version.
-				configFileWithPath = fu.findInProgramData ("liblouisutdml" + fileSep + "lbu_files" + fileSep + configFile);
-			}
-		
-		// Local or Default Configs?
-		/////////////////////////////
 		
 		if (configSettings == null) {
 			configWithUTD = "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";

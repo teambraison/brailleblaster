@@ -230,6 +230,9 @@ public class BrailleView extends AbstractView {
 				insertBefore(this.spaceBeforeText + this.total, "\n");
 			}
 		}
+		else if(parent.getAttributeValue("semantics").contains("action")){
+			checkForLineBreak((Element)parent.getParent(), parent);
+		}
 		
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
@@ -246,10 +249,10 @@ public class BrailleView extends AbstractView {
 					}
 					break;
 				case firstLineIndent: 
-					if(isFirst(n)){
+					if(isFirst(n) && Integer.valueOf((String)style.get(styleType)) != -2){
 						insertBefore(this.spaceBeforeText + this.total, "\t");
-						//int spaces = Integer.valueOf((String)style.get(styleType));
-						//this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText) , 1, spaces * getFontWidth());
+					//	int spaces = Integer.valueOf((String)style.get(styleType));
+					//	this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText) , 1, spaces * getFontWidth());
 					}
 					break;
 				case format:
@@ -259,16 +262,17 @@ public class BrailleView extends AbstractView {
 					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
 					 break;
 				case leftMargin:
-				//	this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+			//		this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
 					break;
 				default:
 					System.out.println(styleType);
 			}
 		}
 		
-		if(parent.getAttributeValue("semantics").equals("action,no") || parent.getAttributeValue("semantics").equals("action,italicx")){
+		if(parent.getAttributeValue("semantics").contains("action")){
 			Element grandParent = (Element)parent.getParent();
-			while(grandParent.getAttributeValue("semantics").equals("action,no") || grandParent.getAttributeValue("semantics").equals("action,italicx")){
+			while(grandParent.getAttributeValue("semantics").contains("action")){
+				parent = grandParent;
 				grandParent = (Element)grandParent.getParent();
 			}
 			
@@ -276,15 +280,22 @@ public class BrailleView extends AbstractView {
 				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 			}
 		}
+		else if(parent.getAttributeValue("semantics").equals("style,list")){
+			if(isLast(n))
+				insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
+		}
 		else if(isLast(n)){
-			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+			Elements els = parent.getChildElements();
+			if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
+				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
 	}
 	
 	private boolean isFirst(Node n){
-		if(((Element)n.getParent().getParent()).getLocalName().equals("span")){
-			return false;
-		}
+		//From earlier pre-formatted version
+		//if(((Element)n.getParent().getParent()).getLocalName().equals("span")){
+		//	return false;
+		//}
 		
 		int i = 0;
 		Element parent = (Element)n.getParent();
@@ -304,7 +315,7 @@ public class BrailleView extends AbstractView {
 					return false;
 			}
 			
-			if(grandParent.getLocalName().equals("em") || grandParent.getLocalName().equals("strong")){
+			if(grandParent.getAttributeValue("semantics").contains("action")){
 				return isFirstElement(grandParent);
 			}
 			else {
@@ -325,7 +336,7 @@ public class BrailleView extends AbstractView {
 	
 	private boolean isFirstElement(Element child){
 		Element parent = (Element)child.getParent();
-		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para")){
+		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
 			if(parent.indexOf(child) != 0)
 				return false;
 			
@@ -352,6 +363,14 @@ public class BrailleView extends AbstractView {
 					isLast = false;
 				}
 			}
+			else if(n instanceof Element){
+				if(parent.getChild(i).equals(n)){
+					isLast = true;
+				}
+				else{
+					isLast = false;
+				}
+			}
 		}
 		
 		if(isLast){
@@ -361,11 +380,18 @@ public class BrailleView extends AbstractView {
 					if(grandParent.getChild(i).equals(parent)){
 						isLast = true;
 					}
-					else{
+					else if(grandParent.getLocalName().equals("li") && grandParent.getChild(i) instanceof Element){
+						if(!((Element)grandParent.getChild(i)).getLocalName().equals("list") && !((Element)grandParent.getChild(i)).getLocalName().equals("p"))
+							isLast = false;
+					}
+					else if(!((i == grandParent.getChildCount() - 1) && ((Element)grandParent.getChild(i)).getLocalName().equals("br"))) {
 						isLast = false;
 					}
 				}
 			}
+			
+			if(isLast && grandParent.getAttributeValue("semantics").contains("action"))
+				isLast = isLast(parent);
 		}
 		
 		return isLast;

@@ -378,6 +378,7 @@ public class TreeView extends AbstractView {
 	}
 	
 	private void resetTree(TreeItem currentItem){
+		setListenerLock(true);
 		ArrayList<TreeItem>previousParents = new ArrayList<TreeItem>();
 		boolean match = false;
 		if(!previousItem.isDisposed() && !previousItem.equals(currentItem)){
@@ -409,6 +410,7 @@ public class TreeView extends AbstractView {
 				}
 			}
 		}
+		setListenerLock(false);
 	}
 	
 	private boolean isParent(TreeItem parent, TreeItem child){

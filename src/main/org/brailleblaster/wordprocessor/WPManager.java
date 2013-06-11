@@ -31,6 +31,7 @@ package org.brailleblaster.wordprocessor;
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -63,7 +64,6 @@ public class WPManager {
     private BBToolBar toolBar;
     private LinkedList<DocumentManager> managerList;
     private StyleManager sm;
-    
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
     
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.

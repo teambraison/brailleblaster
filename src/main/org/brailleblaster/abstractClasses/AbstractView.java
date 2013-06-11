@@ -183,6 +183,27 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
+	protected void checkForLineBreak(Element parent, Node n){
+		if(parent.indexOf(n) > 0){
+			int priorIndex = parent.indexOf(n) - 1;
+			if(parent.getChild(priorIndex) instanceof Element && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
+				insertBefore(this.spaceBeforeText + this.total, "\n");
+			}
+		}
+		else if(parent.indexOf(n) == 0 && parent.getAttributeValue("semantics").contains("action")){
+			Element child = parent;
+			Element newParent = (Element)parent.getParent();
+			if(newParent.indexOf(child) > 0){
+				int priorIndex = newParent.indexOf(child) - 1;
+				if(newParent.getChild(priorIndex) instanceof Element && ((Element)newParent.getChild(priorIndex)).getLocalName().equals("br")){
+					insertBefore(this.spaceBeforeText + this.total, "\n");
+				}
+			}
+			else if(newParent.indexOf(child) == 0 && newParent.getAttributeValue("semantics").contains("action"))
+				checkForLineBreak((Element)newParent.getParent(), newParent);
+		}
+	}
+	
 	protected abstract void setViewData(Message message);
 	public abstract void resetView();
 }

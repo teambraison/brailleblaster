@@ -52,7 +52,7 @@ public class BBToolBar {
 		toolBar = new ToolBar(shell, SWT.HORIZONTAL);
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
-		location.right = new FormAttachment(30);
+		location.right = new FormAttachment(40);
 		location.top = new FormAttachment(4);
 		toolBar.setLayoutData(location);
 		
@@ -172,8 +172,8 @@ public class BBToolBar {
 		toolBar.pack();
 
 		FormData bloc = new FormData();
-		bloc.left = new FormAttachment(30);
-		bloc.right = new FormAttachment(37);
+		bloc.left = new FormAttachment(40);
+		bloc.right = new FormAttachment(47);
 		bloc.top = new FormAttachment(5);
 		checkBrailleItem = new Button(shell, SWT.CHECK);
 		checkBrailleItem.setLayoutData(bloc);

@@ -72,7 +72,6 @@ public class BBDocument {
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
 	}
-	
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
 		String fileName = "xxx";
 		return buildDOM(fileName);
@@ -491,17 +490,20 @@ public class BBDocument {
 		}
 	}
 	
-	public boolean createBrlFile(String filePath){				
+	public boolean createBrlFile(String filePath){		
+		
 		Document temp = getNewXML();
 		String infile = createTempFile(temp);
-		
+		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "preferences.cfg");
+		 
 		if(infile.equals(""))
-			return false;
-		
-		String[] arr = {infile, filePath};
+		return false;
+		 
+		String[] arr = {"-f", config, infile, filePath};
 		boolean result = liblouisutdml.getInstance().file2brl(arr);
 		deleteTempFile(infile);
 		return result;
+
 	}
 	
 	private String createTempFile(Document newDoc){

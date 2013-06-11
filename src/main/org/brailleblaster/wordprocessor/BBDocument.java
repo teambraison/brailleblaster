@@ -87,7 +87,7 @@ public class BBDocument {
 		String configWithUTD;
 		
 		// Use the default; we don't have a local version.
-		configFileWithPath = fu.findInProgramData (configFile);
+		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 
 		
 		if (configSettings == null) {

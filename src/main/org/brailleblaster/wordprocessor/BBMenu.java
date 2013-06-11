@@ -51,7 +51,6 @@ class BBMenu {
 
 	/* All the menu items are member fields so they can be accessed outside the
 	 * constructor. This might be done for example with setEnabled(false) to
-	 * indicate that a menu item is unavailable.
 	 */
 	MenuItem newItem;
 	MenuItem openItem;
@@ -302,7 +301,7 @@ class BBMenu {
 	
 */	
 		printPreviewItem = new MenuItem(fileMenu, SWT.PUSH);
-		printPreviewItem.setText(lh.localValue("PrintP&review") + "\tAlt + HOME");
+		printPreviewItem.setText(lh.localValue("&BraillePreview") + "\tAlt + HOME");
 		printPreviewItem.setAccelerator(SWT.MOD3 + SWT.HOME);
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {

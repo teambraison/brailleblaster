@@ -82,7 +82,7 @@ public class PrintPreview {
 		
 		this.shell = new Shell(display, SWT.SHELL_TRIM);
 		this.shell.setLayout(new FormLayout());
-		this.shell.setText("Print Preview");
+		this.shell.setText("Braille Preview");
 		this.shell.setSize(PAGE_WIDTH, PAGE_HEIGHT);
 		
 		Group gp = new Group(this.shell, SWT.NONE);

@@ -72,6 +72,7 @@ public class ConfigFileDialog extends Dialog {
 	WPManager dm;
 	
 	// UI.
+	Button defaultCfgChk;
 	Button okayBtn;
 	Button cancelBtn;
 	Button apply;
@@ -167,6 +168,9 @@ public class ConfigFileDialog extends Dialog {
 		// So our combos and buttons take up whole width of dialog.
 		GridData fillGD = new GridData(GridData.FILL_HORIZONTAL);
 
+		defaultCfgChk = new Button(configShell, SWT.CHECK);
+		defaultCfgChk.setText("Default Config File");
+		
 		// Combo box that houses filenames.
 		fileNameCombo = new Combo (configShell, SWT.DROP_DOWN);
 		fileNameCombo.setLayoutData(fillGD);

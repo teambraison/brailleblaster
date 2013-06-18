@@ -241,7 +241,7 @@ public class DocumentManager {
 	
 	private void initializeAllViews(String fileName, String filePath){
 		try{
-			if(this.document.startDocument(filePath, "preferences.cfg", null)){
+			if(this.document.startDocument(filePath, "nimas.cfg", null)){
 				this.wp.getStatusBar().resetLocation(6,100,100);
 				this.wp.getStatusBar().setText("Loading...");
 				this.wp.getProgressBar().start();

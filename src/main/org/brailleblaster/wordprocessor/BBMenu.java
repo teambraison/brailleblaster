@@ -498,7 +498,7 @@ class BBMenu {
 		
 		// Config files.
 		configDlgItem = new MenuItem(editMenu, SWT.PUSH);
-		configDlgItem.setText( "Config Files" );
+		configDlgItem.setText( "Con&fig Files" );
 		configDlgItem.addSelectionListener(new SelectionAdapter() {
 		public void widgetSelected(SelectionEvent e) {
 //			

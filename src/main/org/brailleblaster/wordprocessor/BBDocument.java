@@ -192,16 +192,18 @@ public class BBDocument {
 		int startOffset = 0;
 		String insertionString = "";
 		Element e;
-		Elements els = d.getRootElement().getChildElements();
+		Element brlParent = ((Element)d.getRootElement().getChild(0));
+		Elements els = brlParent.getChildElements();
+		
 		if(els.get(0).getLocalName().equals("strong")){
 			e = els.get(0).getChildElements().get(0);
 			addNamespace(e);
-			d.getRootElement().getChildElements().get(0).removeChild(e);
+			brlParent.getChildElements().get(0).removeChild(e);
 		}
 		else {
-			e = d.getRootElement().getChildElements("brl").get(0);
+			e = brlParent.getChildElements("brl").get(0);
 			addNamespace(e);
-			d.getRootElement().removeChild(e);
+			brlParent.removeChild(e);
 		}
 		
 		startOffset = t.brailleList.getFirst().start;
@@ -359,13 +361,13 @@ public class BBDocument {
 	}
 	
 	private String getXMLString(String text){
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><string>" + text + "</string>";
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book><string>" + text + "</string></book>";
 	}
 	
 	private int translateString(String text, byte[] outbuffer) {
 		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
 		String preferenceFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + 
-				BBIni.getFileSep() + "preferences.cfg";
+				BBIni.getFileSep() + "nimas.cfg";
 		
 		byte[] inbuffer;
 		try {

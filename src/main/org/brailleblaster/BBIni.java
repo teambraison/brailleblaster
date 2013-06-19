@@ -32,7 +32,10 @@
 package org.brailleblaster;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,6 +96,7 @@ public final class BBIni {
 	private static FileHandler logFile;
 	private static final String BBID = "brlblst";
 	private static String instanceId;
+	private static String defaultCfg;
 
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
@@ -139,6 +143,46 @@ public final class BBIni {
 		if (!styleDir.exists()){
 			styleDir.mkdirs();
 		}
+		
+		///////////////////////
+		// Default Config File.
+		
+			// Get default config file.
+			Properties props = new Properties();
+			try
+			{
+				// Load it!
+				props.load(new FileInputStream(BBIni.getUserSettings()));
+			}
+			catch (IOException e) { e.printStackTrace(); }
+			
+			// Store file name.
+			defaultCfg = props.getProperty("defaultConfigFile");
+			
+			// If that key doesn't exist, then we need to put it there.
+			if(defaultCfg == null)
+			{
+				// Add it, then store it.
+				
+				// Add to hash.
+				props.setProperty("defaultConfigFile", "nimas.cfg");
+				
+				// Record as default.
+				defaultCfg = "preferences.cfg";
+				
+				// Store.
+				try
+				{
+					// Store to file.
+					props.store( new FileOutputStream(BBIni.getUserSettings()), null );
+				}
+				catch (IOException e) { e.printStackTrace(); }
+				
+			} // if(defaultCfgFileName == null)
+
+		// Default Config File.
+		///////////////////////
+		
 		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File(tempFilesPath);
 		if (!temps.exists()){
@@ -240,7 +284,7 @@ public final class BBIni {
 			file.mkdirs();
 		}
 	}
-
+	
 	public static boolean debugging() {
 		return debug;
 	}
@@ -335,5 +379,9 @@ public final class BBIni {
 
 	public static String getInstanceID() {
 		return instanceId;
+	}
+	
+	public static String getDefaultConfigFile() {
+		return defaultCfg;
 	}
 }

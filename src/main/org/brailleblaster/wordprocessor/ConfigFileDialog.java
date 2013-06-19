@@ -350,6 +350,7 @@ public class ConfigFileDialog extends Dialog {
 				// Fill variable name combo box.
 				fillVariableComboBox( fileList.get(fileNameCombo.getSelectionIndex()) );
 				fillValueComboBox(variableCombo.getItem(variableCombo.getSelectionIndex()));
+				selectValueComboBox(txt.getText());
 				
 				// If the selected file is the default, check our box. Else, uncheck.
 				if( defaultCfgFileName.compareTo(fileNameCombo.getItem(fileNameCombo.getSelectionIndex())) == 0)
@@ -624,8 +625,15 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Create new string that will contain the variable value.
 		String varVal = new String();
-		for(int curTok = indx + 1; curTok < tokens.length; curTok++)
+		for(int curTok = indx + 1; curTok < tokens.length; curTok++) {
+			
+			// Add all tokens together.
 			varVal += tokens[curTok];
+			
+			// If there were spaces in the variable values, add them back.
+			if(tokens.length > 3 && curTok < tokens.length - 1)
+				varVal += " ";
+		}
 		
 		// Return variable name.
 		return varVal;
@@ -821,8 +829,9 @@ public class ConfigFileDialog extends Dialog {
 				// Write the line.
 				if(cfgf.lines.get(curVar).name != null)
 				{
-					bw.write(cfgf.lines.get(curVar).name + " ");
-					bw.write(cfgf.lines.get(curVar).value);
+					bw.write(cfgf.lines.get(curVar).name);
+					if(cfgf.lines.get(curVar).value.length() > 0)
+						bw.write(" " + cfgf.lines.get(curVar).value);
 					bw.newLine();
 				}
 				else {

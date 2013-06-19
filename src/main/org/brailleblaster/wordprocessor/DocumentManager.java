@@ -32,10 +32,12 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -240,7 +242,20 @@ public class DocumentManager {
 	
 	private void initializeAllViews(String fileName, String filePath){
 		try{
-			if(this.document.startDocument(filePath, "nimas.cfg", null)){
+			// Get default config file.
+			Properties props = new Properties();
+			try
+			{
+				// Load it!
+				props.load(new FileInputStream(BBIni.getUserSettings()));
+			}
+			catch (IOException e) { e.printStackTrace(); }
+			
+			// Store file name.
+			String defCfg = props.getProperty("defaultConfigFile");
+			
+			
+			if(this.document.startDocument(filePath, defCfg, null)){
 				this.wp.getStatusBar().resetLocation(6,100,100);
 				this.wp.getStatusBar().setText("Loading...");
 				this.wp.getProgressBar().start();
@@ -254,7 +269,7 @@ public class DocumentManager {
 				this.braille.view.replaceTextRange(this.braille.view.getCharCount() - 1, 1, "");
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
-				this.text.hasChanged = false;	
+				this.text.hasChanged = false;
 				this.braille.hasChanged = false;
 				this.wp.checkToolbarSettings();
 				this.wp.getStatusBar().resetLocation(0,100,100);

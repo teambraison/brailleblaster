@@ -131,6 +131,15 @@ public class SettingsDialog {
 		prop.setProperty(key, value);
 	}
 
+	///////////////////////////////////////////////////////////
+	// Searches our key/value pairs and returns the value 
+	// associated with given key.
+	public String getProperty(String key)
+	{
+		// Return the property!
+		return prop.getProperty(key);
+	}
+	
 	public void storeProperty() {
 		//no change will be made to the properties file until this method is called
 		try {

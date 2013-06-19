@@ -186,7 +186,6 @@ public class DocumentManager {
 	}
 	
 	public void openDocument(String fileName){
-		System.out.println(fileName + " is opened here");
 		
 		// Update file we're about to work on.
 		workingFilePath = fileName;

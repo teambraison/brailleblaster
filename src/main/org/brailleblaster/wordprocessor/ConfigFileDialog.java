@@ -33,12 +33,15 @@ package org.brailleblaster.wordprocessor;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
@@ -90,6 +93,11 @@ public class ConfigFileDialog extends Dialog {
 	// List of settings/ranges of values in a config file.
 	ArrayList<String> configSettingsList;
 	
+	// User properties for BrailleBlaster
+	Properties props;
+	// The default config file.
+	String defaultCfgFileName = null;
+	
 	/////////////////////////////////////////////////////////
 	// Constructor.
 	public ConfigFileDialog(Shell parent, int style, WPManager fdm) {
@@ -106,23 +114,71 @@ public class ConfigFileDialog extends Dialog {
 		
 		fileList = new ArrayList<ConfigFile>();
 		
+		// Init and load properties.
+		props = new Properties();
+		try
+		{
+			// Load it!
+			props.load(new FileInputStream(BBIni.getUserSettings()));
+		}
+		catch (IOException e) { e.printStackTrace(); }
+		
+		///////////////////////
+		// Default Config File.
+		
+			// Find out what the default config file is.
+			// If it isn't in the settings file, put a default in there.
+		
+			// Store default config file name.
+			defaultCfgFileName = props.getProperty("defaultConfigFile");
+			
+			// If that key doesn't exist, then we need to put it there.
+			if(defaultCfgFileName == null)
+			{
+				// Add it, then store it.
+				
+				// Add to hash.
+				props.setProperty("defaultConfigFile", "preferences.cfg");
+				
+				// Record as default for our checkbox.
+				defaultCfgFileName = "preferences.cfg";
+				
+				// Store.
+				try
+				{
+					// Store to file.
+					props.store( new FileOutputStream(BBIni.getUserSettings()), null );
+				}
+				catch (IOException e) { e.printStackTrace(); }
+				
+			} // if(defaultCfgFileName == null)
+		
+		// Default Config File.
+		///////////////////////
+		
 		// Create user interface.
 		createUIelements();
 		
-		// Load info into combobox.
-//		combo.setItems((String[])displayArr.toArray(new String[displayArr.size()]));
+		// Load config file settings. Variable ranges and such.
 		loadConfigFileSettings();
+		// Load all config files.
 		loadConfigFiles();
+		// Fill combo boxes.
 		fillFilenameComboBox();
 		fillVariableComboBox(fileList.get(0));
 		fillValueComboBox(variableCombo.getItem(0));
 		selectValueComboBox(txt.getText());
-//		System.out.print txt.gettext
+		
+		// If the selected file is the default, check our box. Else, uncheck.
+		if( defaultCfgFileName.compareTo(fileNameCombo.getItem(fileNameCombo.getSelectionIndex())) == 0)
+			defaultCfgChk.setSelection(true);
+		else
+			defaultCfgChk.setSelection(false);
 		
 		// show the SWT window
 		configShell.pack();
 		// Resize window.
-		configShell.setSize(200, 300);
+		configShell.setSize(200, 320);
 		configShell.open();
 		while (!configShell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -168,8 +224,8 @@ public class ConfigFileDialog extends Dialog {
 		// So our combos and buttons take up whole width of dialog.
 		GridData fillGD = new GridData(GridData.FILL_HORIZONTAL);
 
+		// Create Default Config File Checkbox.
 		defaultCfgChk = new Button(configShell, SWT.CHECK);
-		defaultCfgChk.setText("Default Config File");
 		
 		// Combo box that houses filenames.
 		fileNameCombo = new Combo (configShell, SWT.DROP_DOWN);
@@ -215,6 +271,32 @@ public class ConfigFileDialog extends Dialog {
 		// Grid Data.
 		GridData data = new GridData(GridData.FILL_BOTH);
 		data.horizontalSpan = 2;
+		
+		// Set up default cfg check box.
+		defaultCfgChk.setText("Default Config File");
+		defaultCfgChk.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// If the checkbox isn't checked, get current  
+				// filename in filename combo, then store it 
+				// as the default config file, and finally check our box.
+				// Else... uncheck the box, and store "preferences.cfg as our default.
+				if(defaultCfgChk.getSelection() == true) {
+					defaultCfgFileName = fileNameCombo.getItem( fileNameCombo.getSelectionIndex() );
+					defaultCfgChk.setSelection(true);
+				}
+				else {
+					defaultCfgFileName = "preferences.cfg";
+					defaultCfgChk.setSelection(false);
+					
+				} //if(defaultCfgChk...
+				
+				// Set default config.
+				props.setProperty("defaultConfigFile", defaultCfgFileName);
+				
+			} // widgetSelected()
+			
+		}); // defaultCfgChk.addSelectionListener...
 		
 		// Set up Okay Button.
 		okayBtn = new Button(configShell, SWT.PUSH);
@@ -268,6 +350,12 @@ public class ConfigFileDialog extends Dialog {
 				// Fill variable name combo box.
 				fillVariableComboBox( fileList.get(fileNameCombo.getSelectionIndex()) );
 				fillValueComboBox(variableCombo.getItem(variableCombo.getSelectionIndex()));
+				
+				// If the selected file is the default, check our box. Else, uncheck.
+				if( defaultCfgFileName.compareTo(fileNameCombo.getItem(fileNameCombo.getSelectionIndex())) == 0)
+					defaultCfgChk.setSelection(true);
+				else
+					defaultCfgChk.setSelection(false);
 				
 			} // public void widgetSelected()
 		
@@ -745,6 +833,15 @@ public class ConfigFileDialog extends Dialog {
 			
 			// Close output file.
 			bw.close();
+			
+			///////////////////////
+			// Default Config File.
+
+				// Now write the properties back to the user settings file.
+				props.store( new FileOutputStream(BBIni.getUserSettings()), null );
+			
+			// Default Config File.
+			///////////////////////
 		}
 		catch(IOException ioe) { ioe.printStackTrace(); }
 	}

@@ -242,20 +242,7 @@ public class DocumentManager {
 	
 	private void initializeAllViews(String fileName, String filePath){
 		try{
-			// Get default config file.
-			Properties props = new Properties();
-			try
-			{
-				// Load it!
-				props.load(new FileInputStream(BBIni.getUserSettings()));
-			}
-			catch (IOException e) { e.printStackTrace(); }
-			
-			// Store file name.
-			String defCfg = props.getProperty("defaultConfigFile");
-			
-			
-			if(this.document.startDocument(filePath, defCfg, null)){
+			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
 				this.wp.getStatusBar().resetLocation(6,100,100);
 				this.wp.getStatusBar().setText("Loading...");
 				this.wp.getProgressBar().start();

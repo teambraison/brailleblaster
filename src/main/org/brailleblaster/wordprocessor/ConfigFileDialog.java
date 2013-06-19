@@ -121,40 +121,7 @@ public class ConfigFileDialog extends Dialog {
 			// Load it!
 			props.load(new FileInputStream(BBIni.getUserSettings()));
 		}
-		catch (IOException e) { e.printStackTrace(); }
-		
-		///////////////////////
-		// Default Config File.
-		
-			// Find out what the default config file is.
-			// If it isn't in the settings file, put a default in there.
-		
-			// Store default config file name.
-			defaultCfgFileName = props.getProperty("defaultConfigFile");
-			
-			// If that key doesn't exist, then we need to put it there.
-			if(defaultCfgFileName == null)
-			{
-				// Add it, then store it.
-				
-				// Add to hash.
-				props.setProperty("defaultConfigFile", "preferences.cfg");
-				
-				// Record as default for our checkbox.
-				defaultCfgFileName = "preferences.cfg";
-				
-				// Store.
-				try
-				{
-					// Store to file.
-					props.store( new FileOutputStream(BBIni.getUserSettings()), null );
-				}
-				catch (IOException e) { e.printStackTrace(); }
-				
-			} // if(defaultCfgFileName == null)
-		
-		// Default Config File.
-		///////////////////////
+		catch (IOException e) { e.printStackTrace(); } 
 		
 		// Create user interface.
 		createUIelements();
@@ -170,6 +137,7 @@ public class ConfigFileDialog extends Dialog {
 		selectValueComboBox(txt.getText());
 		
 		// If the selected file is the default, check our box. Else, uncheck.
+		defaultCfgFileName = BBIni.getDefaultConfigFile();
 		if( defaultCfgFileName.compareTo(fileNameCombo.getItem(fileNameCombo.getSelectionIndex())) == 0)
 			defaultCfgChk.setSelection(true);
 		else
@@ -280,14 +248,12 @@ public class ConfigFileDialog extends Dialog {
 				// If the checkbox isn't checked, get current  
 				// filename in filename combo, then store it 
 				// as the default config file, and finally check our box.
-				// Else... uncheck the box, and store "preferences.cfg as our default.
+				// Else... uncheck the box, and restore the default.
 				if(defaultCfgChk.getSelection() == true) {
 					defaultCfgFileName = fileNameCombo.getItem( fileNameCombo.getSelectionIndex() );
-					defaultCfgChk.setSelection(true);
 				}
 				else {
-					defaultCfgFileName = "preferences.cfg";
-					defaultCfgChk.setSelection(false);
+					defaultCfgFileName = BBIni.getDefaultConfigFile();
 					
 				} //if(defaultCfgChk...
 				

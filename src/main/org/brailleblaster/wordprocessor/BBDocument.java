@@ -492,19 +492,18 @@ public class BBDocument {
 	}
 	
 	public boolean createBrlFile(String filePath){		
-		
 		Document temp = getNewXML();
-		String infile = createTempFile(temp);
-		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "preferences.cfg");
-		 
-		if(infile.equals(""))
+		String inFile = createTempFile(temp);
+		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+		String logFile = BBIni.getTempFilesPath() + fileSep + "liblouisutdml.log";
+		
+		
+		if(inFile.equals(""))
 		return false;
 		 
-		String[] arr = {"-f", config, infile, filePath};
-		boolean result = liblouisutdml.getInstance().file2brl(arr);
-		deleteTempFile(infile);
+		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, "formatFor brf\n", 0);
+		deleteTempFile(inFile);
 		return result;
-
 	}
 	
 	private String createTempFile(Document newDoc){

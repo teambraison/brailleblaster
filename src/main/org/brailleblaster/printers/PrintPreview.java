@@ -43,22 +43,26 @@ public class PrintPreview {
 
 		public void setPreviewText(BBDocument doc){
 			String tempFilePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf"; 
-			doc.createBrlFile(tempFilePath);
-			this.f = new File(tempFilePath);
-			try {
-				Scanner scanner = new Scanner(this.f);
-				this.text = scanner.useDelimiter("\\Z").next();
-				scanner.close();
-				this.view.setText(this.text);
-				Font font = FontManager.getFont();
-				this.view.setFont(font);
-				this.view.setMargins(MARGINS, MARGINS, MARGINS, MARGINS);
-				this.view.getShell().open();
-			} catch (FileNotFoundException e) {
-				new Notify("Print Preview failed to open properly.  Check to ensure your document does not contain errors");
-				e.printStackTrace();
-				this.f.delete();
-				this.view.getShell().dispose();
+			if(doc.createBrlFile(tempFilePath)){
+				try {
+					this.f = new File(tempFilePath);
+					Scanner scanner = new Scanner(this.f);
+					this.text = scanner.useDelimiter("\\Z").next();
+					scanner.close();
+					this.view.setText(this.text);
+					Font font = FontManager.getFont();
+					this.view.setFont(font);
+					this.view.setMargins(MARGINS, MARGINS, MARGINS, MARGINS);
+					this.view.getShell().open();
+				} catch (FileNotFoundException e) {
+					new Notify("Print Preview failed to open properly.  Check to ensure your document does not contain errors");
+					e.printStackTrace();
+					this.f.delete();
+					this.view.getShell().dispose();
+				}
+			}
+			else {
+				new Notify("An error has occurred.  Please check your original document");
 			}
 		}
 		

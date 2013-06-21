@@ -367,7 +367,7 @@ public class BBDocument {
 	private int translateString(String text, byte[] outbuffer) {
 		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
 		String preferenceFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + 
-				BBIni.getFileSep() + "nimas.cfg";
+				BBIni.getFileSep() + BBIni.getDefaultConfigFile();
 		
 		byte[] inbuffer;
 		try {

@@ -242,7 +242,7 @@ public class ConfigFileDialog extends Dialog {
 		data.horizontalSpan = 2;
 		
 		// Set up default cfg check box.
-		defaultCfgChk.setText("Default Config File");
+		defaultCfgChk.setText("Set As Default");
 		defaultCfgChk.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				

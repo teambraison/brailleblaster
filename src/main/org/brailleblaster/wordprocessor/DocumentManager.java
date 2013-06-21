@@ -53,6 +53,7 @@ import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;

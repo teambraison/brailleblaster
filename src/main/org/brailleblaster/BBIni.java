@@ -168,7 +168,7 @@ public final class BBIni {
 				props.setProperty("defaultConfigFile", "nimas.cfg");
 				
 				// Record as default.
-				defaultCfg = "preferences.cfg";
+				defaultCfg = "nimas.cfg";
 				
 				// Store.
 				try
@@ -383,5 +383,9 @@ public final class BBIni {
 	
 	public static String getDefaultConfigFile() {
 		return defaultCfg;
+	}
+	
+	public static void setDefaultConfigFile(String configFileName) {
+		defaultCfg = configFileName;
 	}
 }

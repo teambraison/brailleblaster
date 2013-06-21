@@ -28,7 +28,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.settings;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,6 +45,7 @@ import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.ACC;
 import org.eclipse.swt.accessibility.Accessible;
@@ -257,9 +258,6 @@ public class ConfigFileDialog extends Dialog {
 					
 				} //if(defaultCfgChk...
 				
-				// Set default config.
-				props.setProperty("defaultConfigFile", defaultCfgFileName);
-				
 			} // widgetSelected()
 			
 		}); // defaultCfgChk.addSelectionListener...
@@ -468,7 +466,7 @@ public class ConfigFileDialog extends Dialog {
 		else
 			configSettingsList = new ArrayList<String>();
 		
-		// Config file directory. 
+		// Config file directory.
 		String configDir = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
 		String settingsPath = configDir + "configSettings.txt";
 		
@@ -812,8 +810,12 @@ public class ConfigFileDialog extends Dialog {
 			///////////////////////
 			// Default Config File.
 
+				// Set default config.
+				props.setProperty("defaultConfigFile", defaultCfgFileName);
 				// Now write the properties back to the user settings file.
 				props.store( new FileOutputStream(BBIni.getUserSettings()), null );
+				// Update BBIni.
+				BBIni.setDefaultConfigFile(defaultCfgFileName);
 			
 			// Default Config File.
 			///////////////////////

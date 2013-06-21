@@ -38,6 +38,7 @@ import java.util.ArrayList;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;

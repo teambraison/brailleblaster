@@ -28,7 +28,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.settings;
 
 import java.util.ArrayList;
 

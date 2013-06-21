@@ -143,7 +143,9 @@ public class DocumentManager {
 			    os.close();
 			}
 			else if(workingFilePath.endsWith("brf")){
-				this.document.createBrlFile(workingFilePath);
+				if(!this.document.createBrlFile(workingFilePath)){
+					new Notify("An error has occurred.  Please check your original document");
+				}
 			}
 			
 			// If the document came from a zip file, then rezip it.
@@ -454,7 +456,9 @@ public class DocumentManager {
 			String ext = getFileExt(filePath);
 			try {
 				if(ext.equals("brf")){
-					this.document.createBrlFile(filePath);
+					if(!this.document.createBrlFile(filePath)){
+						new Notify("An error has occurred.  Please check your original document");
+					}
 				}
 				else if(ext.equals("xml")){
 					Document newDoc = this.document.getNewXML();

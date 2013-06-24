@@ -262,23 +262,6 @@ public class ConfigFileDialog extends Dialog {
 			
 		}); // defaultCfgChk.addSelectionListener...
 		
-		// Set up Okay Button.
-		okayBtn = new Button(configShell, SWT.PUSH);
-		okayBtn.setText("Okay");
-		okayBtn.setLayoutData(data);
-		okayBtn.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				
-				// Save settings.
-				saveSettings();
-				
-				// Close dialog.
-				configShell.dispose();
-				
-			} // widgetSelected()
-			
-		}); // okayBtn.addSelectionListener...
-		
 		// Set up Apply Button.
 		apply = new Button(configShell, SWT.PUSH);
 		apply.setText("Apply");
@@ -289,9 +272,32 @@ public class ConfigFileDialog extends Dialog {
 				// Save settings, but don't close the window.
 				saveSettings();
 				
+				// Refresh the Braille Blaster text and braille views.
+				refreshViews();
+				
 			} // public void widgetSelected()
 			
 		}); // apply.addSelectionListener(new SelectionAdapter() {
+		
+		// Set up Okay Button.
+		okayBtn = new Button(configShell, SWT.PUSH);
+		okayBtn.setText("Okay");
+		okayBtn.setLayoutData(data);
+		okayBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Save settings.
+				saveSettings();
+				
+				// Refresh the Braille Blaster text and braille views.
+				refreshViews();
+				
+				// Close dialog.
+				configShell.dispose();
+				
+			} // widgetSelected()
+			
+		}); // okayBtn.addSelectionListener...
 		
 		// Set up Cancel Button.
 		cancelBtn = new Button(configShell, SWT.PUSH);
@@ -821,6 +827,17 @@ public class ConfigFileDialog extends Dialog {
 			///////////////////////
 		}
 		catch(IOException ioe) { ioe.printStackTrace(); }
-	}
+		
+	} // void saveSettings()
+	
+	//////////////////////////////////////////////////////////////
+	// Refreshes the text and braille views.
+	void refreshViews()
+	{
+		int index = dm.getFolder().getSelectionIndex();
+		if(index  > -1)
+			dm.getList().get(index).refresh();
+		
+	} // void refreshViews()
 	
 } // public class ConfigFileDialog... 

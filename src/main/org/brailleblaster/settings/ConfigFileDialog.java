@@ -59,6 +59,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
@@ -77,9 +78,11 @@ public class ConfigFileDialog extends Dialog {
 	
 	// UI.
 	Button defaultCfgChk;
-	Button okayBtn;
-	Button cancelBtn;
 	Button apply;
+	Button okayBtn;
+	Button saveAsBtn;
+	Button cancelBtn;
+	
 	Text txt;
 	Combo fileNameCombo;
 	Combo variableCombo;
@@ -147,7 +150,7 @@ public class ConfigFileDialog extends Dialog {
 		// show the SWT window
 		configShell.pack();
 		// Resize window.
-		configShell.setSize(200, 320);
+		configShell.setSize(200, 340);
 		configShell.open();
 		while (!configShell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -298,6 +301,54 @@ public class ConfigFileDialog extends Dialog {
 			} // widgetSelected()
 			
 		}); // okayBtn.addSelectionListener...
+		
+		// Setup Save-As Button.
+		saveAsBtn = new Button(configShell, SWT.PUSH);
+		saveAsBtn.setText("Save As");
+		saveAsBtn.setLayoutData(data);
+		saveAsBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Create and open Save-As Dialog.
+				FileDialog dialog = new FileDialog(configShell, SWT.SAVE);
+			    dialog.setFilterNames( new String[] {"Configuration Files", "All Files (*.*)"} );
+			    dialog.setFilterExtensions(new String[] { "*.cfg", "*.*" });
+			    dialog.setFilterPath( BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" );
+			    String cfgPath = dialog.open();
+			    
+			    // If the path is null, the user cancelled.
+			    if(cfgPath == null)
+			    	return;
+			    
+			    // Copy the original config file data to a new one. Change filename to 
+			    // what the user chose.
+			    ConfigFile origConfigFile = fileList.get( fileNameCombo.getSelectionIndex() );
+			    ConfigFile newCFG = new ConfigFile();
+			    newCFG.configFilePath = cfgPath;
+				newCFG.lines = new ArrayList<ConfigEntry>();
+				for(int curLine = 0; curLine < origConfigFile.lines.size(); curLine++)
+				{
+					ConfigEntry newEntry = new ConfigEntry();
+					newEntry.line = origConfigFile.lines.get(curLine).line;
+					newEntry.lineNumber = origConfigFile.lines.get(curLine).lineNumber;
+					newEntry.name = origConfigFile.lines.get(curLine).name;
+					newEntry.value = origConfigFile.lines.get(curLine).value;
+					newEntry.comboIndex = -1;
+					newCFG.lines.add(newEntry);
+				}
+			
+				// Add this new config file.
+				fileList.add(newCFG);
+				
+				// Update the user interface.
+				fillFilenameComboBox();
+				fillVariableComboBox( fileList.get(fileList.size() - 1) );
+				fillValueComboBox(variableCombo.getItem(0));
+				selectValueComboBox(txt.getText());
+				
+			} // widgetSelected()
+			
+		}); // saveAsBtn.addSelectionListener...
 		
 		// Set up Cancel Button.
 		cancelBtn = new Button(configShell, SWT.PUSH);
@@ -613,6 +664,9 @@ public class ConfigFileDialog extends Dialog {
 	// Fills filename combo box.
 	void fillFilenameComboBox()
 	{
+		// Clear the combobox first.
+		fileNameCombo.removeAll();
+		
 		// Loop through every file.
 		for(int curFile = 0; curFile < fileList.size(); curFile++)
 		{

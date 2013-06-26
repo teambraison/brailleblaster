@@ -292,11 +292,13 @@ public class ConfigFileDialog extends Dialog {
 				// Save settings.
 				saveSettings();
 				
-				// Refresh the Braille Blaster text and braille views.
-				refreshViews();
+				
 				
 				// Close dialog.
 				configShell.dispose();
+				
+				// Refresh the Braille Blaster text and braille views.
+				refreshViews();
 				
 			} // widgetSelected()
 			

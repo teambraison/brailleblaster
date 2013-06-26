@@ -225,14 +225,20 @@ public class DocumentManager {
 				boolean addNewDoc = true;
 				for(int curStr = 0; curStr < strs.size(); curStr++) {
 					if(strs.get(curStr).compareTo(fileName) == 0) {
-						addNewDoc = false;
+						
+						// This isn't a new document. First, remove from doc list and recent item submenu.
+						wp.getMainMenu().getRecentDocumentsList().remove(curStr);
+						wp.getMainMenu().getRecentItemSubMenu().getItem(curStr).dispose();
+						
+						// We found a duplicate, so there is no point in going further.
 						break;
-					}
-				}
+						
+					} // if(strs.get(curStr)...
+					
+				} // for(int curStr = 0...
 				
-				// Update the recent files submenu.
-				if(addNewDoc == true)
-					this.wp.getMainMenu().addRecentEntry(fileName);
+				// Add to top of recent items submenu.
+				wp.getMainMenu().addRecentEntry(fileName);
 				
 			// Recent Files.
 			////////////////

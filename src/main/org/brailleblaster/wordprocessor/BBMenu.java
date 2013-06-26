@@ -934,4 +934,12 @@ class BBMenu {
 		catch(IOException ioe) { ioe.printStackTrace(); }
 		
 	} // public void writeRecentToFile()
+	
+	//////////////////////////////////////////////////////////////////////////
+	// Returns 'recent item' menu object.
+	Menu getRecentItemSubMenu() {
+		return recentItem.getMenu();
+	} // getRecentItemSubMenu()
+	
+	
 }

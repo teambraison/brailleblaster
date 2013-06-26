@@ -22,7 +22,6 @@ no level4
 no level5
 no level6
 no level
-no levelhd
 
 # headings
 heading1 h1
@@ -96,7 +95,6 @@ skip img
 generic imggroup
 
 # Not sure what to do about these, subscript and superscript?
-no note
 generic vdo
 generic sub
 generic sup

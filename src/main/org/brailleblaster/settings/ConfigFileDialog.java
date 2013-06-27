@@ -82,6 +82,7 @@ public class ConfigFileDialog extends Dialog {
 	Button okayBtn;
 	Button saveAsBtn;
 	Button cancelBtn;
+	Button restoreDefaultBtn;
 	
 	Text txt;
 	Combo fileNameCombo;
@@ -150,7 +151,7 @@ public class ConfigFileDialog extends Dialog {
 		// show the SWT window
 		configShell.pack();
 		// Resize window.
-		configShell.setSize(200, 340);
+		configShell.setSize(200, 370);
 		configShell.open();
 		while (!configShell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -195,9 +196,6 @@ public class ConfigFileDialog extends Dialog {
 		
 		// So our combos and buttons take up whole width of dialog.
 		GridData fillGD = new GridData(GridData.FILL_HORIZONTAL);
-
-		// Create Default Config File Checkbox.
-		defaultCfgChk = new Button(configShell, SWT.CHECK);
 		
 		// Combo box that houses filenames.
 		fileNameCombo = new Combo (configShell, SWT.DROP_DOWN);
@@ -206,13 +204,48 @@ public class ConfigFileDialog extends Dialog {
 		// Label next to variable name combo box.
 		Label name2 = new Label(configShell, SWT.HORIZONTAL);
 		name2.setText("Variable Name");
+
+		// Create Default Config File Checkbox.
+		defaultCfgChk = new Button(configShell, SWT.CHECK);
+		
+		// Restores the original config file before there were changes.
+		restoreDefaultBtn = new Button(configShell, SWT.PUSH);
+		restoreDefaultBtn.setText("Restore Default Cfg");
+//		restoreDefaultBtn.setLayoutData(data);
+		restoreDefaultBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Point to user's version of cfg file.
+				String configDir = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
+				File deleteMe = new File(configDir + fileNameCombo.getText());
+				
+				// Make sure the file exists. If it doesn't, don't bother.
+				if(!deleteMe.exists())
+					return;
+				
+				// Delete this config file.
+				deleteMe.delete();
+				
+				// Now, reload the config files.
+				fileList.clear();
+				loadConfigFiles();
+				
+				// Repopulate the UI.
+				fillFilenameComboBox();
+				fillVariableComboBox(fileList.get(0));
+				fillValueComboBox(variableCombo.getItem(0));
+				selectValueComboBox(txt.getText());
+				
+			} // public void widgetSelected()
+			
+		}); // restoreDefaultBtn.addSelectionListener(new SelectionAdapter() {
 		
 		// Combo box that houses variable names.
 		variableCombo = new Combo (configShell, SWT.DROP_DOWN);
 		GridData varFillGD = new GridData(GridData.FILL_HORIZONTAL);
 		variableCombo.setLayoutData(varFillGD);
 		
-		// Label next to variable value combo box. 
+		// Label next to variable value combo box.
 		Label name3 = new Label(configShell, SWT.HORIZONTAL);
 		name3.setText("Variable Value");
 		

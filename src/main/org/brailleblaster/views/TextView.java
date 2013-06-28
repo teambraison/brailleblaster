@@ -262,13 +262,15 @@ public class TextView extends AbstractView {
 	}
 	
 	public void removeListeners(){
-		view.removeSelectionListener(selectionListener);
-		view.removeExtendedModifyListener(modListener);
-		view.removeFocusListener(focusListener);
-		view.removeVerifyKeyListener(verifyListener);
-		view.removeMouseListener(mouseListener);
-		view.removeTraverseListener(traverseListener);
-		view.removeCaretListener(caretListener);
+		if(selectionListener != null) {
+			view.removeSelectionListener(selectionListener);
+			view.removeExtendedModifyListener(modListener);
+			view.removeFocusListener(focusListener);
+			view.removeVerifyKeyListener(verifyListener);
+			view.removeMouseListener(mouseListener);
+			view.removeTraverseListener(traverseListener);
+			view.removeCaretListener(caretListener);
+		}
 	}
 	
 	private void sendUpdate(DocumentManager dm){

@@ -141,12 +141,22 @@ public class ConfigFileDialog extends Dialog {
 		fillValueComboBox(variableCombo.getItem(0));
 		selectValueComboBox(txt.getText());
 		
-		// If the selected file is the default, check our box. Else, uncheck.
+		// Go through all of the config files and select the one that is the default.
 		defaultCfgFileName = BBIni.getDefaultConfigFile();
-		if( defaultCfgFileName.compareTo(fileNameCombo.getItem(fileNameCombo.getSelectionIndex())) == 0)
-			defaultCfgChk.setSelection(true);
-		else
-			defaultCfgChk.setSelection(false);
+		for(int curFN = 0; curFN < fileNameCombo.getItemCount(); curFN++)
+		{
+			// If this item in the combobox is the default, stop and update our UI.
+			if( defaultCfgFileName.compareTo(fileNameCombo.getItem(curFN)) == 0 )
+			{
+				// Set current combo selection.
+				fileNameCombo.select(curFN);
+				
+				// Check our default config checkbox.
+				defaultCfgChk.setSelection(true);
+				
+			} // if( defaultCfgFileName...
+			
+		} // for(int curFN = 0; curFN...
 		
 		// show the SWT window
 		configShell.pack();
@@ -200,10 +210,6 @@ public class ConfigFileDialog extends Dialog {
 		// Combo box that houses filenames.
 		fileNameCombo = new Combo (configShell, SWT.DROP_DOWN);
 		fileNameCombo.setLayoutData(fillGD);
-		
-		// Label next to variable name combo box.
-		Label name2 = new Label(configShell, SWT.HORIZONTAL);
-		name2.setText("Variable Name");
 
 		// Create Default Config File Checkbox.
 		defaultCfgChk = new Button(configShell, SWT.CHECK);
@@ -239,6 +245,10 @@ public class ConfigFileDialog extends Dialog {
 			} // public void widgetSelected()
 			
 		}); // restoreDefaultBtn.addSelectionListener(new SelectionAdapter() {
+		
+		// Label next to variable name combo box.
+		Label name2 = new Label(configShell, SWT.HORIZONTAL);
+		name2.setText("Variable Name");
 		
 		// Combo box that houses variable names.
 		variableCombo = new Combo (configShell, SWT.DROP_DOWN);

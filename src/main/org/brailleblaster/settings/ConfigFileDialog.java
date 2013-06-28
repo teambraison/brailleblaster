@@ -135,11 +135,9 @@ public class ConfigFileDialog extends Dialog {
 		loadConfigFileSettings();
 		// Load all config files.
 		loadConfigFiles();
-		// Fill combo boxes.
+		
+		// Fill filename combo box with loaded names.
 		fillFilenameComboBox();
-		fillVariableComboBox(fileList.get(0));
-		fillValueComboBox(variableCombo.getItem(0));
-		selectValueComboBox(txt.getText());
 		
 		// Go through all of the config files and select the one that is the default.
 		defaultCfgFileName = BBIni.getDefaultConfigFile();
@@ -153,6 +151,11 @@ public class ConfigFileDialog extends Dialog {
 				
 				// Check our default config checkbox.
 				defaultCfgChk.setSelection(true);
+				
+				// Fill and select our other combos.
+				fillVariableComboBox(fileList.get(curFN));
+				fillValueComboBox(variableCombo.getItem(0));
+				selectValueComboBox(txt.getText());
 				
 			} // if( defaultCfgFileName...
 			
@@ -334,8 +337,6 @@ public class ConfigFileDialog extends Dialog {
 				
 				// Save settings.
 				saveSettings();
-				
-				
 				
 				// Close dialog.
 				configShell.dispose();

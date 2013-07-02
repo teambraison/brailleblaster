@@ -388,9 +388,17 @@ public class ConfigFileDialog extends Dialog {
 				
 				// Update the user interface.
 				fillFilenameComboBox();
+				fileNameCombo.select(fileList.size() - 1);
 				fillVariableComboBox( fileList.get(fileList.size() - 1) );
 				fillValueComboBox(variableCombo.getItem(0));
 				selectValueComboBox(txt.getText());
+				
+				// Set default config.
+				defaultCfgFileName = fileNameCombo.getText();
+				defaultCfgChk.setEnabled(true);
+				
+				// Save new settings.
+				saveSettings();
 				
 			} // widgetSelected()
 			
@@ -712,7 +720,7 @@ public class ConfigFileDialog extends Dialog {
 	{
 		// Clear the combobox first.
 		fileNameCombo.removeAll();
-		
+
 		// Loop through every file.
 		for(int curFile = 0; curFile < fileList.size(); curFile++)
 		{
@@ -721,6 +729,8 @@ public class ConfigFileDialog extends Dialog {
 			String fileName = path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1, path.length());
 			fileNameCombo.add(fileName);
 		}
+		
+		// TODO: Alphabetize.
 		
 		// Select first item.
 		fileNameCombo.select(0);

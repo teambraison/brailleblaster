@@ -221,15 +221,15 @@ public class MapList extends LinkedList<TextMapElement>{
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-				if(start == index + 1)
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
-				else
+			//	if(start == index + 1)
+			//		arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
+			//	else
 					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
 			}
 			else {	
-				if(start == index + 1 )
-					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
-				else
+			//	if(start == index + 1 )
+			//		arr[i] = new UpdaterThread(this, start, start + length , offset, total);
+			//	else
 					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
 			}
 			
@@ -254,15 +254,15 @@ public class MapList extends LinkedList<TextMapElement>{
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-				if(start == index)
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
-				else
+				//if(start == index)
+					//arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
+				//else
 					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
 			}
 			else {	
-				if(start == index)
-					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
-				else
+				//if(start == index)
+					//arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
+				//else
 					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
 			}
 			

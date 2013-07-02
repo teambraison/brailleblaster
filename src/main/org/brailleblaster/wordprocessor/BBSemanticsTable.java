@@ -79,7 +79,9 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\tFont italic");
+			insertValue("italicx","\tFont " + SWT.ITALIC);
+			makeStylesObject("boldx");
+			insertValue("boldx","\tFont " + SWT.BOLD);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -170,7 +172,19 @@ public class BBSemanticsTable {
 				if(!st.contains(styleType)){
 					st.put(styleType, (String)newStyle.get(styleType));
 				}
+				else if(st.contains(styleType) && styleType.equals(StylesType.Font)){
+					st.put(styleType, (String.valueOf(combineFontStyles((String)st.get(styleType), (String)newStyle.get(styleType)))));
+				}
 			}
+		}
+	}
+	
+	private int combineFontStyles(String font1, String font2){
+		if(font1.equals(font2)){
+			return Integer.valueOf(font1);
+		}
+		else {
+			return Integer.valueOf(font1) + Integer.valueOf(font2);
 		}
 	}
 }

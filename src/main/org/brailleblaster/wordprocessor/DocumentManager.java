@@ -260,9 +260,6 @@ public class DocumentManager {
 				this.treeView.setRoot(this.document.getRootElement(), this);
 				initializeViews(this.document.getRootElement());
 				this.document.notifyUser();
-				//list.getLast().brailleList.removeLast();
-				this.text.view.replaceTextRange(this.text.view.getCharCount() - 1, 1, "");
-				this.braille.view.replaceTextRange(this.braille.view.getCharCount() - 1, 1, "");
 				this.text.initializeListeners(this);
 				this.braille.initializeListeners(this);
 				this.text.hasChanged = false;
@@ -284,7 +281,7 @@ public class DocumentManager {
 	}
 	
 	private void initializeViews(Node current){
-		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl")){
+		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current.getValue())){
 			this.text.setText(current, list);
 		}
 		
@@ -308,7 +305,9 @@ public class DocumentManager {
 	
 	private void initializeBraille(Node current, TextMapElement t){
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
-			this.braille.setBraille(current, t);
+			Element grandParent = (Element)current.getParent().getParent();
+			if(!(grandParent.getLocalName().equals("span") && this.document.checkAttributeValue(grandParent, "class", "brlonly")))
+				this.braille.setBraille(current, t);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -439,6 +438,16 @@ public class DocumentManager {
 			case GET_TEXT_MAP_ELEMENTS:
 				list.findTextMapElements(message);
 				break;
+			case UPDATE_SCROLLBAR:
+				if(message.contains("sender")){
+					index = list.findClosestBraille(message);
+					this.text.setTopIndex(this.braille.view.getTopIndex());
+				}
+				else{
+					index = list.findClosest(message, 0, list.size() - 1);
+					this.braille.setTopIndex(this.text.view.getTopIndex());
+				}
+				break;
 			default:
 				break;
 		}
@@ -559,7 +568,10 @@ public class DocumentManager {
 		if(this.text.view.isFocusControl()){
 			currentOffset = this.text.view.getCaretOffset();
 			resetViews();
-			this.text.view.setCaretOffset(currentOffset);
+			if(currentOffset < this.text.view.getCharCount())
+				this.text.view.setCaretOffset(currentOffset);
+			else
+				this.text.view.setCaretOffset(0);
 			m.put("sender", "text");
 			m.put("offset", currentOffset);
 			this.dispatch(m);
@@ -611,6 +623,17 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	private boolean vaildTextElement(String text){
+		int length = text.length();
+		
+		for(int i = 0; i < length; i++){
+			if(text.charAt(i) != '\n' && text.charAt(i) != '\t')
+				return true;
+		}
+		
+		return false;
 	}
 	
 	public void toggleBrailleFont(){

@@ -86,13 +86,12 @@ public class BBDocument {
 		
 		// Use the default; we don't have a local version.
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
-
 		
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
+			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n";
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n";
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n";
 		}
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -163,6 +162,8 @@ public class BBDocument {
 	private void updateNode(MapList list, Message message){
 		int total = 0;
 		String text = (String)message.getValue("newText");
+		text = text.replace("\n", "").replace("\r", "");
+		message.put("newText", text);
 		calculateDifference(list.getCurrent().n.getValue(), text, message);
 		changeTextNode(list.getCurrent().n, text);
 		
@@ -188,6 +189,7 @@ public class BBDocument {
 	
 	private int changeBrailleNodes(TextMapElement t, Message message){
 		Document d = getStringTranslation(t, (String)message.getValue("newText"));
+	//	System.out.println(d.toXML().toString());
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
@@ -195,7 +197,7 @@ public class BBDocument {
 		Element brlParent = ((Element)d.getRootElement().getChild(0));
 		Elements els = brlParent.getChildElements();
 		
-		if(els.get(0).getLocalName().equals("strong")){
+		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em")){
 			e = els.get(0).getChildElements().get(0);
 			addNamespace(e);
 			brlParent.getChildElements().get(0).removeChild(e);
@@ -206,6 +208,7 @@ public class BBDocument {
 			brlParent.removeChild(e);
 		}
 		
+	//	System.out.println(e.getValue());
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
 		
@@ -325,6 +328,10 @@ public class BBDocument {
 		Element parent = (Element)t.n.getParent();
 		while(!parent.getAttributeValue("semantics").contains("style")){
 			if(parent.getAttributeValue("semantics").equals("action,italicx")){
+				text = "<em>" + text + "</em>";
+				break;
+			}
+			else if(parent.getAttributeValue("semantics").equals("action,boldx")){
 				text = "<strong>" + text + "</strong>";
 				break;
 			}
@@ -361,13 +368,13 @@ public class BBDocument {
 	}
 	
 	private String getXMLString(String text){
+		text = text.replace("\n", "");
 		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book><string>" + text + "</string></book>";
 	}
 	
 	private int translateString(String text, byte[] outbuffer) {
 		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
-		String preferenceFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + 
-				BBIni.getFileSep() + BBIni.getDefaultConfigFile();
+		String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
 		
 		byte[] inbuffer;
 		try {
@@ -375,7 +382,7 @@ public class BBDocument {
 			int [] outlength = new int[1];
 			outlength[0] = text.length() * 10;
 			
-			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n paragraphs no\n printPages no\n", 0)){
+			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n printPages no\n", 0)){
 				return outlength[0];
 			}
 			else {
@@ -499,7 +506,7 @@ public class BBDocument {
 		
 		
 		if(inFile.equals(""))
-		return false;
+			return false;
 		 
 		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, "formatFor brf\n", 0);
 		deleteTempFile(inFile);
@@ -539,6 +546,18 @@ public class BBDocument {
 		}
 		
 		m.put("diff", diff);
+	}
+	
+	public boolean checkAttributeValue(Element e, String attribute, String value){
+		try {
+			if(e.getAttributeValue(attribute).equals(value))
+					return true;	
+			else
+				return false;
+		}
+		catch(Exception ex){
+			return false;
+		}
 	}
 	
 	public void checkSemantics(Element e){

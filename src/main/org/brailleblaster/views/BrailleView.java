@@ -54,6 +54,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -142,6 +144,7 @@ public class BrailleView extends AbstractView {
 						currentLine = view.getLineAtOffset(view.getCaretOffset());
 					}
 				}
+		//		System.out.println("Braille Caret:\t" + view.getCaretOffset());
 			}
 		});
 		
@@ -157,6 +160,27 @@ public class BrailleView extends AbstractView {
 					sendDecrementCurrent(dm);
 					view.setCaretOffset(currentStart);
 					e.doit = false;
+				}
+			}
+		});
+		
+		view.getVerticalBar().addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(!getLock()){
+					if(topIndex != view.getTopIndex()){
+						topIndex = view.getTopIndex();
+						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
+						scrollMessage.put("sender", "braille");
+						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
+						dm.dispatch(scrollMessage);
+					}
 				}
 			}
 		});
@@ -185,6 +209,7 @@ public class BrailleView extends AbstractView {
 		previousEnd = (Integer)message.getValue("previousBrailleEnd");
 		this.pageRanges.clear();
 		setPageRange((ArrayList<BrailleMapElement>)message.getValue("pageRanges"));
+	//	System.out.println("Braille:\t " + currentStart + " " + currentEnd);
 	}
 	
 	private void setPageRange(ArrayList<BrailleMapElement> list){
@@ -195,12 +220,19 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
+		String text = n.getValue();
 		setListenerLock(true);
 		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
 		Styles style = this.stylesTable.makeStylesElement(key, n);
 			
+		if(insertNewLine(n)){
+			view.append("\n");
+			this.total++;
+		}
+		
 		view.append(n.getValue());
 		handleStyle(style, n, (Element)t.n.getParent());
+//		checkFinalNewline(n);
 		
 		t.brailleList.add(new BrailleMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + n.getValue().length(), n));
 		this.total += this.spaceBeforeText + n.getValue().length() + this.spaceAfterText;
@@ -221,10 +253,23 @@ public class BrailleView extends AbstractView {
 		return false;
 	}
 	
+	private void checkFinalNewline(Node n){
+		Element parent = (Element)n.getParent();
+		int childCount = parent.getChildCount();
+		
+		if(parent.indexOf(n) == childCount - 2){
+			if(parent.getChild(childCount - 1) instanceof Element && ((Element)parent.getChild(childCount - 1)).getLocalName().equals("newline")){
+				view.append("\n");
+				this.spaceAfterText++;
+			}
+		}
+	}
+	
 	private void handleStyle(Styles style, Node n, Element parent){
 		String viewText = n.getValue();
 		Element brailleParent = (Element)n.getParent();
 		int index = parent.indexOf(brailleParent);
+	/*
 		if(index > 1){
 			if(parent.getChild(index - 2) instanceof Element && ((Element)parent.getChild(index - 2)).getLocalName().equals("br")){
 				insertBefore(this.spaceBeforeText + this.total, "\n");
@@ -233,13 +278,13 @@ public class BrailleView extends AbstractView {
 		else if(parent.getAttributeValue("semantics").contains("action")){
 			checkForLineBreak((Element)parent.getParent(), parent);
 		}
-		
+	*/	
 		for (StylesType styleType : style.getKeySet()) {
 			switch(styleType){
 				case linesBefore:
 					if(isFirst(n)){
 						String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
-						insertBefore(this.total - this.spaceBeforeText, textBefore);
+						insertBefore(this.total + this.spaceBeforeText, textBefore);
 					}
 					break;
 				case linesAfter:
@@ -250,19 +295,19 @@ public class BrailleView extends AbstractView {
 					break;
 				case firstLineIndent: 
 					if(isFirst(n) && Integer.valueOf((String)style.get(styleType)) != -2){
-						insertBefore(this.spaceBeforeText + this.total, "\t");
-					//	int spaces = Integer.valueOf((String)style.get(styleType));
-					//	this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText) , 1, spaces * getFontWidth());
+						int spaces = Integer.valueOf((String)style.get(styleType));
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total) , 1, spaces * getFontWidth());
 					}
 					break;
 				case format:
-					this.view.setLineAlignment(this.view.getLineAtOffset( this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf((String)style.get(styleType)));	
+					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf((String)style.get(styleType)));	
 					break;	
 				case Font:
-					 setFontRange(this.total, n.getValue().length() + this.spaceAfterText, SWT.ITALIC);
+					 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf((String)style.get(styleType)));
 					 break;
 				case leftMargin:
-			//		this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
+					if(!isFirst(n) && followsNewLine(n))
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf((String)style.get(styleType)) * getFontWidth()));
 					break;
 				default:
 					System.out.println(styleType);
@@ -277,18 +322,29 @@ public class BrailleView extends AbstractView {
 			}
 			
 			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
-				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+	//			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 			}
 		}
 		else if(parent.getAttributeValue("semantics").equals("style,list")){
-			if(isLast(n))
-				insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
+	//		if(isLast(n))
+	//			insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
 		}
 		else if(isLast(n)){
 			Elements els = parent.getChildElements();
-			if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
-				insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
+	//		if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
+	//			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
+	}
+	
+	private boolean followsNewLine(Node n){
+		Element parent = (Element)n.getParent();
+		int index = parent.indexOf(n);
+		
+		if(index > 0 && parent.getChild(index - 1) instanceof Element){
+			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline"))
+				return true;
+		}
+		return false;
 	}
 	
 	private boolean isFirst(Node n){
@@ -315,7 +371,7 @@ public class BrailleView extends AbstractView {
 					return false;
 			}
 			
-			if(grandParent.getAttributeValue("semantics").contains("action")){
+			if(grandParent.getAttributeValue("semantics").contains("action") && !grandParent.getLocalName().equals("lic")){
 				return isFirstElement(grandParent);
 			}
 			else {
@@ -398,25 +454,26 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
+		StyleRange range = null;
 		int total = (Integer)message.getValue("brailleLength");
-		int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
-		int lineIndent = this.view.getLineIndent(startLine);
+		System.out.println("Value: " + t.n.getValue());
 
 		String insertionString = (String)message.getValue("newBrailleText");
 		if(t.brailleList.getFirst().start != -1){
 			setListenerLock(true);
+			if(t.brailleList.getFirst().start < view.getCharCount())
+				range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start);
+				
+			int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
+			int lineIndent = this.view.getLineIndent(startLine);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
 			restoreStyleState(t.brailleList.getFirst().start);
 			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
-			
-			if(t.brailleList.getFirst().start < view.getCharCount()){
-				StyleRange range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start);
-				if(range != null)
-					updateRange(range, t.brailleList.getFirst().start, insertionString.length());
-			}
+				
+			if(range != null)
+				updateRange(range, t.brailleList.getFirst().start, insertionString.length());
 		}
-		
 	}
 	
 	public void removeWhitespace(int start, int length, char c, DocumentManager dm){
@@ -426,6 +483,7 @@ public class BrailleView extends AbstractView {
 		dm.dispatch(message);
 		setViewData(message);
 	
+	//	System.out.println("Start" + start);
 		if(c == SWT.DEL && view.getText(start, start).equals("\t") && (start != currentEnd && start != previousEnd)){
 			start--;
 		}

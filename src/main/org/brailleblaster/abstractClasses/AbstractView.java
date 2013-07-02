@@ -54,6 +54,7 @@ public abstract class AbstractView {
 	public static int currentLine;
 	protected boolean locked;
 	protected static int currentAlignment;
+	protected static int topIndex;
 	
 	public AbstractView() {
 	}
@@ -116,6 +117,7 @@ public abstract class AbstractView {
 	}
 	
 	protected void setFontRange(int start, int length, int style){
+	//	System.out.println(view.getCharCount() + " " + (start + length));
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = start;
 		styleRange.length = length;
@@ -132,6 +134,7 @@ public abstract class AbstractView {
 	protected int getFontWidth(){
 		GC gc = new GC(this.view);
 		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
 		return fm.getAverageCharWidth();
 	}
 	
@@ -183,6 +186,23 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
+	protected void handleLineWrap(String text, int indent){
+		int pos = this.spaceBeforeText + this.total;
+		int newPos;
+		int i = 0;
+		while( i < text.length() && text.charAt(i) == '\n'){
+			i++;
+		}
+	//	this.view.setLineWrapIndent(this.view.getLineAtOffset(pos), 1, this.view.getLineIndent(this.view.getLineAtOffset(pos))+ (indent * getFontWidth()));
+		for(; i < text.length(); i++){
+			if(text.charAt(i) == '\n' && i != text.length() - 1){
+				i++;
+				newPos = pos + i;
+				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * getFontWidth()));
+			}
+		}
+	}
+	
 	protected void checkForLineBreak(Element parent, Node n){
 		if(parent.indexOf(n) > 0){
 			int priorIndex = parent.indexOf(n) - 1;
@@ -202,6 +222,13 @@ public abstract class AbstractView {
 			else if(newParent.indexOf(child) == 0 && newParent.getAttributeValue("semantics").contains("action"))
 				checkForLineBreak((Element)newParent.getParent(), newParent);
 		}
+	}
+	
+	public void setTopIndex(int line){
+		setListenerLock(true);
+			this.view.setTopIndex(line);
+			topIndex = line;
+		setListenerLock(false);
 	}
 	
 	protected abstract void setViewData(Message message);

@@ -1,0 +1,48 @@
+This file is a suppleement to README.txt. You may find it advantageous 
+to read that file to get an idea of the structure and operation of 
+BrailleBlaster.
+
+BrailleBlaster was written using Java 6, because that was what was 
+available. The Ant build.xml file enables compilation on Java 5, 6 and 
+7. The jar files produced should run on any of these versions. The 
+developers may move to Java 7 if it contains new usable features.
+
+The best way to build BrailleBlaster is to clone the Mercurial 
+reopsitory and then place native and jar files in their proper 
+directories, as described below.
+
+To build BrailleBlaster you must have Ant installed on your machine or 
+an IDE that can execute an Ant build.xml file. In addition, you must 
+copy the following .jar files into the directory dist/lib
+
+The swt.jar for your platform
+commons-cli-1.2.jar
+commons-exec-1.1.jar
+jliblouisutdml.jar (bindings)
+xom.jar
+(others as time goes on) 
+
+These .jar files can be downloaded from the "for developers" page at 
+httP://www.brailleblaster.org
+
+Then run ant. This will place brailleblaster.jar in the dist directory.
+
+You must also compile a number of C and C++ programs and libraries for 
+your platform. Be sure they compile into dist/native
+
+liblouis
+liblouisutdml
+libxml2
+(Others as time goes on)
+
+On Linux and Mac compiled libraries should be copied into the 
+dist/native/lib subdirectory. Linux sustems usually have libxml2 
+installed, so it need not be compiled. On Windows systems compiled 
+libraries should be placed in the dist directory along with the 
+brailleblaster.jar file created by Ant. This may change in the future.
+
+Rename the dist directory brailleblaster and package it in a way 
+suitable for your platform. you may want to place a shortcut with the 
+path to brailleblaster.jar on your desktop.
+
+

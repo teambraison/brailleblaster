@@ -487,39 +487,79 @@ public class ConfigFileDialog extends Dialog {
 	// Loads all config files.
 	void loadConfigFiles()
 	{
-		// Config file directory. 
-		String configDir = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
+		// File separator.
+		String sp = BBIni.getFileSep();
+		
+		// Config file directories.
+		String configDir = BBIni.getProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + sp;
+		String usrCfgDir = BBIni.getUserProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + sp;
+		
+		// Grab files in default and local locations.
+		File dir = new File(configDir);
+		File usrDir = new File(usrCfgDir);
+		
+		///////////////////////////////
+		// Build one list of all files.
+
+			// Create list.
+			ArrayList<File> tempFileList = new ArrayList<File>();
+			// Fill it with the local files first.
+			for(int curCh = 0; curCh < usrDir.listFiles().length; curCh++)
+				tempFileList.add(usrDir.listFiles()[curCh]);
+			
+			// Now add the default files while checking for locals.
+			int numDefFiles = dir.listFiles().length;
+			int numLocFiles = usrDir.listFiles().length;
+			boolean addMe = true;
+			for(int curDef = 0; curDef < numDefFiles; curDef++)
+			{
+				// Assume this isn't already a local file.
+				addMe = true;
+				
+				// Filename of current default file.
+				String fileNameDefault = dir.listFiles()[curDef].getPath().substring( dir.listFiles()[curDef].getPath().lastIndexOf(sp) );
+				
+				// Check against every local file. If there is a duplicate, then don't add this 
+				// default file to the list.
+				for(int curLoc = 0; curLoc < numLocFiles; curLoc++)
+				{
+					// Get local file name.
+					String fileNameLocal = tempFileList.get(curLoc).getPath().substring( tempFileList.get(curLoc).getPath().lastIndexOf(sp) );
+					
+					// If there is a default and local file with the same filename, then just keep the local.
+					if(fileNameLocal.compareTo(fileNameDefault) == 0) {
+						addMe = false;
+						break;
+						
+					} // if(fileNameLocal.compareTo...
+					
+				} // for(int curLoc = 0...
+				
+				// Should we add this to the list?
+				if(addMe == true)
+					tempFileList.add(dir.listFiles()[curDef]);
+				
+			} // for(int curF = 0...
+		
+		// Build one list of all files.
+		///////////////////////////////
 		
 		// Iterate over every file and populate our filename combo box.
-		File dir = new File(configDir);
-		for(File child : dir.listFiles())
+		for(int curCh = 0; curCh < tempFileList.size(); curCh++)
 		{
+			// Point to current file in list.
+			File child = tempFileList.get(curCh);
+			
 			// If this is a config file, load it.
 			if( !child.getPath().endsWith(".cfg") )
 				continue;
 			
-			////////////////////
-			// Local or Default.
-			
-				String configFileWithPath = "temp";
-				String sp = BBIni.getFileSep();
-				String fileName = child.getPath().substring(child.getPath().lastIndexOf(sp), child.getPath().length());
-				String fullPath = BBIni.getUserProgramDataPath() + sp + "liblouisutdml" + sp + "lbu_files" + fileName;
-				File f = new File(fullPath);
-				if( f.exists() && f.isFile() ) {
-					configFileWithPath = fullPath;
-				}
-				else {
-					configFileWithPath = child.getPath();
-				}
-				ConfigFile newCFG = new ConfigFile();
-				newCFG.lines = new ArrayList<ConfigEntry>();
-			
-			// Local or Default.
-			////////////////////
-			
+			// Create config file.
+			ConfigFile newCFG = new ConfigFile();
+			newCFG.lines = new ArrayList<ConfigEntry>();
+				
 			// Get full path.
-			newCFG.configFilePath = configFileWithPath;
+			newCFG.configFilePath = child.getPath();
 			
 			// Load file, line by line.
 			BufferedReader br;

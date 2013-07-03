@@ -227,6 +227,7 @@ public class ConfigFileDialog extends Dialog {
 				// Point to user's version of cfg file.
 				String configDir = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
 				File deleteMe = new File(configDir + fileNameCombo.getText());
+				String deletedFileName = fileNameCombo.getText();
 				
 				// Make sure the file exists. If it doesn't, don't bother.
 				if(!deleteMe.exists())
@@ -244,6 +245,27 @@ public class ConfigFileDialog extends Dialog {
 				fillVariableComboBox(fileList.get(0));
 				fillValueComboBox(variableCombo.getItem(0));
 				selectValueComboBox(txt.getText());
+
+				// If this file was the default, change to another if it didn't have an original.
+				if(deletedFileName.compareTo(defaultCfgFileName) == 0)
+				{
+					// Default config directory.
+					String defCfgDir = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep();
+					
+					// Is there an original?
+					File origFile = new File(defCfgDir + deletedFileName);
+					if(!origFile.exists())
+					{
+						// No file with this name existed as an original; reset default config file.
+						defaultCfgFileName = fileNameCombo.getText();
+						defaultCfgChk.setEnabled(true);
+						
+						// Save new settings.
+						saveSettings();
+						
+					} // if(!origFile.exists())
+					
+				} // if(fileNameCombo...
 				
 			} // public void widgetSelected()
 			

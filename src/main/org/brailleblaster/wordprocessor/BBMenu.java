@@ -84,7 +84,6 @@ class BBMenu {
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
 	MenuItem stylePanelItem;
-	MenuItem configDlgItem;
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -151,7 +150,7 @@ class BBMenu {
 		MenuItem viewItem = new MenuItem(menuBar, SWT.CASCADE);
 		viewItem.setText(lh.localValue("&View"));
 		MenuItem translateItem = new MenuItem(menuBar, SWT.CASCADE);
-		translateItem.setText(lh.localValue("&Translate"));
+		translateItem.setText(lh.localValue("&Braille"));
 		MenuItem insertItem = new MenuItem(menuBar, SWT.CASCADE);
 		insertItem.setText(lh.localValue("&Insert"));
 		insertItem.setEnabled(false); /* FO */
@@ -496,18 +495,7 @@ class BBMenu {
 				System.out.println("Open Style Panel");
 			}
 		});
-		
-		// Config files.
-		configDlgItem = new MenuItem(editMenu, SWT.PUSH);
-		configDlgItem.setText( "Con&fig Files" );
-		configDlgItem.addSelectionListener(new SelectionAdapter() {
-		public void widgetSelected(SelectionEvent e) {
-//			
-			ConfigFileDialog cfd = new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
-		}
-		});
-
-		nextElementItem = new MenuItem(editMenu, SWT.PUSH);
+				nextElementItem = new MenuItem(editMenu, SWT.PUSH);
 		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -661,15 +649,15 @@ class BBMenu {
 		viewItem.setMenu(viewMenu);
 
 		// Set up translate menu
-		Menu translateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
-		xtranslateItem = new MenuItem(translateMenu, SWT.PUSH);
+		Menu brailleMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
+		xtranslateItem = new MenuItem(brailleMenu, SWT.PUSH);
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
 			}
 		});
-		backTranslateItem = new MenuItem(translateMenu, SWT.PUSH);
+		backTranslateItem = new MenuItem(brailleMenu, SWT.PUSH);
 		backTranslateItem.setText(lh.localValue("&BackTranslate"));
 		backTranslateItem.setEnabled(false);
 		backTranslateItem.addSelectionListener(new SelectionAdapter() {
@@ -677,14 +665,14 @@ class BBMenu {
 				//dm.placeholder();
 			}
 		});
-		translationTemplatesItem = new MenuItem(translateMenu, SWT.PUSH);
+		translationTemplatesItem = new MenuItem(brailleMenu, SWT.PUSH);
 		translationTemplatesItem.setText(lh.localValue("&TranslationTemplates"));
 		translationTemplatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				
+				ConfigFileDialog cfd = new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
 			}
 		});
-		translateItem.setMenu(translateMenu);
+		translateItem.setMenu(brailleMenu);
 
 		// Set up insert menu
 		Menu insertMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);

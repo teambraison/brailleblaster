@@ -672,7 +672,9 @@ navigateItem.setMenu(navigateMenu);
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).refresh();
 			}
 		});
 		backTranslateItem = new MenuItem(brailleMenu, SWT.PUSH);

@@ -40,10 +40,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Properties;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -72,6 +72,8 @@ public class ConfigFileDialog extends Dialog {
 	// Dialog stuff.
 	static Display display;
 	static Shell configShell;
+	LocaleHandler lh = new LocaleHandler();
+
 	
 	// Word Processor Manager.
 	WPManager dm;
@@ -115,7 +117,7 @@ public class ConfigFileDialog extends Dialog {
 		display = dm.getDisplay();
 		Display display = parent.getDisplay();
 		configShell = new Shell(parent, SWT.DIALOG_TRIM);
-		configShell.setText("Update Config File");
+		configShell.setText(lh.localValue("editTranslationTemplates"));
 		
 		fileList = new ArrayList<ConfigFile>();
 		
@@ -205,7 +207,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Label next to file name combo box.
 		Label name = new Label(configShell, SWT.HORIZONTAL);
-		name.setText("Config Filename");
+		name.setText(lh.localValue("&TranslationTemplates"));
 		
 		// So our combos and buttons take up whole width of dialog.
 		GridData fillGD = new GridData(GridData.FILL_HORIZONTAL);

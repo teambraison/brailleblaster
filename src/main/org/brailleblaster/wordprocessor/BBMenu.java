@@ -110,7 +110,7 @@ class BBMenu {
 	MenuItem displayedGraphicItem;
 	MenuItem tableItem;
 	MenuItem brlFormatItem;
-	MenuItem brailleASCIIItem;
+//	MenuItem brailleASCIIItem;
 	MenuItem showTranslationTemplatesItem;
 	MenuItem showFormatTemplatesItem;
 	MenuItem changeSettingsItem;
@@ -723,7 +723,8 @@ class BBMenu {
 				//dm.placeholder();
 			}
 		});
-		brailleASCIIItem = new MenuItem(advancedMenu, SWT.PUSH);
+/*		KC: Removing this for now since no one knows what it is for.
+ * brailleASCIIItem = new MenuItem(advancedMenu, SWT.PUSH);
 		brailleASCIIItem.setText(lh.localValue("&brailleASCIITable"));
 		brailleASCIIItem.setEnabled(false);
 		brailleASCIIItem.addSelectionListener(new SelectionAdapter() {
@@ -731,6 +732,7 @@ class BBMenu {
 				//dm.placeholder();
 			}
 		});
+*/
 		showTranslationTemplatesItem = new MenuItem(advancedMenu, SWT.PUSH);
 		showTranslationTemplatesItem.setText(lh.localValue("&ShowTranslationTemplates"));
 		showTranslationTemplatesItem.setEnabled(false);

@@ -84,6 +84,7 @@ class BBMenu {
 	MenuItem zoomImageItem;
 	MenuItem selectAllItem;
 	MenuItem stylePanelItem;
+	MenuItem prevElementItem;
 	MenuItem nextElementItem;
 	MenuItem assocSelectionItem;
 	MenuItem lockSelectionItem;
@@ -147,6 +148,8 @@ class BBMenu {
 		fileItem.setText(lh.localValue("&File"));
 		MenuItem editItem = new MenuItem(menuBar, SWT.CASCADE);
 		editItem.setText(lh.localValue("&Edit"));
+		MenuItem navigateItem = new MenuItem(menuBar, SWT.CASCADE);
+		navigateItem.setText(lh.localValue("&Navigate"));
 		MenuItem viewItem = new MenuItem(menuBar, SWT.CASCADE);
 		viewItem.setText(lh.localValue("&View"));
 		MenuItem translateItem = new MenuItem(menuBar, SWT.CASCADE);
@@ -495,17 +498,7 @@ class BBMenu {
 				System.out.println("Open Style Panel");
 			}
 		});
-				nextElementItem = new MenuItem(editMenu, SWT.PUSH);
-		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
-		nextElementItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
-				int index = wp.getFolder().getSelectionIndex();
-				if(index != -1)
-					wp.getList().get(index).nextElement();
-			}
-		});
-		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
+assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		assocSelectionItem.setText(lh.localValue("&AssocSelection"));
 		assocSelectionItem.setEnabled(false);
 		assocSelectionItem.addSelectionListener(new SelectionAdapter() {
@@ -565,6 +558,31 @@ class BBMenu {
 **/		
 		editItem.setMenu(editMenu);
 		editItem.setEnabled(true);
+
+		
+		// Set up navigation menu
+		Menu navigateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
+		prevElementItem = new MenuItem(navigateMenu, SWT.PUSH);
+prevElementItem.setText(lh.localValue("&PreviousElement") + "\tCtrl + Up");
+prevElementItem.addSelectionListener(new SelectionAdapter() {
+	public void widgetSelected(SelectionEvent e) {
+		int index = wp.getFolder().getSelectionIndex();
+//		if(index != -1)
+//			wp.getList().get(index).prevElement();
+	}
+});
+
+nextElementItem = new MenuItem(navigateMenu, SWT.PUSH);
+nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
+nextElementItem.addSelectionListener(new SelectionAdapter() {
+	public void widgetSelected(SelectionEvent e) {
+		//dm.placeholder();
+		int index = wp.getFolder().getSelectionIndex();
+		if(index != -1)
+			wp.getList().get(index).nextElement();
+	}
+});
+navigateItem.setMenu(navigateMenu);
 
 		// Set up view menu
 		Menu viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);

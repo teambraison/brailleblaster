@@ -490,8 +490,10 @@ public class BBDocument {
 			if(e.get(i).getAttributeValue("semantics").equals("style,document")){
 				Elements els = e.get(i).getChildElements();
 				for(int j = 0; j < els.size(); j++){
-					if(els.get(j).getLocalName().equals("brl"))
-						e.get(i).removeChild(j);
+					if(els.get(j).getLocalName().equals("brl")){
+						int index = e.get(i).indexOf(els.get(j));
+						e.get(i).removeChild(index);
+					}
 				}
 			}
 		}

@@ -258,7 +258,7 @@ public class DocumentManager {
 	}
 	
 	private void initializeAllViews(String fileName, String filePath){
-	//	long start = System.currentTimeMillis();
+		//long start = System.currentTimeMillis();
 		try{
 			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
 				this.group.setRedraw(false);
@@ -294,8 +294,8 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-	//	long end = System.currentTimeMillis();
-	//	System.out.println("TOTAL: " + (end - start));
+		//long end = System.currentTimeMillis();
+		//System.out.println("TOTAL: " + (end - start));
 	}
 	
 	private void initializeViews(Node current){
@@ -622,7 +622,7 @@ public class DocumentManager {
 			initializeDocumentTab();
 
 			
-			setCurrentOnRefresh(null,currentOffset);
+			setCurrentOnRefresh(null, currentOffset);
 			this.text.view.setCaretOffset(currentOffset);
 			this.text.setPositionFromStart();
 		}

@@ -189,7 +189,6 @@ public class BBDocument {
 	
 	private int changeBrailleNodes(TextMapElement t, Message message){
 		Document d = getStringTranslation(t, (String)message.getValue("newText"));
-	//	System.out.println(d.toXML().toString());
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";

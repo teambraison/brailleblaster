@@ -29,6 +29,7 @@
 package org.brailleblaster.views;
 
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -49,6 +50,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -59,14 +61,29 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Group;
 
+
 public class BrailleView extends AbstractView {
+	private final static int LEFT_MARGIN = 58;
+	private final static int RIGHT_MARGIN = 100;
+	private final static int TOP_MARGIN = 0;
+	private final static int BOTTOM_MARGIN = 100;
+	
 	private int currentStart, currentEnd, nextStart, previousEnd;
 	private BBSemanticsTable stylesTable;
 	private int oldCursorPosition = -1;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	private String charAtOffset;
+	
+	private VerifyKeyListener verifyListener;
+	private FocusListener focusListener;
+	private MouseListener mouseListener;
+	private CaretListener caretListener;
+	private TraverseListener traverseListener;
+	private SelectionListener selectionListener;
 	
 	public BrailleView(Group documentWindow, BBSemanticsTable table) {
 		super(documentWindow, 58, 100, 0, 100);
@@ -77,7 +94,7 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void initializeListeners(final DocumentManager dm){
-		view.addVerifyKeyListener(new VerifyKeyListener(){
+		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
@@ -85,7 +102,7 @@ public class BrailleView extends AbstractView {
 			
 		});
 		
-		view.addFocusListener(new FocusListener(){
+		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
 				Message message = new Message(BBEvent.GET_CURRENT);
@@ -107,7 +124,7 @@ public class BrailleView extends AbstractView {
 			}
 		});
 		
-		view.addMouseListener(new MouseListener(){
+		view.addMouseListener(mouseListener = new MouseListener(){
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				// TODO Auto-generated method stub	
@@ -126,7 +143,7 @@ public class BrailleView extends AbstractView {
 			}		
 		});
 		
-		view.addCaretListener(new CaretListener(){
+		view.addCaretListener(caretListener = new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
 				if(!getLock()){
@@ -148,7 +165,7 @@ public class BrailleView extends AbstractView {
 			}
 		});
 		
-		view.addTraverseListener(new TraverseListener(){
+		view.addTraverseListener(traverseListener = new TraverseListener(){
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.CONTROL && e.keyCode == SWT.ARROW_DOWN && nextStart != -1){
@@ -164,7 +181,7 @@ public class BrailleView extends AbstractView {
 			}
 		});
 		
-		view.getVerticalBar().addSelectionListener(new SelectionListener(){
+		view.getVerticalBar().addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -188,6 +205,14 @@ public class BrailleView extends AbstractView {
 		setListenerLock(false);
 	}
 	
+	public void removeListeners(){
+		view.removeVerifyKeyListener(verifyListener);
+		view.removeFocusListener(focusListener);
+		view.removeMouseListener(mouseListener);
+		view.removeCaretListener(caretListener);
+		view.removeTraverseListener(traverseListener);
+		view.getVerticalBar().removeSelectionListener(selectionListener);
+	}
 	
 	private void setCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.SET_CURRENT);
@@ -196,6 +221,7 @@ public class BrailleView extends AbstractView {
 		message.put("offset", view.getCaretOffset());
 		if(charAtOffset != null)
 			message.put("char", charAtOffset);
+		
 		dm.dispatch(message);
 		setViewData(message);
 		charAtOffset = null;
@@ -220,22 +246,26 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void setBraille(Node n, TextMapElement t){
-		String text = n.getValue();
 		setListenerLock(true);
 		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
 		Styles style = this.stylesTable.makeStylesElement(key, n);
-			
+		String textBefore = "";
+		String text = n.getValue();
+		int textLength = text.length();
+		
 		if(insertNewLine(n)){
-			view.append("\n");
-			this.total++;
+		//	view.append("\n");
+		//	this.total++;
+			textBefore = "\n";
+			this.spaceBeforeText++;
 		}
 		
-		view.append(n.getValue());
+		view.append(textBefore + text);
 		handleStyle(style, n, (Element)t.n.getParent());
 //		checkFinalNewline(n);
 		
-		t.brailleList.add(new BrailleMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + n.getValue().length(), n));
-		this.total += this.spaceBeforeText + n.getValue().length() + this.spaceAfterText;
+		t.brailleList.add(new BrailleMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength, n));
+		this.total += this.spaceBeforeText + textLength + this.spaceAfterText;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		setListenerLock(false);
@@ -267,8 +297,8 @@ public class BrailleView extends AbstractView {
 	
 	private void handleStyle(Styles style, Node n, Element parent){
 		String viewText = n.getValue();
-		Element brailleParent = (Element)n.getParent();
-		int index = parent.indexOf(brailleParent);
+	//	Element brailleParent = (Element)n.getParent();
+	//	int index = parent.indexOf(brailleParent);
 	/*
 		if(index > 1){
 			if(parent.getChild(index - 2) instanceof Element && ((Element)parent.getChild(index - 2)).getLocalName().equals("br")){
@@ -279,41 +309,42 @@ public class BrailleView extends AbstractView {
 			checkForLineBreak((Element)parent.getParent(), parent);
 		}
 	*/	
-		for (StylesType styleType : style.getKeySet()) {
-			switch(styleType){
+		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+			switch(entry.getKey()){
 				case linesBefore:
 					if(isFirst(n)){
-						String textBefore = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+						String textBefore = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
 						insertBefore(this.total + this.spaceBeforeText, textBefore);
 					}
 					break;
 				case linesAfter:
 					if(isLast(n)){
-						String textAfter = makeInsertionString(Integer.valueOf((String)style.get(styleType)),'\n');
+						String textAfter = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
 						insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
 					}
 					break;
 				case firstLineIndent: 
-					if(isFirst(n) && Integer.valueOf((String)style.get(styleType)) != -2){
-						int spaces = Integer.valueOf((String)style.get(styleType));
-						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total) , 1, spaces * getFontWidth());
+					if(isFirst(n) && Integer.valueOf(entry.getValue()) != -2){
+						int spaces = Integer.valueOf(entry.getValue());
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total) , 1, spaces * this.charWidth);
 					}
 					break;
 				case format:
-					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf((String)style.get(styleType)));	
+					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf(entry.getValue()));	
 					break;	
 				case Font:
-					 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf((String)style.get(styleType)));
+					 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
 					 break;
 				case leftMargin:
 					if(!isFirst(n) && followsNewLine(n))
-						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf((String)style.get(styleType)) * getFontWidth()));
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf(entry.getValue()) * getFontWidth()));
 					break;
 				default:
-					System.out.println(styleType);
+					System.out.println(entry.getKey());
 			}
 		}
 		
+		/*
 		if(parent.getAttributeValue("semantics").contains("action")){
 			Element grandParent = (Element)parent.getParent();
 			while(grandParent.getAttributeValue("semantics").contains("action")){
@@ -334,6 +365,7 @@ public class BrailleView extends AbstractView {
 	//		if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
 	//			insertAfter(this.spaceBeforeText + this.total + n.getValue().length() + this.spaceAfterText, "\n");
 		}
+		*/
 	}
 	
 	private boolean followsNewLine(Node n){
@@ -457,12 +489,12 @@ public class BrailleView extends AbstractView {
 		StyleRange range = null;
 		int total = (Integer)message.getValue("brailleLength");
 		System.out.println("Value: " + t.n.getValue());
-
+		
 		String insertionString = (String)message.getValue("newBrailleText");
 		if(t.brailleList.getFirst().start != -1){
 			setListenerLock(true);
 			if(t.brailleList.getFirst().start < view.getCharCount())
-				range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start);
+				range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start + ((t.brailleList.getLast().end - t.brailleList.getFirst().start) / 2));
 				
 			int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
 			int lineIndent = this.view.getLineIndent(startLine);
@@ -508,7 +540,7 @@ public class BrailleView extends AbstractView {
 		setListenerLock(false);
 	}
 	
-	private void setPositionFromStart(){
+	public void setPositionFromStart(){
 		int count = 0;
 		positionFromStart = view.getCaretOffset() - currentStart;
 		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
@@ -590,10 +622,9 @@ public class BrailleView extends AbstractView {
 		this.words = words;
 	}
 
-	@Override
-	public void resetView() {
+	public void resetView(Group group) {
 		setListenerLock(true);
-		view.setText("");
+		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;

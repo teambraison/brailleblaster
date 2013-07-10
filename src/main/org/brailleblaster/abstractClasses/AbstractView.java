@@ -49,6 +49,7 @@ public abstract class AbstractView {
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
 	protected int total;
+	protected int charWidth;
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	public static int currentLine;
@@ -60,16 +61,10 @@ public abstract class AbstractView {
 	}
 
 	public AbstractView(Group group, int left, int right, int top, int bottom) {
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
-
-		FormData location = new FormData();
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		view.setLayoutData(location);
-
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
 		view.addModifyListener(viewMod);
+		this.charWidth = getFontWidth();
 	}
 
 	// Better use a ModifyListener to set the change flag.
@@ -78,6 +73,15 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
+	
+	protected void setLayout(int left, int right, int top, int bottom){
+		FormData location = new FormData();
+		location.left = new FormAttachment(left);
+		location.right = new FormAttachment(right);
+		location.top = new FormAttachment(top);
+		location.bottom = new FormAttachment(bottom);
+		view.setLayoutData(location);
+	}
 	
 	protected void sendIncrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.INCREMENT);
@@ -231,6 +235,21 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
+	public void resetCursor(int pos){
+		setListenerLock(true);
+		view.setFocus();
+		view.setCaretOffset(pos);
+		setListenerLock(false);
+	}
+	
+	protected void recreateView(Group group, int left, int right, int top, int bottom){
+		view.dispose();
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
+		view.getParent().layout();
+	}
+	
 	protected abstract void setViewData(Message message);
-	public abstract void resetView();
+	public abstract void resetView(Group group);
+	public abstract void initializeListeners(final DocumentManager dm);
 }

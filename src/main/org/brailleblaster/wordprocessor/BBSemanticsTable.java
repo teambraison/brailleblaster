@@ -1,23 +1,20 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 
-import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.ParsingException;
-import nu.xom.ValidityException;
+
 
 public class BBSemanticsTable {
 	public enum StylesType{
@@ -57,6 +54,10 @@ public class BBSemanticsTable {
 		
 		public Set<StylesType> getKeySet(){
 			return this.map.keySet(); 
+		}
+		
+		public Set<Entry<StylesType, String>> getEntrySet(){
+			return this.map.entrySet();
 		}
 		
 		public boolean contains(StylesType key){

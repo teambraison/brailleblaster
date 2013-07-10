@@ -247,7 +247,7 @@ public class DocumentManager {
 		// Zip and Recent Files.
 		////////////////////////
 		
-		String tempPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + workingFilePath.substring(fileName.lastIndexOf(BBIni.getFileSep()), fileName.lastIndexOf(".")) + "_temp.xml";
+		String tempPath = BBIni.getTempFilesPath() + workingFilePath.substring( workingFilePath.lastIndexOf(BBIni.getFileSep()),  workingFilePath.lastIndexOf(".")) + "_temp.xml";
 		normalizeFile(workingFilePath, tempPath);
 		initializeAllViews(fileName, tempPath);
 	}	
@@ -258,7 +258,7 @@ public class DocumentManager {
 	}
 	
 	private void initializeAllViews(String fileName, String filePath){
-		//long start = System.currentTimeMillis();
+	//	long start = System.currentTimeMillis();
 		try{
 			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
 				this.group.setRedraw(false);
@@ -294,8 +294,8 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		//long end = System.currentTimeMillis();
-		//System.out.println("TOTAL: " + (end - start));
+	//	long end = System.currentTimeMillis();
+	//	System.out.println("TOTAL: " + (end - start));
 	}
 	
 	private void initializeViews(Node current){

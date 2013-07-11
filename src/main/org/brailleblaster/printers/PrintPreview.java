@@ -8,6 +8,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.BBDocument;
+import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.SWT;
@@ -22,6 +23,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
+
 
 public class PrintPreview {
 	Shell shell;
@@ -75,9 +77,15 @@ public class PrintPreview {
 			// TODO Auto-generated method stub		
 		}
 
-		@Override
-		public void resetView() {
+		
+		public void resetView(Group group) {
 			// TODO Auto-generated method stub		
+		}
+
+		@Override
+		public void initializeListeners(DocumentManager dm) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

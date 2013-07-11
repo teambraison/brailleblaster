@@ -49,26 +49,22 @@ public abstract class AbstractView {
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
 	protected int total;
+	protected int charWidth;
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	public static int currentLine;
 	protected boolean locked;
 	protected static int currentAlignment;
+	protected static int topIndex;
 	
 	public AbstractView() {
 	}
 
 	public AbstractView(Group group, int left, int right, int top, int bottom) {
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
-
-		FormData location = new FormData();
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		view.setLayoutData(location);
-
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
 		view.addModifyListener(viewMod);
+		this.charWidth = getFontWidth();
 	}
 
 	// Better use a ModifyListener to set the change flag.
@@ -77,6 +73,15 @@ public abstract class AbstractView {
 			hasChanged = true;
 		}
 	};
+	
+	protected void setLayout(int left, int right, int top, int bottom){
+		FormData location = new FormData();
+		location.left = new FormAttachment(left);
+		location.right = new FormAttachment(right);
+		location.top = new FormAttachment(top);
+		location.bottom = new FormAttachment(bottom);
+		view.setLayoutData(location);
+	}
 	
 	protected void sendIncrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.INCREMENT);
@@ -116,6 +121,7 @@ public abstract class AbstractView {
 	}
 	
 	protected void setFontRange(int start, int length, int style){
+	//	System.out.println(view.getCharCount() + " " + (start + length));
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = start;
 		styleRange.length = length;
@@ -132,6 +138,7 @@ public abstract class AbstractView {
 	protected int getFontWidth(){
 		GC gc = new GC(this.view);
 		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
 		return fm.getAverageCharWidth();
 	}
 	
@@ -183,6 +190,23 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
+	protected void handleLineWrap(String text, int indent){
+		int pos = this.spaceBeforeText + this.total;
+		int newPos;
+		int i = 0;
+		while( i < text.length() && text.charAt(i) == '\n'){
+			i++;
+		}
+	//	this.view.setLineWrapIndent(this.view.getLineAtOffset(pos), 1, this.view.getLineIndent(this.view.getLineAtOffset(pos))+ (indent * getFontWidth()));
+		for(; i < text.length(); i++){
+			if(text.charAt(i) == '\n' && i != text.length() - 1){
+				i++;
+				newPos = pos + i;
+				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * getFontWidth()));
+			}
+		}
+	}
+	
 	protected void checkForLineBreak(Element parent, Node n){
 		if(parent.indexOf(n) > 0){
 			int priorIndex = parent.indexOf(n) - 1;
@@ -204,6 +228,28 @@ public abstract class AbstractView {
 		}
 	}
 	
+	public void setTopIndex(int line){
+		setListenerLock(true);
+			this.view.setTopIndex(line);
+			topIndex = line;
+		setListenerLock(false);
+	}
+	
+	public void resetCursor(int pos){
+		setListenerLock(true);
+		view.setFocus();
+		view.setCaretOffset(pos);
+		setListenerLock(false);
+	}
+	
+	protected void recreateView(Group group, int left, int right, int top, int bottom){
+		view.dispose();
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
+		view.getParent().layout();
+	}
+	
 	protected abstract void setViewData(Message message);
-	public abstract void resetView();
+	public abstract void resetView(Group group);
+	public abstract void initializeListeners(final DocumentManager dm);
 }

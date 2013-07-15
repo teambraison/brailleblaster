@@ -264,7 +264,7 @@ public class DocumentManager {
 	}
 	
 	private void initializeAllViews(String fileName, String filePath){
-		//long start = System.currentTimeMillis();
+//		long start = System.currentTimeMillis();
 		try{
 			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
 				this.group.setRedraw(false);
@@ -300,8 +300,8 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-		//long end = System.currentTimeMillis();
-		//System.out.println("TOTAL: " + (end - start));
+//		long end = System.currentTimeMillis();
+//		System.out.println("TOTAL: " + (end - start));
 	}
 	
 	private void initializeViews(Node current){
@@ -465,11 +465,11 @@ public class DocumentManager {
 			case UPDATE_SCROLLBAR:
 				if(message.contains("sender")){
 					index = list.findClosestBraille(message);
-					this.text.setTopIndex(this.braille.view.getTopIndex());
+					this.text.positionScrollbar(this.braille.view.getTopIndex());
 				}
 				else{
 					index = list.findClosest(message, 0, list.size() - 1);
-					this.braille.setTopIndex(this.text.view.getTopIndex());
+					this.braille.positionScrollbar(this.text.view.getTopIndex());
 				}
 				break;
 			default:

@@ -85,6 +85,8 @@ public class TreeView extends AbstractView {
 		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
 		
 		view.setLayout(new FillLayout());
+		view.getVerticalBar().dispose();
+		view.getHorizontalBar().dispose();
 		
 		view.addFocusListener(new FocusListener(){
 			@Override
@@ -189,6 +191,7 @@ public class TreeView extends AbstractView {
 				}
 			}
 		});
+		
 		setListenerLock(false);
 	}
 	

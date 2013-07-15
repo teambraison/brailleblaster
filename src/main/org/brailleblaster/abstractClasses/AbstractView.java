@@ -56,15 +56,16 @@ public abstract class AbstractView {
 	protected boolean locked;
 	protected static int currentAlignment;
 	protected static int topIndex;
+	protected Group group;
 	
 	public AbstractView() {
 	}
 
 	public AbstractView(Group group, int left, int right, int top, int bottom) {
+		this.group = group;
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		setLayout(left, right, top, bottom);
 		view.addModifyListener(viewMod);
-		this.charWidth = getFontWidth();
 	}
 
 	// Better use a ModifyListener to set the change flag.
@@ -145,10 +146,12 @@ public abstract class AbstractView {
 	protected Element getBrlNode(Node n){
 		Element e = (Element)n.getParent();
 		int index = e.indexOf(n);
-		if(index != e.getChildCount() - 1)
-			return (Element)e.getChild(index + 1);
-		else
-			return null;
+		if(index != e.getChildCount() - 1){
+			if(((Element)e.getChild(index + 1)).getLocalName().equals("brl"))
+				return (Element)e.getChild(index + 1);
+		}
+		
+		return null;
 	}
 	
 	protected int[] getIndexArray(Element e){
@@ -202,7 +205,7 @@ public abstract class AbstractView {
 			if(text.charAt(i) == '\n' && i != text.length() - 1){
 				i++;
 				newPos = pos + i;
-				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * getFontWidth()));
+				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
 			}
 		}
 	}
@@ -228,6 +231,10 @@ public abstract class AbstractView {
 		}
 	}
 	
+	public void setcharWidth(){
+		this.charWidth = getFontWidth();
+	}
+	
 	public void setTopIndex(int line){
 		setListenerLock(true);
 			this.view.setTopIndex(line);
@@ -247,6 +254,15 @@ public abstract class AbstractView {
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		setLayout(left, right, top, bottom);
 		view.getParent().layout();
+	}
+	
+	public void positionScrollbar(int topIndex){
+		setListenerLock(true);
+		this.group.setRedraw(false);
+		this.view.setTopIndex(topIndex);
+		this.group.setRedraw(true);
+		this.group.getDisplay().getCurrent().update();
+		setListenerLock(false);
 	}
 	
 	protected abstract void setViewData(Message message);

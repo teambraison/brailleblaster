@@ -79,7 +79,7 @@ public class WPManager {
 		this.location = new FormData();
 	    this.location.left = new FormAttachment(0);
 	    this.location.right = new FormAttachment(100);
-	    this.location.top = new FormAttachment (20);
+	    this.location.top = new FormAttachment (13);
 	    this.location.bottom = new FormAttachment(98);
 	    this.folder.setLayoutData (this.location);
 	    

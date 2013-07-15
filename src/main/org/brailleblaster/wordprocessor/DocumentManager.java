@@ -43,6 +43,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.print.PrintException;
+
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -61,12 +63,16 @@ import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
 import org.brailleblaster.views.TextView;
 import org.brailleblaster.views.TreeView;
+import org.daisy.printing.PrinterDevice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.printing.PrintDialog;
+import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 
@@ -567,6 +573,29 @@ public class DocumentManager {
 	public void textPrint(){
 		PrintersManager pn = new PrintersManager(this.wp.getShell(), this.text.view);
 		pn.beginPrintJob();	
+	}
+	
+	public void fileEmbossNow() {		
+		Shell shell = new Shell(wp.getShell(), SWT.DIALOG_TRIM);
+		PrintDialog embosser = new PrintDialog(shell);
+		PrinterData data = embosser.open();
+		
+		if (data == null || data.equals("")) {
+			return;
+		}
+		
+		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
+		if(this.document.createBrlFile(filePath)){
+			File translatedFile = new File(filePath);
+			PrinterDevice embosserDevice;
+			try {
+				embosserDevice = new PrinterDevice(data.name, true);
+				embosserDevice.transmit(translatedFile);
+				translatedFile.delete();
+			} catch (PrintException e) {
+				new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
+			}
+		}
 	}
 	
 	public void printPreview(){

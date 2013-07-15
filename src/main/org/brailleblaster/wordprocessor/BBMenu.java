@@ -279,7 +279,10 @@ class BBMenu {
 		embossNowItem.setText(lh.localValue("E&mboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.fileEmbossNow();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).fileEmbossNow();
+				}
 			}
 		});
 /**		

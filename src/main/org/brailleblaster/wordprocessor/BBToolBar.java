@@ -147,7 +147,10 @@ public class BBToolBar {
 		embossNow.setImage(new Image(null, distPath  + sep + "images" + sep + "emboss.png"));
 		embossNow.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				// dm.fileEmbossNow();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index != -1){
+					wp.getList().get(index).fileEmbossNow();
+				}
 			}
 		});
 

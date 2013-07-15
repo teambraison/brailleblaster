@@ -64,11 +64,9 @@ public class BBDocument {
 	private liblouisutdml lutdml = liblouisutdml.getInstance();
 	private FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();
-	private DocumentManager dm;
 	private ArrayList<String>missingSemanticsList;
 	
 	public BBDocument(DocumentManager dm){		
-		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
 	}
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
@@ -98,8 +96,13 @@ public class BBDocument {
 		int extPos = completePath.lastIndexOf (".") + 1;
 		String ext = completePath.substring (extPos);
 		if (ext.equalsIgnoreCase ("xml")) {
-			if(lutdml.translateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
+			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
+			normalizeFile(completePath, tempPath);
+			
+			if(lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
+				deleteFile(tempPath);
 				return buildDOM(outFile);
+			}
 		} 
 		else if (ext.equalsIgnoreCase ("txt")) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
@@ -143,6 +146,11 @@ public class BBDocument {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	private void normalizeFile(String originalFilePath, String tempFilePath){
+		Normalizer n = new Normalizer(originalFilePath);
+		n.createNewNormalizedFile(tempFilePath);
 	}
 	
 	public void updateDOM(MapList list, Message message){
@@ -207,12 +215,10 @@ public class BBDocument {
 			brlParent.removeChild(e);
 		}
 		
-	//	System.out.println(e.getValue());
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
 		
 		for(int i = 0; i < t.brailleList.size(); i++){
-			//total += t.brailleList.get(i).n.getValue().length();
 			total += t.brailleList.get(i).end - t.brailleList.get(i).start;
 			if(afterNewlineElement(t.brailleList.get(i).n) && i > 0){
 				total++;
@@ -263,7 +269,6 @@ public class BBDocument {
 			
 				boolean first = true;
 				for(int i = 0; i < t.brailleList.size(); i++){
-					String text = t.brailleList.get(i).n.getValue();
 					total += t.brailleList.get(i).n.getValue().length();
 					logString += t.brailleList.get(i).n.getValue() + "\n";
 					if(afterNewlineElement(t.brailleList.get(i).n) && !first){
@@ -589,5 +594,10 @@ public class BBDocument {
 	public void deleteDOM(){
 		this.doc = null;
 		System.gc();
+	}
+	
+	private void deleteFile(String path){
+		File f = new File(path);
+		f.delete();
 	}
 }

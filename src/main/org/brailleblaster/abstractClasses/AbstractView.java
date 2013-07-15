@@ -49,25 +49,22 @@ public abstract class AbstractView {
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
 	protected int total;
+	protected int charWidth;
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	public static int currentLine;
 	protected boolean locked;
 	protected static int currentAlignment;
+	protected static int topIndex;
+	protected Group group;
 	
 	public AbstractView() {
 	}
 
 	public AbstractView(Group group, int left, int right, int top, int bottom) {
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP);
-
-		FormData location = new FormData();
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		view.setLayoutData(location);
-
+		this.group = group;
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
 		view.addModifyListener(viewMod);
 	}
 
@@ -78,12 +75,28 @@ public abstract class AbstractView {
 		}
 	};
 	
+	protected void setLayout(int left, int right, int top, int bottom){
+		FormData location = new FormData();
+		location.left = new FormAttachment(left);
+		location.right = new FormAttachment(right);
+		location.top = new FormAttachment(top);
+		location.bottom = new FormAttachment(bottom);
+		view.setLayoutData(location);
+	}
+	
+	public void increment(DocumentManager dm){
+		sendIncrementCurrent(dm);
+	}
+	
 	protected void sendIncrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.INCREMENT);
 		dm.dispatch(message);
 		setViewData(message);
 	}
 	
+	public void decrement(DocumentManager dm){
+		sendDecrementCurrent(dm);
+	}
 	protected void sendDecrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.DECREMENT);
 		dm.dispatch(message);
@@ -132,16 +145,19 @@ public abstract class AbstractView {
 	protected int getFontWidth(){
 		GC gc = new GC(this.view);
 		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
 		return fm.getAverageCharWidth();
 	}
 	
 	protected Element getBrlNode(Node n){
 		Element e = (Element)n.getParent();
 		int index = e.indexOf(n);
-		if(index != e.getChildCount() - 1)
-			return (Element)e.getChild(index + 1);
-		else
-			return null;
+		if(index != e.getChildCount() - 1){
+			if(((Element)e.getChild(index + 1)).getLocalName().equals("brl"))
+				return (Element)e.getChild(index + 1);
+		}
+		
+		return null;
 	}
 	
 	protected int[] getIndexArray(Element e){
@@ -183,6 +199,23 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
+	protected void handleLineWrap(String text, int indent){
+		int pos = this.spaceBeforeText + this.total;
+		int newPos;
+		int i = 0;
+		while( i < text.length() && text.charAt(i) == '\n'){
+			i++;
+		}
+	
+		for(; i < text.length(); i++){
+			if(text.charAt(i) == '\n' && i != text.length() - 1){
+				i++;
+				newPos = pos + i;
+				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
+			}
+		}
+	}
+	
 	protected void checkForLineBreak(Element parent, Node n){
 		if(parent.indexOf(n) > 0){
 			int priorIndex = parent.indexOf(n) - 1;
@@ -204,6 +237,41 @@ public abstract class AbstractView {
 		}
 	}
 	
+	public void setcharWidth(){
+		this.charWidth = getFontWidth();
+	}
+	
+	public void setTopIndex(int line){
+		setListenerLock(true);
+			this.view.setTopIndex(line);
+			topIndex = line;
+		setListenerLock(false);
+	}
+	
+	public void resetCursor(int pos){
+		setListenerLock(true);
+		view.setFocus();
+		view.setCaretOffset(pos);
+		setListenerLock(false);
+	}
+	
+	protected void recreateView(Group group, int left, int right, int top, int bottom){
+		view.dispose();
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(left, right, top, bottom);
+		view.getParent().layout();
+	}
+	
+	public void positionScrollbar(int topIndex){
+		setListenerLock(true);
+		this.group.setRedraw(false);
+		this.view.setTopIndex(topIndex);
+		this.group.setRedraw(true);
+		this.group.getDisplay().getCurrent().update();
+		setListenerLock(false);
+	}
+	
 	protected abstract void setViewData(Message message);
-	public abstract void resetView();
+	public abstract void resetView(Group group);
+	public abstract void initializeListeners(final DocumentManager dm);
 }

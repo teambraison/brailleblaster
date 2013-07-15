@@ -84,12 +84,19 @@ public abstract class AbstractView {
 		view.setLayoutData(location);
 	}
 	
+	public void increment(DocumentManager dm){
+		sendIncrementCurrent(dm);
+	}
+	
 	protected void sendIncrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.INCREMENT);
 		dm.dispatch(message);
 		setViewData(message);
 	}
 	
+	public void decrement(DocumentManager dm){
+		sendDecrementCurrent(dm);
+	}
 	protected void sendDecrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.DECREMENT);
 		dm.dispatch(message);
@@ -122,7 +129,6 @@ public abstract class AbstractView {
 	}
 	
 	protected void setFontRange(int start, int length, int style){
-	//	System.out.println(view.getCharCount() + " " + (start + length));
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = start;
 		styleRange.length = length;
@@ -200,7 +206,7 @@ public abstract class AbstractView {
 		while( i < text.length() && text.charAt(i) == '\n'){
 			i++;
 		}
-	//	this.view.setLineWrapIndent(this.view.getLineAtOffset(pos), 1, this.view.getLineIndent(this.view.getLineAtOffset(pos))+ (indent * getFontWidth()));
+	
 		for(; i < text.length(); i++){
 			if(text.charAt(i) == '\n' && i != text.length() - 1){
 				i++;

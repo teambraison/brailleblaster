@@ -32,14 +32,12 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,7 +114,6 @@ public class DocumentManager {
 		this.item.setControl(this.group);
 		initializeDocumentTab();
 		this.document = new BBDocument(this);
-	//	this.wp.getStatusBar().setText("Words: " + 0);
 		
 		logger = BBIni.getLogger();
 		
@@ -137,8 +134,7 @@ public class DocumentManager {
 		wp.getShell().layout();
 	}
 	
-	public void fileSave(){
-		
+	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
 		try {
@@ -198,8 +194,7 @@ public class DocumentManager {
 		} // if(tempName != null)
 	}
 	
-	public void openDocument(String fileName){
-		
+	public void openDocument(String fileName){	
 		// Update file we're about to work on.
 		workingFilePath = fileName;
 		////////////////////////
@@ -253,15 +248,8 @@ public class DocumentManager {
 		// Zip and Recent Files.
 		////////////////////////
 		
-		String tempPath = BBIni.getTempFilesPath() + workingFilePath.substring( workingFilePath.lastIndexOf(BBIni.getFileSep()),  workingFilePath.lastIndexOf(".")) + "_temp.xml";
-		normalizeFile(workingFilePath, tempPath);
-		initializeAllViews(fileName, tempPath);
+		initializeAllViews(fileName, workingFilePath);
 	}	
-	
-	private void normalizeFile(String originalFilePath, String tempFilePath){
-		Normalizer n = new Normalizer(originalFilePath);
-		n.createNewNormalizedFile(tempFilePath);
-	}
 	
 	private void initializeAllViews(String fileName, String filePath){
 //		long start = System.currentTimeMillis();
@@ -350,14 +338,12 @@ public class DocumentManager {
 		switch(message.type){
 			case INCREMENT:
 				list.incrementCurrent(message);
-				if(list.size() > 0)
-					this.treeView.setSelection(list.getCurrent(), message, this);
+				this.treeView.setSelection(list.getCurrent(), message, this);
 				resetCursorData();
 				break;
 			case DECREMENT:
 				list.decrementCurrent(message);
-				if(list.size() > 0)
-					this.treeView.setSelection(list.getCurrent(), message, this);
+				this.treeView.setSelection(list.getCurrent(), message, this);
 				resetCursorData();
 				break;
 			case UPDATE_CURSORS:
@@ -550,16 +536,40 @@ public class DocumentManager {
 		}
 	}
 	public void nextElement(){
-		if(list.size() != 0 ){
-			Message message = new Message(BBEvent.INCREMENT);
-			dispatch(message);	
+		if(list.size() != 0){		
+			if(text.view.isFocusControl()){
+				text.increment(this);
+				text.view.setCaretOffset(list.getCurrent().start);
+			}
+			else if(braille.view.isFocusControl()){
+				braille.increment(this);
+				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			}
+			else {
+				Message message = new Message(BBEvent.INCREMENT);
+				dispatch(message);
+				text.view.setCaretOffset(list.getCurrent().start);
+				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			}
 		}
-		
-		if(text.view.isFocusControl()){
-			text.view.setCaretOffset(list.getCurrent().start);
-		}
-		else if(braille.view.isFocusControl()){
-			braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+	}
+	
+	public void prevElement(){
+		if(list.size() != 0){
+			if(text.view.isFocusControl()){
+				text.decrement(this);
+				text.view.setCaretOffset(list.getCurrent().start);
+			}
+			else if(braille.view.isFocusControl()){
+				braille.decrement(this);
+				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			}
+			else {
+				Message message = new Message(BBEvent.DECREMENT);
+				dispatch(message);
+				text.view.setCaretOffset(list.getCurrent().start);
+				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			}
 		}
 	}
 	
@@ -664,7 +674,6 @@ public class DocumentManager {
 			setCurrentOnRefresh(null,currentOffset);
 			this.text.view.setCaretOffset(currentOffset);
 			this.text.setPositionFromStart();
-			//this.text.view.setFocus();
 		}
 	}
 	

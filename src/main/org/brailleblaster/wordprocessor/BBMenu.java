@@ -566,26 +566,29 @@ assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		// Set up navigation menu
 		Menu navigateMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		prevElementItem = new MenuItem(navigateMenu, SWT.PUSH);
-prevElementItem.setText(lh.localValue("&PreviousElement") + "\tCtrl + Up");
-prevElementItem.addSelectionListener(new SelectionAdapter() {
-	public void widgetSelected(SelectionEvent e) {
-		int index = wp.getFolder().getSelectionIndex();
-//		if(index != -1)
-//			wp.getList().get(index).prevElement();
-	}
+		prevElementItem.setText(lh.localValue("&PreviousElement") + "\tCtrl + Up");
+		prevElementItem.setAccelerator(SWT.MOD1 + SWT.ARROW_UP);
+		prevElementItem.addSelectionListener(new SelectionAdapter() {
+		public void widgetSelected(SelectionEvent e) {
+			int index = wp.getFolder().getSelectionIndex();
+			if(index != -1)
+				wp.getList().get(index).prevElement();
+		}
 });
 
-nextElementItem = new MenuItem(navigateMenu, SWT.PUSH);
-nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
-nextElementItem.addSelectionListener(new SelectionAdapter() {
-	public void widgetSelected(SelectionEvent e) {
-		//dm.placeholder();
-		int index = wp.getFolder().getSelectionIndex();
-		if(index != -1)
-			wp.getList().get(index).nextElement();
-	}
-});
-navigateItem.setMenu(navigateMenu);
+		nextElementItem = new MenuItem(navigateMenu, SWT.PUSH);
+		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
+		nextElementItem.setAccelerator(SWT.MOD1 + SWT.ARROW_DOWN);
+		nextElementItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				//dm.placeholder();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index != -1)
+					wp.getList().get(index).nextElement();
+			}
+		});
+		
+		navigateItem.setMenu(navigateMenu);
 
 		// Set up view menu
 		Menu viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);

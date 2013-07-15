@@ -32,7 +32,6 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import nu.xom.Element;
-import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.Text;
 
@@ -50,7 +49,6 @@ import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -60,12 +58,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 
 
@@ -89,10 +82,8 @@ public class TextView extends AbstractView {
 	private ExtendedModifyListener modListener;
 	private FocusListener focusListener;
 	private CaretListener caretListener;
-	private TraverseListener traverseListener;
 	private MouseListener mouseListener;
 	private int originalStart, originalEnd;
-	private String charAtOffset;
 	
  	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
@@ -115,7 +106,6 @@ public class TextView extends AbstractView {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
 					setSelection(selectionArray[0], selectionArray[1]);
-					charAtOffset = view.getText(selectionArray[0], selectionArray[0]);
 				}
 			}			
 		});
@@ -226,8 +216,7 @@ public class TextView extends AbstractView {
 							if(textChanged == true){
 								sendUpdate(dm);
 							}
-							if(view.getCaretOffset() > currentEnd && view.getCaretOffset() < nextStart)
-								charAtOffset = view.getText(view.getCaretOffset(), view.getCaretOffset());
+					
 							setCurrent(dm);
 						}
 					}
@@ -261,29 +250,7 @@ public class TextView extends AbstractView {
 				// TODO Auto-generated method stub			
 			}		
 		});
-		
-		view.addTraverseListener(traverseListener = new TraverseListener(){
-			@Override
-			public void keyTraversed(TraverseEvent e) {
-				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN && nextStart != -1){
-					if(textChanged == true){
-						sendUpdate(dm);
-					}
-					sendIncrementCurrent(dm);
-					view.setCaretOffset(currentStart);
-					e.doit = false;
-				}
-				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP && previousEnd != -1){
-					if(textChanged == true){
-						sendUpdate(dm);
-					}
-					sendDecrementCurrent(dm);
-					view.setCaretOffset(currentStart);
-					e.doit = false;
-				}
-			}
-		});
-		
+
 		view.getVerticalBar().addSelectionListener(scrollbarListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
@@ -328,7 +295,6 @@ public class TextView extends AbstractView {
 			view.removeFocusListener(focusListener);
 			view.removeVerifyKeyListener(verifyListener);
 			view.removeMouseListener(mouseListener);
-			view.removeTraverseListener(traverseListener);
 			view.removeCaretListener(caretListener);
 			view.getVerticalBar().removeSelectionListener(scrollbarListener);
 		}
@@ -351,11 +317,8 @@ public class TextView extends AbstractView {
 	private void setCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.SET_CURRENT);
 		message.put("offset", view.getCaretOffset());
-		if(charAtOffset != null)
-			message.put("char", charAtOffset);
 		dm.dispatch(message);
 		setViewData(message);
-		charAtOffset = null;
 	}
 	
 	private void sendDeleteSpaceMessage(DocumentManager dm, int offset, int key){
@@ -441,22 +404,15 @@ public class TextView extends AbstractView {
 		String key = this.stylesTable.getKeyFromAttribute((Element)n.getParent());
 		Styles style = this.stylesTable.makeStylesElement(key, n);
 		
-		//String text = n.getValue().replace("\n","");
 		String newText = appendToView(n);
 		int textLength = newText.length();
-		//System.out.println("Length: " + newText.length());
-		//System.out.println(newText);
+
 		view.append(newText);
 		handleStyle(style, n, newText);
-	//	for(int i = 0; i < this.spaceAfterText; i++)
-	//		view.append("\n");
 		
 		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength,n));
 		this.total += this.spaceBeforeText + textLength + this.spaceAfterText;
 		
-	//	if(view.getCharCount() != this.total){
-	//		System.out.println(view.getCharCount() + " " + this.total);
-	//	}
 		this.spaceAfterText = 0;
 		this.spaceBeforeText = 0;
 		this.escapeChars = 0;
@@ -618,20 +574,11 @@ public class TextView extends AbstractView {
 		else {
 			text += n.getValue();
 		}
-/*	
-		if(brl != null && brl.getChildCount() > 0){
-			if(brl.getChild(brl.getChildCount() - 1) instanceof Element && ((Element)brl.getChild(brl.getChildCount() - 1)).getLocalName().equals("newline")){
-				this.spaceAfterText++;
-			}
-		}
-*/		
+		
 		return text;
 	}
 	
 	private void handleStyle(Styles style, Node n, String viewText){			
-	//	Element parent = (Element)n.getParent();
-		//checkForLineBreak(parent, n);
-
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
@@ -659,32 +606,12 @@ public class TextView extends AbstractView {
 						setFontRange(this.total, this.spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
 					 break;
 				case leftMargin:
-					//System.out.println(this.view.getLineAtOffset(this.spaceBeforeText + this.total));
-					//this.view.setLineWrapIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (2 * getFontWidth()));
 					handleLineWrap( viewText, Integer.valueOf(entry.getValue()));
 					break;
 				default:
 					System.out.println(entry.getKey());
 			}
 		}
-	/*	
-		if(parent.getAttributeValue("semantics").contains("action")){
-			Element grandParent = (Element)parent.getParent();
-			while(grandParent.getAttributeValue("semantics").contains("action")){
-				parent = grandParent;
-				grandParent = (Element)grandParent.getParent();
-			}
-			
-			if(isLast(n) && grandParent.indexOf(parent) == grandParent.getChildCount() - 1){
-	//			insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
-			}
-		}
-		else if(isLast(n)){
-			Elements els = parent.getChildElements();
-	//		if(els.size() > 0 && els.get(els.size() - 1).getLocalName().equals("brl"))
-	//			insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, "\n");
-		}
-		*/
 	}
 	
 	private int getLineNumber(int startOffset, String text){
@@ -716,7 +643,8 @@ public class TextView extends AbstractView {
 				
 				if(selectionStart < currentStart){
 					sendAdjustRangeMessage(dm, "start", currentStart - selectionStart);
-					updateRange(range, currentStart, e.length);
+					if(range != null)
+						updateRange(range, currentStart, e.length);
 				}
 				else if(selectionStart > currentEnd){
 					sendAdjustRangeMessage(dm, "end", selectionStart - currentEnd);	

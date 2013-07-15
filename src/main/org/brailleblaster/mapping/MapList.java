@@ -128,9 +128,6 @@ public class MapList extends LinkedList<TextMapElement>{
 				return mid + 1;
 			}
 			else {
-				if(message.contains("char") && message.getValue("char").equals("\t")){
-					return mid + 1;
-				}
 				if(mid == nodeIndex){
 					return mid;
 				}
@@ -191,9 +188,6 @@ public class MapList extends LinkedList<TextMapElement>{
 					return i;
 				}
 				else {
-					if(message.contains("char") && message.getValue("char").equals("\t")){
-						return i + 1;
-					}
 					if(i == nodeIndex){
 						return i;
 					}
@@ -221,15 +215,9 @@ public class MapList extends LinkedList<TextMapElement>{
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-				if(start == index + 1)
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
-				else
 					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
 			}
 			else {	
-				if(start == index + 1 )
-					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
-				else
 					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
 			}
 			
@@ -254,15 +242,9 @@ public class MapList extends LinkedList<TextMapElement>{
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-				if(start == index)
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
-				else
 					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
 			}
 			else {	
-				if(start == index)
-					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
-				else
 					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
 			}
 			
@@ -462,8 +444,15 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 	
 	public void incrementCurrent(Message message){
-		if(this.currentIndex < this.size() - 1){
+		if(this.currentIndex < this.size() - 1 && this.currentIndex > -1){
 			setCurrent(this.currentIndex + 1);
+			getCurrentNodeData(message);
+		}
+		else if(this.currentIndex == -1 && this.size() > 0){
+			setCurrent(0);
+			getCurrentNodeData(message);
+		}
+		else {
 			getCurrentNodeData(message);
 		}
 	}
@@ -471,6 +460,13 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void decrementCurrent(Message message){
 		if(this.currentIndex > 0){
 			setCurrent(this.currentIndex - 1);
+			getCurrentNodeData(message);
+		}
+		else if(this.currentIndex == -1 && this.size() > 0){
+			setCurrent(0);
+			getCurrentNodeData(message);
+		}
+		else {
 			getCurrentNodeData(message);
 		}
 	}

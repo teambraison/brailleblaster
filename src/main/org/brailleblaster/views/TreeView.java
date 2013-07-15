@@ -68,13 +68,26 @@ public class TreeView extends AbstractView {
 		}
 	}
 	
+	private final static int LEFT_MARGIN = 0;
+	private final static int RIGHT_MARGIN = 15;
+	private final static int TOP_MARGIN = 0;
+	private final static int BOTTOM_MARGIN = 100;
+	
 	public Tree tree;
 	private TreeItem root, previousItem;
 	
-	public TreeView(final DocumentManager dm, Group documentWindow){
-		super(documentWindow, 0, 15, 0, 100);
-		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
+	private FocusListener treeFocusListener;
+	private SelectionListener selectionListener;
+	private TraverseListener traverseListener;
 	
+	public TreeView(final DocumentManager dm, Group documentWindow){
+		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
+		
+		view.setLayout(new FillLayout());
+		view.getVerticalBar().dispose();
+		view.getHorizontalBar().dispose();
+		
 		view.addFocusListener(new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -82,14 +95,17 @@ public class TreeView extends AbstractView {
 			}
 			@Override
 			public void focusLost(FocusEvent e) {
-			
+				
 			}
-		});	
-		
-		this.tree.addSelectionListener(new SelectionListener(){
+		});		
+		this.tree.pack();
+	}
+	
+	public void initializeListeners(final DocumentManager dm){
+		this.tree.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub	
+				
 			}
 
 			@Override
@@ -140,7 +156,7 @@ public class TreeView extends AbstractView {
 			}
 		});
 		
-		this.tree.addFocusListener(new FocusListener(){
+		this.tree.addFocusListener(treeFocusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				// TODO Auto-generated method stub	
@@ -156,7 +172,7 @@ public class TreeView extends AbstractView {
 			}
 		});
 	
-		this.tree.addTraverseListener(new TraverseListener(){
+		this.tree.addTraverseListener(traverseListener = new TraverseListener(){
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
@@ -176,10 +192,13 @@ public class TreeView extends AbstractView {
 			}
 		});
 		
-		view.setLayout(new FillLayout());
-		
-		this.tree.pack();
 		setListenerLock(false);
+	}
+	
+	public void removeListeners(){
+		tree.removeSelectionListener(selectionListener);
+		tree.removeFocusListener(treeFocusListener);
+		tree.removeTraverseListener(traverseListener);
 	}
 	
 	private void populateItemChildren(TreeItem item, Element e, DocumentManager dm){
@@ -437,8 +456,8 @@ public class TreeView extends AbstractView {
 		// TODO Auto-generated method stub
 	}
 
-	@Override
-	public void resetView() {
+	
+	public void resetView(Group group) {
 		setListenerLock(true);
 		this.root.setExpanded(false);
 		depopulateItemChildren(this.root);

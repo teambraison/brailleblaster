@@ -96,6 +96,8 @@ public class FontManager {
 
 		
 		dm.text.view.setFont(daisyFont);
+		dm.text.setcharWidth();
+		dm.braille.setcharWidth();
 		dm.braille.view.setFont(daisyFont);
 		dm.braille.view.setEditable(false);
 

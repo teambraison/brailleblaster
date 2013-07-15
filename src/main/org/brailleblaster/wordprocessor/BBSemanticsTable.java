@@ -1,23 +1,20 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 
-import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.ParsingException;
-import nu.xom.ValidityException;
+
 
 public class BBSemanticsTable {
 	public enum StylesType{
@@ -59,6 +56,10 @@ public class BBSemanticsTable {
 			return this.map.keySet(); 
 		}
 		
+		public Set<Entry<StylesType, String>> getEntrySet(){
+			return this.map.entrySet();
+		}
+		
 		public boolean contains(StylesType key){
 			return this.map.containsKey(key);
 		}
@@ -79,7 +80,9 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\tFont italic");
+			insertValue("italicx","\tFont " + SWT.ITALIC);
+			makeStylesObject("boldx");
+			insertValue("boldx","\tFont " + SWT.BOLD);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -170,7 +173,19 @@ public class BBSemanticsTable {
 				if(!st.contains(styleType)){
 					st.put(styleType, (String)newStyle.get(styleType));
 				}
+				else if(st.contains(styleType) && styleType.equals(StylesType.Font)){
+					st.put(styleType, (String.valueOf(combineFontStyles((String)st.get(styleType), (String)newStyle.get(styleType)))));
+				}
 			}
+		}
+	}
+	
+	private int combineFontStyles(String font1, String font2){
+		if(font1.equals(font2)){
+			return Integer.valueOf(font1);
+		}
+		else {
+			return Integer.valueOf(font1) + Integer.valueOf(font2);
 		}
 	}
 }

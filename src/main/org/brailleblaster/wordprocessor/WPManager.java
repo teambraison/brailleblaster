@@ -79,7 +79,7 @@ public class WPManager {
 		this.location = new FormData();
 	    this.location.left = new FormAttachment(0);
 	    this.location.right = new FormAttachment(100);
-	    this.location.top = new FormAttachment (20);
+	    this.location.top = new FormAttachment (13);
 	    this.location.bottom = new FormAttachment(98);
 	    this.folder.setLayoutData (this.location);
 	    
@@ -116,7 +116,11 @@ public class WPManager {
 	    
 		this.shell.addListener(SWT.Close, new Listener() { 
 	        public void handleEvent(Event event) { 
-	           System.out.println("Main Shell handling Close event, about to dipose the main Display"); 
+	           System.out.println("Main Shell handling Close event, about to dipose the main Display");
+	           int count = getList().size();
+	           for(int i = 0; i < count; i++){
+	        	   getList().get(i).fileClose();
+	           }
 	           display.dispose();
 	           bbMenu.writeRecentsToFile();
 	        } 

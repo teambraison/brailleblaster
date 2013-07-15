@@ -53,7 +53,7 @@ public class BBToolBar {
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
 		location.right = new FormAttachment(40);
-		location.top = new FormAttachment(4);
+		location.top = new FormAttachment(1);
 		toolBar.setLayoutData(location);
 		
 		// Path to dist folder.

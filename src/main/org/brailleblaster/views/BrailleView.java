@@ -56,6 +56,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -200,6 +202,21 @@ public class BrailleView extends AbstractView {
 					}
 				}
 			}
+		});
+		
+		view.addPaintListener(new PaintListener(){
+			@Override
+			public void paintControl(PaintEvent e) {
+				if(!getLock()){
+					if(topIndex != view.getTopIndex()){
+						topIndex = view.getTopIndex();
+						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
+						scrollMessage.put("sender", "braille");
+						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
+						dm.dispatch(scrollMessage);
+					}
+				}
+			}			
 		});
 	
 		setListenerLock(false);

@@ -56,6 +56,8 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
@@ -92,7 +94,7 @@ public class TextView extends AbstractView {
 	private int originalStart, originalEnd;
 	private String charAtOffset;
 	
-	public TextView (Group documentWindow, BBSemanticsTable table) {
+ 	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.stylesTable = table;
 		this.total = 0;
@@ -234,7 +236,6 @@ public class TextView extends AbstractView {
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
 					sendStatusBarUpdate(dm);
 				}
-			//	System.out.println("Caret pos:\t" + view.getCaretOffset());
 			}
 		});
 		
@@ -290,7 +291,7 @@ public class TextView extends AbstractView {
 			}
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(SelectionEvent e) {		
 				if(!getLock()){
 					if(topIndex != view.getTopIndex()){
 						topIndex = view.getTopIndex();
@@ -301,7 +302,22 @@ public class TextView extends AbstractView {
 				}
 			}
 		});
-
+		
+		view.addPaintListener(new PaintListener(){
+			@Override
+			public void paintControl(PaintEvent e) {
+				if(!getLock()){
+					if(topIndex != view.getTopIndex()){
+						topIndex = view.getTopIndex();
+						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
+						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
+						dm.dispatch(scrollMessage);
+					}
+				}
+			}
+			
+		});
+		
 		setListenerLock(false);
 	}
 	
@@ -340,7 +356,6 @@ public class TextView extends AbstractView {
 		dm.dispatch(message);
 		setViewData(message);
 		charAtOffset = null;
-	//	System.out.println("Current:\t" + currentStart + " " + currentEnd);
 	}
 	
 	private void sendDeleteSpaceMessage(DocumentManager dm, int offset, int key){
@@ -436,7 +451,7 @@ public class TextView extends AbstractView {
 	//	for(int i = 0; i < this.spaceAfterText; i++)
 	//		view.append("\n");
 		
-		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength + this.spaceAfterText,n));
+		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength,n));
 		this.total += this.spaceBeforeText + textLength + this.spaceAfterText;
 		
 	//	if(view.getCharCount() != this.total){
@@ -462,7 +477,6 @@ public class TextView extends AbstractView {
 			reformattedText = n.getValue();
 		
 		view.replaceTextRange(currentStart, currentEnd - currentStart, reformattedText);
-	//	System.out.println(message.getValue("length") + " " + reformattedText.length() + " " + reformattedText.replace("\n","").length());
 		message.put("length", (reformattedText.length() + this.spaceAfterText) - (Integer)message.getValue("length"));
 		view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
 		checkStyleRange(range);
@@ -544,7 +558,7 @@ public class TextView extends AbstractView {
 		int start = 0;
 		int end = 0;
 		int totalLength = 0;
-	
+		
 		if(brl != null){
 			int[] indexes = getIndexArray(brl);
 			if(indexes != null){
@@ -617,6 +631,7 @@ public class TextView extends AbstractView {
 	private void handleStyle(Styles style, Node n, String viewText){			
 	//	Element parent = (Element)n.getParent();
 		//checkForLineBreak(parent, n);
+
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:

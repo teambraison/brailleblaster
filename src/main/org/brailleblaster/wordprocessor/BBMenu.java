@@ -481,7 +481,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
-					wp.getList().get(index).text.selectAll();
+					wp.getList().get(index).text.selectAll(wp.getList().get(index));
 				}
 			}
 		});

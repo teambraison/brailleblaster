@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,25 +45,30 @@ public class Normalizer {
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
 			this.doc = dBuilder.parse(this.f);
-		} 
+		}
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
-			e.printStackTrace();
+		//	e.printStackTrace();
+			printErrors(e);
+		}
+		catch(UnknownHostException e){
+			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
+		//	e.printStackTrace();
 			printErrors(e);
 		}
 		catch (ParserConfigurationException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
-			e.printStackTrace();
+		//	e.printStackTrace();
 			printErrors(e);
 		}
 		catch (SAXException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
-			e.printStackTrace();
+		//	e.printStackTrace();
 			printErrors(e);
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while reading the document.");
-			e.printStackTrace();
+		//	e.printStackTrace();
 			printErrors(e);
 		}
 	}
@@ -74,8 +80,10 @@ public class Normalizer {
 	}
 	
 	public void createNewNormalizedFile(String path){
-		normalize();
-		write(this.doc, path);
+		if(this.doc != null){
+			normalize();
+			write(this.doc, path);
+		}
 	}
 	
 	private void normalize(){

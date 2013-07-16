@@ -921,7 +921,7 @@ public class TextView extends AbstractView {
 	}
 	
 	public void selectAll(DocumentManager dm){
-		if(textChanged = true){
+		if(textChanged == true){
 			sendUpdate(dm);
 		}
 		view.selectAll();

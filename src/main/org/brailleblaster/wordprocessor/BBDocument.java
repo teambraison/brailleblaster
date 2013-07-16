@@ -32,8 +32,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -136,16 +139,30 @@ public class BBDocument {
 			removeBraillePageNumber();
 			return true;
 		} 
+		catch(ConnectException e){
+			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
+			e.printStackTrace();
+			printErrors(e);
+			return false;
+		}
 		catch (ParsingException e) {
 			new Notify("Problem processing " + fileName + " See stack trace.");
 			e.printStackTrace();
+			printErrors(e);
 			return false;
 		} 
 		catch (IOException e) {
 			new Notify ("IO error occurred while parsing " + fileName + " See stack trace.");
 			e.printStackTrace();
+			printErrors(e);
 			return false;
 		}
+	}
+	
+	private void printErrors(Exception e){
+		StringWriter errors = new StringWriter();
+		e.printStackTrace(new PrintWriter(errors));
+		logger.log(Level.SEVERE, errors.toString());
 	}
 	
 	private void normalizeFile(String originalFilePath, String tempFilePath){

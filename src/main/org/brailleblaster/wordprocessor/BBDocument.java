@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -141,19 +142,25 @@ public class BBDocument {
 		} 
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
-			e.printStackTrace();
+			//e.printStackTrace();
 			printErrors(e);
 			return false;
 		}
+		catch(UnknownHostException e){
+			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
+			e.printStackTrace();
+			printErrors(e);
+			return false
+		}
 		catch (ParsingException e) {
 			new Notify("Problem processing " + fileName + " See stack trace.");
-			e.printStackTrace();
+			//e.printStackTrace();
 			printErrors(e);
 			return false;
 		} 
 		catch (IOException e) {
 			new Notify ("IO error occurred while parsing " + fileName + " See stack trace.");
-			e.printStackTrace();
+			//e.printStackTrace();
 			printErrors(e);
 			return false;
 		}

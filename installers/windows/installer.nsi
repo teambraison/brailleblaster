@@ -14,7 +14,7 @@ LangString CreateDesktopShortCutMsg ${LANG_ENGLISH} "Create desktop shortcut"
 ; Some basic information
 
 Name "BrailleBlaster"
-!define APPVERSION "2012.2"
+!define APPVERSION "2013.07"
 OutFile "BrailleBlaster-${APPVERSION}-installer.exe"
 
 SetCompressor /SOLID LZMA

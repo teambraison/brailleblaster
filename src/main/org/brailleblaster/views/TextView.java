@@ -117,7 +117,7 @@ public class TextView extends AbstractView {
 				currentChar = e.keyCode;
 				
 				if(e.stateMask == SWT.CONTROL && e.keyCode == 'a'){
-					selectAll();
+					selectAll(dm);
 				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){
@@ -920,7 +920,10 @@ public class TextView extends AbstractView {
 		view.copy();
 	}
 	
-	public void selectAll(){
+	public void selectAll(DocumentManager dm){
+		if(textChanged = true){
+			sendUpdate(dm);
+		}
 		view.selectAll();
 		setSelection(0, view.getCharCount());
 	}

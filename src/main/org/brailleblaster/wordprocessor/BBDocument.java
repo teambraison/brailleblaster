@@ -142,7 +142,7 @@ public class BBDocument {
 		} 
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
-			//e.printStackTrace();
+			e.printStackTrace();
 			printErrors(e);
 			return false;
 		}
@@ -150,17 +150,17 @@ public class BBDocument {
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
 			printErrors(e);
-			return false
+			return false;
 		}
 		catch (ParsingException e) {
 			new Notify("Problem processing " + fileName + " See stack trace.");
-			//e.printStackTrace();
+			e.printStackTrace();
 			printErrors(e);
 			return false;
 		} 
 		catch (IOException e) {
 			new Notify ("IO error occurred while parsing " + fileName + " See stack trace.");
-			//e.printStackTrace();
+			e.printStackTrace();
 			printErrors(e);
 			return false;
 		}

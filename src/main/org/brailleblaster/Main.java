@@ -31,6 +31,9 @@
 
 package org.brailleblaster;
 
+import java.io.File;
+
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.liblouis.liblouisutdml;
 
@@ -42,7 +45,7 @@ import org.liblouis.liblouisutdml;
  */
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		BBIni.initialize(args);
 		BBIni.setVersion("BrailleBlaster, Version 2013.07.15");
 		BBIni.setReleaseDate("July 15, 2013");
@@ -57,6 +60,8 @@ public class Main {
 		if (BBIni.haveLiblouisutdml()) {
 			liblouisutdml louisutdml = liblouisutdml.getInstance();
 			louisutdml.free();
+			FileUtils fu = new FileUtils();
+			fu.deleteDirectory(new File(BBIni.getTempFilesPath()));
 		}
 	}
 }

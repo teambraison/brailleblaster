@@ -67,11 +67,13 @@ public class Normalizer {
 		}
 	}
 	
-	public void createNewNormalizedFile(String path){
+	public boolean createNewNormalizedFile(String path){
 		if(this.doc != null){
 			normalize();
-			write(this.doc, path);
+			return write(this.doc, path);
 		}
+		
+		return false;
 	}
 	
 	private void normalize(){
@@ -94,6 +96,7 @@ public class Normalizer {
 			}
 		}
 	}
+	
 	private boolean onlyWhitespace(String text){
 		for(int j = 0; j < text.length(); j++){
 			if(!Character.isWhitespace(text.charAt(j))){
@@ -103,7 +106,7 @@ public class Normalizer {
 		return true;
 	}
 	
-	public void write(Document document, String path) {
+	public boolean write(Document document, String path) {
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
@@ -111,15 +114,21 @@ public class Normalizer {
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(path));
 			transformer.transform(source, result);
+			return true;
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
 			log.log(Level.SEVERE, "Transformer Configuration Exception", e);
+			return false;
 		}
 		catch (TransformerException e) {
 			e.printStackTrace();
 			log.log(Level.SEVERE, "Transformer Exception", e);
+			return false;
 		}
- 
-	
+		catch(Exception e){
+			e.printStackTrace();
+			log.log(Level.SEVERE, "Unforeseen Exception", e);
+			return false;
+		}
     }
 }

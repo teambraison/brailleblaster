@@ -54,11 +54,11 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.DocumentManager;
-import org.brailleblaster.wordprocessor.Message;
 import org.liblouis.liblouisutdml;
 
 

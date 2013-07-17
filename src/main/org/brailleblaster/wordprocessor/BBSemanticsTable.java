@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
@@ -71,11 +73,12 @@ public class BBSemanticsTable {
 	
 	Document doc;
 	HashMap<String,Styles> table;
+	static Logger logger = BBIni.getLogger();
 	
 	public BBSemanticsTable(){
 		try {
 			this.table = new HashMap<String, Styles>();
-			FileReader file = new FileReader(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "preferences.cfg");
+			FileReader file = new FileReader(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
 			BufferedReader reader = new BufferedReader(file);
 			makeHashTable(reader);
 			reader.close();
@@ -86,7 +89,8 @@ public class BBSemanticsTable {
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			new Notify("The application failed to load due to errors in preferences.cfg");
+			new Notify("The application failed to load due to errors in " + BBIni.getDefaultConfigFile());
+			logger.log(Level.SEVERE, "Config File Error", e);
 		}
 	}
 	

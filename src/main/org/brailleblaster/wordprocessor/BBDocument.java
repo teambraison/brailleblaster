@@ -32,9 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
@@ -143,33 +141,28 @@ public class BBDocument {
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			printErrors(e);
+			logger.log(Level.SEVERE, "Connections Error", e);
 			return false;
 		}
 		catch(UnknownHostException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			printErrors(e);
+			logger.log(Level.SEVERE, "Unknown Host Error", e);
 			return false;
 		}
 		catch (ParsingException e) {
 			new Notify("Problem processing " + fileName + " See stack trace.");
+			new CheckLiblouisutdmlLog().displayLog();
 			e.printStackTrace();
-			printErrors(e);
+			logger.log(Level.SEVERE, "Parse Error", e);
 			return false;
 		} 
 		catch (IOException e) {
 			new Notify ("IO error occurred while parsing " + fileName + " See stack trace.");
 			e.printStackTrace();
-			printErrors(e);
+			logger.log(Level.SEVERE, "IO Error", e);
 			return false;
 		}
-	}
-	
-	private void printErrors(Exception e){
-		StringWriter errors = new StringWriter();
-		e.printStackTrace(new PrintWriter(errors));
-		logger.log(Level.SEVERE, errors.toString());
 	}
 	
 	private void normalizeFile(String originalFilePath, String tempFilePath){
@@ -420,6 +413,7 @@ public class BBDocument {
 		} 
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
 			return -1;
 		}	
 	}
@@ -556,6 +550,7 @@ public class BBDocument {
 		}
 		catch (IOException e) {
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "IO Exception", e);
 		}
 	    
 	    return "";
@@ -586,6 +581,7 @@ public class BBDocument {
 				return false;
 		}
 		catch(Exception ex){
+			logger.log(Level.SEVERE, "Exception", ex);
 			return false;
 		}
 	}

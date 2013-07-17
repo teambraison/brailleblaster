@@ -50,6 +50,8 @@ import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;

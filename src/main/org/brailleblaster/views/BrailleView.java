@@ -37,14 +37,14 @@ import nu.xom.Node;
 import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.document.BBSemanticsTable;
+import org.brailleblaster.document.BBSemanticsTable.Styles;
+import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.wordprocessor.BBEvent;
-import org.brailleblaster.wordprocessor.BBSemanticsTable;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.Message;
-import org.brailleblaster.wordprocessor.BBSemanticsTable.Styles;
-import org.brailleblaster.wordprocessor.BBSemanticsTable.StylesType;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;

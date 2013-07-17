@@ -26,7 +26,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,6 +57,8 @@ import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.wordprocessor.Message;
 import org.liblouis.liblouisutdml;
 
 

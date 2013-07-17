@@ -1,4 +1,4 @@
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.document;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

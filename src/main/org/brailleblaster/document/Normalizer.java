@@ -1,4 +1,4 @@
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.IOException;

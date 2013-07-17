@@ -36,14 +36,10 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.wordprocessor.WPManager;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.BufferedReader;
 
@@ -56,7 +52,7 @@ public class CheckLiblouisutdmlLog {
 String logFileName;
 
 public CheckLiblouisutdmlLog () {
-logFileName = BBIni.getLogFilesPath() + BBIni.getFileSep() + 
+logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
 "liblouisutdml.log";
 }
 

@@ -252,7 +252,6 @@ public class DocumentManager {
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath){
-//		long start = System.currentTimeMillis();
 		try{
 			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
 				this.group.setRedraw(false);
@@ -288,8 +287,6 @@ public class DocumentManager {
 		catch(Exception e){
 			e.printStackTrace();
 		}
-//		long end = System.currentTimeMillis();
-//		System.out.println("TOTAL: " + (end - start));
 	}
 	
 	private void initializeViews(Node current){
@@ -502,6 +499,7 @@ public class DocumentManager {
 			}
 			catch (IOException e) {
 				e.printStackTrace(); 
+				logger.log(Level.SEVERE, "IO Exception", e);
 			} 
 		}
 	}
@@ -604,13 +602,14 @@ public class DocumentManager {
 				translatedFile.delete();
 			} catch (PrintException e) {
 				new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
+				logger.log(Level.SEVERE, "Print Exception", e);
 			}
 		}
 	}
 	
 	public void printPreview(){
 		if(this.braille.view.getCharCount() > 0){
-			PrintPreview pv = new PrintPreview(this.getDisplay(), this.document);
+			new PrintPreview(this.getDisplay(), this.document);
 		}
 	}
 	
@@ -699,6 +698,7 @@ public class DocumentManager {
 		} catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "IO Exception", e);
 		}
 	}
 	
@@ -713,14 +713,17 @@ public class DocumentManager {
 			os.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "File Not Found Exception", e);
 			return false;
 		}
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
 			return false;
 		}
 		catch (IOException e) {
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "IO Exception", e);
 			return false;
 		}
 		return true;
@@ -736,6 +739,7 @@ public class DocumentManager {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception", e);
 		}
 	}
 	

@@ -1,10 +1,7 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -14,10 +11,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.w3c.dom.Document;
 
-import org.w3c.dom.CDATASection;
-import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
@@ -36,7 +30,7 @@ import javax.xml.transform.stream.StreamResult;
 public class Normalizer {
 	File f;
 	Document doc;
-	Logger log = BBIni.getLogger();
+	static Logger log = BBIni.getLogger();
 	
 	public Normalizer(String path){
 		this.f = new File(path);
@@ -49,34 +43,28 @@ public class Normalizer {
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			printErrors(e);
+			log.log(Level.SEVERE, "Connections Error", e);
 		}
 		catch(UnknownHostException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			printErrors(e);
+			log.log(Level.SEVERE, "Unknown Host Error", e);
 		}
 		catch (ParserConfigurationException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
 			e.printStackTrace();
-			printErrors(e);
+			log.log(Level.SEVERE, "Parse Error", e);
 		}
 		catch (SAXException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
 			e.printStackTrace();
-			printErrors(e);
+			log.log(Level.SEVERE, "Sax Error", e);
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while reading the document.");
 			e.printStackTrace();
-			printErrors(e);
+			log.log(Level.SEVERE, "IO Error", e);
 		}
-	}
-	
-	private void printErrors(Exception e){
-		StringWriter errors = new StringWriter();
-		e.printStackTrace(new PrintWriter(errors));
-		log.log(Level.SEVERE, errors.toString());
 	}
 	
 	public void createNewNormalizedFile(String path){
@@ -124,12 +112,12 @@ public class Normalizer {
 			StreamResult result = new StreamResult(new File(path));
 			transformer.transform(source, result);
 		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.log(Level.SEVERE, "Transformer Configuration Exception", e);
 		}
 		catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			log.log(Level.SEVERE, "Transformer Exception", e);
 		}
  
 	

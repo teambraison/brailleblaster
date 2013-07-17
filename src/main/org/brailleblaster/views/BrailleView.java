@@ -42,9 +42,9 @@ import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.messages.BBEvent;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
-import org.brailleblaster.wordprocessor.Message;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;

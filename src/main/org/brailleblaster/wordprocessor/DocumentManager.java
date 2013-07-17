@@ -55,6 +55,8 @@ import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.messages.BBEvent;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;

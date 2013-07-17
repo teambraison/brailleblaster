@@ -4,13 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.FontManager;
-import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;

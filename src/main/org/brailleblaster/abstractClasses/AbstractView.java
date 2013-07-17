@@ -31,9 +31,9 @@ package org.brailleblaster.abstractClasses;
 import nu.xom.Element;
 import nu.xom.Node;
 
-import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.messages.BBEvent;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
-import org.brailleblaster.wordprocessor.Message;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;

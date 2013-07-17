@@ -26,9 +26,10 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.messages;
 
 import java.util.HashMap;
+
 
 //Passes data between different views and the parent DocumentManager class
 public class Message {

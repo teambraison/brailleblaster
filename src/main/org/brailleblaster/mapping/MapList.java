@@ -33,9 +33,9 @@ import java.util.LinkedList;
 
 import nu.xom.Text;
 
-import org.brailleblaster.wordprocessor.BBEvent;
+import org.brailleblaster.messages.BBEvent;
+import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
-import org.brailleblaster.wordprocessor.Message;
 
 public class MapList extends LinkedList<TextMapElement>{
 	private class UpdaterThread extends Thread {

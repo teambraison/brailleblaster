@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.BBDocument;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.Message;

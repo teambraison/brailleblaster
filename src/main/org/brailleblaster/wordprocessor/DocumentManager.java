@@ -286,6 +286,7 @@ public class DocumentManager {
 		}
 		catch(Exception e){
 			e.printStackTrace();
+			logger.log(Level.SEVERE, "Unforeseen Exception", e);
 		}
 	}
 	
@@ -624,55 +625,55 @@ public class DocumentManager {
 	
 	public void refresh(){	
 		int currentOffset;
-		
-		if(this.text.view.isFocusControl()){
-			currentOffset = this.text.view.getCaretOffset();
-			resetViews();
-			initializeDocumentTab();
-			
-			if(currentOffset < this.text.view.getCharCount()){
-				this.text.view.setCaretOffset(currentOffset);
-			}
-			else
-				this.text.view.setCaretOffset(0);
-			
-			setCurrentOnRefresh("text",currentOffset);
-			this.text.setPositionFromStart();
-			this.text.view.setFocus();
-		}
-		else if(this.braille.view.isFocusControl()){
-			currentOffset = this.braille.view.getCaretOffset();
-			resetViews();
-			initializeDocumentTab();
-			
-			this.braille.view.setCaretOffset(currentOffset);
-			setCurrentOnRefresh("braille",currentOffset);	
-			this.braille.setPositionFromStart();
-			this.braille.view.setFocus();
-		}
-		else if(this.treeView.tree.isFocusControl()){	
-			if(this.text.view.getCaretOffset() > 0)
+		if(this.document.getDOM() != null){
+			if(this.text.view.isFocusControl()){
 				currentOffset = this.text.view.getCaretOffset();
-			else
-				currentOffset = list.getCurrent().start;
+				resetViews();
+				initializeDocumentTab();
+				
+				if(currentOffset < this.text.view.getCharCount()){
+					this.text.view.setCaretOffset(currentOffset);
+				}
+				else
+					this.text.view.setCaretOffset(0);
 			
-			resetViews();
-			initializeDocumentTab();
+				setCurrentOnRefresh("text",currentOffset);
+				this.text.setPositionFromStart();
+				this.text.view.setFocus();
+			}
+			else if(this.braille.view.isFocusControl()){
+				currentOffset = this.braille.view.getCaretOffset();
+				resetViews();
+				initializeDocumentTab();
+			
+				this.braille.view.setCaretOffset(currentOffset);
+				setCurrentOnRefresh("braille",currentOffset);	
+				this.braille.setPositionFromStart();
+				this.braille.view.setFocus();
+			}
+			else if(this.treeView.tree.isFocusControl()){	
+				if(this.text.view.getCaretOffset() > 0)
+					currentOffset = this.text.view.getCaretOffset();
+				else
+					currentOffset = list.getCurrent().start;
+			
+				resetViews();
+				initializeDocumentTab();
 
+				setCurrentOnRefresh(null, currentOffset);
+				this.text.view.setCaretOffset(currentOffset);
+				this.text.setPositionFromStart();
+			}
+			else {
+				currentOffset = this.text.view.getCaretOffset();
 			
-			setCurrentOnRefresh(null, currentOffset);
-			this.text.view.setCaretOffset(currentOffset);
-			this.text.setPositionFromStart();
-		}
-		else {
-			currentOffset = this.text.view.getCaretOffset();
+				resetViews();		
+				initializeDocumentTab();
 			
-			resetViews();		
-			initializeDocumentTab();
-			
-			setCurrentOnRefresh(null,currentOffset);
-			this.text.view.setCaretOffset(currentOffset);
-			this.text.setPositionFromStart();
+				setCurrentOnRefresh(null,currentOffset);
+				this.text.view.setCaretOffset(currentOffset);
+				this.text.setPositionFromStart();
+			}
 		}
 	}
 	
@@ -711,7 +712,8 @@ public class DocumentManager {
 			serializer = new Serializer(os, "UTF-8");
 			serializer.write(newDoc);
 			os.close();
-		} catch (FileNotFoundException e) {
+		} 
+		catch (FileNotFoundException e) {
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "File Not Found Exception", e);
 			return false;

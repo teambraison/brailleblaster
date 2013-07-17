@@ -99,12 +99,13 @@ public class BBDocument {
 		String ext = completePath.substring (extPos);
 		if (ext.equalsIgnoreCase ("xml")) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
-			normalizeFile(completePath, tempPath);
 			
-			if(lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
+			if(normalizeFile(completePath, tempPath) && lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
 				deleteFile(tempPath);
 				return buildDOM(outFile);
 			}
+			else 
+				return false;
 		} 
 		else if (ext.equalsIgnoreCase ("txt")) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
@@ -165,9 +166,9 @@ public class BBDocument {
 		}
 	}
 	
-	private void normalizeFile(String originalFilePath, String tempFilePath){
+	private boolean normalizeFile(String originalFilePath, String tempFilePath){
 		Normalizer n = new Normalizer(originalFilePath);
-		n.createNewNormalizedFile(tempFilePath);
+		return n.createNewNormalizedFile(tempFilePath);
 	}
 	
 	public void updateDOM(MapList list, Message message){

@@ -183,6 +183,10 @@ public final class BBIni {
 		// Default Config File.
 		///////////////////////
 		
+		//Temporary fix, should be removed once log file handle issue is resolved
+		String tempFolder = BBHome + fileSep + "temp";
+		fu.deleteDirectory(new File(tempFolder));
+		
 		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File(tempFilesPath);
 		if (!temps.exists()){

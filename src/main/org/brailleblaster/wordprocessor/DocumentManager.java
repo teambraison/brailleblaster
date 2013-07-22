@@ -145,7 +145,8 @@ public class DocumentManager {
 			if(workingFilePath.endsWith("xml")){
 			    createXMLFile(workingFilePath);
 			}
-			else if(workingFilePath.endsWith("utd")) {				
+			else if(workingFilePath.endsWith("utd")) {		
+				this.document.setOriginalDocType(this.document.getDOM());
 				FileOutputStream os = new FileOutputStream(workingFilePath);
 			    Serializer serializer = new Serializer(os, "UTF-8");
 			    serializer.write(this.document.getDOM());
@@ -494,6 +495,7 @@ public class DocumentManager {
 				    this.documentName = filePath;
 				}
 				else if(ext.equals("utd")) {				
+					this.document.setOriginalDocType(this.document.getDOM());
 					FileOutputStream os = new FileOutputStream(filePath);
 				    Serializer serializer = new Serializer(os, "UTF-8");
 				    serializer.write(this.document.getDOM());

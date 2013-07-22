@@ -46,6 +46,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
+
 class BBMenu {
 	//This class contains all the menus.
 	final Menu menuBar;
@@ -120,6 +121,7 @@ class BBMenu {
 	MenuItem tutorialsItem;
 	MenuItem checkUpdatesItem;
 	MenuItem aboutItem;
+	
 	WPManager wordProc;
 	ArrayList<String> recentDocsList = null;
 	Menu subMen;

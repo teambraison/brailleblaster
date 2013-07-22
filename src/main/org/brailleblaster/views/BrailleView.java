@@ -49,7 +49,6 @@ import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -312,7 +311,7 @@ public class BrailleView extends AbstractView {
 					this.view.setLineAlignment(this.view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf(entry.getValue()));	
 					break;	
 				case Font:
-					 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
+			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
 					 break;
 				case leftMargin:
 					if(!isFirst(n) && followsNewLine(n))
@@ -437,25 +436,18 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
-		StyleRange range = null;
 		int total = (Integer)message.getValue("brailleLength");
 		System.out.println("Value: " + t.n.getValue());
 		
 		String insertionString = (String)message.getValue("newBrailleText");
 		if(t.brailleList.getFirst().start != -1){
-			setListenerLock(true);
-			if(t.brailleList.getFirst().start < view.getCharCount())
-				range = view.getStyleRangeAtOffset(t.brailleList.getFirst().start + ((t.brailleList.getLast().end - t.brailleList.getFirst().start) / 2));
-				
+			setListenerLock(true);			
 			int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
 			int lineIndent = this.view.getLineIndent(startLine);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
 			restoreStyleState(t.brailleList.getFirst().start);
 			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
-				
-			if(range != null)
-				updateRange(range, t.brailleList.getFirst().start, insertionString.length());
 		}
 	}
 	

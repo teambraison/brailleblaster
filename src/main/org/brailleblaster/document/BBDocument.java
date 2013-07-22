@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
+import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -69,6 +70,8 @@ public class BBDocument {
 	private FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();
 	private ArrayList<String>missingSemanticsList;
+	private String systemId;
+	private String publicId;
 	
 	public BBDocument(DocumentManager dm){		
 		this.missingSemanticsList = new ArrayList<String>();
@@ -101,7 +104,6 @@ public class BBDocument {
 		String ext = completePath.substring (extPos);
 		if (ext.equalsIgnoreCase ("xml")) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
-			
 			if(normalizeFile(completePath, tempPath) && lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
 				deleteFile(tempPath);
 				return buildDOM(outFile);
@@ -118,7 +120,9 @@ public class BBDocument {
 				return buildDOM(outFile);
 		} 
 		else if (ext.equalsIgnoreCase ("utd")) {
-			return buildDOM(completePath);
+			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
+			normalizeUTD(completePath, tempPath);
+			return buildDOM(tempPath);
 		} 
 		else {
 			throw new IllegalArgumentException (completePath + " not .xml, .txt, or .brf");
@@ -169,8 +173,13 @@ public class BBDocument {
 	}
 	
 	private boolean normalizeFile(String originalFilePath, String tempFilePath){
-		Normalizer n = new Normalizer(originalFilePath);
+		Normalizer n = new Normalizer(this, originalFilePath);
 		return n.createNewNormalizedFile(tempFilePath);
+	}
+	
+	private boolean normalizeUTD(String originalFilePath, String tempFilePath){
+		Normalizer n = new Normalizer(this, originalFilePath);
+		return n.createNewUTDFile(tempFilePath);
 	}
 	
 	public void updateDOM(MapList list, Message message){
@@ -423,6 +432,7 @@ public class BBDocument {
 	
 	public Document getNewXML(){
 		Document d = new Document(this.doc);
+		setOriginalDocType(d);
 		removeAllBraille(d.getRootElement());
 		return d;
 	}
@@ -622,5 +632,18 @@ public class BBDocument {
 	private void deleteFile(String path){
 		File f = new File(path);
 		f.delete();
+	}
+	
+	public void setPublicId(String id){
+		publicId = id;
+	}
+	
+	public void setSystemId(String id){
+		systemId = id;
+	}
+	
+	public void setOriginalDocType(Document d) {
+		if(this.doc.getDocType() == null)
+			d.setDocType(new DocType(this.getRootElement().getLocalName(), publicId, systemId));
 	}
 }

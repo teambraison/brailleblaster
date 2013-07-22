@@ -11,6 +11,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.w3c.dom.Document;
 
+import org.w3c.dom.DocumentType;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -19,7 +20,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -31,14 +31,23 @@ public class Normalizer {
 	File f;
 	Document doc;
 	static Logger log = BBIni.getLogger();
+	String originalPubId;
+	String originalSystemId;
+	DocumentType docType;
 	
-	public Normalizer(String path){
+	public Normalizer(BBDocument bbDoc, String path){
 		this.f = new File(path);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder;
+		Resolver res = new Resolver();
+		
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder.setEntityResolver(res);
 			this.doc = dBuilder.parse(this.f);
+			docType = this.doc.getDoctype();
+			bbDoc.setPublicId(res.getOriginalpubId());
+			bbDoc.setSystemId(res.getOriginalSystemId());
 		}
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
@@ -70,6 +79,14 @@ public class Normalizer {
 	public boolean createNewNormalizedFile(String path){
 		if(this.doc != null){
 			normalize();
+			return write(this.doc, path);
+		}
+		
+		return false;
+	}
+	
+	public boolean createNewUTDFile(String path){
+		if(this.doc != null){
 			return write(this.doc, path);
 		}
 		
@@ -111,6 +128,7 @@ public class Normalizer {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
+
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(path));
 			transformer.transform(source, result);

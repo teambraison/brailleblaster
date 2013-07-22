@@ -164,6 +164,44 @@ public class TreeView extends AbstractView {
 
 			@Override
 			public void focusLost(FocusEvent e) {
+				setListenerLock(true);
+				TreeItem current = tree.getSelection()[0];
+				if(current.equals(root)){
+					current = root.getItem(0);
+				}
+				if(!hasTreeData(current)){
+					TreeItem parent = current.getParentItem();
+					int index = parent.indexOf(current);
+					TreeItem next = null;
+					while(next == null){
+						next = findNextItem(dm, current);
+						if(next != null){
+							TreeItemData data = (TreeItemData)next.getData();
+							tree.setSelection(next);
+					
+							ArrayList<TextMapElement>list = data.textMapList;
+							TextMapElement temp = list.get(0);
+							Message message = new Message(BBEvent.SET_CURRENT);
+							message.put("sender", "tree");
+							message.put("offset", temp.start);
+							dm.dispatch(message);
+						}
+						if(index < parent.getItemCount() - 1){
+							index++;
+							current = parent.getItem(index);
+						}
+						else {
+							if(parent.equals(root))
+								break;
+							
+							current = parent;
+							parent = parent.getParentItem();
+						}
+					}
+				}
+				setListenerLock(false);
+
+				
 				if(tree.getItemCount() > 0){
 					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
 					cursorMessage.put("sender", "tree");
@@ -451,11 +489,48 @@ public class TreeView extends AbstractView {
 		tree.removeAll();
 	}
 
+	private boolean hasTreeData(TreeItem item){
+	
+		if(getList(item).size() == 0)
+			return false;
+		
+		return true;
+	}
+	
+	private TreeItem findNextItem(DocumentManager dm, TreeItem item){
+		boolean populated = false;
+		if(item.getItemCount() == 0){
+			populated = true;
+			Element el = ((TreeItemData)item.getData()).element;
+			populateItemChildren(item, el, dm);
+		}
+		TreeItem [] items = item.getItems();
+		for(int i = 0; i < items.length; i++){
+			if(getList(items[i]).size() > 0){
+				return items[i]; 
+			}
+			else {
+				Element e = ((TreeItemData)items[i].getData()).element;
+				populateItemChildren(items[i], e, dm);
+				for(int j = 0; j < items[i].getItemCount(); j++){
+					TreeItem child = findNextItem(dm, items[i]);
+					if(child != null)
+						return child;
+					else
+						depopulateItemChildren(items[i]);
+				}
+			}
+		}
+		if(populated){
+			depopulateItemChildren(item);
+		}
+		return null;
+	}
+	
 	@Override
 	protected void setViewData(Message message) {
 		// TODO Auto-generated method stub
 	}
-
 	
 	public void resetView(Group group) {
 		setListenerLock(true);

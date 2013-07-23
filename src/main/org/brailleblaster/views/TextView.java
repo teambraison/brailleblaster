@@ -191,7 +191,7 @@ public class TextView extends AbstractView {
 				if(oldCursorPosition == -1 && positionFromStart == 0){
 					view.setCaretOffset((Integer)message.getValue("start"));
 				}
-
+				
 				sendStatusBarUpdate(dm);
 			}
 
@@ -424,7 +424,6 @@ public class TextView extends AbstractView {
 		String reformattedText;
 		int pos = view.getCaretOffset();
 		setListenerLock(true);
-
 		int indent = view.getLineIndent(view.getLineAtOffset(currentStart));
 		StyleRange range = getStyleRange();
 		if(!n.getValue().equals(""))

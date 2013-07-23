@@ -56,6 +56,20 @@ public class FontManager {
 	static Logger logger = BBIni.getLogger();
 	static boolean displayBrailleFont = false;
 	
+	public static void setFontWidth(DocumentManager dm){
+		dm.text.setcharWidth();
+		if(SimBraille){
+			simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
+			dm.braille.view.setFont(simBrailleFont);
+			dm.braille.setcharWidth();
+			
+			dm.braille.view.setFont(daisyFont);
+		}
+		else {
+			dm.braille.setcharWidth();
+		}
+	}
+	
 	public static void setShellFonts(Shell shell, DocumentManager dm){
 		FontData[] fd = shell.getDisplay().getFontList(null, true);
 		String fileSep = BBIni.getFileSep();
@@ -94,17 +108,18 @@ public class FontManager {
 			daisyFont = new Font(shell.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 		}
 
-		
 		dm.text.view.setFont(daisyFont);
-		dm.text.setcharWidth();
-		dm.braille.setcharWidth();
-		dm.braille.view.setFont(daisyFont);
+		if(SimBraille && displayBrailleFont) {
+			setBrailleFont(dm.getWPManager(), dm, true);
+		}
+		else {
+			dm.braille.view.setFont(daisyFont);
+		}
 		dm.braille.view.setEditable(false);
 
 		String loc = lh.getLocale().toString();
 		if (!loc.contentEquals(lh.localValue("localeResource"))) {
 			logger.log(Level.WARNING, "Locale resource for " + loc + " not found. Using default.");
-			// System.err.println("Locale resource for '" + lh.getLocale().getDisplayName() + "' not found. Using default.");
 			// new Notify("Locale resource for '" + lh.getLocale().getDisplayName() + "' not found.");
 		}	
 	}
@@ -163,20 +178,18 @@ public class FontManager {
 
 	private static void setBrailleFont(WPManager wp, DocumentManager dm, boolean toggle) {
 		if (toggle  && SimBraille) {
-			simBrailleFont = new Font(WPManager.getDisplay(),
-					"SimBraille", brailleFontHeight, SWT.NORMAL);
+		//	simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
 			dm.braille.view.setFont(simBrailleFont);
 			dm.simBrailleDisplayed = true;
 		} 
 		else {
-			if (Courier) {
-				simBrailleFont = new Font(WPManager.getDisplay(),
-						courierFont, daisyFontHeight, SWT.NORMAL);
-			} else {
-				simBrailleFont = new Font(WPManager.getDisplay(), altFont,
-						daisyFontHeight, SWT.NORMAL);
-			}
-			dm.braille.view.setFont(simBrailleFont);
+	//		if (Courier) {
+	//			simBrailleFont = new Font(WPManager.getDisplay(),courierFont, daisyFontHeight, SWT.NORMAL);
+	//		} 
+	//		else {
+	//			simBrailleFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
+	//		}
+			dm.braille.view.setFont(daisyFont);
 			dm.simBrailleDisplayed = false;
 		}
 	}	

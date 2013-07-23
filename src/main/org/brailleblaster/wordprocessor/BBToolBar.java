@@ -181,7 +181,6 @@ public class BBToolBar {
 		checkBrailleItem = new Button(shell, SWT.CHECK);
 		checkBrailleItem.setLayoutData(bloc);
 		checkBrailleItem.setText(lh.localValue("viewBraille"));
-		checkBrailleItem.setEnabled(false);
 		checkBrailleItem.pack();
 		checkBrailleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {

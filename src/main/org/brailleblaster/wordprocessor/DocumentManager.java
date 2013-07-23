@@ -118,6 +118,7 @@ public class DocumentManager {
 		this.item.setControl(this.group);
 		initializeDocumentTab();
 		this.document = new BBDocument(this);
+		FontManager.setFontWidth(this);
 		
 		logger = BBIni.getLogger();
 		
@@ -635,7 +636,6 @@ public class DocumentManager {
 			if(this.text.view.isFocusControl()){
 				currentOffset = this.text.view.getCaretOffset();
 				resetViews();
-				initializeDocumentTab();
 				
 				if(currentOffset < this.text.view.getCharCount()){
 					this.text.view.setCaretOffset(currentOffset);
@@ -650,7 +650,6 @@ public class DocumentManager {
 			else if(this.braille.view.isFocusControl()){
 				currentOffset = this.braille.view.getCaretOffset();
 				resetViews();
-				initializeDocumentTab();
 			
 				this.braille.view.setCaretOffset(currentOffset);
 				setCurrentOnRefresh("braille",currentOffset);	
@@ -664,17 +663,14 @@ public class DocumentManager {
 					currentOffset = list.getCurrent().start;
 			
 				resetViews();
-				initializeDocumentTab();
 
 				setCurrentOnRefresh(null, currentOffset);
 				this.text.view.setCaretOffset(currentOffset);
 				this.text.setPositionFromStart();
 			}
 			else {
-				currentOffset = this.text.view.getCaretOffset();
-			
+				currentOffset = this.text.view.getCaretOffset();		
 				resetViews();		
-				initializeDocumentTab();
 			
 				setCurrentOnRefresh(null,currentOffset);
 				this.text.view.setCaretOffset(currentOffset);
@@ -696,6 +692,7 @@ public class DocumentManager {
 			this.braille.resetView(this.group);
 			this.treeView.removeListeners();
 			this.treeView.resetView(this.group);
+			initializeDocumentTab();
 			this.text.words = 0;
 			updateTempFile();
 			this.document.deleteDOM();
@@ -776,5 +773,9 @@ public class DocumentManager {
 	
 	public Display getDisplay(){
 		return this.wp.getShell().getDisplay();
+	}
+	
+	public WPManager getWPManager(){
+		return this.wp;
 	}
 }

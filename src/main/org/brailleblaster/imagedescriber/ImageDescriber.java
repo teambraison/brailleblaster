@@ -62,7 +62,7 @@ public class ImageDescriber {
 		curElement = -1;
 
 		// Fill list of <img>'s.
-		FillImgList(rootElement);
+		fillImgList(rootElement);
 		
 		// Get size of <img> list.
 		numImgElms = imgList.size();
@@ -71,14 +71,20 @@ public class ImageDescriber {
 		if(numImgElms > 0)
 			curElement = 0;
 		
-		for(int asdf = 0; asdf < numImgElms; asdf++)
-			System.out.println( imgList.get(asdf).getAttributeValue("src") );
+		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
+			if( hasImgGrpParent(imgList.get(asdf)) == false) {
+				wrapInImgGrp(imgList.get(asdf));
+				System.out.println( imgList.get(asdf).getLocalName() + " has been wrapped!" );
+//			System.out.println( imgList.get(asdf).getAttribute("src") );
+			}
+//			imgList.get(asdf).getAttribute("src").setValue("Rubber Chicken");
+		}
 		
 	} // ImageDescriber(BBDocument document)
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Searches forward in the xml tree for an element named <img>
-	public Element NextImageElement()
+	public Element nextImageElement()
 	{
 		// Make sure there are images.
 		if(numImgElms == 0)
@@ -96,7 +102,7 @@ public class ImageDescriber {
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Searches backward in the xml tree for an element named <img>
-	public Element PrevImageElement()
+	public Element prevImageElement()
 	{
 		// Make sure there are images.
 		if(numImgElms == 0)
@@ -114,7 +120,7 @@ public class ImageDescriber {
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Recursively moves through xml tree and adds <img> nodes to list.
-	public void FillImgList(Element e)
+	public void fillImgList(Element e)
 	{
 		// Is this element an <img>?
 		if( e.getLocalName().compareTo("img") == 0 )
@@ -125,8 +131,40 @@ public class ImageDescriber {
 		
 		// Get their children, and so on.
 		for(int curChild = 0; curChild < childElms.size(); curChild++)
-			FillImgList( childElms.get(curChild) );
+			fillImgList( childElms.get(curChild) );
 		
 	} // FillImgList(Element e)
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Returns true if the current image has an <imggroup> parent.
+	// False otherwise.
+	public boolean hasImgGrpParent(Element e)
+	{
+		// If the parent is <imggroup>, return true.
+		if( ((nu.xom.Element)(e.getParent())).getLocalName().compareTo("imggroup") == 0 )
+			return true;
+		else
+			return false;
+		
+	} // HasImgGrpParent(Element e)
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Encapsulates given element into <imggroup>, and adds 
+	// <prodnote> in the group with it.
+	public void wrapInImgGrp(Element e)
+	{
+		// Create all elements.
+		Element imgGrpElm = new Element("imggroup");
+		Element prodElm = new Element("prodnote");
+		Element copyElm = (nu.xom.Element)e.copy();
+		
+		// Arrange child hierarchy.
+		imgGrpElm.appendChild(prodElm);
+		imgGrpElm.appendChild(copyElm);
+		
+		// Replace given element with this updated one.
+		e = imgGrpElm;
+		
+	} // wrapInImgGrp(Element e)
 		
 } // public class ImageDescriber {

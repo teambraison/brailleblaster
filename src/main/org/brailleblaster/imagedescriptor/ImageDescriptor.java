@@ -30,7 +30,7 @@ package org.brailleblaster.imagedescriptor;
 
 import nu.xom.Element;
 
-import org.brailleblaster.wordprocessor.BBDocument;;
+import org.brailleblaster.document.BBDocument;
 
 public class ImageDescriptor {
 

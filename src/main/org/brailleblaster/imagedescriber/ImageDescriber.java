@@ -83,15 +83,7 @@ public class ImageDescriber {
 	// Recursively moves through xml tree and adds <img> nodes to list.
 	public void FillImgList(Element e)
 	{
-		// Is this element an <img>?
-		if( e.getLocalName().compareTo("img") == 0 ) {
-			imgList.add(e);
-			System.out.println( e.getLocalName() );
-		}
 		
-		// Get children, too.
-		if( e.getChildCount() > 0 )
-			FillImgList(e);
 		
 	} // FillImgList(Element e)
 		

@@ -29,6 +29,8 @@
 package org.brailleblaster.wordprocessor;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.imagedescriber.ImageDescriber;
 import org.brailleblaster.localization.LocaleHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -171,6 +173,38 @@ public class BBToolBar {
 				// dm.daisyPrint();
 			}
 		});
+		
+		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
+		tlabel = lh.localValue("&Image Describer");
+		imageDesc.setText(tlabel.replace("&", ""));
+		imageDesc.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Current document.
+				BBDocument curDoc = null;
+				
+				if (BBIni.debugging()) {
+					// dm.setReturn (WP.OpenDocumentGetFile);
+				} 
+				else {
+					int index= wp.getFolder().getSelectionIndex();
+					if(index == -1){
+						wp.addDocumentManager(null);
+						curDoc = wp.getList().getFirst().document;
+					}
+					else {
+						curDoc = wp.getList().get(index).document;
+					}
+				}
+				
+				// Run Image Describer on current document.
+				if(curDoc.getDOM() != null) {
+					ImageDescriber imgDesc = new ImageDescriber(curDoc);
+				}
+					
+			} // widgetSelected...
+				
+		}); // addSelectionListener(new SelectionAdapter()...
 
 		toolBar.pack();
 

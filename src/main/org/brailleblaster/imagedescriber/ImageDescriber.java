@@ -31,6 +31,7 @@ package org.brailleblaster.imagedescriber;
 import java.util.ArrayList;
 
 import nu.xom.Element;
+import nu.xom.Elements;
 
 import org.brailleblaster.document.BBDocument;
 
@@ -46,6 +47,8 @@ public class ImageDescriber {
 	ArrayList<Element> imgList = null;
 	// The current element we're working on.
 	int curElement = -1;
+	// The number of img elements we have in this document.
+	int numImgElms = 0;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
@@ -61,13 +64,33 @@ public class ImageDescriber {
 		// Fill list of <img>'s.
 		FillImgList(rootElement);
 		
+		// Get size of <img> list.
+		numImgElms = imgList.size();
+		
+		// Only init the current element if there are <img>'s.
+		if(numImgElms > 0)
+			curElement = 0;
+		
+		for(int asdf = 0; asdf < numImgElms; asdf++)
+			System.out.println( imgList.get(asdf).getAttributeValue("src") );
+		
 	} // ImageDescriber(BBDocument document)
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Searches forward in the xml tree for an element named <img>
 	public Element NextImageElement()
 	{
-		return null;
+		// Make sure there are images.
+		if(numImgElms == 0)
+			return null;
+		
+		// Move to next element, then return it.
+		curElement++;
+		if(curElement >= numImgElms)
+			curElement = 0;
+			
+		// Return current <img> element.
+		return imgList.get(curElement);
 		
 	} // NextImageElement()
 	
@@ -75,7 +98,17 @@ public class ImageDescriber {
 	// Searches backward in the xml tree for an element named <img>
 	public Element PrevImageElement()
 	{
-		return null;
+		// Make sure there are images.
+		if(numImgElms == 0)
+			return null;
+		
+		// Move to previous element, then return it.
+		curElement--;
+		if(curElement < 0)
+			curElement = numImgElms - 1;
+			
+		// Return current <img> element.
+		return imgList.get(curElement);
 	
 	} // PrevImageElement()
 	
@@ -83,7 +116,16 @@ public class ImageDescriber {
 	// Recursively moves through xml tree and adds <img> nodes to list.
 	public void FillImgList(Element e)
 	{
+		// Is this element an <img>?
+		if( e.getLocalName().compareTo("img") == 0 )
+			imgList.add(e);
 		
+		// Get children.
+		Elements childElms = e.getChildElements();
+		
+		// Get their children, and so on.
+		for(int curChild = 0; curChild < childElms.size(); curChild++)
+			FillImgList( childElms.get(curChild) );
 		
 	} // FillImgList(Element e)
 		

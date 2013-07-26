@@ -30,6 +30,7 @@ package org.brailleblaster.imagedescriber;
 
 import java.util.ArrayList;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
 
@@ -74,7 +75,7 @@ public class ImageDescriber {
 		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
 			if( hasImgGrpParent(imgList.get(asdf)) == false) {
 				wrapInImgGrp(imgList.get(asdf));
-				System.out.println( imgList.get(asdf).getLocalName() + " has been wrapped!" );
+				System.out.println( imgList.get(asdf) + " has been wrapped!" );
 //			System.out.println( imgList.get(asdf).getAttribute("src") );
 			}
 //			imgList.get(asdf).getAttribute("src").setValue("Rubber Chicken");
@@ -154,16 +155,22 @@ public class ImageDescriber {
 	public void wrapInImgGrp(Element e)
 	{
 		// Create all elements.
-		Element imgGrpElm = new Element("imggroup");
-		Element prodElm = new Element("prodnote");
+		String ns = e.getDocument().getRootElement().getNamespaceURI();
+		Element imgGrpElm = new Element("imggroup", ns);
+		Element prodElm = new Element("prodnote", ns);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
+		// Add <prodnote> attributes.
+		prodElm.addAttribute( new Attribute("id", "TODO!") );
+		prodElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
+		prodElm.addAttribute( new Attribute("render", "required") );
+		
 		// Arrange child hierarchy.
-		imgGrpElm.appendChild(prodElm);
 		imgGrpElm.appendChild(copyElm);
+		imgGrpElm.appendChild(prodElm);
 		
 		// Replace given element with this updated one.
-		e = imgGrpElm;
+		e.getParent().replaceChild(e, imgGrpElm);
 		
 	} // wrapInImgGrp(Element e)
 		

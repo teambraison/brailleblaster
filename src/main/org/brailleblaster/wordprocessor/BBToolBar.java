@@ -177,6 +177,7 @@ public class BBToolBar {
 		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Image Describer");
 		imageDesc.setText(tlabel.replace("&", ""));
+		imageDesc.setImage(new Image(null, distPath  + sep + "images" + sep + "imgdesc.png"));
 		imageDesc.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				

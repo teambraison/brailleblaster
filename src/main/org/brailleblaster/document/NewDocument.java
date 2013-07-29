@@ -26,7 +26,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.document;
 
 import nu.xom.*;
 import org.brailleblaster.util.Notify;

@@ -29,9 +29,11 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.stylePanel;
 
-class StyleManager{
+import org.brailleblaster.wordprocessor.WPManager;
+
+public class StyleManager{
 	
     StylePanel sp;
     WPManager dm;
@@ -56,7 +58,7 @@ class StyleManager{
     	es.modify(style);
     }
     
-    void stylePanel(){
+    public void stylePanel(){
     	sp.open();
     }
     

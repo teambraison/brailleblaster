@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.settings.Welcome;
+import org.brailleblaster.stylePanel.StyleManager;
 import org.brailleblaster.util.YesNoChoice;
 
 import java.util.LinkedList;

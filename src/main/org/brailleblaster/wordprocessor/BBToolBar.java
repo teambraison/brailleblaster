@@ -31,6 +31,7 @@ package org.brailleblaster.wordprocessor;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.imagedescriber.ImageDescriber;
+import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -48,6 +49,7 @@ public class BBToolBar {
 
 	private ToolBar toolBar;
 	private Button checkBrailleItem;
+	WPManager wordProc;
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp) {
 		String sep = BBIni.getFileSep();
@@ -58,6 +60,7 @@ public class BBToolBar {
 		location.right = new FormAttachment(40);
 		location.top = new FormAttachment(0);
 		toolBar.setLayoutData(location);
+		wordProc = wp;
 		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
@@ -201,7 +204,8 @@ public class BBToolBar {
 				
 				// Run Image Describer on current document.
 				if(curDm.document.getDOM() != null) {
-					ImageDescriber imgDesc = new ImageDescriber(curDm);
+//					ImageDescriber imgDesc = new ImageDescriber(curDm);
+					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
 				}
 					
 			} // widgetSelected...

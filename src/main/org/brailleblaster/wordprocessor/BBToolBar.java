@@ -38,6 +38,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -55,7 +56,7 @@ public class BBToolBar {
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
 		location.right = new FormAttachment(40);
-		location.top = new FormAttachment(1);
+		location.top = new FormAttachment(0);
 		toolBar.setLayoutData(location);
 		
 		// Path to dist folder.
@@ -181,8 +182,8 @@ public class BBToolBar {
 		imageDesc.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
-				// Current document.
-				BBDocument curDoc = null;
+				// Current Doc Manager.
+				DocumentManager curDm = null;
 				
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -191,27 +192,27 @@ public class BBToolBar {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						curDoc = wp.getList().getFirst().document;
+						curDm = wp.getList().getFirst();
 					}
 					else {
-						curDoc = wp.getList().get(index).document;
+						curDm = wp.getList().get(index);
 					}
 				}
 				
 				// Run Image Describer on current document.
-				if(curDoc.getDOM() != null) {
-					ImageDescriber imgDesc = new ImageDescriber(curDoc);
+				if(curDm.document.getDOM() != null) {
+					ImageDescriber imgDesc = new ImageDescriber(curDm);
 				}
 					
 			} // widgetSelected...
 				
 		}); // addSelectionListener(new SelectionAdapter()...
-
+		
 		toolBar.pack();
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);
-		bloc.right = new FormAttachment(47);
+		bloc.right = new FormAttachment(50);
 		bloc.top = new FormAttachment(5);
 		checkBrailleItem = new Button(shell, SWT.CHECK);
 		checkBrailleItem.setLayoutData(bloc);

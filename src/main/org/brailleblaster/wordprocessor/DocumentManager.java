@@ -778,4 +778,8 @@ public class DocumentManager {
 	public WPManager getWPManager(){
 		return this.wp;
 	}
+	
+	public String getWorkingPath(){
+		return this.workingFilePath;
+	}
 }

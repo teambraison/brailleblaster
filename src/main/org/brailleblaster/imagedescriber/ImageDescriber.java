@@ -34,10 +34,15 @@ import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.eclipse.swt.graphics.Image;
 
 public class ImageDescriber {
 
+	// Manages document.
+	DocumentManager dm;
 	// The document with images we want to add descriptions to.
 	private BBDocument doc;
 	// Current image element.
@@ -45,46 +50,51 @@ public class ImageDescriber {
 	// Root element.
 	private Element rootElement;
 	// List of <img> elements.
-	ArrayList<Element> imgList = null;
+	ArrayList<Element> imgElmList = null;
+	// List of images associated with the <img> elements.
+	ArrayList<Image> imgFileList = null;
 	// The current element we're working on.
-	int curElement = -1;
+	int curElementIndex = -1;
 	// The number of img elements we have in this document.
 	int numImgElms = 0;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
-	public ImageDescriber(BBDocument document){
+	public ImageDescriber(DocumentManager docManager){
 		
 		// Init variables.
-		doc = document;
+		dm = docManager;
+		doc = dm.document;
 		rootElement = doc.getRootElement();
 		curImgElement = rootElement;
-		imgList = new ArrayList<Element>();
-		curElement = -1;
+		imgElmList = new ArrayList<Element>();
+		imgFileList = new ArrayList<Image>();
+		curElementIndex = -1;
 
 		// Fill list of <img>'s.
 		fillImgList(rootElement);
 		
 		// Get size of <img> list.
-		numImgElms = imgList.size();
+		numImgElms = imgElmList.size();
 		
 		// Only init the current element if there are <img>'s.
 		if(numImgElms > 0)
-			curElement = 0;
+			curElementIndex = 0;
 		
 		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
-			if( hasImgGrpParent(imgList.get(asdf)) == false) {
-				wrapInImgGrp(imgList.get(asdf));
-				System.out.println( imgList.get(asdf) + " has been wrapped!" );
-//			System.out.println( imgList.get(asdf).getAttribute("src") );
+			curImgElement = imgElmList.get(asdf);
+			curElementIndex = asdf;
+			if( hasImgGrpParent(imgElmList.get(asdf)) == false) {
+				wrapInImgGrp(imgElmList.get(asdf));
+//				setCurElmImgAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
 			}
-//			imgList.get(asdf).getAttribute("src").setValue("Rubber Chicken");
-		}
+			
+		} // for()
 		
-	} // ImageDescriber(BBDocument document)
+	} // ImageDescriber(DocumentManager docManager)
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Searches forward in the xml tree for an element named <img>
+	// Returns the next <img> element that was found in the xml doc.
 	public Element nextImageElement()
 	{
 		// Make sure there are images.
@@ -92,17 +102,20 @@ public class ImageDescriber {
 			return null;
 		
 		// Move to next element, then return it.
-		curElement++;
-		if(curElement >= numImgElms)
-			curElement = 0;
-			
+		curElementIndex++;
+		if(curElementIndex >= numImgElms)
+			curElementIndex = 0;
+		
+		// Set current element.
+		curImgElement = imgElmList.get(curElementIndex);
+		
 		// Return current <img> element.
-		return imgList.get(curElement);
+		return imgElmList.get(curElementIndex);
 		
 	} // NextImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Searches backward in the xml tree for an element named <img>
+	// Returns the previous <img> element that was found in the xml doc.
 	public Element prevImageElement()
 	{
 		// Make sure there are images.
@@ -110,22 +123,44 @@ public class ImageDescriber {
 			return null;
 		
 		// Move to previous element, then return it.
-		curElement--;
-		if(curElement < 0)
-			curElement = numImgElms - 1;
-			
+		curElementIndex--;
+		if(curElementIndex < 0)
+			curElementIndex = numImgElms - 1;
+		
+		// Set current element.
+		curImgElement = imgElmList.get(curElementIndex);
+		
 		// Return current <img> element.
-		return imgList.get(curElement);
+		return imgElmList.get(curElementIndex);
 	
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Recursively moves through xml tree and adds <img> nodes to list.
+	// Also builds image path list.
 	public void fillImgList(Element e)
 	{
 		// Is this element an <img>?
-		if( e.getLocalName().compareTo("img") == 0 )
-			imgList.add(e);
+		if( e.getLocalName().compareTo("img") == 0 ) {
+			
+			// Add element to list.
+			imgElmList.add(e);
+			
+			// Add image file path to list.
+			
+			// Remove slash and dot, if it's there.
+			String tempStr = e.getAttributeValue("src");
+			if( tempStr.startsWith(".") )
+				tempStr = tempStr.substring( 2, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Add.
+			imgFileList.add( new Image(null, tempStr) );
+		}
 		
 		// Get children.
 		Elements childElms = e.getChildElements();
@@ -158,20 +193,82 @@ public class ImageDescriber {
 		String ns = e.getDocument().getRootElement().getNamespaceURI();
 		Element imgGrpElm = new Element("imggroup", ns);
 		Element prodElm = new Element("prodnote", ns);
+		Element captElm = new Element("caption", ns);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
 		// Add <prodnote> attributes.
 		prodElm.addAttribute( new Attribute("id", "TODO!") );
 		prodElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
 		prodElm.addAttribute( new Attribute("render", "required") );
+		// Add <caption> attributes.
+		captElm.addAttribute( new Attribute("id", "TODO!") );
+		captElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
 		
 		// Arrange child hierarchy.
 		imgGrpElm.appendChild(copyElm);
+		imgGrpElm.appendChild(captElm);
 		imgGrpElm.appendChild(prodElm);
 		
 		// Replace given element with this updated one.
 		e.getParent().replaceChild(e, imgGrpElm);
 		
 	} // wrapInImgGrp(Element e)
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Returns Image object that element at given index represents.
+	public Image getImageFromElmIndex(int elmIndex)
+	{
+		// Return image.
+		return imgFileList.get(elmIndex);
+		
+	} // getElementImage()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Returns current element's index in list.
+	public int getCurrentElementIndex() {
+		
+		// Return the index.
+		return curElementIndex;
+		
+	} // getCurrentElementIndex()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Sets the current element's <img> attributes.
+	public void setCurElmImgAttributes(String tagID, String tagSRC, String tagALT)
+	{
+		// Find <img> and change its attributes.
+		int childCount = curImgElement.getParent().getChildCount();
+		for(int curElm = 0; curElm < childCount; curElm++)
+		{
+			// Get <img> element from <imggroup>.
+			Element child = (Element)((curImgElement.getParent())).getChild(0);
+			
+			// If this is the <img> element, change its attributes.
+			if( child.getLocalName().compareTo("img") == 0 )
+			{
+				// Set attributes.
+				child.getAttribute("id").setValue(tagID);
+				child.getAttribute("src").setValue(tagSRC);
+				child.getAttribute("alt").setValue(tagALT);
+				
+				// Found it. Stop searching.
+				break;
+				
+			} // if( child.getLocalName()...
+			
+		} // for(int curElm...
+		
+	} // setCurElmImgAttributes()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Sets the current element's <prodnote> attributes.
+	public void setCurElmProdAttributes(String tagID, String tagIMGREF, String tagRENDER)
+	{
+		// Set attributes.
+		curImgElement.getAttribute("id").setValue(tagID);
+		curImgElement.getAttribute("imgref").setValue(tagIMGREF);
+		curImgElement.getAttribute("render").setValue(tagRENDER);
+	
+	} // setCurElmProdAttributes
 		
 } // public class ImageDescriber {

@@ -57,6 +57,8 @@ public class ImageDescriber {
 	int curElementIndex = -1;
 	// The number of img elements we have in this document.
 	int numImgElms = 0;
+	// Namespace for the document.
+	String nameSpace;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
@@ -66,10 +68,9 @@ public class ImageDescriber {
 		dm = docManager;
 		doc = dm.document;
 		rootElement = doc.getRootElement();
-		curImgElement = rootElement;
 		imgElmList = new ArrayList<Element>();
 		imgFileList = new ArrayList<Image>();
-		curElementIndex = -1;
+		nameSpace = rootElement.getDocument().getRootElement().getNamespaceURI();
 
 		// Fill list of <img>'s.
 		fillImgList(rootElement);
@@ -78,15 +79,18 @@ public class ImageDescriber {
 		numImgElms = imgElmList.size();
 		
 		// Only init the current element if there are <img>'s.
-		if(numImgElms > 0)
+		if(numImgElms > 0) {
+			curImgElement = imgElmList.get(0);
 			curElementIndex = 0;
+		}
+		
 		
 		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
-			curImgElement = imgElmList.get(asdf);
-			curElementIndex = asdf;
 			if( hasImgGrpParent(imgElmList.get(asdf)) == false) {
-				wrapInImgGrp(imgElmList.get(asdf));
-//				setCurElmImgAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
+				curImgElement = wrapInImgGrp( imgElmList.get(asdf) );
+				imgElmList.set(asdf, curImgElement);
+				curElementIndex = asdf;
+//				setCurElmProdAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
 			}
 			
 		} // for()
@@ -187,13 +191,12 @@ public class ImageDescriber {
 	///////////////////////////////////////////////////////////////////////////
 	// Encapsulates given element into <imggroup>, and adds 
 	// <prodnote> in the group with it.
-	public void wrapInImgGrp(Element e)
+	public Element wrapInImgGrp(Element e)
 	{
-		// Create all elements.
-		String ns = e.getDocument().getRootElement().getNamespaceURI();
-		Element imgGrpElm = new Element("imggroup", ns);
-		Element prodElm = new Element("prodnote", ns);
-		Element captElm = new Element("caption", ns);
+		// Create all elements.nameSpace
+		Element imgGrpElm = new Element("imggroup", nameSpace);
+		Element prodElm = new Element("prodnote", nameSpace);
+		Element captElm = new Element("caption", nameSpace);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
 		// Add <prodnote> attributes.
@@ -205,12 +208,18 @@ public class ImageDescriber {
 		captElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
 		
 		// Arrange child hierarchy.
-		imgGrpElm.appendChild(copyElm);
-		imgGrpElm.appendChild(captElm);
-		imgGrpElm.appendChild(prodElm);
+//		imgGrpElm.appendChild(copyElm);
+//		imgGrpElm.appendChild(captElm);
+//		imgGrpElm.appendChild(prodElm);
+		imgGrpElm.insertChild(captElm, 0);
+		imgGrpElm.insertChild(prodElm, 0);
+		imgGrpElm.insertChild(copyElm, 0);
 		
 		// Replace given element with this updated one.
 		e.getParent().replaceChild(e, imgGrpElm);
+		
+		// Return newly parented copy of element passed.
+		return copyElm;
 		
 	} // wrapInImgGrp(Element e)
 	
@@ -236,38 +245,38 @@ public class ImageDescriber {
 	// Sets the current element's <img> attributes.
 	public void setCurElmImgAttributes(String tagID, String tagSRC, String tagALT)
 	{
-		// Find <img> and change its attributes.
-		int childCount = curImgElement.getParent().getChildCount();
-		for(int curElm = 0; curElm < childCount; curElm++)
-		{
-			// Get <img> element from <imggroup>.
-			Element child = (Element)((curImgElement.getParent())).getChild(0);
-			
-			// If this is the <img> element, change its attributes.
-			if( child.getLocalName().compareTo("img") == 0 )
-			{
-				// Set attributes.
-				child.getAttribute("id").setValue(tagID);
-				child.getAttribute("src").setValue(tagSRC);
-				child.getAttribute("alt").setValue(tagALT);
-				
-				// Found it. Stop searching.
-				break;
-				
-			} // if( child.getLocalName()...
-			
-		} // for(int curElm...
+		// Set attribute values.
+		curImgElement.getAttribute("id").setValue(tagID);
+		curImgElement.getAttribute("src").setValue(tagSRC);
+		curImgElement.getAttribute("alt").setValue(tagALT);
+		
 		
 	} // setCurElmImgAttributes()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Sets the current element's <prodnote> attributes.
+	// Sets <prodnote> attributes for current <img> element's parent.
 	public void setCurElmProdAttributes(String tagID, String tagIMGREF, String tagRENDER)
 	{
+		// Get parent of <img> element.
+		nu.xom.Node parNode = curImgElement.getParent();
+		
+		// Find <prodnote>.
+		Element ch = null;
+		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			ch = (Element)parNode.getChild(curC);
+			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+
+				// Found it. Break.
+				break;
+				
+			} // if( ch.getLocalName()...
+			
+		} // for(int curC = 0...
+		
 		// Set attributes.
-		curImgElement.getAttribute("id").setValue(tagID);
-		curImgElement.getAttribute("imgref").setValue(tagIMGREF);
-		curImgElement.getAttribute("render").setValue(tagRENDER);
+		ch.getAttribute("id").setValue(tagID);
+		ch.getAttribute("imgref").setValue(tagIMGREF);
+		ch.getAttribute("render").setValue(tagRENDER);
 	
 	} // setCurElmProdAttributes
 		

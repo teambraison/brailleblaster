@@ -199,18 +199,24 @@ public class ImageDescriber {
 		Element captElm = new Element("caption", nameSpace);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
+		// If there was no id attribute in the <img> element, add one.
+		if(copyElm.getAttribute("id") == null)
+			copyElm.addAttribute( new Attribute("id", "TODO!") );
+		
+		// If the original didn't have an ID value, add one.
+		String idValue = copyElm.getAttributeValue("id");
+		if(idValue == null)
+			idValue = "TODO!";
+		
 		// Add <prodnote> attributes.
 		prodElm.addAttribute( new Attribute("id", "TODO!") );
-		prodElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
+		prodElm.addAttribute( new Attribute("imgref", idValue) );
 		prodElm.addAttribute( new Attribute("render", "required") );
 		// Add <caption> attributes.
 		captElm.addAttribute( new Attribute("id", "TODO!") );
-		captElm.addAttribute( new Attribute("imgref", copyElm.getAttributeValue("id")) );
+		captElm.addAttribute( new Attribute("imgref", idValue) );
 		
 		// Arrange child hierarchy.
-//		imgGrpElm.appendChild(copyElm);
-//		imgGrpElm.appendChild(captElm);
-//		imgGrpElm.appendChild(prodElm);
 		imgGrpElm.insertChild(captElm, 0);
 		imgGrpElm.insertChild(prodElm, 0);
 		imgGrpElm.insertChild(copyElm, 0);

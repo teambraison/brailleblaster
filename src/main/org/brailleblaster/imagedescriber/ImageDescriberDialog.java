@@ -42,6 +42,9 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one
@@ -58,13 +61,14 @@ public class ImageDescriberDialog extends Dialog {
 	Button nextBtn;
 	Button prevBtn;
 	Label mainImage;
+	Text imgDescTextBox; 
 	
 	// The image describer.
 	ImageDescriber imgDesc;
 	
 	// Main image.
 	int imageOffsetX = 0;
-	int imageOffsetY = 100;
+	int imageOffsetY = 150;
 	int clientWidth = -1;
 	int clientHeight = -1;
 	
@@ -140,6 +144,42 @@ public class ImageDescriberDialog extends Dialog {
 		mainImage = new Label(configShell, SWT.NONE);
 		mainImage.setBounds(imageOffsetX, imageOffsetY, clientWidth - imageOffsetX, (clientHeight - imageOffsetY));
 		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight) );
+
+		// Create image description text box.
+		imgDescTextBox = new Text(configShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		imgDescTextBox.setBounds(250, 8, clientWidth - 250, 200);
+		imgDescTextBox.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				
+				// Set image's description.
+				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+				
+			} // modifyText()
+			
+		}); // addModifyListener(new ModiftyListener() { 
+		
+		
+		// Get prodnote text/image description.
+		imgDescTextBox.setText( imgDesc.getCurProdText() );
+		
+		
+		// Create previous button.
+		prevBtn = new Button(configShell, SWT.PUSH);
+		prevBtn.setText("Previous");
+		prevBtn.setBounds(101,  0, 100, 100);
+		prevBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Change main image to previous element image.
+				imgDesc.prevImageElement();
+				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight - imageOffsetY) );
+				
+				// Get prodnote text/image description.
+				imgDescTextBox.setText( imgDesc.getCurProdText() );
+				
+			} // widgetSelected()
+			
+		}); // prevBtn.addSelectionListener...
 		
 		// Create next button.
 		nextBtn = new Button(configShell, SWT.PUSH);
@@ -152,22 +192,12 @@ public class ImageDescriberDialog extends Dialog {
 				imgDesc.nextImageElement();
 				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight - imageOffsetY) );
 				
+				// Get prodnote text/image description.
+				imgDescTextBox.setText( imgDesc.getCurProdText() );
+				
 			} // widgetSelected()
 			
 		}); // nextBtn.addSelectionListener...
-		
-		// Create previous button.
-		prevBtn = new Button(configShell, SWT.PUSH);
-		prevBtn.setText("Previous");
-		prevBtn.setBounds(101,  0, 100, 100);
-		prevBtn.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				
-				
-				
-			} // widgetSelected()
-			
-		}); // prevBtn.addSelectionListener...
 		
 	} // public void createUIelements()
 	

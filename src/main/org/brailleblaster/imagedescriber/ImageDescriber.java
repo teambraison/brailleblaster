@@ -114,7 +114,7 @@ public class ImageDescriber {
 		curImgElement = imgElmList.get(curElementIndex);
 		
 		// Return current <img> element.
-		return imgElmList.get(curElementIndex);
+		return curImgElement;
 		
 	} // NextImageElement()
 	
@@ -135,7 +135,7 @@ public class ImageDescriber {
 		curImgElement = imgElmList.get(curElementIndex);
 		
 		// Return current <img> element.
-		return imgElmList.get(curElementIndex);
+		return curImgElement;
 	
 	} // PrevImageElement()
 	
@@ -256,23 +256,69 @@ public class ImageDescriber {
 	} // getCurrentElementIndex()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Sets the current element's <img> attributes.
+	// Sets the current element's <img> attributes. Pass null to atts you 
+	// don't want modified.
 	public void setCurElmImgAttributes(String tagID, String tagSRC, String tagALT)
 	{
 		// Set attribute values.
-		curImgElement.getAttribute("id").setValue(tagID);
-		curImgElement.getAttribute("src").setValue(tagSRC);
-		curImgElement.getAttribute("alt").setValue(tagALT);
+		if(tagID != null)
+			curImgElement.getAttribute("id").setValue(tagID);
+		if(tagSRC != null)
+			curImgElement.getAttribute("src").setValue(tagSRC);
+		if(tagALT != null)
+			curImgElement.getAttribute("alt").setValue(tagALT);
 		
 		
 	} // setCurElmImgAttributes()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Sets <prodnote> attributes for current <img> element's parent.
-	public void setCurElmProdAttributes(String tagID, String tagIMGREF, String tagRENDER)
+	// Returns the text/description in the current <imggroup>'s prodnote.
+	// Returns null if it couldn't find the <prodnote> or if it didn't have 
+	// text.
+	public String getCurProdText()
+	{
+		// String for <prodnote> text.
+		String prodText = null;
+		
+		// Get parent of <img> element.
+		nu.xom.Node parNode = curImgElement.getParent();
+		
+		///////////////////////////
+		
+		// Find <prodnote>.
+		Element ch = null;
+		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			ch = (Element)parNode.getChild(curC);
+			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+
+				// If no children, add one.
+				if(ch.getChildCount() == 0)
+					ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+				
+				// Get text.
+				prodText = ch.getChild(0).getValue();
+				
+				// Found it. Break.
+				break;
+				
+			} // if( ch.getLocalName()...
+			
+		} // for(int curC = 0...
+		
+		// Return <prodnote> text.
+		return prodText;
+		
+	} // getCurProdText()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Sets <prodnote> text and attributes. Uses parent of current <img> element 
+	// to get to <prodnote>. Pass null to args you don't want modified.
+	public void setCurElmProd(String text, String tagID, String tagIMGREF, String tagRENDER)
 	{
 		// Get parent of <img> element.
 		nu.xom.Node parNode = curImgElement.getParent();
+		
+		///////////////////////////
 		
 		// Find <prodnote>.
 		Element ch = null;
@@ -287,10 +333,31 @@ public class ImageDescriber {
 			
 		} // for(int curC = 0...
 		
+		/////////////////////////
+		
+		// Set text value.
+		if(text != null)
+		{
+			// If no children, add one. Else, replace the one already there.
+			if(ch.getChildCount() == 0)
+				ch.appendChild( new nu.xom.Text(text) );
+			else {
+				nu.xom.Node oldNode = ch.getChild(0);
+				nu.xom.Node newNode = new nu.xom.Text(text);
+				ch.replaceChild(oldNode, newNode);
+			}
+			
+		} // if(text != null)
+		
+		///////////////////////////
+		
 		// Set attributes.
-		ch.getAttribute("id").setValue(tagID);
-		ch.getAttribute("imgref").setValue(tagIMGREF);
-		ch.getAttribute("render").setValue(tagRENDER);
+		if(tagID != null)
+			ch.getAttribute("id").setValue(tagID);
+		if(tagIMGREF != null)
+			ch.getAttribute("imgref").setValue(tagIMGREF);
+		if(tagRENDER != null)
+			ch.getAttribute("render").setValue(tagRENDER);
 	
 	} // setCurElmProdAttributes
 	

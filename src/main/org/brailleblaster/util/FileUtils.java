@@ -31,9 +31,11 @@
 
 package org.brailleblaster.util;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import org.brailleblaster.BBIni;
@@ -184,6 +186,52 @@ return null;
 public boolean writeToUserProgrramData (String partialPath) {
 return true;
 }
+/*
+public void appendToFile(String path, String text){
+	File f = new File(path);
+	if(f.exists()){
+		try {
+			FileWriter out = new FileWriter(f, true);
+			out.write(text);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+*/
+public void writeToFile(String path, String text){
+	FileWriter fw;
+	try {
+		fw = new FileWriter(new File(path));
+		BufferedWriter writer = new BufferedWriter(fw);
+		writer.write(text);
+		writer.close();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+}
 
+public void writeToFile(String path, StringBuilder sb){
+	FileWriter fw;
+	try {
+		fw = new FileWriter(new File(path));
+		BufferedWriter writer = new BufferedWriter(fw);
+		writer.append(sb);
+		writer.close();
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+}
+
+//Returns file name minus path and extension
+public String getFileName(String path){
+	return path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1, path.lastIndexOf("."));
+}
+
+public String getPath(String path){
+	return path.substring(0, path.lastIndexOf(BBIni.getFileSep()));
+}
 }
 

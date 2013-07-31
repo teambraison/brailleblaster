@@ -59,6 +59,8 @@ import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.stylePanel.StyleManager;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
@@ -86,6 +88,7 @@ public class DocumentManager {
 	TreeView treeView;
 	TextView text;
 	BrailleView braille;
+	StyleManager sm;
 	FormLayout layout;
 	Control [] tabList;
 	BBSemanticsTable styles;
@@ -102,16 +105,19 @@ public class DocumentManager {
 	MapList list;
 	String zippedPath;
 	String workingFilePath;
+	FileUtils fu;
 	
 	//Constructor that sets things up for a new document.
 	DocumentManager(WPManager wp, String docName) {
+		this.fu = new FileUtils();
 		this.styles = new BBSemanticsTable();
 		this.documentName = docName;
 		this.list = new MapList(this);
 		this.wp = wp;
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(),SWT.NONE);
-		this.group.setLayout(new FormLayout());		
+		this.group.setLayout(new FormLayout());	
+		this.sm = new StyleManager(this);
 		this.treeView = new TreeView(this, this.group);
 		this.text = new TextView(this.group, this.styles);
 		this.braille = new BrailleView(this.group, this.styles);
@@ -134,9 +140,18 @@ public class DocumentManager {
 
 	private void initializeDocumentTab(){
 		FontManager.setShellFonts(this.wp.getShell(), this);	
-		this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
-		this.group.setTabList(this.tabList);
+		setTabList();
 		wp.getShell().layout();
+	}
+	
+	private void setTabList(){
+		if(sm.tableIsVisible()){
+			this.tabList = new Control[]{this.treeView.view, this.sm.getGroup(), this.text.view, this.braille.view};
+		}
+		else {
+			this.tabList = new Control[]{this.treeView.view, this.text.view, this.braille.view};
+		}
+		this.group.setTabList(this.tabList);
 	}
 	
 	public void fileSave(){	
@@ -145,6 +160,10 @@ public class DocumentManager {
 		try {
 			if(workingFilePath.endsWith("xml")){
 			    createXMLFile(workingFilePath);
+			    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+			    if(fu.exists(tempSemFile)){
+			    	fu.copyFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+			    }
 			}
 			else if(workingFilePath.endsWith("utd")) {		
 				this.document.setOriginalDocType(this.document.getDOM());
@@ -154,7 +173,7 @@ public class DocumentManager {
 			    os.close();
 			}
 			else if(workingFilePath.endsWith("brf")){
-				if(!this.document.createBrlFile(workingFilePath)){
+				if(!this.document.createBrlFile(this, workingFilePath)){
 					new Notify("An error has occurred.  Please check your original document");
 				}
 			}
@@ -254,12 +273,12 @@ public class DocumentManager {
 		// Zip and Recent Files.
 		////////////////////////
 		
-		initializeAllViews(fileName, workingFilePath);
+		initializeAllViews(fileName, workingFilePath, null);
 	}	
 	
-	private void initializeAllViews(String fileName, String filePath){
+	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
-			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), null)){
+			if(this.document.startDocument(filePath, BBIni.getDefaultConfigFile(), configSettings)){
 				this.group.setRedraw(false);
 				this.text.view.setWordWrap(false);
 				this.braille.view.setWordWrap(false);
@@ -394,6 +413,7 @@ public class DocumentManager {
 						list.getCurrentNodeData(message);
 						this.treeView.setSelection(list.getCurrent(), message, this);
 					}
+			//		propertyView.populateView(list.getCurrent().n);
 					resetCursorData();
 				}
 				break;
@@ -462,6 +482,20 @@ public class DocumentManager {
 					this.braille.positionScrollbar(this.text.view.getTopIndex());
 				}
 				break;
+			case UPDATE_STYLE:
+				if(this.document.getDOM() != null){
+					this.text.adjustStyle(this, message, list.getCurrent().n);
+					this.braille.adjustStyle(this, message, list.getCurrent());
+					if(message.contains("linesBeforeOffset")){
+						list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
+					}
+				
+					if(message.contains("linesAfterOffset")){
+						list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
+					}
+					this.document.changeSemanticAction(message, list.getCurrent());
+				}
+				break;
 			default:
 				break;
 		}
@@ -486,7 +520,7 @@ public class DocumentManager {
 			String ext = getFileExt(filePath);
 			try {
 				if(ext.equals("brf")){
-					if(!this.document.createBrlFile(filePath)){
+					if(!this.document.createBrlFile(this, filePath)){
 						new Notify("An error has occurred.  Please check your original document");
 					}
 				}
@@ -494,6 +528,15 @@ public class DocumentManager {
 				    createXMLFile(filePath);
 				    setTabTitle(filePath);
 				    this.documentName = filePath;
+				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+				    if(fu.exists(tempSemFile)){
+				    	fu.copyFile(tempSemFile, fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+				    }
+				    workingFilePath = filePath;
+				    if(fu.exists(fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem")){
+				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+				    }
+				    
 				}
 				else if(ext.equals("utd")) {				
 					this.document.setOriginalDocType(this.document.getDOM());
@@ -503,6 +546,14 @@ public class DocumentManager {
 				    os.close();
 				    setTabTitle(filePath);
 				    this.documentName = filePath;
+				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+				    if(fu.exists(tempSemFile)){
+				    	fu.copyFile(tempSemFile, fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+				    }
+				    workingFilePath = filePath;
+				    if(fu.exists(fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem")){
+				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+				    }
 				}
 			}
 			catch (IOException e) {
@@ -601,7 +652,7 @@ public class DocumentManager {
 		}
 		
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
-		if(this.document.createBrlFile(filePath)){
+		if(this.document.createBrlFile(this, filePath)){
 			File translatedFile = new File(filePath);
 			PrinterDevice embosserDevice;
 			try {
@@ -617,7 +668,7 @@ public class DocumentManager {
 	
 	public void printPreview(){
 		if(this.braille.view.getCharCount() > 0){
-			new PrintPreview(this.getDisplay(), this.document);
+			new PrintPreview(this.getDisplay(), this.document, this);
 		}
 	}
 	
@@ -696,7 +747,10 @@ public class DocumentManager {
 			this.text.words = 0;
 			updateTempFile();
 			this.document.deleteDOM();
-			initializeAllViews(this.documentName, path);
+			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"))
+				initializeAllViews(this.documentName, path, "semanticFiles *," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem\n");
+			else
+				initializeAllViews(this.documentName, path, null);
 			f.delete();
 			
 		} catch (IOException e) {
@@ -759,6 +813,21 @@ public class DocumentManager {
 		return false;
 	}
 	
+	public void toggleAttributeEditor(){
+		if(!sm.tableIsVisible()){
+			this.treeView.adjustLayout(false);
+			this.sm.displayTable();
+			setTabList();
+		}
+		else {
+			this.treeView.adjustLayout(true);
+			this.sm.hideTable();
+			setTabList();
+		}
+	//	this.propertyView.populateView(list.getCurrent().n);
+	//	this.propertyView.setFocus();
+	}
+	
 	public void toggleBrailleFont(){
 		FontManager.toggleBrailleFont(this.wp, this);
 	}
@@ -777,6 +846,14 @@ public class DocumentManager {
 	
 	public WPManager getWPManager(){
 		return this.wp;
+	}
+	
+	public Group getGroup(){
+		return this.group;
+	}
+	
+	public String getDocumentName(){
+		return this.documentName;
 	}
 	
 	public String getWorkingPath(){

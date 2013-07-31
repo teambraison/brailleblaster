@@ -31,21 +31,31 @@
 
 package org.brailleblaster.stylePanel;
 
-import org.brailleblaster.wordprocessor.WPManager;
+import java.util.logging.Logger;
+
+import org.brailleblaster.BBIni;
+import org.brailleblaster.document.BBSemanticsTable;
+import org.brailleblaster.document.BBSemanticsTable.Styles;
+import org.brailleblaster.messages.BBEvent;
+import org.brailleblaster.messages.Message;
+import org.brailleblaster.views.PropertyView;
+import org.brailleblaster.wordprocessor.DocumentManager;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Table;
 
 public class StyleManager{
 	
     StylePanel sp;
-    WPManager dm;
-	
-//	public StyleManager(DocumentManager dm){
-//		this.dm = dm;
-//        sp = new StylePanel(this);
-//	}
-
-    public StyleManager(WPManager wpManager) {
-    	this.dm = wpManager;
-    	sp = new StylePanel(this);
+    StyleTable table;
+    PropertyView propView;
+    DocumentManager dm;
+    Logger logger = BBIni.getLogger();
+    private BBSemanticsTable semanticsTable;
+    
+    public StyleManager(DocumentManager dm) {
+    	this.dm = dm;
+    	this.table = new StyleTable(this, dm.getGroup());
+    	this.semanticsTable = new BBSemanticsTable();
 	}
 
 	void createStyle(String styleName){
@@ -64,5 +74,34 @@ public class StyleManager{
     
     void readStyleFiles(String styleName){
     	sp.readStyleFiles(styleName);
+    }
+    
+    public void displayTable(){
+    	table.showTable();
+    }
+    
+    public void apply(String item){
+    	Message m = new Message(BBEvent.UPDATE_STYLE);
+    	Styles style = semanticsTable.get(item);
+    	if(style != null){
+    		m.put("Style", style);
+    		dm.dispatch(m);
+    	}
+    }
+    
+    public boolean tableIsVisible(){
+    	return table.isVisible();
+    }
+    
+    public Table getTable(){
+    	return table.getTable();
+    }
+    
+    public Group getGroup(){
+    	return table.getGroup();
+    }
+    
+    public void hideTable(){
+    	table.hideTable();
     }
 }

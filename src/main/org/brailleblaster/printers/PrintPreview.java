@@ -44,9 +44,9 @@ public class PrintPreview {
 			this.view.setEditable(false);
 		}
 
-		public void setPreviewText(BBDocument doc){
+		public void setPreviewText(DocumentManager dm, BBDocument doc){
 			String tempFilePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf"; 
-			if(doc.createBrlFile(tempFilePath)){
+			if(doc.createBrlFile(dm, tempFilePath)){
 				try {
 					this.f = new File(tempFilePath);
 					Scanner scanner = new Scanner(this.f);
@@ -90,7 +90,7 @@ public class PrintPreview {
 		}
 	}
 	
-	public PrintPreview(Display display, BBDocument doc){
+	public PrintPreview(Display display, BBDocument doc, DocumentManager dm){
 		this.doc = doc;
 		
 		this.shell = new Shell(display, SWT.SHELL_TRIM);
@@ -127,6 +127,6 @@ public class PrintPreview {
 	        } 
 	     });	
 		
-		this.previewText.setPreviewText(this.doc);	
+		this.previewText.setPreviewText(dm, this.doc);	
 	}
 }

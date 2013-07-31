@@ -81,7 +81,7 @@ public class BrailleView extends AbstractView {
 	private SelectionListener selectionListener;
 	
 	public BrailleView(Group documentWindow, BBSemanticsTable table) {
-		super(documentWindow, 58, 100, 0, 100);
+		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -242,7 +242,7 @@ public class BrailleView extends AbstractView {
 		String textBefore = "";
 		String text = n.getValue();
 		int textLength = text.length();
-		
+	
 		if(insertNewLine(n)){
 		//	view.append("\n");
 		//	this.total++;
@@ -315,13 +315,144 @@ public class BrailleView extends AbstractView {
 					 break;
 				case leftMargin:
 					if(!isFirst(n) && followsNewLine(n))
-						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf(entry.getValue()) * getFontWidth()));
+						//this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf(entry.getValue()) * getFontWidth()));
+						this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, (Integer.valueOf(entry.getValue()) * this.charWidth));
 					break;
 				default:
 					System.out.println(entry.getKey());
 			}
 		}
 	}
+	
+	public void adjustStyle(DocumentManager dm, Message m, TextMapElement t){
+		int length = 0;
+		int spaces = 0;
+		int offset = 0;
+		int indent = 0;
+		int prev = 0;
+		int next = 0;
+		String textBefore = "";
+		Styles style = (Styles)m.getValue("Style");
+		
+		setListenerLock(true);
+		view.setRedraw(false);
+		
+		view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
+		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
+		
+		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+			switch(entry.getKey()){
+				case linesBefore:
+					saveStyleState(currentStart);
+					if(-1 != previousEnd){
+						prev = previousEnd;
+					}
+					
+					indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
+					if(currentStart != prev){
+						view.replaceTextRange(prev, (currentStart - prev), "");
+						length = currentStart - prev;	
+					}
+					spaces = Integer.valueOf(entry.getValue());
+					if(previousEnd == -1){
+						textBefore = makeInsertionString(spaces,'\n');
+						offset = spaces - length;
+					}
+					else {	
+						textBefore = makeInsertionString(spaces + 1,'\n');
+						offset = (spaces + 1) - length;
+					}					
+					insertBefore(currentStart - (currentStart - prev), textBefore);
+					currentStart += offset;
+					currentEnd += offset;
+					nextStart += offset;
+					this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
+					restoreStyleState(currentStart);
+					break;
+				case linesAfter:
+					if(-1 != nextStart){
+						next = nextStart;
+						indent  = view.getLineIndent(view.getLineAtOffset(next));
+						saveStyleState(currentStart);
+					}
+					else {
+						nextStart = currentEnd;
+					}
+				
+					if(currentEnd != next && next != 0){
+						view.replaceTextRange(currentEnd, (next - currentEnd), "");
+						length = next - currentEnd;	
+					}
+					spaces = Integer.valueOf(entry.getValue());
+					textBefore = makeInsertionString(spaces + 1,'\n');
+					insertBefore(currentEnd, textBefore);
+					offset = (spaces + 1) - length;
+					nextStart += offset;
+					if(nextStart != -1){
+						this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+						restoreStyleState(currentStart);
+					}
+					break;
+				case format:
+					this.view.setLineAlignment(this.view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), Integer.valueOf(entry.getValue()));	
+					break;
+				case firstLineIndent:
+					this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, Integer.valueOf(entry.getValue()) * this.charWidth);
+					break;
+				case leftMargin:
+					handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()));
+					break;
+				default:
+					break;
+			}
+		}
+		
+		if(!style.contains(StylesType.linesBefore)){
+			if(-1 != previousEnd){
+				prev = previousEnd;
+			}
+			
+			if(currentStart != prev){
+				indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
+				view.replaceTextRange(prev, (currentStart - prev), "");
+				length = currentStart - prev;	
+			}
+			if(isFirst(t.brailleList.getFirst().n)){
+				spaces = 1;
+				textBefore = makeInsertionString(spaces,'\n');
+				offset = spaces - length;
+		
+				insertBefore(currentStart - (currentStart - prev), textBefore);
+				m.put("linesBeforeOffset", offset);
+				currentStart += offset;
+				currentEnd += offset;
+				nextStart += offset;
+				this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
+			}
+		}
+		
+		if(!style.contains(StylesType.linesAfter)){
+			if(currentEnd != nextStart && nextStart != -1){
+				indent  = view.getLineIndent(view.getLineAtOffset(nextStart));
+				view.replaceTextRange(currentEnd, (nextStart - currentEnd), "");
+				length = nextStart - currentEnd;
+			}
+			
+			if(isLast(t.brailleList.getLast().n)){
+				spaces = 1;
+				textBefore = makeInsertionString(1,'\n');
+				insertBefore(currentEnd, textBefore);
+				offset = spaces - length;
+				m.put("linesAfterOffset", offset);
+				nextStart += offset;
+				if(nextStart != -1)
+					this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+			}
+		}
+		view.setRedraw(true);
+		setListenerLock(false);
+	}
+	
 	
 	private boolean followsNewLine(Node n){
 		Element parent = (Element)n.getParent();
@@ -374,7 +505,8 @@ public class BrailleView extends AbstractView {
 	
 	private boolean isFirstElement(Element child){
 		Element parent = (Element)child.getParent();
-		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
+		//while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
+		while(parent.getAttributeValue("semantics").contains("action")){	
 			if(parent.indexOf(child) != 0)
 				return false;
 			

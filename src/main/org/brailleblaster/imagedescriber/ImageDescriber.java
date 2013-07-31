@@ -239,6 +239,14 @@ public class ImageDescriber {
 	} // getElementImage()
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Returns image of current element.
+	public Image getCurElementImage()
+	{
+		// Return the image.
+		return imgFileList.get(curElementIndex);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Returns current element's index in list.
 	public int getCurrentElementIndex() {
 		
@@ -285,5 +293,15 @@ public class ImageDescriber {
 		ch.getAttribute("render").setValue(tagRENDER);
 	
 	} // setCurElmProdAttributes
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Removes images from memory.
+	public void disposeImages()
+	{
+		// Loop through them all and delete.
+		for(int curImg = 0; curImg < imgFileList.size(); curImg++)
+			imgFileList.get(curImg).dispose();
+		
+	} // disposeImages()
 		
 } // public class ImageDescriber {

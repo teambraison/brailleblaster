@@ -35,9 +35,12 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +57,16 @@ public class ImageDescriberDialog extends Dialog {
 	// UI Elements.
 	Button nextBtn;
 	Button prevBtn;
+	Label mainImage;
+	
+	// The image describer.
+	ImageDescriber imgDesc;
+	
+	// Main image.
+	int imageOffsetX = 0;
+	int imageOffsetY = 100;
+	int clientWidth = -1;
+	int clientHeight = -1;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Constructor.
@@ -65,9 +78,14 @@ public class ImageDescriberDialog extends Dialog {
 		// Create shell, get display, etc.
 		wpm = wordProcesserManager;
 		display = wpm.getDisplay();
-		Display display = parent.getDisplay();
+		display = parent.getDisplay();
 		configShell = new Shell(parent, SWT.DIALOG_TRIM);
 		configShell.setText(lh.localValue("Image Describer"));
+		
+		// Resize window.
+		configShell.setSize(700, 700);
+		clientWidth = configShell.getClientArea().width;
+		clientHeight = configShell.getClientArea().height;
 		
 		////////////////////////////
 		// Grab current doc manager.
@@ -84,23 +102,18 @@ public class ImageDescriberDialog extends Dialog {
 
 		// Grab current doc manager.
 		////////////////////////////
-			
+		
+		// Start the image describer.
+		imgDesc = new ImageDescriber(dm);
 			
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();
-		
-		// Start the image describer.
-//		TODO: MMOVE -> ImageDescriber imgDesc = new ImageDescriber(dm);
-		
 		
 		///////////////////
 		// Run this dialog.
 		
 			// show the SWT window
 			configShell.pack();
-			
-			// Resize window.
-			configShell.setSize(700, 700);
 			
 			// Open and Run!
 			configShell.open();
@@ -114,6 +127,8 @@ public class ImageDescriberDialog extends Dialog {
 			
 		// Shutdown.
 		configShell.dispose();
+		imgDesc.disposeImages();
+		mainImage.dispose();
 		
 	} // public ImageDescriberDialog(Shell arg0, int arg1)
 	
@@ -121,6 +136,11 @@ public class ImageDescriberDialog extends Dialog {
 	// Creates all buttons, boxes, checks, etc.
 	public void createUIelements()
 	{
+		// Setup main image.
+		mainImage = new Label(configShell, SWT.NONE);
+		mainImage.setBounds(imageOffsetX, imageOffsetY, clientWidth - imageOffsetX, (clientHeight - imageOffsetY));
+		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight) );
+		
 		// Create next button.
 		nextBtn = new Button(configShell, SWT.PUSH);
 		nextBtn.setText("Next");
@@ -128,7 +148,9 @@ public class ImageDescriberDialog extends Dialog {
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
-				
+				// Change main image to next element image.
+				imgDesc.nextImageElement();
+				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight - imageOffsetY) );
 				
 			} // widgetSelected()
 			
@@ -148,5 +170,34 @@ public class ImageDescriberDialog extends Dialog {
 		}); // prevBtn.addSelectionListener...
 		
 	} // public void createUIelements()
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Creates an image from another to fit a particular resolution, without 
+	// changing the aspect ratio. Scales up or down to match values given.
+	public Image createScaledImage(Image img, int maxWidth, int maxHeight)
+	{
+		// Calc percentage needed to match max width.
+		float percW = ((maxWidth * 100) / img.getImageData().width) / 100.0f;
+		
+		// Store new dimensions.
+		int newWidth = maxWidth;
+		int newHeight = (int)(img.getImageData().height * percW);
+		
+		// Calculate new dimensions based on height.
+		if(newHeight > maxHeight)
+		{
+			// Calc percentage needed to match max height.
+			float percH = ((maxHeight * 100) / img.getImageData().height) / 100.0f;
+			
+			// Store new dimensions.
+			newWidth = (int)(img.getImageData().width * percH);
+			newHeight = maxHeight;
+			
+		} // if(newHeight > maxHeight)
+
+		// Return a new, scaled image.
+		return new Image( null, img.getImageData().scaledTo(newWidth, newHeight) );
+		
+	} // createScaledImage()
 	
 } // public class ImageDescriberDialog extends Dialog

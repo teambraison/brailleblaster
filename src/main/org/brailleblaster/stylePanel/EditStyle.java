@@ -122,7 +122,7 @@ public class EditStyle extends Dialog{
 	}
     
 	EditStyle (final StyleManager styleManager) {
-		this (styleManager.dm.getShell(), SWT.NONE);
+		this (styleManager.dm.getWPManager().getShell(), SWT.NONE);
 		this.sm = styleManager;
 		fileSep = BBIni.getFileSep();
 		stylePath = BBIni.getStylePath();

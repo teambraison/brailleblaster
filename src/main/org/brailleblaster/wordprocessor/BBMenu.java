@@ -491,19 +491,19 @@ class BBMenu {
 		stylePanelItem.setText(lh.localValue("&StylePanel"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-//				dm.getStyleManager().stylePanel();
 				if (BBIni.debugging()) {
 
 				} 
 				else {
-					wp.getStyleManager().stylePanel();
+					int index= wp.getFolder().getSelectionIndex();
+					if(index != -1){
+						wp.getList().get(index).toggleAttributeEditor();
+					}
 				}
-				
-//				System.out.println("Empty method");
-				System.out.println("Open Style Panel");
 			}
 		});
-assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
+		
+		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		assocSelectionItem.setText(lh.localValue("&AssocSelection"));
 		assocSelectionItem.setEnabled(false);
 		assocSelectionItem.addSelectionListener(new SelectionAdapter() {

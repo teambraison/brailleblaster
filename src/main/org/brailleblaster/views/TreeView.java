@@ -47,12 +47,16 @@ import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -72,17 +76,40 @@ public class TreeView extends AbstractView {
 	private final static int RIGHT_MARGIN = 15;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;
+	private final static int ADJUSTED_BOTTOM_MARGIN = 69;
 	
 	public Tree tree;
 	private TreeItem root, previousItem;
+	private Menu menu;
 	
 	private FocusListener treeFocusListener;
 	private SelectionListener selectionListener;
 	private TraverseListener traverseListener;
+	private Group group;
 	
 	public TreeView(final DocumentManager dm, Group documentWindow){
 		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		this.group = documentWindow;
 		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
+		
+		this.menu = new Menu(tree);
+		MenuItem item = new MenuItem(menu, SWT.NONE);
+		item.setText("Edit Element Style");
+		
+		item.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				dm.toggleAttributeEditor();	
+			}		
+		});
+		
+		this.tree.setMenu(this.menu);
 		
 		view.setLayout(new FillLayout());
 		view.getVerticalBar().dispose();
@@ -98,6 +125,7 @@ public class TreeView extends AbstractView {
 				
 			}
 		});		
+		
 		this.tree.pack();
 	}
 	
@@ -540,5 +568,14 @@ public class TreeView extends AbstractView {
 		this.root = null;
 		this.previousItem = null;
 		setListenerLock(false);
+	}
+	
+	public void adjustLayout(boolean fullSize){
+		if(fullSize)
+			setLayout(LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		else
+			setLayout(LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, ADJUSTED_BOTTOM_MARGIN);
+		
+		group.layout();
 	}
 }

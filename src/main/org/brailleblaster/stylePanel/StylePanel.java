@@ -113,7 +113,7 @@ public class StylePanel extends Dialog{
 //		readStyleFiles("default");
 //	}
 	StylePanel(StyleManager styleManager) {
-		this(styleManager.dm.getShell(), SWT.NONE);
+		this(styleManager.dm.getWPManager().getShell(), SWT.NONE);
 		this.sm = styleManager;
 		display = styleManager.dm.getDisplay();
 		fileSep = BBIni.getFileSep();

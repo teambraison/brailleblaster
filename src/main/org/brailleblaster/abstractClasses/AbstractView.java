@@ -97,6 +97,7 @@ public abstract class AbstractView {
 	public void decrement(DocumentManager dm){
 		sendDecrementCurrent(dm);
 	}
+	
 	protected void sendDecrementCurrent(DocumentManager dm){
 		Message message = new Message(BBEvent.DECREMENT);
 		dm.dispatch(message);
@@ -199,8 +200,8 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, 1, currentAlignment);
 	}
 	
-	protected void handleLineWrap(String text, int indent){
-		int pos = this.spaceBeforeText + this.total;
+	protected void handleLineWrap(int pos, String text, int indent){
+	//	int pos = this.spaceBeforeText + this.total;
 		int newPos;
 		int i = 0;
 		while( i < text.length() && text.charAt(i) == '\n'){
@@ -211,7 +212,8 @@ public abstract class AbstractView {
 			if(text.charAt(i) == '\n' && i != text.length() - 1){
 				i++;
 				newPos = pos + i;
-				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
+				//this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
+				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, indent * this.charWidth);
 			}
 		}
 	}
@@ -235,6 +237,13 @@ public abstract class AbstractView {
 			else if(newParent.indexOf(child) == 0 && newParent.getAttributeValue("semantics").contains("action"))
 				checkForLineBreak((Element)newParent.getParent(), newParent);
 		}
+	}
+	
+	protected int getLineNumber(int startOffset, String text){
+		int startLine = view.getLineAtOffset(startOffset);
+		int endLine = view.getLineAtOffset(startOffset + text.length());
+		
+		return (endLine - startLine) + 1;
 	}
 	
 	public void setcharWidth(){

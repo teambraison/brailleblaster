@@ -605,19 +605,12 @@ public class TextView extends AbstractView {
 						setFontRange(this.total, this.spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
 					 break;
 				case leftMargin:
-					handleLineWrap( viewText, Integer.valueOf(entry.getValue()));
+					handleLineWrap(this.spaceBeforeText + this.total, viewText, Integer.valueOf(entry.getValue()));
 					break;
 				default:
 					System.out.println(entry.getKey());
 			}
 		}
-	}
-	
-	private int getLineNumber(int startOffset, String text){
-		int startLine = view.getLineAtOffset(startOffset);
-		int endLine = view.getLineAtOffset(startOffset + text.length());
-		
-		return (endLine - startLine) + 1;
 	}
 	
 	private void handleTextEdit(DocumentManager dm, ExtendedModifyEvent e){
@@ -862,7 +855,8 @@ public class TextView extends AbstractView {
 	
 	private boolean isFirstElement(Element child){
 		Element parent = (Element)child.getParent();
-		while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
+		//while(!this.stylesTable.getKeyFromAttribute(parent).equals("para") && !this.stylesTable.getKeyFromAttribute(parent).equals("list")){
+		while(parent.getAttributeValue("semantics").contains("action")){
 			if(parent.indexOf(child) != 0)
 				return false;
 			
@@ -1012,6 +1006,137 @@ public class TextView extends AbstractView {
 	private void setSelection(int start, int length){
 		selectionStart = start;
 		selectionLength = length;
+	}
+	
+	public void adjustStyle(DocumentManager dm, Message m, Node n){		
+		int length = 0;
+		int spaces = 0;
+		int offset = 0;
+		int indent = 0;
+		int prev = 0;
+		int next = 0;
+		String textBefore = "";
+		Styles style = (Styles)m.getValue("Style");
+		
+		view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
+		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
+		
+		setListenerLock(true);
+		view.setRedraw(false);
+		
+		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+			switch(entry.getKey()){
+				case linesBefore:
+					saveStyleState(currentStart);
+					if(-1 != previousEnd){
+						prev = previousEnd;
+					}
+					indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
+					if(currentStart != prev){
+						view.replaceTextRange(prev, (currentStart - prev), "");
+						length = currentStart - prev;	
+					}
+					spaces = Integer.valueOf(entry.getValue());
+					if(previousEnd == -1){
+						textBefore = makeInsertionString(spaces,'\n');
+						offset = spaces - length;
+					}
+					else {	
+						textBefore = makeInsertionString(spaces + 1,'\n');
+						offset = (spaces + 1) - length;
+					}
+					insertBefore(currentStart - (currentStart - prev), textBefore);
+					m.put("linesBeforeOffset", offset);
+					currentStart += offset;
+					currentEnd += offset;
+					nextStart += offset;
+					this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
+					restoreStyleState(currentStart);
+					break;
+				case linesAfter:
+					if(-1 != nextStart){
+						next = nextStart;
+						saveStyleState(currentStart);
+						indent  = view.getLineIndent(view.getLineAtOffset(next));
+					}
+					else {
+						next = currentEnd;
+					}
+					
+					if(currentEnd != next && next != 0){
+						view.replaceTextRange(currentEnd, (next - currentEnd), "");
+						length = next - currentEnd;	
+					}
+					spaces = Integer.valueOf(entry.getValue());
+					textBefore = makeInsertionString(spaces + 1,'\n');
+					insertBefore(currentEnd, textBefore);
+					offset = (spaces + 1) - length;
+					m.put("linesAfterOffset", offset);
+					nextStart += offset;
+					if(nextStart != -1){
+						this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+						restoreStyleState(currentStart);
+					}
+					break;
+				case format:
+					this.view.setLineAlignment(this.view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), Integer.valueOf(entry.getValue()));	
+					break;
+				case firstLineIndent:
+					this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, Integer.valueOf(entry.getValue()) * this.charWidth);
+					break;
+				case leftMargin:
+					handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()));
+					break;
+				default:
+					break;
+			}
+		}
+
+		if(!style.contains(StylesType.linesBefore)){
+			if(-1 != previousEnd){
+				prev = previousEnd;
+			}
+			
+			if(currentStart != prev){
+				indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
+				view.replaceTextRange(prev, (currentStart - prev), "");
+				length = currentStart - prev;	
+			}
+			if(isFirst(n)){
+				spaces = 1;
+				textBefore = makeInsertionString(spaces,'\n');
+				offset = spaces - length;
+		
+				insertBefore(currentStart - (currentStart - prev), textBefore);
+				m.put("linesBeforeOffset", offset);
+				currentStart += offset;
+				currentEnd += offset;
+				nextStart += offset;
+				this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
+			}
+		}
+		
+		if(!style.contains(StylesType.linesAfter)){
+			if(currentEnd != nextStart && nextStart != -1){
+				indent  = view.getLineIndent(view.getLineAtOffset(nextStart));
+				view.replaceTextRange(currentEnd, (nextStart - currentEnd), "");
+				length = nextStart - currentEnd;
+			}
+			
+			if(isLast(n)){
+				spaces = 1;
+				textBefore = makeInsertionString(1,'\n');
+				insertBefore(currentEnd, textBefore);
+				offset = spaces - length;
+				m.put("linesAfterOffset", offset);
+				nextStart += offset;
+				if(nextStart != -1)
+					this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+			}
+		}
+		
+		view.setRedraw(true);
+		setListenerLock(false);
 	}
 
 	

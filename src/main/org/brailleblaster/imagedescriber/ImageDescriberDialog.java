@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.browser.Browser;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one
@@ -53,24 +54,53 @@ public class ImageDescriberDialog extends Dialog {
 	
 	// Dialog stuff.
 	static Display display;
-	static Shell configShell;
+	static Shell imgDescShell;
 	LocaleHandler lh = new LocaleHandler();
 	WPManager wpm;
+	DocumentManager curDocMan;
 	
 	// UI Elements.
 	Button nextBtn;
 	Button prevBtn;
 	Label mainImage;
-	Text imgDescTextBox; 
+	Text imgDescTextBox;
+	Browser browser = null;
 	
 	// The image describer.
 	ImageDescriber imgDesc;
 	
+	// UI Positioning and Sizes.
+	
+	// Overall dialog.
+	int dialogWidth = 1000;
+	int dialogHeight = 700;
 	// Main image.
 	int imageOffsetX = 0;
-	int imageOffsetY = 150;
+	int imageOffsetY = 250;
+	int imageWidth = 500;
+	int imageHeight = 500;
+	// Client Area.
 	int clientWidth = -1;
 	int clientHeight = -1;
+	// Buttons.
+	int nextBtnX = 0;
+	int nextBtnY = 0;
+	int nextBtnW = 100;
+	int nextBtnH = 50;
+	int prevBtnX = nextBtnW + nextBtnX + 1;
+	int prevBtnY = 0;
+	int prevBtnW = 100;
+	int prevBtnH = 50;
+	// Text box.
+	int txtBoxX = 0;
+	int txtBoxY = 55;
+	int txtBoxW = 400;
+	int txtBoxH = 150;
+	// Browser.
+	int browserX = 505;
+	int browserY = 0;
+	int browserW = -1;
+	int browserH = -1;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Constructor.
@@ -78,37 +108,43 @@ public class ImageDescriberDialog extends Dialog {
 		
 		// SUPER!
 		super(parent, style);
-		
-		// Create shell, get display, etc.
+	
+		// Store word processor.
 		wpm = wordProcesserManager;
-		display = wpm.getDisplay();
-		display = parent.getDisplay();
-		configShell = new Shell(parent, SWT.DIALOG_TRIM);
-		configShell.setText(lh.localValue("Image Describer"));
 		
-		// Resize window.
-		configShell.setSize(700, 700);
-		clientWidth = configShell.getClientArea().width;
-		clientHeight = configShell.getClientArea().height;
+		// Make sure a document is open before we do anything.
 		
 		////////////////////////////
 		// Grab current doc manager.
 		
-			DocumentManager dm = null;
+			curDocMan = null;
 			int index= wpm.getFolder().getSelectionIndex();
 			if(index == -1){
 				wpm.addDocumentManager(null);
-				dm = wpm.getList().getFirst();
+				curDocMan = wpm.getList().getFirst();
 			}
 			else {
-				dm = wpm.getList().get(index);
+				curDocMan = wpm.getList().get(index);
 			}
-
+		
 		// Grab current doc manager.
 		////////////////////////////
+			
+		// Create shell, get display, etc.
+		display = wpm.getDisplay();
+		display = parent.getDisplay();
+		imgDescShell = new Shell(parent, SWT.DIALOG_TRIM);
+		imgDescShell.setText(lh.localValue("Image Describer"));
+		
+		// Resize window.
+		imgDescShell.setSize(dialogWidth, dialogHeight);
+		clientWidth = imgDescShell.getClientArea().width;
+		clientHeight = imgDescShell.getClientArea().height;
+		
+		
 		
 		// Start the image describer.
-		imgDesc = new ImageDescriber(dm);
+		imgDesc = new ImageDescriber(curDocMan);
 			
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();
@@ -117,11 +153,11 @@ public class ImageDescriberDialog extends Dialog {
 		// Run this dialog.
 		
 			// show the SWT window
-			configShell.pack();
+			imgDescShell.pack();
 			
 			// Open and Run!
-			configShell.open();
-			while (!configShell.isDisposed()) {
+			imgDescShell.open();
+			while (!imgDescShell.isDisposed()) {
 				if (!display.readAndDispatch())
 					display.sleep();
 			}
@@ -130,7 +166,7 @@ public class ImageDescriberDialog extends Dialog {
 		///////////////////
 			
 		// Shutdown.
-		configShell.dispose();
+		imgDescShell.dispose();
 		imgDesc.disposeImages();
 		mainImage.dispose();
 		
@@ -141,13 +177,13 @@ public class ImageDescriberDialog extends Dialog {
 	public void createUIelements()
 	{
 		// Setup main image.
-		mainImage = new Label(configShell, SWT.NONE);
-		mainImage.setBounds(imageOffsetX, imageOffsetY, clientWidth - imageOffsetX, (clientHeight - imageOffsetY));
+		mainImage = new Label(imgDescShell, SWT.NONE);
+		mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
 		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight) );
 
 		// Create image description text box.
-		imgDescTextBox = new Text(configShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		imgDescTextBox.setBounds(250, 8, clientWidth - 250, 200);
+		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				
@@ -164,15 +200,15 @@ public class ImageDescriberDialog extends Dialog {
 		
 		
 		// Create previous button.
-		prevBtn = new Button(configShell, SWT.PUSH);
+		prevBtn = new Button(imgDescShell, SWT.PUSH);
 		prevBtn.setText("Previous");
-		prevBtn.setBounds(101,  0, 100, 100);
+		prevBtn.setBounds(prevBtnX,  prevBtnY, prevBtnW, prevBtnH);
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Change main image to previous element image.
 				imgDesc.prevImageElement();
-				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight - imageOffsetY) );
+				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
 				
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
@@ -182,15 +218,15 @@ public class ImageDescriberDialog extends Dialog {
 		}); // prevBtn.addSelectionListener...
 		
 		// Create next button.
-		nextBtn = new Button(configShell, SWT.PUSH);
+		nextBtn = new Button(imgDescShell, SWT.PUSH);
 		nextBtn.setText("Next");
-		nextBtn.setBounds(0,  0, 100, 100);
+		nextBtn.setBounds(nextBtnX,  nextBtnY, nextBtnW, nextBtnH);
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Change main image to next element image.
 				imgDesc.nextImageElement();
-				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight - imageOffsetY) );
+				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
 				
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
@@ -198,6 +234,13 @@ public class ImageDescriberDialog extends Dialog {
 			} // widgetSelected()
 			
 		}); // nextBtn.addSelectionListener...
+		
+		// Setup browser window.
+		browser = new Browser( imgDescShell, SWT.NONE );
+		browser.setUrl( curDocMan.getWorkingPath() );
+		browserW = clientWidth;
+		browserH = clientHeight;
+		browser.setBounds(browserX, browserY, browserW, browserH);
 		
 	} // public void createUIelements()
 	

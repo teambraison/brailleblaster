@@ -47,7 +47,7 @@ public class PropertyView {
 		group.setLayout(new FormLayout());
 		
 		Combo styleList = new Combo(group, SWT.NONE);
-		String [] list = {"Fuck", "You"};
+		String [] list = {"Placeholder","for", "formatting", "options"};
 		styleList.setItems(list);
 		setLayoutData(styleList, 0, 70, 0, 10);
 		

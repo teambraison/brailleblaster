@@ -532,15 +532,17 @@ public class DocumentManager {
 				    createXMLFile(filePath);
 				    setTabTitle(filePath);
 				    this.documentName = filePath;
+				    
 				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+				    String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
+				    
+				    //Save new semantic file to correct location and temp folder for further editing
 				    if(fu.exists(tempSemFile)){
-				    	fu.copyFile(tempSemFile, fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-				    }
-				    workingFilePath = filePath;
-				    if(fu.exists(fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem")){
+				    	fu.copyFile(tempSemFile, savedSemFile);
 				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
 				    }
-				    
+				   //update working file path to newly saved file
+				    workingFilePath = filePath;				    
 				}
 				else if(ext.equals("utd")) {				
 					this.document.setOriginalDocType(this.document.getDOM());
@@ -550,14 +552,16 @@ public class DocumentManager {
 				    os.close();
 				    setTabTitle(filePath);
 				    this.documentName = filePath;
+				    
 				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+				    String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
+				    
 				    if(fu.exists(tempSemFile)){
-				    	fu.copyFile(tempSemFile, fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-				    }
-				    workingFilePath = filePath;
-				    if(fu.exists(fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem")){
+				    	fu.copyFile(tempSemFile, savedTempFile);
 				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
 				    }
+				    
+				    workingFilePath = filePath;
 				}
 			}
 			catch (IOException e) {

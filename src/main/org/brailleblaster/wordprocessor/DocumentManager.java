@@ -171,6 +171,10 @@ public class DocumentManager {
 			    Serializer serializer = new Serializer(os, "UTF-8");
 			    serializer.write(this.document.getDOM());
 			    os.close();
+			    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+			    if(fu.exists(tempSemFile)){
+			    	fu.copyFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+			    }
 			}
 			else if(workingFilePath.endsWith("brf")){
 				if(!this.document.createBrlFile(this, workingFilePath)){
@@ -748,7 +752,7 @@ public class DocumentManager {
 			updateTempFile();
 			this.document.deleteDOM();
 			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"))
-				initializeAllViews(this.documentName, path, "semanticFiles *," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem\n");
+				initializeAllViews(this.documentName, path, "semanticFiles " + this.document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem\n");
 			else
 				initializeAllViews(this.documentName, path, null);
 			f.delete();

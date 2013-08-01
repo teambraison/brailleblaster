@@ -31,25 +31,22 @@
 
 package org.brailleblaster.stylePanel;
 
-import java.util.logging.Logger;
-
-import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.views.PropertyView;
+//import org.brailleblaster.views.PropertyView;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
 public class StyleManager{
 	
-    StylePanel sp;
-    StyleTable table;
-    PropertyView propView;
+    private StylePanel sp;
+    private StyleTable table;
+    //private PropertyView propView;
     DocumentManager dm;
-    Logger logger = BBIni.getLogger();
+    
     private BBSemanticsTable semanticsTable;
     
     public StyleManager(DocumentManager dm) {

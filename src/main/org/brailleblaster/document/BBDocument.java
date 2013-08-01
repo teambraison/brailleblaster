@@ -77,10 +77,12 @@ public class BBDocument {
 	private String systemId;
 	private String publicId;
 	private int idCount = 0;
+	private SemanticFileHandler semHandler;
 	
 	public BBDocument(DocumentManager dm){		
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
+		this.semHandler = new SemanticFileHandler(BBIni.getDefaultConfigFile());
 	}
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
 		String fileName = "xxx";
@@ -99,10 +101,10 @@ public class BBDocument {
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n" + checkForSemantics(completePath);
+			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(completePath);
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n" + checkForSemantics(completePath);
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(completePath);
 		}
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -552,8 +554,9 @@ public class BBDocument {
 			return false;
 		
 		if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".sem")){
-			semFile = "semanticFiles *," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".sem" + "\n";
+			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".sem" + "\n";
 		}
+		
 		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n", 0);
 		deleteTempFile(inFile);
 		return result;
@@ -676,91 +679,18 @@ public class BBDocument {
 		if(checkAttribute(e, "id")){
 			String fileName = fu.getFileName(dm.getWorkingPath());
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
-			if(fu.exists(file))
-				appendEntry(file, name, e.getLocalName(),e.getAttributeValue("id"));
-			else {
-				createNewSemanticsFile(file, name, e.getLocalName(),e.getAttributeValue("id"));
-			}
+			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
 			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
 			String fileName = fu.getFileName(dm.getWorkingPath());
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
-			
-			if(fu.exists(file))
-				appendEntry(file, name, e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);
-			else {
-				createNewSemanticsFile(file, name, e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);
-			}
-			
+			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
 			idCount++;
 		}
 	}
 	
-	private void appendEntry(String path, String style, String element, String id){
-		String text = style + " " + element + ",id," + id + "\n";
-		writeSemanticEntry(path, id, text);
-	}
-	
-	private void createNewSemanticsFile(String path, String style, String element, String id){
-		String text = style + " " + element + ",id," + id + "\n";
-		fu.create(path);
-		fu.writeToFile(path, text);
-	}
-	
-	private String checkForSemantics(String filePath){
-		String file = filePath.substring(0, filePath.lastIndexOf(".")) + ".sem";
-		String fileName = fu.getFileName(filePath) + ".sem";
-		String tempFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName;
-		if(fu.exists(file)){
-			fu.copyFile(file, tempFile);
-			return "semanticFiles *," + tempFile + "\n ";
-		}
-		else
-			return "";
-	}
-	
-	private void writeSemanticEntry(String fullPath, String id, String entry){
-		String currentLine;
-    	String [] tokens;
-    	StringBuilder sb= new StringBuilder();
-    	boolean found = false;
-    	boolean entered = false;
-    	
-    	try {
-    		FileReader file = new FileReader(fullPath);
-			BufferedReader reader = new BufferedReader(file);
-			while((currentLine = reader.readLine()) != null){
-				tokens = currentLine.split(",");
-				for(int i = 0; i < tokens.length && !found; i++){
-					if(tokens[i].equals(id)){
-						found = true;
-					}
-				}
-				
-				if(found && !entered){
-					sb.append(entry);
-					entered = true;
-				}
-				else {
-					sb.append(currentLine + "\n");
-				}
-				
-			}
-			
-			if(!found){
-				sb.append(entry);
-			}
-			reader.close();
-			fu.writeToFile(fullPath, sb);
-    	}
-    	catch(FileNotFoundException e){
-    		e.printStackTrace();
-    		logger.log(Level.SEVERE, "File Not Found Exception", e);
-    	}
-    	catch(IOException e){
-    		e.printStackTrace();
-    		logger.log(Level.SEVERE, "IO Exception", e);
-    	}
+	public SemanticFileHandler getSemanticFileHandler(){
+		return semHandler;
 	}
 }

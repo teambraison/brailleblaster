@@ -7,7 +7,10 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import nu.xom.Element;
+
 import org.brailleblaster.BBIni;
+import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -37,7 +40,7 @@ public class StyleTable {
 	private StyleManager sm;
 	private Button applyButton;
 	
-	public StyleTable(StyleManager sm, Group documentWindow){
+	public StyleTable(final StyleManager sm, Group documentWindow){
 		this.fu = new FileUtils();
 		this.sm = sm;
 		this.group = new Group(documentWindow, SWT.FILL | SWT.BORDER);
@@ -60,7 +63,7 @@ public class StyleTable {
 	    
 	//    Button newButton = new Button(this.group, SWT.NONE);
 	//    newButton.setText("New");
-	 //   setLayoutData(newButton, 0, 50, 90, 100);
+	//   setLayoutData(newButton, 0, 50, 90, 100);
 	    
 	    applyButton = new Button(this.group, SWT.NONE);
 	    applyButton.setText("Apply");
@@ -77,6 +80,7 @@ public class StyleTable {
 			}
 			
 		});
+	
 	   	populateTable();
 	   	initializeListeners();
 	}
@@ -105,14 +109,36 @@ public class StyleTable {
 		c.setLayoutData(location);
 	}
 	
-	public void showTable(){
+	public void showTable(TextMapElement item){
 		group.setVisible(true);
 		t.setFocus();
-		t.setSelection(0);
+		if(item != null){
+			setSelection(item);
+		}
+		else
+			t.setSelection(0);
 	}
 	
 	public void hideTable(){
 		group.setVisible(false);
+	}
+	
+	private int searchTree(String text){
+		for(int i = 0; i < t.getItemCount(); i++){
+			if(t.getItem(i).getText(1).equals(text)){
+				return i;
+			}
+		}
+		return 0;
+	}
+	
+	public void setSelection(TextMapElement item){
+		Element parent = (Element)item.n.getParent();
+		while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
+			parent = (Element)parent.getParent();
+		}
+		String text = sm.getSemanticsTable().getKeyFromAttribute(parent);
+		t.setSelection(searchTree(text));
 	}
 	
     private void populateTable(){

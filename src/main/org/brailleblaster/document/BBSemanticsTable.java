@@ -151,6 +151,18 @@ public class BBSemanticsTable {
 		}
 	}
 	
+	public String getSemanticTypeFromAttribute(Element e){
+		String pair = e.getAttributeValue("semantics");
+		
+		if(pair == null){
+			return null;
+		}
+		else {
+			String[] tokens = pair.split(",");
+			return tokens[0];	
+		}
+	}
+	
 	public Styles makeStylesElement(String key, Node n){
 		Styles temp = new Styles(key);
 		makeComposite(key, temp);

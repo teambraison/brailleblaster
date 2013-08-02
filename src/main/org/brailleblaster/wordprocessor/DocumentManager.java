@@ -157,6 +157,7 @@ public class DocumentManager {
 	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
+		checkForUpdatedViews();
 		try {
 			if(workingFilePath.endsWith("xml")){
 			    createXMLFile(workingFilePath);
@@ -194,6 +195,9 @@ public class DocumentManager {
 				// Zip it!
 				zpr.Zip(inPath, zippedPath);
 			}
+			
+			this.text.hasChanged = false;
+			this.braille.hasChanged = false;
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -522,6 +526,7 @@ public class DocumentManager {
 		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
 		String filePath = dialog.open();
 		if(filePath != null){
+			checkForUpdatedViews();
 			String ext = getFileExt(filePath);
 			try {
 				if(ext.equals("brf")){
@@ -564,6 +569,8 @@ public class DocumentManager {
 				    
 				    workingFilePath = filePath;
 				}
+			    this.text.hasChanged = false;
+				this.braille.hasChanged = false;
 			}
 			catch (IOException e) {
 				e.printStackTrace(); 
@@ -828,8 +835,9 @@ public class DocumentManager {
 			if(list.size() == 0){
 				this.sm.displayTable(null);
 			}
-			else
+			else {
 				this.sm.displayTable(list.getCurrent());
+			}
 			setTabList();
 		}
 		else {
@@ -839,6 +847,11 @@ public class DocumentManager {
 		}
 	//	this.propertyView.populateView(list.getCurrent().n);
 	//	this.propertyView.setFocus();
+	}
+	
+	public void checkForUpdatedViews(){
+		if(text.hasChanged)
+			text.update(this);
 	}
 	
 	public void toggleBrailleFont(){

@@ -33,6 +33,7 @@ package org.brailleblaster.stylePanel;
 
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
+import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 //import org.brailleblaster.views.PropertyView;
@@ -73,8 +74,8 @@ public class StyleManager{
     	sp.readStyleFiles(styleName);
     }
     
-    public void displayTable(){
-    	table.showTable();
+    public void displayTable(TextMapElement item){
+    	table.showTable(item);
     }
     
     public void apply(String item){
@@ -86,8 +87,17 @@ public class StyleManager{
     	}
     }
     
+    public void setStyleTableItem(TextMapElement t){
+    	if(table.isVisible())
+    		table.setSelection(t);
+    }
+    
     public boolean tableIsVisible(){
     	return table.isVisible();
+    }
+    
+    public BBSemanticsTable getSemanticsTable(){
+    	return this.semanticsTable;
     }
     
     public Table getTable(){

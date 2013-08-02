@@ -418,6 +418,7 @@ public class DocumentManager {
 						this.treeView.setSelection(list.getCurrent(), message, this);
 					}
 			//		propertyView.populateView(list.getCurrent().n);
+					sm.setStyleTableItem(list.getCurrent());
 					resetCursorData();
 				}
 				break;
@@ -824,7 +825,11 @@ public class DocumentManager {
 	public void toggleAttributeEditor(){
 		if(!sm.tableIsVisible()){
 			this.treeView.adjustLayout(false);
-			this.sm.displayTable();
+			if(list.size() == 0){
+				this.sm.displayTable(null);
+			}
+			else
+				this.sm.displayTable(list.getCurrent());
 			setTabList();
 		}
 		else {

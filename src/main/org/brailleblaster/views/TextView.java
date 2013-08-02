@@ -300,6 +300,13 @@ public class TextView extends AbstractView {
 		}
 	}
 	
+	//public method to check if an update should be made before exiting or saving
+	public void update(DocumentManager dm){
+		if(textChanged){
+			sendUpdate(dm);
+		}
+	}
+	
 	private void sendUpdate(DocumentManager dm){
 			Message updateMessage = new Message(BBEvent.UPDATE);
 			updateMessage.put("offset", view.getCaretOffset());

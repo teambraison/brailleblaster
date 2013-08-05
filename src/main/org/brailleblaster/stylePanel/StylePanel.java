@@ -37,8 +37,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -47,7 +45,6 @@ import org.brailleblaster.util.YesNoChoice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.accessibility.ACC;
 import org.eclipse.swt.accessibility.Accessible;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;

@@ -57,10 +57,10 @@ public class StyleTable {
 		
 		final TableColumn tc2 = new TableColumn(this.t, SWT.CENTER);   
 	    tc2.setText("Styles");
-	    
+	   
 	    this.t.setLinesVisible(true);
 	    this.t.setHeaderVisible(true);	
-	    
+	  
 	//    Button newButton = new Button(this.group, SWT.NONE);
 	//    newButton.setText("New");
 	//   setLayoutData(newButton, 0, 50, 90, 100);

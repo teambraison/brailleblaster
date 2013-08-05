@@ -28,11 +28,8 @@
 
 package org.brailleblaster.document;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -84,6 +81,7 @@ public class BBDocument {
 		this.missingSemanticsList = new ArrayList<String>();
 		this.semHandler = new SemanticFileHandler(BBIni.getDefaultConfigFile());
 	}
+	
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
 		String fileName = "xxx";
 		return buildDOM(fileName);

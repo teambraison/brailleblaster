@@ -364,116 +364,39 @@ public class DocumentManager {
 	}
 	
 	public void dispatch(Message message){
-		int index;
-		
 		switch(message.type){
 			case INCREMENT:
-				list.incrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message, this);
-				resetCursorData();
+				handleIncrement(message);
 				break;
 			case DECREMENT:
-				list.decrementCurrent(message);
-				this.treeView.setSelection(list.getCurrent(), message, this);
-				resetCursorData();
+				handleDecrement(message);
 				break;
 			case UPDATE_CURSORS:
-				message.put("element", list.getCurrent().n);
-				if(message.getValue("sender").equals("text")){
-					message.put("lastPosition", this.text.positionFromStart);
-					message.put("offset", this.text.cursorOffset);
-					list.getCurrentNodeData(message);
-					this.braille.updateCursorPosition(message);
-				}
-				else if(message.getValue("sender").equals("braille")) {
-					message.put("lastPosition", this.braille.positionFromStart);
-					message.put("offset", this.braille.cursorOffset);
-					list.getCurrentNodeData(message);
-					this.text.updateCursorPosition(message);
-				}
-				else if(message.getValue("sender").equals("tree")){
-					message.put("lastPosition", this.text.positionFromStart);
-					message.put("offset", this.text.cursorOffset);
-					list.getCurrentNodeData(message);
-					this.braille.updateCursorPosition(message);
-					message.put("lastPosition", this.braille.positionFromStart);
-					message.put("offset", this.braille.cursorOffset);
-					this.text.updateCursorPosition(message);
-				}
+				handleUpdateCursors(message);
 				break;
 			case SET_CURRENT:
-				list.checkList();
-				if(message.contains("isBraille")){
-					index = list.findClosestBraille(message);
-					list.setCurrent(index);
-					list.getCurrentNodeData(message);
-					this.treeView.setSelection(list.getCurrent(), message, this);
-				}
-				else {
-					message.put("selection", this.treeView.getSelection(list.getCurrent()));
-					index = list.findClosest(message, 0, list.size() - 1);
-					if(index == -1){
-						list.getCurrentNodeData(message);
-						this.treeView.setSelection(list.getCurrent(), message, this);
-					}
-					else {
-						list.setCurrent(index);
-						list.getCurrentNodeData(message);
-						this.treeView.setSelection(list.getCurrent(), message, this);
-					}
-			//		propertyView.populateView(list.getCurrent().n);
-					sm.setStyleTableItem(list.getCurrent());
-					resetCursorData();
-				}
+				handleSetCurrent(message);
 				break;
 			case GET_CURRENT:
-				message.put("selection", this.treeView.getSelection(list.getCurrent()));
-				list.getCurrentNodeData(message);
-				if(list.size() > 0)
-					this.treeView.setSelection(list.getCurrent(), message, this);
+				handleGetCurrent(message);
 				break;
 			case TEXT_DELETION:
-				list.checkList();
-				if((Integer)message.getValue("deletionType") == SWT.BS){
-					if(list.hasBraille(list.getCurrentIndex())){
-						this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
-					}
-					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
-				}
-				else if((Integer)message.getValue("deletionType") == SWT.DEL){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"));
-					if(list.hasBraille(list.getCurrentIndex())){
-						this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
-					}
-				}
+				handleTextDeletion(message);
 				break;
 			case UPDATE:
-				message.put("selection", this.treeView.getSelection(list.getCurrent()));
-				this.document.updateDOM(list, message);
-				this.braille.updateBraille(list.getCurrent(), message);
-				this.text.reformatText(list.getCurrent().n, message, this);
-				list.updateOffsets(list.getCurrentIndex(), message);
-				list.checkList();
+				handleUpdate(message);
 				break;
 			case REMOVE_NODE:
-				index = (Integer)message.getValue("index");
-				this.document.updateDOM(list, message);
-				list.get(index).brailleList.clear();
-				this.treeView.removeItem(list.get(index), message);
-				list.remove(index);
-				System.out.println("Item removed");				
-				if(list.size() == 0)
-					this.text.removeListeners();
+				handleRemoveNode(message);
 				break;
 			case UPDATE_STATUSBAR:
-				this.braille.setWords(this.text.words);
-				this.wp.getStatusBar().setText((String)message.getValue("line"));
+				handleUpdateStatusBar(message);
 				break;
 			case ADJUST_ALIGNMENT:
-				this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+				handleAdjustAlignment(message);
 				break;
 			case ADJUST_INDENT:
-				this.braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+				handleAdjustIndent(message);
 				break;
 			case ADJUST_RANGE:
 				list.adjustOffsets(list.getCurrentIndex(), message);
@@ -482,31 +405,156 @@ public class DocumentManager {
 				list.findTextMapElements(message);
 				break;
 			case UPDATE_SCROLLBAR:
-				if(message.contains("sender")){
-					index = list.findClosestBraille(message);
-					this.text.positionScrollbar(this.braille.view.getTopIndex());
-				}
-				else{
-					index = list.findClosest(message, 0, list.size() - 1);
-					this.braille.positionScrollbar(this.text.view.getTopIndex());
-				}
+				handleUpdateScrollbar(message);
 				break;
 			case UPDATE_STYLE:
-				if(this.document.getDOM() != null){
-					this.text.adjustStyle(this, message, list.getCurrent().n);
-					this.braille.adjustStyle(this, message, list.getCurrent());
-					if(message.contains("linesBeforeOffset")){
-						list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
-					}
-				
-					if(message.contains("linesAfterOffset")){
-						list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
-					}
-					this.document.changeSemanticAction(message, list.getCurrent());
-				}
+				handleUpdateStyle(message);
 				break;
 			default:
 				break;
+		}
+	}
+	
+	private void handleIncrement(Message message){
+		list.incrementCurrent(message);
+		this.treeView.setSelection(list.getCurrent(), message, this);
+		resetCursorData();
+	}
+	
+	private void handleDecrement(Message message){
+		list.decrementCurrent(message);
+		this.treeView.setSelection(list.getCurrent(), message, this);
+		resetCursorData();
+	}
+	
+	private void handleUpdateCursors(Message message){
+		message.put("element", list.getCurrent().n);
+		if(message.getValue("sender").equals("text")){
+			message.put("lastPosition", this.text.positionFromStart);
+			message.put("offset", this.text.cursorOffset);
+			list.getCurrentNodeData(message);
+			this.braille.updateCursorPosition(message);
+		}
+		else if(message.getValue("sender").equals("braille")) {
+			message.put("lastPosition", this.braille.positionFromStart);
+			message.put("offset", this.braille.cursorOffset);
+			list.getCurrentNodeData(message);
+			this.text.updateCursorPosition(message);
+		}
+		else if(message.getValue("sender").equals("tree")){
+			message.put("lastPosition", this.text.positionFromStart);
+			message.put("offset", this.text.cursorOffset);
+			list.getCurrentNodeData(message);
+			this.braille.updateCursorPosition(message);
+			message.put("lastPosition", this.braille.positionFromStart);
+			message.put("offset", this.braille.cursorOffset);
+			this.text.updateCursorPosition(message);
+		}
+	}
+	
+	private void handleSetCurrent(Message message){
+		int index;
+		list.checkList();
+		if(message.contains("isBraille")){
+			index = list.findClosestBraille(message);
+			list.setCurrent(index);
+			list.getCurrentNodeData(message);
+			this.treeView.setSelection(list.getCurrent(), message, this);
+		}
+		else {
+			message.put("selection", this.treeView.getSelection(list.getCurrent()));
+			index = list.findClosest(message, 0, list.size() - 1);
+			if(index == -1){
+				list.getCurrentNodeData(message);
+				this.treeView.setSelection(list.getCurrent(), message, this);
+			}
+			else {
+				list.setCurrent(index);
+				list.getCurrentNodeData(message);
+				this.treeView.setSelection(list.getCurrent(), message, this);
+			}
+			sm.setStyleTableItem(list.getCurrent());
+			resetCursorData();
+		}
+	}
+	
+	private void handleGetCurrent(Message message){
+		message.put("selection", this.treeView.getSelection(list.getCurrent()));
+		list.getCurrentNodeData(message);
+		if(list.size() > 0)
+			this.treeView.setSelection(list.getCurrent(), message, this);
+	}
+	
+	private void handleTextDeletion(Message message){
+		list.checkList();
+		if((Integer)message.getValue("deletionType") == SWT.BS){
+			if(list.hasBraille(list.getCurrentIndex())){
+				this.braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
+			}
+			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
+		}
+		else if((Integer)message.getValue("deletionType") == SWT.DEL){
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"));
+			if(list.hasBraille(list.getCurrentIndex())){
+				this.braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
+			}
+		}
+	}
+	
+	private void handleUpdate(Message message){
+		message.put("selection", this.treeView.getSelection(list.getCurrent()));
+		this.document.updateDOM(list, message);
+		this.braille.updateBraille(list.getCurrent(), message);
+		this.text.reformatText(list.getCurrent().n, message, this);
+		list.updateOffsets(list.getCurrentIndex(), message);
+		list.checkList();
+	}
+	
+	private void handleRemoveNode(Message message){
+		int index = (Integer)message.getValue("index");
+		this.document.updateDOM(list, message);
+		list.get(index).brailleList.clear();
+		this.treeView.removeItem(list.get(index), message);
+		list.remove(index);
+		System.out.println("Item removed");				
+		if(list.size() == 0)
+			this.text.removeListeners();
+	}
+	
+	private void handleUpdateStatusBar(Message message){
+		this.braille.setWords(this.text.words);
+		this.wp.getStatusBar().setText((String)message.getValue("line"));
+	}
+	
+	private void handleAdjustAlignment(Message message){
+		this.braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+	}
+	
+	private void handleAdjustIndent(Message message){
+		this.braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);	
+	}
+	
+	private void handleUpdateScrollbar(Message message){
+		if(message.contains("sender")){
+			this.text.positionScrollbar(this.braille.view.getTopIndex());
+		}
+		else{
+			this.braille.positionScrollbar(this.text.view.getTopIndex());
+		}
+	}
+	
+	private void handleUpdateStyle(Message message){
+		if(this.document.getDOM() != null){
+			this.text.adjustStyle(this, message, list.getCurrent().n);
+			this.braille.adjustStyle(this, message, list.getCurrent());
+			if(message.contains("linesBeforeOffset")){
+				list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
+			}
+		
+			if(message.contains("linesAfterOffset")){
+				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
+			}
+			this.document.changeSemanticAction(message, list.getCurrent());
 		}
 	}
 	
@@ -831,22 +879,20 @@ public class DocumentManager {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.tableIsVisible()){
-			this.treeView.adjustLayout(false);
+			treeView.adjustLayout(false);
 			if(list.size() == 0){
-				this.sm.displayTable(null);
+				sm.displayTable(null);
 			}
 			else {
-				this.sm.displayTable(list.getCurrent());
+				sm.displayTable(list.getCurrent());
 			}
 			setTabList();
 		}
 		else {
-			this.treeView.adjustLayout(true);
-			this.sm.hideTable();
+			treeView.adjustLayout(true);
+			sm.hideTable();
 			setTabList();
 		}
-	//	this.propertyView.populateView(list.getCurrent().n);
-	//	this.propertyView.setFocus();
 	}
 	
 	public void checkForUpdatedViews(){

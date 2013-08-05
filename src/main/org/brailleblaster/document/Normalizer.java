@@ -113,7 +113,7 @@ public class Normalizer {
 			}
 		}
 	}
-	
+	/*
 	private boolean onlyWhitespace(String text){
 		for(int j = 0; j < text.length(); j++){
 			if(!Character.isWhitespace(text.charAt(j))){
@@ -122,7 +122,7 @@ public class Normalizer {
 		}
 		return true;
 	}
-	
+	*/
 	public boolean write(Document document, String path) {
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();

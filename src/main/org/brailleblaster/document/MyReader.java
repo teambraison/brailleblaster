@@ -1,6 +1,5 @@
 package org.brailleblaster.document;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.wordprocessor.Encodings;
 import org.xml.sax.InputSource;
 

@@ -32,7 +32,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.MessageBox;
-import org.brailleblaster.BBIni;
 import org.brailleblaster.wordprocessor.WPManager;
 
 public class YesNoChoice {

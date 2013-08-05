@@ -150,10 +150,7 @@ public class BrailleView extends AbstractView {
 				
 				
 					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
-						Message message = new Message(BBEvent.UPDATE_STATUSBAR);
-						message.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
-						dm.dispatch(message);
-						currentLine = view.getLineAtOffset(view.getCaretOffset());
+						 sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
 					}
 				}
 			}

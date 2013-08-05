@@ -13,6 +13,8 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -80,6 +82,22 @@ public class StyleTable {
 			}
 			
 		});
+		
+		this.t.addKeyListener(new KeyListener(){
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(Character.isAlphabetic(e.keyCode)){
+					int loc = searchTree((char)e.keyCode);
+					if(loc != -1)
+						t.setSelection(loc);
+				}
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub			
+			}
+		});
 	
 	   	populateTable();
 	   	initializeListeners();
@@ -130,6 +148,14 @@ public class StyleTable {
 			}
 		}
 		return 0;
+	}
+	
+	private int searchTree(char c){
+		for(int i = 0; i < t.getItemCount(); i++){
+			if(t.getItem(i).getText(1).charAt(0) == c)
+				return i;
+		}
+		return -1;
 	}
 	
 	public void setSelection(TextMapElement item){

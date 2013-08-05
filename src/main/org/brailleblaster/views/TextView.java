@@ -192,7 +192,7 @@ public class TextView extends AbstractView {
 					view.setCaretOffset((Integer)message.getValue("start"));
 				}
 				
-				sendStatusBarUpdate(dm);
+				sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
 			}
 
 			@Override
@@ -223,7 +223,7 @@ public class TextView extends AbstractView {
 				}
 				
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
-					sendStatusBarUpdate(dm);
+					sendStatusBarUpdate(dm,  view.getLineAtOffset(view.getCaretOffset()));
 				}
 			}
 		});
@@ -315,7 +315,7 @@ public class TextView extends AbstractView {
 		//	updateMessage.put("length", currentChanges);
 			dm.dispatch(updateMessage);
 			words += (Integer)updateMessage.getValue("diff");
-			sendStatusBarUpdate(dm);
+			sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
 			currentChanges = 0;
 			textChanged = false;
 			restoreStyleState(currentStart);
@@ -360,13 +360,6 @@ public class TextView extends AbstractView {
 			currentEnd += position;
 			nextStart += position;
 		}
-	}
-	
-	private void sendStatusBarUpdate(DocumentManager dm){
-		Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
-		statusMessage.put("line", "Line: " + String.valueOf(view.getLineAtOffset(view.getCaretOffset()) + 1) + " Words: " + words);
-		dm.dispatch(statusMessage);
-		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}
 	
 	protected void setViewData(Message message){

@@ -280,6 +280,27 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
+	protected void sendStatusBarUpdate(DocumentManager dm, int line){
+		Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
+		String statusBarText = "Line: " + String.valueOf(line + 1);
+		
+		if(view.getLineIndent(line) > 0){
+			statusBarText += " Indent: " + ((view.getLineIndent(line) / charWidth) + 1); 
+		}
+		
+		if(view.getLineAlignment(line) != SWT.LEFT){
+			if(view.getLineAlignment(line) == SWT.CENTER)
+				statusBarText += " Alignment: Center";
+			else if(view.getLineAlignment(line) == SWT.RIGHT)
+				statusBarText += " Alignment: Right";
+		}
+		
+		statusMessage.put("line", statusBarText + " Words: " + words);
+		dm.dispatch(statusMessage);
+		currentLine = view.getLineAtOffset(view.getCaretOffset());
+	}
+	
+	
 	protected abstract void setViewData(Message message);
 	public abstract void resetView(Group group);
 	public abstract void initializeListeners(final DocumentManager dm);

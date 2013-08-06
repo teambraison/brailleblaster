@@ -195,9 +195,10 @@ public abstract class AbstractView {
 		currentAlignment = view.getLineAlignment(line);
 	}
 	
-	protected void restoreStyleState(int start){
+	protected void restoreStyleState(int start, int end){
 		int line = this.view.getLineAtOffset(start);
-		view.setLineAlignment(line, 1, currentAlignment);
+		int lineCount = view.getLineAtOffset(end) - view.getLineAtOffset(start);
+		view.setLineAlignment(line, lineCount + 1, currentAlignment);
 	}
 	
 	protected void handleLineWrap(int pos, String text, int indent){

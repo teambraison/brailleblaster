@@ -63,8 +63,8 @@ public class StyleTable {
 	    this.t.setLinesVisible(true);
 	    this.t.setHeaderVisible(true);	
 	  
-	//    Button newButton = new Button(this.group, SWT.NONE);
-	//    newButton.setText("New");
+	//   Button newButton = new Button(this.group, SWT.NONE);
+	//   newButton.setText("New");
 	//   setLayoutData(newButton, 0, 50, 90, 100);
 	    
 	    applyButton = new Button(this.group, SWT.NONE);

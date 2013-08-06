@@ -544,17 +544,33 @@ public class DocumentManager {
 	}
 	
 	private void handleUpdateStyle(Message message){
-		if(this.document.getDOM() != null){
-			this.text.adjustStyle(this, message, list.getCurrent().n);
-			this.braille.adjustStyle(this, message, list.getCurrent());
-			if(message.contains("linesBeforeOffset")){
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
-			}
+		if(document.getDOM() != null){
+			group.setRedraw(false);
+			Element parent = document.getParent(list.getCurrent().n, true);
+			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
 		
-			if(message.contains("linesAfterOffset")){
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
+			int start = list.getNodeIndex(itemList.get(0));
+			int end = list.getNodeIndex(itemList.get(itemList.size() - 1));
+			int currentIndex = list.getCurrentIndex();
+			
+			for(int i = start; i <= end; i++){
+				list.setCurrent(i);
+				list.getCurrentNodeData(message);
+				this.text.adjustStyle(this, message, list.getCurrent().n);
+				this.braille.adjustStyle(this, message, list.getCurrent());
+				if(message.contains("linesBeforeOffset")){
+					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
+					message.remove("linesBeforeOffset");
+				}
+		
+				if(message.contains("linesAfterOffset")){
+					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
+					message.remove("linesAfterOffset");
+				}
 			}
+			list.setCurrent(currentIndex);
 			this.document.changeSemanticAction(message, list.getCurrent());
+			group.setRedraw(true);
 		}
 	}
 	
@@ -930,5 +946,9 @@ public class DocumentManager {
 	
 	public String getWorkingPath(){
 		return this.workingFilePath;
+	}
+	
+	public BBDocument getDocument(){
+		return document;
 	}
 }

@@ -610,7 +610,7 @@ public class BBDocument {
 	}
 	
 	public boolean checkAttribute(Element e, String attribute){
-			if(e.getAttribute("id") != null)
+			if(e.getAttribute(attribute) != null)
 				return true;
 			else
 				return false;
@@ -690,5 +690,16 @@ public class BBDocument {
 	
 	public SemanticFileHandler getSemanticFileHandler(){
 		return semHandler;
+	}
+	
+	public Element getParent(Node n, boolean ignoreInlineElement){
+		Element parent = (Element)n.getParent();
+		if(ignoreInlineElement){
+			while(checkAttribute(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
+				parent = (Element)parent.getParent();
+			}
+		}
+		
+		return parent;
 	}
 }

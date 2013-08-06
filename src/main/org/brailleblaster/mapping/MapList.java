@@ -31,8 +31,10 @@ package org.brailleblaster.mapping;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import nu.xom.Element;
 import nu.xom.Text;
 
+import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
@@ -439,7 +441,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("pageRanges", getPageRanges());
 	}
 	
-	private int getNodeIndex(TextMapElement t){
+	public int getNodeIndex(TextMapElement t){
 		return this.indexOf(t);
 	}
 	
@@ -493,5 +495,26 @@ public class MapList extends LinkedList<TextMapElement>{
 				}
 			}
 		}
+	}
+	
+	public ArrayList<TextMapElement> findTextMapElements(int index, Element parent, boolean ignoreInlineElement){
+		ArrayList<TextMapElement>list = new ArrayList<TextMapElement>();
+		BBDocument doc = dm.getDocument();
+		
+		int countDown = index -  1;
+		int countUp = index + 1;
+		while(countDown >= 0 && doc.getParent(this.get(countDown).n, ignoreInlineElement).equals(parent)){
+			list.add(this.get(countDown));
+			countDown--;
+		}
+		
+		list.add(this.get(index));
+		
+		while(countUp < this.size() && doc.getParent(this.get(countUp).n, ignoreInlineElement).equals(parent)){
+			list.add(this.get(countUp));
+			countUp++;
+		}
+		
+		return list;
 	}
 }

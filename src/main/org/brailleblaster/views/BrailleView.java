@@ -364,7 +364,7 @@ public class BrailleView extends AbstractView {
 						currentEnd += offset;
 						nextStart += offset;
 						this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-						restoreStyleState(currentStart);
+						restoreStyleState(currentStart, currentEnd);
 					}
 					break;
 				case linesAfter:
@@ -389,7 +389,7 @@ public class BrailleView extends AbstractView {
 						nextStart += offset;
 						if(nextStart != -1){
 							this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
-							restoreStyleState(currentStart);
+							restoreStyleState(currentStart, currentEnd);
 						}
 					}
 					break;
@@ -576,7 +576,7 @@ public class BrailleView extends AbstractView {
 			int startLine = this.view.getLineAtOffset(t.brailleList.getFirst().start);
 			int lineIndent = this.view.getLineIndent(startLine);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
-			restoreStyleState(t.brailleList.getFirst().start);
+			restoreStyleState(t.brailleList.getFirst().start, t.brailleList.getLast().end);
 			setListenerLock(false);
 			view.setLineIndent(startLine, 1, lineIndent);
 		}

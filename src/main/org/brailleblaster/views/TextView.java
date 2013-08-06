@@ -318,7 +318,7 @@ public class TextView extends AbstractView {
 			sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
 			currentChanges = 0;
 			textChanged = false;
-			restoreStyleState(currentStart);
+			restoreStyleState(currentStart, currentEnd);
 	}
 	
 	private void setCurrent(DocumentManager dm){
@@ -1051,7 +1051,7 @@ public class TextView extends AbstractView {
 						currentEnd += offset;
 						nextStart += offset;
 						this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-						restoreStyleState(currentStart);
+						restoreStyleState(currentStart, currentEnd);
 					}
 					break;
 				case linesAfter:
@@ -1077,7 +1077,7 @@ public class TextView extends AbstractView {
 						nextStart += offset;
 						if(nextStart != -1){
 							this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
-							restoreStyleState(currentStart);
+							restoreStyleState(currentStart, currentEnd);
 						}
 					}
 					break;

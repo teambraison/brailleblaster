@@ -329,65 +329,68 @@ public class BrailleView extends AbstractView {
 		int prev = 0;
 		int next = 0;
 		String textBefore = "";
+		setViewData(m);
 		Styles style = (Styles)m.getValue("Style");
 		
 		setListenerLock(true);
-		view.setRedraw(false);
-		
 		view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
 		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
 		
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					saveStyleState(currentStart);
-					if(-1 != previousEnd){
-						prev = previousEnd;
-					}
+					if(isFirst(t.brailleList.getFirst().n)){
+						saveStyleState(currentStart);
+						if(-1 != previousEnd){
+							prev = previousEnd;
+						}
 					
-					indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
-					if(currentStart != prev){
-						view.replaceTextRange(prev, (currentStart - prev), "");
-						length = currentStart - prev;	
+						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
+						if(currentStart != prev){
+							view.replaceTextRange(prev, (currentStart - prev), "");
+							length = currentStart - prev;	
+						}
+						spaces = Integer.valueOf(entry.getValue());
+						if(previousEnd == -1){
+							textBefore = makeInsertionString(spaces,'\n');
+							offset = spaces - length;
+						}
+						else {	
+							textBefore = makeInsertionString(spaces + 1,'\n');
+							offset = (spaces + 1) - length;
+						}					
+						insertBefore(currentStart - (currentStart - prev), textBefore);
+						currentStart += offset;
+						currentEnd += offset;
+						nextStart += offset;
+						this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
+						restoreStyleState(currentStart);
 					}
-					spaces = Integer.valueOf(entry.getValue());
-					if(previousEnd == -1){
-						textBefore = makeInsertionString(spaces,'\n');
-						offset = spaces - length;
-					}
-					else {	
-						textBefore = makeInsertionString(spaces + 1,'\n');
-						offset = (spaces + 1) - length;
-					}					
-					insertBefore(currentStart - (currentStart - prev), textBefore);
-					currentStart += offset;
-					currentEnd += offset;
-					nextStart += offset;
-					this.view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-					restoreStyleState(currentStart);
 					break;
 				case linesAfter:
-					if(-1 != nextStart){
-						next = nextStart;
-						indent  = view.getLineIndent(view.getLineAtOffset(next));
-						saveStyleState(currentStart);
-					}
-					else {
-						nextStart = currentEnd;
-					}
+					if(isLast(t.brailleList.getLast().n)){
+						if(-1 != nextStart){
+							next = nextStart;
+							indent  = view.getLineIndent(view.getLineAtOffset(next));
+							saveStyleState(currentStart);
+						}
+						else {
+							nextStart = currentEnd;
+						}
 				
-					if(currentEnd != next && next != 0){
-						view.replaceTextRange(currentEnd, (next - currentEnd), "");
-						length = next - currentEnd;	
-					}
-					spaces = Integer.valueOf(entry.getValue());
-					textBefore = makeInsertionString(spaces + 1,'\n');
-					insertBefore(currentEnd, textBefore);
-					offset = (spaces + 1) - length;
-					nextStart += offset;
-					if(nextStart != -1){
-						this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
-						restoreStyleState(currentStart);
+						if(currentEnd != next && next != 0){
+							view.replaceTextRange(currentEnd, (next - currentEnd), "");
+							length = next - currentEnd;	
+						}
+						spaces = Integer.valueOf(entry.getValue());
+						textBefore = makeInsertionString(spaces + 1,'\n');
+						insertBefore(currentEnd, textBefore);
+						offset = (spaces + 1) - length;
+						nextStart += offset;
+						if(nextStart != -1){
+							this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+							restoreStyleState(currentStart);
+						}
 					}
 					break;
 				case format:
@@ -446,7 +449,6 @@ public class BrailleView extends AbstractView {
 					this.view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
 			}
 		}
-		view.setRedraw(true);
 		setListenerLock(false);
 	}
 	

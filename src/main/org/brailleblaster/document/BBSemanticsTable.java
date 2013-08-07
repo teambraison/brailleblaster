@@ -128,6 +128,12 @@ public class BBSemanticsTable {
 		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered")){
 			tokens[1] = String.valueOf(SWT.CENTER);
 		}
+		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified")){
+			tokens[1] = String.valueOf(SWT.RIGHT);
+		}
+		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("leftJustified")){
+			tokens[1] = String.valueOf(SWT.LEFT);
+		}
 		temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
 	}
 	

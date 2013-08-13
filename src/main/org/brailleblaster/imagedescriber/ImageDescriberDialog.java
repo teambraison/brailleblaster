@@ -62,6 +62,9 @@ public class ImageDescriberDialog extends Dialog {
 	// UI Elements.
 	Button nextBtn;
 	Button prevBtn;
+	Button cancelBtn;
+	Button applyBtn;
+	Button okayBtn;
 	Label mainImage;
 	Text imgDescTextBox;
 	Browser browser = null;
@@ -83,14 +86,28 @@ public class ImageDescriberDialog extends Dialog {
 	int clientWidth = -1;
 	int clientHeight = -1;
 	// Buttons.
-	int nextBtnX = 0;
-	int nextBtnY = 0;
-	int nextBtnW = 100;
-	int nextBtnH = 50;
-	int prevBtnX = nextBtnW + nextBtnX + 1;
+	int defBtnW = 100;
+	int defBtnH = 50;
+	int prevBtnX = 0;
 	int prevBtnY = 0;
-	int prevBtnW = 100;
-	int prevBtnH = 50;
+	int prevBtnW = defBtnW;
+	int prevBtnH = defBtnH;
+	int nextBtnX = prevBtnW + prevBtnX + 1;
+	int nextBtnY = 0;
+	int nextBtnW = defBtnW;
+	int nextBtnH = defBtnH;
+	int applyBtnX = nextBtnW + nextBtnX + 1;
+	int applyBtnY = 0;
+	int applyBtnW = defBtnW;
+	int applyBtnH = defBtnH;
+	int okayBtnX = applyBtnW + applyBtnX + 1;
+	int okayBtnY = 0;
+	int okayBtnW = defBtnW;
+	int okayBtnH = defBtnH;
+	int cancelBtnX = okayBtnW + okayBtnX + 1;
+	int cancelBtnY = 0;
+	int cancelBtnW = defBtnW;
+	int cancelBtnH = defBtnH;
 	// Text box.
 	int txtBoxX = 0;
 	int txtBoxY = 55;
@@ -141,8 +158,6 @@ public class ImageDescriberDialog extends Dialog {
 		clientWidth = imgDescShell.getClientArea().width;
 		clientHeight = imgDescShell.getClientArea().height;
 		
-		
-		
 		// Start the image describer.
 		imgDesc = new ImageDescriber(curDocMan);
 			
@@ -179,7 +194,7 @@ public class ImageDescriberDialog extends Dialog {
 		// Setup main image.
 		mainImage = new Label(imgDescShell, SWT.NONE);
 		mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
-		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), clientWidth, clientHeight) );
+		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
 
 		// Create image description text box.
 		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
@@ -187,8 +202,7 @@ public class ImageDescriberDialog extends Dialog {
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) {
 				
-				// Set image's description.
-				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+				
 				
 			} // modifyText()
 			
@@ -213,6 +227,9 @@ public class ImageDescriberDialog extends Dialog {
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
+				// Show current image index.
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex());
+				
 			} // widgetSelected()
 			
 		}); // prevBtn.addSelectionListener...
@@ -231,9 +248,57 @@ public class ImageDescriberDialog extends Dialog {
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
+				// Show current image index.
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex());
+				
 			} // widgetSelected()
 			
 		}); // nextBtn.addSelectionListener...
+		
+		// Create apply button.
+		applyBtn = new Button(imgDescShell, SWT.PUSH);
+		applyBtn.setText("Apply");
+		applyBtn.setBounds(applyBtnX,  applyBtnY, applyBtnW, applyBtnH);
+		applyBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Set image's description.
+				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+				
+			} // widgetSelected()
+			
+		}); // applyBtn.addSelectionListener...
+		
+		// Create okay button.
+		okayBtn = new Button(imgDescShell, SWT.PUSH);
+		okayBtn.setText("Okay");
+		okayBtn.setBounds(okayBtnX,  okayBtnY, okayBtnW, okayBtnH);
+		okayBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Set image's description.
+				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+				
+				// Close the dialog.
+				imgDescShell.close();
+				
+			} // widgetSelected()
+			
+		}); // okayBtn.addSelectionListener...
+		
+		// Create cancel button.
+		cancelBtn = new Button(imgDescShell, SWT.PUSH);
+		cancelBtn.setText("Cancel");
+		cancelBtn.setBounds(cancelBtnX,  cancelBtnY, cancelBtnW, cancelBtnH);
+		cancelBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Close the dialog without committing changes.
+				imgDescShell.close();
+				
+			} // widgetSelected()
+			
+		}); // cancelBtn.addSelectionListener...
 		
 		// Setup browser window.
 		browser = new Browser( imgDescShell, SWT.NONE );

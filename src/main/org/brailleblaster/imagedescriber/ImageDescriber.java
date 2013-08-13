@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Nodes;
+import nu.xom.ParentNode;
+import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
@@ -53,12 +56,22 @@ public class ImageDescriber {
 	ArrayList<Element> imgElmList = null;
 	// List of images associated with the <img> elements.
 	ArrayList<Image> imgFileList = null;
-	// The current element we're working on.
+	// The current element we're working on in our list of <img>'s.
 	int curElementIndex = -1;
 	// The number of img elements we have in this document.
 	int numImgElms = 0;
 	// Namespace for the document.
 	String nameSpace;
+	// The index of the furthest node in the tree so far.
+	int furthestDocIndex = -1;
+	// Current node in whole doc. 
+	int curDocIndex = -1;
+	// Context/namespace for xpath.
+	XPathContext context;
+	// xPath - current image nodes.
+	Nodes imgs = null;
+	// For grabbing the first <img> element.
+	boolean grabFirstImage = true;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
@@ -71,29 +84,44 @@ public class ImageDescriber {
 		imgElmList = new ArrayList<Element>();
 		imgFileList = new ArrayList<Image>();
 		nameSpace = rootElement.getDocument().getRootElement().getNamespaceURI();
+		context = new XPathContext("dtb", nameSpace);
+		imgs = doc.getRootElement().query("//dtb:img[1]", context);
 
+		// Point to root.
+		curImgElement = rootElement;
+		
+		// Go to first image.
+		nextImageElement();
+		
 		// Fill list of <img>'s.
-		fillImgList(rootElement);
+//		fillImgList(rootElement);
+//		
 		
 		// Get size of <img> list.
-		numImgElms = imgElmList.size();
+//		numImgElms = imgElmList.size();
+//		
+//		// Only init the current element if there are <img>'s.
+//		if(numImgElms > 0) {
+//			curImgElement = imgElmList.get(0);
+//			curElementIndex = 0;
+//		}
+//		
+//		
+//		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
+//			if( hasImgGrpParent(imgElmList.get(asdf)) == false) {
+//				curImgElement = wrapInImgGrp( imgElmList.get(asdf) );
+//				imgElmList.set(asdf, curImgElement);
+//				curElementIndex = asdf;
+////				setCurElmProdAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
+//			}
+//			
+//		} // for()
 		
-		// Only init the current element if there are <img>'s.
-		if(numImgElms > 0) {
-			curImgElement = imgElmList.get(0);
-			curElementIndex = 0;
-		}
 		
-		
-		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
-			if( hasImgGrpParent(imgElmList.get(asdf)) == false) {
-				curImgElement = wrapInImgGrp( imgElmList.get(asdf) );
-				imgElmList.set(asdf, curImgElement);
-				curElementIndex = asdf;
-//				setCurElmProdAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
-			}
-			
-		} // for()
+//			if( hasImgGrpParent(curImgElement) == false) {
+//				curImgElement = wrapInImgGrp( curImgElement );
+//				imgElmList.set(curElementIndex, curImgElement);
+//			}
 		
 	} // ImageDescriber(DocumentManager docManager)
 	
@@ -101,17 +129,74 @@ public class ImageDescriber {
 	// Returns the next <img> element that was found in the xml doc.
 	public Element nextImageElement()
 	{
+		// Move to next element.
+		curElementIndex++;
+		
+		// If we're at the edge of the image element list, look for another element.
+		if(curElementIndex >= numImgElms)
+		{
+			// Start with the root element; find the next image.
+			curDocIndex = -1;
+			
+			// Temp storage for new element.
+			Element newElement = null;
+			
+			// If this is the first element we've grabbed, ever, grab from first list.
+			if(grabFirstImage) {
+				// Grab it.
+				newElement = (Element)(imgs.get(0));
+				// Don't ever do it again.
+				grabFirstImage = false;
+			}
+			else {
+				// Get next <img> element.
+				Nodes nextImg = imgElmList.get(curElementIndex - 1).query("following::dtb:img", context);
+				
+				// If we got one, point to it.
+				if(nextImg.size() > 0)
+					newElement = (Element)(nextImg.get(0));
+			}
+			
+			// Element newElement = getNextImageElement(rootElement);
+			
+			// Add element to list.
+			if(newElement != null) {
+				imgElmList.add(newElement);
+				numImgElms = imgElmList.size();
+			}
+			
+			// Set current <img> element.
+			curElementIndex = numImgElms - 1;
+		}
+		
 		// Make sure there are images.
 		if(numImgElms == 0)
 			return null;
 		
-		// Move to next element, then return it.
-		curElementIndex++;
-		if(curElementIndex >= numImgElms)
-			curElementIndex = 0;
-		
 		// Set current element.
 		curImgElement = imgElmList.get(curElementIndex);
+		
+		// Add to image list.
+		
+		// Remove slash and dot, if it's there.
+		String tempStr = curImgElement.getAttributeValue("src");
+		if( tempStr.startsWith(".") )
+			tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+		
+		// Build image path.
+		tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+		if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+			tempStr = tempStr.replace("/", "\\");
+		
+		// Add.
+		imgFileList.add( new Image(null, tempStr) );
+		
+		// Wrap in <imggroup>
+		if( hasImgGrpParent(curImgElement) == false) {
+			curImgElement = wrapInImgGrp( curImgElement );
+			imgElmList.set(curElementIndex, curImgElement);
+			
+		} // if( hasImgGrpParent(...
 		
 		// Return current <img> element.
 		return curImgElement;
@@ -140,6 +225,88 @@ public class ImageDescriber {
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Traverses xml tree until it finds the next <img>.
+	public Element getNextImageElement(Element e)
+	{
+		
+		curDocIndex++;
+		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
+			if( e.getLocalName().compareTo("img") == 0 ) {
+				if(curDocIndex > furthestDocIndex)
+				{
+					// Record depth.
+					furthestDocIndex = curDocIndex;
+					
+					// Return new element found.
+					return e;
+					
+				} // if(curDocIndex > furthestDocIndex)
+			}
+		}
+		
+		// 
+		Element newImgElement = null;
+		
+		// Go through every child and find the next image.
+		for(int curC = 0; curC < e.getChildCount(); curC++)
+		{
+			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
+			{
+				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
+				
+				if(newImgElement != null)
+					break;
+			}
+			
+		}
+		
+		return newImgElement;
+		
+		// We're a little further down the tree now.
+//		curDocIndex++;
+//		
+//		// Number of children.
+//		int numChilds = e.getChildCount();
+//		
+//		// Go through every child and find the next image.
+//		for(int curC = 0; curC < numChilds; curC++)
+//		{
+//			// Get current child.
+//			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
+//			{
+//				// Get current child.
+//				Element curChild = (Element)(e.getChild(curC));
+//			
+//				// Is this an <img> element?
+//				if( curChild.getLocalName().compareTo("img") == 0 ) {
+//					
+//					// If this element is further along in the tree than the 
+//					// last image element, return it.
+//					if(curDocIndex > furthestDocIndex)
+//					{
+//						// Record depth.
+//						furthestDocIndex = curDocIndex;
+//						
+//						// Return new element found.
+//						return curChild;
+//						
+//					} // if(curDocIndex > furthestDocIndex)
+//					
+//				} // if( e.getLocalName()...
+//				
+//				// Traverse this child's children.
+//				getNextImageElement( curChild );
+//				
+//			} // if( e.getChild(curC) instanceof...
+//			
+//		} // for(int curC = 0...
+//		
+//		// No <img>'s found, or we've hit the end of the document, or both.
+//		return null;
+		
+	} // getNextImageElement(Element e)
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Recursively moves through xml tree and adds <img> nodes to list.
 	// Also builds image path list.
 	public void fillImgList(Element e)
@@ -155,7 +322,7 @@ public class ImageDescriber {
 			// Remove slash and dot, if it's there.
 			String tempStr = e.getAttributeValue("src");
 			if( tempStr.startsWith(".") )
-				tempStr = tempStr.substring( 2, tempStr.length() );
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
 			
 			// Build image path.
 			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;

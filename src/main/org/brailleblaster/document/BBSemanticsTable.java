@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 
@@ -73,12 +74,14 @@ public class BBSemanticsTable {
 	
 	Document doc;
 	HashMap<String,Styles> table;
+	FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();
 	
 	public BBSemanticsTable(){
 		try {
 			this.table = new HashMap<String, Styles>();
-			FileReader file = new FileReader(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+			FileReader file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
 			makeHashTable(reader);
 			reader.close();

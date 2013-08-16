@@ -920,7 +920,7 @@ public class DocumentManager {
 		FontManager.toggleBrailleFont(this.wp, this);
 	}
 		
-	public StyledText getDaisyView(){
+	public StyledText getTextView(){
 		return this.text.view;
 	}
 	

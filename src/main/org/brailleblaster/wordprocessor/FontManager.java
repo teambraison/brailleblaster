@@ -132,7 +132,7 @@ public class FontManager {
 			} else {
 				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 			}
-			dm.getDaisyView().setFont(daisyFont);
+			dm.getTextView().setFont(daisyFont);
 
 			brailleFontHeight += brailleFontHeight / 4;
 			if (displayBrailleFont) {
@@ -154,7 +154,7 @@ public class FontManager {
 			else {
 				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 			}
-			dm.getDaisyView().setFont(daisyFont);
+			dm.getTextView().setFont(daisyFont);
 
 			brailleFontHeight -= brailleFontHeight / 5;
 			if (displayBrailleFont) {

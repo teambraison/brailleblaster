@@ -106,18 +106,18 @@ public abstract class AbstractView {
 	
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();
-		this.view.setCaretOffset(position);
-		this.view.insert(text);
+		view.setCaretOffset(position);
+		view.insert(text);
 		this.spaceAfterText += text.length();
-		this.view.setCaretOffset(previousPosition);
+		view.setCaretOffset(previousPosition);
 	}
 	
 	protected void insertBefore(int position, String text){
 		int previousPosition = view.getCaretOffset();
-		this.view.setCaretOffset(position);
-		this.view.insert(text);
+		view.setCaretOffset(position);
+		view.insert(text);
 		this.spaceBeforeText += text.length();
-		this.view.setCaretOffset(previousPosition);
+		view.setCaretOffset(previousPosition);
 	}
 	
 	protected String makeInsertionString(int length, char c){
@@ -140,7 +140,7 @@ public abstract class AbstractView {
 	protected void updateRange(StyleRange style, int start, int length){
 		style.start = start;
 		style.length = length;
-		this.view.setStyleRange(style);
+		view.setStyleRange(style);
 	}
 	
 	protected int getFontWidth(){
@@ -196,7 +196,7 @@ public abstract class AbstractView {
 	}
 	
 	protected void restoreStyleState(int start, int end){
-		int line = this.view.getLineAtOffset(start);
+		int line = view.getLineAtOffset(start);
 		int lineCount = view.getLineAtOffset(end) - view.getLineAtOffset(start);
 		view.setLineAlignment(line, lineCount + 1, currentAlignment);
 	}
@@ -252,12 +252,12 @@ public abstract class AbstractView {
 	}
 	
 	public void setcharWidth(){
-		this.charWidth = getFontWidth();
+		charWidth = getFontWidth();
 	}
 	
 	public void setTopIndex(int line){
 		setListenerLock(true);
-			this.view.setTopIndex(line);
+			view.setTopIndex(line);
 			topIndex = line;
 		setListenerLock(false);
 	}
@@ -278,10 +278,10 @@ public abstract class AbstractView {
 	
 	public void positionScrollbar(int topIndex){
 		setListenerLock(true);
-		this.group.setRedraw(false);
-		this.view.setTopIndex(topIndex);
-		this.group.setRedraw(true);
-		this.group.getDisplay().getCurrent().update();
+		group.setRedraw(false);
+		view.setTopIndex(topIndex);
+		group.setRedraw(true);
+		group.getDisplay().getCurrent().update();
 		setListenerLock(false);
 	}
 	

@@ -401,8 +401,7 @@ public class TextView extends AbstractView {
 	}
 
 	public void setText(Node n, LinkedList<TextMapElement>list){
-		String key = this.stylesTable.getKeyFromAttribute((Element)n.getParent());
-		Styles style = this.stylesTable.makeStylesElement(key, n);
+		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		
 		String newText = appendToView(n);
 		int textLength = newText.length();
@@ -422,12 +421,10 @@ public class TextView extends AbstractView {
 	
 	public void reformatText(Node n, Message message, DocumentManager dm){
 		String reformattedText;
-		String key = stylesTable.getKeyFromAttribute((Element)n.getParent());
-		Styles style = stylesTable.makeStylesElement(key, n);
+		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		int margin = 0;
 		int pos = view.getCaretOffset();
 		setListenerLock(true);
-		//int indent = view.getLineIndent(view.getLineAtOffset(currentStart));
 		StyleRange range = getStyleRange();
 		
 		if(!n.getValue().equals(""))

@@ -516,7 +516,7 @@ public class DocumentManager {
 		list.get(index).brailleList.clear();
 		this.treeView.removeItem(list.get(index), message);
 		list.remove(index);
-		System.out.println("Item removed");				
+					
 		if(list.size() == 0)
 			this.text.removeListeners();
 	}
@@ -552,6 +552,7 @@ public class DocumentManager {
 			int start = list.getNodeIndex(itemList.get(0));
 			int end = list.getNodeIndex(itemList.get(itemList.size() - 1));
 			int currentIndex = list.getCurrentIndex();
+			message.put("firstLine", text.view.getLineAtOffset(itemList.get(0).start));
 			
 			for(int i = start; i <= end; i++){
 				list.setCurrent(i);
@@ -773,7 +774,7 @@ public class DocumentManager {
 				}
 				else
 					this.text.view.setCaretOffset(0);
-			
+	
 				setCurrentOnRefresh("text",currentOffset);
 				this.text.setPositionFromStart();
 				this.text.view.setFocus();

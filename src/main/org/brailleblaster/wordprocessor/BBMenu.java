@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
@@ -121,6 +122,7 @@ class BBMenu {
 	MenuItem tutorialsItem;
 	MenuItem checkUpdatesItem;
 	MenuItem aboutItem;
+	MenuItem imgDescItem;
 	
 	WPManager wordProc;
 	ArrayList<String> recentDocsList = null;
@@ -826,6 +828,37 @@ class BBMenu {
 			}
 		});
 		helpItem.setMenu(helpMenu);
+		
+		// Image Description Menu Item.
+		imgDescItem = new MenuItem(editMenu, SWT.PUSH);
+		imgDescItem.setText(lh.localValue("&Image Describer"));
+		imgDescItem.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Current Doc Manager.
+				DocumentManager curDm = null;
+				
+				if (BBIni.debugging()) {
+					
+				} 
+				else {
+					int index= wp.getFolder().getSelectionIndex();
+					if(index == -1){
+						wp.addDocumentManager(null);
+						curDm = wp.getList().getFirst();
+					}
+					else {
+						curDm = wp.getList().get(index);
+					}
+				}
+				
+				// Run Image Describer on current document.
+				if(curDm.document.getDOM() != null) {
+//					ImageDescriber imgDesc = new ImageDescriber(curDm);
+					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
+				}
+			}
+		});
 		
 		// Activate menus when documentWindow shell is opened
 		wp.getShell().setMenuBar(menuBar);

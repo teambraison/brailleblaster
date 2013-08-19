@@ -201,12 +201,16 @@ public abstract class AbstractView {
 		view.setLineAlignment(line, lineCount + 1, currentAlignment);
 	}
 	
-	protected void handleLineWrap(int pos, String text, int indent){
-	//	int pos = this.spaceBeforeText + this.total;
+	protected void handleLineWrap(int pos, String text, int indent, boolean skipFirstLine){
 		int newPos;
 		int i = 0;
-		while( i < text.length() && text.charAt(i) == '\n'){
+		
+		while(i < text.length() && text.charAt(i) == '\n'){
 			i++;
+		}
+		
+		if(!skipFirstLine){
+			view.setLineIndent(view.getLineAtOffset(pos + i), 1, indent * charWidth);
 		}
 	
 		for(; i < text.length(); i++){
@@ -214,7 +218,7 @@ public abstract class AbstractView {
 				i++;
 				newPos = pos + i;
 				//this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
-				this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, indent * this.charWidth);
+				view.setLineIndent(view.getLineAtOffset(newPos), 1, indent * charWidth);
 			}
 		}
 	}

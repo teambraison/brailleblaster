@@ -813,6 +813,9 @@ public class DocumentManager {
 	
 	private void resetViews(){
 		try {
+			boolean textChanged = text.hasChanged;
+			boolean brailleChanged = braille.hasChanged;
+			
 			String path = BBIni.getTempFilesPath() + BBIni.getFileSep() + "temp.xml";
 			File f = new File(path);
 			f.createNewFile();
@@ -834,6 +837,8 @@ public class DocumentManager {
 				initializeAllViews(this.documentName, path, null);
 			f.delete();
 			
+			text.hasChanged = textChanged;
+			braille.hasChanged = brailleChanged;
 		} catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
 			e.printStackTrace();

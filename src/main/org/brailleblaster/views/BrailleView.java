@@ -614,7 +614,7 @@ public class BrailleView extends AbstractView {
 			restoreStyleState(t.brailleList.getFirst().start, t.brailleList.getLast().end);
 			
 			//reset margin in case it is not applied
-			if(currentStart == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
+			if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
 				handleLineWrap(t.brailleList.getFirst().start, insertionString, 0, false);
 			
 			if(style.contains(StylesType.leftMargin)) {

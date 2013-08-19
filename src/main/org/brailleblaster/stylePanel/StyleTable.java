@@ -86,7 +86,7 @@ public class StyleTable {
 		this.t.addKeyListener(new KeyListener(){
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(Character.isAlphabetic(e.keyCode)){
+				if(Character.isLetter(e.keyCode)){
 					int loc = searchTree((char)e.keyCode);
 					if(loc != -1)
 						t.setSelection(loc);

@@ -234,8 +234,7 @@ public class BrailleView extends AbstractView {
 	
 	public void setBraille(Node n, TextMapElement t){
 		setListenerLock(true);
-		String key = this.stylesTable.getKeyFromAttribute((Element)t.n.getParent()); 
-		Styles style = this.stylesTable.makeStylesElement(key, n);
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), n);
 		String textBefore = "";
 		String text = n.getValue();
 		int textLength = text.length();
@@ -601,8 +600,7 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
-		String key = stylesTable.getKeyFromAttribute((Element)t.n.getParent());
-		Styles style = stylesTable.makeStylesElement(key, t.n);
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
 		int total = (Integer)message.getValue("brailleLength");
 		int margin = 0;
 		
@@ -612,7 +610,6 @@ public class BrailleView extends AbstractView {
 		if(t.brailleList.getFirst().start != -1){
 			setListenerLock(true);			
 			int startLine = view.getLineAtOffset(t.brailleList.getFirst().start);
-			//int lineIndent = view.getLineIndent(startLine);
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
 			restoreStyleState(t.brailleList.getFirst().start, t.brailleList.getLast().end);
 			

@@ -247,7 +247,7 @@ public class ImageDescriberDialog extends Dialog {
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
 				// Show current image index and name.
-				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + imgDesc.getCurElementImage().toString());
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
 				
 			} // widgetSelected()
 			
@@ -276,7 +276,7 @@ public class ImageDescriberDialog extends Dialog {
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
 				// Show current image index and name.
-				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + imgDesc.getCurElementImage().toString());
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
 				
 			} // widgetSelected()
 			

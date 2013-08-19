@@ -28,6 +28,7 @@
 
 package org.brailleblaster.imagedescriber;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import nu.xom.Attribute;
@@ -126,6 +127,14 @@ public class ImageDescriber {
 	} // ImageDescriber(DocumentManager docManager)
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Returns the current element...
+	public Element currentImageElement()
+	{
+		// Return the element.
+		return curImgElement;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Returns the next <img> element that was found in the xml doc.
 	public Element nextImageElement()
 	{
@@ -189,7 +198,18 @@ public class ImageDescriber {
 			tempStr = tempStr.replace("/", "\\");
 		
 		// Add.
-		imgFileList.add( new Image(null, tempStr) );
+		try {
+			// Add this image to the image list.
+			imgFileList.add( new Image(null, tempStr) );
+		}
+		catch (Exception e)
+		{
+			// Add a null image to the list. This will keep our indices in check.
+			imgFileList.add( null );
+			
+			// Print the stack.
+			e.printStackTrace();
+		}
 		
 		// Wrap in <imggroup>
 		if( hasImgGrpParent(curImgElement) == false) {
@@ -401,7 +421,11 @@ public class ImageDescriber {
 	public Image getImageFromElmIndex(int elmIndex)
 	{
 		// Return image.
-		return imgFileList.get(elmIndex);
+		if(imgFileList.size() > 0)
+			return imgFileList.get(elmIndex);
+		
+		// Return null if the list is empty.
+		return null;
 		
 	} // getElementImage()
 	
@@ -410,7 +434,11 @@ public class ImageDescriber {
 	public Image getCurElementImage()
 	{
 		// Return the image.
-		return imgFileList.get(curElementIndex);
+		if(imgFileList.size() > 0)
+			return imgFileList.get(curElementIndex);
+		
+		// Return null if the list is empty.
+		return null;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -533,8 +561,9 @@ public class ImageDescriber {
 	public void disposeImages()
 	{
 		// Loop through them all and delete.
-		for(int curImg = 0; curImg < imgFileList.size(); curImg++)
-			imgFileList.get(curImg).dispose();
+			for(int curImg = 0; curImg < imgFileList.size(); curImg++)
+				if(imgFileList.get(curImg) != null)
+					imgFileList.get(curImg).dispose();
 		
 	} // disposeImages()
 		

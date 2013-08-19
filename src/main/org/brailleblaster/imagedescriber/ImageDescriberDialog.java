@@ -194,8 +194,19 @@ public class ImageDescriberDialog extends Dialog {
 		// Setup main image.
 		mainImage = new Label(imgDescShell, SWT.NONE);
 		mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
-		mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
+		
+		// Set main image to first image found. If the first <img> tag 
+		Image curElmImage = imgDesc.getCurElementImage();
+		if(curElmImage != null)
+			mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+		else
+			mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+												  imageWidth, 
+												  imageHeight) );
 
+		// Show current image index and name.
+		imgDescShell.setText( "Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
+		
 		// Create image description text box.
 		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
 		imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
@@ -222,13 +233,21 @@ public class ImageDescriberDialog extends Dialog {
 				
 				// Change main image to previous element image.
 				imgDesc.prevImageElement();
-				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
+				
+				// Change current image in dialog.
+				Image curElmImage = imgDesc.getCurElementImage();
+				if(curElmImage != null)
+					mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+				else
+					mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+														  imageWidth, 
+														  imageHeight) );
 				
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
-				// Show current image index.
-				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex());
+				// Show current image index and name.
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + imgDesc.getCurElementImage().toString());
 				
 			} // widgetSelected()
 			
@@ -243,13 +262,21 @@ public class ImageDescriberDialog extends Dialog {
 				
 				// Change main image to next element image.
 				imgDesc.nextImageElement();
-				mainImage.setImage( createScaledImage(imgDesc.getCurElementImage(), imageWidth, imageHeight) );
+				
+				// Change current image in dialog.
+				Image curElmImage = imgDesc.getCurElementImage();
+				if(curElmImage != null)
+					mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+				else
+					mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+														  imageWidth, 
+														  imageHeight) );
 				
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
 				
-				// Show current image index.
-				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex());
+				// Show current image index and name.
+				imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + imgDesc.getCurElementImage().toString());
 				
 			} // widgetSelected()
 			

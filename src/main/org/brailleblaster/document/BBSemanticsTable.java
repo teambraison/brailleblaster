@@ -21,6 +21,7 @@ import nu.xom.Node;
 
 public class BBSemanticsTable {
 	public enum StylesType{
+		emphasis,
 		linesBefore,
 		linesAfter,
 		leftMargin,
@@ -189,6 +190,11 @@ public class BBSemanticsTable {
 		}
 		
 		return temp;
+	}
+	
+	public Styles makeStylesElement(Element e, Node n){
+		String key = getKeyFromAttribute(e);
+		return makeStylesElement(key, n);
 	}
 	
 	private void makeComposite(String key, Styles st){

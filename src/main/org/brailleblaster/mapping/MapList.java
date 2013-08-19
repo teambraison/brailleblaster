@@ -504,7 +504,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		int countDown = index -  1;
 		int countUp = index + 1;
 		while(countDown >= 0 && doc.getParent(this.get(countDown).n, ignoreInlineElement).equals(parent)){
-			list.add(this.get(countDown));
+			list.add(0, this.get(countDown));
 			countDown--;
 		}
 		

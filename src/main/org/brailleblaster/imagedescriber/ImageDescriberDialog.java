@@ -30,6 +30,7 @@ package org.brailleblaster.imagedescriber;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -71,6 +72,9 @@ public class ImageDescriberDialog extends Dialog {
 	
 	// The image describer.
 	ImageDescriber imgDesc;
+	
+	// Helps with managing and manipulating images.
+	ImageHelper imgHelper;
 	
 	// UI Positioning and Sizes.
 	
@@ -160,6 +164,9 @@ public class ImageDescriberDialog extends Dialog {
 		
 		// Start the image describer.
 		imgDesc = new ImageDescriber(curDocMan);
+		
+		// Image helper class. Image helper functions, and such.
+		imgHelper = new ImageHelper();
 			
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();
@@ -198,11 +205,11 @@ public class ImageDescriberDialog extends Dialog {
 		// Set main image to first image found. If the first <img> tag 
 		Image curElmImage = imgDesc.getCurElementImage();
 		if(curElmImage != null)
-			mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+			mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
 		else
-			mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-												  imageWidth, 
-												  imageHeight) );
+			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+														    imageWidth, 
+														    imageHeight) );
 
 		// Show current image index and name.
 		imgDescShell.setText( "Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
@@ -237,11 +244,11 @@ public class ImageDescriberDialog extends Dialog {
 				// Change current image in dialog.
 				Image curElmImage = imgDesc.getCurElementImage();
 				if(curElmImage != null)
-					mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+					mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
 				else
-					mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-														  imageWidth, 
-														  imageHeight) );
+					mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+																    imageWidth, 
+																    imageHeight) );
 				
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurProdText() );
@@ -266,9 +273,9 @@ public class ImageDescriberDialog extends Dialog {
 				// Change current image in dialog.
 				Image curElmImage = imgDesc.getCurElementImage();
 				if(curElmImage != null)
-					mainImage.setImage( createScaledImage(curElmImage, imageWidth, imageHeight) );
+					mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
 				else
-					mainImage.setImage( createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+					mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
 														  imageWidth, 
 														  imageHeight) );
 				
@@ -335,34 +342,5 @@ public class ImageDescriberDialog extends Dialog {
 		browser.setBounds(browserX, browserY, browserW, browserH);
 		
 	} // public void createUIelements()
-	
-	///////////////////////////////////////////////////////////////////////////////////////////
-	// Creates an image from another to fit a particular resolution, without 
-	// changing the aspect ratio. Scales up or down to match values given.
-	public Image createScaledImage(Image img, int maxWidth, int maxHeight)
-	{
-		// Calc percentage needed to match max width.
-		float percW = ((maxWidth * 100) / img.getImageData().width) / 100.0f;
-		
-		// Store new dimensions.
-		int newWidth = maxWidth;
-		int newHeight = (int)(img.getImageData().height * percW);
-		
-		// Calculate new dimensions based on height.
-		if(newHeight > maxHeight)
-		{
-			// Calc percentage needed to match max height.
-			float percH = ((maxHeight * 100) / img.getImageData().height) / 100.0f;
-			
-			// Store new dimensions.
-			newWidth = (int)(img.getImageData().width * percH);
-			newHeight = maxHeight;
-			
-		} // if(newHeight > maxHeight)
-
-		// Return a new, scaled image.
-		return new Image( null, img.getImageData().scaledTo(newWidth, newHeight) );
-		
-	} // createScaledImage()
 	
 } // public class ImageDescriberDialog extends Dialog

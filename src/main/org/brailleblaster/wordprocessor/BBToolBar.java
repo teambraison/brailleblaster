@@ -28,11 +28,15 @@
 
 package org.brailleblaster.wordprocessor;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.imagedescriber.ImageDescriber;
 import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.util.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -47,9 +51,14 @@ import org.eclipse.swt.widgets.ToolItem;
 
 public class BBToolBar {
 
+	int MAX_W = 32;
+	int MAX_H = 32;
+	
 	private ToolBar toolBar;
 	private Button checkBrailleItem;
 	WPManager wordProc;
+	ImageHelper imgHelper;
+	
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp) {
 		String sep = BBIni.getFileSep();
@@ -61,6 +70,12 @@ public class BBToolBar {
 		location.top = new FormAttachment(0);
 		toolBar.setLayoutData(location);
 		wordProc = wp;
+		imgHelper = new ImageHelper();
+		
+		// Calculate max width and height for toolbar buttons.
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		MAX_W = (int)screenSize.getWidth() / 30;
+		MAX_H = MAX_W;
 		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
@@ -71,7 +86,8 @@ public class BBToolBar {
 		ToolItem openItem = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Open");
 		openItem.setText(tlabel.replace("&", ""));
-		openItem.setImage(new Image(null, distPath + sep + "images" + sep + "open.png"));
+		openItem.setImage( imgHelper.createScaledImage(new Image(null, distPath + sep + "images" + sep + "open.png"), MAX_W, MAX_H) );
+//		openItem.setImage( new Image(null, distPath + sep + "images" + sep + "open.png") );
 		openItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {

@@ -708,7 +708,7 @@ public class TextView extends AbstractView {
 					//Test more
 				}
 				else {				
-					if(selectionLength > e.length)
+					if(selectionLength != e.length)
 						changes = e.length - selectionLength;
 					
 					makeTextChange(changes);

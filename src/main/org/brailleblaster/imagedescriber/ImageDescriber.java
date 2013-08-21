@@ -245,6 +245,15 @@ public class ImageDescriber {
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Returns the number of <img> elements found in the document.
+	public int getNumImgElements()
+	{
+		// Return number of image elements.
+		return numImgElms;
+		
+	} // public int getNumImgElements()
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Traverses xml tree until it finds the next <img>.
 	public Element getNextImageElement(Element e)
 	{

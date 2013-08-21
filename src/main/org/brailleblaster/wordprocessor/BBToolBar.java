@@ -46,6 +46,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -65,7 +66,7 @@ public class BBToolBar {
 	public BBToolBar(Shell shell, final WPManager wp) {
 		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
-		toolBar = new ToolBar(shell, SWT.HORIZONTAL);
+		toolBar = new ToolBar(shell, SWT.NONE);
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
 		location.right = new FormAttachment(40);
@@ -81,8 +82,17 @@ public class BBToolBar {
 		
 		// Change font size depending on screen resolution.
 		FontData[] oldFontData = toolBar.getFont().getFontData();
-		oldFontData[0].setHeight(MAX_W);
-//		toolBar.setFont( new Font(null, oldFontData[0]) );
+		if( (int)screenSize.getWidth() >= 1920)
+			oldFontData[0].setHeight(9);
+		else if( (int)screenSize.getWidth() >= 1600)
+			oldFontData[0].setHeight(8);
+		else if( (int)screenSize.getWidth() >= 1280)
+			oldFontData[0].setHeight(6);
+		else if( (int)screenSize.getWidth() >= 1024)
+			oldFontData[0].setHeight(4);
+		else if( (int)screenSize.getWidth() >= 800)
+			oldFontData[0].setHeight(3);
+		toolBar.setFont( new Font(null, oldFontData[0]) );
 		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
@@ -234,8 +244,6 @@ public class BBToolBar {
 			} // widgetSelected...
 				
 		}); // addSelectionListener(new SelectionAdapter()...
-		
-		toolBar.pack();
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);
@@ -253,6 +261,8 @@ public class BBToolBar {
 				}
 			}
 		});
+		
+		toolBar.pack();
 	}
 	
 	public void toggleCheckBox(boolean enabled, boolean state){

@@ -72,7 +72,6 @@ public class TextView extends AbstractView {
 	private int currentChar;
 	private int currentStart, currentEnd, previousEnd, nextStart, selectionStart, selectionLength;
 	private int currentChanges = 0;
-	private int escapeChars;
 	private boolean textChanged;
 	private BBSemanticsTable stylesTable;
 	private StyleRange range;
@@ -91,7 +90,6 @@ public class TextView extends AbstractView {
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
-		this.escapeChars = 0;
 	}
 
 	public void initializeListeners(final DocumentManager dm){	
@@ -392,7 +390,7 @@ public class TextView extends AbstractView {
 	private void shiftLeft(int offset){
 		currentStart += offset;
 		currentEnd += offset;
-		nextStart+= offset;
+		nextStart += offset;
 	}
 	
 	public void setCursor(int offset){
@@ -403,7 +401,7 @@ public class TextView extends AbstractView {
 	public void setText(Node n, LinkedList<TextMapElement>list){
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		
-		String newText = appendToView(n);
+		String newText = appendToView(n, true);
 		int textLength = newText.length();
 
 		view.append(newText);
@@ -414,7 +412,6 @@ public class TextView extends AbstractView {
 		
 		this.spaceAfterText = 0;
 		this.spaceBeforeText = 0;
-		this.escapeChars = 0;
 		view.setCaretOffset(0);
 		words += getWordCount(n.getValue());
 	}
@@ -428,7 +425,7 @@ public class TextView extends AbstractView {
 		StyleRange range = getStyleRange();
 		
 		if(!n.getValue().equals(""))
-			reformattedText =  reformatUpdatedText(n);
+			reformattedText =  appendToView(n, false);
 		else
 			reformattedText = n.getValue();
 		
@@ -455,75 +452,10 @@ public class TextView extends AbstractView {
 		view.setCaretOffset(pos);		
 		this.spaceAfterText = 0;
 		this.spaceBeforeText = 0;
-		this.escapeChars = 0;
 		setListenerLock(false);
 	}
-	
-	private String reformatUpdatedText(Node n){
-		String text = "";
-		Element brl = getBrlNode(n);
-		int start = 0;
-		int end = 0;
-		int totalLength = 0;
-	
-		if(brl != null){
-			int[] indexes = getIndexArray(brl);
-			if(indexes != null){
-				for(int i = 0; i < brl.getChildCount(); i++){
-					if(brl.getChild(i) instanceof Text){
-						if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
-							String brltext = brl.getChild(i).getValue();						
-							totalLength += brltext.length();
-							end = indexes[totalLength - 1];
-							if(totalLength == indexes.length){
-								if(start == 0){
-									text += n.getValue().substring(start);
-								}
-								else {
-									text += "\n" + n.getValue().substring(start);
-									this.escapeChars++;
-								}
-							}
-							else{
-								    end += indexes[totalLength] - end;
-									if(start == 0){
-										text += n.getValue().substring(start, end);
-									}
-									else{
-										text += "\n" + n.getValue().substring(start, end);
-										this.escapeChars++;
-									}
-							}
-							start = end;
-						}
-						else {
-							String brltext = brl.getChild(i).getValue();
-							totalLength += brltext.length();
-							end = indexes[totalLength - 1];
-							if(totalLength == indexes.length){
-								text += n.getValue().substring(start);
-							}
-							else{
-								end += indexes[totalLength] - end;
-								text += n.getValue().substring(start, end);
-							}
-							start = end;
-						}
-					}
-				}
-			}
-			else {
-					text += n.getValue();
-			}
-		}
-		else {
-			text += n.getValue();
-		}
-	
-		return text;
-	}
-	
-	private String appendToView(Node n){
+		
+	private String appendToView(Node n, boolean append){
 		String text = "";
 		Element brl = getBrlNode(n);
 		int start = 0;
@@ -540,26 +472,30 @@ public class TextView extends AbstractView {
 							totalLength += brltext.length();
 							end = indexes[totalLength - 1];
 							if(totalLength == indexes.length){
-								if(start == 0){
+								if(start == 0 && append){
 									view.append("\n");
 									text += n.getValue().substring(start);
 									this.spaceBeforeText++;
 								}
+								else if(start == 0){
+									text += n.getValue().substring(start);
+								}
 								else {
 									text += "\n" + n.getValue().substring(start);
-									this.escapeChars++;
 								}
 							}
 							else{
 								    end += indexes[totalLength] - end;
-									if(start == 0){
+									if(start == 0 && append){
 										view.append("\n");
 										text += n.getValue().substring(start, end);
 										this.spaceBeforeText++;
 									}
+									else if(start == 0){
+										text += n.getValue().substring(start, end);
+									}
 									else{
 										text += "\n" + n.getValue().substring(start, end);
-										this.escapeChars++;
 									}
 							}
 							start = end;
@@ -580,10 +516,13 @@ public class TextView extends AbstractView {
 					}
 				}
 			}
-			else {
+			else if(append){
 					view.append("\n");
 					text += n.getValue();
 					this.spaceBeforeText++;
+			}
+			else {
+				text += n.getValue();
 			}
 		}
 		else {
@@ -1201,7 +1140,6 @@ public class TextView extends AbstractView {
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
-		this.escapeChars = 0;
 		oldCursorPosition = -1;
 		currentChanges = 0;
 		textChanged = false;

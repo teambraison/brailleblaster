@@ -268,6 +268,7 @@ public class BrailleView extends AbstractView {
 		return false;
 	}
 	
+	/*
 	private void checkFinalNewline(Node n){
 		Element parent = (Element)n.getParent();
 		int childCount = parent.getChildCount();
@@ -279,6 +280,7 @@ public class BrailleView extends AbstractView {
 			}
 		}
 	}
+	*/
 	
 	private void handleStyle(Styles style, Node n, Element parent){
 		String viewText = n.getValue();

@@ -134,7 +134,7 @@ public abstract class AbstractView {
 		styleRange.start = start;
 		styleRange.length = length;
 		styleRange.fontStyle = style;
-		this.view.setStyleRange(styleRange);
+		view.setStyleRange(styleRange);
 	}
 	
 	protected void updateRange(StyleRange style, int start, int length){
@@ -183,11 +183,11 @@ public abstract class AbstractView {
 	}
 	
 	protected void setListenerLock(boolean setting){
-		this.locked = setting;
+		locked = setting;
 	}
 	
 	protected boolean getLock(){
-		return this.locked;
+		return locked;
 	}
 	
 	protected void saveStyleState(int start){
@@ -257,8 +257,8 @@ public abstract class AbstractView {
 	
 	public void setTopIndex(int line){
 		setListenerLock(true);
-			view.setTopIndex(line);
-			topIndex = line;
+		view.setTopIndex(line);
+		topIndex = line;
 		setListenerLock(false);
 	}
 	

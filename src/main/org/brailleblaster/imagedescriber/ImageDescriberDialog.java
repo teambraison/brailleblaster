@@ -28,6 +28,11 @@
 
 package org.brailleblaster.imagedescriber;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
+import javax.swing.JOptionPane;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ImageHelper;
@@ -154,15 +159,35 @@ public class ImageDescriberDialog extends Dialog {
 		// Start the image describer.
 		imgDesc = new ImageDescriber(curDocMan);
 		
+		
 		// If there were no <img> elements found, there is no point in continuing.
-		if(imgDesc.getNumImgElements() == 0)
+		if(imgDesc.getNumImgElements() == 0) {
+			
+			// Tell user there are no image tags.
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			Display dlgDisp;
+			Shell dlgShl;
+			dlgDisp = parent.getDisplay();
+			dlgShl = new Shell(parent, SWT.DIALOG_TRIM);
+			dlgShl.setText(lh.localValue("NO IMAGES!"));
+			Label alertText = new Label(dlgShl, SWT.NONE);
+			alertText.setBounds(0, 0, 500, 100);
+			alertText.setText("There are no image elements in this document.");
+			dlgShl.setSize((int)screenSize.getWidth() / 5, (int)screenSize.getWidth() / 12);
+			dlgShl.open();
+			while (!dlgShl.isDisposed()) {
+				if (!dlgDisp.readAndDispatch())
+					dlgDisp.sleep();
+			}
+			
+			// Don't bother with the rest of image describer, there are no images.
 			return;
+		}
 		
 		// Image helper class. Image helper functions, and such.
 		imgHelper = new ImageHelper();
 			
 		// Create shell, get display, etc.
-		display = wpm.getDisplay();
 		display = parent.getDisplay();
 		imgDescShell = new Shell(parent, SWT.DIALOG_TRIM);
 		imgDescShell.setText(lh.localValue("Image Describer"));

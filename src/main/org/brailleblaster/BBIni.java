@@ -101,7 +101,7 @@ public final class BBIni {
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
-		LocaleHandler lh = new LocaleHandler();
+	//	LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
 		osName = System.getProperty("os.name");

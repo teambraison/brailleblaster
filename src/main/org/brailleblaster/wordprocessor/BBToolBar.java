@@ -40,6 +40,8 @@ import org.brailleblaster.util.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -76,6 +78,11 @@ public class BBToolBar {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		MAX_W = (int)screenSize.getWidth() / 30;
 		MAX_H = MAX_W;
+		
+		// Change font size depending on screen resolution.
+		FontData[] oldFontData = toolBar.getFont().getFontData();
+		oldFontData[0].setHeight(MAX_W);
+//		toolBar.setFont( new Font(null, oldFontData[0]) );
 		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));

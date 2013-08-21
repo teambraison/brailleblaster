@@ -151,6 +151,16 @@ public class ImageDescriberDialog extends Dialog {
 		// Grab current doc manager.
 		////////////////////////////
 			
+		// Start the image describer.
+		imgDesc = new ImageDescriber(curDocMan);
+		
+		// If there were no <img> elements found, there is no point in continuing.
+		if(imgDesc.getNumImgElements() == 0)
+			return;
+		
+		// Image helper class. Image helper functions, and such.
+		imgHelper = new ImageHelper();
+			
 		// Create shell, get display, etc.
 		display = wpm.getDisplay();
 		display = parent.getDisplay();
@@ -161,12 +171,6 @@ public class ImageDescriberDialog extends Dialog {
 		imgDescShell.setSize(dialogWidth, dialogHeight);
 		clientWidth = imgDescShell.getClientArea().width;
 		clientHeight = imgDescShell.getClientArea().height;
-		
-		// Start the image describer.
-		imgDesc = new ImageDescriber(curDocMan);
-		
-		// Image helper class. Image helper functions, and such.
-		imgHelper = new ImageHelper();
 			
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();

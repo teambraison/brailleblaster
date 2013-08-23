@@ -51,7 +51,7 @@ helpPath = BBIni.getHelpDocsPath() + BBIni.getFileSep();
 desktop = Desktop.getDesktop();
 switch (helpChoice) {
 case WP.AboutBB:
-new Notify (BBIni.getVersion() +  ", released on " + 
+new Notify (BBIni.getProductName() + " version " + BBIni.getVersion() +  ", released on " + 
 BBIni.getReleaseDate() + 
 ". For questions and bug reports contact john.boyer@abilitiessoft.com");
 break;

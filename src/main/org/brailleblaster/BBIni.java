@@ -71,6 +71,7 @@ public final class BBIni {
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private static Logger logger;
+	private static final String productName = "BrailleBlaster ND";
 	private static String BBVersion;
 	private static String releaseDate;
 	private static String brailleblasterPath; // FO
@@ -305,6 +306,12 @@ public final class BBIni {
 	public static void setVersion(String version) {
 		BBVersion = version;
 	}
+
+	
+	public static String getProductName() {
+		return productName;
+	}
+
 
 	public static String getVersion() {
 		return BBVersion;

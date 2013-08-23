@@ -47,8 +47,6 @@ import org.liblouis.liblouisutdml;
 public class Main {
 	public static void main(String[] args) {	
 		BBIni.initialize(args);
-		BBIni.setVersion("2013.08.23");
-		BBIni.setReleaseDate("August 23, 2013");
 		
 		if (BBIni.haveSubcommands()) {
 			new Subcommands(args);

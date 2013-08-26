@@ -33,14 +33,12 @@ import java.util.Map.Entry;
 
 import nu.xom.Element;
 import nu.xom.Node;
-import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.SWT;
@@ -118,16 +116,16 @@ public class TextView extends AbstractView {
 					selectAll(dm);
 				}
 				
-				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){
-					Message message = new Message(BBEvent.ADJUST_ALIGNMENT);
-					message.put("sender", "text");
+				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
+					Message message;
+					
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
-						message.put("alignment", SWT.CENTER);
+						message = Message.createAdjustAlignmentMessage("text",SWT.CENTER);
 					}
 					else {
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.LEFT);
-						message.put("alignment", SWT.LEFT);
+						message = Message.createAdjustAlignmentMessage("text",SWT.LEFT);
 					}
 					dm.dispatch(message);
 					e.doit = false;
@@ -135,10 +133,8 @@ public class TextView extends AbstractView {
 				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
-					Message message = new Message(BBEvent.ADJUST_INDENT);
-					message.put("sender", "text");
-					message.put("indent", 0);
-					message.put("line", view.getLineAtOffset(currentStart));
+					Message message = Message.createAdjustIndentMessage("text", 0, view.getLineAtOffset(currentStart));
+				
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					dm.dispatch(message);
 					e.doit = false;
@@ -181,9 +177,7 @@ public class TextView extends AbstractView {
 		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
-				Message message = new Message(BBEvent.GET_CURRENT);
-				message.put("sender", "text");
-			    message.put("offset",view.getCaretOffset());
+				Message message = Message.createGetCurrentMessage("text", view.getCaretOffset());
 				dm.dispatch(message);
 				setViewData(message);
 				if(oldCursorPosition == -1 && positionFromStart == 0){
@@ -199,8 +193,7 @@ public class TextView extends AbstractView {
 					sendUpdate(dm);	
 				
 				setPositionFromStart();
-				Message message = new Message(BBEvent.UPDATE_CURSORS);
-				message.put("sender", "text");
+				Message message = Message.createUpdateCursorsMessage("text");
 				dm.dispatch(message);
 			}
 		});
@@ -257,30 +250,15 @@ public class TextView extends AbstractView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {		
-				if(!getLock()){
-					if(topIndex != view.getTopIndex()){
-						topIndex = view.getTopIndex();
-						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
-						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
-						dm.dispatch(scrollMessage);
-					}
-				}
+				checkStatusBar("text", dm);
 			}
 		});
 		
 		view.addPaintListener(new PaintListener(){
 			@Override
 			public void paintControl(PaintEvent e) {
-				if(!getLock()){
-					if(topIndex != view.getTopIndex()){
-						topIndex = view.getTopIndex();
-						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
-						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
-						dm.dispatch(scrollMessage);
-					}
-				}
+				checkStatusBar("text", dm);
 			}
-			
 		});
 		
 		setListenerLock(false);
@@ -306,11 +284,7 @@ public class TextView extends AbstractView {
 	}
 	
 	private void sendUpdate(DocumentManager dm){
-			Message updateMessage = new Message(BBEvent.UPDATE);
-			updateMessage.put("offset", view.getCaretOffset());
-			updateMessage.put("newText", getString(currentStart, currentEnd - currentStart));
-			updateMessage.put("length", originalEnd - originalStart);
-		//	updateMessage.put("length", currentChanges);
+			Message updateMessage = Message.createUpdateMessage(view.getCaretOffset(), getString(currentStart, currentEnd - currentStart), originalEnd - originalStart);
 			dm.dispatch(updateMessage);
 			words += (Integer)updateMessage.getValue("diff");
 			sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
@@ -320,17 +294,13 @@ public class TextView extends AbstractView {
 	}
 	
 	private void setCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.SET_CURRENT);
-		message.put("offset", view.getCaretOffset());
+		Message message = Message.createSetCurrentMessage("text", view.getCaretOffset(), false);
 		dm.dispatch(message);
 		setViewData(message);
 	}
 	
 	private void sendDeleteSpaceMessage(DocumentManager dm, int offset, int key){
-		Message message = new Message(BBEvent.TEXT_DELETION);
-		message.put("length", offset);
-		message.put("deletionType", key);
-		message.put("update", false);
+		Message message = Message.createTextDeletionMessage(offset, key, false);
 		dm.dispatch(message);
 		
 		if(message.getValue("update").equals(true)){								
@@ -346,8 +316,7 @@ public class TextView extends AbstractView {
 	}
 	
 	private void sendAdjustRangeMessage(DocumentManager dm, String type, int position){
-		Message adjustmentMessage = new Message(BBEvent.ADJUST_RANGE);
-		adjustmentMessage.put(type, position);
+		Message adjustmentMessage = Message.createAdjustRange(type, position);
 		dm.dispatch(adjustmentMessage);
 		
 		if(type.equals("start")){
@@ -466,7 +435,7 @@ public class TextView extends AbstractView {
 			int[] indexes = getIndexArray(brl);
 			if(indexes != null){
 				for(int i = 0; i < brl.getChildCount(); i++){
-					if(brl.getChild(i) instanceof Text){
+					if(isText(brl.getChild(i))){
 						if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
 							String brltext = brl.getChild(i).getValue();						
 							totalLength += brltext.length();
@@ -842,7 +811,7 @@ public class TextView extends AbstractView {
 		Element parent = (Element)n.getParent();
 		
 		for(int i = 0; i < parent.getChildCount(); i++){
-			if(parent.getChild(i) instanceof Text){
+			if(isText(parent.getChild(i))){
 				if(parent.getChild(i).equals(n)){
 					isLast = true;
 				}
@@ -850,7 +819,7 @@ public class TextView extends AbstractView {
 					isLast = false;
 				}
 			}
-			else if((parent.getChild(i) instanceof Element && !((Element)parent.getChild(i)).getLocalName().equals("brl"))){
+			else if((isElement(parent.getChild(i)) && !((Element)parent.getChild(i)).getLocalName().equals("brl"))){
 				if(parent.getChild(i).equals(n)){
 					isLast = true;
 				}
@@ -870,7 +839,6 @@ public class TextView extends AbstractView {
 		else
 			return isLast;
 	}
-	
 	
 	public String getString(int start, int length){
 		return view.getTextRange(start, length);

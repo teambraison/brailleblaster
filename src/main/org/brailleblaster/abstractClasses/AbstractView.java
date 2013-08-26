@@ -30,8 +30,8 @@ package org.brailleblaster.abstractClasses;
 
 import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.Text;
 
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.*;
@@ -89,7 +89,7 @@ public abstract class AbstractView {
 	}
 	
 	protected void sendIncrementCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.INCREMENT);
+		Message message = Message.createIncrementMessage();
 		dm.dispatch(message);
 		setViewData(message);
 	}
@@ -99,7 +99,7 @@ public abstract class AbstractView {
 	}
 	
 	protected void sendDecrementCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.DECREMENT);
+		Message message = Message.createDecrementMessage();
 		dm.dispatch(message);
 		setViewData(message);
 	}
@@ -286,7 +286,6 @@ public abstract class AbstractView {
 	}
 	
 	protected void sendStatusBarUpdate(DocumentManager dm, int line){
-		Message statusMessage = new Message(BBEvent.UPDATE_STATUSBAR);
 		String statusBarText = "Line: " + String.valueOf(line + 1);
 		
 		if(view.getLineIndent(line) > 0){
@@ -300,9 +299,27 @@ public abstract class AbstractView {
 				statusBarText += " Alignment: Right";
 		}
 		
-		statusMessage.put("line", statusBarText + " Words: " + words);
+		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);
 		dm.dispatch(statusMessage);
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
+	}
+	
+	public void checkStatusBar(String sender, DocumentManager dm){
+		if(!getLock()){
+			if(topIndex != view.getTopIndex()){
+				topIndex = view.getTopIndex();
+				Message scrollMessage = Message.createUpdateScollbarMessage(sender, view.getOffsetAtLine(topIndex));
+				dm.dispatch(scrollMessage);
+			}
+		}
+	}
+	
+	protected boolean isElement(Node n){
+		return (n instanceof Element);
+	}
+	
+	protected boolean isText(Node n){
+		return (n instanceof Text);
 	}
 	
 	

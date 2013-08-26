@@ -34,7 +34,6 @@ import java.util.Map.Entry;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBSemanticsTable;
@@ -42,7 +41,6 @@ import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 
@@ -100,8 +98,7 @@ public class BrailleView extends AbstractView {
 		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
-				Message message = new Message(BBEvent.GET_CURRENT);
-				message.put("sender", "braille");
+				Message message = Message.createGetCurrentMessage("braille", view.getCaretOffset());
 				dm.dispatch(message);
 				setViewData(message);
 				if(oldCursorPosition == -1 && positionFromStart  == 0){
@@ -112,9 +109,7 @@ public class BrailleView extends AbstractView {
 			@Override
 			public void focusLost(FocusEvent e) {
 				setPositionFromStart();
-				
-				Message message = new Message(BBEvent.UPDATE_CURSORS);
-				message.put("sender", "braille");
+				Message message = Message.createUpdateCursorsMessage("braille");
 				dm.dispatch(message);
 			}
 		});
@@ -164,30 +159,14 @@ public class BrailleView extends AbstractView {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(!getLock()){
-					if(topIndex != view.getTopIndex()){
-						topIndex = view.getTopIndex();
-						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
-						scrollMessage.put("sender", "braille");
-						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
-						dm.dispatch(scrollMessage);
-					}
-				}
+				checkStatusBar("braille", dm);
 			}
 		});
 		
 		view.addPaintListener(new PaintListener(){
 			@Override
 			public void paintControl(PaintEvent e) {
-				if(!getLock()){
-					if(topIndex != view.getTopIndex()){
-						topIndex = view.getTopIndex();
-						Message scrollMessage = new Message(BBEvent.UPDATE_SCROLLBAR);
-						scrollMessage.put("sender", "braille");
-						scrollMessage.put("offset", view.getOffsetAtLine(topIndex));
-						dm.dispatch(scrollMessage);
-					}
-				}
+				checkStatusBar("braille", dm);
 			}			
 		});
 	
@@ -203,10 +182,8 @@ public class BrailleView extends AbstractView {
 	}
 	
 	private void setCurrent(DocumentManager dm){
-		Message message = new Message(BBEvent.SET_CURRENT);
-		message.put("sender", "braille");
-		message.put("isBraille", true);
-		message.put("offset", view.getCaretOffset());
+		Message message = Message.createSetCurrentMessage("braille", view.getCaretOffset(), true);
+		
 		if(charAtOffset != null)
 			message.put("char", charAtOffset);
 		
@@ -240,8 +217,6 @@ public class BrailleView extends AbstractView {
 		int textLength = text.length();
 	
 		if(insertNewLine(n)){
-		//	view.append("\n");
-		//	this.total++;
 			textBefore = "\n";
 			this.spaceBeforeText++;
 		}
@@ -492,7 +467,7 @@ public class BrailleView extends AbstractView {
 		Element parent = (Element)n.getParent();
 		int index = parent.indexOf(n);
 		
-		if(index > 0 && parent.getChild(index - 1) instanceof Element){
+		if(index > 0 && isElement(parent.getChild(index - 1))){
 			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline"))
 				return true;
 		}
@@ -503,7 +478,7 @@ public class BrailleView extends AbstractView {
 		int i = 0;
 		Element parent = (Element)n.getParent();
 		
-		while(!(parent.getChild(i) instanceof Text)){
+		while(!(isText(parent.getChild(i)))){
 			i++;
 		}
 		
@@ -523,7 +498,7 @@ public class BrailleView extends AbstractView {
 			}
 			else {
 				i = 0;
-				while((grandParent.getChild(i) instanceof Text)){
+				while((isText(grandParent.getChild(i)))){
 					i++;
 				}
 				if(grandParent.indexOf(parent) == i)
@@ -559,7 +534,7 @@ public class BrailleView extends AbstractView {
 		Element parent = (Element)n.getParent();
 		
 		for(int i = 0; i < parent.getChildCount(); i++){
-			if(parent.getChild(i) instanceof Text){
+			if(isText(parent.getChild(i))){
 				if(parent.getChild(i).equals(n)){
 					isLast = true;
 				}
@@ -567,7 +542,7 @@ public class BrailleView extends AbstractView {
 					isLast = false;
 				}
 			}
-			else if(n instanceof Element){
+			else if(isElement(n)){
 				if(parent.getChild(i).equals(n)){
 					isLast = true;
 				}
@@ -580,11 +555,11 @@ public class BrailleView extends AbstractView {
 		if(isLast){
 			Element grandParent = (Element)parent.getParent();
 			for(int i = 0; i < grandParent.getChildCount(); i++){
-				if(grandParent.getChild(i) instanceof Element){
+				if(isElement(grandParent.getChild(i))){
 					if(grandParent.getChild(i).equals(parent)){
 						isLast = true;
 					}
-					else if(grandParent.getLocalName().equals("li") && grandParent.getChild(i) instanceof Element){
+					else if(grandParent.getLocalName().equals("li") && isElement(grandParent.getChild(i))){
 						if(!((Element)grandParent.getChild(i)).getLocalName().equals("list") && !((Element)grandParent.getChild(i)).getLocalName().equals("p"))
 							isLast = false;
 					}
@@ -634,8 +609,7 @@ public class BrailleView extends AbstractView {
 	
 	public void removeWhitespace(int start, int length, char c, DocumentManager dm){
 		setListenerLock(true);
-		Message message = new Message(BBEvent.GET_CURRENT);
-		message.put("sender", "braille");
+		Message message = Message.createGetCurrentMessage("braille", view.getCaretOffset());
 		dm.dispatch(message);
 		setViewData(message);
 	

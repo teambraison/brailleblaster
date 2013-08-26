@@ -38,6 +38,13 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import nu.xom.Document;
+import nu.xom.Serializer;
+
 import org.brailleblaster.BBIni;
 
 
@@ -46,7 +53,8 @@ import org.brailleblaster.BBIni;
  * and for searching directories.
  */
 public class FileUtils {
-
+	static Logger logger = BBIni.getLogger();
+	
     public FileUtils() {
     }
 
@@ -223,6 +231,33 @@ public void writeToFile(String path, StringBuilder sb){
 		e.printStackTrace();
 	}
 }
+
+//Writes XML files or logs an error if it fails
+public boolean createXMLFile(Document xmlDoc, String path){
+	try {
+		FileOutputStream os = new FileOutputStream(path);
+		Serializer serializer = new Serializer(os, "UTF-8");
+		serializer.write(xmlDoc);
+		os.close();
+		return true;
+	} 
+	catch (FileNotFoundException e) {
+		e.printStackTrace();
+		logger.log(Level.SEVERE, "File Not Found Exception", e);
+		return false;
+	}
+	catch (UnsupportedEncodingException e) {
+		e.printStackTrace();
+		logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
+		return false;
+	}
+	catch (IOException e) {
+		e.printStackTrace();
+		logger.log(Level.SEVERE, "IO Exception", e);
+		return false;
+	}
+}
+
 
 //Returns file name minus path and extension
 public String getFileName(String path){

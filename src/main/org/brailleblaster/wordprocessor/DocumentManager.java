@@ -32,10 +32,7 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -43,10 +40,8 @@ import java.util.logging.Logger;
 
 import javax.print.PrintException;
 
-import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
-import nu.xom.Serializer;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -55,7 +50,6 @@ import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
@@ -158,50 +152,47 @@ public class DocumentManager {
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
 		checkForUpdatedViews();
-		try {
-			if(workingFilePath.endsWith("xml")){
-			    createXMLFile(workingFilePath);
-			    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-			    if(fu.exists(tempSemFile)){
-			    	fu.copyFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-			    }
-			}
-			else if(workingFilePath.endsWith("utd")) {		
-				document.setOriginalDocType(document.getDOM());
-				FileOutputStream os = new FileOutputStream(workingFilePath);
-			    Serializer serializer = new Serializer(os, "UTF-8");
-			    serializer.write(document.getDOM());
-			    os.close();
-			    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-			    if(fu.exists(tempSemFile)){
-			    	fu.copyFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-			    }
-			}
-			else if(workingFilePath.endsWith("brf")){
-				if(!document.createBrlFile(this, workingFilePath)){
-					new Notify("An error has occurred.  Please check your original document");
-				}
-			}
-			
-			// If the document came from a zip file, then rezip it.
-			if(zippedPath.length() > 0)
-			{
-				// Create zipper.
-				Zipper zpr = new Zipper();
-				// Input string.
-				String sp = BBIni.getFileSep();
-				String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-//				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
-				// Zip it!
-				zpr.Zip(inPath, zippedPath);
-			}
-			
-			this.text.hasChanged = false;
-			this.braille.hasChanged = false;
+		
+		if(workingFilePath.endsWith("xml")){
+		    if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
+		    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+		    	copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+		    }
+		    else {
+		    	new Notify("An error occured while saving your document.  Please check your original document.");
+		    }
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
+		else if(workingFilePath.endsWith("utd")) {		
+			document.setOriginalDocType(document.getDOM());
+			if(fu.createXMLFile(document.getDOM(), workingFilePath)){
+				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+		    	copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+			}
+			else {
+		    	new Notify("An error occured while saving your document.  Please check your original document.");
+		    }
+		}
+		else if(workingFilePath.endsWith("brf")){
+			if(!document.createBrlFile(this, workingFilePath)){
+				new Notify("An error has occurred.  Please check your original document");
+			}
+		}
+			
+		// If the document came from a zip file, then rezip it.
+		if(zippedPath.length() > 0)
+		{
+			// Create zipper.
+			Zipper zpr = new Zipper();
+			// Input string.
+			String sp = BBIni.getFileSep();
+			String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
+//			String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
+			// Zip it!
+			zpr.Zip(inPath, zippedPath);
+		}
+		
+		text.hasChanged = false;
+		braille.hasChanged = false;
 	}
 	
 	public void fileOpenDialog() {
@@ -257,7 +248,6 @@ public class DocumentManager {
 				ArrayList<String> strs = this.wp.getMainMenu().getRecentDocumentsList();
 				
 				// Search list for duplicate. If one exists, don't add this new one.
-				boolean addNewDoc = true;
 				for(int curStr = 0; curStr < strs.size(); curStr++) {
 					if(strs.get(curStr).compareTo(fileName) == 0) {
 						
@@ -590,58 +580,62 @@ public class DocumentManager {
 		String[] filterExtensions = new String[] {".xml","*.brf", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
 		String filePath = dialog.open();
+		
 		if(filePath != null){
 			checkForUpdatedViews();
 			String ext = getFileExt(filePath);
-			try {
-				if(ext.equals("brf")){
-					if(!this.document.createBrlFile(this, filePath)){
-						new Notify("An error has occurred.  Please check your original document");
-					}
+			
+			if(ext.equals("brf")){
+				if(!this.document.createBrlFile(this, filePath)){
+					new Notify("An error has occurred.  Please check your original document");
 				}
-				else if(ext.equals("xml")){
-				    createXMLFile(filePath);
-				    setTabTitle(filePath);
-				    documentName = filePath;
-				    
-				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-				    String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
-				    
-				    //Save new semantic file to correct location and temp folder for further editing
-				    if(fu.exists(tempSemFile)){
-				    	fu.copyFile(tempSemFile, savedSemFile);
-				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-				    }
-				   //update working file path to newly saved file
-				    workingFilePath = filePath;				    
-				}
-				else if(ext.equals("utd")) {				
-					document.setOriginalDocType(document.getDOM());
-					FileOutputStream os = new FileOutputStream(filePath);
-				    Serializer serializer = new Serializer(os, "UTF-8");
-				    serializer.write(document.getDOM());
-				    os.close();
-				    setTabTitle(filePath);
-				    documentName = filePath;
-				    
-				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-				    String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
-				    
-				    if(fu.exists(tempSemFile)){
-				    	fu.copyFile(tempSemFile, savedTempFile);
-				    	fu.copyFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-				    }
-				    
-				    workingFilePath = filePath;
-				}
-			    text.hasChanged = false;
-				braille.hasChanged = false;
 			}
-			catch (IOException e) {
-				e.printStackTrace(); 
-				logger.log(Level.SEVERE, "IO Exception", e);
-			} 
+			else if(ext.equals("xml")){
+			    if(fu.createXMLFile(document.getNewXML(), filePath)) {
+			    	setTabTitle(filePath);
+					documentName = filePath;
+			    
+			    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+			    	String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
+			    
+			    	//Save new semantic file to correct location and temp folder for further editing
+			    	copySemanticsFile(tempSemFile, savedSemFile);
+			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+			    	
+					//update working file path to newly saved file
+			    	workingFilePath = filePath;				    
+			    }
+			    else {
+			    	new Notify("An error occured while saving your document.  Please check your original document.");
+			    }
+			}
+			else if(ext.equals("utd")) {				
+				document.setOriginalDocType(document.getDOM());
+				if(fu.createXMLFile(document.getDOM(), filePath)){
+					setTabTitle(filePath);
+			    	documentName = filePath;
+				    
+			    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+			    	String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
+				    
+			    	copySemanticsFile(tempSemFile, savedTempFile);
+			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
+
+			    	workingFilePath = filePath;
+				}
+				else {
+			    	new Notify("An error occured while saving your document.  Please check your original document.");
+			    }
+			}
+		    text.hasChanged = false;
+			braille.hasChanged = false;			
 		}
+	}
+	
+	private void copySemanticsFile(String tempSemFile, String savedFilePath) {
+		if(fu.exists(tempSemFile)){
+    		fu.copyFile(tempSemFile, savedFilePath);
+    	}
 	}
 	
 	public void fileClose() {
@@ -816,7 +810,7 @@ public class DocumentManager {
 			String path = BBIni.getTempFilesPath() + BBIni.getFileSep() + "temp.xml";
 			File f = new File(path);
 			f.createNewFile();
-			createXMLFile(path);
+			fu.createXMLFile(document.getNewXML(), path);
 			list.clear();
 			text.removeListeners();
 			text.resetView(group);
@@ -832,6 +826,7 @@ public class DocumentManager {
 				initializeAllViews(documentName, path, "semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem\n");
 			else
 				initializeAllViews(documentName, path, null);
+			
 			f.delete();
 			
 			text.hasChanged = textChanged;
@@ -844,45 +839,10 @@ public class DocumentManager {
 		}
 	}
 	
-	private boolean createXMLFile(String path){
-		try {
-			Document newDoc = document.getNewXML();
-			FileOutputStream os = new FileOutputStream(path);
-			Serializer serializer;	
-			serializer = new Serializer(os, "UTF-8");
-			serializer.write(newDoc);
-			os.close();
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "File Not Found Exception", e);
-			return false;
-		}
-		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
-			return false;
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "IO Exception", e);
-			return false;
-		}
-		return true;
-	}
-	
 	private void updateTempFile(){
-		try {
-			String tempFile = document.getOutfile();
-			FileOutputStream os = new FileOutputStream(tempFile);
-	    	Serializer serializer = new Serializer(os, "UTF-8");
-	    	serializer.write(document.getDOM());
-	    	os.close();
-		}
-		catch(Exception e){
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "Exception", e);
-		}
+		String tempFile = document.getOutfile();
+		if(!fu.createXMLFile(document.getDOM(), tempFile))
+		    new Notify("An error occured while saving a temporary file.  Please restart brailleblaster");
 	}
 	
 	private boolean vaildTextElement(String text){
@@ -913,6 +873,7 @@ public class DocumentManager {
 			setTabList();
 		}
 	}
+	
 	
 	public void checkForUpdatedViews(){
 		if(text.hasChanged)

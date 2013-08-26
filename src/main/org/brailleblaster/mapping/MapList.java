@@ -35,7 +35,6 @@ import nu.xom.Element;
 import nu.xom.Text;
 
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 
@@ -286,35 +285,29 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 			if(next < this.size()){	
 				if(this.get(index).start == this.get(next).start){
-					Message m = new Message(BBEvent.REMOVE_NODE);
-					m.put("index", index);
-					m.put("length",  this.get(index).n.getValue().length());
+					Message m = Message.createRemoveNodeMessage(index, this.get(index).n.getValue().length());
 					System.out.println("Node 1:\t" + this.get(index).n.getValue());
 					System.out.println("Node 2:\t" + this.get(next).n.getValue());
-					this.dm.dispatch(m);
+					dm.dispatch(m);
 				}
 			}
 		
 			if(previous >= 0 && next < this.size()){
 				if((this.get(previous).start + this.get(previous).n.getValue().length() + 1 == this.get(next).start && this.get(index).n.getValue().length() == 0)
 						|| (this.get(previous).end == this.get(index).start && this.get(index).n.getValue().length() == 0)){
-					Message m = new Message(BBEvent.REMOVE_NODE);
-					m.put("index", index);
-					m.put("length",  this.get(index).n.getValue().length());
+					Message m = Message.createRemoveNodeMessage(index,  this.get(index).n.getValue().length());
 					System.out.println("Node 1:\t" + this.get(index).n.getValue());
 					System.out.println("Node 2:\t" + this.get(next).n.getValue());
-					this.dm.dispatch(m);
+					dm.dispatch(m);
 				}
 			}
 		
 			if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
 				if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
-					Message m = new Message(BBEvent.REMOVE_NODE);
-					m.put("index", this.size() - 1);
-					m.put("length",  this.get(this.size() - 1).n.getValue().length());
+					Message m = Message.createRemoveNodeMessage(this.size() - 1, this.get(this.size() - 1).n.getValue().length());
 					System.out.println("Node 1:\t" + this.get(this.size() - 1).n.getValue());
 					System.out.println("Node 2:\t none");
-					this.dm.dispatch(m);
+					dm.dispatch(m);
 				}
 			}
 		}
@@ -365,8 +358,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 	public int getCurrentIndex(){
 		if(this.current == null){
-			Message message = new Message(BBEvent.SET_CURRENT);
-			message.put("offset", this.getFirst().start);
+			Message message = Message.createSetCurrentMessage(null, this.getFirst().start, false);
 			dm.dispatch(message);
 			return this.currentIndex;
 		}
@@ -426,7 +418,12 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public void getCurrentNodeData(Message m){
 		if(this.current == null){
-			int index = findClosest(m, 0, this.size() - 1);
+			int index;
+			if(m.getValue("sender").equals("braille"))
+				index = findClosestBraille(m);			
+			else
+				index = findClosest(m, 0, this.size() - 1);
+				
 			setCurrent(index);
 		}
 		

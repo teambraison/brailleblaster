@@ -41,7 +41,6 @@ import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.SWT;
@@ -167,12 +166,12 @@ public class TreeView extends AbstractView {
 					if(((TreeItemData)items[0].getData()).textMapList.size() > 0){
 						ArrayList<TextMapElement>list = getList(items[0]);
 						TextMapElement temp = list.get(0);
-						Message message = new Message(BBEvent.SET_CURRENT);
-						message.put("sender", "tree");
-						message.put("offset", temp.start);
+						Message message;
 						if(items[0].getText().equals("brl")){
-							message.put("isBraille", true);
-							message.put("offset", temp.brailleList.getFirst().start);
+							message = Message.createSetCurrentMessage("tree", temp.brailleList.getFirst().start, true);
+						}
+						else {
+							message = Message.createSetCurrentMessage("tree", temp.start, false);
 						}
 						
 						cursorOffset = 0;
@@ -207,9 +206,7 @@ public class TreeView extends AbstractView {
 					
 							ArrayList<TextMapElement>list = data.textMapList;
 							TextMapElement temp = list.get(0);
-							Message message = new Message(BBEvent.SET_CURRENT);
-							message.put("sender", "tree");
-							message.put("offset", temp.start);
+							Message message = Message.createSetCurrentMessage("tree", temp.start, false);
 							dm.dispatch(message);
 						}
 						if(index < parent.getItemCount() - 1){
@@ -229,8 +226,7 @@ public class TreeView extends AbstractView {
 
 				
 				if(tree.getItemCount() > 0){
-					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
-					cursorMessage.put("sender", "tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					dm.dispatch(cursorMessage);
 				}
 			}
@@ -241,15 +237,13 @@ public class TreeView extends AbstractView {
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
 					sendIncrementCurrent(dm);
-					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
-					cursorMessage.put("sender", "tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					dm.dispatch(cursorMessage);
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP){
 					sendDecrementCurrent(dm);
-					Message cursorMessage = new Message(BBEvent.UPDATE_CURSORS);
-					cursorMessage.put("sender", "tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					dm.dispatch(cursorMessage);
 					e.doit = false;
 				}
@@ -280,9 +274,7 @@ public class TreeView extends AbstractView {
 					}
 				}
 				if(textList.size() > 0){
-					Message message = new Message(BBEvent.GET_TEXT_MAP_ELEMENTS);
-					message.put("nodes", textList);
-					message.put("itemList", data.textMapList);
+					Message message = Message.createGetTextMapElementsMessage(textList, data.textMapList);
 					dm.dispatch(message);
 				}
 				textList.clear();

@@ -455,7 +455,7 @@ public class DocumentManager {
 	private void handleSetCurrent(Message message){
 		int index;
 		list.checkList();
-		if(message.contains("isBraille")){
+		if(message.getValue("isBraille").equals(true)){
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
 			list.getCurrentNodeData(message);
@@ -535,7 +535,7 @@ public class DocumentManager {
 	}
 	
 	private void handleUpdateScrollbar(Message message){
-		if(message.contains("sender")){
+		if(message.getValue("sender").equals("braille")){
 			text.positionScrollbar(braille.view.getTopIndex());
 		}
 		else{
@@ -684,7 +684,7 @@ public class DocumentManager {
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
-				Message message = new Message(BBEvent.INCREMENT);
+				Message message = Message.createIncrementMessage();
 				dispatch(message);
 				text.view.setCaretOffset(list.getCurrent().start);
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
@@ -703,7 +703,7 @@ public class DocumentManager {
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
-				Message message = new Message(BBEvent.DECREMENT);
+				Message message = Message.createDecrementMessage();
 				dispatch(message);
 				text.view.setCaretOffset(list.getCurrent().start);
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
@@ -753,12 +753,9 @@ public class DocumentManager {
 		}
 	}
 	
-	private void setCurrentOnRefresh(String sender, int offset){
-		Message m = new Message(BBEvent.SET_CURRENT);
-		if(sender != null){
-			m.put("sender", sender);
-		}
-		m.put("offset", offset);
+	private void setCurrentOnRefresh(String sender, int offset, boolean isBraille){
+		Message m = Message.createSetCurrentMessage(sender, offset, isBraille);
+		System.out.println(m.getValue("sender"));
 		dispatch(m);
 	}
 	
@@ -775,7 +772,7 @@ public class DocumentManager {
 				else
 					text.view.setCaretOffset(0);
 	
-				setCurrentOnRefresh("text",currentOffset);
+				setCurrentOnRefresh("text",currentOffset, false);
 				text.setPositionFromStart();
 				text.view.setFocus();
 			}
@@ -784,7 +781,7 @@ public class DocumentManager {
 				resetViews();
 			
 				braille.view.setCaretOffset(currentOffset);
-				setCurrentOnRefresh("braille",currentOffset);	
+				setCurrentOnRefresh("braille",currentOffset, true);	
 				braille.setPositionFromStart();
 				braille.view.setFocus();
 			}
@@ -796,7 +793,7 @@ public class DocumentManager {
 			
 				resetViews();
 
-				setCurrentOnRefresh(null, currentOffset);
+				setCurrentOnRefresh(null, currentOffset, false);
 				text.view.setCaretOffset(currentOffset);
 				text.setPositionFromStart();
 			}
@@ -804,7 +801,7 @@ public class DocumentManager {
 				currentOffset = text.view.getCaretOffset();		
 				resetViews();		
 			
-				setCurrentOnRefresh(null,currentOffset);
+				setCurrentOnRefresh(null,currentOffset, false);
 				text.view.setCaretOffset(currentOffset);
 				text.setPositionFromStart();
 			}
@@ -850,8 +847,7 @@ public class DocumentManager {
 	private boolean createXMLFile(String path){
 		try {
 			Document newDoc = document.getNewXML();
-			FileOutputStream os;
-			os = new FileOutputStream(path);
+			FileOutputStream os = new FileOutputStream(path);
 			Serializer serializer;	
 			serializer = new Serializer(os, "UTF-8");
 			serializer.write(newDoc);

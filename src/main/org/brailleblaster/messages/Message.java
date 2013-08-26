@@ -28,17 +28,128 @@
 
 package org.brailleblaster.messages;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.brailleblaster.mapping.TextMapElement;
+
+import nu.xom.Text;
 
 
 //Passes data between different views and the parent DocumentManager class
 public class Message {
 	public BBEvent type;
-	HashMap<String, Object> args;
+	private HashMap<String, Object> args;
 	
 	public Message(BBEvent type){
 		this.type = type;
 		this.args = new HashMap<String, Object>();
+	}
+	
+	public static Message createAdjustAlignmentMessage(String sender, int alignment){
+		Message m = new Message(BBEvent.ADJUST_ALIGNMENT);
+		m.put("sender", sender);
+		m.put("alignment", alignment);
+		
+		return m;
+	}
+	
+	public static Message createAdjustIndentMessage(String sender, int indent, int line){
+		Message m = new Message(BBEvent.ADJUST_INDENT);
+		m.put("sender", sender);
+		m.put("indent", indent);
+		m.put("line", line);
+		return m;
+	}
+	
+	public static Message createAdjustRange(String type, int position){
+		Message m = new Message(BBEvent.ADJUST_RANGE);
+		m.put(type, position);
+		
+		return m;
+	}
+	
+	public static Message createIncrementMessage(){
+		Message m = new Message(BBEvent.INCREMENT);
+		return m;
+	}
+	
+	public static Message createDecrementMessage(){
+		Message m = new Message(BBEvent.DECREMENT);
+		return m;
+	}
+	
+	public static Message createUpdateScollbarMessage(String sender, int offset){
+		Message m = new Message(BBEvent.UPDATE_SCROLLBAR);
+		m.put("sender", sender);
+		m.put("offset", offset);
+		
+		return m;
+	}
+	
+	public static Message createUpdateCursorsMessage(String sender){
+		Message m = new Message(BBEvent.UPDATE_CURSORS);
+		m.put("sender", sender);
+		
+		return m;
+	}
+	
+	public static Message createUpdateMessage(int offset, String newText, int length){
+		Message m = new Message(BBEvent.UPDATE);
+		m.put("offset", offset);
+		m.put("newText", newText);
+		m.put("length", length);
+		
+		return m;
+	}
+	
+	public static Message createUPdateStatusbarMessage(String line){
+		Message m = new Message(BBEvent.UPDATE_STATUSBAR);
+		m.put("line", line);
+		
+		return m;
+	}
+	
+	public static Message createGetCurrentMessage(String sender, int offset){
+		Message m = new Message(BBEvent.GET_CURRENT);
+		m.put("sender", sender);
+		m.put("offset", offset);
+		
+		return m;
+	}
+	
+	public static Message createGetTextMapElementsMessage(ArrayList<Text> nodes, ArrayList<TextMapElement> itemList){
+		Message m = new Message(BBEvent.GET_TEXT_MAP_ELEMENTS);
+		m.put("nodes", nodes);
+		m.put("itemList", itemList);
+		
+		return m;
+	}
+	
+	public static Message createRemoveNodeMessage(int index, int length){
+		Message m = new Message(BBEvent.REMOVE_NODE);
+		m.put("index", index);
+		m.put("length",  length);
+		
+		return m;
+	}
+	
+	public static Message createSetCurrentMessage(String sender, int offset, boolean isBraille){
+		Message m = new Message(BBEvent.SET_CURRENT);
+		m.put("sender", sender);
+		m.put("offset", offset);
+		m.put("isBraille", isBraille);
+		
+		return m;
+	}
+	
+	public static Message createTextDeletionMessage(int length, int deletionType, boolean update){
+		Message m = new Message(BBEvent.TEXT_DELETION);
+		m.put("length", length);
+		m.put("deletionType", deletionType);
+		m.put("update", update);
+		
+		return m;
 	}
 	
 	public void put(String key, Object value){
@@ -54,10 +165,10 @@ public class Message {
 	}
 	
 	public boolean contains(String key){
-		return this.args.containsKey(key);
+		return args.containsKey(key);
 	}
 	
 	public void remove(String key){
-		this.args.remove(key);
+		args.remove(key);
 	}
 }

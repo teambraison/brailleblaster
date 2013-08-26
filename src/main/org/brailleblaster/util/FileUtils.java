@@ -208,7 +208,6 @@ public void writeToFile(String path, String text){
 		writer.write(text);
 		writer.close();
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 }

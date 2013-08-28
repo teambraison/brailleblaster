@@ -226,7 +226,7 @@ public abstract class AbstractView {
 	protected void checkForLineBreak(Element parent, Node n){
 		if(parent.indexOf(n) > 0){
 			int priorIndex = parent.indexOf(n) - 1;
-			if(parent.getChild(priorIndex) instanceof Element && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
+			if(isElement(parent.getChild(priorIndex)) && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
 				insertBefore(this.spaceBeforeText + this.total, "\n");
 			}
 		}
@@ -235,7 +235,7 @@ public abstract class AbstractView {
 			Element newParent = (Element)parent.getParent();
 			if(newParent.indexOf(child) > 0){
 				int priorIndex = newParent.indexOf(child) - 1;
-				if(newParent.getChild(priorIndex) instanceof Element && ((Element)newParent.getChild(priorIndex)).getLocalName().equals("br")){
+				if(isElement(newParent.getChild(priorIndex)) && ((Element)newParent.getChild(priorIndex)).getLocalName().equals("br")){
 					insertBefore(this.spaceBeforeText + this.total, "\n");
 				}
 			}
@@ -281,7 +281,7 @@ public abstract class AbstractView {
 		group.setRedraw(false);
 		view.setTopIndex(topIndex);
 		group.setRedraw(true);
-		group.getDisplay().getCurrent().update();
+		group.getDisplay().update();
 		setListenerLock(false);
 	}
 	

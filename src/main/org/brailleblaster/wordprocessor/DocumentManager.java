@@ -420,26 +420,25 @@ public class DocumentManager {
 	private void handleUpdateCursors(Message message){
 		message.put("element", list.getCurrent().n);
 		if(message.getValue("sender").equals("text")){
-			message.put("lastPosition", text.positionFromStart);
-			message.put("offset", text.cursorOffset);
-			list.getCurrentNodeData(message);
+			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
 			braille.updateCursorPosition(message);
 		}
 		else if(message.getValue("sender").equals("braille")) {
-			message.put("lastPosition", braille.positionFromStart);
-			message.put("offset", braille.cursorOffset);
-			list.getCurrentNodeData(message);
+			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
 			text.updateCursorPosition(message);
 		}
 		else if(message.getValue("sender").equals("tree")){
-			message.put("lastPosition", text.positionFromStart);
-			message.put("offset", text.cursorOffset);
-			list.getCurrentNodeData(message);
+			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
 			braille.updateCursorPosition(message);
-			message.put("lastPosition", braille.positionFromStart);
-			message.put("offset", braille.cursorOffset);
+			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
 			text.updateCursorPosition(message);
 		}
+	}
+	
+	private void setUpdateCursorMessage(Message m, int lastPosition, int offset){
+		m.put("lastPosition", lastPosition);
+		m.put("offset", offset);
+		list.getCurrentNodeData(m);
 	}
 	
 	private void handleSetCurrent(Message message){
@@ -749,7 +748,6 @@ public class DocumentManager {
 	
 	private void setCurrentOnRefresh(String sender, int offset, boolean isBraille){
 		Message m = Message.createSetCurrentMessage(sender, offset, isBraille);
-		System.out.println(m.getValue("sender"));
 		dispatch(m);
 	}
 	

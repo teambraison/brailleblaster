@@ -32,8 +32,6 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.imagedescriber.ImageDescriber;
 import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.ImageHelper;
@@ -45,8 +43,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;

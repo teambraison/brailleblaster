@@ -218,16 +218,16 @@ public class BrailleView extends AbstractView {
 	
 		if(insertNewLine(n)){
 			textBefore = "\n";
-			this.spaceBeforeText++;
+			spaceBeforeText++;
 		}
 		
 		view.append(textBefore + text);
 		handleStyle(style, n, (Element)t.n.getParent());
 		
-		t.brailleList.add(new BrailleMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength, n));
-		this.total += this.spaceBeforeText + textLength + this.spaceAfterText;
-		this.spaceBeforeText = 0;
-		this.spaceAfterText = 0;
+		t.brailleList.add(new BrailleMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength, n));
+		total += spaceBeforeText + textLength + spaceAfterText;
+		spaceBeforeText = 0;
+		spaceAfterText = 0;
 		setListenerLock(false);
 	}
 	
@@ -258,24 +258,25 @@ public class BrailleView extends AbstractView {
 	*/
 	
 	private void handleStyle(Styles style, Node n, Element parent){
+		boolean isFirst = isFirst(n);
 		String viewText = n.getValue();
 
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst(n)){
+					if(isFirst){
 						String textBefore = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
-						insertBefore(this.total + this.spaceBeforeText, textBefore);
+						insertBefore(total + spaceBeforeText, textBefore);
 					}
 					break;
 				case linesAfter:
 					if(isLast(n)){
 						String textAfter = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
-						insertAfter(this.spaceBeforeText + this.total + viewText.length() + this.spaceAfterText, textAfter);
+						insertAfter(spaceBeforeText + total + viewText.length() + spaceAfterText, textAfter);
 					}
 					break;
 				case firstLineIndent: 
-					if(isFirst(n) && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
+					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
 						int margin = 0;
 						int spaces = Integer.valueOf(entry.getValue());
 						
@@ -284,11 +285,11 @@ public class BrailleView extends AbstractView {
 							spaces = margin + spaces; 
 						}
 						
-						view.setLineIndent(view.getLineAtOffset(this.spaceBeforeText + this.total) , 1, spaces * charWidth);
+						view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total) , 1, spaces * charWidth);
 					}
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), 1, Integer.valueOf(entry.getValue()));	
+					view.setLineAlignment(view.getLineAtOffset(spaceBeforeText + total + spaceAfterText), 1, Integer.valueOf(entry.getValue()));	
 					break;	
 				case Font:
 			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
@@ -296,9 +297,9 @@ public class BrailleView extends AbstractView {
 				case leftMargin:
 					if(followsNewLine(n)){
 						//this.view.setLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total), 1, this.view.getLineIndent(this.view.getLineAtOffset(this.spaceBeforeText + this.total))+ (Integer.valueOf(entry.getValue()) * getFontWidth()));
-						if(isFirst(n) && !style.contains(StylesType.firstLineIndent))
+						if(isFirst && !style.contains(StylesType.firstLineIndent))
 							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf(entry.getValue()) * charWidth));
-						else if(!isFirst(n))
+						else if(!isFirst)
 							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf(entry.getValue()) * charWidth));
 					}
 					break;
@@ -486,12 +487,8 @@ public class BrailleView extends AbstractView {
 			Element grandParent = (Element)parent.getParent();
 			Elements els = grandParent.getChildElements();
 			
-			for(int j = 0; j < els.size(); j++){
-				if(els.get(j).getLocalName().equals("brl") && els.get(j).equals(parent))
-					break;
-				else
-					return false;
-			}
+		if(!els.get(0).getLocalName().equals("brl") || !els.get(0).equals(parent))
+			return false;
 			
 			if(grandParent.getAttributeValue("semantics").contains("action") && !grandParent.getLocalName().equals("lic")){
 				return isFirstElement(grandParent);
@@ -722,9 +719,9 @@ public class BrailleView extends AbstractView {
 	public void resetView(Group group) {
 		setListenerLock(true);
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
-		this.total = 0;
-		this.spaceBeforeText = 0;
-		this.spaceAfterText = 0;
+		total = 0;
+		spaceBeforeText = 0;
+		spaceAfterText = 0;
 		oldCursorPosition = -1;
 		setListenerLock(false);
 	}

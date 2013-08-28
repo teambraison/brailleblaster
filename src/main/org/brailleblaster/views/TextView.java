@@ -376,11 +376,11 @@ public class TextView extends AbstractView {
 		view.append(newText);
 		handleStyle(style, n, newText);
 		
-		list.add(new TextMapElement(this.spaceBeforeText + this.total, this.spaceBeforeText + this.total + textLength,n));
-		this.total += this.spaceBeforeText + textLength + this.spaceAfterText;
+		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength,n));
+		total += spaceBeforeText + textLength + spaceAfterText;
 		
-		this.spaceAfterText = 0;
-		this.spaceBeforeText = 0;
+		spaceAfterText = 0;
+		spaceBeforeText = 0;
 		view.setCaretOffset(0);
 		words += getWordCount(n.getValue());
 	}
@@ -402,7 +402,7 @@ public class TextView extends AbstractView {
 		if(currentStart == view.getOffsetAtLine(view.getLineAtOffset(currentStart)))
 			handleLineWrap(currentStart, reformattedText, 0, false);
 		
-		message.put("length", (reformattedText.length() + this.spaceAfterText) - (Integer)message.getValue("length"));
+		message.put("length", (reformattedText.length() + spaceAfterText) - (Integer)message.getValue("length"));
 		if(style.contains(StylesType.leftMargin)){
 			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
 			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
@@ -419,8 +419,8 @@ public class TextView extends AbstractView {
 		checkStyleRange(range);
 	
 		view.setCaretOffset(pos);		
-		this.spaceAfterText = 0;
-		this.spaceBeforeText = 0;
+		spaceAfterText = 0;
+		spaceBeforeText = 0;
 		setListenerLock(false);
 	}
 		
@@ -444,7 +444,7 @@ public class TextView extends AbstractView {
 								if(start == 0 && append){
 									view.append("\n");
 									text += n.getValue().substring(start);
-									this.spaceBeforeText++;
+									spaceBeforeText++;
 								}
 								else if(start == 0){
 									text += n.getValue().substring(start);
@@ -458,7 +458,7 @@ public class TextView extends AbstractView {
 									if(start == 0 && append){
 										view.append("\n");
 										text += n.getValue().substring(start, end);
-										this.spaceBeforeText++;
+										spaceBeforeText++;
 									}
 									else if(start == 0){
 										text += n.getValue().substring(start, end);
@@ -488,7 +488,7 @@ public class TextView extends AbstractView {
 			else if(append){
 					view.append("\n");
 					text += n.getValue();
-					this.spaceBeforeText++;
+					spaceBeforeText++;
 			}
 			else {
 				text += n.getValue();
@@ -501,23 +501,25 @@ public class TextView extends AbstractView {
 		return text;
 	}
 	
-	private void handleStyle(Styles style, Node n, String viewText){			
+	private void handleStyle(Styles style, Node n, String viewText){
+		boolean isFirst = isFirst(n);
+		
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst(n)){
+					if(isFirst){
 						String textBefore = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
-						insertBefore(this.total + this.spaceBeforeText, textBefore);
+						insertBefore(total + spaceBeforeText, textBefore);
 					}
 					break;
 				case linesAfter:
 					if(isLast(n)){
 						String textAfter = makeInsertionString(Integer.valueOf(entry.getValue()), '\n');
-						insertAfter(this.spaceBeforeText + this.total + viewText.length(), textAfter);
+						insertAfter(spaceBeforeText + total + viewText.length(), textAfter);
 					}
 					break;
 				case firstLineIndent: 
-					if(isFirst(n) && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
+					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
 						int margin = 0;
 						int spaces = Integer.valueOf(entry.getValue());
 						
@@ -526,22 +528,22 @@ public class TextView extends AbstractView {
 							spaces = margin + spaces; 
 						}
 						
-						view.setLineIndent(view.getLineAtOffset(this.spaceBeforeText + this.total) , 1, spaces * charWidth);
+						view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total) , 1, spaces * charWidth);
 					}
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(this.spaceBeforeText + this.total + this.spaceAfterText), getLineNumber(this.spaceBeforeText + this.total, viewText), Integer.valueOf(entry.getValue()));	
+					view.setLineAlignment(view.getLineAtOffset(spaceBeforeText + total + spaceAfterText), getLineNumber(spaceBeforeText + total, viewText), Integer.valueOf(entry.getValue()));	
 					break;	
 				case Font:
-					setFontRange(this.total, this.spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
+					setFontRange(total, spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
 					break;
 				case leftMargin:
-					if(isFirst(n))
-						handleLineWrap(this.spaceBeforeText + this.total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
-					else if(!isFirst(n) && view.getLineAtOffset(this.spaceBeforeText + this.total) == view.getLineAtOffset(this.total))
-						handleLineWrap(this.spaceBeforeText + this.total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
+					if(isFirst)
+						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
+					else if(!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total))
+						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
 					else
-						handleLineWrap(this.spaceBeforeText + this.total, viewText, Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), false);
 					break;
 				default:
 					System.out.println(entry.getKey());
@@ -951,11 +953,13 @@ public class TextView extends AbstractView {
 		int indent = 0;
 		int prev = 0;
 		int next = 0;
+		boolean isFirst = isFirst(n);
+		boolean isLast = isLast(n);
 		String textBefore = "";
 		setViewData(m);
 		Styles style = (Styles)m.getValue("Style");
 		
-		if(isFirst(n) || (!isFirst(n) && view.getLineAtOffset(currentStart) != startLine))
+		if(isFirst || (!isFirst && view.getLineAtOffset(currentStart) != startLine))
 			view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
 		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
 		
@@ -963,7 +967,7 @@ public class TextView extends AbstractView {
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst(n)){
+					if(isFirst){
 						saveStyleState(currentStart);
 						if(-1 != previousEnd){
 							prev = previousEnd;
@@ -992,7 +996,7 @@ public class TextView extends AbstractView {
 					}
 					break;
 				case linesAfter:
-					if(isLast(n)){
+					if(isLast){
 						if(-1 != nextStart){
 							next = nextStart;
 							saveStyleState(currentStart);
@@ -1022,7 +1026,7 @@ public class TextView extends AbstractView {
 					view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), Integer.valueOf(entry.getValue()));	
 					break;
 				case firstLineIndent:
-					if(isFirst(n) && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
+					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))){
 						int margin = 0;
 						int indentSpaces = Integer.valueOf(entry.getValue());
 						
@@ -1035,7 +1039,7 @@ public class TextView extends AbstractView {
 					}
 					break;
 				case leftMargin:
-					if(isFirst(n) && style.contains(StylesType.firstLineIndent))
+					if(isFirst && style.contains(StylesType.firstLineIndent))
 						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
 					else if(startLine == view.getLineAtOffset(currentStart))
 						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
@@ -1047,7 +1051,7 @@ public class TextView extends AbstractView {
 			}
 		}
 
-		if(!style.contains(StylesType.linesBefore) && isFirst(n)){
+		if(!style.contains(StylesType.linesBefore) && isFirst){
 			if(-1 != previousEnd){
 				prev = previousEnd;
 			}
@@ -1059,7 +1063,7 @@ public class TextView extends AbstractView {
 				length = currentStart - prev;	
 			}
 			
-			if(isFirst(n)){
+			if(isFirst){
 				spaces = 1;
 				textBefore = makeInsertionString(spaces,'\n');
 				offset = spaces - length;
@@ -1077,7 +1081,7 @@ public class TextView extends AbstractView {
 			}
 		}
 		
-		if(!style.contains(StylesType.linesAfter) && isLast(n)){
+		if(!style.contains(StylesType.linesAfter) && isLast){
 			if(currentEnd != nextStart && nextStart != -1){
 				saveStyleState(currentStart);
 				indent  = view.getLineIndent(view.getLineAtOffset(nextStart));
@@ -1085,7 +1089,7 @@ public class TextView extends AbstractView {
 				length = nextStart - currentEnd;
 			}
 			
-			if(isLast(n)){
+			if(isLast){
 				spaces = 1;
 				textBefore = makeInsertionString(1,'\n');
 				insertBefore(currentEnd, textBefore);
@@ -1105,9 +1109,9 @@ public class TextView extends AbstractView {
 	public void resetView(Group group) {
 		setListenerLock(true);
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
-		this.total = 0;
-		this.spaceBeforeText = 0;
-		this.spaceAfterText = 0;
+		total = 0;
+		spaceBeforeText = 0;
+		spaceAfterText = 0;
 		oldCursorPosition = -1;
 		currentChanges = 0;
 		textChanged = false;

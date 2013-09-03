@@ -30,8 +30,14 @@ package org.brailleblaster.imagedescriber;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-import javax.swing.JOptionPane;
+import nu.xom.Element;
+import nu.xom.Nodes;
+import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -39,19 +45,21 @@ import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.browser.Browser;
+import static java.nio.file.StandardCopyOption.*;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one
@@ -71,6 +79,7 @@ public class ImageDescriberDialog extends Dialog {
 	Button cancelBtn;
 	Button applyBtn;
 	Button okayBtn;
+	Button notImpBtn;
 	Label mainImage;
 	Text imgDescTextBox;
 	Browser browser = null;
@@ -117,6 +126,10 @@ public class ImageDescriberDialog extends Dialog {
 	int cancelBtnY = 0;
 	int cancelBtnW = defBtnW;
 	int cancelBtnH = defBtnH;
+	int makeNotImpBtnX = 0; // not-important.
+	int makeNotImpBtnY = okayBtnY + okayBtnH + 1;
+	int makeNotImpBtnW = defBtnW;
+	int makeNotImpBtnH = defBtnH;
 	// Text box.
 	int txtBoxX = 0;
 	int txtBoxY = 55;
@@ -127,6 +140,9 @@ public class ImageDescriberDialog extends Dialog {
 	int browserY = 0;
 	int browserW = -1;
 	int browserH = -1;
+	
+	// True if usr hit okay. False if cancel.
+	boolean msgBxBool = false;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Constructor.
@@ -163,22 +179,8 @@ public class ImageDescriberDialog extends Dialog {
 		// If there were no <img> elements found, there is no point in continuing.
 		if(imgDesc.getNumImgElements() == 0) {
 			
-			// Tell user there are no image tags.
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			Display dlgDisp;
-			Shell dlgShl;
-			dlgDisp = parent.getDisplay();
-			dlgShl = new Shell(parent, SWT.DIALOG_TRIM);
-			dlgShl.setText(lh.localValue("NO IMAGES!"));
-			Label alertText = new Label(dlgShl, SWT.NONE);
-			alertText.setBounds(0, 0, 500, 100);
-			alertText.setText("There are no image elements in this document.");
-			dlgShl.setSize((int)screenSize.getWidth() / 5, (int)screenSize.getWidth() / 12);
-			dlgShl.open();
-			while (!dlgShl.isDisposed()) {
-				if (!dlgDisp.readAndDispatch())
-					dlgDisp.sleep();
-			}
+			// Show user No Images message.
+			msgBx("NO IMAGES!", "There are no image elements in this document.");
 			
 			// Don't bother with the rest of image describer, there are no images.
 			return;
@@ -193,10 +195,9 @@ public class ImageDescriberDialog extends Dialog {
 		imgDescShell.setText(lh.localValue("Image Describer"));
 		
 		// Resize window.
+		setUIDimensions();
 		imgDescShell.setSize(dialogWidth, dialogHeight);
-		clientWidth = imgDescShell.getClientArea().width;
-		clientHeight = imgDescShell.getClientArea().height;
-			
+		
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();
 		
@@ -227,39 +228,6 @@ public class ImageDescriberDialog extends Dialog {
 	// Creates all buttons, boxes, checks, etc.
 	public void createUIelements()
 	{
-		// Setup main image.
-		mainImage = new Label(imgDescShell, SWT.NONE);
-		mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
-		
-		// Set main image to first image found. If the first <img> tag 
-		Image curElmImage = imgDesc.getCurElementImage();
-		if(curElmImage != null)
-			mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
-		else
-			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-														    imageWidth, 
-														    imageHeight) );
-
-		// Show current image index and name.
-		imgDescShell.setText( "Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
-		
-		// Create image description text box.
-		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
-		imgDescTextBox.addModifyListener(new ModifyListener() {
-			public void modifyText(ModifyEvent arg0) {
-				
-				
-				
-			} // modifyText()
-			
-		}); // addModifyListener(new ModiftyListener() { 
-		
-		
-		// Get prodnote text/image description.
-		imgDescTextBox.setText( imgDesc.getCurProdText() );
-		
-		
 		// Create previous button.
 		prevBtn = new Button(imgDescShell, SWT.PUSH);
 		prevBtn.setText("Previous");
@@ -362,14 +330,214 @@ public class ImageDescriberDialog extends Dialog {
 			} // widgetSelected()
 			
 		}); // cancelBtn.addSelectionListener...
+
+		// Make not-important button. Finds every image with this name and changes description
+		// to "Not Important."
+		notImpBtn = new Button(imgDescShell, SWT.PUSH);
+		notImpBtn.setText("Make Non-Essential");
+		notImpBtn.setBounds(makeNotImpBtnX,  makeNotImpBtnY, makeNotImpBtnW, makeNotImpBtnH);
+		notImpBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Warn user before doing this. It could take a while.
+				if( msgBx("Warning", "This will cause the Image Describer to update the entire document. This could take a while. Continue?") == true)
+				{
+					// Current image path.
+					String curImgPath = "";
+					
+					// Get current image path from src attribute.
+					curImgPath = imgDesc.currentImageElement().getAttributeValue("src");
+					
+					// Get all img nodes.
+					String nameSpace = imgDesc.getRoot().getDocument().getRootElement().getNamespaceURI();
+					XPathContext context;
+					context = new XPathContext("dtb", nameSpace);
+					Nodes imgs = null;
+					imgs = imgDesc.getRoot().query("//dtb:img", context);
+					
+					// Print out paths.
+					for(int i = 0; i < imgs.size(); i++)
+						System.out.println( ((Element)(imgs.get(i))).getAttributeValue("src") );
+					
+				} // if msgBx == true
+				else
+				{
+					
+					
+				} // if -> else msgBox == false
+				
+			} // widgetSelected()
+			
+		}); // cancelBtn.addSelectionListener...
 		
-		// Setup browser window.
-		browser = new Browser( imgDescShell, SWT.NONE );
-		browser.setUrl( curDocMan.getWorkingPath() );
-		browserW = clientWidth;
-		browserH = clientHeight;
-		browser.setBounds(browserX, browserY, browserW, browserH);
+		// Create image description text box.
+		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
+		imgDescTextBox.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) { 
+				
+			} // modifyText()
+			
+		}); // addModifyListener(new ModiftyListener() { 
 		
+		
+		
+		// Get prodnote text/image description.
+		imgDescTextBox.setText( imgDesc.getCurProdText() );
+				
+		// Setup main image.
+		mainImage = new Label(imgDescShell, SWT.NONE);
+		mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
+		
+		// Set main image to first image found. If the first <img> tag 
+		Image curElmImage = imgDesc.getCurElementImage();
+		if(curElmImage != null)
+			mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
+		else
+			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
+														    imageWidth, 
+														    imageHeight) );
+
+		// Show current image index and name.
+		imgDescShell.setText( "Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
+		
+		//////////////////
+		// Browser Widget.
+		
+			// Setup browser window.
+			browser = new Browser( imgDescShell, SWT.NONE );
+			
+			// Create copy of file as html and load into browser widget.
+			File f  = new File(curDocMan.getWorkingPath());
+			File f2 = new File(curDocMan.getWorkingPath().replaceAll(".xml", ".html"));
+			Path src = f.toPath();
+			Path dst = f2.toPath();
+			try { Files.copy(src, dst, REPLACE_EXISTING ); }
+			catch (IOException e1) { e1.printStackTrace(); }
+			
+			// Set url.
+			 browser.setUrl( curDocMan.getWorkingPath().replaceAll(".xml", ".html") );
+			// Set browser bounds.
+			 browser.setBounds(browserX, browserY, browserW, browserH);
+
+		 // Browser Widget.
+		 //////////////////
+
 	} // public void createUIelements()
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Resizes our widgets depending on screen resolution.
+	public void setUIDimensions()
+	{
+		// Screen resolution.
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		
+		// Overall dialog.
+		dialogWidth = (int)(screenSize.getWidth() * 0.70f);
+		dialogHeight = (int)(screenSize.getWidth() * 0.70f);
+		// Client Area.
+		clientWidth = imgDescShell.getClientArea().width;
+		clientHeight = imgDescShell.getClientArea().height;
+		// Buttons.
+		defBtnW = dialogWidth / 15;
+		defBtnH = dialogHeight / 25;
+		prevBtnX = 0;
+		prevBtnY = 0;
+		prevBtnW = defBtnW;
+		prevBtnH = defBtnH;
+		nextBtnX = prevBtnW + prevBtnX + 1;
+		nextBtnY = 0;
+		nextBtnW = defBtnW;
+		nextBtnH = defBtnH;
+		applyBtnX = nextBtnW + nextBtnX + 1;
+		applyBtnY = 0;
+		applyBtnW = defBtnW;
+		applyBtnH = defBtnH;
+		okayBtnX = applyBtnW + applyBtnX + 1;
+		okayBtnY = 0;
+		okayBtnW = defBtnW;
+		okayBtnH = defBtnH;
+		cancelBtnX = okayBtnW + okayBtnX + 1;
+		cancelBtnY = 0;
+		cancelBtnW = defBtnW;
+		cancelBtnH = defBtnH;
+		makeNotImpBtnX = 0; // not-important.
+		makeNotImpBtnY = okayBtnY + okayBtnH + 1;
+		makeNotImpBtnW = defBtnW;
+		makeNotImpBtnH = defBtnH;
+		// Text box.
+		txtBoxX = 0;
+		txtBoxY = defBtnH + 10;
+		txtBoxW = clientWidth / 3;
+		txtBoxH = clientHeight / 4;
+		// Main image.
+		imageOffsetX = 0;
+		imageOffsetY = txtBoxY + txtBoxH + 5;
+		imageWidth = clientWidth / 3;
+		imageHeight = clientWidth / 3;
+		// Browser.
+		browserX = imageWidth + 10;
+		browserY = 0;
+		browserW = clientWidth / 2;
+		browserH = clientHeight;
+		
+	} // public void resizeUI()
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Simple message box for alerts and messages to user.
+	public boolean msgBx(String cap, String msg)
+	{
+		// Tell user there are no image tags.
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		msgBxBool = false;
+		Display dlgDisp;
+		final Shell dlgShl;
+		dlgDisp = imgDescShell.getDisplay();
+		dlgShl = new Shell(imgDescShell, SWT.WRAP);
+		dlgShl.setText(lh.localValue(cap));
+		Button okBtn = new Button(dlgShl, SWT.PUSH);
+		okBtn.setText("Okay");
+		okBtn.setBounds(0,  75, 100, 25);
+		okBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// User hit okay.
+				msgBxBool = true;
+				
+				// Close dialog.
+				dlgShl.close();
+				
+			} // widgetSelected()
+			
+		}); // okBtn.addSelectionListener...
+		Button canBtn = new Button(dlgShl, SWT.PUSH);
+		canBtn.setText("Cancel");
+		canBtn.setBounds(101,  75, 100, 25);
+		canBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// User hit okay.
+				msgBxBool = false;
+				
+				// Close dialog.
+				dlgShl.close();
+				
+			} // widgetSelected()
+			
+		}); // canBtn.addSelectionListener...
+		Label alertText = new Label(dlgShl, SWT.WRAP);
+		alertText.setBounds(0, 0, 250, 100);
+		alertText.setText(msg);
+		dlgShl.setSize((int)screenSize.getWidth() / 5, (int)screenSize.getWidth() / 12);
+		dlgShl.open();
+		while (!dlgShl.isDisposed()) {
+			if (!dlgDisp.readAndDispatch())
+				dlgDisp.sleep();
+		}
+		
+		// Return message box boolean value. What did the user press...
+		return msgBxBool;
+		
+	} // public void msgBx(String cap, string msg)
 	
 } // public class ImageDescriberDialog extends Dialog

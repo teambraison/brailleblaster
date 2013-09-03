@@ -233,8 +233,9 @@ public class BBToolBar {
 				
 				// Run Image Describer on current document.
 				if(curDm.document.getDOM() != null) {
-//					ImageDescriber imgDesc = new ImageDescriber(curDm);
 					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
+//					curDm.text.view.setVisible(false);
+//					curDm.braille.view.setVisible(false);
 				}
 					
 			} // widgetSelected...

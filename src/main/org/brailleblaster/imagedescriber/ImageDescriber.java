@@ -126,13 +126,196 @@ public class ImageDescriber {
 		
 	} // ImageDescriber(DocumentManager docManager)
 	
+	///////////////////////////////////////////////////////////////////////////	
+	// Returns the root element.
+	public Element getRoot()
+	{
+		// Return root element.
+		return rootElement;
+		
+	} // Element getRoot()
+	
 	///////////////////////////////////////////////////////////////////////////
 	// Returns the current element...
 	public Element currentImageElement()
 	{
 		// Return the element.
 		return curImgElement;
-	}
+		
+	} // Element currentImageElement()
+	
+	///////////////////////////////////////////////////////////////////////////	
+	// Gets the element at the given index.
+	public Element getElementAtIndex(int index)
+	{
+		// Make sure index is within bounds of list.
+		if(index >= 0 && index < imgElmList.size())
+			return imgElmList.get(index);
+		
+		// If we make it here, element doesn't exist.
+		return null;
+		
+	} // Element getElementAtIndex(int index)
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Returns the number of <img> elements found in the document.
+	public int getNumImgElements()
+	{
+		// Return number of image elements.
+		return numImgElms;
+		
+	} // int getNumImgElements()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Traverses xml tree until it finds the next <img>.
+	public Element getNextImageElement(Element e)
+	{
+	
+		curDocIndex++;
+		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
+			if( e.getLocalName().compareTo("img") == 0 ) {
+				if(curDocIndex > furthestDocIndex)
+				{
+				// Record depth.
+				furthestDocIndex = curDocIndex;
+				
+				// Return new element found.
+				return e;
+				
+				} // if(curDocIndex > furthestDocIndex)
+			}
+		}
+		
+		// 
+		Element newImgElement = null;
+		
+		// Go through every child and find the next image.
+		for(int curC = 0; curC < e.getChildCount(); curC++)
+		{
+			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
+			{
+				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
+				
+				if(newImgElement != null)
+					break;
+			}
+		
+		}
+		
+		return newImgElement;
+		
+		// We're a little further down the tree now.
+		//curDocIndex++;
+		//
+		//// Number of children.
+		//int numChilds = e.getChildCount();
+		//
+		//// Go through every child and find the next image.
+		//for(int curC = 0; curC < numChilds; curC++)
+		//{
+		//// Get current child.
+		//if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
+		//{
+		//// Get current child.
+		//Element curChild = (Element)(e.getChild(curC));
+		//
+		//// Is this an <img> element?
+		//if( curChild.getLocalName().compareTo("img") == 0 ) {
+		//
+		//// If this element is further along in the tree than the 
+		//// last image element, return it.
+		//if(curDocIndex > furthestDocIndex)
+		//{
+		//// Record depth.
+		//furthestDocIndex = curDocIndex;
+		//
+		//// Return new element found.
+		//return curChild;
+		//
+		//} // if(curDocIndex > furthestDocIndex)
+		//
+		//} // if( e.getLocalName()...
+		//
+		//// Traverse this child's children.
+		//getNextImageElement( curChild );
+		//
+		//} // if( e.getChild(curC) instanceof...
+		//
+		//} // for(int curC = 0...
+		//
+		//// No <img>'s found, or we've hit the end of the document, or both.
+		//return null;
+	
+	} // getNextImageElement(Element e)
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Recursively moves through xml tree and adds <img> nodes to list.
+	// Also builds image path list.
+	public void fillImgList(Element e)
+	{
+		// Is this element an <img>?
+		if( e.getLocalName().compareTo("img") == 0 ) {
+		
+			// Add element to list.
+			imgElmList.add(e);
+			
+			// Add image file path to list.
+			
+			// Remove slash and dot, if it's there.
+			String tempStr = e.getAttributeValue("src");
+			if( tempStr.startsWith(".") )
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Add.
+			imgFileList.add( new Image(null, tempStr) );
+		}
+		
+		// Get children.
+		Elements childElms = e.getChildElements();
+		
+		// Get their children, and so on.
+		for(int curChild = 0; curChild < childElms.size(); curChild++)
+			fillImgList( childElms.get(curChild) );
+	
+	} // FillImgList(Element e)
+
+	///////////////////////////////////////////////////////////////////////////
+	// Enumerates <img> elements using xpath, then adds them all to our list.
+	public void fillImgList_XPath()
+	{
+		// Get all <img> elements using xpath.
+		Nodes imgTags = null;
+		imgTags = getRoot().query("//dtb:img", context);
+		
+		// For every <img>, add it to our list.
+		for(int curTag = 0; curTag < imgTags.size(); curTag++)
+		{
+			// Add element to list.
+			imgElmList.add( (Element)(imgTags.get(curTag)) );
+			
+			// Add image file path to list.
+			
+			// Remove slash and dot, if it's there.
+			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
+			if( tempStr.startsWith(".") )
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Add.
+			imgFileList.add( new Image(null, tempStr) );
+		
+		} // for(int...
+	
+	} // fillImgList_XPath()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Returns the next <img> element that was found in the xml doc.
@@ -245,133 +428,6 @@ public class ImageDescriber {
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Returns the number of <img> elements found in the document.
-	public int getNumImgElements()
-	{
-		// Return number of image elements.
-		return numImgElms;
-		
-	} // public int getNumImgElements()
-	
-	///////////////////////////////////////////////////////////////////////////
-	// Traverses xml tree until it finds the next <img>.
-	public Element getNextImageElement(Element e)
-	{
-		
-		curDocIndex++;
-		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
-			if( e.getLocalName().compareTo("img") == 0 ) {
-				if(curDocIndex > furthestDocIndex)
-				{
-					// Record depth.
-					furthestDocIndex = curDocIndex;
-					
-					// Return new element found.
-					return e;
-					
-				} // if(curDocIndex > furthestDocIndex)
-			}
-		}
-		
-		// 
-		Element newImgElement = null;
-		
-		// Go through every child and find the next image.
-		for(int curC = 0; curC < e.getChildCount(); curC++)
-		{
-			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
-			{
-				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
-				
-				if(newImgElement != null)
-					break;
-			}
-			
-		}
-		
-		return newImgElement;
-		
-		// We're a little further down the tree now.
-//		curDocIndex++;
-//		
-//		// Number of children.
-//		int numChilds = e.getChildCount();
-//		
-//		// Go through every child and find the next image.
-//		for(int curC = 0; curC < numChilds; curC++)
-//		{
-//			// Get current child.
-//			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
-//			{
-//				// Get current child.
-//				Element curChild = (Element)(e.getChild(curC));
-//			
-//				// Is this an <img> element?
-//				if( curChild.getLocalName().compareTo("img") == 0 ) {
-//					
-//					// If this element is further along in the tree than the 
-//					// last image element, return it.
-//					if(curDocIndex > furthestDocIndex)
-//					{
-//						// Record depth.
-//						furthestDocIndex = curDocIndex;
-//						
-//						// Return new element found.
-//						return curChild;
-//						
-//					} // if(curDocIndex > furthestDocIndex)
-//					
-//				} // if( e.getLocalName()...
-//				
-//				// Traverse this child's children.
-//				getNextImageElement( curChild );
-//				
-//			} // if( e.getChild(curC) instanceof...
-//			
-//		} // for(int curC = 0...
-//		
-//		// No <img>'s found, or we've hit the end of the document, or both.
-//		return null;
-		
-	} // getNextImageElement(Element e)
-	
-	///////////////////////////////////////////////////////////////////////////
-	// Recursively moves through xml tree and adds <img> nodes to list.
-	// Also builds image path list.
-	public void fillImgList(Element e)
-	{
-		// Is this element an <img>?
-		if( e.getLocalName().compareTo("img") == 0 ) {
-			
-			// Add element to list.
-			imgElmList.add(e);
-			
-			// Add image file path to list.
-			
-			// Remove slash and dot, if it's there.
-			String tempStr = e.getAttributeValue("src");
-			if( tempStr.startsWith(".") )
-				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-			
-			// Build image path.
-			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-				tempStr = tempStr.replace("/", "\\");
-			
-			// Add.
-			imgFileList.add( new Image(null, tempStr) );
-		}
-		
-		// Get children.
-		Elements childElms = e.getChildElements();
-		
-		// Get their children, and so on.
-		for(int curChild = 0; curChild < childElms.size(); curChild++)
-			fillImgList( childElms.get(curChild) );
-		
-	} // FillImgList(Element e)
-	
-	///////////////////////////////////////////////////////////////////////////
 	// Returns true if the current image has an <imggroup> parent.
 	// False otherwise.
 	public boolean hasImgGrpParent(Element e)
@@ -474,6 +530,20 @@ public class ImageDescriber {
 		
 		
 	} // setCurElmImgAttributes()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Checks for a <prodnote> and returns true if it exists for this node.
+	// False otherwise.
+	// 
+	// Notes: Element MUST be a child of a <imggroup>
+	public boolean hasProdNote(Element e)
+	{
+		
+		
+		// Return false if we made it here... no prodnote.
+		return false;
+		
+	} // hasProdNote()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Returns the text/description in the current <imggroup>'s prodnote.

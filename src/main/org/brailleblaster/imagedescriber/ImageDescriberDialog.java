@@ -348,23 +348,23 @@ public class ImageDescriberDialog extends Dialog {
 					// Get current image path from src attribute.
 					curImgPath = imgDesc.currentImageElement().getAttributeValue("src");
 					
-					// Get all img nodes.
-					String nameSpace = imgDesc.getRoot().getDocument().getRootElement().getNamespaceURI();
-					XPathContext context;
-					context = new XPathContext("dtb", nameSpace);
-					Nodes imgs = null;
-					imgs = imgDesc.getRoot().query("//dtb:img", context);
+					// Get number of <img> elements.
+					int numElms = imgDesc.getNumImgElements();
 					
-					// Print out paths.
-					for(int i = 0; i < imgs.size(); i++)
-						System.out.println( ((Element)(imgs.get(i))).getAttributeValue("src") );
+					// For each element, check if it is the same as this non-essential.
+					for(int curImg = 0; curImg < numElms; curImg++)
+					{
+						// Is this <img> just like the non-essential?
+						if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
+						{
+							// Change description to "Non-Essential."
+							imgDesc.setProdAtIndex(curImg, "Non-Essential", null, null, null);
+							
+						} // if( imgDesc.getElementAtIndex...
+						
+					} // for(int curImg...
 					
 				} // if msgBx == true
-				else
-				{
-					
-					
-				} // if -> else msgBox == false
 				
 			} // widgetSelected()
 			
@@ -463,11 +463,11 @@ public class ImageDescriberDialog extends Dialog {
 		cancelBtnH = defBtnH;
 		makeNotImpBtnX = 0; // not-important.
 		makeNotImpBtnY = okayBtnY + okayBtnH + 1;
-		makeNotImpBtnW = defBtnW;
+		makeNotImpBtnW = clientWidth / 12;
 		makeNotImpBtnH = defBtnH;
 		// Text box.
 		txtBoxX = 0;
-		txtBoxY = defBtnH + 10;
+		txtBoxY = makeNotImpBtnY + makeNotImpBtnH + 1;
 		txtBoxW = clientWidth / 3;
 		txtBoxH = clientHeight / 4;
 		// Main image.

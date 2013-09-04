@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.ParentNode;
 import nu.xom.XPathContext;
@@ -90,6 +91,12 @@ public class ImageDescriber {
 
 		// Point to root.
 		curImgElement = rootElement;
+		
+		// Fill the image list first.
+		fillImgList_XPath();
+		
+		// Get size of <img> list.
+		numImgElms = imgElmList.size();
 		
 		// Go to first image.
 		nextImageElement();
@@ -165,6 +172,75 @@ public class ImageDescriber {
 		return numImgElms;
 		
 	} // int getNumImgElements()
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Recursively moves through xml tree and adds <img> nodes to list.
+	// Also builds image path list.
+	public void fillImgList(Element e)
+	{
+		// Is this element an <img>?
+		if( e.getLocalName().compareTo("img") == 0 ) {
+		
+			// Add element to list.
+			imgElmList.add(e);
+			
+			// Add image file path to list.
+			
+			// Remove slash and dot, if it's there.
+			String tempStr = e.getAttributeValue("src");
+			if( tempStr.startsWith(".") )
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Add.
+			imgFileList.add( new Image(null, tempStr) );
+		}
+		
+		// Get children.
+		Elements childElms = e.getChildElements();
+		
+		// Get their children, and so on.
+		for(int curChild = 0; curChild < childElms.size(); curChild++)
+			fillImgList( childElms.get(curChild) );
+	
+	} // FillImgList(Element e)
+
+	///////////////////////////////////////////////////////////////////////////
+	// Enumerates <img> elements using xpath, then adds them all to our list.
+	public void fillImgList_XPath()
+	{
+		// Get all <img> elements using xpath.
+		Nodes imgTags = null;
+		imgTags = getRoot().query("//dtb:img", context);
+		
+		// For every <img>, add it to our list.
+		for(int curTag = 0; curTag < imgTags.size(); curTag++)
+		{
+			// Add element to list.
+			imgElmList.add( (Element)(imgTags.get(curTag)) );
+			
+			// Add image file path to list.
+			
+			// Remove slash and dot, if it's there.
+			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
+			if( tempStr.startsWith(".") )
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Add.
+			imgFileList.add( new Image(null, tempStr) );
+		
+		} // for(int...
+	
+	} // fillImgList_XPath()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Traverses xml tree until it finds the next <img>.
@@ -249,117 +325,52 @@ public class ImageDescriber {
 	} // getNextImageElement(Element e)
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Recursively moves through xml tree and adds <img> nodes to list.
-	// Also builds image path list.
-	public void fillImgList(Element e)
-	{
-		// Is this element an <img>?
-		if( e.getLocalName().compareTo("img") == 0 ) {
-		
-			// Add element to list.
-			imgElmList.add(e);
-			
-			// Add image file path to list.
-			
-			// Remove slash and dot, if it's there.
-			String tempStr = e.getAttributeValue("src");
-			if( tempStr.startsWith(".") )
-				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-			
-			// Build image path.
-			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-				tempStr = tempStr.replace("/", "\\");
-			
-			// Add.
-			imgFileList.add( new Image(null, tempStr) );
-		}
-		
-		// Get children.
-		Elements childElms = e.getChildElements();
-		
-		// Get their children, and so on.
-		for(int curChild = 0; curChild < childElms.size(); curChild++)
-			fillImgList( childElms.get(curChild) );
-	
-	} // FillImgList(Element e)
-
-	///////////////////////////////////////////////////////////////////////////
-	// Enumerates <img> elements using xpath, then adds them all to our list.
-	public void fillImgList_XPath()
-	{
-		// Get all <img> elements using xpath.
-		Nodes imgTags = null;
-		imgTags = getRoot().query("//dtb:img", context);
-		
-		// For every <img>, add it to our list.
-		for(int curTag = 0; curTag < imgTags.size(); curTag++)
-		{
-			// Add element to list.
-			imgElmList.add( (Element)(imgTags.get(curTag)) );
-			
-			// Add image file path to list.
-			
-			// Remove slash and dot, if it's there.
-			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
-			if( tempStr.startsWith(".") )
-				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-			
-			// Build image path.
-			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-				tempStr = tempStr.replace("/", "\\");
-			
-			// Add.
-			imgFileList.add( new Image(null, tempStr) );
-		
-		} // for(int...
-	
-	} // fillImgList_XPath()
-	
-	///////////////////////////////////////////////////////////////////////////
 	// Returns the next <img> element that was found in the xml doc.
 	public Element nextImageElement()
 	{
 		// Move to next element.
 		curElementIndex++;
 		
-		// If we're at the edge of the image element list, look for another element.
+		// Move to first if we hit the end.
 		if(curElementIndex >= numImgElms)
-		{
-			// Start with the root element; find the next image.
-			curDocIndex = -1;
-			
-			// Temp storage for new element.
-			Element newElement = null;
-			
-			// If this is the first element we've grabbed, ever, grab from first list.
-			if(grabFirstImage) {
-				// Grab it.
-				newElement = (Element)(imgs.get(0));
-				// Don't ever do it again.
-				grabFirstImage = false;
-			}
-			else {
-				// Get next <img> element.
-				Nodes nextImg = imgElmList.get(curElementIndex - 1).query("following::dtb:img", context);
-				
-				// If we got one, point to it.
-				if(nextImg.size() > 0)
-					newElement = (Element)(nextImg.get(0));
-			}
-			
-			// Element newElement = getNextImageElement(rootElement);
-			
-			// Add element to list.
-			if(newElement != null) {
-				imgElmList.add(newElement);
-				numImgElms = imgElmList.size();
-			}
-			
-			// Set current <img> element.
-			curElementIndex = numImgElms - 1;
-		}
+			curElementIndex = 0;
+		
+		// If we're at the edge of the image element list, look for another element.
+//		if(curElementIndex >= numImgElms)
+//		{
+//			// Start with the root element; find the next image.
+//			curDocIndex = -1;
+//			
+//			// Temp storage for new element.
+//			Element newElement = null;
+//			
+//			// If this is the first element we've grabbed, ever, grab from first list.
+//			if(grabFirstImage) {
+//				// Grab it.
+//				newElement = (Element)(imgs.get(0));
+//				// Don't ever do it again.
+//				grabFirstImage = false;
+//			}
+//			else {
+//				// Get next <img> element.
+//				Nodes nextImg = imgElmList.get(curElementIndex - 1).query("following::dtb:img", context);
+//				
+//				// If we got one, point to it.
+//				if(nextImg.size() > 0)
+//					newElement = (Element)(nextImg.get(0));
+//			}
+//			
+//			// Element newElement = getNextImageElement(rootElement);
+//			
+//			// Add element to list.
+//			if(newElement != null) {
+//				imgElmList.add(newElement);
+//				numImgElms = imgElmList.size();
+//			}
+//			
+//			// Set current <img> element.
+//			curElementIndex = numImgElms - 1;
+//		}
 		
 		// Make sure there are images.
 		if(numImgElms == 0)
@@ -368,31 +379,29 @@ public class ImageDescriber {
 		// Set current element.
 		curImgElement = imgElmList.get(curElementIndex);
 		
-		// Add to image list.
-		
 		// Remove slash and dot, if it's there.
-		String tempStr = curImgElement.getAttributeValue("src");
-		if( tempStr.startsWith(".") )
-			tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-		
-		// Build image path.
-		tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-		if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-			tempStr = tempStr.replace("/", "\\");
-		
-		// Add.
-		try {
-			// Add this image to the image list.
-			imgFileList.add( new Image(null, tempStr) );
-		}
-		catch (Exception e)
-		{
-			// Add a null image to the list. This will keep our indices in check.
-			imgFileList.add( null );
-			
-			// Print the stack.
-			e.printStackTrace();
-		}
+//		String tempStr = curImgElement.getAttributeValue("src");
+//		if( tempStr.startsWith(".") )
+//			tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+//		
+//		// Build image path.
+//		tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+//		if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+//			tempStr = tempStr.replace("/", "\\");
+//		
+//		// Add.
+//		try {
+//			// Add this image to the image list.
+//			imgFileList.add( new Image(null, tempStr) );
+//		}
+//		catch (Exception e)
+//		{
+//			// Add a null image to the list. This will keep our indices in check.
+//			imgFileList.add( null );
+//			
+//			// Print the stack.
+//			e.printStackTrace();
+//		}
 		
 		// Wrap in <imggroup>
 		if( hasImgGrpParent(curImgElement) == false) {
@@ -538,7 +547,23 @@ public class ImageDescriber {
 	// Notes: Element MUST be a child of a <imggroup>
 	public boolean hasProdNote(Element e)
 	{
+		// Get parent of <img> element.
+		nu.xom.Node parNode = e.getParent();
 		
+		///////////////////////////
+				
+		// Find <prodnote>.
+		Element ch = null;
+		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			ch = (Element)parNode.getChild(curC);
+			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+			
+				// Found it. Return true.
+				return true;
+			
+			} // if( ch.getLocalName()...
+		
+		} // for(int curC = 0...
 		
 		// Return false if we made it here... no prodnote.
 		return false;
@@ -596,7 +621,8 @@ public class ImageDescriber {
 		
 		// Find <prodnote>.
 		Element ch = null;
-		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+		int curC = 0;
+		for( ; curC < parNode.getChildCount(); curC++) {
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
@@ -606,6 +632,14 @@ public class ImageDescriber {
 			} // if( ch.getLocalName()...
 			
 		} // for(int curC = 0...
+		
+		/////////////////////////
+		
+		// If <prodnote> didn't exist, create it.
+		if(curC == parNode.getChildCount())
+		{
+			// TODO: Create prodnote.
+		}
 		
 		/////////////////////////
 		
@@ -634,6 +668,66 @@ public class ImageDescriber {
 			ch.getAttribute("render").setValue(tagRENDER);
 	
 	} // setCurElmProdAttributes
+	
+	///////////////////////////////////////////////////////////////////////////
+	// Sets <prodnote> for element at index.
+	// 
+	// Notes: Must already be wrapped in <imggroup>
+	public void setProdAtIndex(int index, String text, String tagID, String tagIMGREF, String tagRENDER)
+	{
+		// Get parent of element at index.
+		// It should be an <imggroup> element.
+		Node parNode = imgElmList.get(index).getParent();
+		
+		// Find <prodnote>.
+				Element ch = null;
+				int curC = 0;
+				for( ; curC < parNode.getChildCount(); curC++) {
+					ch = (Element)parNode.getChild(curC);
+					if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+
+						// Found it. Break.
+						break;
+						
+					} // if( ch.getLocalName()...
+					
+				} // for(int curC = 0...
+				
+				/////////////////////////
+				
+				// If <prodnote> didn't exist, create it.
+				if(curC == parNode.getChildCount())
+				{
+					// TODO: Create prodnote.
+				}
+				
+				/////////////////////////
+				
+				// Set text value.
+				if(text != null)
+				{
+					// If no children, add one. Else, replace the one already there.
+					if(ch.getChildCount() == 0)
+						ch.appendChild( new nu.xom.Text(text) );
+					else {
+						nu.xom.Node oldNode = ch.getChild(0);
+						nu.xom.Node newNode = new nu.xom.Text(text);
+						ch.replaceChild(oldNode, newNode);
+					}
+					
+				} // if(text != null)
+				
+				///////////////////////////
+				
+				// Set attributes.
+				if(tagID != null)
+					ch.getAttribute("id").setValue(tagID);
+				if(tagIMGREF != null)
+					ch.getAttribute("imgref").setValue(tagIMGREF);
+				if(tagRENDER != null)
+					ch.getAttribute("render").setValue(tagRENDER);
+		
+	} // setProdAtIndex()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Removes images from memory.

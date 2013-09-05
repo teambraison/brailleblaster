@@ -79,7 +79,7 @@ public class ImageDescriberDialog extends Dialog {
 	Button cancelBtn;
 	Button applyBtn;
 	Button okayBtn;
-	Button notImpBtn;
+	Button applyToAll;
 	Label mainImage;
 	Text imgDescTextBox;
 	Browser browser = null;
@@ -126,10 +126,10 @@ public class ImageDescriberDialog extends Dialog {
 	int cancelBtnY = 0;
 	int cancelBtnW = defBtnW;
 	int cancelBtnH = defBtnH;
-	int makeNotImpBtnX = 0; // not-important.
-	int makeNotImpBtnY = okayBtnY + okayBtnH + 1;
-	int makeNotImpBtnW = defBtnW;
-	int makeNotImpBtnH = defBtnH;
+	int applyAllBtnX = 0; // Apply All.
+	int applyAllBtnY = okayBtnY + okayBtnH + 1;
+	int applyAllBtnW = defBtnW;
+	int applyAllBtnH = defBtnH;
 	// Text box.
 	int txtBoxX = 0;
 	int txtBoxY = 55;
@@ -331,17 +331,20 @@ public class ImageDescriberDialog extends Dialog {
 			
 		}); // cancelBtn.addSelectionListener...
 
-		// Make not-important button. Finds every image with this name and changes description
-		// to "Not Important."
-		notImpBtn = new Button(imgDescShell, SWT.PUSH);
-		notImpBtn.setText("Make Non-Essential");
-		notImpBtn.setBounds(makeNotImpBtnX,  makeNotImpBtnY, makeNotImpBtnW, makeNotImpBtnH);
-		notImpBtn.addSelectionListener(new SelectionAdapter() {
+		// Apply to all button. Finds every image with this name and changes description
+		// to what was in the notes.
+		applyToAll = new Button(imgDescShell, SWT.PUSH);
+		applyToAll.setText("Apply To All");
+		applyToAll.setBounds(applyAllBtnX,  applyAllBtnY, applyAllBtnW, applyAllBtnH);
+		applyToAll.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Warn user before doing this. It could take a while.
 				if( msgBx("Warning", "This will cause the Image Describer to update the entire document. This could take a while. Continue?") == true)
 				{
+					// Apply what is in the edit box first.
+					imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+					
 					// Current image path.
 					String curImgPath = "";
 					
@@ -351,14 +354,14 @@ public class ImageDescriberDialog extends Dialog {
 					// Get number of <img> elements.
 					int numElms = imgDesc.getNumImgElements();
 					
-					// For each element, check if it is the same as this non-essential.
+					// For each element, check if it has the same image path.
 					for(int curImg = 0; curImg < numElms; curImg++)
 					{
-						// Is this <img> just like the non-essential?
+						// Is this <img> just like the current image path?
 						if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
 						{
-							// Change description to "Non-Essential."
-							imgDesc.setProdAtIndex(curImg, "Non-Essential", null, null, null);
+							// Change description to current prod text.
+							imgDesc.setProdAtIndex(curImg, imgDescTextBox.getText(), null, null, null);
 							
 						} // if( imgDesc.getElementAtIndex...
 						
@@ -368,7 +371,7 @@ public class ImageDescriberDialog extends Dialog {
 				
 			} // widgetSelected()
 			
-		}); // cancelBtn.addSelectionListener...
+		}); // applyToAll.addSelectionListener...
 		
 		// Create image description text box.
 		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
@@ -461,13 +464,13 @@ public class ImageDescriberDialog extends Dialog {
 		cancelBtnY = 0;
 		cancelBtnW = defBtnW;
 		cancelBtnH = defBtnH;
-		makeNotImpBtnX = 0; // not-important.
-		makeNotImpBtnY = okayBtnY + okayBtnH + 1;
-		makeNotImpBtnW = clientWidth / 12;
-		makeNotImpBtnH = defBtnH;
+		applyAllBtnX = 0; // not-important.
+		applyAllBtnY = okayBtnY + okayBtnH + 1;
+		applyAllBtnW = clientWidth / 12;
+		applyAllBtnH = defBtnH;
 		// Text box.
 		txtBoxX = 0;
-		txtBoxY = makeNotImpBtnY + makeNotImpBtnH + 1;
+		txtBoxY = applyAllBtnY + applyAllBtnH + 1;
 		txtBoxW = clientWidth / 3;
 		txtBoxH = clientHeight / 4;
 		// Main image.

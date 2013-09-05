@@ -222,6 +222,14 @@ public class ImageDescriber {
 		{
 			// Add element to list.
 			imgElmList.add( (Element)(imgTags.get(curTag)) );
+//			curImgElement = imgElmList.get(curTag);
+//			
+//			// Wrap in <imggroup>
+//			if( hasImgGrpParent(curImgElement) == false) {
+//				curImgElement = wrapInImgGrp( curImgElement );
+//				imgElmList.set(curTag, curImgElement);
+//				
+//			} // if( hasImgGrpParent(...
 			
 			// Add image file path to list.
 			
@@ -698,7 +706,17 @@ public class ImageDescriber {
 				// If <prodnote> didn't exist, create it.
 				if(curC == parNode.getChildCount())
 				{
-					// TODO: Create prodnote.
+//					// Create prodnote element.
+//					Element prodElm = new Element("prodnote", nameSpace);
+//					
+//					// Add <prodnote> attributes.
+//					prodElm.addAttribute( new Attribute("id", "TODO!") );
+//					prodElm.addAttribute( new Attribute("imgref", idValue) );
+//					prodElm.addAttribute( new Attribute("render", "required") );
+//					
+//					// If no children, add one.
+//					if(ch.getChildCount() == 0)
+//						ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
 				}
 				
 				/////////////////////////

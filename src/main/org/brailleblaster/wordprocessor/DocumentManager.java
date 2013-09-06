@@ -42,6 +42,7 @@ import javax.print.PrintException;
 
 import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
@@ -73,7 +74,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
-
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class DocumentManager {
 	WPManager wp;
@@ -102,7 +102,7 @@ public class DocumentManager {
 	FileUtils fu;
 	
 	//Constructor that sets things up for a new document.
-	DocumentManager(WPManager wp, String docName) {
+	public DocumentManager(WPManager wp, String docName) {
 		this.fu = new FileUtils();
 		this.styles = new BBSemanticsTable();
 		this.documentName = docName;
@@ -117,7 +117,7 @@ public class DocumentManager {
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
 		initializeDocumentTab();
-		this.document = new BBDocument(this);
+		this.document = new BBDocument(this, this.styles);
 		FontManager.setFontWidth(this);
 		
 		logger = BBIni.getLogger();
@@ -128,9 +128,14 @@ public class DocumentManager {
 			openDocument(docName);
 		}
 		else{
+			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
+			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
+			((Element)n.get(0)).appendChild(new Text(""));
+			this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			setTabTitle(docName);
 		}				
 	}
+	
 
 	private void initializeDocumentTab(){
 		FontManager.setShellFonts(this.wp.getShell(), this);	
@@ -151,48 +156,52 @@ public class DocumentManager {
 	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
-		checkForUpdatedViews();
-		
-		if(workingFilePath.endsWith("xml")){
-		    if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
-		    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-		    	copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-		    }
-		    else {
-		    	new Notify("An error occured while saving your document.  Please check your original document.");
-		    }
+		if(workingFilePath == null){
+			saveAs();
 		}
-		else if(workingFilePath.endsWith("utd")) {		
-			document.setOriginalDocType(document.getDOM());
-			if(fu.createXMLFile(document.getDOM(), workingFilePath)){
-				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-		    	copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+		else {
+			checkForUpdatedViews();
+			if(workingFilePath.endsWith("xml")){
+				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
+					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+				}
+				else {
+					new Notify("An error occured while saving your document.  Please check your original document.");
+				}
 			}
-			else {
-		    	new Notify("An error occured while saving your document.  Please check your original document.");
-		    }
-		}
-		else if(workingFilePath.endsWith("brf")){
-			if(!document.createBrlFile(this, workingFilePath)){
-				new Notify("An error has occurred.  Please check your original document");
+			else if(workingFilePath.endsWith("utd")) {		
+				document.setOriginalDocType(document.getDOM());
+				if(fu.createXMLFile(document.getDOM(), workingFilePath)){
+					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+				}
+				else {
+					new Notify("An error occured while saving your document.  Please check your original document.");
+				}
 			}
-		}
+			else if(workingFilePath.endsWith("brf")){
+				if(!document.createBrlFile(this, workingFilePath)){
+					new Notify("An error has occurred.  Please check your original document");
+				}
+			}
 			
-		// If the document came from a zip file, then rezip it.
-		if(zippedPath.length() > 0)
-		{
-			// Create zipper.
-			Zipper zpr = new Zipper();
-			// Input string.
-			String sp = BBIni.getFileSep();
-			String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-//			String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
-			// Zip it!
-			zpr.Zip(inPath, zippedPath);
-		}
+			// If the document came from a zip file, then rezip it.
+			if(zippedPath.length() > 0)
+			{
+				// Create zipper.
+				Zipper zpr = new Zipper();
+				// Input string.
+				String sp = BBIni.getFileSep();
+				String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
+//				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
+				// Zip it!
+				zpr.Zip(inPath, zippedPath);
+			}
 		
-		text.hasChanged = false;
-		braille.hasChanged = false;
+			text.hasChanged = false;
+			braille.hasChanged = false;
+		}
 	}
 	
 	public void fileOpenDialog() {
@@ -208,10 +217,11 @@ public class DocumentManager {
 		if(tempName != null)
 		{
 			// Open it.
-			if(document.getDOM() != null || text.hasChanged || braille.hasChanged || documentName != null){
+			if(workingFilePath != null || text.hasChanged || braille.hasChanged || documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
+				closeUntitledTab();
 				openDocument(tempName);
 			}
 			
@@ -282,7 +292,7 @@ public class DocumentManager {
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
-				wp.getProgressBar().start();
+				wp.startProgressBar(this);
 				documentName = fileName;
 				setTabTitle(fileName);
 				treeView.setRoot(document.getRootElement(), this);
@@ -293,7 +303,6 @@ public class DocumentManager {
 				treeView.initializeListeners(this);
 				text.hasChanged = false;
 				braille.hasChanged = false;
-				wp.checkToolbarSettings();
 				wp.getStatusBar().resetLocation(0,100,100);
 				wp.getProgressBar().stop();
 				wp.getStatusBar().setText("Words: " + text.words);
@@ -375,6 +384,9 @@ public class DocumentManager {
 				break;
 			case UPDATE:
 				handleUpdate(message);
+				break;
+			case INSERT_NODE:
+				handleInsertNode(message);
 				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
@@ -480,10 +492,10 @@ public class DocumentManager {
 			if(list.hasBraille(list.getCurrentIndex())){
 				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
 			}
-			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"));
+			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 		}
 		else if((Integer)message.getValue("deletionType") == SWT.DEL){
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"));
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 			if(list.hasBraille(list.getCurrentIndex())){
 				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
 			}
@@ -497,6 +509,162 @@ public class DocumentManager {
 		text.reformatText(list.getCurrent().n, message, this);
 		list.updateOffsets(list.getCurrentIndex(), message);
 		list.checkList();
+	}
+	
+	private void handleInsertNode(Message m){
+		if(m.getValue("split").equals(true)){
+			splitElement(m);
+		}
+		else {
+			if(m.getValue("atStart").equals(true))
+				insertElementAtBeginning(m);
+			else
+				insertElementAtEnd(m);
+		}
+	}
+	
+	private void splitElement(Message m){
+		int treeIndex = treeView.getBlockElementIndex();
+		
+		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
+		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
+		
+		int textStart = list.get(originalElements.get(0)).start;
+		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
+		int brailleStart;
+		if(originalElements.get(0) > 0)
+			brailleStart = list.get(originalElements.get(0) - 1).brailleList.getLast().end;
+		else {
+			if(list.get(originalElements.get(0)).brailleList.getFirst().start > 0)
+				brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start - 1;
+			else 
+				brailleStart = 0;
+		}
+			
+			
+		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
+				
+		int currentIndex = list.getCurrentIndex();
+		treeView.removeCurrent();
+		
+		for(int i = originalElements.size() - 1; i >= 0; i--){
+			int pos = originalElements.get(i);
+			
+			if(pos < currentIndex){
+				list.remove(pos);
+				currentIndex--;
+			}
+			else if(pos >= currentIndex){
+				list.remove(pos);
+			}
+		}
+		
+		text.clearRange(textStart, textEnd - textStart);
+		braille.clearRange(brailleStart, brailleEnd - brailleStart);
+		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart));	
+		
+		int firstElementIndex = currentIndex;
+		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
+		addTreeItems(firstElementIndex, currentIndex + 1, treeIndex);
+		
+		text.insertText(list.get(currentIndex).end, "\n");
+		
+		int secondElementIndex = currentIndex + 1;
+		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + 1, list.get(currentIndex).brailleList.getLast().end);
+		addTreeItems(secondElementIndex, currentIndex,treeIndex + 1);
+		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
+	}
+	
+	private void addTreeItems(int start, int end, int treeIndex){
+		Element parent = document.getParent(list.get(start).n, true);
+		ArrayList<TextMapElement> elementList = new ArrayList<TextMapElement>();
+		
+		for(int i = start; i < end; i++){
+			if(parent.equals(list.get(i).n.getParent())){
+				elementList.add(list.get(i));
+			}
+		}
+		
+		if(elementList.size() > 0){
+			treeView.newTreeItem(elementList, treeIndex);
+		}
+		else {
+			treeView.newTreeItem(list.get(start), treeIndex);
+		}
+	}
+	
+	public int insertElement(Element e, int index, int start, int brailleStart){
+		int count = e.getChildCount();
+		int currentIndex = index;
+		int currentStart = start;
+		int currentBrailleStart = brailleStart;
+		
+		for(int i = 0; i < count; i++){
+			if(e.getChild(i) instanceof Text){
+				text.insertText(list, currentIndex, currentStart, e.getChild(i));
+				currentStart = list.get(currentIndex).end;
+				i++;
+				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
+				currentBrailleStart = list.get(currentIndex).brailleList.getLast().end;
+				currentIndex++;
+			}
+			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl")){
+				currentIndex = insertElement((Element)e.getChild(i), currentIndex, currentStart, currentBrailleStart);
+				currentStart = list.get(currentIndex - 1).end;
+				currentBrailleStart = list.get(currentIndex - 1).brailleList.getLast().end;
+			}
+		}
+		
+		return currentIndex;
+	}
+	
+	public void insertBraille(Element e, int index, int brailleStart){
+		int count = e.getChildCount();
+		
+		for(int i = 0; i < count; i++){
+			if(e.getChild(i) instanceof Text){
+				braille.insert(list.get(index), e.getChild(i), brailleStart);
+				brailleStart = list.get(index).brailleList.getLast().end;
+			}
+		}
+	}
+	
+	private void insertElementAtBeginning(Message m){
+		if(list.getCurrentIndex() > 0)
+			document.insertEmptyTextNode(list, list.get(list.getCurrentIndex() - 1),  list.get(list.getCurrentIndex() - 1).end + 1, list.get(list.getCurrentIndex() - 1).brailleList.getLast().end + 1,list.getCurrentIndex());
+		else
+			document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex());
+			
+		if(list.size() - 1 != list.getCurrentIndex() - 1){
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
+		}
+		int index = treeView.getSelectionIndex();
+		
+		m.put("length", 1);
+		m.put("newBrailleLength", 1);
+		m.put("brailleLength", 0);
+
+		if(list.getCurrentIndex()  > 0)
+			braille.insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
+		else
+			braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
+			
+		treeView.newTreeItem(list.get(list.getCurrentIndex()), index);
+	}
+	
+	private void insertElementAtEnd(Message m){
+		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1);
+		if(list.size() - 1 != list.getCurrentIndex() + 1){
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
+		}
+		int index = treeView.getSelectionIndex();
+		
+		m.put("length", 1);
+		m.put("newBrailleLength", 1);
+		m.put("brailleLength", 0);
+
+		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
+		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index + 1);
 	}
 	
 	private void handleRemoveNode(Message message){
@@ -549,12 +717,12 @@ public class DocumentManager {
 				text.adjustStyle(this, message, list.getCurrent().n);
 				braille.adjustStyle(this, message, list.getCurrent());
 				if(message.contains("linesBeforeOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"));
+					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
 					message.remove("linesBeforeOffset");
 				}
 		
 				if(message.contains("linesAfterOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"));
+					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"));
 					message.remove("linesAfterOffset");
 				}
 			}
@@ -594,7 +762,13 @@ public class DocumentManager {
 			    	setTabTitle(filePath);
 					documentName = filePath;
 			    
-			    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+			    	String tempSemFile; 			    
+				    if(workingFilePath == null)
+				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName("outFile.utd") + ".sem";
+				    else
+				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
+				    
+				    //String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
 			    	String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
 			    
 			    	//Save new semantic file to correct location and temp folder for further editing
@@ -614,7 +788,13 @@ public class DocumentManager {
 					setTabTitle(filePath);
 			    	documentName = filePath;
 				    
-			    	String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+				    String fileName;
+			    	if(workingFilePath == null)
+				    	fileName = "outFile";
+				    else
+				    	fileName = fu.getFileName(workingFilePath);
+				    
+				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"; 
 			    	String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
 				    
 			    	copySemanticsFile(tempSemFile, savedTempFile);
@@ -820,8 +1000,15 @@ public class DocumentManager {
 			text.words = 0;
 			updateTempFile();
 			document.deleteDOM();
-			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"))
-				initializeAllViews(documentName, path, "semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem\n");
+			
+			String fileName;
+			if(workingFilePath == null)
+				fileName = "outFile";
+			else
+				fileName = fu.getFileName(workingFilePath);
+			
+			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"))
+				initializeAllViews(documentName, path, "semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem\n");
 			else
 				initializeAllViews(documentName, path, null);
 			
@@ -870,6 +1057,15 @@ public class DocumentManager {
 			sm.hideTable();
 			setTabList();
 		}
+	}
+	
+	public void closeUntitledTab(){
+		document.deleteDOM();
+		treeView.removeListeners();
+		treeView.clearTree();
+		text.removeListeners();
+		braille.removeListeners();
+		list.clear();	
 	}
 	
 	

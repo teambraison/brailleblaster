@@ -98,7 +98,6 @@ class NewDocument {
 		Node newNode = null;
 		Element elementNode = null;
 		String elementName;
-		String attributeName;
 		for (int i = 0; i < node.getChildCount(); i++) {
 			newNode = node.getChild(i);
 			if (newNode instanceof Element) {

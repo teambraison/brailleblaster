@@ -96,8 +96,7 @@ public class TreeView extends AbstractView {
 		item.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
+				// TODO Auto-generated method stub				
 			}
 
 			@Override
@@ -262,6 +261,7 @@ public class TreeView extends AbstractView {
 	private void populateItemChildren(TreeItem item, Element e, DocumentManager dm){
 		ArrayList<Text>textList = new ArrayList<Text>();
 		Elements els = e.getChildElements();
+		
 		for(int i = 0; i < els.size(); i++){
 			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);
@@ -277,6 +277,7 @@ public class TreeView extends AbstractView {
 					Message message = Message.createGetTextMapElementsMessage(textList, data.textMapList);
 					dm.dispatch(message);
 				}
+				
 				textList.clear();
 				temp.setData(data);
 			}
@@ -311,12 +312,57 @@ public class TreeView extends AbstractView {
     	return temp;
 	}
 	
+	public TreeItem newTreeItem(Node e, TreeItem item, int index){
+		Element e2 = (Element)e;
+		TreeItem temp = new TreeItem(item, 0, index);
+    	temp.setText(e2.getLocalName());
+    	return temp;
+	}
+	
+	public void newTreeItem(TextMapElement t, int index){
+		Element parentElement = (Element)t.n.getParent();
+		while(parentElement.getAttributeValue("semantics").contains("action")){
+			parentElement = (Element)parentElement.getParent();
+		}
+		
+		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());
+		TreeItem newItem = newTreeItem(parentElement, parent, index);
+		TreeItemData data = new TreeItemData(parentElement);
+		
+		if(parentElement.equals(t.n.getParent()))
+			data.textMapList.add(t);
+		
+		newItem.setData(data);
+	}
+	
+	public void newTreeItem(ArrayList<TextMapElement>list, int index){
+		Element parentElement = (Element)list.get(0).n.getParent();
+		while(parentElement.getAttributeValue("semantics").contains("action")){
+			parentElement = (Element)parentElement.getParent();
+		}
+		
+		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());
+		TreeItem newItem = newTreeItem(parentElement, parent, index);
+		TreeItemData data = new TreeItemData(parentElement);
+		
+		for(int i = 0; i < list.size(); i++){
+			data.textMapList.add(list.get(i));
+		}
+		
+		newItem.setData(data);
+	}
+	
 	public void setItemData(TreeItem item, TextMapElement t){
 		if(item.getData() == null){
 			item.setData(new ArrayList<TextMapElement>());
 		}
 		
 		getList(item).add(t);
+	}
+	
+	public void setItemData(TextMapElement t, Element e){
+		TreeItem item = findElementInTree(this.root, e);
+		setItemData(item, t);
 	}
 	
 	public void setSelection(TextMapElement t, Message m, DocumentManager dm){
@@ -370,6 +416,23 @@ public class TreeView extends AbstractView {
 			}
 		}
 		setListenerLock(false);
+	}
+	
+	public void removeCurrent(){
+		TreeItem item = tree.getSelection()[0];
+		TreeItemData data = (TreeItemData)item.getData();
+		
+		if(data.element.getAttributeValue("semantics").contains("action")){
+			while(data.element.getAttributeValue("semantics").contains("action")){
+				TreeItem temp = item;
+				item = item.getParentItem();
+				data = (TreeItemData)item.getData();
+				//if(temp.getItemCount() == 0)
+					temp.dispose();
+			}
+		}
+		//if(item.getItemCount() == 0)
+			item.dispose();
 	}
 	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
@@ -543,6 +606,21 @@ public class TreeView extends AbstractView {
 			depopulateItemChildren(item);
 		}
 		return null;
+	}
+	
+	public int getSelectionIndex(){
+		TreeItem parent = tree.getSelection()[0].getParentItem();
+		return parent.indexOf(tree.getSelection()[0]);
+	}
+	
+	public int getBlockElementIndex(){
+		TreeItem parent = tree.getSelection()[0];
+		
+		while(!((TreeItemData)parent.getData()).element.getAttributeValue("semantics").contains("style")){
+			parent = parent.getParentItem();
+		}
+		
+		return parent.getParentItem().indexOf(parent);
 	}
 	
 	@Override

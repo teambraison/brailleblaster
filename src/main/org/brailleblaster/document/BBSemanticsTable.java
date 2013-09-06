@@ -219,4 +219,11 @@ public class BBSemanticsTable {
 			return Integer.valueOf(font1) + Integer.valueOf(font2);
 		}
 	}
+	
+	public boolean isBlockElement(Element e){
+		if(getSemanticTypeFromAttribute(e).equals("style"))
+			return true;
+		else
+			return false;
+	}
 }

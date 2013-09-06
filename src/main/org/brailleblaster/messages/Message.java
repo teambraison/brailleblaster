@@ -69,6 +69,15 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createInsertNodeMessage(boolean split, boolean atStart, boolean atEnd){
+		Message m = new Message(BBEvent.INSERT_NODE);
+		m.put("split", split);
+		m.put("atStart", atStart);
+		m.put("atEnd", atEnd);
+		
+		return m;
+	}
+	
 	public static Message createIncrementMessage(){
 		Message m = new Message(BBEvent.INCREMENT);
 		return m;

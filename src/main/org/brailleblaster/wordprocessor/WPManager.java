@@ -99,7 +99,6 @@ public class WPManager {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				checkToolbarSettings();
 				int index = folder.getSelectionIndex();
 				if(managerList.size() > 0){
 					if(managerList.get(index).text.view.getCharCount() > 0) {
@@ -152,7 +151,6 @@ public class WPManager {
 	public void addDocumentManager(String fileName){
 		this.managerList.add(new DocumentManager(this, fileName));
 		setSelection();
-		checkToolbarSettings();
 	}
 
 	public void setSelection(){
@@ -168,24 +166,12 @@ public class WPManager {
             System.exit(1);
         }
     }
-    
-    void checkToolbarSettings(){
-    	boolean enabled = true;
-    	
-    	if(this.managerList.size() > 0){
-    		int index = this.getFolder().getSelectionIndex();  
- 
-    		if(this.getFolder().getItem(index).getText().startsWith("Untitled")){
-    			enabled = false;
-    		}
-    		this.toolBar.toggleCheckBox(enabled, this.getList().get(index).simBrailleDisplayed);
-    	}
-    	else {
-    		enabled = false;
-    		this.toolBar.toggleCheckBox(enabled, false);
-    	}
-    }
 
+    public void startProgressBar(DocumentManager dm){
+    	if(dm.getWorkingPath() != null)
+    		pb.start();
+    }
+    
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
     }

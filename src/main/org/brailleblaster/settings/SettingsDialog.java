@@ -49,7 +49,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.CallOutsideWP;
 import org.brailleblaster.wordprocessor.WPManager;
 
 /** This class works closely with classes in the louisutdml package to 

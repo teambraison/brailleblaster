@@ -29,13 +29,13 @@
 package org.brailleblaster.document;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,9 +47,10 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.ParsingException;
-import nu.xom.Serializer;
 import nu.xom.Text;
+import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.mapping.BrailleMapElement;
@@ -74,12 +75,40 @@ public class BBDocument {
 	private String systemId;
 	private String publicId;
 	private int idCount = 0;
+	private BBSemanticsTable table;
 	private SemanticFileHandler semHandler;
 	
-	public BBDocument(DocumentManager dm){		
+	public BBDocument(DocumentManager dm, BBSemanticsTable table){		
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
 		this.semHandler = new SemanticFileHandler(BBIni.getDefaultConfigFile());
+		this.table = table;
+	}
+	
+	public boolean createNewDocument(){
+		return startNewDocument();
+	}
+	
+	private boolean startNewDocument(){
+		String template = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "document.xml";
+		String tempFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + "newDoc.xml";
+		
+		fu.copyFile(template, tempFile);
+		
+		Builder builder = new Builder();
+		try {
+			doc = builder.build(new File(tempFile));
+			return true;
+		} 
+		catch (ParsingException e) {
+			e.printStackTrace();
+			new Notify("Framework is malformed");
+			return false;
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
@@ -217,11 +246,37 @@ public class BBDocument {
 			total = changeBrailleNodes(list.getCurrent(), message);
 		}
 		else {
-			insertBrailleNode(list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start, text);
+			if(list.size() > 1 && list.getCurrentIndex() < list.size() - 1)
+				insertBrailleNode(message, list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start, text);
+			else {
+				if(list.getCurrentIndex() > 0)
+					insertBrailleNode(message, list.getCurrent(), list.get(list.getCurrentIndex() - 1).brailleList.getLast().end + 1, text);
+				else
+					insertBrailleNode(message, list.getCurrent(), 0, text);
+			}
 		}
 		message.put("brailleLength", total);
 	}
 
+	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index){
+		Element p = makeElement("p", "semantics", "style,para");
+		p.appendChild(new Text(""));
+		
+		Element parent = (Element)current.n.getParent().getParent();
+		int nodeIndex = parent.indexOf(current.n.getParent());
+		parent.insertChild(p, nodeIndex + 1);
+		
+		list.add(index, new TextMapElement(textOffset, textOffset, p.getChild(0)));
+		
+	//	if(index < list.size() - 1){
+		Element brl = new Element("brl");
+		brl.appendChild(new Text(""));
+		p.appendChild(brl);
+		addNamespace(brl);
+		list.get(index).brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
+//		}
+	}
+	
 	private void changeTextNode(Node n, String text){
 		Text temp = (Text)n;
 		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
@@ -334,24 +389,76 @@ public class BBDocument {
 			return total;
 	}
 	
-	private void insertBrailleNode(TextMapElement t, int startingOffset, String text){
+	private void insertBrailleNode(Message m, TextMapElement t, int startingOffset, String text){
 		Document d = getStringTranslation(t, text);
-		Element e = d.getRootElement().getChildElements("brl").get(0);
+		Element e;
+		Element brlParent = ((Element)d.getRootElement().getChild(0));
+		Elements els = brlParent.getChildElements();
+		String insertionString = "";
 		
-		d.getRootElement().removeChild(e);
+		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em")){
+			e = els.get(0).getChildElements().get(0);
+			addNamespace(e);
+			brlParent.getChildElements().get(0).removeChild(e);
+		}
+		else {
+			e = brlParent.getChildElements("brl").get(0);
+			addNamespace(e);
+			brlParent.removeChild(e);
+		}
+		
 		t.n.getParent().appendChild(e);
-		
 		int newOffset = startingOffset;
+		
+		boolean first = true;
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
-				t.brailleList.add(new BrailleMapElement(newOffset, newOffset + e.getChild(i).getValue().length(),e.getChild(i)));
-				newOffset += e.getChild(i).getValue().length() + 1;
+				if(afterNewlineElement(e.getChild(i)) && !first){
+					insertionString += "\n";
+					newOffset++;
+				}
+				
+				t.brailleList.add(new BrailleMapElement(newOffset, newOffset + e.getChild(i).getValue().length(), e.getChild(i)));
+				newOffset += e.getChild(i).getValue().length();
+				insertionString += t.brailleList.getLast().n.getValue();
+				first = false;
 			}
 		}
+		
+		m.put("newBrailleText", insertionString);
+		m.put("brailleLength", 0);
+		m.put("newBrailleLength", insertionString.length());
+	}
+	
+	public ArrayList<Element> splitElement(MapList list,TextMapElement t, Message m){
+		ElementDivider divider = new ElementDivider(this, table);
+		if(m.getValue("atEnd").equals(true)){
+			ArrayList<TextMapElement>elList = new ArrayList<TextMapElement>();
+			elList.add(list.getCurrent());
+			elList.add(list.get(list.getCurrentIndex() + 1));
+			return divider.split(elList, list, m);
+		}
+		else if(m.getValue("atStart").equals(true)){
+			ArrayList<TextMapElement>elList = new ArrayList<TextMapElement>();
+			elList.add(list.get(list.getCurrentIndex() - 1));
+			elList.add(list.getCurrent());
+			return divider.split(elList, list, m);
+		}
+		else
+			return divider.split(list, t, m);
+	}
+	
+	public Element makeElement(String name, String attribute, String value){
+		Element e = new Element(name);
+		addNamespace(e);
+		if(attribute != null){
+			e.addAttribute(new Attribute(attribute, value));
+		}
+		return e;
 	}
 	
 	private void addNamespace(Element e){
-		e.setNamespaceURI(this.doc.getRootElement().getNamespaceURI());
+		e.setNamespaceURI(doc.getRootElement().getNamespaceURI());
 		
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
@@ -385,9 +492,7 @@ public class BBDocument {
 		
 		int total = translateString(xml, outbuf);   
 		if( total != -1){
-			xml = "";
-			for(int i = 0; i < total; i++)
-				xml += (char)outbuf[i];
+			xml = new String(outbuf, Charset.forName("UTF-8")).trim();
 			
 			StringReader sr = new StringReader(xml);
 			Builder builder = new Builder();
@@ -541,6 +646,26 @@ public class BBDocument {
 		}
 	}
 	
+	private void removeBraille(Element e){
+		Elements els = e.getChildElements();
+		for(int i = 0; i < els.size(); i++){
+			if(els.get(i).getLocalName().equals("brl")){
+				e.removeChild(els.get(i));
+			}
+			else
+				removeBraille(els.get(i));
+		}
+	}
+	
+	private void removeSemantics(Element e){
+		e.removeAttribute(e.getAttribute("semantics"));
+		
+		for(int i = 0; i < e.getChildCount(); i++){
+			if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl"))
+				removeSemantics((Element)e.getChild(i));
+		}
+	}
+	
 	public boolean createBrlFile(DocumentManager dm, String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
@@ -551,8 +676,14 @@ public class BBDocument {
 		if(inFile.equals(""))
 			return false;
 		
-		if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".sem")){
-			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".sem" + "\n";
+		String fileName;
+		if(dm.getWorkingPath() == null)
+			fileName = "outFile.utd";
+		else
+			fileName = dm.getWorkingPath();
+		
+		if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem")){
+			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem" + "\n";
 		}
 		
 		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n", 0);
@@ -562,21 +693,10 @@ public class BBDocument {
 	
 	private String createTempFile(Document newDoc){
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempXML.xml";
-		FileOutputStream os;
-		try {
-			os = new FileOutputStream(filePath);
-			Serializer serializer;
-			serializer = new Serializer(os, "UTF-8"); 
-			serializer.write(newDoc);
-			os.close();
+		if(fu.createXMLFile(newDoc, filePath))
 			return filePath;
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "IO Exception", e);
-		}
-	    
-	    return "";
+		else	    
+			return "";
 	}
 	
 	private void deleteTempFile(String filePath){
@@ -675,13 +795,25 @@ public class BBDocument {
 		}
 		attr.setValue("style," + name);
 		if(checkAttribute(e, "id")){
-			String fileName = fu.getFileName(dm.getWorkingPath());
+			
+			String fileName;
+			if(dm.getWorkingPath() == null)
+				fileName = "outFile";
+			else
+				fileName = fu.getFileName(dm.getWorkingPath());
+			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
 			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
-			String fileName = fu.getFileName(dm.getWorkingPath());
+			
+			String fileName;
+			if(dm.getWorkingPath() == null)
+				fileName = "outFile";
+			else
+				fileName = fu.getFileName(dm.getWorkingPath());
+			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
 			idCount++;
@@ -701,5 +833,21 @@ public class BBDocument {
 		}
 		
 		return parent;
+	}
+	
+	public Element translateElement(Element e){
+		removeBraille(e);
+		removeSemantics(e);
+		Document d;
+		
+		String xml = getXMLString(e.toXML().toString());
+		d = getXML(xml);
+		Element parent = (Element)d.getRootElement().getChild(0);
+		return (Element)parent.removeChild(0);
+	}
+	
+	public Nodes query(String query){
+		XPathContext context = XPathContext.makeNamespaceContext(doc.getRootElement());
+		return doc.query(query, context);
 	}
 }

@@ -236,17 +236,17 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 
 	
-	public void shiftOffsetsFromIndex(int index, int offset){
+	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset){
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, offset);
+					arr[i] = new UpdaterThread(this, start, this.size(), offset, brailleOffset);
 			}
 			else {	
-					arr[i] = new UpdaterThread(this, start, start + length , offset, offset);
+					arr[i] = new UpdaterThread(this, start, start + length , offset, brailleOffset);
 			}
 			
 			arr[i].start();
@@ -436,6 +436,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		m.put("nextBrailleStart", this.nextBraille);
 		m.put("previousBrailleEnd", this.prevBraille);
 		m.put("pageRanges", getPageRanges());
+		m.put("currentElement", this.current);
 	}
 	
 	public int getNodeIndex(TextMapElement t){
@@ -509,6 +510,31 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 		while(countUp < this.size() && doc.getParent(this.get(countUp).n, ignoreInlineElement).equals(parent)){
 			list.add(this.get(countUp));
+			countUp++;
+		}
+		
+		return list;
+	}
+	
+	public ArrayList<Integer> findTextMapElementRange(int index, Element parent, boolean ignoreInlineElement){
+		if(ignoreInlineElement && parent.getAttributeValue("semantics").contains("action")){
+			while(parent.getAttributeValue("semantics").contains("action"))
+				parent = (Element)parent.getParent();
+		}
+		ArrayList<Integer>list = new ArrayList<Integer>();
+		BBDocument doc = dm.getDocument();
+		
+		int countDown = index -  1;
+		int countUp = index + 1;
+		while(countDown >= 0 && doc.getParent(this.get(countDown).n, ignoreInlineElement).equals(parent)){
+			list.add(0, countDown);
+			countDown--;
+		}
+		
+		list.add(index);
+		
+		while(countUp < this.size() && doc.getParent(this.get(countUp).n, ignoreInlineElement).equals(parent)){
+			list.add(countUp);
 			countUp++;
 		}
 		

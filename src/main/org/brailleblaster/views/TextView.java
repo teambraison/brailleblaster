@@ -38,6 +38,7 @@ import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
@@ -81,6 +82,7 @@ public class TextView extends AbstractView {
 	private CaretListener caretListener;
 	private MouseListener mouseListener;
 	private int originalStart, originalEnd;
+	private TextMapElement currentElement;
 	
  	public TextView (Group documentWindow, BBSemanticsTable table) {
 		super (documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
@@ -114,6 +116,72 @@ public class TextView extends AbstractView {
 				
 				if(e.stateMask == SWT.CONTROL && e.keyCode == 'a'){
 					selectAll(dm);
+				}
+				else if(e.character == SWT.CR){
+					boolean atEnd = false;
+					boolean atStart = false;
+					
+					if(view.getCaretOffset() == currentEnd){
+						if(stylesTable.isBlockElement(currentElement.parentElement()) || isLast(currentElement.n))
+							atEnd = true;
+					}
+					else if(view.getCaretOffset() == currentStart){
+						if(stylesTable.isBlockElement(currentElement.parentElement()) || isFirst(currentElement.n))
+							atStart = true;
+					}
+					
+					if(textChanged == true){
+						sendUpdate(dm);
+						setCurrent(dm);
+					}
+					
+					if(atEnd) {
+						Message m = Message.createInsertNodeMessage(false, false, true);
+						m.put("length", originalEnd -originalStart);
+						dm.dispatch(m);
+						setListenerLock(true);
+						view.setCaretOffset(currentEnd);
+						view.insert("\n");
+						view.setCaretOffset(view.getCaretOffset() + 1);
+						setListenerLock(false);
+						e.doit = false;
+						setCurrent(dm);
+					}
+					else if(atStart){
+						Message m = Message.createInsertNodeMessage(false, true, false);
+						m.put("length", originalEnd - originalStart);
+						dm.dispatch(m);
+						setListenerLock(true);
+						view.insert("\n");
+						view.setCaretOffset(view.getCaretOffset() + 1);
+						setListenerLock(false);
+						e.doit = false;
+						setCurrent(dm);
+					}
+					else {
+						Message m;
+						int origLength =  getString(currentStart, view.getCaretOffset() - currentStart).length();
+						if(view.getCaretOffset() == currentEnd){
+							m = Message.createInsertNodeMessage(true, false, true);
+						}
+						else if(view.getCaretOffset() == currentStart){
+							m = Message.createInsertNodeMessage(true, true, false);
+						}
+						else
+							m = Message.createInsertNodeMessage(true, false, false);
+							
+						m.put("originalLength", origLength);
+						m.put("length", originalEnd - originalStart);
+						m.put("position", getString(currentStart, view.getCaretOffset() - currentStart).replace("\n", "").length());
+						int pos = view.getCaretOffset();
+						dm.dispatch(m);
+						setListenerLock(true);
+						view.setCaretOffset(pos + 1);
+						e.doit = false;
+						setCurrent(dm);
+						view.setCaretOffset(currentStart);
+						setListenerLock(false);
+					}
 				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
@@ -341,6 +409,8 @@ public class TextView extends AbstractView {
 		if(currentStart < view.getCharCount()){
 			range = getStyleRange();
 		}
+		
+		currentElement = (TextMapElement)message.getValue("currentElement");
 	}
 	
 	private void makeTextChange(int offset){
@@ -421,6 +491,49 @@ public class TextView extends AbstractView {
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;
 		spaceBeforeText = 0;
+		setListenerLock(false);
+	}
+	
+	public void insertText(MapList list, int listIndex, int start, Node n){
+		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+		String reformattedText =  appendToView(n, false);
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.insert(reformattedText);
+		list.add(listIndex, new TextMapElement(start, start + reformattedText.length(), n));
+		
+		int startLine = view.getLineAtOffset(start);
+		int margin = 0;
+		
+		//reset margin in case it is not applied
+		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+			handleLineWrap(start, reformattedText, 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+		}
+					
+		if(isFirst(n) && style.contains(StylesType.firstLineIndent)){
+			int lineIndent = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
+			view.setLineIndent(startLine, 1, (margin + lineIndent) * charWidth);
+		}
+		
+		if(style.contains(StylesType.Font)){
+			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
+		}
+
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void insertText(int start, String text){
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.insert(text);
+		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
 		
@@ -779,6 +892,7 @@ public class TextView extends AbstractView {
 	
 	private boolean isFirst(Node n){
 		Element parent = (Element)n.getParent();
+		
 		if(parent.indexOf(n) == 0){
 			if(parent.getAttributeValue("semantics").contains("action")){
 				return isFirstElement(parent);
@@ -1104,7 +1218,6 @@ public class TextView extends AbstractView {
 		}
 		setListenerLock(false);
 	}
-
 	
 	public void resetView(Group group) {
 		setListenerLock(true);

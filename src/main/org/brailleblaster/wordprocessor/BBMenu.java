@@ -228,7 +228,7 @@ class BBMenu {
 		saveItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
-				if(index != -1 && wp.getList().get(index).documentName != null){
+				if(index != -1){
 					wp.getList().get(index).fileSave();
 				}
 			}
@@ -239,7 +239,7 @@ class BBMenu {
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
-				if(index != -1 && wp.getList().get(index).documentName != null){
+				if(index != -1){
 					wp.getList().get(index).saveAs();
 				}
 			}
@@ -351,7 +351,6 @@ class BBMenu {
 				int index = wp.getFolder().getSelectionIndex();
 				wp.getList().get(index).fileClose();
 				wp.getList().remove(index);
-				wp.checkToolbarSettings();
 			}
 		});
 		if (!BBIni.getPlatformName().equals("cocoa")) {
@@ -937,17 +936,18 @@ class BBMenu {
 			{
 				int index= wordProc.getFolder().getSelectionIndex();
 				if(index == -1){
-					wordProc.addDocumentManager(null);
-					wordProc.getList().getFirst().openDocument( curStr2 );
+					wordProc.addDocumentManager(curStr2);
+					//wordProc.getList().getFirst().openDocument( curStr2 );
 				}
 				else {
 					
-					if(wordProc.getList().get(index).document.getDOM() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
+					if(wordProc.getList().get(index).getWorkingPath() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
 					{
 						wordProc.addDocumentManager( curStr2 );
 					}
 					else
 					{
+						wordProc.getList().get(index).closeUntitledTab();
 						wordProc.getList().get(index).openDocument(curStr2);
 					}
 				}

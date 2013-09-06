@@ -314,6 +314,12 @@ public abstract class AbstractView {
 		}
 	}
 	
+	public void clearRange(int start, int length){
+		setListenerLock(true);
+		view.replaceTextRange(start, length, "");
+		setListenerLock(false);
+	}
+	
 	protected boolean isElement(Node n){
 		return (n instanceof Element);
 	}

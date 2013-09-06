@@ -725,4 +725,51 @@ public class BrailleView extends AbstractView {
 		oldCursorPosition = -1;
 		setListenerLock(false);
 	}
+	
+	public void insert(TextMapElement t, Node n, int pos){
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		int margin = 0;
+		int originalPosition = view.getCaretOffset();
+		Element parent = (Element)n.getParent();
+		int start = pos;
+		int index = parent.indexOf(n);
+		
+		setListenerLock(true);
+		view.setCaretOffset(pos);
+		if(index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			view.insert("\n");
+			start++;
+			view.setCaretOffset(pos + 1);
+		}
+		view.insert(n.getValue());
+		t.brailleList.add(new BrailleMapElement(start, start + n.getValue().length(), n));
+		
+		int startLine = view.getLineAtOffset(t.brailleList.getFirst().start);
+		
+		//reset margin in case it is not applied
+		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+			handleLineWrap(t.brailleList.getLast().start, n.getValue(), 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(t.brailleList.getLast().start, n.getValue(), margin, false);
+		}
+					
+		if(isFirst(n) && style.contains(StylesType.firstLineIndent)){
+			int lineIndent = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
+			view.setLineIndent(startLine, 1, (margin + lineIndent) * charWidth);
+		}
+		
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void insertLineBreak(int insertPosition){
+		setListenerLock(true);
+		int pos = view.getCaretOffset();
+		view.setCaretOffset(insertPosition);
+		view.insert("\n");
+		view.setCaretOffset(pos);
+		setListenerLock(false);
+	}
 }

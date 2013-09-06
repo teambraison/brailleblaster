@@ -127,7 +127,7 @@ public class DocumentManager {
 		if(docName != null){
 			openDocument(docName);
 		}
-		else{
+		else {
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
 			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
 			((Element)n.get(0)).appendChild(new Text(""));
@@ -138,7 +138,7 @@ public class DocumentManager {
 	
 
 	private void initializeDocumentTab(){
-		FontManager.setShellFonts(this.wp.getShell(), this);	
+		FontManager.setShellFonts(wp.getShell(), this);	
 		setTabList();
 		wp.getShell().layout();
 	}

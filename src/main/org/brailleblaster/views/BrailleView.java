@@ -727,7 +727,7 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void insert(TextMapElement t, Node n, int pos){
-		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		int margin = 0;
 		int originalPosition = view.getCaretOffset();
 		Element parent = (Element)n.getParent();
@@ -736,7 +736,7 @@ public class BrailleView extends AbstractView {
 		
 		setListenerLock(true);
 		view.setCaretOffset(pos);
-		if(index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+		if(index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline") && t.brailleList.size() > 0){
 			view.insert("\n");
 			start++;
 			view.setCaretOffset(pos + 1);
@@ -758,6 +758,12 @@ public class BrailleView extends AbstractView {
 		if(isFirst(n) && style.contains(StylesType.firstLineIndent)){
 			int lineIndent = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
 			view.setLineIndent(startLine, 1, (margin + lineIndent) * charWidth);
+		}
+		
+		if(style.contains(StylesType.format)){
+			int lines = (view.getLineAtOffset(start + n.getValue().length()) - view.getLineAtOffset(start)) + 1;
+			
+			view.setLineAlignment(view.getLineAtOffset(start), lines, Integer.valueOf((String)style.get(StylesType.format)));
 		}
 		
 		view.setCaretOffset(originalPosition);

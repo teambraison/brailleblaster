@@ -6,6 +6,7 @@ import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
@@ -13,13 +14,15 @@ import nu.xom.Text;
 public class ElementDivider {
 	BBDocument doc;
 	BBSemanticsTable table;
+	SemanticFileHandler handler;
 	String attribute;
 	int nodeIndex;
 	int index;
 	
-	public ElementDivider(BBDocument doc, BBSemanticsTable table){
+	public ElementDivider(BBDocument doc, BBSemanticsTable table, SemanticFileHandler handler){
 		this.doc = doc;
 		this.table = table;
+		this.handler = handler;
 	}
 	
 	public ArrayList<Element>split(MapList list, TextMapElement t, Message m){
@@ -39,7 +42,12 @@ public class ElementDivider {
 			
 			Element grandParent = (Element)parent.getParent();
 			int parentIndex = grandParent.indexOf(parent);
-			
+			if(!isDefaultStyle(parent)){
+				firstElement.addAttribute(new Attribute("id", parent.getAttributeValue("id")));
+				Message styleMessage = new Message(null);
+				styleMessage.put("Style", table.get(table.getKeyFromAttribute(parent)));
+				doc.changeSemanticAction(styleMessage, secondElement);
+			}
 			replaceElement(els, grandParent, parent, firstElement);
 			insertElement(els, grandParent, secondElement, parentIndex + 1);
 		}
@@ -71,7 +79,7 @@ public class ElementDivider {
 		setGlobalVariables(parent, e, t2);
 		Element secondElement = createSecondElement(t2, parent, e, 0);
 		
-		if(m.contains("atStart")){
+		if(m.getValue("atStart").equals(true)){
 			e = (Element)t2.n.getParent();
 			parent = (Element)e.getParent();
 		}
@@ -83,9 +91,16 @@ public class ElementDivider {
 		while(parent.getAttributeValue("semantics").contains("action")){
 			parent = (Element)parent.getParent();
 		}
-		
+
 		Element grandParent = (Element)parent.getParent();
 		int parentIndex = grandParent.indexOf(parent);
+		
+		if(!isDefaultStyle(parent)){
+			firstElement.addAttribute(new Attribute("id", parent.getAttributeValue("id")));
+			Message styleMessage = new Message(null);
+			styleMessage.put("Style", table.get(table.getKeyFromAttribute(parent)));
+			doc.changeSemanticAction(styleMessage, secondElement);
+		}
 		
 		replaceElement(els, grandParent, parent, firstElement);
 		insertElement(els, grandParent, secondElement, parentIndex + 1);
@@ -213,5 +228,14 @@ public class ElementDivider {
 		attribute = table.getSemanticTypeFromAttribute(e);
 		nodeIndex = e.indexOf(t.n);
 		index = parent.indexOf(e);
+	}
+	
+	private boolean isDefaultStyle(Element e){
+		String style = table.getKeyFromAttribute(e);
+
+		if(style.equals(handler.getDefault(e.getLocalName())))
+			return true;
+		else
+			return false;
 	}
 }

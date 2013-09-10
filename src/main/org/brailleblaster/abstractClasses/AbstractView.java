@@ -314,6 +314,15 @@ public abstract class AbstractView {
 		}
 	}
 	
+	public void insertText(int start, String text){
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.insert(text);
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
 	public void clearRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");

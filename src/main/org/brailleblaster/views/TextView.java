@@ -137,7 +137,7 @@ public class TextView extends AbstractView {
 					
 					if(atEnd) {
 						Message m = Message.createInsertNodeMessage(false, false, true);
-						m.put("length", originalEnd -originalStart);
+						m.put("length", originalEnd - originalStart);
 						dm.dispatch(m);
 						setListenerLock(true);
 						view.setCaretOffset(currentEnd);
@@ -176,7 +176,7 @@ public class TextView extends AbstractView {
 						int pos = view.getCaretOffset();
 						dm.dispatch(m);
 						setListenerLock(true);
-						view.setCaretOffset(pos + 1);
+						view.setCaretOffset(pos + (Integer)m.getValue("length"));
 						e.doit = false;
 						setCurrent(dm);
 						view.setCaretOffset(currentStart);
@@ -520,19 +520,15 @@ public class TextView extends AbstractView {
 			view.setLineIndent(startLine, 1, (margin + lineIndent) * charWidth);
 		}
 		
+		if(style.contains(StylesType.format)){
+			int lines = (view.getLineAtOffset(start + n.getValue().length()) - view.getLineAtOffset(start)) + 1;
+			view.setLineAlignment(view.getLineAtOffset(start), lines, Integer.valueOf((String)style.get(StylesType.format)));
+		}
+		
 		if(style.contains(StylesType.Font)){
 			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
 		}
 
-		view.setCaretOffset(originalPosition);
-		setListenerLock(false);
-	}
-	
-	public void insertText(int start, String text){
-		setListenerLock(true);
-		int originalPosition = view.getCaretOffset();
-		view.setCaretOffset(start);
-		view.insert(text);
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}

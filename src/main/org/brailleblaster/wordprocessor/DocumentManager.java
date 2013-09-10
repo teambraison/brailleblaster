@@ -48,6 +48,8 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.document.BBSemanticsTable;
+import org.brailleblaster.document.BBSemanticsTable.Styles;
+import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
@@ -531,16 +533,7 @@ public class DocumentManager {
 		
 		int textStart = list.get(originalElements.get(0)).start;
 		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
-		int brailleStart;
-		if(originalElements.get(0) > 0)
-			brailleStart = list.get(originalElements.get(0) - 1).brailleList.getLast().end;
-		else {
-			if(list.get(originalElements.get(0)).brailleList.getFirst().start > 0)
-				brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start - 1;
-			else 
-				brailleStart = 0;
-		}
-			
+		int brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start;	
 			
 		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
 				
@@ -567,10 +560,31 @@ public class DocumentManager {
 		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
 		addTreeItems(firstElementIndex, currentIndex + 1, treeIndex);
 		
-		text.insertText(list.get(currentIndex).end, "\n");
+		
+		String insertionString = "";
+		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
+
+		if(style.contains(StylesType.linesBefore)){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
+				insertionString += "\n";
+			}
+		}
+		else if(style.contains(StylesType.linesAfter)){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
+				insertionString += "\n";
+			}
+		}
+		else {
+			insertionString = "\n";
+		}
+
+		text.insertText(list.get(currentIndex).end, insertionString);
+		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
+		//braille.insertLineBreak(list.get(currentIndex).brailleList.getLast().end);
+		m.put("length", insertionString.length());
 		
 		int secondElementIndex = currentIndex + 1;
-		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + 1, list.get(currentIndex).brailleList.getLast().end);
+		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
 		addTreeItems(secondElementIndex, currentIndex,treeIndex + 1);
 		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
 	}
@@ -727,7 +741,7 @@ public class DocumentManager {
 				}
 			}
 			list.setCurrent(currentIndex);
-			document.changeSemanticAction(message, list.getCurrent());
+			document.changeSemanticAction(message, list.getCurrent().parentElement());
 			group.setRedraw(true);
 		}
 	}

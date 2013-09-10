@@ -431,7 +431,7 @@ public class BBDocument {
 	}
 	
 	public ArrayList<Element> splitElement(MapList list,TextMapElement t, Message m){
-		ElementDivider divider = new ElementDivider(this, table);
+		ElementDivider divider = new ElementDivider(this, table, semHandler);
 		if(m.getValue("atEnd").equals(true)){
 			ArrayList<TextMapElement>elList = new ArrayList<TextMapElement>();
 			elList.add(list.getCurrent());
@@ -526,7 +526,16 @@ public class BBDocument {
 			int [] outlength = new int[1];
 			outlength[0] = text.length() * 10;
 			
-			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, "formatFor utd\n mode notUC\n printPages no\n", 0)){
+			String semPath;
+			if(dm.getWorkingPath() == null){
+				semPath =  BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
+			}
+			else {
+				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
+			}
+			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
+			
+			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings, 0)){
 				return outlength[0];
 			}
 			else {
@@ -784,10 +793,10 @@ public class BBDocument {
 			d.setDocType(new DocType(this.getRootElement().getLocalName(), publicId, systemId));
 	}
 	
-	public void changeSemanticAction(Message m, TextMapElement t){
+	public void changeSemanticAction(Message m, Element e){
 		org.brailleblaster.document.BBSemanticsTable.Styles style = (org.brailleblaster.document.BBSemanticsTable.Styles)m.getValue("Style");
 		String name = style.getName();
-		Element e = (Element)t.n.getParent();
+		//Element e = (Element)t.n.getParent();
 		Attribute attr = e.getAttribute("semantics");
 		while(attr.getValue().contains("action")){
 			e = (Element)e.getParent();

@@ -718,6 +718,7 @@ public class DocumentManager {
 		if(document.getDOM() != null){
 			group.setRedraw(false);
 			Element parent = document.getParent(list.getCurrent().n, true);
+			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
 			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
 		
 			int start = list.getNodeIndex(itemList.get(0));

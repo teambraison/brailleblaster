@@ -262,8 +262,8 @@ public class BBDocument {
 		Element p = makeElement("p", "semantics", "style,para");
 		p.appendChild(new Text(""));
 		
-		Element parent = (Element)current.n.getParent().getParent();
-		int nodeIndex = parent.indexOf(current.n.getParent());
+		Element parent = (Element)current.parentElement().getParent();
+		int nodeIndex = parent.indexOf(current.parentElement());
 		parent.insertChild(p, nodeIndex + 1);
 		
 		list.add(index, new TextMapElement(textOffset, textOffset, p.getChild(0)));
@@ -317,7 +317,7 @@ public class BBDocument {
 		}
 		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
 			
-		Element parent = (Element)t.n.getParent();
+		Element parent = t.parentElement();
 		Element child = (Element)t.brailleList.getFirst().n.getParent();
 		while(!child.getParent().equals(parent)){
 			child = (Element)child.getParent();
@@ -369,7 +369,7 @@ public class BBDocument {
 			}
 			logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
 			
-			Element parent = (Element)t.n.getParent();
+			Element parent = t.parentElement();
 			if(t.brailleList.size() > 0){
 				Element child = (Element)t.brailleList.getFirst().n.getParent();
 				while(!child.getParent().equals(parent)){
@@ -378,7 +378,7 @@ public class BBDocument {
 				parent.replaceChild(child, e);	
 			}
 			else {
-				t.n.getParent().appendChild(e);
+				t.parentElement().appendChild(e);
 			}
 		
 			t.brailleList.clear();
@@ -407,7 +407,7 @@ public class BBDocument {
 			brlParent.removeChild(e);
 		}
 		
-		t.n.getParent().appendChild(e);
+		t.parentElement().appendChild(e);
 		int newOffset = startingOffset;
 		
 		boolean first = true;
@@ -471,7 +471,7 @@ public class BBDocument {
 	}
 	
 	public Document getStringTranslation(TextMapElement t, String text){
-		Element parent = (Element)t.n.getParent();
+		Element parent = t.parentElement();
 		while(!parent.getAttributeValue("semantics").contains("style")){
 			if(parent.getAttributeValue("semantics").equals("action,italicx")){
 				text = "<em>" + text + "</em>";
@@ -585,13 +585,13 @@ public class BBDocument {
 	}
 	
 	private void removeNode(TextMapElement t, Message message){
-		if(hasNonBrailleChildren((Element)t.n.getParent())){
+		if(hasNonBrailleChildren(t.parentElement())){
 			Element e = (Element)t.brailleList.getFirst().n.getParent();
-			t.n.getParent().removeChild(e);
-			t.n.getParent().removeChild(t.n);
+			t.parentElement().removeChild(e);
+			t.parentElement().removeChild(t.n);
 		}
 		else {
-			Element parent = (Element)t.n.getParent();
+			Element parent = t.parentElement();
 			while(!parent.getAttributeValue("semantics").contains("style")){
 				if(((Element)parent.getParent()).getChildElements().size() <= 1){
 					parent = (Element)parent.getParent();

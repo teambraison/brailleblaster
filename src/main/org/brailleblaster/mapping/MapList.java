@@ -154,8 +154,8 @@ public class MapList extends LinkedList<TextMapElement>{
 		if(this.get(index).n.getValue().length() == 0)
 			return true;
 		
-		char firstChar = this.get(index).n.getValue().charAt(this.get(index).n.getValue().length() - 1);
-		String nextElementText = this.get(index + 1).n.getValue(); 
+		char firstChar = this.get(index).value().charAt(this.get(index).n.getValue().length() - 1);
+		String nextElementText = this.get(index + 1).value(); 
 		if(nextElementText.length() > 0){
 			char nextChar =  nextElementText.charAt(0);
 			if( firstChar == ' ' && nextChar != ' '){
@@ -285,27 +285,27 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 			if(next < this.size()){	
 				if(this.get(index).start == this.get(next).start){
-					Message m = Message.createRemoveNodeMessage(index, this.get(index).n.getValue().length());
-					System.out.println("Node 1:\t" + this.get(index).n.getValue());
-					System.out.println("Node 2:\t" + this.get(next).n.getValue());
+					Message m = Message.createRemoveNodeMessage(index, this.get(index).textLength());
+					System.out.println("Node 1:\t" + this.get(index).value());
+					System.out.println("Node 2:\t" + this.get(next).value());
 					dm.dispatch(m);
 				}
 			}
 		
 			if(previous >= 0 && next < this.size()){
-				if((this.get(previous).start + this.get(previous).n.getValue().length() + 1 == this.get(next).start && this.get(index).n.getValue().length() == 0)
-						|| (this.get(previous).end == this.get(index).start && this.get(index).n.getValue().length() == 0)){
+				if((this.get(previous).start + this.get(previous).textLength() + 1 == this.get(next).start && this.get(index).textLength() == 0)
+						|| (this.get(previous).end == this.get(index).start && this.get(index).textLength() == 0)){
 					Message m = Message.createRemoveNodeMessage(index,  this.get(index).n.getValue().length());
-					System.out.println("Node 1:\t" + this.get(index).n.getValue());
-					System.out.println("Node 2:\t" + this.get(next).n.getValue());
+					System.out.println("Node 1:\t" + this.get(index).value());
+					System.out.println("Node 2:\t" + this.get(next).value());
 					dm.dispatch(m);
 				}
 			}
 		
 			if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
 				if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
-					Message m = Message.createRemoveNodeMessage(this.size() - 1, this.get(this.size() - 1).n.getValue().length());
-					System.out.println("Node 1:\t" + this.get(this.size() - 1).n.getValue());
+					Message m = Message.createRemoveNodeMessage(this.size() - 1, this.get(this.size() - 1).textLength());
+					System.out.println("Node 1:\t" + this.get(this.size() - 1).textLength());
 					System.out.println("Node 2:\t none");
 					dm.dispatch(m);
 				}

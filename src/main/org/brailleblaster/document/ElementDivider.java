@@ -27,7 +27,7 @@ public class ElementDivider {
 	
 	public ArrayList<Element>split(MapList list, TextMapElement t, Message m){
 		ArrayList<Element>els = new ArrayList<Element>();
-		Element e = (Element)t.n.getParent();
+		Element e = t.parentElement();
 		Element parent = (Element)e.getParent();
 		setGlobalVariables(parent, e, t);
 		
@@ -169,9 +169,9 @@ public class ElementDivider {
 	private Element makeElementWithTextNode(Element e, TextMapElement t, Integer start, int position){
 		Element splitElement = doc.makeElement(e.getLocalName(), "semantics", e.getAttributeValue("semantics"));
 		if(start != null)
-			insertTextNode(splitElement, t.n.getValue().substring(0, position));
+			insertTextNode(splitElement, t.value().substring(0, position));
 		else
-			insertTextNode(splitElement, t.n.getValue().substring(position));
+			insertTextNode(splitElement, t.value().substring(position));
 		
 		return splitElement;
 	}

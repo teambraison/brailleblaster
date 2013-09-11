@@ -379,7 +379,7 @@ public class BrailleView extends AbstractView {
 						textBefore = makeInsertionString(spaces + 1,'\n');
 						insertBefore(currentEnd, textBefore);
 						offset = (spaces + 1) - length;
-						if(nextStart != 1)
+						if(nextStart != -1)
 							nextStart += offset;
 						
 						if(nextStart != -1){

@@ -528,7 +528,7 @@ public class BBDocument {
 			
 			String semPath;
 			if(dm.getWorkingPath() == null){
-				semPath =  BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
+				semPath =  BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
 			}
 			else {
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";

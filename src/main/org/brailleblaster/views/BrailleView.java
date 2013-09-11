@@ -211,7 +211,7 @@ public class BrailleView extends AbstractView {
 	
 	public void setBraille(Node n, TextMapElement t){
 		setListenerLock(true);
-		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), n);
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), n);
 		String textBefore = "";
 		String text = n.getValue();
 		int textLength = text.length();
@@ -222,7 +222,7 @@ public class BrailleView extends AbstractView {
 		}
 		
 		view.append(textBefore + text);
-		handleStyle(style, n, (Element)t.n.getParent());
+		handleStyle(style, n, t.parentElement());
 		
 		t.brailleList.add(new BrailleMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength, n));
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -320,6 +320,7 @@ public class BrailleView extends AbstractView {
 		String textBefore = "";
 		setViewData(m);
 		Styles style = (Styles)m.getValue("Style");
+		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		
 		setListenerLock(true);
 		if(isFirst(t.brailleList.getFirst().n) || (!isFirst(t.brailleList.getFirst().n) && view.getLineAtOffset(currentStart) != startLine))
@@ -411,7 +412,7 @@ public class BrailleView extends AbstractView {
 			}
 		}
 		
-		if(!style.contains(StylesType.linesBefore)){
+		if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore)){
 			if(-1 != previousEnd){
 				prev = previousEnd;
 			}
@@ -422,7 +423,8 @@ public class BrailleView extends AbstractView {
 				view.replaceTextRange(prev, (currentStart - prev), "");
 				length = currentStart - prev;	
 			}
-			if(isFirst(t.brailleList.getFirst().n)){
+			
+			if(isFirst(t.brailleList.getFirst().n) && previousEnd != -1){
 				spaces = 1;
 				textBefore = makeInsertionString(spaces,'\n');
 				offset = spaces - length;
@@ -431,7 +433,8 @@ public class BrailleView extends AbstractView {
 				m.put("linesBeforeOffset", offset);
 				currentStart += offset;
 				currentEnd += offset;
-				nextStart += offset;
+				if(nextStart != -1)
+					nextStart += offset;
 				if(previousEnd != -1){
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
 					restoreStyleState(currentStart, currentEnd);
@@ -439,7 +442,7 @@ public class BrailleView extends AbstractView {
 			}
 		}
 		
-		if(!style.contains(StylesType.linesAfter)){
+		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter)){
 			if(currentEnd != nextStart && nextStart != -1){
 				saveStyleState(currentStart);
 				indent  = view.getLineIndent(view.getLineAtOffset(nextStart));
@@ -453,7 +456,8 @@ public class BrailleView extends AbstractView {
 				insertBefore(currentEnd, textBefore);
 				offset = spaces - length;
 				m.put("linesAfterOffset", offset);
-				nextStart += offset;
+				if(nextStart != -1)
+					nextStart += offset;
 				if(nextStart != -1){
 					restoreStyleState(currentStart, currentEnd);
 					view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
@@ -574,11 +578,11 @@ public class BrailleView extends AbstractView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
-		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		int total = (Integer)message.getValue("brailleLength");
 		int margin = 0;
 		
-		System.out.println("Value: " + t.n.getValue());
+		System.out.println("Value: " + t.value());
 		String insertionString = (String)message.getValue("newBrailleText");
 		
 		if(t.brailleList.getFirst().start != -1){

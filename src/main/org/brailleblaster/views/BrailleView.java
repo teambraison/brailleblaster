@@ -353,7 +353,9 @@ public class BrailleView extends AbstractView {
 						insertBefore(currentStart - (currentStart - prev), textBefore);
 						currentStart += offset;
 						currentEnd += offset;
-						nextStart += offset;
+						if(nextStart != -1)
+							nextStart += offset;
+						
 						view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
 						restoreStyleState(currentStart, currentEnd);
 					}
@@ -377,7 +379,9 @@ public class BrailleView extends AbstractView {
 						textBefore = makeInsertionString(spaces + 1,'\n');
 						insertBefore(currentEnd, textBefore);
 						offset = (spaces + 1) - length;
-						nextStart += offset;
+						if(nextStart != 1)
+							nextStart += offset;
+						
 						if(nextStart != -1){
 							view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
 							restoreStyleState(currentStart, currentEnd);
@@ -424,7 +428,7 @@ public class BrailleView extends AbstractView {
 				length = currentStart - prev;	
 			}
 			
-			if(isFirst(t.brailleList.getFirst().n) && previousEnd != -1){
+			if(isFirst(t.brailleList.getFirst().n)){
 				spaces = 1;
 				textBefore = makeInsertionString(spaces,'\n');
 				offset = spaces - length;
@@ -443,14 +447,22 @@ public class BrailleView extends AbstractView {
 		}
 		
 		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter)){
-			if(currentEnd != nextStart && nextStart != -1){
+			if(currentEnd != nextStart){
+				int removedSpaces;
+				if(nextStart != -1)
+					removedSpaces = nextStart - currentEnd;
+				else
+					removedSpaces = view.getCharCount() - currentEnd;
+				
 				saveStyleState(currentStart);
-				indent  = view.getLineIndent(view.getLineAtOffset(nextStart));
-				view.replaceTextRange(currentEnd, (nextStart - currentEnd), "");
-				length = nextStart - currentEnd;
+				if(nextStart != -1)
+					indent  = view.getLineIndent(view.getLineAtOffset(nextStart)); 
+					
+				view.replaceTextRange(currentEnd, removedSpaces, "");
+				length = removedSpaces;
 			}
 			
-			if(isLast(t.brailleList.getLast().n)){
+			if(isLast(t.brailleList.getLast().n) && nextStart != -1){
 				spaces = 1;
 				textBefore = makeInsertionString(1,'\n');
 				insertBefore(currentEnd, textBefore);

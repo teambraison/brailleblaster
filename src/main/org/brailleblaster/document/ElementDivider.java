@@ -42,20 +42,17 @@ public class ElementDivider {
 			
 			Element grandParent = (Element)parent.getParent();
 			int parentIndex = grandParent.indexOf(parent);
-			if(!isDefaultStyle(parent)){
-				firstElement.addAttribute(new Attribute("id", parent.getAttributeValue("id")));
-				Message styleMessage = new Message(null);
-				styleMessage.put("Style", table.get(table.getKeyFromAttribute(parent)));
-				doc.changeSemanticAction(styleMessage, secondElement);
-			}
+			checkElementStyle(parent, firstElement, secondElement);
 			replaceElement(els, grandParent, parent, firstElement);
 			insertElement(els, grandParent, secondElement, parentIndex + 1);
 		}
 		else if(e.getChildCount() > 2 && nodeIndex > 0){
+			checkElementStyle(e, firstElement, secondElement);
 			replaceElement(els, parent, e, firstElement);
 			insertElement(els, parent, secondElement, index + 1);
 		}
 		else {
+			checkElementStyle(e, firstElement, secondElement);
 			replaceElement(els, parent, e, firstElement);
 			insertElement(els, parent,secondElement, index + 1);
 		}
@@ -94,18 +91,22 @@ public class ElementDivider {
 
 		Element grandParent = (Element)parent.getParent();
 		int parentIndex = grandParent.indexOf(parent);
+
+		checkElementStyle(parent, firstElement, secondElement);
 		
+		replaceElement(els, grandParent, parent, firstElement);
+		insertElement(els, grandParent, secondElement, parentIndex + 1);
+		
+		return els;
+	}
+	
+	private void checkElementStyle(Element parent, Element firstElement, Element secondElement){
 		if(!isDefaultStyle(parent)){
 			firstElement.addAttribute(new Attribute("id", parent.getAttributeValue("id")));
 			Message styleMessage = new Message(null);
 			styleMessage.put("Style", table.get(table.getKeyFromAttribute(parent)));
 			doc.changeSemanticAction(styleMessage, secondElement);
 		}
-		
-		replaceElement(els, grandParent, parent, firstElement);
-		insertElement(els, grandParent, secondElement, parentIndex + 1);
-		
-		return els;
 	}
 	
 	private Element createFirstElement(TextMapElement t, Element parent, Element e, int textPosition){

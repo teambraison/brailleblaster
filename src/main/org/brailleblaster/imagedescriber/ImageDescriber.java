@@ -667,7 +667,7 @@ public class ImageDescriber {
 	public String getCurProdText()
 	{
 		// String for <prodnote> text.
-		String prodText = null;
+		String prodText = "NO PRODNOTE/NO DESCRIPTION.";
 		
 		// Get parent of <img> element.
 		nu.xom.Node parNode = curImgElement.getParent();
@@ -709,7 +709,7 @@ public class ImageDescriber {
 		nu.xom.Node parNode = imgElmList.get(index).getParent();
 		
 		// String for <prodnote> text.
-		String prodText = null;
+		String prodText = "NO PRODNOTE/NO DESCRIPTION.";
 		
 		///////////////////////////
 		

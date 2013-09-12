@@ -79,7 +79,8 @@ public class ImageDescriberDialog extends Dialog {
 	Button cancelBtn;
 	Button applyBtn;
 	Button okayBtn;
-	Button applyToAll;
+	Button applyToAllBtn;
+	Button clearAllBtn;
 	Label mainImage;
 	Text imgDescTextBox;
 	Browser browser = null;
@@ -130,6 +131,10 @@ public class ImageDescriberDialog extends Dialog {
 	int applyAllBtnY = okayBtnY + okayBtnH + 1;
 	int applyAllBtnW = defBtnW;
 	int applyAllBtnH = defBtnH;
+	int clearAllBtnX = 0; // Clear All.
+	int clearAllBtnY = applyAllBtnY + applyAllBtnH + 1;
+	int clearAllBtnW = defBtnW;
+	int clearAllBtnH = defBtnH;
 	// Text box.
 	int txtBoxX = 0;
 	int txtBoxY = 55;
@@ -324,8 +329,15 @@ public class ImageDescriberDialog extends Dialog {
 		cancelBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
-				// Close the dialog without committing changes.
-				imgDescShell.close();
+				// Warn user that all changes will be discarded.
+				if( msgBx("Warning", "This will discard all changes, even the ones you Apply'd. Continue?") == true)
+				{
+					// Copy original elements back into main list. "Undo!"
+					imgDesc.copyUndo2MainList();
+					
+					// Close the dialog without committing changes.
+					imgDescShell.close();
+				}
 				
 			} // widgetSelected()
 			
@@ -333,14 +345,14 @@ public class ImageDescriberDialog extends Dialog {
 
 		// Apply to all button. Finds every image with this name and changes description
 		// to what was in the notes.
-		applyToAll = new Button(imgDescShell, SWT.PUSH);
-		applyToAll.setText("Apply To All");
-		applyToAll.setBounds(applyAllBtnX,  applyAllBtnY, applyAllBtnW, applyAllBtnH);
-		applyToAll.addSelectionListener(new SelectionAdapter() {
+		applyToAllBtn = new Button(imgDescShell, SWT.PUSH);
+		applyToAllBtn.setText("Apply To All");
+		applyToAllBtn.setBounds(applyAllBtnX,  applyAllBtnY, applyAllBtnW, applyAllBtnH);
+		applyToAllBtn.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Warn user before doing this. It could take a while.
-				if( msgBx("Warning", "This will cause the Image Describer to update the entire document. This could take a while. Continue?") == true)
+				if( msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
 				{
 					// Apply what is in the edit box first.
 					imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
@@ -372,6 +384,50 @@ public class ImageDescriberDialog extends Dialog {
 			} // widgetSelected()
 			
 		}); // applyToAll.addSelectionListener...
+		
+		// Clear all button. Clears the prodnote and alt attribute.
+		clearAllBtn = new Button(imgDescShell, SWT.PUSH);
+		clearAllBtn.setText("Clear All");
+		clearAllBtn.setBounds(clearAllBtnX,  clearAllBtnY, clearAllBtnW, clearAllBtnH);
+		clearAllBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Clear every description for this image, and clear alt text.
+				if( msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
+				{
+					// Apply what is in the edit box first.
+					imgDesc.setCurElmProd("", null, null, null);
+					imgDescTextBox.setText("");
+					
+					// Current image path.
+					String curImgPath = "";
+					
+					// Get current image path from src attribute.
+					curImgPath = imgDesc.currentImageElement().getAttributeValue("src");
+					
+					// Get number of <img> elements.
+					int numElms = imgDesc.getNumImgElements();
+					
+					// For each element, check if it has the same image path.
+					for(int curImg = 0; curImg < numElms; curImg++)
+					{
+						// Is this <img> just like the current image path?
+						if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
+						{
+							// Change description to current prod text.
+							imgDesc.setProdAtIndex(curImg, "", null, null, null);
+							// Change alt text.
+							imgDesc.setElementAttributesAtIndex(curImg, null, null, "");
+							
+						} // if( imgDesc.getElementAtIndex...
+						
+					} // for(int curImg...
+					
+				} // if msgBx == true
+				
+			} // widgetSelected()
+			
+		}); // clearAllBtn.addSelectionListener
 		
 		// Create image description text box.
 		imgDescTextBox = new Text(imgDescShell, SWT.BORDER | SWT.MULTI | SWT.WRAP);
@@ -464,10 +520,14 @@ public class ImageDescriberDialog extends Dialog {
 		cancelBtnY = 0;
 		cancelBtnW = defBtnW;
 		cancelBtnH = defBtnH;
-		applyAllBtnX = 0; // not-important.
+		applyAllBtnX = 0; // Apply All.
 		applyAllBtnY = okayBtnY + okayBtnH + 1;
 		applyAllBtnW = clientWidth / 12;
 		applyAllBtnH = defBtnH;
+		clearAllBtnX = applyAllBtnX + clientWidth / 12; // Clear All.
+		clearAllBtnY = applyAllBtnY;
+		clearAllBtnW = clientWidth / 12;
+		clearAllBtnH = defBtnH;
 		// Text box.
 		txtBoxX = 0;
 		txtBoxY = applyAllBtnY + applyAllBtnH + 1;

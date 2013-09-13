@@ -986,6 +986,7 @@ public class TextView extends AbstractView {
 	
 	private void setCursorPosition(Message message){
 		int offset = (Integer)message.getValue("offset");
+		
 		if(message.contains("element")){
 			Element e = getBrlNode((Node)message.getValue("element"));
 			int pos;

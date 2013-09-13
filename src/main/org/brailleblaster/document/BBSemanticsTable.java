@@ -1,6 +1,7 @@
 package org.brailleblaster.document;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
@@ -78,10 +79,10 @@ public class BBSemanticsTable {
 	FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();
 	
-	public BBSemanticsTable(){
+	public BBSemanticsTable(String config){
 		try {
 			this.table = new HashMap<String, Styles>();
-			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
 			FileReader file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
 			makeHashTable(reader);
@@ -180,7 +181,7 @@ public class BBSemanticsTable {
 		if(temp != null){
 			Element e = (Element)n.getParent();
 			String nextKey = getKeyFromAttribute(e);
-			while(!nextKey.equals("document")){
+			while(!nextKey.equals("document") && !nextKey.equals("markhead")){
 				if(this.table.containsKey(nextKey)){
 					makeComposite(nextKey,temp);
 				}
@@ -225,5 +226,27 @@ public class BBSemanticsTable {
 			return true;
 		else
 			return false;
+	}
+	
+	public void resetStyleTable(String configFile){
+		table.clear();
+		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
+	
+		try {
+			FileReader file = new FileReader(filePath);
+			BufferedReader reader = new BufferedReader(file);
+			makeHashTable(reader);
+			reader.close();
+			makeStylesObject("italicx");
+			insertValue("italicx","\tFont " + SWT.ITALIC);
+			makeStylesObject("boldx");
+			insertValue("boldx","\tFont " + SWT.BOLD);
+		} 
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

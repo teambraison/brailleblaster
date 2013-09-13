@@ -46,14 +46,16 @@ public class StyleManager{
     private StylePanel sp;
     private StyleTable table;
     //private PropertyView propView;
+    private String configFile;
     DocumentManager dm;
     
     private BBSemanticsTable semanticsTable;
     
     public StyleManager(DocumentManager dm) {
     	this.dm = dm;
+    	this.configFile = dm.getCurrentConfig();
     	this.table = new StyleTable(this, dm.getGroup());
-    	this.semanticsTable = new BBSemanticsTable();
+    	this.semanticsTable = dm.getStyleTable();
 	}
 
 	void createStyle(String styleName){
@@ -100,6 +102,10 @@ public class StyleManager{
     	return this.semanticsTable;
     }
     
+    public StyleTable getStyleTable(){
+    	return table;
+    }
+    
     public Table getTable(){
     	return table.getTable();
     }
@@ -110,5 +116,9 @@ public class StyleManager{
     
     public void hideTable(){
     	table.hideTable();
+    }
+    
+    public String getConfigFile(){
+    	return configFile;
     }
 }

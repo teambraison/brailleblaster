@@ -182,7 +182,7 @@ public class TreeView extends AbstractView {
 		
 		this.tree.addFocusListener(treeFocusListener = new FocusListener(){
 			@Override
-			public void focusGained(FocusEvent arg0) {
+			public void focusGained(FocusEvent e) {
 				// TODO Auto-generated method stub	
 			}
 
@@ -261,7 +261,7 @@ public class TreeView extends AbstractView {
 	private void populateItemChildren(TreeItem item, Element e, DocumentManager dm){
 		ArrayList<Text>textList = new ArrayList<Text>();
 		Elements els = e.getChildElements();
-		
+	
 		for(int i = 0; i < els.size(); i++){
 			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);

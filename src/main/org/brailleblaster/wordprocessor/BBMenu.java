@@ -949,6 +949,7 @@ class BBMenu {
 					{
 						wordProc.getList().get(index).closeUntitledTab();
 						wordProc.getList().get(index).openDocument(curStr2);
+						wordProc.getList().get(index).checkTreeFocus();
 					}
 				}
 				

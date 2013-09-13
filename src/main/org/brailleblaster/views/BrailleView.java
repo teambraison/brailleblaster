@@ -688,9 +688,8 @@ public class BrailleView extends AbstractView {
 				else {
 					if((Integer)message.getValue("lastPosition") < 0 && currentStart > 0)
 						pos = currentStart + (Integer)message.getValue("lastPosition");	
-					else if((Integer)message.getValue("lastPosition") == 99999){
+					else if((Integer)message.getValue("lastPosition") == 99999)
 						pos = currentEnd + offset;
-					}
 					else {
 						pos = currentStart + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + offset;
 						pos += checkPageRange(pos);

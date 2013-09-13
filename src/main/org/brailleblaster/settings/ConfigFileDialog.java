@@ -1009,8 +1009,10 @@ public class ConfigFileDialog extends Dialog {
 	void refreshViews()
 	{
 		int index = dm.getFolder().getSelectionIndex();
-		if(index  > -1)
+		if(index  > -1) {
+			dm.getList().get(index).setCurrentConfig(defaultCfgFileName);
 			dm.getList().get(index).refresh();
+		}
 		
 	} // void refreshViews()
 	

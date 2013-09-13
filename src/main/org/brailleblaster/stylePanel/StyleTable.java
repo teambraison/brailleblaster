@@ -99,7 +99,7 @@ public class StyleTable {
 			}
 		});
 	
-	   	populateTable();
+	   	populateTable(sm.getConfigFile());
 	   	initializeListeners();
 	}
 	
@@ -167,9 +167,8 @@ public class StyleTable {
 		t.setSelection(searchTree(text));
 	}
 	
-    private void populateTable(){
-    	String defaultName = BBIni.getDefaultConfigFile();
-    	String fullPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + defaultName);
+    private void populateTable(String config){
+    	String fullPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
     	String currentLine;
     	
     	try {
@@ -195,6 +194,11 @@ public class StyleTable {
     		e.printStackTrace();
     		logger.log(Level.SEVERE, "File Not Found Exception", e);
     	}
+    }
+    
+    public void resetTable(String configFile){
+    	t.removeAll();
+    	populateTable(configFile);
     }
     
     private void addTableItem(String item){

@@ -66,9 +66,9 @@ public class SemanticFileHandler {
 			String currentLine;
 			
 			File f = new File(defaultSemFile);
-			FileReader fr;
+
 			try {
-				fr = new FileReader(f);
+				FileReader fr = new FileReader(f);
 				BufferedReader br = new BufferedReader(fr);
 				
 				while ((currentLine = br.readLine()) != null) {
@@ -79,7 +79,8 @@ public class SemanticFileHandler {
 				}
 				
 				br.close();
-			} catch (FileNotFoundException e) {
+			} 
+			catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
 			catch(IOException e){

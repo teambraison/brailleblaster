@@ -540,4 +540,10 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 		return list;
 	}
+	
+	public void clearList(){
+		this.clear();
+		this.current = null;
+		currentIndex = -1;
+	}
 }

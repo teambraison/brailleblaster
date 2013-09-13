@@ -128,16 +128,24 @@ public class BBDocument {
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(completePath);
+			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n";
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(completePath);
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n";
 		}
+		
+		if(dm.getWorkingPath() != null){
+			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);			
+		}
+		else {
+			configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
+		}
+		
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
 		int extPos = completePath.lastIndexOf (".") + 1;
 		String ext = completePath.substring (extPos);
-		if (ext.equalsIgnoreCase ("xml")) {
+		if (ext.equalsIgnoreCase ("xml") || ext.equals("xhtml")) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
 			if(normalizeFile(completePath, tempPath) && lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
 				deleteFile(tempPath);
@@ -268,13 +276,11 @@ public class BBDocument {
 		
 		list.add(index, new TextMapElement(textOffset, textOffset, p.getChild(0)));
 		
-	//	if(index < list.size() - 1){
 		Element brl = new Element("brl");
 		brl.appendChild(new Text(""));
 		p.appendChild(brl);
 		addNamespace(brl);
 		list.get(index).brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
-//		}
 	}
 	
 	private void changeTextNode(Node n, String text){
@@ -518,7 +524,7 @@ public class BBDocument {
 	
 	private int translateString(String text, byte[] outbuffer) {
 		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
-		String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+		String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
 		
 		byte[] inbuffer;
 		try {
@@ -561,7 +567,7 @@ public class BBDocument {
 		Elements els = e.getChildElements();
 		
 		if(e instanceof Element && e.getLocalName().equals("meta")){
-			if(e.getAttributeValue("name").equals("utd"))
+			if(checkAttribute(e, "name") && e.getAttributeValue("name").equals("utd"))
 				e.getParent().removeChild(e);
 			else {
 				Attribute attr = e.getAttribute("semantics");
@@ -593,9 +599,8 @@ public class BBDocument {
 		else {
 			Element parent = t.parentElement();
 			while(!parent.getAttributeValue("semantics").contains("style")){
-				if(((Element)parent.getParent()).getChildElements().size() <= 1){
+				if(((Element)parent.getParent()).getChildElements().size() <= 1)
 					parent = (Element)parent.getParent();
-				}
 				else
 					break;
 			}
@@ -643,7 +648,7 @@ public class BBDocument {
 		Elements e = this.doc.getRootElement().getChildElements();
 		
 		for(int i = 0; i < e.size(); i++){
-			if(e.get(i).getAttributeValue("semantics").equals("style,document")){
+			if(checkAttribute(e.get(i), "semantics") && e.get(i).getAttributeValue("semantics").equals("style,document")){
 				Elements els = e.get(i).getChildElements();
 				for(int j = 0; j < els.size(); j++){
 					if(els.get(j).getLocalName().equals("brl")){

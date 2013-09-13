@@ -102,11 +102,17 @@ public class DocumentManager {
 	String zippedPath;
 	String workingFilePath;
 	FileUtils fu;
+	String currentConfig;
 	
 	//Constructor that sets things up for a new document.
 	public DocumentManager(WPManager wp, String docName) {
+		if(docName != null)
+			currentConfig = BBIni.getDefaultConfigFile();
+		else 
+			currentConfig = "nimas.cfg";
+		
 		this.fu = new FileUtils();
-		this.styles = new BBSemanticsTable();
+		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
 		this.wp = wp;
@@ -126,9 +132,8 @@ public class DocumentManager {
 		
 		docCount++;
 		
-		if(docName != null){
+		if(docName != null)
 			openDocument(docName);
-		}
 		else {
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
 			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
@@ -209,8 +214,8 @@ public class DocumentManager {
 	public void fileOpenDialog() {
 		String tempName;
 
-		String[] filterNames = new String[] { "XML", "XML ZIP", "TEXT", "BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.txt", "*.brf", "*.utd", };
+		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "TEXT", "BRF", "UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.txt", "*.brf", "*.utd", };
 		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 		
 		tempName = dialog.open();
@@ -225,6 +230,7 @@ public class DocumentManager {
 			else {
 				closeUntitledTab();
 				openDocument(tempName);
+				checkTreeFocus();
 			}
 			
 		} // if(tempName != null)
@@ -233,6 +239,12 @@ public class DocumentManager {
 	public void openDocument(String fileName){	
 		// Update file we're about to work on.
 		workingFilePath = fileName;
+	
+		if(!currentConfig.equals(BBIni.getDefaultConfigFile())){
+			currentConfig = BBIni.getDefaultConfigFile();
+			styles.resetStyleTable(currentConfig);
+			sm.getStyleTable().resetTable(currentConfig);
+		}
 		////////////////////////
 		// Zip and Recent Files.
 		
@@ -288,7 +300,7 @@ public class DocumentManager {
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
-			if(document.startDocument(filePath, BBIni.getDefaultConfigFile(), configSettings)){
+			if(document.startDocument(filePath, currentConfig, configSettings)){
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
@@ -958,7 +970,7 @@ public class DocumentManager {
 				}
 				else
 					text.view.setCaretOffset(0);
-	
+			
 				setCurrentOnRefresh("text",currentOffset, false);
 				text.setPositionFromStart();
 				text.view.setFocus();
@@ -987,7 +999,6 @@ public class DocumentManager {
 			else {
 				currentOffset = text.view.getCaretOffset();		
 				resetViews();		
-			
 				setCurrentOnRefresh(null,currentOffset, false);
 				text.view.setCaretOffset(currentOffset);
 				text.setPositionFromStart();
@@ -1004,7 +1015,7 @@ public class DocumentManager {
 			File f = new File(path);
 			f.createNewFile();
 			fu.createXMLFile(document.getNewXML(), path);
-			list.clear();
+			list.clearList();
 			text.removeListeners();
 			text.resetView(group);
 			braille.removeListeners();
@@ -1028,9 +1039,15 @@ public class DocumentManager {
 				initializeAllViews(documentName, path, null);
 			
 			f.delete();
-			
+	
 			text.hasChanged = textChanged;
 			braille.hasChanged = brailleChanged;
+			
+			if(workingFilePath == null && list.size() == 0){
+				Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
+				((Element)n.get(0)).appendChild(new Text(""));
+				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			}
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1080,9 +1097,20 @@ public class DocumentManager {
 		treeView.clearTree();
 		text.removeListeners();
 		braille.removeListeners();
-		list.clear();	
+		list.clearList();	
 	}
 	
+	//if tree has focus when opening a document and closing an untitled document, the trees selection must be reset
+	public void checkTreeFocus(){
+		if(treeView.tree.isFocusControl() && treeView.tree.getSelectionCount() == 0){
+			treeView.tree.setSelection(treeView.getRoot());
+		}
+	}
+	
+	public void setCurrentConfig(String config){
+		if(workingFilePath != null)
+			currentConfig = config;
+	}
 	
 	public void checkForUpdatedViews(){
 		if(text.hasChanged)
@@ -1123,5 +1151,13 @@ public class DocumentManager {
 	
 	public BBDocument getDocument(){
 		return document;
+	}
+	
+	public String getCurrentConfig(){
+		return currentConfig;
+	}
+	
+	public BBSemanticsTable getStyleTable(){
+		return styles;
 	}
 }

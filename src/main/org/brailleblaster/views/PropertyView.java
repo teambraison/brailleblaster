@@ -41,7 +41,7 @@ public class PropertyView {
 	
 	public PropertyView(DocumentManager dm, Group documentWindow) {
 		this.group = new Group(documentWindow, SWT.BORDER | SWT.V_SCROLL);
-		this.stylesTable = new BBSemanticsTable();
+		this.stylesTable = dm.getStyleTable();
 		group.setText("Element Attributes");
 		setLayoutData(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		group.setLayout(new FormLayout());

@@ -81,7 +81,7 @@ public class BBDocument {
 	public BBDocument(DocumentManager dm, BBSemanticsTable table){		
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
-		this.semHandler = new SemanticFileHandler(BBIni.getDefaultConfigFile());
+		this.semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		this.table = table;
 	}
 	
@@ -773,6 +773,11 @@ public class BBDocument {
 	
 	public String getOutfile(){
 		return BBIni.getTempFilesPath() + fileSep + "outFile.utd";
+	}
+	
+	public void resetBBDocument(String config){
+		deleteDOM();
+		semHandler.resetSemanticHandler(config);
 	}
 	
 	public void deleteDOM(){

@@ -240,11 +240,6 @@ public class DocumentManager {
 		// Update file we're about to work on.
 		workingFilePath = fileName;
 	
-		if(!currentConfig.equals(BBIni.getDefaultConfigFile())){
-			currentConfig = BBIni.getDefaultConfigFile();
-			styles.resetStyleTable(currentConfig);
-			sm.getStyleTable().resetTable(currentConfig);
-		}
 		////////////////////////
 		// Zip and Recent Files.
 		
@@ -1093,6 +1088,12 @@ public class DocumentManager {
 	
 	public void closeUntitledTab(){
 		document.deleteDOM();
+		if(!currentConfig.equals(BBIni.getDefaultConfigFile())){
+			currentConfig = BBIni.getDefaultConfigFile();
+			document.resetBBDocument(currentConfig);
+			styles.resetStyleTable(currentConfig);
+			sm.getStyleTable().resetTable(currentConfig);
+		}
 		treeView.removeListeners();
 		treeView.clearTree();
 		text.removeListeners();

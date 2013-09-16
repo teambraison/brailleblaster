@@ -171,6 +171,13 @@ public class SemanticFileHandler {
     	}
 	}
 	
+	public void resetSemanticHandler(String config){
+		defaults.clear();
+		configPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
+		defaultSemanticsFiles = getSemanticsFile(this.configPath);
+		makeDefaultMap();
+	}
+	
 	public String getDefaultSemanticsFiles(){
 		return defaultSemanticsFiles;
 	}

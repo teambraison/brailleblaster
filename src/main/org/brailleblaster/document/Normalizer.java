@@ -79,7 +79,7 @@ public class Normalizer {
 	public boolean createNewNormalizedFile(String path){
 		if(this.doc != null){
 			normalize();
-			return write(this.doc, path);
+			return write(path);
 		}
 		
 		return false;
@@ -87,7 +87,7 @@ public class Normalizer {
 	
 	public boolean createNewUTDFile(String path){
 		if(this.doc != null){
-			return write(this.doc, path);
+			return write(path);
 		}
 		
 		return false;
@@ -123,7 +123,7 @@ public class Normalizer {
 		return true;
 	}
 	*/
-	public boolean write(Document document, String path) {
+	public boolean write(String path) {
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;

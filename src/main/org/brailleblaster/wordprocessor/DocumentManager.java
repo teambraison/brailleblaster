@@ -214,9 +214,9 @@ public class DocumentManager {
 	public void fileOpenDialog() {
 		String tempName;
 
-		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "TEXT", "BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.txt", "*.brf", "*.utd", };
-		BBFileDialog dialog = new BBFileDialog(this.wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
+		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM","TEXT", "BRF", "UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.txt", "*.brf", "*.utd", };
+		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 		
 		tempName = dialog.open();
 		

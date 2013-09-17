@@ -571,7 +571,6 @@ public class TreeView extends AbstractView {
 	}
 
 	private boolean hasTreeData(TreeItem item){
-	
 		if(getList(item).size() == 0)
 			return false;
 		

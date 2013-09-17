@@ -145,7 +145,7 @@ public class BBDocument {
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
 		int extPos = completePath.lastIndexOf (".") + 1;
 		String ext = completePath.substring (extPos);
-		if (ext.equalsIgnoreCase ("xml") || ext.equals("xhtml")) {
+		if (ext.equalsIgnoreCase ("xml") || ext.equals("xhtml") || ext.equals("html") || ext.equals("htm")) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
 			if(normalizeFile(completePath, tempPath) && lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
 				deleteFile(tempPath);

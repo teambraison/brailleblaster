@@ -4,6 +4,9 @@
   * ViewPlus Technologies, Inc. www.viewplus.com
   * and
   * Abilitiessoft, Inc. www.abilitiessoft.com
+  * and
+  * American Printing House for the Blind, Inc. www.aph.org
+  *
   * All rights reserved
   *
   * This file may contain code borrowed from files produced by various 
@@ -26,37 +29,19 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.userHelp;
+
 
 /**
- * This class contains constants that are used in other word processor 
- * classes.
+ * Make certain features available outside the word processor
  */
+public class CallOutsideWP {
+	public void showTutorial() {
+		new UserHelp (HelpOptions.ReadTutorial);
+	}
 
-class WP {
-
-// Document-Handling 
-
-static final int NewDocument = 1;
-static final int OpenDocumentGetFile = 2;
-static final int ImportDocument = 3;
-static final int SwitchDocuments = 4;
-static final int DocumentFromCommandLine = 5;
-static final int DocumentClosed = 6;
-static final int BBClosed = 7;
-static final int OpenDocumentGetRecent = 8;
-static final int SwitchToRecentDoc = 9;
-
-// Help 
-
-static final int AboutBB = 1;
-static final int HelpInfo = 2;
-static final int ReadTutorial = 3;
-static final int ReadManuals = 4;
-static final int CheckUpdates = 5;
-
-WP() {}
-
+	public void showURL (String url) {
+		new UserHelp (url);
+	}
 }
-
 

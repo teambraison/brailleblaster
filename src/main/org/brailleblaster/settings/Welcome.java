@@ -39,6 +39,7 @@ import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.userHelp.CallOutsideWP;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -50,7 +51,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.brailleblaster.wordprocessor.CallOutsideWP;
 import org.brailleblaster.wordprocessor.WPManager;
 
 /**

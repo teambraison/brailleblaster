@@ -1,4 +1,4 @@
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.encoder;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.eclipse.swt.SWT;

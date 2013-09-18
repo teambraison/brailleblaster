@@ -1,6 +1,6 @@
 package org.brailleblaster.document;
 
-import org.brailleblaster.wordprocessor.Encodings;
+import org.brailleblaster.encoder.Encodings;
 import org.xml.sax.InputSource;
 
 public class MyReader extends InputSource{

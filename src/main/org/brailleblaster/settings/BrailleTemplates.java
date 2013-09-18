@@ -48,8 +48,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.userHelp.CallOutsideWP;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.CallOutsideWP;
 
 /**
  * This class provides the methods for dealing with liblouisutdml 

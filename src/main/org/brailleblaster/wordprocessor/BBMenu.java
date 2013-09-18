@@ -41,6 +41,8 @@ import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
+import org.brailleblaster.userHelp.HelpOptions;
+import org.brailleblaster.userHelp.UserHelp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -794,28 +796,28 @@ class BBMenu {
 		aboutItem.setText(lh.localValue("&About"));
 		aboutItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UserHelp(WP.AboutBB);
+				new UserHelp(HelpOptions.AboutBB);
 			}
 		});
 		helpInfoItem = new MenuItem(helpMenu, SWT.PUSH);
 		helpInfoItem.setText(lh.localValue("&helpInfo"));
 		helpInfoItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UserHelp(WP.HelpInfo);
+				new UserHelp(HelpOptions.HelpInfo);
 			}
 		});
 		tutorialsItem = new MenuItem(helpMenu, SWT.PUSH);
 		tutorialsItem.setText(lh.localValue("&Tutorials"));
 		tutorialsItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UserHelp(WP.ReadTutorial);
+				new UserHelp(HelpOptions.ReadTutorial);
 			}
 		});
 		readManualItem = new MenuItem(helpMenu, SWT.PUSH);
 		readManualItem.setText(lh.localValue("&ReadManuals"));
 		readManualItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UserHelp(WP.ReadManuals);
+				new UserHelp(HelpOptions.ReadManuals);
 			}
 		});
 		checkUpdatesItem = new MenuItem(helpMenu, SWT.PUSH);
@@ -823,7 +825,7 @@ class BBMenu {
 		checkUpdatesItem.setEnabled(false); /* FO */
 		checkUpdatesItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new UserHelp(WP.CheckUpdates);
+				new UserHelp(HelpOptions.CheckUpdates);
 			}
 		});
 		helpItem.setMenu(helpMenu);

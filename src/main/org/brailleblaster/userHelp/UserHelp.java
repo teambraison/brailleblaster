@@ -26,9 +26,10 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.userHelp;
 
 import java.awt.Desktop;
+
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.BBIni;
 import java.net.URI;
@@ -38,7 +39,7 @@ import java.io.IOException;
 /**
 * This class handles the items on the help menu.
 */
-class UserHelp {
+public class UserHelp {
 
 private String helpPath;
 private Desktop desktop;
@@ -46,25 +47,25 @@ private Desktop desktop;
 /**
  * constructor that accepts integer codes for help items
  */
-UserHelp (int helpChoice) {
+public UserHelp (HelpOptions helpChoice) {
 helpPath = BBIni.getHelpDocsPath() + BBIni.getFileSep();
 desktop = Desktop.getDesktop();
 switch (helpChoice) {
-case WP.AboutBB:
+case AboutBB:
 new Notify (BBIni.getProductName() + " version " + BBIni.getVersion() +  ", released on " + 
 BBIni.getReleaseDate() + 
 ". For questions and bug reports contact john.boyer@abilitiessoft.com");
 break;
-case WP.HelpInfo:
+case HelpInfo:
 showHelp ("helpinfo.html");
 break;
-case WP.ReadTutorial:
+case ReadTutorial:
 showHelp ("tutorial.html");
 break;
-case WP.ReadManuals:
+case ReadManuals:
 showHelp ("manuals.html");
 break;
-case WP.CheckUpdates:
+case CheckUpdates:
 showHelp ("checkupdates.html");
 default:
 break;

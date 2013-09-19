@@ -32,6 +32,8 @@ import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
+import org.brailleblaster.document.BBSemanticsTable.Styles;
+import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.messages.Message;
 import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.*;
@@ -323,6 +325,18 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
+	protected void setFirstLineIndent(int start, Styles style){
+		int margin = 0;
+		int indentSpaces = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
+		
+		if(style.contains(StylesType.leftMargin)){
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			indentSpaces = margin + indentSpaces; 
+		}
+		int startLine = view.getLineAtOffset(start);
+		view.setLineIndent(startLine, 1, indentSpaces * charWidth);
+	}
+	
 	public void clearRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");
@@ -336,7 +350,6 @@ public abstract class AbstractView {
 	protected boolean isText(Node n){
 		return (n instanceof Text);
 	}
-	
 	
 	protected abstract void setViewData(Message message);
 	public abstract void resetView(Group group);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,11 +43,11 @@ public class BBSemanticsTable {
 	
 	public class Styles{
 		String elementName;
-		HashMap<StylesType, String> map;
+		TreeMap<StylesType, String> map;
 		
 		public Styles(String elementName){
 			this.elementName = elementName;
-			this.map = new HashMap<StylesType, String>();
+			this.map = new TreeMap<StylesType, String>();
 		}
 		
 		public void put(StylesType key, String value){	

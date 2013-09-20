@@ -280,7 +280,7 @@ public class BrailleView extends AbstractView {
 						setFirstLineIndent(spaceBeforeText + total, style);
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(spaceBeforeText + total + spaceAfterText), 1, Integer.valueOf(entry.getValue()));	
+					setAlignment(spaceBeforeText + total, spaceBeforeText + total + n.getValue().length(), style);
 					break;	
 				case Font:
 			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
@@ -379,7 +379,7 @@ public class BrailleView extends AbstractView {
 					}
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), Integer.valueOf(entry.getValue()));	
+					setAlignment(currentStart, currentEnd, style);
 					break;
 				case firstLineIndent:
 					if(isFirst(t.brailleList.getFirst().n) && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
@@ -751,10 +751,8 @@ public class BrailleView extends AbstractView {
 		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
-		if(style.contains(StylesType.format)){
-			int lines = (view.getLineAtOffset(start + n.getValue().length()) - view.getLineAtOffset(start)) + 1;
-			view.setLineAlignment(view.getLineAtOffset(start), lines, Integer.valueOf((String)style.get(StylesType.format)));
-		}
+		if(style.contains(StylesType.format))
+			setAlignment(start,start + n.getValue().length(),style);
 		
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);

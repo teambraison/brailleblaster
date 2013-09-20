@@ -608,16 +608,12 @@ public class TextView extends AbstractView {
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst){
-						String textBefore = makeInsertionString(Integer.valueOf(entry.getValue()),'\n');
-						insertBefore(total + spaceBeforeText, textBefore);
-					}
+					if(isFirst)
+						setLinesBefore(total + spaceBeforeText, style);
 					break;
 				case linesAfter:
-					if(isLast(n)){
-						String textAfter = makeInsertionString(Integer.valueOf(entry.getValue()), '\n');
-						insertAfter(spaceBeforeText + total + viewText.length(), textAfter);
-					}
+					if(isLast(n))
+						setLinesAfter(spaceBeforeText + total + viewText.length(), style);
 					break;
 				case firstLineIndent: 
 					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))

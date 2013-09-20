@@ -337,6 +337,11 @@ public abstract class AbstractView {
 		view.setLineIndent(startLine, 1, indentSpaces * charWidth);
 	}
 	
+	protected void setAlignment(int start, int end, Styles style){
+		int startLine = view.getLineAtOffset(start);
+		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
+	}
+	
 	public void clearRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");

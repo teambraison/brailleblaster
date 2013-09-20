@@ -481,9 +481,9 @@ public class TextView extends AbstractView {
 		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(currentStart, style);
 		
-		if(style.contains(StylesType.Font)){
+		if(style.contains(StylesType.Font))
 			setFontRange(currentStart, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
-		}
+		
 		checkStyleRange(range);
 	
 		view.setCaretOffset(pos);		
@@ -515,14 +515,11 @@ public class TextView extends AbstractView {
 		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format)){
-			int lines = (view.getLineAtOffset(start + n.getValue().length()) - view.getLineAtOffset(start)) + 1;
-			view.setLineAlignment(view.getLineAtOffset(start), lines, Integer.valueOf((String)style.get(StylesType.format)));
-		}
+		if(style.contains(StylesType.format))
+			setAlignment(start, start + n.getValue().length(), style);
 		
-		if(style.contains(StylesType.Font)){
+		if(style.contains(StylesType.Font))
 			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
-		}
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -627,7 +624,7 @@ public class TextView extends AbstractView {
 						setFirstLineIndent(spaceBeforeText + total, style);
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(spaceBeforeText + total + spaceAfterText), getLineNumber(spaceBeforeText + total, viewText), Integer.valueOf(entry.getValue()));	
+					setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style);
 					break;	
 				case Font:
 					setFontRange(total, spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
@@ -1057,11 +1054,12 @@ public class TextView extends AbstractView {
 		Styles style = (Styles)m.getValue("Style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		
+		setListenerLock(true);	
+		
 		if(isFirst || (!isFirst && view.getLineAtOffset(currentStart) != startLine))
 			view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
 		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
-		
-		setListenerLock(true);		
+			
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
@@ -1123,7 +1121,7 @@ public class TextView extends AbstractView {
 					}
 					break;
 				case format:
-					view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))),  Integer.valueOf(entry.getValue()));	
+					setAlignment(currentStart, currentEnd, style);	
 					break;
 				case firstLineIndent:
 					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))

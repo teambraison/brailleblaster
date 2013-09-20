@@ -325,6 +325,16 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
+	protected void setLinesBefore(int start, Styles style){
+		String textBefore = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesBefore)),'\n');
+		insertBefore(start, textBefore);
+	}
+	
+	protected void setLinesAfter(int start, Styles style){
+		String textAfter = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesAfter)), '\n');
+		insertAfter(start, textAfter);
+	}
+	
 	protected void setFirstLineIndent(int start, Styles style){
 		int margin = 0;
 		int indentSpaces = Integer.valueOf((String)style.get(StylesType.firstLineIndent));

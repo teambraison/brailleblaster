@@ -254,7 +254,9 @@ public class EPubArchiver extends Archiver {
 			return outFileName;
 			
 		} // try/catch
-		catch (ParserConfigurationException | SAXException | IOException e) { e.printStackTrace(); }
+		catch (ParserConfigurationException pce) { pce.printStackTrace(); }
+		catch (SAXException sxe) { sxe.printStackTrace(); }
+		catch (IOException ioe) { ioe.printStackTrace(); }
 		
 		// An error occurred; we don't have a file path to return.
 		return null;

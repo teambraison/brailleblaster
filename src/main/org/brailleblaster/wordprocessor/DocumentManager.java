@@ -46,6 +46,8 @@ import nu.xom.Nodes;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.archiver.Archiver;
+import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
@@ -214,8 +216,8 @@ public class DocumentManager {
 	public void fileOpenDialog() {
 		String tempName;
 
-		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM","TEXT", "BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.txt", "*.brf", "*.utd", };
+		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "BRF", "UTDML working document", };
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.brf", "*.utd", };
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 		
 		tempName = dialog.open();
@@ -223,6 +225,8 @@ public class DocumentManager {
 		// Don't do any of this if the user failed to choose a file.
 		if(tempName != null)
 		{
+			// 
+			
 			// Open it.
 			if(workingFilePath != null || text.hasChanged || braille.hasChanged || documentName != null){
 				wp.addDocumentManager(tempName);
@@ -236,13 +240,22 @@ public class DocumentManager {
 		} // if(tempName != null)
 	}
 	
-	public void openDocument(String fileName){	
+	public void openDocument(String fileName){
+		
+		// Create archiver and massage document if necessary.
+		Archiver arch = ArchiverFactory.getArchive(fileName);
+		String archFileName = arch.open();
+		
+		// File unsupported by Archiver. Let Braille Blaster handle it.
+		if(archFileName != null)
+			fileName = archFileName;
+		
 		// Update file we're about to work on.
 		workingFilePath = fileName;
-	
+		
 		////////////////////////
 		// Zip and Recent Files.
-		
+		/*
 			// If the file opened was an xml zip file, unzip it.
 			if(fileName.endsWith(".zip")) {
 				// Create unzipper.
@@ -259,7 +272,7 @@ public class DocumentManager {
 				// There is no zip file to deal with.
 				zippedPath = "";
 			}
-			
+			*/
 			////////////////
 			// Recent Files.
 				

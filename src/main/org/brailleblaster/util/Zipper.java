@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.zip.ZipEntry;
@@ -54,6 +55,9 @@ public class Zipper {
 	
 	// Path we've unzipped to.
 	String unzippedPath;
+	
+	// Full paths to extracted files.
+	ArrayList<String> unzippedFilePaths;
 
 	//////////////////////////////////////////////////////
 	// Extracts files from .zip archive.
@@ -62,11 +66,12 @@ public class Zipper {
 	// extractPath is the folder/directory to extract to.
 	// 
 	// Returns a path to the unzipped xml file.
-	public String Unzip(final String zipFilePath, final String extractPath)
+	public String Unzip(final String zipFilePath, final String extractToHere)
 	{
 		try
   		{
 			// Clear out previous zip path if it exists.
+			unzippedFilePaths = new ArrayList<String>();
 	        xmlUnzippedPath = "";
 	        if(zipEntries != null)
 				zipEntries.clear();
@@ -74,7 +79,7 @@ public class Zipper {
 				zipEntries = new LinkedList<String>();
 			
 			// Store where we're sticking the files.
-			unzippedPath =  extractPath;
+			unzippedPath =  extractToHere;
 					
 			// Grab the zip entries.
   			ZipFile zipF = new ZipFile( zipFilePath );
@@ -93,14 +98,14 @@ public class Zipper {
       			zipEntries.add( entry.getName() );
       			
       			// If this is the xml file, hold onto its path.
-      			if( entry.getName().toLowerCase().endsWith(".xml") ) {
-      				xmlUnzippedPath = extractPath + entry.getName().replace("/", BBIni.getFileSep());
+      			if( entry.getName().toLowerCase().endsWith(".xml") || entry.getName().toLowerCase().endsWith(".epub")) {
+      				xmlUnzippedPath = extractToHere + entry.getName().replace("/", BBIni.getFileSep());
       				entry.getName();
       			}
       			
 				 // Get path + filename that we'll be saving out to.
-	      		String unzipPath = extractPath + entry.getName().replace("/", BBIni.getFileSep());
-	      		
+	      		String unzipPath = extractToHere + entry.getName().replace("/", BBIni.getFileSep());
+	      		unzippedFilePaths.add(unzipPath);
       			
       			// Create any subdirectories that this file may need.
       			CreateDirsFromPath( unzipPath );
@@ -306,4 +311,14 @@ public class Zipper {
 	    return fileList;
 	    
 	} // GetFileList()
-}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Returns list of files that were unzipped.
+	public ArrayList<String> getUnzippedFilePaths()
+	{
+		// Return the list of files that were unzipped, with full paths.
+		return unzippedFilePaths;
+		
+	} // getUnzippedFilePaths()
+	
+} // Zipper

@@ -180,17 +180,6 @@ public class ImageDescriberDialog extends Dialog {
 		// Start the image describer.
 		imgDesc = new ImageDescriber(curDocMan);
 		
-		
-		// If there were no <img> elements found, there is no point in continuing.
-		if(imgDesc.getNumImgElements() == 0) {
-			
-			// Show user No Images message.
-			msgBx("NO IMAGES!", "There are no image elements in this document.");
-			
-			// Don't bother with the rest of image describer, there are no images.
-			return;
-		}
-		
 		// Image helper class. Image helper functions, and such.
 		imgHelper = new ImageHelper();
 			
@@ -201,7 +190,17 @@ public class ImageDescriberDialog extends Dialog {
 		
 		// Resize window.
 		setUIDimensions();
-		imgDescShell.setSize(dialogWidth, dialogHeight);
+		imgDescShell.setSize(dialogWidth, dialogHeight);		
+		
+		// If there were no <img> elements found, there is no point in continuing.
+		if(imgDesc.getNumImgElements() == 0) {
+			
+			// Show user No Images message.
+			msgBx("NO IMAGES!", "There are no image elements in this document.");
+			
+			// Don't bother with the rest of image describer, there are no images.
+			return;
+		}
 		
 		// Create all of the buttons, edit boxes, etc.
 		createUIelements();

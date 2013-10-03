@@ -37,12 +37,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import nu.xom.Element;
-import nu.xom.Nodes;
-import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -56,15 +50,12 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import static java.nio.file.StandardCopyOption.*;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one

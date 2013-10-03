@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.DocumentManager;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -94,10 +95,10 @@ public class EPubArchiver extends Archiver {
 		for(int curFile = 0; curFile < unzippedPaths.size(); curFile++)
 		{
 			// Does this file have an .opf extension?
-			if(unzippedPaths.get(curFile).endsWith(".opf") == true)
+			if(unzippedPaths.get(curFile).toLowerCase().endsWith(".opf") == true)
 			{
 				// Found it!
-				opfPath = unzippedPaths.get(curFile);
+				opfPath = unzippedPaths.get(curFile).toLowerCase();
 				
 				// Found it, take a break.
 				break;
@@ -143,8 +144,8 @@ public class EPubArchiver extends Archiver {
 				String fileID = spineAtts.getNamedItem("idref").getNodeValue();
 				
 				// Get the file path from the manifest.
-				curDocFilePath = originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + BBIni.getFileSep(); 
-				curDocFilePath += "EPUB" + BBIni.getFileSep() + findHrefById(fileID).replace("/", BBIni.getFileSep());
+				curDocFilePath = opfPath.substring( 0, opfPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep(); 
+				curDocFilePath += findHrefById(fileID).replace("/", BBIni.getFileSep());
 				 
 				// If this is the first file, we'll use it as a base to add to.
 				if(curSP == 0)
@@ -212,6 +213,10 @@ public class EPubArchiver extends Archiver {
 					
 				// Get children of body element.
 				NodeList bodyChilds = newBodyElm.item(0).getChildNodes();
+				
+				// Add our bookmark comment. When we save later, this helps us save to the appropriate files.
+				Comment comment = mainDoc.createComment("BBBOOKMARK");
+				mainBodyElement.item(0).appendChild(comment);
 				
 				// Loop through all of the children and add them to the main document.
 				for(int curChild = 0; curChild < bodyChilds.getLength(); curChild++)

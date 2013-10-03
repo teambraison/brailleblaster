@@ -194,7 +194,7 @@ public class ImageDescriber {
 			if(getProdTextAtIndex(curItem) != null)
 				sb = new StringBuilder( getProdTextAtIndex(curItem) );
 			else
-				sb = new StringBuilder( "WHAT THE TFUCK!" );
+				sb = new StringBuilder( "NO PROD TEXT" );
 			
 			// Add this to string.
 			prodCopyList.add( sb.toString() );

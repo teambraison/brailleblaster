@@ -46,7 +46,7 @@ public class ArchiverFactory {
 	public static Archiver getArchive(String filePath)
 	{
 		// If the archive is contained within a zip file, go ahead and unzip it.
-		if( filePath.endsWith(".zip") )
+		if( filePath.toLowerCase().endsWith(".zip") )
 		{
 			// Create zipper utility.
 			Zipper zipr = new Zipper();
@@ -72,7 +72,7 @@ public class ArchiverFactory {
 	static boolean isEPUB(String pathToDoc)
 	{
 		// Does it end with .epub?
-		if(pathToDoc.endsWith(".epub"))
+		if(pathToDoc.toLowerCase().endsWith(".epub"))
 			return true;
 		
 		// This isn't an EPUB document.
@@ -85,7 +85,7 @@ public class ArchiverFactory {
 	static boolean isNIMAS(String pathToDoc)
 	{
 		// TODO: Add proper code to determine this doc type.
-		if(pathToDoc.endsWith(".xml"))
+		if(pathToDoc.toLowerCase().endsWith(".xml"))
 			return true;
 		
 		// This isn't a Nimas document.

@@ -31,7 +31,12 @@ package org.brailleblaster.imagedescriber;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -464,19 +469,32 @@ public class ImageDescriberDialog extends Dialog {
 		
 			// Setup browser window.
 			browser = new Browser( imgDescShell, SWT.NONE );
-			
-			// Create copy of file as html and load into browser widget.
-			File f  = new File(curDocMan.getWorkingPath());
-			File f2 = new File(curDocMan.getWorkingPath().replaceAll(".xml", ".html"));
-			Path src = f.toPath();
-			Path dst = f2.toPath();
-			try { Files.copy(src, dst, REPLACE_EXISTING ); }
-			catch (IOException e1) { e1.printStackTrace(); }
+
+			// Make copy of the file.
+		    File fin = new File(curDocMan.getWorkingPath());
+		    File fout = new File(curDocMan.getWorkingPath().replaceAll(".xml", ".html"));
+
+            try
+            {
+    		    InputStream input = null;
+    	        OutputStream output = null;
+				input = new FileInputStream(fin);
+				output = new FileOutputStream(fout);
+		        byte[] buf = new byte[1024];
+		        int bytesRead;
+				while ((bytesRead = input.read(buf)) > 0) {
+					output.write(buf, 0, bytesRead);
+				}
+				input.close();
+	            output.close();
+			}
+			catch (FileNotFoundException e1) { e1.printStackTrace();} 
+            catch (IOException e1) { e1.printStackTrace(); }	        
 			
 			// Set url.
-			 browser.setUrl( curDocMan.getWorkingPath().replaceAll(".xml", ".html") );
+			browser.setUrl( curDocMan.getWorkingPath().replaceAll(".xml", ".html") );
 			// Set browser bounds.
-			 browser.setBounds(browserX, browserY, browserW, browserH);
+			browser.setBounds(browserX, browserY, browserW, browserH);
 
 		 // Browser Widget.
 		 //////////////////

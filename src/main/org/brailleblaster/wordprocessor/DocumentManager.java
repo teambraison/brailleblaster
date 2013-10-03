@@ -248,10 +248,9 @@ public class DocumentManager {
 		
 		// File unsupported by Archiver. Let Braille Blaster handle it.
 		if(archFileName != null)
-			fileName = archFileName;
-		
-		// Update file we're about to work on.
-		workingFilePath = fileName;
+			workingFilePath = archFileName;
+		else
+			workingFilePath = fileName;
 		
 		////////////////////////
 		// Zip and Recent Files.

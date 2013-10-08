@@ -50,7 +50,7 @@ public class ArchiverFactory {
 		{
 			// Create zipper utility.
 			Zipper zipr = new Zipper();
-			zipr.Unzip( filePath, filePath.substring(0, filePath.lastIndexOf(BBIni.getFileSep())) );
+			zipr.Unzip( filePath, filePath.substring(0, filePath.lastIndexOf(".")) + BBIni.getFileSep());
 			filePath = zipr.GetXmlPath();
 			
 		} // UNZIP

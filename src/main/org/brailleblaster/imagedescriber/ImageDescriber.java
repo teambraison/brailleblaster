@@ -609,6 +609,11 @@ public class ImageDescriber {
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++)
 		{
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
+			
 			// Get current child.
 			ch = (Element)parNode.getChild(curC);
 			
@@ -645,6 +650,10 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 			
@@ -677,6 +686,10 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
@@ -716,6 +729,10 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 			
@@ -752,6 +769,10 @@ public class ImageDescriber {
 		Element ch = null;
 		int curC = 0;
 		for( ; curC < parNode.getChildCount(); curC++) {
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
@@ -809,24 +830,28 @@ public class ImageDescriber {
 		Node parNode = imgElmList.get(index).getParent();
 		
 		// Find <prodnote>.
-				Element ch = null;
-				int curC = 0;
-				for( ; curC < parNode.getChildCount(); curC++) {
-					ch = (Element)parNode.getChild(curC);
-					if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+		Element ch = null;
+		int curC = 0;
+		for( ; curC < parNode.getChildCount(); curC++) {
+			// If this is a comment, skip it.
+			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
+				continue;
+			// ...otherwise, it's something we can use.
+			ch = (Element)parNode.getChild(curC);
+			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
-						// Found it. Break.
-						break;
-						
-					} // if( ch.getLocalName()...
-					
-				} // for(int curC = 0...
+				// Found it. Break.
+				break;
 				
-				/////////////////////////
-				
-				// If <prodnote> didn't exist, create it.
-				if(curC == parNode.getChildCount())
-				{
+			} // if( ch.getLocalName()...
+			
+		} // for(int curC = 0...
+		
+		/////////////////////////
+		
+		// If <prodnote> didn't exist, create it.
+		if(curC == parNode.getChildCount())
+		{
 //					// Create prodnote element.
 //					Element prodElm = new Element("prodnote", nameSpace);
 //					
@@ -838,33 +863,33 @@ public class ImageDescriber {
 //					// If no children, add one.
 //					if(ch.getChildCount() == 0)
 //						ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-				}
-				
-				/////////////////////////
-				
-				// Set text value.
-				if(text != null)
-				{
-					// If no children, add one. Else, replace the one already there.
-					if(ch.getChildCount() == 0)
-						ch.appendChild( new nu.xom.Text(text) );
-					else {
-						nu.xom.Node oldNode = ch.getChild(0);
-						nu.xom.Node newNode = new nu.xom.Text(text);
-						ch.replaceChild(oldNode, newNode);
-					}
-					
-				} // if(text != null)
-				
-				///////////////////////////
-				
-				// Set attributes.
-				if(tagID != null)
-					ch.getAttribute("id").setValue(tagID);
-				if(tagIMGREF != null)
-					ch.getAttribute("imgref").setValue(tagIMGREF);
-				if(tagRENDER != null)
-					ch.getAttribute("render").setValue(tagRENDER);
+		}
+		
+		/////////////////////////
+		
+		// Set text value.
+		if(text != null)
+		{
+			// If no children, add one. Else, replace the one already there.
+			if(ch.getChildCount() == 0)
+				ch.appendChild( new nu.xom.Text(text) );
+			else {
+				nu.xom.Node oldNode = ch.getChild(0);
+				nu.xom.Node newNode = new nu.xom.Text(text);
+				ch.replaceChild(oldNode, newNode);
+			}
+			
+		} // if(text != null)
+		
+		///////////////////////////
+		
+		// Set attributes.
+		if(tagID != null)
+			ch.getAttribute("id").setValue(tagID);
+		if(tagIMGREF != null)
+			ch.getAttribute("imgref").setValue(tagIMGREF);
+		if(tagRENDER != null)
+			ch.getAttribute("render").setValue(tagRENDER);
 		
 	} // setProdAtIndex()
 	

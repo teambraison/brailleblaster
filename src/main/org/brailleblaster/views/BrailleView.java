@@ -42,7 +42,7 @@ import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -86,7 +86,7 @@ public class BrailleView extends AbstractView {
 		this.stylesTable = table;
 	}
 	
-	public void initializeListeners(final DocumentManager dm){
+	public void initializeListeners(final Manager dm){
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
@@ -181,7 +181,7 @@ public class BrailleView extends AbstractView {
 		view.getVerticalBar().removeSelectionListener(selectionListener);
 	}
 	
-	private void setCurrent(DocumentManager dm){
+	private void setCurrent(Manager dm){
 		Message message = Message.createSetCurrentMessage("braille", view.getCaretOffset(), true);
 		
 		if(charAtOffset != null)
@@ -295,7 +295,7 @@ public class BrailleView extends AbstractView {
 		}
 	}
 	
-	public void adjustStyle(DocumentManager dm, Message m, TextMapElement t){
+	public void adjustStyle(Manager dm, Message m, TextMapElement t){
 		int startLine = (Integer)m.getValue("firstLine");
 		int length = 0;
 		int spaces = 0;
@@ -596,7 +596,7 @@ public class BrailleView extends AbstractView {
 		}
 	}
 	
-	public void removeWhitespace(int start, int length, char c, DocumentManager dm){
+	public void removeWhitespace(int start, int length, char c, Manager dm){
 		setListenerLock(true);
 		Message message = Message.createGetCurrentMessage("braille", view.getCaretOffset());
 		dm.dispatch(message);

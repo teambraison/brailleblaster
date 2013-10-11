@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
 import org.brailleblaster.userHelp.HelpOptions;
@@ -50,7 +51,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 
-class BBMenu {
+public class BBMenu {
 	//This class contains all the menus.
 	final Menu menuBar;
 
@@ -131,7 +132,7 @@ class BBMenu {
 	Menu subMen;
 	final int maxRecentFiles = 5;
 
-	BBMenu(final WPManager wp) {
+	public BBMenu(final WPManager wp) {
 		LocaleHandler lh = new LocaleHandler();
 
 		/*
@@ -362,8 +363,8 @@ class BBMenu {
 			exitItem.addSelectionListener(new SelectionAdapter() {
 				public void widgetSelected(SelectionEvent e) {
 					for(int i = 0; i < wp.getList().size(); i++){
-						DocumentManager temp = wp.getList().get(i);
-						if(temp.text.hasChanged || temp.braille.hasChanged){
+						Manager temp = wp.getList().get(i);
+						if(temp.getText().hasChanged || temp.getBraille().hasChanged){
 							temp.fileClose();
 						}
 					}
@@ -402,7 +403,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				int index = wp.getFolder().getSelectionIndex();
 				if(index != -1)
-					wp.getList().get(index).text.copy();
+					wp.getList().get(index).getText().copy();
 			}
 		});
 		copyItem = new MenuItem(editMenu, SWT.PUSH);
@@ -411,7 +412,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				int index = wp.getFolder().getSelectionIndex();
 				if(index != -1)
-					wp.getList().get(index).text.copy();
+					wp.getList().get(index).getText().copy();
 			}
 		});
 		pasteItem = new MenuItem(editMenu, SWT.PUSH);
@@ -420,7 +421,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				int index = wp.getFolder().getSelectionIndex();
 				if(index != -1)
-					wp.getList().get(index).text.paste();
+					wp.getList().get(index).getText().paste();
 			}
 		});
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
@@ -486,7 +487,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
-					wp.getList().get(index).text.selectAll(wp.getList().get(index));
+					wp.getList().get(index).getText().selectAll(wp.getList().get(index));
 				}
 			}
 		});
@@ -837,7 +838,7 @@ class BBMenu {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Current Doc Manager.
-				DocumentManager curDm = null;
+				Manager curDm = null;
 				
 				if (BBIni.debugging()) {
 					
@@ -943,7 +944,7 @@ class BBMenu {
 				}
 				else {
 					
-					if(wordProc.getList().get(index).getWorkingPath() != null || wordProc.getList().get(index).text.hasChanged || wordProc.getList().get(index).braille.hasChanged || wordProc.getList().get(index).documentName != null)
+					if(wordProc.getList().get(index).getWorkingPath() != null || wordProc.getList().get(index).getText().hasChanged || wordProc.getList().get(index).getBraille().hasChanged || wordProc.getList().get(index).getDocumentName() != null)
 					{
 						wordProc.addDocumentManager( curStr2 );
 					}
@@ -991,7 +992,7 @@ class BBMenu {
 	
 	//////////////////////////////////////////////////////////////////////////
 	// Returns 'recent item' menu object.
-	Menu getRecentItemSubMenu() {
+	public Menu getRecentItemSubMenu() {
 		return recentItem.getMenu();
 	} // getRecentItemSubMenu()
 	

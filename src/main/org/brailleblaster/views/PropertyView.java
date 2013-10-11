@@ -10,7 +10,7 @@ import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -39,7 +39,7 @@ public class PropertyView {
 	private Spinner linesBeforeSpinner, linesAfterSpinner, indentSpinner, lineWrapSpinner;
 	private Combo combo;
 	
-	public PropertyView(DocumentManager dm, Group documentWindow) {
+	public PropertyView(Manager dm, Group documentWindow) {
 		this.group = new Group(documentWindow, SWT.BORDER | SWT.V_SCROLL);
 		this.stylesTable = dm.getStyleTable();
 		group.setText("Element Attributes");
@@ -120,7 +120,7 @@ public class PropertyView {
 		c.setLayoutData(location);
 	}
 	
-	private void initializeListeners(final DocumentManager dm){
+	private void initializeListeners(final Manager dm){
 		linesBeforeSpinner.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {

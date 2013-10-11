@@ -36,8 +36,8 @@ import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.BBEvent;
 import org.brailleblaster.messages.Message;
+import org.brailleblaster.perspectives.braille.Manager;
 //import org.brailleblaster.views.PropertyView;
-import org.brailleblaster.wordprocessor.DocumentManager;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -47,11 +47,11 @@ public class StyleManager{
     private StyleTable table;
     //private PropertyView propView;
     private String configFile;
-    DocumentManager dm;
+    Manager dm;
     
     private BBSemanticsTable semanticsTable;
     
-    public StyleManager(DocumentManager dm) {
+    public StyleManager(Manager dm) {
     	this.dm = dm;
     	this.configFile = dm.getCurrentConfig();
     	this.table = new StyleTable(this, dm.getGroup());

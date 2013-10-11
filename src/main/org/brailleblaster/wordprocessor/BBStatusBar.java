@@ -34,11 +34,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
 
-class BBStatusBar {
+public class BBStatusBar {
 
 	private Label statusBar;
 
-	BBStatusBar (Shell documentWindow) {
+	public BBStatusBar (Shell documentWindow) {
 		statusBar = new Label (documentWindow, SWT.BORDER);
 		FormData location = new FormData();
 		location.left = new FormAttachment(0);
@@ -47,11 +47,11 @@ class BBStatusBar {
 		statusBar.setLayoutData (location);
 	}
 
-	void setText (String text) {
+	public void setText (String text) {
 		statusBar.setText (text);
 	}
 	
-	void resetLocation(int left, int right, int bottom){
+	public void resetLocation(int left, int right, int bottom){
 		FormData data = (FormData)this.statusBar.getLayoutData();
 		data.left = new FormAttachment(left);
 		data.right = new FormAttachment(right);

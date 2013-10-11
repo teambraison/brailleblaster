@@ -36,7 +36,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 
 public class MapList extends LinkedList<TextMapElement>{
 	private class UpdaterThread extends Thread {
@@ -71,12 +71,12 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	private static final long serialVersionUID = 1L;
 	private static final int PROCESSORS = Runtime.getRuntime().availableProcessors();
-	DocumentManager dm;
+	Manager dm;
 	private TextMapElement current;
 	private int currentIndex = -1;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
 		
-	public MapList(DocumentManager dm){
+	public MapList(Manager dm){
 		this.dm = dm;
 	}
 	

@@ -42,7 +42,7 @@ import nu.xom.Text;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -84,7 +84,7 @@ public class TreeView extends AbstractView {
 	private TraverseListener traverseListener;
 	private Group group;
 	
-	public TreeView(final DocumentManager dm, Group documentWindow){
+	public TreeView(final Manager dm, Group documentWindow){
 		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group = documentWindow;
 		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
@@ -125,7 +125,7 @@ public class TreeView extends AbstractView {
 		this.tree.pack();
 	}
 	
-	public void initializeListeners(final DocumentManager dm){
+	public void initializeListeners(final Manager dm){
 		this.tree.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -258,7 +258,7 @@ public class TreeView extends AbstractView {
 		tree.removeTraverseListener(traverseListener);
 	}
 	
-	private void populateItemChildren(TreeItem item, Element e, DocumentManager dm){
+	private void populateItemChildren(TreeItem item, Element e, Manager dm){
 		ArrayList<Text>textList = new ArrayList<Text>();
 		Elements els = e.getChildElements();
 	
@@ -292,7 +292,7 @@ public class TreeView extends AbstractView {
 			}
 	}
 	
-	public void setRoot(Element e, DocumentManager dm){
+	public void setRoot(Element e, Manager dm){
 		this.root = new TreeItem(this.tree, 0);
 		this.root.setText(e.getLocalName());
 		TreeItemData data = new TreeItemData(e);
@@ -365,7 +365,7 @@ public class TreeView extends AbstractView {
 		setItemData(item, t);
 	}
 	
-	public void setSelection(TextMapElement t, Message m, DocumentManager dm){
+	public void setSelection(TextMapElement t, Message m, Manager dm){
 		setListenerLock(true);
 		searchTree(this.getRoot(), t, m);
 		if(m.getValue("item") != null){		
@@ -483,7 +483,7 @@ public class TreeView extends AbstractView {
 			return null;
 	}
 	
-	private void buildTreeFromElement(Element e, DocumentManager dm){	
+	private void buildTreeFromElement(Element e, Manager dm){	
 		TreeItem item = findElementInTree(this.root, e);
 		if(item == null){
 			buildTreeFromElement((Element)e.getParent(), dm);
@@ -577,7 +577,7 @@ public class TreeView extends AbstractView {
 		return true;
 	}
 	
-	private TreeItem findNextItem(DocumentManager dm, TreeItem item){
+	private TreeItem findNextItem(Manager dm, TreeItem item){
 		boolean populated = false;
 		if(item.getItemCount() == 0){
 			populated = true;

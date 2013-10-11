@@ -40,8 +40,8 @@ import java.io.OutputStream;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -67,7 +67,7 @@ public class ImageDescriberDialog extends Dialog {
 	static Shell imgDescShell;
 	LocaleHandler lh = new LocaleHandler();
 	WPManager wpm;
-	DocumentManager curDocMan;
+	Manager curDocMan;
 	
 	// UI Elements.
 	Button nextBtn;

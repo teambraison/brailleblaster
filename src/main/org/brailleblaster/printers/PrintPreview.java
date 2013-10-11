@@ -9,8 +9,8 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.messages.Message;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.DocumentManager;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -44,7 +44,7 @@ public class PrintPreview {
 			this.view.setEditable(false);
 		}
 
-		public void setPreviewText(DocumentManager dm, BBDocument doc){
+		public void setPreviewText(Manager dm, BBDocument doc){
 			String tempFilePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf"; 
 			if(doc.createBrlFile(dm, tempFilePath)){
 				try {
@@ -84,13 +84,13 @@ public class PrintPreview {
 		}
 
 		@Override
-		public void initializeListeners(DocumentManager dm) {
+		public void initializeListeners(Manager dm) {
 			// TODO Auto-generated method stub
 			
 		}
 	}
 	
-	public PrintPreview(Display display, BBDocument doc, DocumentManager dm){
+	public PrintPreview(Display display, BBDocument doc, Manager dm){
 		this.doc = doc;
 		
 		this.shell = new Shell(display, SWT.SHELL_TRIM);

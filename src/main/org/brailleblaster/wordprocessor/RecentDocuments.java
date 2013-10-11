@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -65,11 +66,11 @@ class RecentDocuments {
     private String recentFiles;
     private static final int MAX_NUM_FILES=50;
     private String fileSep;
-    private DocumentManager dm;
+    private Manager dm;
     // FO
     LocaleHandler lh = new LocaleHandler();
 
-    RecentDocuments(final DocumentManager dm) {
+    RecentDocuments(final Manager dm) {
         this.dm = dm;
         recentFiles = BBIni.getRecentDocs();
         fileSep = BBIni.getFileSep();

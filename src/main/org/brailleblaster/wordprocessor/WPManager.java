@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.YesNoChoice;
 
@@ -62,7 +63,7 @@ public class WPManager {
     private BBStatusBar statusBar;
     private BBProgressBar pb;
     private BBToolBar toolBar;
-    private LinkedList<DocumentManager> managerList;
+    private LinkedList<Manager> managerList;
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
     
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
@@ -89,8 +90,8 @@ public class WPManager {
 	    // Toolbar.
 	    toolBar = new BBToolBar(shell, this);
 	    
-	    this.managerList = new LinkedList<DocumentManager>();
-	    this.managerList.add(new DocumentManager(this, null));
+	    this.managerList = new LinkedList<Manager>();
+	    this.managerList.add(new Manager(this, null));
 	    this.folder.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -101,8 +102,8 @@ public class WPManager {
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
 				if(managerList.size() > 0){
-					if(managerList.get(index).text.view.getCharCount() > 0) {
-						statusBar.setText("Words: " + managerList.get(index).text.words);
+					if(managerList.get(index).getText().view.getCharCount() > 0) {
+						statusBar.setText("Words: " + managerList.get(index).getText().words);
 					}
 					else
 						statusBar.setText("Words: " + 0);
@@ -149,7 +150,7 @@ public class WPManager {
 	}	
 	
 	public void addDocumentManager(String fileName){
-		this.managerList.add(new DocumentManager(this, fileName));
+		this.managerList.add(new Manager(this, fileName));
 		setSelection();
 	}
 
@@ -167,7 +168,7 @@ public class WPManager {
         }
     }
 
-    public void startProgressBar(DocumentManager dm){
+    public void startProgressBar(Manager dm){
     	if(dm.getWorkingPath() != null)
     		pb.start();
     }
@@ -188,7 +189,7 @@ public class WPManager {
     	return this.folder;
     }
     
-    public LinkedList<DocumentManager> getList(){
+    public LinkedList<Manager> getList(){
     	return this.managerList;
     }
     

@@ -29,7 +29,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.perspectives.braille;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,6 +66,9 @@ import org.brailleblaster.util.Zipper;
 import org.brailleblaster.views.BrailleView;
 import org.brailleblaster.views.TextView;
 import org.brailleblaster.views.TreeView;
+import org.brailleblaster.wordprocessor.BBFileDialog;
+import org.brailleblaster.wordprocessor.FontManager;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.daisy.printing.PrinterDevice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -79,27 +82,27 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
-public class DocumentManager {
+public class Manager {
 	WPManager wp;
 	TabItem item;
 	Group group;
 	TreeView treeView;
-	TextView text;
-	BrailleView braille;
+	private TextView text;
+	private BrailleView braille;
 	StyleManager sm;
 	FormLayout layout;
 	Control [] tabList;
 	BBSemanticsTable styles;
 	static int docCount = 0;
 	String documentName = null;
-	boolean metaContent = false;
+	private boolean metaContent = false;
 	String logFile = "Translate.log";
 	String configSettings = null;
 	static String recentFileName = null;
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
 	public BBDocument document;
-	boolean simBrailleDisplayed = false;
+	private boolean simBrailleDisplayed = false;
 	MapList list;
 	String zippedPath;
 	String workingFilePath;
@@ -107,7 +110,7 @@ public class DocumentManager {
 	String currentConfig;
 	
 	//Constructor that sets things up for a new document.
-	public DocumentManager(WPManager wp, String docName) {
+	public Manager(WPManager wp, String docName) {
 		if(docName != null)
 			currentConfig = BBIni.getDefaultConfigFile();
 		else 
@@ -154,10 +157,10 @@ public class DocumentManager {
 	
 	private void setTabList(){
 		if(sm.tableIsVisible()){
-			tabList = new Control[]{treeView.view, sm.getGroup(), text.view, braille.view};
+			tabList = new Control[]{treeView.view, sm.getGroup(), getText().view, getBraille().view};
 		}
 		else {
-			tabList = new Control[]{treeView.view, text.view, braille.view};
+			tabList = new Control[]{treeView.view, getText().view, getBraille().view};
 		}
 		group.setTabList(tabList);
 	}
@@ -208,8 +211,8 @@ public class DocumentManager {
 				zpr.Zip(inPath, zippedPath);
 			}
 		
-			text.hasChanged = false;
-			braille.hasChanged = false;
+			getText().hasChanged = false;
+			getBraille().hasChanged = false;
 		}
 	}
 	
@@ -228,7 +231,7 @@ public class DocumentManager {
 			// 
 			
 			// Open it.
-			if(workingFilePath != null || text.hasChanged || braille.hasChanged || documentName != null){
+			if(workingFilePath != null || getText().hasChanged || getBraille().hasChanged || documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
@@ -309,8 +312,8 @@ public class DocumentManager {
 		try{
 			if(document.startDocument(filePath, currentConfig, configSettings)){
 				group.setRedraw(false);
-				text.view.setWordWrap(false);
-				braille.view.setWordWrap(false);
+				getText().view.setWordWrap(false);
+				getBraille().view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
 				wp.startProgressBar(this);
@@ -319,17 +322,17 @@ public class DocumentManager {
 				treeView.setRoot(document.getRootElement(), this);
 				initializeViews(document.getRootElement());
 				document.notifyUser();
-				text.initializeListeners(this);
-				braille.initializeListeners(this);
+				getText().initializeListeners(this);
+				getBraille().initializeListeners(this);
 				treeView.initializeListeners(this);
-				text.hasChanged = false;
-				braille.hasChanged = false;
+				getText().hasChanged = false;
+				getBraille().hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
 				wp.getProgressBar().stop();
-				wp.getStatusBar().setText("Words: " + text.words);
-				braille.setWords(text.words);
-				text.view.setWordWrap(true);
-				braille.view.setWordWrap(true);
+				wp.getStatusBar().setText("Words: " + getText().words);
+				getBraille().setWords(getText().words);
+				getText().view.setWordWrap(true);
+				getBraille().view.setWordWrap(true);
 				group.setRedraw(true);
 			}
 			else {
@@ -345,7 +348,7 @@ public class DocumentManager {
 	
 	private void initializeViews(Node current){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current.getValue())){
-			text.setText(current, list);
+			getText().setText(current, list);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -370,7 +373,7 @@ public class DocumentManager {
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			Element grandParent = (Element)current.getParent().getParent();
 			if(!(grandParent.getLocalName().equals("span") && document.checkAttributeValue(grandParent, "class", "brlonly")))
-				braille.setBraille(current, t);
+				getBraille().setBraille(current, t);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -453,18 +456,18 @@ public class DocumentManager {
 	private void handleUpdateCursors(Message message){
 		message.put("element", list.getCurrent().n);
 		if(message.getValue("sender").equals("text")){
-			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
-			braille.updateCursorPosition(message);
+			setUpdateCursorMessage(message, getText().positionFromStart, getText().cursorOffset);
+			getBraille().updateCursorPosition(message);
 		}
 		else if(message.getValue("sender").equals("braille")) {
-			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
-			text.updateCursorPosition(message);
+			setUpdateCursorMessage(message, getBraille().positionFromStart, getBraille().cursorOffset);
+			getText().updateCursorPosition(message);
 		}
 		else if(message.getValue("sender").equals("tree")){
-			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
-			braille.updateCursorPosition(message);
-			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
-			text.updateCursorPosition(message);
+			setUpdateCursorMessage(message, getText().positionFromStart, getText().cursorOffset);
+			getBraille().updateCursorPosition(message);
+			setUpdateCursorMessage(message, getBraille().positionFromStart, getBraille().cursorOffset);
+			getText().updateCursorPosition(message);
 		}
 	}
 	
@@ -511,14 +514,14 @@ public class DocumentManager {
 		list.checkList();
 		if((Integer)message.getValue("deletionType") == SWT.BS){
 			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
+				getBraille().removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
 			}
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 		}
 		else if((Integer)message.getValue("deletionType") == SWT.DEL){
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
+				getBraille().removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
 			}
 		}
 	}
@@ -526,8 +529,8 @@ public class DocumentManager {
 	private void handleUpdate(Message message){
 		message.put("selection", this.treeView.getSelection(list.getCurrent()));
 		document.updateDOM(list, message);
-		braille.updateBraille(list.getCurrent(), message);
-		text.reformatText(list.getCurrent().n, message, this);
+		getBraille().updateBraille(list.getCurrent(), message);
+		getText().reformatText(list.getCurrent().n, message, this);
 		list.updateOffsets(list.getCurrentIndex(), message);
 		list.checkList();
 	}
@@ -571,8 +574,8 @@ public class DocumentManager {
 			}
 		}
 		
-		text.clearRange(textStart, textEnd - textStart);
-		braille.clearRange(brailleStart, brailleEnd - brailleStart);
+		getText().clearRange(textStart, textEnd - textStart);
+		getBraille().clearRange(brailleStart, brailleEnd - brailleStart);
 		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart));	
 		
 		int firstElementIndex = currentIndex;
@@ -597,8 +600,8 @@ public class DocumentManager {
 			insertionString = "\n";
 		}
 
-		text.insertText(list.get(currentIndex).end, insertionString);
-		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
+		getText().insertText(list.get(currentIndex).end, insertionString);
+		getBraille().insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
 		//braille.insertLineBreak(list.get(currentIndex).brailleList.getLast().end);
 		m.put("length", insertionString.length());
 		
@@ -634,7 +637,7 @@ public class DocumentManager {
 		
 		for(int i = 0; i < count; i++){
 			if(e.getChild(i) instanceof Text){
-				text.insertText(list, currentIndex, currentStart, e.getChild(i));
+				getText().insertText(list, currentIndex, currentStart, e.getChild(i));
 				currentStart = list.get(currentIndex).end;
 				i++;
 				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
@@ -656,7 +659,7 @@ public class DocumentManager {
 		
 		for(int i = 0; i < count; i++){
 			if(e.getChild(i) instanceof Text){
-				braille.insert(list.get(index), e.getChild(i), brailleStart);
+				getBraille().insert(list.get(index), e.getChild(i), brailleStart);
 				brailleStart = list.get(index).brailleList.getLast().end;
 			}
 		}
@@ -678,9 +681,9 @@ public class DocumentManager {
 		m.put("brailleLength", 0);
 
 		if(list.getCurrentIndex()  > 0)
-			braille.insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
+			getBraille().insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
 		else
-			braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
+			getBraille().insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
 			
 		treeView.newTreeItem(list.get(list.getCurrentIndex()), index);
 	}
@@ -696,7 +699,7 @@ public class DocumentManager {
 		m.put("newBrailleLength", 1);
 		m.put("brailleLength", 0);
 
-		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
+		getBraille().insertLineBreak(list.getCurrent().brailleList.getLast().end);
 		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index + 1);
 	}
 	
@@ -708,28 +711,28 @@ public class DocumentManager {
 		list.remove(index);
 					
 		if(list.size() == 0)
-			text.removeListeners();
+			getText().removeListeners();
 	}
 	
 	private void handleUpdateStatusBar(Message message){
-		braille.setWords(text.words);
+		getBraille().setWords(getText().words);
 		wp.getStatusBar().setText((String)message.getValue("line"));
 	}
 	
 	private void handleAdjustAlignment(Message message){
-		braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+		getBraille().changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
 	}
 	
 	private void handleAdjustIndent(Message message){
-		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);	
+		getBraille().changeIndent(list.getCurrent().brailleList.getFirst().start, message);	
 	}
 	
 	private void handleUpdateScrollbar(Message message){
 		if(message.getValue("sender").equals("braille")){
-			text.positionScrollbar(braille.view.getTopIndex());
+			getText().positionScrollbar(getBraille().view.getTopIndex());
 		}
 		else{
-			braille.positionScrollbar(text.view.getTopIndex());
+			getBraille().positionScrollbar(getText().view.getTopIndex());
 		}
 	}
 	
@@ -743,13 +746,13 @@ public class DocumentManager {
 			int start = list.getNodeIndex(itemList.get(0));
 			int end = list.getNodeIndex(itemList.get(itemList.size() - 1));
 			int currentIndex = list.getCurrentIndex();
-			message.put("firstLine", text.view.getLineAtOffset(itemList.get(0).start));
+			message.put("firstLine", getText().view.getLineAtOffset(itemList.get(0).start));
 			
 			for(int i = start; i <= end; i++){
 				list.setCurrent(i);
 				list.getCurrentNodeData(message);
-				text.adjustStyle(this, message, list.getCurrent().n);
-				braille.adjustStyle(this, message, list.getCurrent());
+				getText().adjustStyle(this, message, list.getCurrent().n);
+				getBraille().adjustStyle(this, message, list.getCurrent());
 				if(message.contains("linesBeforeOffset")){
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
 					message.remove("linesBeforeOffset");
@@ -840,8 +843,8 @@ public class DocumentManager {
 			    	new Notify("An error occured while saving your document.  Please check your original document.");
 			    }
 			}
-		    text.hasChanged = false;
-			braille.hasChanged = false;			
+		    getText().hasChanged = false;
+			getBraille().hasChanged = false;			
 		}
 	}
 	
@@ -852,7 +855,7 @@ public class DocumentManager {
 	}
 	
 	public void fileClose() {
-		if (text.hasChanged || braille.hasChanged) {
+		if (getText().hasChanged || getBraille().hasChanged) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				this.fileSave();
@@ -882,51 +885,51 @@ public class DocumentManager {
 	}
 	public void nextElement(){
 		if(list.size() != 0){		
-			if(text.view.isFocusControl()){
-				text.increment(this);
-				text.view.setCaretOffset(list.getCurrent().start);
+			if(getText().view.isFocusControl()){
+				getText().increment(this);
+				getText().view.setCaretOffset(list.getCurrent().start);
 			}
-			else if(braille.view.isFocusControl()){
-				braille.increment(this);
-				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			else if(getBraille().view.isFocusControl()){
+				getBraille().increment(this);
+				getBraille().view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
 				Message message = Message.createIncrementMessage();
 				dispatch(message);
-				text.view.setCaretOffset(list.getCurrent().start);
-				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+				getText().view.setCaretOffset(list.getCurrent().start);
+				getBraille().view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 		}
 	}
 	
 	public void prevElement(){
 		if(list.size() != 0){
-			if(text.view.isFocusControl()){
-				text.decrement(this);
-				text.view.setCaretOffset(list.getCurrent().start);
+			if(getText().view.isFocusControl()){
+				getText().decrement(this);
+				getText().view.setCaretOffset(list.getCurrent().start);
 			}
-			else if(braille.view.isFocusControl()){
-				braille.decrement(this);
-				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+			else if(getBraille().view.isFocusControl()){
+				getBraille().decrement(this);
+				getBraille().view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
 				Message message = Message.createDecrementMessage();
 				dispatch(message);
-				text.view.setCaretOffset(list.getCurrent().start);
-				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
+				getText().view.setCaretOffset(list.getCurrent().start);
+				getBraille().view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 		}
 	}
 	
 	private void resetCursorData(){
-		text.positionFromStart = 0;
-		text.cursorOffset = 0;
-		braille.positionFromStart = 0;
-		braille.cursorOffset = 0;
+		getText().positionFromStart = 0;
+		getText().cursorOffset = 0;
+		getBraille().positionFromStart = 0;
+		getBraille().cursorOffset = 0;
 	}
 	
 	public void textPrint(){
-		PrintersManager pn = new PrintersManager(wp.getShell(), text.view);
+		PrintersManager pn = new PrintersManager(wp.getShell(), getText().view);
 		pn.beginPrintJob();	
 	}
 	
@@ -955,7 +958,7 @@ public class DocumentManager {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0){
+		if(getBraille().view.getCharCount() > 0){
 			new PrintPreview(this.getDisplay(), document, this);
 		}
 	}
@@ -968,69 +971,69 @@ public class DocumentManager {
 	public void refresh(){	
 		int currentOffset;
 		if(document.getDOM() != null){
-			if(text.view.isFocusControl()){
-				currentOffset = text.view.getCaretOffset();
+			if(getText().view.isFocusControl()){
+				currentOffset = getText().view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount()){
-					text.view.setCaretOffset(currentOffset);
+				if(currentOffset < getText().view.getCharCount()){
+					getText().view.setCaretOffset(currentOffset);
 				}
 				else
-					text.view.setCaretOffset(0);
+					getText().view.setCaretOffset(0);
 			
 				setCurrentOnRefresh("text",currentOffset, false);
-				text.setPositionFromStart();
-				text.view.setFocus();
+				getText().setPositionFromStart();
+				getText().view.setFocus();
 			}
-			else if(braille.view.isFocusControl()){
-				currentOffset = braille.view.getCaretOffset();
+			else if(getBraille().view.isFocusControl()){
+				currentOffset = getBraille().view.getCaretOffset();
 				resetViews();
 			
-				braille.view.setCaretOffset(currentOffset);
+				getBraille().view.setCaretOffset(currentOffset);
 				setCurrentOnRefresh("braille",currentOffset, true);	
-				braille.setPositionFromStart();
-				braille.view.setFocus();
+				getBraille().setPositionFromStart();
+				getBraille().view.setFocus();
 			}
 			else if(treeView.tree.isFocusControl()){	
-				if(text.view.getCaretOffset() > 0)
-					currentOffset = text.view.getCaretOffset();
+				if(getText().view.getCaretOffset() > 0)
+					currentOffset = getText().view.getCaretOffset();
 				else
 					currentOffset = list.getCurrent().start;
 			
 				resetViews();
 
 				setCurrentOnRefresh(null, currentOffset, false);
-				text.view.setCaretOffset(currentOffset);
-				text.setPositionFromStart();
+				getText().view.setCaretOffset(currentOffset);
+				getText().setPositionFromStart();
 			}
 			else {
-				currentOffset = text.view.getCaretOffset();		
+				currentOffset = getText().view.getCaretOffset();		
 				resetViews();		
 				setCurrentOnRefresh(null,currentOffset, false);
-				text.view.setCaretOffset(currentOffset);
-				text.setPositionFromStart();
+				getText().view.setCaretOffset(currentOffset);
+				getText().setPositionFromStart();
 			}
 		}
 	}
 	
 	private void resetViews(){
 		try {
-			boolean textChanged = text.hasChanged;
-			boolean brailleChanged = braille.hasChanged;
+			boolean textChanged = getText().hasChanged;
+			boolean brailleChanged = getBraille().hasChanged;
 			
 			String path = BBIni.getTempFilesPath() + BBIni.getFileSep() + "temp.xml";
 			File f = new File(path);
 			f.createNewFile();
 			fu.createXMLFile(document.getNewXML(), path);
 			list.clearList();
-			text.removeListeners();
-			text.resetView(group);
-			braille.removeListeners();
-			braille.resetView(group);
+			getText().removeListeners();
+			getText().resetView(group);
+			getBraille().removeListeners();
+			getBraille().resetView(group);
 			treeView.removeListeners();
 			treeView.resetView(group);
 			initializeDocumentTab();
-			text.words = 0;
+			getText().words = 0;
 			updateTempFile();
 			document.deleteDOM();
 			
@@ -1047,8 +1050,8 @@ public class DocumentManager {
 			
 			f.delete();
 	
-			text.hasChanged = textChanged;
-			braille.hasChanged = brailleChanged;
+			getText().hasChanged = textChanged;
+			getBraille().hasChanged = brailleChanged;
 			
 			if(workingFilePath == null && list.size() == 0){
 				Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
@@ -1108,8 +1111,8 @@ public class DocumentManager {
 		}
 		treeView.removeListeners();
 		treeView.clearTree();
-		text.removeListeners();
-		braille.removeListeners();
+		getText().removeListeners();
+		getBraille().removeListeners();
 		list.clearList();	
 	}
 	
@@ -1126,8 +1129,8 @@ public class DocumentManager {
 	}
 	
 	public void checkForUpdatedViews(){
-		if(text.hasChanged)
-			text.update(this);
+		if(getText().hasChanged)
+			getText().update(this);
 	}
 	
 	public void toggleBrailleFont(){
@@ -1135,11 +1138,11 @@ public class DocumentManager {
 	}
 		
 	public StyledText getTextView(){
-		return text.view;
+		return getText().view;
 	}
 	
 	public StyledText getBrailleView(){
-		return braille.view;
+		return getBraille().view;
 	}
 	
 	public Display getDisplay(){
@@ -1172,5 +1175,29 @@ public class DocumentManager {
 	
 	public BBSemanticsTable getStyleTable(){
 		return styles;
+	}
+
+	public TextView getText() {
+		return text;
+	}
+
+	public BrailleView getBraille() {
+		return braille;
+	}
+
+	public boolean isSimBrailleDisplayed() {
+		return simBrailleDisplayed;
+	}
+
+	public void setSimBrailleDisplayed(boolean simBrailleDisplayed) {
+		this.simBrailleDisplayed = simBrailleDisplayed;
+	}
+
+	public boolean isMetaContent() {
+		return metaContent;
+	}
+
+	public void setMetaContent(boolean metaContent) {
+		this.metaContent = metaContent;
 	}
 }

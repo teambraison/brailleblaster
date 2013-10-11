@@ -57,15 +57,15 @@ import org.brailleblaster.mapping.BrailleMapElement;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.DocumentManager;
 import org.liblouis.liblouisutdml;
 
 
 public class BBDocument {
-	private DocumentManager dm;
+	private Manager dm;
 	private Document doc;
 	private static String fileSep = BBIni.getFileSep();
 	private liblouisutdml lutdml = liblouisutdml.getInstance();
@@ -78,7 +78,7 @@ public class BBDocument {
 	private BBSemanticsTable table;
 	private SemanticFileHandler semHandler;
 	
-	public BBDocument(DocumentManager dm, BBSemanticsTable table){		
+	public BBDocument(Manager dm, BBSemanticsTable table){		
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
 		this.semHandler = new SemanticFileHandler(dm.getCurrentConfig());
@@ -680,7 +680,7 @@ public class BBDocument {
 		}
 	}
 	
-	public boolean createBrlFile(DocumentManager dm, String filePath){		
+	public boolean createBrlFile(Manager dm, String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
 		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());

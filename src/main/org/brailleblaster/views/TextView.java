@@ -41,7 +41,7 @@ import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -92,7 +92,7 @@ public class TextView extends AbstractView {
 		this.spaceAfterText = 0;
 	}
 
-	public void initializeListeners(final DocumentManager dm){	
+	public void initializeListeners(final Manager dm){	
 		view.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -345,13 +345,13 @@ public class TextView extends AbstractView {
 	}
 	
 	//public method to check if an update should be made before exiting or saving
-	public void update(DocumentManager dm){
+	public void update(Manager dm){
 		if(textChanged){
 			sendUpdate(dm);
 		}
 	}
 	
-	private void sendUpdate(DocumentManager dm){
+	private void sendUpdate(Manager dm){
 			Message updateMessage = Message.createUpdateMessage(view.getCaretOffset(), getString(currentStart, currentEnd - currentStart), originalEnd - originalStart);
 			dm.dispatch(updateMessage);
 			words += (Integer)updateMessage.getValue("diff");
@@ -361,13 +361,13 @@ public class TextView extends AbstractView {
 			restoreStyleState(currentStart, currentEnd);
 	}
 	
-	private void setCurrent(DocumentManager dm){
+	private void setCurrent(Manager dm){
 		Message message = Message.createSetCurrentMessage("text", view.getCaretOffset(), false);
 		dm.dispatch(message);
 		setViewData(message);
 	}
 	
-	private void sendDeleteSpaceMessage(DocumentManager dm, int offset, int key){
+	private void sendDeleteSpaceMessage(Manager dm, int offset, int key){
 		Message message = Message.createTextDeletionMessage(offset, key, false);
 		dm.dispatch(message);
 		
@@ -383,7 +383,7 @@ public class TextView extends AbstractView {
 		}
 	}
 	
-	private void sendAdjustRangeMessage(DocumentManager dm, String type, int position){
+	private void sendAdjustRangeMessage(Manager dm, String type, int position){
 		Message adjustmentMessage = Message.createAdjustRange(type, position);
 		dm.dispatch(adjustmentMessage);
 		
@@ -455,7 +455,7 @@ public class TextView extends AbstractView {
 		words += getWordCount(n.getValue());
 	}
 	
-	public void reformatText(Node n, Message message, DocumentManager dm){
+	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		int margin = 0;
@@ -639,7 +639,7 @@ public class TextView extends AbstractView {
 		}
 	}
 	
-	private void handleTextEdit(DocumentManager dm, ExtendedModifyEvent e){
+	private void handleTextEdit(Manager dm, ExtendedModifyEvent e){
 		int changes = e.length;
 		int replacedTextLength = e.replacedText.length();
 		int placeholder;
@@ -729,7 +729,7 @@ public class TextView extends AbstractView {
 		setSelection(-1,-1);
 	}
 	
-	private void handleTextDeletion(DocumentManager dm, ExtendedModifyEvent e){
+	private void handleTextDeletion(Manager dm, ExtendedModifyEvent e){
 		int offset = view.getCaretOffset() - oldCursorPosition;
 		setListenerLock(true);
 		if(e.replacedText.length() > 1){
@@ -802,7 +802,7 @@ public class TextView extends AbstractView {
 		setListenerLock(false);
 	}
 
-	private void deleteSelection(DocumentManager dm){
+	private void deleteSelection(Manager dm){
 		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd){
 			makeTextChange(-selectionLength);
 		}
@@ -939,7 +939,7 @@ public class TextView extends AbstractView {
 		view.copy();
 	}
 	
-	public void selectAll(DocumentManager dm){
+	public void selectAll(Manager dm){
 		if(textChanged == true){
 			sendUpdate(dm);
 		}
@@ -1035,7 +1035,7 @@ public class TextView extends AbstractView {
 		selectionLength = length;
 	}
 	
-	public void adjustStyle(DocumentManager dm, Message m, Node n){		
+	public void adjustStyle(Manager dm, Message m, Node n){		
 		int startLine = (Integer)m.getValue("firstLine");
 		int length = 0;
 		int spaces = 0;

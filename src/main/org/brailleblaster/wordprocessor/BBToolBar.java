@@ -34,6 +34,7 @@ import java.awt.Toolkit;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -215,7 +216,7 @@ public class BBToolBar {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Current Doc Manager.
-				DocumentManager curDm = null;
+				Manager curDm = null;
 				
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);

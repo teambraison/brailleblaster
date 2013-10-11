@@ -41,8 +41,8 @@ import nu.xom.Text;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.Message;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;

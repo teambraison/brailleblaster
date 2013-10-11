@@ -26,7 +26,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.messages;
+package org.brailleblaster.perspectives.braille.messages;
 
 import java.util.ArrayList;
 import java.util.HashMap;

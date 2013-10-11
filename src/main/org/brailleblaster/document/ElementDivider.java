@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.brailleblaster.mapping.MapList;
 import org.brailleblaster.mapping.TextMapElement;
-import org.brailleblaster.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Message;
 
 import nu.xom.Attribute;
 import nu.xom.Element;

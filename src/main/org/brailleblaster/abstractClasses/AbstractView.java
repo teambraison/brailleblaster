@@ -34,8 +34,8 @@ import nu.xom.Text;
 
 import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.messages.Message;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;

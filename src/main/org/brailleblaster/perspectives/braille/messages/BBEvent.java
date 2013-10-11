@@ -25,7 +25,7 @@
   *
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
-package org.brailleblaster.messages;
+package org.brailleblaster.perspectives.braille.messages;
 
 //Enumeration used by Message class used by the DocumentManager to redirect messages between views
 public enum BBEvent {

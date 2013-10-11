@@ -26,7 +26,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.views;
+package org.brailleblaster.perspectives.braille.views;
 
 import java.util.LinkedList;
 import java.util.Map.Entry;

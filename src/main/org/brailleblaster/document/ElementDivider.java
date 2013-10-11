@@ -2,8 +2,8 @@ package org.brailleblaster.document;
 
 import java.util.ArrayList;
 
-import org.brailleblaster.mapping.MapList;
-import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
 import nu.xom.Attribute;

@@ -1,4 +1,4 @@
-package org.brailleblaster.mapping;
+package org.brailleblaster.perspectives.braille.mapping;
 
 import java.util.LinkedList;
 

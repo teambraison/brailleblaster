@@ -53,10 +53,10 @@ import nu.xom.Text;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.mapping.BrailleMapElement;
-import org.brailleblaster.mapping.MapList;
-import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;

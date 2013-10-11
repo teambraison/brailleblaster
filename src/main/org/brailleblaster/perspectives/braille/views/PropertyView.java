@@ -1,4 +1,4 @@
-package org.brailleblaster.views;
+package org.brailleblaster.perspectives.braille.views;
 
 import java.util.Map.Entry;
 

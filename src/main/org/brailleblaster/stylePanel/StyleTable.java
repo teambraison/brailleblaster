@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import nu.xom.Element;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;

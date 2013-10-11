@@ -33,8 +33,8 @@ package org.brailleblaster.stylePanel;
 
 import org.brailleblaster.document.BBSemanticsTable;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
-import org.brailleblaster.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 //import org.brailleblaster.views.PropertyView;

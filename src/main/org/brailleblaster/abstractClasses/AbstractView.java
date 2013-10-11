@@ -35,7 +35,7 @@ import nu.xom.Text;
 import org.brailleblaster.document.BBSemanticsTable.Styles;
 import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.messages.Message;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -86,21 +86,21 @@ public abstract class AbstractView {
 		view.setLayoutData(location);
 	}
 	
-	public void increment(DocumentManager dm){
+	public void increment(Manager dm){
 		sendIncrementCurrent(dm);
 	}
 	
-	protected void sendIncrementCurrent(DocumentManager dm){
+	protected void sendIncrementCurrent(Manager dm){
 		Message message = Message.createIncrementMessage();
 		dm.dispatch(message);
 		setViewData(message);
 	}
 	
-	public void decrement(DocumentManager dm){
+	public void decrement(Manager dm){
 		sendDecrementCurrent(dm);
 	}
 	
-	protected void sendDecrementCurrent(DocumentManager dm){
+	protected void sendDecrementCurrent(Manager dm){
 		Message message = Message.createDecrementMessage();
 		dm.dispatch(message);
 		setViewData(message);
@@ -287,7 +287,7 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
-	protected void sendStatusBarUpdate(DocumentManager dm, int line){
+	protected void sendStatusBarUpdate(Manager dm, int line){
 		String statusBarText = "Line: " + String.valueOf(line + 1);
 		
 		if(view.getLineIndent(line) > 0){
@@ -306,7 +306,7 @@ public abstract class AbstractView {
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}
 	
-	public void checkStatusBar(String sender, DocumentManager dm){
+	public void checkStatusBar(String sender, Manager dm){
 		if(!getLock()){
 			if(topIndex != view.getTopIndex()){
 				topIndex = view.getTopIndex();
@@ -368,5 +368,5 @@ public abstract class AbstractView {
 	
 	protected abstract void setViewData(Message message);
 	public abstract void resetView(Group group);
-	public abstract void initializeListeners(final DocumentManager dm);
+	public abstract void initializeListeners(final Manager dm);
 }

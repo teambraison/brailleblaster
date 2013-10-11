@@ -38,8 +38,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.Zipper;
-import org.brailleblaster.wordprocessor.DocumentManager;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -295,7 +295,7 @@ public class EPubArchiver extends Archiver {
 	} // findHrefById()
 	
 	@Override
-	public void save(DocumentManager dm, String path) {
+	public void save(Manager dm, String path) {
 		
 		
 		

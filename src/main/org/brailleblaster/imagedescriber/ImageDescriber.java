@@ -42,13 +42,13 @@ import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.wordprocessor.DocumentManager;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.eclipse.swt.graphics.Image;
 
 public class ImageDescriber {
 
 	// Manages document.
-	DocumentManager dm;
+	Manager dm;
 	// The document with images we want to add descriptions to.
 	private BBDocument doc;
 	// Current image element.
@@ -80,7 +80,7 @@ public class ImageDescriber {
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
-	public ImageDescriber(DocumentManager docManager){
+	public ImageDescriber(Manager docManager){
 		
 		// Init variables.
 		dm = docManager;

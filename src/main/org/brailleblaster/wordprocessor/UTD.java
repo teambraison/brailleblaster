@@ -46,6 +46,7 @@ import nu.xom.Node;
 import nu.xom.ParsingException;
 import nu.xom.Text;
 
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.BBIni;
 
@@ -76,7 +77,7 @@ class UTD {
     private boolean firstLineOnPage;
     StringBuilder brailleLine = new StringBuilder (1024);
 //  StringBuilder printLine = new StringBuilder (1024);
-    DocumentManager dm;
+    Manager dm;
     Document doc;
     boolean utdFound = false;	// FO
     boolean firstTime;
@@ -88,7 +89,7 @@ class UTD {
     BufferedWriter bufferedWriter = null;
     static Logger logger;
 
-    UTD (final DocumentManager dm) {
+    UTD (final Manager dm) {
         this.dm = dm;
         logger = BBIni.getLogger();
     }
@@ -216,11 +217,11 @@ class UTD {
                     public void run() {    
                     	// FO
                     	if (firstTime) {
-                    		dm.braille.view.replaceTextRange(0, dm.braille.view.getCharCount(), 
+                    		dm.getBraille().view.replaceTextRange(0, dm.getBraille().view.getCharCount(), 
                     				brailleLine.toString() );
                     		firstTime = false;
                     	} else {
-                            dm.braille.view.append(brailleLine.toString() );
+                            dm.getBraille().view.append(brailleLine.toString() );
                     	} 
                     	
                     	try {
@@ -279,14 +280,14 @@ class UTD {
         if (metaContent == null ) {
         	logger.log(Level.INFO, "doUtdMeta: metaContent is null");
         	// System.err.println("doUtdMeta: metaContent is null");
-        	dm.metaContent = false;
+        	dm.setMetaContent(false);
         	return;
         }
         if (!(metaContent.equals ("utd"))) {
             return;
         }
         
-        dm.metaContent = true;
+        dm.setMetaContent(true);
         metaContent = node.getAttributeValue ("content");
         String[] keysValues = metaContent.split (" ", 20);
         for (int i = 0; i < keysValues.length; i++) {

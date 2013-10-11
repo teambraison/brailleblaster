@@ -35,8 +35,8 @@ import nu.xom.Element;
 import nu.xom.Text;
 
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.messages.Message;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.messages.Message;
 
 public class MapList extends LinkedList<TextMapElement>{
 	private class UpdaterThread extends Thread {

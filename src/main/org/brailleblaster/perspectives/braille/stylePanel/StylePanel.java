@@ -29,7 +29,7 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.stylePanel;
+package org.brailleblaster.perspectives.braille.stylepanel;
 
 import java.io.File;
 import java.net.MalformedURLException;

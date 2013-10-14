@@ -1,4 +1,4 @@
-package org.brailleblaster.stylePanel;
+package org.brailleblaster.perspectives.braille.stylepanel;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

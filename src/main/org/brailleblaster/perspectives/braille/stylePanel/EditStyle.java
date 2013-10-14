@@ -26,7 +26,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.stylePanel;
+package org.brailleblaster.perspectives.braille.stylepanel;
 
 import java.io.BufferedWriter;
 import java.io.File;

@@ -1,7 +1,8 @@
-package org.brailleblaster.document;
+package org.brailleblaster.perspectives.braille.document;
 
 import java.util.ArrayList;
 
+import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -12,14 +13,14 @@ import nu.xom.Node;
 import nu.xom.Text;
 
 public class ElementDivider {
-	BBDocument doc;
+	BrailleDocument doc;
 	BBSemanticsTable table;
 	SemanticFileHandler handler;
 	String attribute;
 	int nodeIndex;
 	int index;
 	
-	public ElementDivider(BBDocument doc, BBSemanticsTable table, SemanticFileHandler handler){
+	public ElementDivider(BrailleDocument doc, BBSemanticsTable table, SemanticFileHandler handler){
 		this.doc = doc;
 		this.table = table;
 		this.handler = handler;

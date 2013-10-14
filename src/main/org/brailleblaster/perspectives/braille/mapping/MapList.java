@@ -36,6 +36,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
 public class MapList extends LinkedList<TextMapElement>{
@@ -497,7 +498,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public ArrayList<TextMapElement> findTextMapElements(int index, Element parent, boolean ignoreInlineElement){
 		ArrayList<TextMapElement>list = new ArrayList<TextMapElement>();
-		BBDocument doc = dm.getDocument();
+		BrailleDocument doc = dm.getDocument();
 		
 		int countDown = index -  1;
 		int countUp = index + 1;
@@ -522,7 +523,7 @@ public class MapList extends LinkedList<TextMapElement>{
 				parent = (Element)parent.getParent();
 		}
 		ArrayList<Integer>list = new ArrayList<Integer>();
-		BBDocument doc = dm.getDocument();
+		BrailleDocument doc = dm.getDocument();
 		
 		int countDown = index -  1;
 		int countUp = index + 1;

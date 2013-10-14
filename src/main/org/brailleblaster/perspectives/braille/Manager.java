@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 
 import javax.print.PrintException;
 
+import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Nodes;
@@ -49,6 +50,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
@@ -60,13 +62,13 @@ import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.views.BrailleView;
 import org.brailleblaster.perspectives.braille.views.TextView;
 import org.brailleblaster.perspectives.braille.views.TreeView;
+import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
-import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
-import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
+import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.daisy.printing.PrinterDevice;
@@ -82,18 +84,16 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
-public class Manager {
-	WPManager wp;
-	TabItem item;
+public class Manager extends Controller {
 	Group group;
 	TreeView treeView;
 	private TextView text;
 	private BrailleView braille;
+	private BBProgressBar pb;
 	StyleManager sm;
 	FormLayout layout;
 	Control [] tabList;
 	BBSemanticsTable styles;
-	static int docCount = 0;
 	String documentName = null;
 	private boolean metaContent = false;
 	String logFile = "Translate.log";
@@ -104,23 +104,15 @@ public class Manager {
 	public BrailleDocument document;
 	private boolean simBrailleDisplayed = false;
 	MapList list;
-	String zippedPath;
-	String workingFilePath;
-	FileUtils fu;
-	String currentConfig;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
-		if(docName != null)
-			currentConfig = BBIni.getDefaultConfigFile();
-		else 
-			currentConfig = "nimas.cfg";
+		super(wp, docName);
 		
-		this.fu = new FileUtils();
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
-		this.wp = wp;
+		
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
@@ -131,15 +123,15 @@ public class Manager {
 		this.item.setControl(this.group);
 		initializeDocumentTab();
 		this.document = new BrailleDocument(this, this.styles);
+		pb = new BBProgressBar(wp.getShell());
 		FontManager.setFontWidth(this);
 		
 		logger = BBIni.getLogger();
 		
-		docCount++;
-		
 		if(docName != null)
 			openDocument(docName);
 		else {
+			docCount++;
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
 			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
 			((Element)n.get(0)).appendChild(new Text(""));
@@ -147,6 +139,53 @@ public class Manager {
 			setTabTitle(docName);
 		}				
 	}
+	
+	public Manager(WPManager wp, String docName, Document doc, TabItem item){
+		super(wp, docName);
+		
+		this.styles = new BBSemanticsTable(currentConfig);
+		this.documentName = docName;
+		this.list = new MapList(this);
+
+		this.item = item;
+		this.group = new Group(wp.getFolder(),SWT.NONE);
+		this.group.setLayout(new FormLayout());	
+		this.sm = new StyleManager(this);
+		this.treeView = new TreeView(this, this.group);
+		this.text = new TextView(this.group, this.styles);
+		this.braille = new BrailleView(this.group, this.styles);
+		this.item.setControl(this.group);
+		initializeDocumentTab();
+		this.document = new BrailleDocument(this, this.styles);
+		pb = new BBProgressBar(wp.getShell());
+		FontManager.setFontWidth(this);
+		
+		logger = BBIni.getLogger();
+		
+		this.document = new BrailleDocument(this, doc, this.styles);
+
+		group.setRedraw(false);
+		treeView.setRoot(document.getRootElement(), this);
+		initializeViews(document.getRootElement());
+		document.notifyUser();
+		getText().initializeListeners(this);
+		getBraille().initializeListeners(this);
+		treeView.initializeListeners(this);
+		getText().hasChanged = false;
+		getBraille().hasChanged = false;
+		getText().view.setWordWrap(true);
+		getBraille().view.setWordWrap(true);
+		group.setRedraw(true);
+		if(list.size() == 0){
+			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
+			if(n.get(0).getChildCount() > 0)
+				this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			else {
+				((Element)n.get(0)).appendChild(new Text(""));
+				this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			}
+		}
+	}	
 	
 
 	private void initializeDocumentTab(){
@@ -200,16 +239,7 @@ public class Manager {
 			
 			// If the document came from a zip file, then rezip it.
 			if(zippedPath.length() > 0)
-			{
-				// Create zipper.
-				Zipper zpr = new Zipper();
-				// Input string.
-				String sp = BBIni.getFileSep();
-				String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-//				String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
-				// Zip it!
-				zpr.Zip(inPath, zippedPath);
-			}
+				zipDocument();
 		
 			getText().hasChanged = false;
 			getBraille().hasChanged = false;
@@ -277,30 +307,7 @@ public class Manager {
 			*/
 			////////////////
 			// Recent Files.
-				
-				// Get recent file list.
-				ArrayList<String> strs = this.wp.getMainMenu().getRecentDocumentsList();
-				
-				// Search list for duplicate. If one exists, don't add this new one.
-				for(int curStr = 0; curStr < strs.size(); curStr++) {
-					if(strs.get(curStr).compareTo(fileName) == 0) {
-						
-						// This isn't a new document. First, remove from doc list and recent item submenu.
-						wp.getMainMenu().getRecentDocumentsList().remove(curStr);
-						wp.getMainMenu().getRecentItemSubMenu().getItem(curStr).dispose();
-						
-						// We found a duplicate, so there is no point in going further.
-						break;
-						
-					} // if(strs.get(curStr)...
-					
-				} // for(int curStr = 0...
-				
-				// Add to top of recent items submenu.
-				wp.getMainMenu().addRecentEntry(fileName);
-				
-			// Recent Files.
-			////////////////
+			addRecentFileEntry(fileName);		
 
 		// Zip and Recent Files.
 		////////////////////////
@@ -316,7 +323,7 @@ public class Manager {
 				getBraille().view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
-				wp.startProgressBar(this);
+				startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
 				treeView.setRoot(document.getRootElement(), this);
@@ -328,7 +335,7 @@ public class Manager {
 				getText().hasChanged = false;
 				getBraille().hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
-				wp.getProgressBar().stop();
+				pb.stop();
 				wp.getStatusBar().setText("Words: " + getText().words);
 				getBraille().setWords(getText().words);
 				getText().view.setWordWrap(true);
@@ -338,6 +345,7 @@ public class Manager {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.log(Level.SEVERE, "The Document Base document tree is null, the file failed to parse properly");
+				workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -844,14 +852,9 @@ public class Manager {
 			    }
 			}
 		    getText().hasChanged = false;
-			getBraille().hasChanged = false;			
+			getBraille().hasChanged = false;	
+			documentEdited = false;
 		}
-	}
-	
-	private void copySemanticsFile(String tempSemFile, String savedFilePath) {
-		if(fu.exists(tempSemFile)){
-    		fu.copyFile(tempSemFile, savedFilePath);
-    	}
 	}
 	
 	public void fileClose() {
@@ -864,25 +867,6 @@ public class Manager {
 		item.dispose();
 	}
 	
-	private void setTabTitle(String pathName) {
-		if(pathName != null){
-			int index = pathName.lastIndexOf(File.separatorChar);
-			if (index == -1) {
-				item.setText(pathName);
-			} 
-			else {
-				item.setText(pathName.substring(index + 1));
-			}
-		}
-		else {
-			if(docCount == 1){
-				item.setText("Untitled");			
-			}
-			else {
-				item.setText("Untitled #" + docCount);
-			}
-		}
-	}
 	public void nextElement(){
 		if(list.size() != 0){		
 			if(getText().view.isFocusControl()){
@@ -1116,10 +1100,19 @@ public class Manager {
 		list.clearList();	
 	}
 	
+	private void startProgressBar(){
+    	if(workingFilePath != null)
+    		pb.start();
+	}
+ 
+	public BBProgressBar getProgressBar(){
+		return pb;
+	}
+	
 	//if tree has focus when opening a document and closing an untitled document, the trees selection must be reset
 	public void checkTreeFocus(){
 		if(treeView.tree.isFocusControl() && treeView.tree.getSelectionCount() == 0){
-			treeView.tree.setSelection(treeView.getRoot());
+			treeView.setSelection(list.getFirst(), new Message(null), this);
 		}
 	}
 	
@@ -1199,5 +1192,60 @@ public class Manager {
 
 	public void setMetaContent(boolean metaContent) {
 		this.metaContent = metaContent;
+	}
+
+
+	@Override
+	public void restore(WPManager wp) {
+		checkTreeFocus();
+	}
+
+
+	@Override
+	public void dispose() {
+		text.update(this);
+		list.clearList();
+		group.dispose();
+	}
+
+
+	@Override
+	public void close() {
+		// TODO Auto-generated method stub
+		//RENAME CLOSEFILE LATER
+	}
+
+
+	@Override
+	public Document getDoc() {
+		return document.getDOM();
+	}
+
+
+	@Override
+	public void setStatusBarText(BBStatusBar statusBar) {
+		if(text.view.getCharCount() > 0) 
+			statusBar.setText("Words: " + text.words);
+		else
+			statusBar.setText("Words: " + 0);
+	}
+
+
+	@Override
+	public boolean canReuseTab() {
+		if(text.hasChanged || braille.hasChanged || documentName != null)
+			return false;
+		else
+			return true;
+	}
+
+
+	@Override
+	public void reuseTab(String file) {
+		closeUntitledTab();
+		openDocument(file);
+		checkTreeFocus();
+		if(docCount > 0)
+			docCount--;	
 	}
 }

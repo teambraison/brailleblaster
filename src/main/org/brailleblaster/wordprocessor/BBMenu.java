@@ -53,7 +53,7 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class BBMenu {
 	//This class contains all the menus.
-	final Menu menuBar;
+	protected Menu menuBar;
 
 	/* All the menu items are member fields so they can be accessed outside the
 	 * constructor. This might be done for example with setEnabled(false) to

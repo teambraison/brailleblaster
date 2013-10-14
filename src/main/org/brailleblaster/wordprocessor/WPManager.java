@@ -61,7 +61,6 @@ public class WPManager {
     private FormData location;
     private BBMenu bbMenu;
     private BBStatusBar statusBar;
-    private BBProgressBar pb;
     private BBToolBar toolBar;
     private LinkedList<Manager> managerList;
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
@@ -84,7 +83,6 @@ public class WPManager {
 	    this.folder.setLayoutData (this.location);
 	    
 	    this.statusBar = new BBStatusBar(this.shell);
-	    this.pb = new BBProgressBar(this.shell);
 	    this.bbMenu = new BBMenu(this);
 	    
 	    // Toolbar.
@@ -167,11 +165,6 @@ public class WPManager {
             System.exit(1);
         }
     }
-
-    public void startProgressBar(Manager dm){
-    	if(dm.getWorkingPath() != null)
-    		pb.start();
-    }
     
     static int getMaxNumDocs(){
         return MAX_NUM_DOCS;
@@ -199,9 +192,5 @@ public class WPManager {
     
     public BBMenu getMainMenu() {
     	return bbMenu;
-    }
-    
-    public BBProgressBar getProgressBar(){
-    	return this.pb;
     }
 }

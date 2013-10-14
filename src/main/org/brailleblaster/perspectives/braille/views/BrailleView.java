@@ -36,10 +36,10 @@ import nu.xom.Elements;
 import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
-import org.brailleblaster.document.BBSemanticsTable;
-import org.brailleblaster.document.BBSemanticsTable.Styles;
-import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;

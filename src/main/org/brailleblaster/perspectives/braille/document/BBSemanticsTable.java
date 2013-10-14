@@ -1,4 +1,4 @@
-package org.brailleblaster.document;
+package org.brailleblaster.perspectives.braille.document;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

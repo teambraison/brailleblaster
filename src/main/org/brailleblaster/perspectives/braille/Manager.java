@@ -48,11 +48,11 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
-import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.document.BBSemanticsTable;
-import org.brailleblaster.document.BBSemanticsTable.Styles;
-import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -101,7 +101,7 @@ public class Manager {
 	static String recentFileName = null;
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
-	public BBDocument document;
+	public BrailleDocument document;
 	private boolean simBrailleDisplayed = false;
 	MapList list;
 	String zippedPath;
@@ -130,7 +130,7 @@ public class Manager {
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
 		initializeDocumentTab();
-		this.document = new BBDocument(this, this.styles);
+		this.document = new BrailleDocument(this, this.styles);
 		FontManager.setFontWidth(this);
 		
 		logger = BBIni.getLogger();
@@ -1165,7 +1165,7 @@ public class Manager {
 		return this.workingFilePath;
 	}
 	
-	public BBDocument getDocument(){
+	public BrailleDocument getDocument(){
 		return document;
 	}
 	

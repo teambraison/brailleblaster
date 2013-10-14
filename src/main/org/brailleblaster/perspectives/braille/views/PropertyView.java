@@ -5,10 +5,10 @@ import java.util.Map.Entry;
 import nu.xom.Element;
 import nu.xom.Node;
 
-import org.brailleblaster.document.BBSemanticsTable;
-import org.brailleblaster.document.BBSemanticsTable.Styles;
-import org.brailleblaster.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.SWT;

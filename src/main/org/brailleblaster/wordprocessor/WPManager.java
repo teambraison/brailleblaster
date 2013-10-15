@@ -42,12 +42,19 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.perspectives.Controller;
+import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.YesNoChoice;
 
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Properties;
 
 public class WPManager {
     /**
@@ -60,14 +67,16 @@ public class WPManager {
     private TabFolder folder;
     private FormData location;
     private BBMenu bbMenu;
-    private BBStatusBar statusBar;
-    private BBToolBar toolBar;
-    private LinkedList<Manager> managerList;
+    private BBStatusBar statusBar; 
+    private Perspective currentPerspective;
+    private LinkedList<Controller> managerList;
+    private Class<?> lastPerspective;
     private static final int MAX_NUM_DOCS = 4;//the max limit of total number of docs can have at the same time
     
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
     public WPManager(String fileName) {
-    	checkLiblouisutdml();
+    	this.managerList = new LinkedList<Controller>();
+		checkLiblouisutdml();
         display = new Display();
     	this.shell = new Shell(display, SWT.SHELL_TRIM);
         this.shell.setText("BrailleBlaster"); 
@@ -80,16 +89,18 @@ public class WPManager {
 	    this.location.right = new FormAttachment(100);
 	    this.location.top = new FormAttachment (13);
 	    this.location.bottom = new FormAttachment(98);
-	    this.folder.setLayoutData (this.location);
-	    
+	    this.folder.setLayoutData (this.location);    
 	    this.statusBar = new BBStatusBar(this.shell);
-	    this.bbMenu = new BBMenu(this);
+	   
+	    if(fileName == null)
+	    	this.currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), null);
+	    else
+	    	this.currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), fileName);
 	    
-	    // Toolbar.
-	    toolBar = new BBToolBar(shell, this);
+	    this.managerList.add(this.currentPerspective.getController());
+	    this.currentPerspective.getController().setStatusBarText(statusBar);
+	    this.bbMenu = currentPerspective.getMenu();
 	    
-	    this.managerList = new LinkedList<Manager>();
-	    this.managerList.add(new Manager(this, null));
 	    this.folder.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -99,23 +110,35 @@ public class WPManager {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
-				if(managerList.size() > 0){
-					if(managerList.get(index).getText().view.getCharCount() > 0) {
-						statusBar.setText("Words: " + managerList.get(index).getText().words);
+				if(managerList.size() > 0) {
+					if(bbMenu.getCurrent().getClass().isInstance(managerList.get(index))){
+						bbMenu.setCurrent(managerList.get(index));
+						currentPerspective.setController(managerList.get(index));
 					}
-					else
-						statusBar.setText("Words: " + 0);
+					else {
+						currentPerspective.dispose();
+						currentPerspective = Perspective.restorePerspective(WPManager.this, managerList.get(index));
+						bbMenu = currentPerspective.getMenu();
+						bbMenu.setCurrent(managerList.get(index));
+					}
+				
+					managerList.get(index).setStatusBarText(statusBar);
 				}
 			}
 	    });
 	    
-		this.shell.addListener(SWT.Close, new Listener() { 
+	    this.shell.addListener(SWT.Close, new Listener() { 
 	        public void handleEvent(Event event) { 
-	           System.out.println("Main Shell handling Close event, about to dipose the main Display");
-	           int count = getList().size();
-	           for(int i = 0; i < count; i++){
-	        	   getList().get(i).fileClose();
+	           System.out.println("Main Shell handling Close event, about to dispose the main Display");
+	           //int count = getList().size();
+	           //for(int i = 0; i < count; i++){
+	        	 //  getList().get(i).close();
+	           //}
+	           while(managerList.size() > 0){
+	        	   Controller temp = managerList.removeFirst(); 
+	        	   temp.close();
 	           }
+	           
 	           display.dispose();
 	           bbMenu.writeRecentsToFile();
 	        } 
@@ -136,6 +159,9 @@ public class WPManager {
 	           e.printStackTrace(); 
 	        } 
 	    } 
+        
+        if(lastPerspective != null)
+        	savePerspectiveSetting();
     }
 	
 	private void setShellScreenLocation(Display display, Shell shell){
@@ -148,8 +174,20 @@ public class WPManager {
 	}	
 	
 	public void addDocumentManager(String fileName){
-		this.managerList.add(new Manager(this, fileName));
-		setSelection();
+		if(managerList.size() == 0){
+			Controller c = Perspective.getNewController(this, currentPerspective.getType(), fileName);		
+			managerList.add(c);
+			currentPerspective.setController(c);
+			bbMenu.setCurrent(managerList.getLast());
+			setSelection();
+		}
+		else {
+			Controller c = Perspective.getNewController(this, currentPerspective.getType(), fileName);		
+			managerList.add(c);
+			bbMenu.setCurrent(managerList.getLast());
+			currentPerspective.setController(c);
+			setSelection();
+		}
 	}
 
 	public void setSelection(){
@@ -164,6 +202,67 @@ public class WPManager {
         if (new YesNoChoice("The Braille facility is not usable." + " See the log." + " Do you wish to continue?").result == SWT.NO) {
             System.exit(1);
         }
+    }
+    
+    public void swapPerspectiveController(Class<?> controllerClass){
+    	int index = folder.getSelectionIndex();
+    	if(index != -1){
+    		currentPerspective.dispose();
+    		currentPerspective.getController().dispose();
+    		currentPerspective = Perspective.getDifferentPerspective(currentPerspective, this, controllerClass, managerList.get(index).getDoc());
+    		managerList.set(index, currentPerspective.getController());
+    		bbMenu = currentPerspective.getMenu();
+    		managerList.get(index).setStatusBarText(statusBar);
+    		managerList.get(index).restore(this);
+    	}
+    	else {
+    		currentPerspective.dispose();
+    		currentPerspective.getController().dispose();
+    		currentPerspective = Perspective.getDifferentPerspective(currentPerspective, this, controllerClass, null);
+    		bbMenu = currentPerspective.getMenu();
+    		bbMenu.setCurrent(null);
+    	}
+    	
+    	lastPerspective = controllerClass;
+    }
+
+    private Class<?> getDefaultPerspective(){
+    	Properties properties = new Properties();
+    	try {
+			properties.load(new FileInputStream(BBIni.getUserSettings()));
+			if(!properties.containsKey("defaultPerspective")){
+				properties.setProperty("defaultPerspective", Manager.class.getCanonicalName().toString());
+				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
+			}
+			
+			return Class.forName(((String)properties.get("defaultPerspective")));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+    }
+    
+    private void savePerspectiveSetting(){
+    	Properties prop = new Properties();
+    	try {
+			prop.load(new FileInputStream(BBIni.getUserSettings()));
+			prop.setProperty("defaultPerspective", lastPerspective.getCanonicalName().toString());
+			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public void removeController(Controller c){
+    	managerList.remove(c);
     }
     
     static int getMaxNumDocs(){
@@ -182,7 +281,7 @@ public class WPManager {
     	return this.folder;
     }
     
-    public LinkedList<Manager> getList(){
+    public LinkedList<Controller> getList(){
     	return this.managerList;
     }
     

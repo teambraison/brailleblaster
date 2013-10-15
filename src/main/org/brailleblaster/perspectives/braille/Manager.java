@@ -857,14 +857,18 @@ public class Manager extends Controller {
 		}
 	}
 	
-	public void fileClose() {
-		if (getText().hasChanged || getBraille().hasChanged) {
+	public void close() {
+		if (getText().hasChanged || getBraille().hasChanged || documentEdited) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				this.fileSave();
 			}
 		}
+		dispose();
 		item.dispose();
+		
+		if(workingFilePath == null & docCount > 0)
+			docCount--;
 	}
 	
 	public void nextElement(){
@@ -1207,14 +1211,6 @@ public class Manager extends Controller {
 		list.clearList();
 		group.dispose();
 	}
-
-
-	@Override
-	public void close() {
-		// TODO Auto-generated method stub
-		//RENAME CLOSEFILE LATER
-	}
-
 
 	@Override
 	public Document getDoc() {

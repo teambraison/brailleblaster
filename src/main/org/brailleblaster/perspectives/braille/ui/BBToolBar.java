@@ -26,7 +26,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.wordprocessor;
+package org.brailleblaster.perspectives.braille.ui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -36,6 +36,7 @@ import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.ImageHelper;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -58,9 +59,10 @@ public class BBToolBar {
 	private Button checkBrailleItem;
 	WPManager wordProc;
 	ImageHelper imgHelper;
-	
+	Manager currentEditor;
 	// FO
-	public BBToolBar(Shell shell, final WPManager wp) {
+	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
+		setEditor(manager);
 		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.NONE);
@@ -111,10 +113,13 @@ public class BBToolBar {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						wp.getList().getFirst().fileOpenDialog();
+						setEditor((Manager)wp.getList().getLast());
+						currentEditor.fileOpenDialog();
+						//wp.getList().getFirst().fileOpenDialog();
 					}
 					else {
-						wp.getList().get(index).fileOpenDialog();
+						//wp.getList().get(index).fileOpenDialog();
+						currentEditor.fileOpenDialog();
 					}
 				}
 			}
@@ -133,11 +138,12 @@ public class BBToolBar {
 				else {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
-						wp.addDocumentManager(null);
-						wp.getList().getFirst().fileSave();
+						//wp.addDocumentManager(null);
+						//wp.getList().getFirst().fileSave();
 					}
 					else {
-						wp.getList().get(index).fileSave();
+					//	wp.getList().get(index).fileSave();
+						currentEditor.fileSave();
 					}
 				}
 			}
@@ -154,11 +160,12 @@ public class BBToolBar {
 				else {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
-						wp.addDocumentManager(null);
-						wp.getList().getFirst().saveAs();
+					//	wp.addDocumentManager(null);
+					//	wp.getList().getFirst().saveAs();
 					}
 					else {
-						wp.getList().get(index).saveAs();
+						//wp.getList().get(index).saveAs();
+						currentEditor.saveAs();
 					}
 				}
 			}
@@ -185,7 +192,8 @@ public class BBToolBar {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
-					wp.getList().get(index).fileEmbossNow();
+					//wp.getList().get(index).fileEmbossNow();
+					currentEditor.fileEmbossNow();
 				}
 			}
 		});
@@ -225,10 +233,10 @@ public class BBToolBar {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						curDm = wp.getList().getFirst();
+						curDm =(Manager) wp.getList().getFirst();
 					}
 					else {
-						curDm = wp.getList().get(index);
+						curDm = (Manager)wp.getList().get(index);
 					}
 				}
 				
@@ -255,7 +263,8 @@ public class BBToolBar {
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
-					wp.getList().get(index).toggleBrailleFont();
+					//wp.getList().get(index).toggleBrailleFont();
+					currentEditor.toggleBrailleFont();
 				}
 			}
 		});
@@ -266,5 +275,14 @@ public class BBToolBar {
 	public void toggleCheckBox(boolean enabled, boolean state){
 		this.checkBrailleItem.setEnabled(enabled);
 		this.checkBrailleItem.setSelection(state);
+	}
+	
+	public void setEditor(Manager editor){
+		currentEditor = editor;
+	}
+	
+	public void dispose(){
+		checkBrailleItem.dispose();
+		toolBar.dispose();
 	}
 }

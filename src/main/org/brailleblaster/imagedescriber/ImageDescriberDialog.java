@@ -164,10 +164,10 @@ public class ImageDescriberDialog extends Dialog {
 			int index= wpm.getFolder().getSelectionIndex();
 			if(index == -1){
 				wpm.addDocumentManager(null);
-				curDocMan = wpm.getList().getFirst();
+				curDocMan = (Manager)wpm.getList().getFirst();
 			}
 			else {
-				curDocMan = wpm.getList().get(index);
+				curDocMan = (Manager)wpm.getList().get(index);
 			}
 		
 		// Grab current doc manager.

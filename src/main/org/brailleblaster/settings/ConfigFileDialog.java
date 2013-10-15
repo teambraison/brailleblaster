@@ -44,6 +44,7 @@ import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -1010,8 +1011,8 @@ public class ConfigFileDialog extends Dialog {
 	{
 		int index = dm.getFolder().getSelectionIndex();
 		if(index  > -1) {
-			dm.getList().get(index).setCurrentConfig(defaultCfgFileName);
-			dm.getList().get(index).refresh();
+			((Manager)dm.getList().get(index)).setCurrentConfig(defaultCfgFileName);
+			((Manager)dm.getList().get(index)).refresh();
 		}
 		
 	} // void refreshViews()

@@ -133,7 +133,7 @@ public final class BBIni {
 			userData.mkdirs();
 		}
 		makeUserProgramData();
-		userSettings = BBHome + fileSep + "user_settings.properties";
+		userSettings = userProgramDataPath + fileSep + "settings" + fileSep + "user_settings.properties";
 		if (!fu.exists(userSettings)) {
 			fu.copyFile(programDataPath + fileSep + "settings" + fileSep + "user_settings.properties", userSettings);
 		}

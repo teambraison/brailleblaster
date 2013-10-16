@@ -339,7 +339,7 @@ public class EPubArchiver extends Archiver {
 			nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 			
 			// Get xom document.
-			nu.xom.Document mainDoc = dm.getDocument().getDOM();
+			nu.xom.Document mainDoc = dm.getDocument().getNewXML();
 			// Body element.
 			nu.xom.Nodes currentMainElement = mainDoc.query("//dtb:body[1]", context);
 			

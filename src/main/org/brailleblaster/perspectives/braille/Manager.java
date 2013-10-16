@@ -67,6 +67,7 @@ import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
+import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
@@ -104,6 +105,7 @@ public class Manager extends Controller {
 	public BrailleDocument document;
 	private boolean simBrailleDisplayed = false;
 	MapList list;
+	Archiver arch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -212,7 +214,11 @@ public class Manager extends Controller {
 		}
 		else {
 			checkForUpdatedViews();
-			if(workingFilePath.endsWith("xml")){
+			
+			if(arch != null) { // Save archiver supported file.
+				arch.save(this, "");
+			}
+			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
 					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
 					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
@@ -276,24 +282,28 @@ public class Manager extends Controller {
 	public void openDocument(String fileName){
 		
 		// Create archiver and massage document if necessary.
-		Archiver arch = ArchiverFactory.getArchive(fileName);
-		String archFileName = arch.open();
+		arch = ArchiverFactory.getArchive(fileName);
+		String archFileName = null;
+		if(arch != null)
+			archFileName = arch.open();
 		
-		// File unsupported by Archiver. Let Braille Blaster handle it.
-		if(archFileName != null)
+		// Potentially massaged archiver file, or just pass to BB.
+		if(archFileName != null) {
 			workingFilePath = archFileName;
+			zippedPath = "";
+		}
 		else
 			workingFilePath = fileName;
 		
 		////////////////////////
 		// Zip and Recent Files.
-		/*
+
 			// If the file opened was an xml zip file, unzip it.
-			if(fileName.endsWith(".zip")) {
+			if(fileName.endsWith(".zip") && archFileName == null) {
 				// Create unzipper.
 				Zipper unzipr = new Zipper();
 				// Unzip and update "opened" file.
-//				workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
+	//			workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
 				String sp = BBIni.getFileSep();
 				String tempOutPath = BBIni.getTempFilesPath() + fileName.substring(fileName.lastIndexOf(sp), fileName.lastIndexOf(".")) + sp;
 				workingFilePath = unzipr.Unzip(fileName, tempOutPath);
@@ -304,7 +314,7 @@ public class Manager extends Controller {
 				// There is no zip file to deal with.
 				zippedPath = "";
 			}
-			*/
+			
 			////////////////
 			// Recent Files.
 			addRecentFileEntry(fileName);		
@@ -797,7 +807,10 @@ public class Manager extends Controller {
 			checkForUpdatedViews();
 			String ext = getFileExt(filePath);
 			
-			if(ext.equals("brf")){
+			if(arch != null) { // Save archiver supported file.
+				arch.save(this, "");
+			}
+			else if(ext.equals("brf")){
 				if(!this.document.createBrlFile(this, filePath)){
 					new Notify("An error has occurred.  Please check your original document");
 				}

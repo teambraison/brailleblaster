@@ -37,8 +37,14 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import nu.xom.ParsingException;
+import nu.xom.ValidityException;
+import nu.xom.XPathContext;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Zipper;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
@@ -59,7 +65,31 @@ public class EPubArchiver extends Archiver {
 	// Manifest and spine elements.
 	NodeList manifestElements;
 	NodeList spineElements;
+
+	// The main document we'll be appending to.
+	Document mainDoc = null;
+	// Body element of main doc.
+	NodeList mainBodyElement = null;
+	// Html element of main doc.
+	NodeList mainHtmlElement = null;
+	// Opf document.
+	Document opfDoc = null;
 	
+	// Every file that makes our epub doc.
+	ArrayList<String> epubFileList = null;
+	
+	// The last bookmark we were at.
+	String bkMarkStr = null;
+	
+	// The number of nodes we've traversed. We use this to count our way 
+	// into the main document after saving its snippet to file.
+	// In other words, a bookmark.
+	int maxChildDepth = 0;
+	int curChildDepth = 0;
+	int st_append = 0;
+	int st_findbk = 1;
+	int st_skiprt = 2;
+	int state = st_skiprt;
 	EPubArchiver(String docToPrepare) {
 		super(docToPrepare);
 	}
@@ -70,6 +100,13 @@ public class EPubArchiver extends Archiver {
 	// 
 	@Override
 	public String open() {
+		
+		// Init variables.
+		mainDoc = null;
+		mainBodyElement = null;
+		mainHtmlElement = null;
+		opfDoc = null;
+		epubFileList = new ArrayList<String>();
 		
 		// First things first, we have to unzip the EPub doc.
 		
@@ -85,7 +122,7 @@ public class EPubArchiver extends Archiver {
 		// Unzip.
 		/////////
 			
-		// Get ready to look for the opf file.	
+		// Get ready to look for the opf file.
 		opfPath = null;
 			
 		// Get paths to all unzipped files.
@@ -117,15 +154,7 @@ public class EPubArchiver extends Archiver {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder builder;
 			builder = factory.newDocumentBuilder();
-			Document opfDoc = builder.parse(opfPath);
-
-			// The main document we'll be appending to.
-			Document mainDoc = null;
-			
-			// Body element of main doc.
-			NodeList mainBodyElement = null;
-			// Html element of main doc.
-			NodeList mainHtmlElement = null;
+			opfDoc = builder.parse(opfPath);
 			
 			// Grab the spine elements and manifest elements.
 			manifestElements = opfDoc.getElementsByTagName("item");
@@ -146,6 +175,9 @@ public class EPubArchiver extends Archiver {
 				// Get the file path from the manifest.
 				curDocFilePath = opfPath.substring( 0, opfPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep(); 
 				curDocFilePath += findHrefById(fileID).replace("/", BBIni.getFileSep());
+				
+				// Add this path to the list of document paths.
+				epubFileList.add(curDocFilePath);
 				 
 				// If this is the first file, we'll use it as a base to add to.
 				if(curSP == 0)
@@ -215,7 +247,7 @@ public class EPubArchiver extends Archiver {
 				NodeList bodyChilds = newBodyElm.item(0).getChildNodes();
 				
 				// Add our bookmark comment. When we save later, this helps us save to the appropriate files.
-				Comment comment = mainDoc.createComment("BBBOOKMARK");
+				Comment comment = mainDoc.createComment( "BBBOOKMARK - " + findHrefById(fileID).replace("/", BBIni.getFileSep()) );
 				mainBodyElement.item(0).appendChild(comment);
 				
 				// Loop through all of the children and add them to the main document.
@@ -295,10 +327,222 @@ public class EPubArchiver extends Archiver {
 	} // findHrefById()
 	
 	@Override
-	public void save(Manager dm, String path) {
+	public void save(Manager dm, String path)
+	{
+		try
+		{
+			// Create XOM builder.
+			nu.xom.Builder parser = new nu.xom.Builder();
+			
+			// Namespace and context.
+			String nameSpace = dm.getDocument().getRootElement().getNamespaceURI();
+			nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
+			
+			// Get xom document.
+			nu.xom.Document mainDoc = dm.getDocument().getDOM();
+			// Body element.
+			nu.xom.Nodes currentMainElement = mainDoc.query("//dtb:body[1]", context);
+			
+			// Set depth to root.
+			maxChildDepth = 0;
+			curChildDepth = 0;
+			state = st_skiprt;
+			
+			// Get the number of children our source has.
+			int curCh = 0;
+			int numChilds = currentMainElement.get(0).getChildCount();
+			
+			// Loop through epub docs, open them, then update their body's.
+			for(int curPath = 0; curPath < epubFileList.size(); curPath++)
+			{
+				// Parse this epub document.
+				nu.xom.Document curDoc = parser.build( "File:" + BBIni.getFileSep() + epubFileList.get(curPath) );
+				
+				// Get epub document's body.
+				nu.xom.Nodes bodyNodes = curDoc.getRootElement().query("//dtb:body[1]", context);
+				nu.xom.Element bodyElement = ( (nu.xom.Element)(bodyNodes.get(0)) );
+				
+				// Remove all children of the body element.
+				bodyElement.removeChildren();
+				
+				// Now add the new content.
+//				_attachSnippet2(bodyElement, currentMainElement.get(0));
+				
+				// For every child, append it to the destination.
+				for( ; curCh < numChilds; curCh++)
+				{
+					// If this is a bookmark, skip it and move onto next file.
+					if( currentMainElement.get(0).getChild(curCh).toString().contains("BBBOOKMARK - ") ) {
+						curCh++;
+						break;
+					}
+					
+					// Append the current child.
+					bodyElement.appendChild( currentMainElement.get(0).getChild(curCh).copy() );
+					
+				} // for(int curCh...
+				
+				// Save this xhtml document.
+				FileUtils fu = new FileUtils();
+				fu.createXMLFile(curDoc, epubFileList.get(curPath));
+				
+			} // for(int curPath...
 		
+		} // try/catch
+		catch (ValidityException ve) { ve.printStackTrace(); }
+		catch (ParsingException pe) { pe.printStackTrace(); }
+		catch (IOException ioe) { ioe.printStackTrace(); }
 		
+		// All documents saved. Rezip.
+		
+		///////
+		// Zip.
+
+			// Create unzipper.
+			Zipper zpr = new Zipper();
+			
+			// Create paths.
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(BBIni.getFileSep()) + 1, originalDocPath.length()); 
+			String inputStr = originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + BBIni.getFileSep();
+			String outputStr = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
+			
+			// Zip.
+			zpr.Zip(inputStr, outputStr);
+			
+		// Zip.
+		///////
 		
 	} // save()
+	
+	void _attachSnippet3(nu.xom.Node destNode, nu.xom.Node srcNode)
+	{
+		// Get the number of children our source has.
+		int numChilds = srcNode.getChildCount();
+		
+		// For every child, append it to the destination.
+		for(int curCh = 0; curCh < numChilds; curCh++)
+		{
+			// Append the current child.
+			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
+			_attachSnippet2(destNode, srcNode.getChild(curCh));
+			
+		} // for(int curCh...
+				
+	} // _attachSnippet3()
+	
+	void _attachSnippet2(nu.xom.Node destNode, nu.xom.Node srcNode)
+	{
+		// If we're appending nodes, have we hit a bookmark?
+		if(state == st_append)
+		{
+			// Have we hit a bookmark?
+			if(srcNode.getValue().contains("BBBOOKMARK - "))
+			{
+				bkMarkStr = srcNode.getValue();
+				// Change states.
+				state = st_findbk;
+				return;
+			}
+			
+			// While we're searching for the end of the current document, add this 
+			// child.
+			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
+			
+		} // if(state == st_append)
+		
+		// Have we found the last bookmark we stopped at.
+		if(state == st_findbk)
+		{
+			// is this a bookmark?
+			if( bkMarkStr.compareTo(srcNode.getValue()) == 0 )
+			{
+				state = st_append;
+				
+			} // if bookmark
+			
+		} // if(state == st_findbk)
+		
+		// If we've been skipping the root element, we can move on now.
+		if(state == st_skiprt)
+			state = st_append;
+		
+		// Get the number of children our source has.
+		int numChilds = srcNode.getChildCount();
+		
+		// For every child, append it to the destination.
+		for(int curCh = 0; curCh < numChilds; curCh++)
+		{
+			// Append the current child.
+			_attachSnippet2(destNode, srcNode.getChild(curCh));
+			
+		} // for(int curCh...
+		
+	} // _attachSnippet2()
+	
+	// Recursive function that appends nodes to destination until one of our 
+	// bookmark comments is reached.
+	void _attachSnippet(nu.xom.Node destNode, nu.xom.Node srcNode)
+	{
+		// If we're appending nodes, have we hit a bookmark?
+		if(state == st_append)
+		{
+			// Is this a comment? If so, stop.
+			if(srcNode.getValue().contains("BBBOOKMARK - "))
+			{
+				// Go one more. This ensures we go past this bookmark 
+				// next time.
+				maxChildDepth++;
+				curChildDepth = 0;
+				
+				// Change states.
+				state = st_findbk;
+				
+				// No point in going further.
+				return;
+				
+			} // if bookmark
+			
+			// While we're searching for the end of the current document, add this 
+			// child.
+			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
+			
+		} // if(state == st_append)
+		
+		// Have we found the last bookmark we stopped at.
+		if(state == st_findbk)
+		{
+			// is this a bookmark?
+			if(srcNode.getValue().contains("BBBOOKMARK - "))
+			{
+				if(curChildDepth >= maxChildDepth)
+					state = st_append;
+				
+			} // if bookmark
+			
+		} // if(state == st_findbk)
+		
+		// If we've been skipping the root element, we can move on now.
+		if(state == st_skiprt)
+			state = st_append;
+		
+		// Get the number of children our source has.
+		int numChilds = srcNode.getChildCount();
+		
+		// For every child, append it to the destination.
+		for(int curCh = 0; curCh < numChilds; curCh++)
+		{
+			// We just went down a level.
+			curChildDepth++;
+			
+			// Surpassed our max.
+			if(curChildDepth > maxChildDepth)
+				maxChildDepth = curChildDepth;
+			
+			// Append the current child.
+			_attachSnippet(destNode, srcNode.getChild(curCh));
+			
+		} // for(int curCh...
+		
+	} // _attachSnippet()
 	
 } // class EPubArchiver

@@ -65,6 +65,7 @@ import org.brailleblaster.perspectives.braille.views.TreeView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
@@ -882,6 +883,22 @@ public class Manager extends Controller {
 		
 		if(workingFilePath == null & docCount > 0)
 			docCount--;
+		
+		// Delete temp documents.
+		if(arch != null)
+		{
+			// If this was an epub file, there is some stuff to delete.
+			if(arch.getOrigDocPath().endsWith(".epub"))
+			{
+				// Delete it!
+				File delMe = new File(arch.getOrigDocPath().substring(0, arch.getOrigDocPath().lastIndexOf(".")) + BBIni.getFileSep());
+				FileUtils fu = new FileUtils();
+				fu.deleteDirectory( delMe );
+				
+			} // if epub file
+			
+		} // if(arch != null)
+				
 	}
 	
 	public void nextElement(){

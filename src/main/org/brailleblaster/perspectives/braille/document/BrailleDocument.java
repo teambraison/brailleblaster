@@ -310,7 +310,10 @@ public class BrailleDocument extends BBDocument {
 	
 	private String getXMLString(String text){
 		text = text.replace("\n", "");
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book><string>" + text + "</string></book>";
+		if(dm.getCurrentConfig().equals("epub.cfg"))
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><body><string>" + text + "</string></body>";
+		else
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book><string>" + text + "</string></book>";
 	}
 	
 	private int translateString(String text, byte[] outbuffer) {

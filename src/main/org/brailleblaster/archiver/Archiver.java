@@ -41,6 +41,9 @@ abstract public class Archiver {
 	String unzippedDocPath;
 	String workingDocPath; 
 	
+	// Get-er for original document path.
+	public String getOrigDocPath() { return originalDocPath; }
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Constructor. Stores path to document to prepare.
 	Archiver(String docToPrepare)

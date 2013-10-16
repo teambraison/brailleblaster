@@ -28,6 +28,7 @@
 
 package org.brailleblaster.archiver;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -402,7 +403,7 @@ public class EPubArchiver extends Archiver {
 			Zipper zpr = new Zipper();
 			
 			// Create paths.
-			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(BBIni.getFileSep()) + 1, originalDocPath.length()); 
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(BBIni.getFileSep()) + 1, originalDocPath.length());
 			String inputStr = originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + BBIni.getFileSep();
 			String outputStr = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
 			

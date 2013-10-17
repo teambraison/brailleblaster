@@ -108,7 +108,7 @@ public class Normalizer {
 			else if(list.item(i) instanceof Text){
 				Text t = (Text)list.item(i);
 				String text = t.getTextContent();
-				text = text.replace("\n", " ");
+				text = text.replaceAll("\\s+", " ");
 				t.setTextContent(text);
 			}
 		}

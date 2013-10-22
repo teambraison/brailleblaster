@@ -52,9 +52,6 @@ public class NimasArchiver extends Archiver {
 	@Override
 	public void save(Manager dm, String path) {
 		
-		// Save the document. Pretty easy, since it's just one file.
-//		dm.saveAs();
-		
 	} // save()
 
 } // class NimasArchiver

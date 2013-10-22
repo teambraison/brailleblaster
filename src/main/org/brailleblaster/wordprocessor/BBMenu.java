@@ -155,51 +155,51 @@ public abstract class BBMenu {
 	
 		viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 
-		perspectiveItem = new MenuItem(viewMenu, SWT.CASCADE);
-		perspectiveItem.setText(lh.localValue("&Perspectives"));
-		perspectiveMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
-		perspectiveItem.setMenu(perspectiveMenu);
-						
-		brailleEditorItem = new MenuItem(perspectiveMenu, SWT.CHECK);
-		brailleEditorItem.setText(lh.localValue("Braille Editor"));
-		brailleEditorItem.setSelection(true);
-		brailleEditorItem.setData(Manager.class);
-		selectedPerspective = brailleEditorItem;
-		brailleEditorItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(brailleEditorItem.getSelection() == true && !selectedPerspective.equals(brailleEditorItem)){
-					selectedPerspective = brailleEditorItem;
-					imageDescriberItem.setSelection(false);
-					wp.swapPerspectiveController((Class<?>)brailleEditorItem.getData());
-				}
-			}		
-		});
-						
-		imageDescriberItem = new MenuItem(perspectiveMenu, SWT.CHECK);
-		imageDescriberItem.setText(lh.localValue("Image Describer"));
-		imageDescriberItem.setSelection(false);
-		//imageDescriberItem.setData(ImageDescriberController.class);
-		imageDescriberItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(imageDescriberItem.getSelection() == true && !selectedPerspective.equals(imageDescriberItem)){
-					selectedPerspective = imageDescriberItem;
-					brailleEditorItem.setSelection(false);
-					wp.swapPerspectiveController((Class<?>)imageDescriberItem.getData());
-				}
-			}		
-		});
+//		perspectiveItem = new MenuItem(viewMenu, SWT.CASCADE);
+//		perspectiveItem.setText(lh.localValue("&Perspectives"));
+//		perspectiveMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
+//		perspectiveItem.setMenu(perspectiveMenu);
+//						
+//		brailleEditorItem = new MenuItem(perspectiveMenu, SWT.CHECK);
+//		brailleEditorItem.setText(lh.localValue("Braille Editor"));
+//		brailleEditorItem.setSelection(true);
+//		brailleEditorItem.setData(Manager.class);
+//		selectedPerspective = brailleEditorItem;
+//		brailleEditorItem.addSelectionListener(new SelectionListener(){
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				if(brailleEditorItem.getSelection() == true && !selectedPerspective.equals(brailleEditorItem)){
+//					selectedPerspective = brailleEditorItem;
+//					imageDescriberItem.setSelection(false);
+//					wp.swapPerspectiveController((Class<?>)brailleEditorItem.getData());
+//				}
+//			}		
+//		});
+//						
+//		imageDescriberItem = new MenuItem(perspectiveMenu, SWT.CHECK);
+//		imageDescriberItem.setText(lh.localValue("Image Describer"));
+//		imageDescriberItem.setSelection(false);
+//		//imageDescriberItem.setData(ImageDescriberController.class);
+//		imageDescriberItem.addSelectionListener(new SelectionListener(){
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//				// TODO Auto-generated method stub
+//			}
+//
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				if(imageDescriberItem.getSelection() == true && !selectedPerspective.equals(imageDescriberItem)){
+//					selectedPerspective = imageDescriberItem;
+//					brailleEditorItem.setSelection(false);
+//					wp.swapPerspectiveController((Class<?>)imageDescriberItem.getData());
+//				}
+//			}		
+//		});
 	
 		viewItem.setMenu(viewMenu);
 

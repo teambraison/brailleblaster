@@ -123,6 +123,7 @@ public class Normalizer {
 		return true;
 	}
 	*/
+	
 	public boolean write(String path) {
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();

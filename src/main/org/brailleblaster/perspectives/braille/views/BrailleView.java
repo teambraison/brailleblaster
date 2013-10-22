@@ -41,6 +41,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
@@ -209,9 +210,15 @@ public class BrailleView extends AbstractView {
 		}
 	}
 	
-	public void setBraille(Node n, TextMapElement t){
+	public void setBraille(MapList list, Node n, TextMapElement t){
 		setListenerLock(true);
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), n);
+		Styles prevStyle;
+		if(list.size() > 1)
+			prevStyle = stylesTable.makeStylesElement(list.get(list.size() - 2).parentElement(),list.get(list.size() - 2).n);
+		else
+			prevStyle = null;
+		
 		String textBefore = "";
 		String text = n.getValue();
 		int textLength = text.length();
@@ -222,7 +229,7 @@ public class BrailleView extends AbstractView {
 		}
 		
 		view.append(textBefore + text);
-		handleStyle(style, n, t.parentElement());
+		handleStyle(prevStyle, style, n, t.parentElement());
 		
 		t.brailleList.add(new BrailleMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength, n));
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -257,14 +264,14 @@ public class BrailleView extends AbstractView {
 	}
 	*/
 	
-	private void handleStyle(Styles style, Node n, Element parent){
+	private void handleStyle(Styles prevStyle, Styles style, Node n, Element parent){
 		boolean isFirst = isFirst(n);
 		String viewText = n.getValue();
 
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst)
+					if(isFirst && (prevStyle == null || !prevStyle.contains(StylesType.linesAfter)))
 						setLinesBefore(total + spaceBeforeText, style);
 					break;
 				case linesAfter:
@@ -560,7 +567,7 @@ public class BrailleView extends AbstractView {
 				}
 			}
 			
-			if(isLast && grandParent.getAttributeValue("semantics").contains("action"))
+			if(isLast && (grandParent.getAttributeValue("semantics").contains("action")))
 				isLast = isLast(parent);
 		}
 		

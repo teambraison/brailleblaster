@@ -28,7 +28,6 @@
 
 package org.brailleblaster.perspectives.braille.views;
 
-import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import nu.xom.Element;
@@ -437,14 +436,19 @@ public class TextView extends AbstractView {
 		view.setCaretOffset(offset);
 	}
 
-	public void setText(Node n, LinkedList<TextMapElement>list){
+	public void setText(Node n, MapList list){
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+		Styles prevStyle;
+		if(list.size() > 0)
+			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
+		else
+			prevStyle = null;
 		
 		String newText = appendToView(n, true);
 		int textLength = newText.length();
 
 		view.append(newText);
-		handleStyle(style, n, newText);
+		handleStyle(prevStyle, style, n, newText);
 		
 		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength,n));
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -602,13 +606,13 @@ public class TextView extends AbstractView {
 		return text;
 	}
 	
-	private void handleStyle(Styles style, Node n, String viewText){
+	private void handleStyle(Styles prevStyle, Styles style, Node n, String viewText){
 		boolean isFirst = isFirst(n);
 		
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst)
+					if(isFirst && (prevStyle == null || !prevStyle.contains(StylesType.linesAfter)))
 						setLinesBefore(total + spaceBeforeText, style);
 					break;
 				case linesAfter:
@@ -924,7 +928,7 @@ public class TextView extends AbstractView {
 			}
 		}
 		
-		if(isLast == true && parent.getAttributeValue("semantics").contains("action")){
+		if(isLast == true && (parent.getAttributeValue("semantics").contains("action"))){
 			return isLast(parent);
 		}
 		else

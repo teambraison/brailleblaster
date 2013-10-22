@@ -392,7 +392,7 @@ public class Manager extends Controller {
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			Element grandParent = (Element)current.getParent().getParent();
 			if(!(grandParent.getLocalName().equals("span") && document.checkAttributeValue(grandParent, "class", "brlonly")))
-				getBraille().setBraille(current, t);
+				getBraille().setBraille(list, current, t);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){

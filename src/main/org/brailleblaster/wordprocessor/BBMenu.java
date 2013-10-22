@@ -154,7 +154,7 @@ public abstract class BBMenu {
 		// Set up view menu
 	
 		viewMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
-/*
+
 		perspectiveItem = new MenuItem(viewMenu, SWT.CASCADE);
 		perspectiveItem.setText(lh.localValue("&Perspectives"));
 		perspectiveMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
@@ -200,7 +200,7 @@ public abstract class BBMenu {
 				}
 			}		
 		});
-	*/	
+	
 		viewItem.setMenu(viewMenu);
 
 		// Set up help menu

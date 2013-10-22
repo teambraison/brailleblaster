@@ -111,7 +111,7 @@ public class Manager extends Controller {
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp, docName);
-		
+//		
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
@@ -217,7 +217,8 @@ public class Manager extends Controller {
 			checkForUpdatedViews();
 			
 			if(arch != null) { // Save archiver supported file.
-				arch.save(this, "");
+				if(arch.getOrigDocPath().endsWith(".epub"))
+					arch.save(this, "");
 			}
 			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
@@ -809,7 +810,8 @@ public class Manager extends Controller {
 			String ext = getFileExt(filePath);
 			
 			if(arch != null) { // Save archiver supported file.
-				arch.save(this, "");
+				if(arch.getOrigDocPath().endsWith(".epub"))
+					arch.save(this, "");
 			}
 			else if(ext.equals("brf")){
 				if(!this.document.createBrlFile(this, filePath)){

@@ -216,9 +216,8 @@ public class Manager extends Controller {
 		else {
 			checkForUpdatedViews();
 			
-			if(arch != null) { // Save archiver supported file.
-				if(arch.getOrigDocPath().endsWith(".epub"))
-					arch.save(this, "");
+			if(workingFilePath.endsWith("epub")) { // Save archiver supported file.
+				arch.save(this, null);
 			}
 			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
@@ -800,8 +799,8 @@ public class Manager extends Controller {
 	}
 	
 	public void saveAs(){
-		String[] filterNames = new String[] {"XML", "BRF", "UTDML"};
-		String[] filterExtensions = new String[] {".xml","*.brf", "*.utd"};
+		String[] filterNames = new String[] {"XML", "EPUB", "BRF", "UTDML"};
+		String[] filterExtensions = new String[] {".xml",".epub","*.brf", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
 		String filePath = dialog.open();
 		
@@ -809,9 +808,8 @@ public class Manager extends Controller {
 			checkForUpdatedViews();
 			String ext = getFileExt(filePath);
 			
-			if(arch != null) { // Save archiver supported file.
-				if(arch.getOrigDocPath().endsWith(".epub"))
-					arch.save(this, "");
+			if(ext.endsWith("epub")) { // Save archiver supported file.
+				arch.save(this, filePath);
 			}
 			else if(ext.equals("brf")){
 				if(!this.document.createBrlFile(this, filePath)){

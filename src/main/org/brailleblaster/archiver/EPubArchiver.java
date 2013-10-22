@@ -415,70 +415,54 @@ public class EPubArchiver extends Archiver {
 		
 	} // save()
 	
-	void _attachSnippet3(nu.xom.Node destNode, nu.xom.Node srcNode)
-	{
-		// Get the number of children our source has.
-		int numChilds = srcNode.getChildCount();
-		
-		// For every child, append it to the destination.
-		for(int curCh = 0; curCh < numChilds; curCh++)
-		{
-			// Append the current child.
-			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
-			_attachSnippet2(destNode, srcNode.getChild(curCh));
-			
-		} // for(int curCh...
-				
-	} // _attachSnippet3()
-	
-	void _attachSnippet2(nu.xom.Node destNode, nu.xom.Node srcNode)
-	{
-		// If we're appending nodes, have we hit a bookmark?
-		if(state == st_append)
-		{
-			// Have we hit a bookmark?
-			if(srcNode.getValue().contains("BBBOOKMARK - "))
-			{
-				bkMarkStr = srcNode.getValue();
-				// Change states.
-				state = st_findbk;
-				return;
-			}
-			
-			// While we're searching for the end of the current document, add this 
-			// child.
-			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
-			
-		} // if(state == st_append)
-		
-		// Have we found the last bookmark we stopped at.
-		if(state == st_findbk)
-		{
-			// is this a bookmark?
-			if( bkMarkStr.compareTo(srcNode.getValue()) == 0 )
-			{
-				state = st_append;
-				
-			} // if bookmark
-			
-		} // if(state == st_findbk)
-		
-		// If we've been skipping the root element, we can move on now.
-		if(state == st_skiprt)
-			state = st_append;
-		
-		// Get the number of children our source has.
-		int numChilds = srcNode.getChildCount();
-		
-		// For every child, append it to the destination.
-		for(int curCh = 0; curCh < numChilds; curCh++)
-		{
-			// Append the current child.
-			_attachSnippet2(destNode, srcNode.getChild(curCh));
-			
-		} // for(int curCh...
-		
-	} // _attachSnippet2()
+//	void _attachSnippet2(nu.xom.Node destNode, nu.xom.Node srcNode)
+//	{
+//		// If we're appending nodes, have we hit a bookmark?
+//		if(state == st_append)
+//		{
+//			// Have we hit a bookmark?
+//			if(srcNode.getValue().contains("BBBOOKMARK - "))
+//			{
+//				bkMarkStr = srcNode.getValue();
+//				// Change states.
+//				state = st_findbk;
+//				return;
+//			}
+//			
+//			// While we're searching for the end of the current document, add this 
+//			// child.
+//			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
+//			
+//		} // if(state == st_append)
+//		
+//		// Have we found the last bookmark we stopped at.
+//		if(state == st_findbk)
+//		{
+//			// is this a bookmark?
+//			if( bkMarkStr.compareTo(srcNode.getValue()) == 0 )
+//			{
+//				state = st_append;
+//				
+//			} // if bookmark
+//			
+//		} // if(state == st_findbk)
+//		
+//		// If we've been skipping the root element, we can move on now.
+//		if(state == st_skiprt)
+//			state = st_append;
+//		
+//		// Get the number of children our source has.
+//		int numChilds = srcNode.getChildCount();
+//		
+//		// For every child, append it to the destination.
+//		for(int curCh = 0; curCh < numChilds; curCh++)
+//		{
+//			// Append the current child.
+//			_attachSnippet2(destNode, srcNode.getChild(curCh));
+//			
+//		} // for(int curCh...
+//		
+//	} // _attachSnippet2()
 	
 	// Recursive function that appends nodes to destination until one of our 
 	// bookmark comments is reached.

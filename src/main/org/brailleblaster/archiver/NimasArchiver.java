@@ -53,7 +53,7 @@ public class NimasArchiver extends Archiver {
 	public void save(Manager dm, String path) {
 		
 		// Save the document. Pretty easy, since it's just one file.
-		dm.saveAs();
+//		dm.saveAs();
 		
 	} // save()
 

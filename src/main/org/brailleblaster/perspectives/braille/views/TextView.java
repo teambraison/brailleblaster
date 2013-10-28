@@ -84,11 +84,13 @@ public class TextView extends AbstractView {
 	private StyleRange range;
 	private int[] selectionArray;
 	private SelectionListener selectionListener, scrollbarListener;
-	private VerifyKeyListener verifyListener;
+	private VerifyKeyListener verifyKeyListener;
+	private VerifyListener verifyListener;
 	private ExtendedModifyListener modListener;
 	private FocusListener focusListener;
 	private CaretListener caretListener;
 	private MouseListener mouseListener;
+	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
 	
@@ -116,7 +118,7 @@ public class TextView extends AbstractView {
 			}			
 		});
 		
-		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
+		view.addVerifyKeyListener(verifyKeyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
@@ -334,7 +336,7 @@ public class TextView extends AbstractView {
 		});
 		
 		// use a verify listener to dispose the images	
-		view.addVerifyListener(new VerifyListener()  {
+		view.addVerifyListener(verifyListener = new VerifyListener()  {
 			public void verifyText(VerifyEvent event) {
 				if(event.doit != false && event.start != event.end && !getLock()){
 					StyleRange style = view.getStyleRangeAtOffset(event.start);
@@ -358,7 +360,7 @@ public class TextView extends AbstractView {
 		});	
 		
 		// draw images on paint event
-		view.addPaintObjectListener(new PaintObjectListener() {
+		view.addPaintObjectListener(paintObjListener = new PaintObjectListener() {
 			public void paintObject(PaintObjectEvent event) {
 				StyleRange style = event.style;
 				Image image = (Image)style.data;
@@ -399,10 +401,12 @@ public class TextView extends AbstractView {
 			view.removeSelectionListener(selectionListener);
 			view.removeExtendedModifyListener(modListener);
 			view.removeFocusListener(focusListener);
-			view.removeVerifyKeyListener(verifyListener);
+			view.removeVerifyKeyListener(verifyKeyListener);
 			view.removeMouseListener(mouseListener);
 			view.removeCaretListener(caretListener);
 			view.getVerticalBar().removeSelectionListener(scrollbarListener);
+			view.removePaintObjectListener(paintObjListener);
+			view.removeVerifyListener(verifyListener);
 		}
 	}
 	
@@ -638,6 +642,7 @@ public class TextView extends AbstractView {
 		
 		if(view.getCharCount() > 0)
 			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
+		
 		view.setCaretOffset(pos);		
 		setListenerLock(false);
 	}

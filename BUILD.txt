@@ -22,7 +22,10 @@ jliblouisutdml.jar (bindings)
 xom.jar
 (others as time goes on) 
 
-These .jar files can be downloaded from the "for developers" page at 
+In addition, add the JEuclid folder from the zip file located on the 
+to the dist/lib folder. 
+
+The zip file and .jar files can be downloaded from the "for developers" page at 
 httP://www.brailleblaster.org
 
 Then run ant. This will place brailleblaster.jar in the dist directory.

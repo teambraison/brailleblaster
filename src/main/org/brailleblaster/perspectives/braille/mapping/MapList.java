@@ -34,7 +34,6 @@ import java.util.LinkedList;
 import nu.xom.Element;
 import nu.xom.Text;
 
-import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.messages.Message;

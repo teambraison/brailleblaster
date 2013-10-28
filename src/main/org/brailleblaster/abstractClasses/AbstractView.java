@@ -152,6 +152,13 @@ public abstract class AbstractView {
 		return fm.getAverageCharWidth();
 	}
 	
+	protected int getFontHeight(){
+		GC gc = new GC(this.view);
+		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
+		return fm.getHeight();
+	}
+	
 	protected Element getBrlNode(Node n){
 		Element e = (Element)n.getParent();
 		int index = e.indexOf(n);

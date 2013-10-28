@@ -161,6 +161,14 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createRemoveMathMLMessage(int offset, int length){
+		Message m = new Message(BBEvent.REMOVE_MATHML);
+		m.put("start", offset);
+		m.put("length", length);
+		
+		return m;
+	}
+	
 	public void put(String key, Object value){
 		args.put(key, value);
 	}

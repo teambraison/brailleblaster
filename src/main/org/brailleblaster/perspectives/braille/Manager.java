@@ -374,6 +374,9 @@ public class Manager extends Controller {
 			if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
 				initializeBraille(current.getChild(i), list.getLast());
 			}
+			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
+				initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
+			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
 					Element currentChild = (Element)current.getChild(i);
@@ -405,6 +408,10 @@ public class Manager extends Controller {
 		}
 	}
 	
+	private void initializeMathML(Element math, Element brl){
+		text.setMathML(list, math);
+	}
+	
 	public void dispatch(Message message){
 		switch(message.type){
 			case INCREMENT:
@@ -433,6 +440,9 @@ public class Manager extends Controller {
 				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
+				break;
+			case REMOVE_MATHML:
+				handleRemoveMathML(message);
 				break;
 			case UPDATE_STATUSBAR:
 				handleUpdateStatusBar(message);
@@ -474,6 +484,7 @@ public class Manager extends Controller {
 	
 	private void handleUpdateCursors(Message message){
 		message.put("element", list.getCurrent().n);
+		
 		if(message.getValue("sender").equals("text")){
 			setUpdateCursorMessage(message, getText().positionFromStart, getText().cursorOffset);
 			getBraille().updateCursorPosition(message);
@@ -547,11 +558,17 @@ public class Manager extends Controller {
 	
 	private void handleUpdate(Message message){
 		message.put("selection", this.treeView.getSelection(list.getCurrent()));
-		document.updateDOM(list, message);
-		getBraille().updateBraille(list.getCurrent(), message);
-		getText().reformatText(list.getCurrent().n, message, this);
-		list.updateOffsets(list.getCurrentIndex(), message);
-		list.checkList();
+		if(list.getCurrent().isMathML()){
+			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), -1));
+			message.put("diff", 0);
+		}
+		else {
+			document.updateDOM(list, message);
+			getBraille().updateBraille(list.getCurrent(), message);
+			getText().reformatText(list.getCurrent().n, message, this);
+			list.updateOffsets(list.getCurrentIndex(), message);
+			list.checkList();
+		}
 	}
 	
 	private void handleInsertNode(Message m){
@@ -729,8 +746,28 @@ public class Manager extends Controller {
 		treeView.removeItem(list.get(index), message);
 		list.remove(index);
 					
-		if(list.size() == 0)
-			getText().removeListeners();
+		if(list.size() == 0){
+			text.removeListeners();
+			braille.removeListeners();
+			treeView.removeListeners();
+			list.clearList();
+		}
+	}
+	
+	private void handleRemoveMathML(Message m){
+		document.updateDOM(list, m);
+		braille.removeMathML(list.getCurrent());
+		text.removeMathML(m);
+		treeView.removeMathML(list.getCurrent(), m);
+		list.updateOffsets(list.getCurrentIndex(), m);
+		list.remove(list.getCurrent());
+		
+		if(list.size() == 0){
+			text.removeListeners();
+			braille.removeListeners();
+			treeView.removeListeners();
+			list.clearList();
+		}
 	}
 	
 	private void handleUpdateStatusBar(Message message){
@@ -865,6 +902,7 @@ public class Manager extends Controller {
 			    	new Notify("An error occured while saving your document.  Please check your original document.");
 			    }
 			}
+			
 		    getText().hasChanged = false;
 			getBraille().hasChanged = false;	
 			documentEdited = false;
@@ -1160,6 +1198,19 @@ public class Manager extends Controller {
 			getText().update(this);
 	}
 	
+	public TextMapElement getPrevious(){
+		if(list.getCurrentIndex() > 0)
+			return list.get(list.getCurrentIndex() - 1);
+		else
+			return null;
+	}
+	
+	public TextMapElement getNext(){
+		if(list.size() > 0 && list.getCurrentIndex() <= list.size() - 1)
+			return list.get(list.getCurrentIndex() + 1);
+		else
+			return null;
+	}
 	public void toggleBrailleFont(){
 		FontManager.toggleBrailleFont(wp, this);
 	}

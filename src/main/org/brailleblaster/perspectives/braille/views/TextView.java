@@ -34,6 +34,7 @@ import nu.xom.Element;
 import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
+import org.brailleblaster.mathml.ImageCreator;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
@@ -46,6 +47,8 @@ import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
+import org.eclipse.swt.custom.PaintObjectEvent;
+import org.eclipse.swt.custom.PaintObjectListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -57,7 +60,13 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.GlyphMetrics;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Listener;
 
 
 public class TextView extends AbstractView {
@@ -224,6 +233,9 @@ public class TextView extends AbstractView {
 				}
 				else
 					saveStyleState(currentStart);
+				
+				if(currentElement.isMathML() && (e.keyCode != SWT.BS && e.keyCode != SWT.DEL && e.keyCode != SWT.ARROW_DOWN && e.keyCode != SWT.ARROW_LEFT && e.keyCode != SWT.ARROW_RIGHT && e.keyCode != SWT.ARROW_UP))
+					e.doit = false;
 			}		
 		});
 		
@@ -234,7 +246,7 @@ public class TextView extends AbstractView {
 					if(e.length > 0){
 						handleTextEdit(dm, e);
 					}
-					else {
+					else {					
 						handleTextDeletion(dm, e);
 					}
 				}
@@ -321,6 +333,57 @@ public class TextView extends AbstractView {
 			}
 		});
 		
+		// use a verify listener to dispose the images	
+		view.addVerifyListener(new VerifyListener()  {
+			public void verifyText(VerifyEvent event) {
+				if(event.doit != false && event.start != event.end && !getLock()){
+					StyleRange style = view.getStyleRangeAtOffset(event.start);
+					if (style != null) {
+						Image image = (Image)style.data;
+						if (image != null && !image.isDisposed()) {
+							saveStyleState(currentStart);
+							image.dispose();
+							currentChanges--;
+							event.doit = false;
+							sendRemoveMathML(dm, event.start);
+							if(view.getCaretOffset() != 0 && event.keyCode == SWT.BS)
+								view.setCaretOffset(view.getCaretOffset() - 1);
+							
+							if(!(nextStart == -1 && previousEnd == -1))
+								setCurrent(dm);
+						}
+					}
+				}
+			}
+		});	
+		
+		// draw images on paint event
+		view.addPaintObjectListener(new PaintObjectListener() {
+			public void paintObject(PaintObjectEvent event) {
+				StyleRange style = event.style;
+				Image image = (Image)style.data;
+				if (!image.isDisposed()) {
+					int x = event.x;
+					int y = event.y + event.ascent - style.metrics.ascent;						
+					event.gc.drawImage(image, x, y);
+				}
+			}
+		});
+		
+		//handles image on dispose
+		view.addListener(SWT.Dispose, new Listener() {
+			public void handleEvent(Event event) {
+				StyleRange[] styles = view.getStyleRanges();
+				for (int i = 0; i < styles.length; i++) {
+					StyleRange style = styles[i];
+					if (style.data != null) {
+						Image image = (Image)style.data;
+						if (image != null) image.dispose();
+					}
+				}
+			}
+		});
+		
 		view.addPaintListener(new PaintListener(){
 			@Override
 			public void paintControl(PaintEvent e) {
@@ -396,6 +459,16 @@ public class TextView extends AbstractView {
 		}
 	}
 	
+	private void sendRemoveMathML(Manager manager, int offset){
+		Message removeMessage = Message.createRemoveMathMLMessage(offset, -(currentEnd - currentStart));
+		removeMessage.put("offset", currentChanges);
+		manager.dispatch(removeMessage);
+		currentChanges = 0;
+		textChanged = false;
+		if(currentEnd <= view.getCharCount())
+			restoreStyleState(currentStart, currentEnd);
+	}
+	
 	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("start");
 		currentEnd = (Integer)message.getValue("end");
@@ -459,6 +532,69 @@ public class TextView extends AbstractView {
 		words += getWordCount(n.getValue());
 	}
 	
+	public void setMathML(MapList list, Element math){
+		Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
+		Styles prevStyle;
+		int length = 1;
+		
+		if(list.size() > 0)
+			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
+		else
+			prevStyle = null;
+		
+		int index = math.getParent().indexOf(math);
+		Element brl = (Element)math.getParent().getChild(index + 1);
+		if(brl.getChild(0) instanceof Element){
+			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+					view.append("\n");
+					total++;
+				}
+			}
+			else {
+				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+					view.append("\n");
+					total++;
+				}
+			}
+		}
+		
+		Image image = ImageCreator.createImage(view.getDisplay(), math, getFontHeight());
+		view.append(" ");
+		setImageRange(image, total, length);
+		handleStyle(prevStyle, style, math, " ");
+		/*
+		for(int i = 1; i < brl.getChildCount(); i++){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+				view.append("\n");
+				length++;
+			}
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+				view.append("\n");
+				length++;
+			}	
+		}
+		*/
+		StyleRange s = view.getStyleRangeAtOffset(total);
+		s.length = length;
+		view.setStyleRange(s);
+		
+		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText, math));
+		total += spaceBeforeText + length + spaceAfterText;
+		spaceAfterText = 0;
+		spaceBeforeText = 0;	
+	}	
+	
+	private void setImageRange(Image image, int offset, int length) {
+		StyleRange style = new StyleRange ();
+		style.start = offset;
+		style.length = length;
+		style.data = image;
+		Rectangle rect = image.getBounds();
+		style.metrics = new GlyphMetrics(rect.height, 0, rect.width);
+		view.setStyleRange(style);		
+	}
+	
 	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
@@ -493,6 +629,16 @@ public class TextView extends AbstractView {
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;
 		spaceBeforeText = 0;
+		setListenerLock(false);
+	}
+	
+	public void removeMathML(Message m){
+		setListenerLock(true);
+		int pos = view.getCaretOffset();
+		
+		if(view.getCharCount() > 0)
+			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
+		view.setCaretOffset(pos);		
 		setListenerLock(false);
 	}
 	

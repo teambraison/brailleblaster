@@ -400,6 +400,7 @@ public class TreeView extends AbstractView {
 			int index = (Integer)m.getValue("index");
 			ArrayList<TextMapElement> list = getList(item);
 			list.remove(index);
+			
 			if(list.size() == 0 && item.getItemCount() == 0){
 				previousItem = item.getParentItem();
 				item.dispose();
@@ -435,9 +436,30 @@ public class TreeView extends AbstractView {
 			item.dispose();
 	}
 	
+	public void removeMathML(TextMapElement t, Message m){
+		setListenerLock(true);
+		searchTree(this.getRoot(), t, m);
+		if((TreeItem)m.getValue("item") != null){
+			TreeItem item = (TreeItem)m.getValue("item");
+			TreeItem parent = item.getParentItem();
+			
+			item.dispose();
+			if(parent.getItemCount() == 0){
+				parent.dispose();
+			}
+		}
+		setListenerLock(false);
+	}
+	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
 		boolean found = false;
 
+		if(t.n instanceof Element) {
+			searchTreeForElement(item, (Element)t.n, m);
+			if(m.contains("item"))
+				found = true;
+		}
+			
 		for(int i = 0; i < item.getItemCount() && !found; i++){
 			if(((TreeItemData)item.getItem(i).getData()).textMapList != null){
 				ArrayList<TextMapElement>list = getList(item.getItem(i));
@@ -465,6 +487,7 @@ public class TreeView extends AbstractView {
 			if(itemElement.equals(e)){
 				m.put("item", item.getItem(i));
 				m.put("itemElement",itemElement);
+				
 				found = true;
 				break;
 			}

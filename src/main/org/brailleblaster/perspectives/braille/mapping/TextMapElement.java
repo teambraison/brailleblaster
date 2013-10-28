@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.braille.mapping;
 
 import java.util.LinkedList;
 
+import nu.xom.Element;
 import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractMapElement;
@@ -27,5 +28,12 @@ public class TextMapElement extends AbstractMapElement {
 			return -1;
 		else
 			return brailleList.getLast().end - brailleList.getFirst().start;
+	}
+	
+	public boolean isMathML(){
+		if(n instanceof Element)
+			return true;
+		else
+			return false;
 	}
 }

@@ -46,6 +46,9 @@ public class BrailleDocument extends BBDocument {
 			case REMOVE_NODE:
 				removeNode(list.get((Integer)message.getValue("index")), message);
 				break;
+			case REMOVE_MATHML:
+				removeMathML(list, message);
+				break;
 			default:
 				System.out.println("No available operations for this message type");
 			break;
@@ -249,6 +252,26 @@ public class BrailleDocument extends BBDocument {
 		m.put("newBrailleLength", insertionString.length());
 	}
 	
+	private void removeMathML(MapList list, Message m){
+		int length = list.getCurrent().brailleList.getLast().end - list.getCurrent().brailleList.getFirst().start; 
+		
+		Element parent = list.getCurrent().parentElement();
+		int index = parent.indexOf(list.getCurrent().n);
+		
+		parent.removeChild(index);
+		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl")){
+			parent.removeChild(index);
+		}
+		
+		if(parent.getChildElements().size() == 0)
+			parent.getParent().removeChild(parent);
+				
+		m.put("newBrailleText", "");
+		m.put("newBrailleLength", 0);
+		m.put("brailleLength", length);
+		m.put("diff", 0);
+	}
+	
 	public ArrayList<Element> splitElement(MapList list,TextMapElement t, Message m){
 		ElementDivider divider = new ElementDivider(this, table, semHandler);
 		if(m.getValue("atEnd").equals(true)){
@@ -362,7 +385,7 @@ public class BrailleDocument extends BBDocument {
 	}
 	
 	private void removeNode(TextMapElement t, Message message){
-		if(hasNonBrailleChildren(t.parentElement())){
+		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
 			Element e = (Element)t.brailleList.getFirst().n.getParent();
 			t.parentElement().removeChild(e);
 			t.parentElement().removeChild(t.n);

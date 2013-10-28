@@ -480,6 +480,24 @@ public class BrailleView extends AbstractView {
 		int i = 0;
 		Element parent = (Element)n.getParent();
 		
+		if(parent.getAttribute("modifiers") != null){
+			if(parent.indexOf(n)  < 3 && parent.getChild(0) instanceof Element){
+				if(parent.indexOf(n) == 1 && ((Element)parent.getChild(0)).getLocalName().equals("newline")){
+					return isFirstElement((Element)parent.getParent().getChild(parent.getParent().indexOf(parent) - 1));
+				}
+				else if(parent.indexOf(n) == 2 && ((Element)parent.getChild(0)).getLocalName().equals("newpage")){
+					if(parent.getChild(1) instanceof Element && ((Element)parent.getChild(1)).getLocalName().equals("newline"))
+						return isFirstElement((Element)parent.getParent().getChild(parent.getParent().indexOf(parent) - 1));
+					else
+						return false;
+				}
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		
 		while(!(isText(parent.getChild(i)))){
 			i++;
 		}
@@ -601,6 +619,11 @@ public class BrailleView extends AbstractView {
 			
 			setListenerLock(false);	
 		}
+	}
+	
+	public void removeMathML(TextMapElement t){
+		int total = t.brailleList.getLast().end - t.brailleList.getFirst().start;
+		view.replaceTextRange(t.brailleList.getFirst().start, total, "");
 	}
 	
 	public void removeWhitespace(int start, int length, char c, Manager dm){

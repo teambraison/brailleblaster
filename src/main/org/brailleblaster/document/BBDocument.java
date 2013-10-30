@@ -48,6 +48,7 @@ import nu.xom.ParsingException;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
@@ -56,7 +57,7 @@ import org.liblouis.liblouisutdml;
 
 
 public class BBDocument {
-	protected Manager dm;
+	protected Controller dm;
 	protected Document doc;
 	private static String fileSep = BBIni.getFileSep();
 	protected liblouisutdml lutdml = liblouisutdml.getInstance();
@@ -67,13 +68,13 @@ public class BBDocument {
 	private String publicId;
 	protected SemanticFileHandler semHandler;
 	
-	public BBDocument(Manager dm){		
+	public BBDocument(Controller dm){		
 		this.dm = dm;
 		this.missingSemanticsList = new ArrayList<String>();
 		this.semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 	}
 	
-	public BBDocument(Manager dm, Document doc){
+	public BBDocument(Controller dm, Document doc){
 		this.dm = dm;
 		this.doc = doc;
 		this.missingSemanticsList = new ArrayList<String>();
@@ -296,7 +297,7 @@ public class BBDocument {
 		}
 	}
 	
-	public boolean createBrlFile(Manager dm, String filePath){		
+	public boolean createBrlFile(Controller dm, String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
 		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());

@@ -4,6 +4,8 @@ import nu.xom.Document;
 
 import org.brailleblaster.perspectives.braille.BraillePerspective;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
+import org.brailleblaster.perspectives.imageDescriber.ImageDescriberPerspective;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 
@@ -30,10 +32,10 @@ public abstract class Perspective {
 			Manager editor = new Manager(wp, fileName);
 			return new BraillePerspective(wp, editor);
 		}
-	//	else if(controllerClass.equals(ImageDescriberController.class)){
-	//		ImageDescriberController idc = new ImageDescriberController(wp, fileName);
-	//		return new ImageDescriberPerspective(wp, idc);
-	//	}
+		else if(controllerClass.equals(ImageDescriberController.class)){
+			ImageDescriberController idc = new ImageDescriberController(wp, fileName);
+			return new ImageDescriberPerspective(wp, idc);
+		}
 		return null;
 	}
 	
@@ -49,16 +51,16 @@ public abstract class Perspective {
 				return new BraillePerspective(wp, null);
 			}
 		}
-	//	else if(controllerClass.equals(ImageDescriberController.class)){
-	//		if(doc != null) {
-	//			ImageDescriberController idc = new ImageDescriberController(wp, current.getController().getWorkingPath(), doc, wp.getFolder().getSelection()[0]);
-	//			setCommonVariables(idc, current.getController());
-	//			return new ImageDescriberPerspective(wp, idc);
-	//		}
-	//		else {
-	//			return new ImageDescriberPerspective(wp, null);
-	//		}
-	//	}
+		else if(controllerClass.equals(ImageDescriberController.class)){
+			if(doc != null) {
+				ImageDescriberController idc = new ImageDescriberController(wp, current.getController().getWorkingPath(), doc, wp.getFolder().getSelection()[0]);
+				setCommonVariables(idc, current.getController());
+				return new ImageDescriberPerspective(wp, idc);
+			}
+			else {
+				return new ImageDescriberPerspective(wp, null);
+			}
+		}
 		
 		return null;
 	}
@@ -67,8 +69,8 @@ public abstract class Perspective {
 	public static Perspective restorePerspective(WPManager wp, Controller c){
 		if(Manager.class.isInstance(c))
 			return new BraillePerspective(wp, (Manager)c);
-	//	else if(ImageDescriberController.class.isInstance(c))
-	//		return new ImageDescriberPerspective(wp, (ImageDescriberController)c);
+		else if(ImageDescriberController.class.isInstance(c))
+			return new ImageDescriberPerspective(wp, (ImageDescriberController)c);
 		
 		return null;		
 	}
@@ -77,8 +79,8 @@ public abstract class Perspective {
 	public static Controller getNewController(WPManager wp, Class<?> perspectiveType, String fileName){
 		if(perspectiveType.equals(Manager.class))
 			return new Manager(wp, fileName);
-	//	else if(perspectiveType.equals(ImageDescriberController.class))
-	//		return new ImageDescriberController(wp, fileName);
+		else if(perspectiveType.equals(ImageDescriberController.class))
+			return new ImageDescriberController(wp, fileName);
 
 		return null;
 	}

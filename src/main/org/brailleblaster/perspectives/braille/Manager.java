@@ -216,8 +216,19 @@ public class Manager extends Controller {
 		else {
 			checkForUpdatedViews();
 			
-			if(workingFilePath.endsWith("epub")) { // Save archiver supported file.
-				arch.save(this, null);
+			if(arch != null) { // Save archiver supported file.
+				if(arch.getOrigDocPath().endsWith("epub"))
+					arch.save(document, null);
+				else if(arch.getOrigDocPath().endsWith("xml"))
+				{
+					if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
+						String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+						copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
+					}
+					else {
+						new Notify("An error occured while saving your document.  Please check your original document.");
+					}
+				}
 			}
 			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
@@ -318,7 +329,7 @@ public class Manager extends Controller {
 			
 			////////////////
 			// Recent Files.
-			addRecentFileEntry(fileName);		
+			addRecentFileEntry(fileName);
 
 		// Zip and Recent Files.
 		////////////////////////
@@ -846,7 +857,17 @@ public class Manager extends Controller {
 			String ext = getFileExt(filePath);
 			
 			if(ext.endsWith("epub")) { // Save archiver supported file.
-				arch.save(this, filePath);
+				if(arch != null) {
+					if(arch.getOrigDocPath().endsWith("epub")) {
+						arch.save(document, filePath);
+						setTabTitle(filePath);
+						documentName = filePath;
+					}
+					else
+						System.out.println("Can only save epub files as epub files... for now.");
+				}
+				else
+					System.out.println("Can only save epub files as epub files... for now.");
 			}
 			else if(ext.equals("brf")){
 				if(!this.document.createBrlFile(this, filePath)){
@@ -921,22 +942,6 @@ public class Manager extends Controller {
 		
 		if(workingFilePath == null & docCount > 0)
 			docCount--;
-		
-		// Delete temp documents.
-		if(arch != null)
-		{
-			// If this was an epub file, there is some stuff to delete.
-			if(arch.getOrigDocPath().endsWith(".epub"))
-			{
-				// Delete it!
-				File delMe = new File(arch.getOrigDocPath().substring(0, arch.getOrigDocPath().lastIndexOf(".")) + BBIni.getFileSep());
-				FileUtils fu = new FileUtils();
-				fu.deleteDirectory( delMe );
-				
-			} // if epub file
-			
-		} // if(arch != null)
-				
 	}
 	
 	public void nextElement(){

@@ -216,6 +216,7 @@ public class BBToolBar {
 			}
 		});
 		
+		/*
 		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Image Describer");
 		imageDesc.setText(tlabel.replace("&", ""));
@@ -250,6 +251,7 @@ public class BBToolBar {
 			} // widgetSelected...
 				
 		}); // addSelectionListener(new SelectionAdapter()...
+		*/
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);

@@ -26,33 +26,28 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.imagedescriber;
+package org.brailleblaster.perspectives.imageDescriber.document;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.lang.StringBuilder;
 
 import nu.xom.Attribute;
+import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.Nodes;
-import nu.xom.ParentNode;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.eclipse.swt.graphics.Image;
 
-public class ImageDescriber {
-
-	// Manages document.
-	ImageDescriberController dm;
+public class ImageDescriber extends BBDocument {
 	// The document with images we want to add descriptions to.
-	private BBDocument doc;
+	private ImageDescriberController dm;
+	//private BBDocument doc;
 	// Current image element.
 	private Element curImgElement;
 	// Root element.
@@ -71,7 +66,7 @@ public class ImageDescriber {
 	String nameSpace;
 	// The index of the furthest node in the tree so far.
 	int furthestDocIndex = -1;
-	// Current node in whole doc.
+	// Current node in whole doc. 
 	int curDocIndex = -1;
 	// Context/namespace for xpath.
 	XPathContext context;
@@ -82,11 +77,38 @@ public class ImageDescriber {
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
-	public ImageDescriber(ImageDescriberController docManager){
+	public ImageDescriber(ImageDescriberController dm){
+		super(dm);
 		
 		// Init variables.
-		dm = docManager;
-		doc = dm.getDocument();
+		this.dm = dm;
+	} // ImageDescriber(DocumentManager docManager)
+	
+	public ImageDescriber(ImageDescriberController dm, String fileName, Document doc){
+		super(dm, doc);
+		this.dm = dm;
+		
+		
+		initializeVariables();
+	}
+	
+	@Override
+	public boolean startDocument (String completePath, String configFile, String configSettings){
+		try {
+			if(super.startDocument(completePath, configFile, configSettings)){
+				initializeVariables();
+				return true;
+			}
+			else {
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	private void initializeVariables(){
 		rootElement = doc.getRootElement();
 		imgElmList = new ArrayList<Element>();
 		prodCopyList = new ArrayList<String>();
@@ -97,48 +119,16 @@ public class ImageDescriber {
 
 		// Point to root.
 		curImgElement = rootElement;
-		
+			
 		// Fill the image list first.
 		fillImgList_XPath();
-		
+			
 		// Get size of <img> list.
 		numImgElms = imgElmList.size();
-		
+			
 		// Go to first image.
-		nextImageElement();
-		
-		// Fill list of <img>'s.
-//		fillImgList(rootElement);
-//		
-// 		copyMain2UndoList();
-		
-		// Get size of <img> list.
-//		numImgElms = imgElmList.size();
-//		
-//		// Only init the current element if there are <img>'s.
-//		if(numImgElms > 0) {
-//			curImgElement = imgElmList.get(0);
-//			curElementIndex = 0;
-//		}
-//		
-//		
-//		for( int asdf = 0; asdf < numImgElms; asdf++ ) {
-//			if( hasImgGrpParent(imgElmList.get(asdf)) == false) {
-//				curImgElement = wrapInImgGrp( imgElmList.get(asdf) );
-//				imgElmList.set(asdf, curImgElement);
-//				curElementIndex = asdf;
-////				setCurElmProdAttributes("Rubber Chicken", "Rubber Chicken", "Rubber Chicken");
-//			}
-//			
-//		} // for()
-		
-		
-//			if( hasImgGrpParent(curImgElement) == false) {
-//				curImgElement = wrapInImgGrp( curImgElement );
-//				imgElmList.set(curElementIndex, curImgElement);
-//			}
-		
-	} // ImageDescriber(DocumentManager docManager)
+		nextImageElement();	
+	}
 	
 	///////////////////////////////////////////////////////////////////////////	
 	// Returns the root element.
@@ -196,7 +186,7 @@ public class ImageDescriber {
 			if(getProdTextAtIndex(curItem) != null)
 				sb = new StringBuilder( getProdTextAtIndex(curItem) );
 			else
-				sb = new StringBuilder( "NO PROD TEXT" );
+				sb = new StringBuilder( "Error" );
 			
 			// Add this to string.
 			prodCopyList.add( sb.toString() );
@@ -278,26 +268,17 @@ public class ImageDescriber {
 			
 			// Add image file path to list.
 			
-			// Remove slash and dot, if it's there.
+			// Now to build a path to the current image.
 			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
-			if(dm.getArchiver() != null)
-			{
-				// Build image path.
-				tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-				if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-					tempStr = tempStr.replace("/", "\\");
-			}
-			else
-			{
-				// Remove dots and slashes at beginning.
-				if( tempStr.startsWith(".") )
-					tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-				
-				// Build image path.
-				tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-				if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-					tempStr = tempStr.replace("/", "\\");
-			}
+			
+			// Remove dots and slashes at beginning.
+			if( tempStr.startsWith(".") && dm.getArchiver() == null)
+				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
 			
 			// Add.
 			imgFileList.add( new Image(null, tempStr) );
@@ -322,73 +303,12 @@ public class ImageDescriber {
 		if(curElementIndex >= numImgElms)
 			curElementIndex = 0;
 		
-		// If we're at the edge of the image element list, look for another element.
-//		if(curElementIndex >= numImgElms)
-//		{
-//			// Start with the root element; find the next image.
-//			curDocIndex = -1;
-//			
-//			// Temp storage for new element.
-//			Element newElement = null;
-//			
-//			// If this is the first element we've grabbed, ever, grab from first list.
-//			if(grabFirstImage) {
-//				// Grab it.
-//				newElement = (Element)(imgs.get(0));
-//				// Don't ever do it again.
-//				grabFirstImage = false;
-//			}
-//			else {
-//				// Get next <img> element.
-//				Nodes nextImg = imgElmList.get(curElementIndex - 1).query("following::dtb:img", context);
-//				
-//				// If we got one, point to it.
-//				if(nextImg.size() > 0)
-//					newElement = (Element)(nextImg.get(0));
-//			}
-//			
-//			// Element newElement = getNextImageElement(rootElement);
-//			
-//			// Add element to list.
-//			if(newElement != null) {
-//				imgElmList.add(newElement);
-//				numImgElms = imgElmList.size();
-//			}
-//			
-//			// Set current <img> element.
-//			curElementIndex = numImgElms - 1;
-//		}
-		
 		// Make sure there are images.
 		if(numImgElms == 0)
 			return null;
 		
 		// Set current element.
 		curImgElement = imgElmList.get(curElementIndex);
-		
-		// Remove slash and dot, if it's there.
-//		String tempStr = curImgElement.getAttributeValue("src");
-//		if( tempStr.startsWith(".") )
-//			tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-//		
-//		// Build image path.
-//		tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-//		if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-//			tempStr = tempStr.replace("/", "\\");
-//		
-//		// Add.
-//		try {
-//			// Add this image to the image list.
-//			imgFileList.add( new Image(null, tempStr) );
-//		}
-//		catch (Exception e)
-//		{
-//			// Add a null image to the list. This will keep our indices in check.
-//			imgFileList.add( null );
-//			
-//			// Print the stack.
-//			e.printStackTrace();
-//		}
 		
 		// Wrap in <imggroup>
 		if( hasImgGrpParent(curImgElement) == false) {
@@ -473,49 +393,6 @@ public class ImageDescriber {
 		}
 		
 		return newImgElement;
-		
-		// We're a little further down the tree now.
-		//curDocIndex++;
-		//
-		//// Number of children.
-		//int numChilds = e.getChildCount();
-		//
-		//// Go through every child and find the next image.
-		//for(int curC = 0; curC < numChilds; curC++)
-		//{
-		//// Get current child.
-		//if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
-		//{
-		//// Get current child.
-		//Element curChild = (Element)(e.getChild(curC));
-		//
-		//// Is this an <img> element?
-		//if( curChild.getLocalName().compareTo("img") == 0 ) {
-		//
-		//// If this element is further along in the tree than the 
-		//// last image element, return it.
-		//if(curDocIndex > furthestDocIndex)
-		//{
-		//// Record depth.
-		//furthestDocIndex = curDocIndex;
-		//
-		//// Return new element found.
-		//return curChild;
-		//
-		//} // if(curDocIndex > furthestDocIndex)
-		//
-		//} // if( e.getLocalName()...
-		//
-		//// Traverse this child's children.
-		//getNextImageElement( curChild );
-		//
-		//} // if( e.getChild(curC) instanceof...
-		//
-		//} // for(int curC = 0...
-		//
-		//// No <img>'s found, or we've hit the end of the document, or both.
-		//return null;
-	
 	} // getNextImageElement(Element e)
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -622,11 +499,6 @@ public class ImageDescriber {
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++)
 		{
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
-			
 			// Get current child.
 			ch = (Element)parNode.getChild(curC);
 			
@@ -663,10 +535,6 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 			
@@ -699,10 +567,6 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
@@ -742,10 +606,6 @@ public class ImageDescriber {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 			
@@ -782,10 +642,6 @@ public class ImageDescriber {
 		Element ch = null;
 		int curC = 0;
 		for( ; curC < parNode.getChildCount(); curC++) {
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
 			ch = (Element)parNode.getChild(curC);
 			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
@@ -843,28 +699,24 @@ public class ImageDescriber {
 		Node parNode = imgElmList.get(index).getParent();
 		
 		// Find <prodnote>.
-		Element ch = null;
-		int curC = 0;
-		for( ; curC < parNode.getChildCount(); curC++) {
-			// If this is a comment, skip it.
-			if( parNode.getChild(curC).toString().contains("nu.xom.Comment") )
-				continue;
-			// ...otherwise, it's something we can use.
-			ch = (Element)parNode.getChild(curC);
-			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+				Element ch = null;
+				int curC = 0;
+				for( ; curC < parNode.getChildCount(); curC++) {
+					ch = (Element)parNode.getChild(curC);
+					if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 
-				// Found it. Break.
-				break;
+						// Found it. Break.
+						break;
+						
+					} // if( ch.getLocalName()...
+					
+				} // for(int curC = 0...
 				
-			} // if( ch.getLocalName()...
-			
-		} // for(int curC = 0...
-		
-		/////////////////////////
-		
-		// If <prodnote> didn't exist, create it.
-		if(curC == parNode.getChildCount())
-		{
+				/////////////////////////
+				
+				// If <prodnote> didn't exist, create it.
+				if(curC == parNode.getChildCount())
+				{
 //					// Create prodnote element.
 //					Element prodElm = new Element("prodnote", nameSpace);
 //					
@@ -876,33 +728,33 @@ public class ImageDescriber {
 //					// If no children, add one.
 //					if(ch.getChildCount() == 0)
 //						ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-		}
-		
-		/////////////////////////
-		
-		// Set text value.
-		if(text != null)
-		{
-			// If no children, add one. Else, replace the one already there.
-			if(ch.getChildCount() == 0)
-				ch.appendChild( new nu.xom.Text(text) );
-			else {
-				nu.xom.Node oldNode = ch.getChild(0);
-				nu.xom.Node newNode = new nu.xom.Text(text);
-				ch.replaceChild(oldNode, newNode);
-			}
-			
-		} // if(text != null)
-		
-		///////////////////////////
-		
-		// Set attributes.
-		if(tagID != null)
-			ch.getAttribute("id").setValue(tagID);
-		if(tagIMGREF != null)
-			ch.getAttribute("imgref").setValue(tagIMGREF);
-		if(tagRENDER != null)
-			ch.getAttribute("render").setValue(tagRENDER);
+				}
+				
+				/////////////////////////
+				
+				// Set text value.
+				if(text != null)
+				{
+					// If no children, add one. Else, replace the one already there.
+					if(ch.getChildCount() == 0)
+						ch.appendChild( new nu.xom.Text(text) );
+					else {
+						nu.xom.Node oldNode = ch.getChild(0);
+						nu.xom.Node newNode = new nu.xom.Text(text);
+						ch.replaceChild(oldNode, newNode);
+					}
+					
+				} // if(text != null)
+				
+				///////////////////////////
+				
+				// Set attributes.
+				if(tagID != null)
+					ch.getAttribute("id").setValue(tagID);
+				if(tagIMGREF != null)
+					ch.getAttribute("imgref").setValue(tagIMGREF);
+				if(tagRENDER != null)
+					ch.getAttribute("render").setValue(tagRENDER);
 		
 	} // setProdAtIndex()
 	
@@ -916,5 +768,12 @@ public class ImageDescriber {
 					imgFileList.get(curImg).dispose();
 		
 	} // disposeImages()
-		
+	
+	public void resetCurrentIndex(){
+		curElementIndex = -1;
+	}
+	
+	public ArrayList<Element> getImageList(){
+		return imgElmList;
+	}
 } // public class ImageDescriber {

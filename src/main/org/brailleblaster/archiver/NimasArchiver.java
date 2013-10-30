@@ -28,7 +28,7 @@
 
 package org.brailleblaster.archiver;
 
-import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.document.BBDocument;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
@@ -50,7 +50,7 @@ public class NimasArchiver extends Archiver {
 
 	
 	@Override
-	public void save(Manager dm, String path) {
+	public void save(BBDocument doc, String path) {
 		
 	} // save()
 

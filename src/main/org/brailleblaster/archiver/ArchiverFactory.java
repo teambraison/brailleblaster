@@ -46,21 +46,21 @@ public class ArchiverFactory {
 	public static Archiver getArchive(String filePath)
 	{
 		// If the archive is contained within a zip file, go ahead and unzip it.
-		if( filePath.toLowerCase().endsWith(".zip") )
-		{
-			// Create zipper utility.
-			Zipper zipr = new Zipper();
-			zipr.Unzip( filePath, filePath.substring(0, filePath.lastIndexOf(".")) + BBIni.getFileSep());
-			filePath = zipr.GetXmlPath();
-			
-		} // UNZIP
+//		if( filePath.toLowerCase().endsWith(".zip") )
+//		{
+//			// Create zipper utility.
+//			Zipper zipr = new Zipper();
+//			zipr.Unzip( filePath, filePath.substring(0, filePath.lastIndexOf(".")) + BBIni.getFileSep());
+//			filePath = zipr.GetXmlPath();
+//			
+//		} // UNZIP
 		
 		// Is this EPub?
 		if( isEPUB(filePath) )
 			return new EPubArchiver(filePath);
 		// Is this Nimas?
-		if( isNIMAS(filePath) )
-			return new NimasArchiver(filePath);
+//		if( isNIMAS(filePath) )
+//			return new NimasArchiver(filePath);
 		
 		// Could not determine file type.
 		return null;

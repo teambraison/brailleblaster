@@ -44,7 +44,7 @@ import nu.xom.ValidityException;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Zipper;
 import org.w3c.dom.Comment;
@@ -118,7 +118,10 @@ public class EPubArchiver extends Archiver {
 			Zipper zpr = new Zipper();
 			
 			// Unzip.
-			zpr.Unzip( originalDocPath, originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + BBIni.getFileSep() );
+			String sep = BBIni.getFileSep();
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
+			String outPath = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
+			zpr.Unzip( originalDocPath, outPath );
 		
 		// Unzip.
 		/////////
@@ -328,7 +331,7 @@ public class EPubArchiver extends Archiver {
 	} // findHrefById()
 	
 	@Override
-	public void save(Manager dm, String path)
+	public void save(BBDocument doc, String path)
 	{
 		try
 		{
@@ -336,11 +339,11 @@ public class EPubArchiver extends Archiver {
 			nu.xom.Builder parser = new nu.xom.Builder();
 			
 			// Namespace and context.
-			String nameSpace = dm.getDocument().getRootElement().getNamespaceURI();
+			String nameSpace = doc.getDOM().getRootElement().getNamespaceURI();
 			nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 			
 			// Get xom document.
-			nu.xom.Document mainDoc = dm.getDocument().getNewXML();
+			nu.xom.Document mainDoc = doc.getNewXML();
 			// Body element.
 			nu.xom.Nodes currentMainElement = mainDoc.query("//dtb:body[1]", context);
 			
@@ -403,12 +406,17 @@ public class EPubArchiver extends Archiver {
 			Zipper zpr = new Zipper();
 			
 			// Create paths.
-			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(BBIni.getFileSep()) + 1, originalDocPath.length());
-			String inputStr = originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + BBIni.getFileSep();
-			String outputStr = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
+			String sep = BBIni.getFileSep();
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
+			String inputDir = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
+			String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
+			
+			// If we are to save somewhere else... "Save As"
+			if(path != null)
+				outFilePath = path;
 			
 			// Zip.
-			zpr.Zip(inputStr, outputStr);
+			zpr.Zip(inputDir, outFilePath);
 			
 		// Zip.
 		///////

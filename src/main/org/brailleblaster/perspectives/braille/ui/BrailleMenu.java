@@ -49,7 +49,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem unlockSelectionItem;
 	MenuItem editLockedItem;
 	MenuItem keybdBrlToggleItem;
-	MenuItem imgDescItem;
+	// MenuItem imgDescItem;
 	MenuItem prevElementItem;
 	MenuItem nextElementItem;
 	MenuItem refreshItem;
@@ -479,8 +479,9 @@ public class BrailleMenu extends BBMenu{
 **/		
 		//editItem.setMenu(editMenu);
 		//editItem.setEnabled(true);
-		// Image Description Menu Item.
 		
+		/*
+		// Image Description Menu Item.
 		imgDescItem = new MenuItem(editMenu, SWT.PUSH);
 		imgDescItem.setText(lh.localValue("&Image Describer"));
 		imgDescItem.addSelectionListener(new SelectionAdapter() {
@@ -510,7 +511,7 @@ public class BrailleMenu extends BBMenu{
 				}
 			}
 		});
-		
+		*/
 		editItem.setMenu(editMenu);
 		editItem.setEnabled(true);
 				

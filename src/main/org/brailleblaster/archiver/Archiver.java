@@ -28,7 +28,7 @@
 
 package org.brailleblaster.archiver;
 
-import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.document.BBDocument;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Archiver gives methods for opening/handling particular document types. 
@@ -58,6 +58,6 @@ abstract public class Archiver {
 	public abstract String open();
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	public abstract void save(Manager dm, String path);
+	public abstract void save(BBDocument doc, String path);
 	
 } // class Archiver

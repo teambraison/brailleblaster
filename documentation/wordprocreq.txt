@@ -1,0 +1,21 @@
+Here are the requirements for the BrailleBlaster wordprocessor/editor.
+
+Typewriter-like font with italic, bold and underline variants. 
+
+A Unicode Braille font that shows dot patterns.
+
+Ability to show emphasis and highlighting of single characters and 
+words. 
+
+Closely tied to position in xml parse tree. Scrolling and moving the 
+cursor must move around in the tree.
+
+Ability to change contrast.
+
+Ability to delete elements with their subtrees.
+
+Ability to add elements with their subtrees and with the correct name 
+and attributes.
+
+
+

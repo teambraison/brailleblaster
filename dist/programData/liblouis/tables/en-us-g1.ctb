@@ -44,9 +44,11 @@ lenitalphrase 4
 firstletterital 46-3
 lastletterital 46-36
 singleletterital 46-25
-firstwordbold 456-456
-lastwordboldbefore 456
+firstwordbold 456-46-46
+lastwordboldbefore 456-46
 lenboldphrase 4
+firstwordunder 456-2356
+lastwordunderbefore 456-36
 begcomp 456-346
 endcomp 456-156
 

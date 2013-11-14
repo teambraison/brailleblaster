@@ -27,20 +27,28 @@ include en-ueb-chardefs.uti UEB specific char defs.
 
 # Braille indicators
 numsign 3456  number sign, just a dots operand
+letsign 56
+noletsignafter .
+noletsignafter '
 capsign 6
 begcaps 6-6
 endcaps 6-3
-firstwordital 46-46
-lastworditalbefore 46
-lenitalphrase 4
-firstletterital 46-3
-lastletterital 46-36
-singleletterital 46-25
-firstwordbold 456-456
-lastwordboldbefore 456
-lenboldphrase 4
-begcomp 456-346
-endcomp 456-156
+
+# Typeforms (rulebook 9)
+firstwordital 46-2345 # Start of italicized passage.
+lastworditalbefore 46-3
+lenitalphrase 3 # Defines italicized passage length.
+singleletterital 46-23
+firstwordbold 45-2345 # Boldface passage.
+lastwordboldbefore 45-3
+lenboldphrase 3
+singleletterbold 45-23
+firstwordunder 456-2345 # Underlined passage.
+lastwordunderbefore 456-3
+singleletterunder 456-23
+lenunderphrase 3
+# Todo: add singlewordital, singlewordbold, singlewordunder and possible ones for scripts and transcriber typeforms.
+# For singleword forms, check if and only if one word has this typeform.
 
 # literary forms of the decimal digits
 include litdigits6Dots.uti
@@ -61,6 +69,7 @@ prepunc ` 56-6-356
 prepunc ' 3
 postpunc ' 3
 word ' 3
+endword s' 234-3
 word 'em = 
 word 'tis =
 word 'twas =
@@ -69,6 +78,7 @@ midnum , 2
 postpunc , 2
 word , 2
 decpoint . 256
+midword . 256
 midnum - 36
 hyphen - 36
 always \s--\s 36-36
@@ -117,7 +127,7 @@ always { 456-126
 postpunc } 456-345
 word } 456-345
 always } 456-345
-always @ 4
+always @ 4-1
 always \\ 456-16
 always | 456-1256
 always \s-\s 36
@@ -229,7 +239,7 @@ sign ∞ 3456-123456 Infinity
 sign ∫ 2346 Integral
 sign ∮ 4-2346 Closed line integral
 # Set theory and other advanced symbols:
-sign ∀ 4-1 For all (inverted A)
+sign ∀ 45-1 For all (inverted A)
 sign ∃ 45-26 There exists
 sign ∅ 4-245 Null set
 sign ∈ 45-15 Is an element of
@@ -281,33 +291,9 @@ sign ⊵ 456-456-345 Is not normal subgroup or equal
 # Organized by Unicode values.
 
 # special character sequences
-compbrl :// URLs
-compbrl ()
-compbrl www.
-compbrl ::
-compbrl .com
-compbrl .edu
-compbrl .gov
-compbrl .ini
-compbrl .mil
-compbrl .net
-compbrl .org
-compbrl .doc
-compbrl .xml
-compbrl .xsl
-compbrl .htm
-compbrl .html
-compbrl .tex
-compbrl .txt
-compbrl .gif
-compbrl .jpg
-compbrl .png
-compbrl .wav
-compbrl .tar
-compbrl .zip
 
 context "\e"$a *
-always \\_ 56 letter sign before Roman page numbers
+noback always \\_ 56 letter sign before Roman page numbers
 pass2 @56-56 @56
 pass2 @3-56 @3
 

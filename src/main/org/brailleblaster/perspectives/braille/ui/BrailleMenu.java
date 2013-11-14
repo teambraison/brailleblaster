@@ -1,8 +1,6 @@
 package org.brailleblaster.perspectives.braille.ui;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.imagedescriber.ImageDescriber;
-import org.brailleblaster.imagedescriber.ImageDescriberDialog;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.ConfigFileDialog;

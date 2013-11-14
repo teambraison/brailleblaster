@@ -29,13 +29,11 @@
 package org.brailleblaster.perspectives.imageDescriber.document;
 
 import java.util.ArrayList;
-import java.lang.StringBuilder;
 
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
-import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
@@ -74,6 +72,9 @@ public class ImageDescriber extends BBDocument {
 	Nodes imgs = null;
 	// For grabbing the first <img> element.
 	boolean grabFirstImage = true;
+	
+	// Image describer context helps us handle element manipulation in a generic way.
+	ImageDescriberContext imgContext = new ImageDescriberContext();
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Call ImageDescriber with this Constructor to initialize everything.
@@ -116,7 +117,16 @@ public class ImageDescriber extends BBDocument {
 		nameSpace = rootElement.getDocument().getRootElement().getNamespaceURI();
 		context = new XPathContext("dtb", nameSpace);
 		imgs = doc.getRootElement().query("//dtb:img[1]", context);
-
+		
+		// Set the image context.
+		if(dm.getArchiver() != null) {
+			if(dm.getArchiver().getOrigDocPath().endsWith(".epub"))
+					imgContext.setDocType(ImageDescriberContext.ET_EPUB);
+		}
+		else if(dm.getWorkingPath() != null)
+			if(dm.getWorkingPath().endsWith(".xml"))
+				imgContext.setDocType(ImageDescriberContext.ET_NIMAS);
+		
 		// Point to root.
 		curImgElement = rootElement;
 			
@@ -183,8 +193,8 @@ public class ImageDescriber extends BBDocument {
 		// Copy current prodnotes into our undo list.
 		for(int curItem = 0; curItem < imgElmList.size(); curItem++)
 		{
-			if(getProdTextAtIndex(curItem) != null)
-				sb = new StringBuilder( getProdTextAtIndex(curItem) );
+			if(getDescAtIndex(curItem) != null)
+				sb = new StringBuilder( getDescAtIndex(curItem) );
 			else
 				sb = new StringBuilder( "Error" );
 			
@@ -202,7 +212,7 @@ public class ImageDescriber extends BBDocument {
 		for(int curItem = 0; curItem < imgElmList.size(); curItem++) {
 			
 			// Set prod note.
-			setProdAtIndex(curItem, prodCopyList.get(curItem), null, null, null);
+			setDescAtIndex(curItem, prodCopyList.get(curItem), null, null, null);
 			
 		} // for(int curItem...
 	
@@ -259,12 +269,16 @@ public class ImageDescriber extends BBDocument {
 			imgElmList.add( (Element)(imgTags.get(curTag)) );
 			curImgElement = imgElmList.get(curTag);
 			
-			// Wrap in <imggroup>
-			if( hasImgGrpParent(curImgElement) == false) {
-				curImgElement = wrapInImgGrp( curImgElement );
+			// Wrap in container element appropriate for the document type.
+//			if( hasImgGrpParent(curImgElement) == false) {
+//				curImgElement = wrapInImgGrp( curImgElement );
+//				imgElmList.set(curTag, curImgElement);
+//				
+//			} // if( hasImgGrpParent(...
+			if( imgContext.hasContainer(curImgElement) == false ) {
+				curImgElement = imgContext.addContainer(curImgElement);
 				imgElmList.set(curTag, curImgElement);
-				
-			} // if( hasImgGrpParent(...
+			}
 			
 			// Add image file path to list.
 			
@@ -311,11 +325,15 @@ public class ImageDescriber extends BBDocument {
 		curImgElement = imgElmList.get(curElementIndex);
 		
 		// Wrap in <imggroup>
-		if( hasImgGrpParent(curImgElement) == false) {
-			curImgElement = wrapInImgGrp( curImgElement );
+//		if( hasImgGrpParent(curImgElement) == false) {
+//			curImgElement = wrapInImgGrp( curImgElement );
+//			imgElmList.set(curElementIndex, curImgElement);
+//			
+//		} // if( hasImgGrpParent(...
+		if( imgContext.hasContainer(curImgElement) == false ) {
+			curImgElement = imgContext.addContainer(curImgElement);
 			imgElmList.set(curElementIndex, curImgElement);
-			
-		} // if( hasImgGrpParent(...
+		}
 		
 		// Return current <img> element.
 		return curImgElement;
@@ -348,6 +366,8 @@ public class ImageDescriber extends BBDocument {
 	// False otherwise.
 	public boolean hasImgGrpParent(Element e)
 	{
+		System.out.println("Called hasImgGrpParent()");
+		
 		// If the parent is <imggroup>, return true.
 		if( ((nu.xom.Element)(e.getParent())).getLocalName().compareTo("imggroup") == 0 )
 			return true;
@@ -400,6 +420,8 @@ public class ImageDescriber extends BBDocument {
 	// <prodnote> in the group with it.
 	public Element wrapInImgGrp(Element e)
 	{
+		System.out.println("Called wrapInImgGrp()");
+		
 		// Create all elements.nameSpace
 		Element imgGrpElm = new Element("imggroup", nameSpace);
 		Element prodElm = new Element("prodnote", nameSpace);
@@ -471,19 +493,31 @@ public class ImageDescriber extends BBDocument {
 	} // getCurrentElementIndex()
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Returns attribute for current element.
+	public String getCurElmAttribute(String attName)
+	{
+		// Return attribute value.
+		return imgContext.getAttribute(curImgElement, attName);
+		
+	} // getCurElmAttribute()
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Sets the current element's <img> attributes. Pass null to atts you 
 	// don't want modified.
 	public void setCurElmImgAttributes(String tagID, String tagSRC, String tagALT)
 	{
 		// Set attribute values.
-		if(tagID != null)
-			curImgElement.getAttribute("id").setValue(tagID);
-		if(tagSRC != null)
-			curImgElement.getAttribute("src").setValue(tagSRC);
-		if(tagALT != null)
-			curImgElement.getAttribute("alt").setValue(tagALT);
-		
-		
+//		if(tagID != null)
+//			curImgElement.getAttribute("id").setValue(tagID);
+//		if(tagSRC != null)
+//			curImgElement.getAttribute("src").setValue(tagSRC);
+//		if(tagALT != null)
+//			curImgElement.getAttribute("alt").setValue(tagALT);
+
+		imgContext.setAttribute(curImgElement, "id", tagID);
+		imgContext.setAttribute(curImgElement, "src", tagSRC);
+		imgContext.setAttribute(curImgElement, "alt", tagALT);
+
 	} // setCurElmImgAttributes()
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -499,21 +533,29 @@ public class ImageDescriber extends BBDocument {
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++)
 		{
-			// Get current child.
-			ch = (Element)parNode.getChild(curC);
-			
-			// Is this an <img> element?
-			if( ch.getLocalName().compareTo("img") == 0 )
-			{
-				// Set attribute values.
-				if(tagID != null)
-					ch.getAttribute("id").setValue(tagID);
-				if(tagSRC != null)
-					ch.getAttribute("src").setValue(tagSRC);
-				if(tagALT != null)
-					ch.getAttribute("alt").setValue(tagALT);
+			// Make sure this is an element and not a comment or something crazy.
+			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
 				
-			} // if( ch.getLocalName()...
+				// Get element.
+				ch = (Element)parNode.getChild(curC);
+				
+				// Is this an <img> element?
+				if( ch.getLocalName().compareTo("img") == 0 )
+				{
+					// Set attribute values.
+//					if(tagID != null)
+//						ch.getAttribute("id").setValue(tagID);
+//					if(tagSRC != null)
+//						ch.getAttribute("src").setValue(tagSRC);
+//					if(tagALT != null)
+//						ch.getAttribute("alt").setValue(tagALT);
+					imgContext.setAttribute(ch, "id", tagID);
+					imgContext.setAttribute(ch, "src", tagSRC);
+					imgContext.setAttribute(ch, "alt", tagALT);
+					
+				} // if( ch.getLocalName()...
+				
+			} // if element and not comment.
 		
 		} // for(int curC = 0...
 			
@@ -525,8 +567,9 @@ public class ImageDescriber extends BBDocument {
 	// False otherwise.
 	// 
 	// Notes: Element MUST be a child of a <imggroup>
-	public boolean hasProdNote(Element e)
+	public boolean hasDescElm(Element e)
 	{
+		/*
 		// Get parent of <img> element.
 		nu.xom.Node parNode = e.getParent();
 		
@@ -535,18 +578,27 @@ public class ImageDescriber extends BBDocument {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			ch = (Element)parNode.getChild(curC);
-			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
-			
-				// Found it. Return true.
-				return true;
-			
-			} // if( ch.getLocalName()...
+			// Make sure this is an element and not a comment or something crazy.
+			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+				
+				// Get the element.
+				ch = (Element)parNode.getChild(curC);
+				if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+				
+					// Found it. Return true.
+					return true;
+				
+				} // if( ch.getLocalName()...
+				
+			} // if element and not comment.
 		
 		} // for(int curC = 0...
 		
 		// Return false if we made it here... no prodnote.
 		return false;
+		
+		*/
+		return imgContext.hasDescElement(e);
 		
 	} // hasProdNote()
 	
@@ -554,8 +606,9 @@ public class ImageDescriber extends BBDocument {
 	// Returns the text/description in the current <imggroup>'s prodnote.
 	// Returns null if it couldn't find the <prodnote> or if it didn't have 
 	// text.
-	public String getCurProdText()
+	public String getCurDescription()
 	{
+		/*
 		// String for <prodnote> text.
 		String prodText = "NO PRODNOTE/NO DESCRIPTION.";
 		
@@ -567,25 +620,31 @@ public class ImageDescriber extends BBDocument {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			ch = (Element)parNode.getChild(curC);
-			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
-
-				// If no children, add one.
-				if(ch.getChildCount() == 0)
-					ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-				
-				// Get text.
-				prodText = ch.getChild(0).getValue();
-				
-				// Found it. Break.
-				break;
-				
-			} // if( ch.getLocalName()...
+			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+				ch = (Element)parNode.getChild(curC);
+				if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+	
+					// If no children, add one.
+					if(ch.getChildCount() == 0)
+						ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+					
+					// Get text.
+					prodText = ch.getChild(0).getValue();
+					
+					// Found it. Break.
+					break;
+					
+				} // if( ch.getLocalName()...
+			
+			} // If child is an element...
 			
 		} // for(int curC = 0...
 		
 		// Return <prodnote> text.
 		return prodText;
+		*/
+		
+		return imgContext.getDescription(curImgElement);
 		
 	} // getCurProdText()
 	
@@ -593,8 +652,9 @@ public class ImageDescriber extends BBDocument {
 	// Uses given index to reference a particular <img>, and returns its 
 	// prodnote text. Returns null if prodnote couldn't be found, or it 
 	// contained no text.
-	public String getProdTextAtIndex(int index)
+	public String getDescAtIndex(int index)
 	{
+		/*
 		// Get parent of <img> element.
 		nu.xom.Node parNode = imgElmList.get(index).getParent();
 		
@@ -606,33 +666,40 @@ public class ImageDescriber extends BBDocument {
 		// Find <prodnote>.
 		Element ch = null;
 		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			ch = (Element)parNode.getChild(curC);
-			if( ch.getLocalName().compareTo("prodnote") == 0 ) {
-			
-				// If no children, add one.
-				if(ch.getChildCount() == 0)
-					ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+				ch = (Element)parNode.getChild(curC);
+				if( ch.getLocalName().compareTo("prodnote") == 0 ) {
 				
-				// Get text.
-				prodText = ch.getChild(0).getValue();
+					// If no children, add one.
+					if(ch.getChildCount() == 0)
+						ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+					
+					// Get text.
+					prodText = ch.getChild(0).getValue();
+					
+					// Found it. Break.
+					break;
 				
-				// Found it. Break.
-				break;
+				} // if( ch.getLocalName()...
+				
+			} // if element, and not comment...
 			
-			} // if( ch.getLocalName()...
-		
 		} // for(int curC = 0...
 		
 		// Return <prodnote> text.
 		return prodText;
+		*/
+		
+		return imgContext.getDescription(imgElmList.get(index));
 	
 	} // getProdTextAtIndex()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Sets <prodnote> text and attributes. Uses parent of current <img> element 
 	// to get to <prodnote>. Pass null to args you don't want modified.
-	public void setCurElmProd(String text, String tagID, String tagIMGREF, String tagRENDER)
+	public void setDescription(String text, String tagID, String tagIMGREF, String tagRENDER)
 	{
+		/*
 		// Get parent of <img> element.
 		nu.xom.Node parNode = curImgElement.getParent();
 		
@@ -685,6 +752,12 @@ public class ImageDescriber extends BBDocument {
 			ch.getAttribute("imgref").setValue(tagIMGREF);
 		if(tagRENDER != null)
 			ch.getAttribute("render").setValue(tagRENDER);
+		*/
+		
+		imgContext.setDescription(curImgElement, text);
+		imgContext.setAttribute(curImgElement, "id", tagID);
+		imgContext.setAttribute(curImgElement, "src", tagIMGREF);
+		imgContext.setAttribute(curImgElement, "alt", tagRENDER);
 	
 	} // setCurElmProdAttributes
 	
@@ -692,8 +765,9 @@ public class ImageDescriber extends BBDocument {
 	// Sets <prodnote> for element at index.
 	// 
 	// Notes: Must already be wrapped in <imggroup>
-	public void setProdAtIndex(int index, String text, String tagID, String tagIMGREF, String tagRENDER)
+	public void setDescAtIndex(int index, String text, String tagID, String tagIMGREF, String tagRENDER)
 	{
+		/*
 		// Get parent of element at index.
 		// It should be an <imggroup> element.
 		Node parNode = imgElmList.get(index).getParent();
@@ -755,6 +829,12 @@ public class ImageDescriber extends BBDocument {
 					ch.getAttribute("imgref").setValue(tagIMGREF);
 				if(tagRENDER != null)
 					ch.getAttribute("render").setValue(tagRENDER);
+		*/
+		
+		imgContext.setDescription(imgElmList.get(index), text);
+		imgContext.setAttribute(imgElmList.get(index), "id", tagID);
+		imgContext.setAttribute(imgElmList.get(index), "src", tagIMGREF);
+		imgContext.setAttribute(imgElmList.get(index), "alt", tagRENDER);
 		
 	} // setProdAtIndex()
 	

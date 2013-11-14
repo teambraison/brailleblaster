@@ -28,8 +28,6 @@
 
 package org.brailleblaster.archiver;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,7 +39,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
-import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
@@ -81,16 +78,7 @@ public class EPubArchiver extends Archiver {
 	
 	// The last bookmark we were at.
 	String bkMarkStr = null;
-	
-	// The number of nodes we've traversed. We use this to count our way 
-	// into the main document after saving its snippet to file.
-	// In other words, a bookmark.
-	int maxChildDepth = 0;
-	int curChildDepth = 0;
-	int st_append = 0;
-	int st_findbk = 1;
-	int st_skiprt = 2;
-	int state = st_skiprt;
+
 	EPubArchiver(String docToPrepare) {
 		super(docToPrepare);
 	}
@@ -347,11 +335,6 @@ public class EPubArchiver extends Archiver {
 			// Body element.
 			nu.xom.Nodes currentMainElement = mainDoc.query("//dtb:body[1]", context);
 			
-			// Set depth to root.
-			maxChildDepth = 0;
-			curChildDepth = 0;
-			state = st_skiprt;
-			
 			// Get the number of children our source has.
 			int curCh = 0;
 			int numChilds = currentMainElement.get(0).getChildCount();
@@ -368,9 +351,6 @@ public class EPubArchiver extends Archiver {
 				
 				// Remove all children of the body element.
 				bodyElement.removeChildren();
-				
-				// Now add the new content.
-//				_attachSnippet2(bodyElement, currentMainElement.get(0));
 				
 				// For every child, append it to the destination.
 				for( ; curCh < numChilds; curCh++)
@@ -422,71 +402,5 @@ public class EPubArchiver extends Archiver {
 		///////
 		
 	} // save()
-	
-	// Recursive function that appends nodes to destination until one of our 
-	// bookmark comments is reached.
-	void _attachSnippet(nu.xom.Node destNode, nu.xom.Node srcNode)
-	{
-		// If we're appending nodes, have we hit a bookmark?
-		if(state == st_append)
-		{
-			// Is this a comment? If so, stop.
-			if(srcNode.getValue().contains("BBBOOKMARK - "))
-			{
-				// Go one more. This ensures we go past this bookmark 
-				// next time.
-				maxChildDepth++;
-				curChildDepth = 0;
-				
-				// Change states.
-				state = st_findbk;
-				
-				// No point in going further.
-				return;
-				
-			} // if bookmark
-			
-			// While we're searching for the end of the current document, add this 
-			// child.
-			((nu.xom.Element)(destNode)).appendChild(srcNode.copy());
-			
-		} // if(state == st_append)
-		
-		// Have we found the last bookmark we stopped at.
-		if(state == st_findbk)
-		{
-			// is this a bookmark?
-			if(srcNode.getValue().contains("BBBOOKMARK - "))
-			{
-				if(curChildDepth >= maxChildDepth)
-					state = st_append;
-				
-			} // if bookmark
-			
-		} // if(state == st_findbk)
-		
-		// If we've been skipping the root element, we can move on now.
-		if(state == st_skiprt)
-			state = st_append;
-		
-		// Get the number of children our source has.
-		int numChilds = srcNode.getChildCount();
-		
-		// For every child, append it to the destination.
-		for(int curCh = 0; curCh < numChilds; curCh++)
-		{
-			// We just went down a level.
-			curChildDepth++;
-			
-			// Surpassed our max.
-			if(curChildDepth > maxChildDepth)
-				maxChildDepth = curChildDepth;
-			
-			// Append the current child.
-			_attachSnippet(destNode, srcNode.getChild(curCh));
-			
-		} // for(int curCh...
-		
-	} // _attachSnippet()
 	
 } // class EPubArchiver

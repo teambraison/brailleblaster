@@ -92,6 +92,8 @@ public class BBSemanticsTable {
 			insertValue("italicx","\tFont " + SWT.ITALIC);
 			makeStylesObject("boldx");
 			insertValue("boldx","\tFont " + SWT.BOLD);
+			makeStylesObject("underlinex");
+			insertValue("underlinex","\tFont " + SWT.UNDERLINE_SINGLE);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -242,6 +244,8 @@ public class BBSemanticsTable {
 			insertValue("italicx","\tFont " + SWT.ITALIC);
 			makeStylesObject("boldx");
 			insertValue("boldx","\tFont " + SWT.BOLD);
+			makeStylesObject("underlinex");
+			insertValue("underlinex","\tFont " + SWT.UNDERLINE_SINGLE);
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();

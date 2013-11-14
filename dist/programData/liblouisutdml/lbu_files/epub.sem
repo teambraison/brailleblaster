@@ -13,7 +13,6 @@
 	para prodnote
 	italicx dfn
 	italicx kbd
-	italicx strong
 	no acronym
 	pagenum pagenum
 	softreturn br
@@ -23,6 +22,22 @@
 	no html,lang
 	skip doctitle
 	skip docauthor
+#newly added
+	skip title
+	skip video
+	skip audio
+	skip svg
+	no hgroup
+	no source
+	skip trigger
+	no default
+	no text
+	no image
+	skip path
+	skip ClipPath
+	no tspan 
+	no g
+	skip track
 
 
 # section elements
@@ -47,7 +62,6 @@
 
 	no abbr	
 	generic address
-	no b	
 	no bdi
 	no bdo	
 	quotation blockquote
@@ -58,7 +72,7 @@
 	no del	
 	no dfn	
 	italicx em	
-	no i	
+	italicx i	
 	no ins	
 	no kbd	
 	no mark
@@ -73,6 +87,7 @@
 	no s	
 	no samp	
 	no small		
+	boldx b
 	boldx strong
 	no sub	
 	no sup	

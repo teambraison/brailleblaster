@@ -136,6 +136,12 @@ public abstract class AbstractView {
 		styleRange.start = start;
 		styleRange.length = length;
 		styleRange.fontStyle = style;
+		
+		if(style == SWT.UNDERLINE_SINGLE)
+			styleRange.underline = true;
+		else
+			styleRange.underline = false;
+			
 		view.setStyleRange(styleRange);
 	}
 	

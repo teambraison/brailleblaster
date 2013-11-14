@@ -39,7 +39,6 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
-import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
@@ -118,9 +117,9 @@ public class ImageDescriberController extends Controller {
 		this.group.setLayout(new FormLayout());
 		idv = new ImageDescriberView(this.group, imgDesc, this);
 		this.item.setControl(this.group);
-				
 		// Image helper class. Image helper functions, and such.
 		imgHelper = new ImageHelper();
+		idv.setTextBox(imgDesc.getCurDescription());
 	}
 	
 	public boolean openDocument(String fileName){
@@ -168,6 +167,7 @@ public class ImageDescriberController extends Controller {
 	public void fileOpenDialog(){
 		String tempName;
 
+//		
 		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
@@ -350,6 +350,7 @@ public class ImageDescriberController extends Controller {
 		setImageInfo();
 		//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
 		
+		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 	}
 	
 	public void setImageToNext(){
@@ -375,15 +376,17 @@ public class ImageDescriberController extends Controller {
 		// Show current image index and name.
 		setImageInfo();
 		//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
+		
+		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 	}
 	
 	public void apply(){
-		imgDesc.setCurElmProd(idv.getTextBoxValue(), null, null, null);
+		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
 		setDocumentEdited(true);
 	}
 	
 	public void okay(){
-		imgDesc.setCurElmProd(idv.getTextBoxValue(), null, null, null);
+		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
 		setDocumentEdited(true);
 	}
 	
@@ -404,7 +407,7 @@ public class ImageDescriberController extends Controller {
 		if( idv.msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
 		{
 			// Apply what is in the edit box first.
-			imgDesc.setCurElmProd(idv.getTextBoxValue(), null, null, null);
+			imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
 
 			// Current image path.
 			String curImgPath = "";
@@ -422,7 +425,7 @@ public class ImageDescriberController extends Controller {
 				if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
 				{
 					// Change description to current prod text.
-					imgDesc.setProdAtIndex(curImg, idv.getTextBoxValue(), null, null, null);
+					imgDesc.setDescAtIndex(curImg, idv.getTextBoxValue(), null, null, null);
 
 				} // if( imgDesc.getElementAtIndex...
 
@@ -436,7 +439,7 @@ public class ImageDescriberController extends Controller {
 		if( idv.msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
 		{
 			// Apply what is in the edit box first.
-			imgDesc.setCurElmProd("", null, null, null);
+			imgDesc.setDescription("", null, null, null);
 			idv.setTextBox("");
 
 			// Current image path.
@@ -455,7 +458,7 @@ public class ImageDescriberController extends Controller {
 				if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
 				{
 					// Change description to current prod text.
-					imgDesc.setProdAtIndex(curImg, "", null, null, null);
+					imgDesc.setDescAtIndex(curImg, "", null, null, null);
 					// Change alt text.
 					imgDesc.setElementAttributesAtIndex(curImg, null, null, "");
 
@@ -512,6 +515,8 @@ public class ImageDescriberController extends Controller {
 		openDocument(file);
 		idv.setMainImage();
 		idv.setBrowser();
+		idv.setTextBox(imgDesc.getCurDescription());
+		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 //		if(file.endsWith(".zip")){
 //			openZipFile(file);
 //		}

@@ -477,41 +477,7 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 **/		
-		//editItem.setMenu(editMenu);
-		//editItem.setEnabled(true);
-		
-		/*
-		// Image Description Menu Item.
-		imgDescItem = new MenuItem(editMenu, SWT.PUSH);
-		imgDescItem.setText(lh.localValue("&Image Describer"));
-		imgDescItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-						
-				// Current Doc Manager.
-				Manager curDm = null;
-						
-				if (BBIni.debugging()) {
-							
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						curDm = ((Manager)wp.getList().getFirst());
-					}
-					else {
-						curDm = currentEditor;
-					}
-				}
-						
-				// Run Image Describer on current document.
-				if(curDm.document.getDOM() != null) {
-//					ImageDescriber imgDesc = new ImageDescriber(curDm);
-					new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
-				}
-			}
-		});
-		*/
+
 		editItem.setMenu(editMenu);
 		editItem.setEnabled(true);
 				

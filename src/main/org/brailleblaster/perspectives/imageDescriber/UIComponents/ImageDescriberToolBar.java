@@ -26,14 +26,14 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.perspectives.braille.ui;
+package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -44,24 +44,22 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-public class BBToolBar {
-
+public class ImageDescriberToolBar {
+	
 	int MAX_W = 32;
 	int MAX_H = 32;
-	
 	private ToolBar toolBar;
-	private Button checkBrailleItem;
 	WPManager wordProc;
 	ImageHelper imgHelper;
-	Manager currentEditor;
-	// FO
-	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
-		setEditor(manager);
+	ImageDescriberController currentEditor;
+	
+	public ImageDescriberToolBar(Shell shell, final WPManager wp, ImageDescriberController controller)
+	{
+		setEditor(controller);
 		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.NONE);
@@ -112,7 +110,7 @@ public class BBToolBar {
 					int index= wp.getFolder().getSelectionIndex();
 					if(index == -1){
 						wp.addDocumentManager(null);
-						setEditor((Manager)wp.getList().getLast());
+						setEditor((ImageDescriberController)wp.getList().getLast());
 						currentEditor.fileOpenDialog();
 						//wp.getList().getFirst().fileOpenDialog();
 					}
@@ -142,7 +140,7 @@ public class BBToolBar {
 					}
 					else {
 					//	wp.getList().get(index).fileSave();
-						currentEditor.fileSave();
+						currentEditor.save();
 					}
 				}
 			}
@@ -169,121 +167,18 @@ public class BBToolBar {
 				}
 			}
 		});
-
-		ToolItem translateItem = new ToolItem(toolBar, SWT.PUSH);
-		// FO
-		tlabel = lh.localValue("&Translate");
-		translateItem.setText(tlabel.replace("&", ""));
-		translateItem.setImage(new Image(null, distPath  + sep + "images" + sep + "translate.png"));
-		// FO
-		translateItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				// dm.translateView(true);
-			}
-		});
-
-		ToolItem embossNow = new ToolItem(toolBar, SWT.PUSH);
-		// FO
-		tlabel = lh.localValue("Emboss&Now!");
-		embossNow.setText(tlabel.replace("&", ""));
-		embossNow.setImage(new Image(null, distPath  + sep + "images" + sep + "emboss.png"));
-		embossNow.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				int index= wp.getFolder().getSelectionIndex();
-				if(index != -1){
-					//wp.getList().get(index).fileEmbossNow();
-					currentEditor.fileEmbossNow();
-				}
-			}
-		});
-
-		/**
-		 * ToolItem embossWithInk = new ToolItem (toolBar, SWT.PUSH); tlabel =
-		 * lh.localValue ("EmbossInkN&ow"); embossWithInk.setText
-		 * (tlabel.replace ("&", "")); embossWithInk.setEnabled(false);
-		 * embossWithInk.addSelectionListener (new SelectionAdapter() { public
-		 * void widgetSelected (SelectionEvent e) { dm.placeholder(); } });
-		 **/
-
-		ToolItem daisyPrint = new ToolItem(toolBar, SWT.PUSH);
-		tlabel = lh.localValue("&Print");
-		daisyPrint.setText(tlabel.replace("&", ""));
-		daisyPrint.setImage(new Image(null, distPath  + sep + "images" + sep + "print.png"));
-		daisyPrint.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				// dm.daisyPrint();
-			}
-		});
-		
-		/*
-		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
-		tlabel = lh.localValue("&Image Describer");
-		imageDesc.setText(tlabel.replace("&", ""));
-		imageDesc.setImage(new Image(null, distPath  + sep + "images" + sep + "imgdesc.png"));
-		imageDesc.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				
-				// Current Doc Manager.
-				Manager curDm = null;
-				
-				if (BBIni.debugging()) {
-					// dm.setReturn (WP.OpenDocumentGetFile);
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						curDm =(Manager) wp.getList().getFirst();
-					}
-					else {
-						curDm = (Manager)wp.getList().get(index);
-					}
-				}
-				
-				// Run Image Describer on current document.
-				if(curDm.document.getDOM() != null) {
-					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
-//					curDm.text.view.setVisible(false);
-//					curDm.braille.view.setVisible(false);
-				}
-					
-			} // widgetSelected...
-				
-		}); // addSelectionListener(new SelectionAdapter()...
-		*/
-
-		FormData bloc = new FormData();
-		bloc.left = new FormAttachment(40);
-		bloc.right = new FormAttachment(50);
-		bloc.top = new FormAttachment(5);
-		checkBrailleItem = new Button(shell, SWT.CHECK);
-		checkBrailleItem.setLayoutData(bloc);
-		checkBrailleItem.setText(lh.localValue("viewBraille"));
-		checkBrailleItem.pack();
-		checkBrailleItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				int index= wp.getFolder().getSelectionIndex();
-				if(index != -1){
-					//wp.getList().get(index).toggleBrailleFont();
-					currentEditor.toggleBrailleFont();
-				}
-			}
-		});
 		
 		toolBar.pack();
-	}
+		
+	} // ImageDescriberToolBar() constructor.
 	
-	public void toggleCheckBox(boolean enabled, boolean state){
-		this.checkBrailleItem.setEnabled(enabled);
-		this.checkBrailleItem.setSelection(state);
-	}
-	
-	public void setEditor(Manager editor){
+	public void setEditor(ImageDescriberController editor){
 		currentEditor = editor;
 	}
 	
-	public void dispose(){
-		checkBrailleItem.dispose();
+	public void dispose() {
 		toolBar.dispose();
 	}
-}
+	
+} // class ImageDescriberToolBar.
+

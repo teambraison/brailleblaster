@@ -21,6 +21,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -95,8 +97,10 @@ public class ImageDescriberView {
 	ImageDescriber imgDesc;
 	ImageDescriberController idd;
 	Group group;
-	Button prevBtn, nextBtn, applyBtn, okayBtn, undoAllBtn, applyToAllBtn, clearAllBtn;
+	Button prevBtn, nextBtn, applyBtn, undoAllBtn, applyToAllBtn, clearAllBtn;
 	Text imgDescTextBox;
+	Label altLabel;
+	Text altBox;
 	Browser browser;
 	ImageHelper imgHelper;
 	Label mainImage;
@@ -108,7 +112,7 @@ public class ImageDescriberView {
 		this.idd = idd;
 		setUIDimensions();
 		createUIelements();
-		toggleUI();
+//		toggleUI();
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -136,8 +140,12 @@ public class ImageDescriberView {
 						imageWidth, imageHeight) );
 
 			// Get prodnote text/image description.
-			imgDescTextBox.setText( imgDesc.getCurProdText() );
-
+			imgDescTextBox.setText( imgDesc.getCurDescription() );
+			
+			// Get alt attribute.
+			if(imgDesc.getCurElmAttribute("alt") != null)
+				altBox.setText(imgDesc.getCurElmAttribute("alt"));
+			
 			idd.setImageInfo();
 			// Show current image index and name.
 			//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
@@ -166,7 +174,11 @@ public class ImageDescriberView {
 							imageWidth, imageHeight) );
 
 				// Get prodnote text/image description.
-				imgDescTextBox.setText( imgDesc.getCurProdText() );
+				imgDescTextBox.setText( imgDesc.getCurDescription() );
+				
+				// Get alt attribute.
+				if(imgDesc.getCurElmAttribute("alt") != null)
+					altBox.setText(imgDesc.getCurElmAttribute("alt"));
 
 				idd.setImageInfo();
 				//Show current image index and name.
@@ -186,31 +198,11 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 
 				// Set image's description.
-				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+				imgDesc.setDescription(imgDescTextBox.getText(), null, null, altBox.getText());
 				idd.setDocumentEdited(true);
 			} // widgetSelected()
 
 		}); // applyBtn.addSelectionListener...
-
-		// Create okay button.
-		/*
-		okayBtn = new Button(group, SWT.PUSH);
-		okayBtn.setText("Okay");
-		//okayBtn.setBounds(okayBtnX,  okayBtnY, okayBtnW, okayBtnH);
-		setFormData(okayBtn, 21, 28, 0, 5);
-		okayBtn.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-
-				// Set image's description.
-				imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
-
-				//Close the dialog.
-				//imgDescShell.close();
-
-			} // widgetSelected()
-
-		}); // okayBtn.addSelectionListener...
-		*/
 
 		// Create undo all button.
 		undoAllBtn = new Button(group, SWT.PUSH);
@@ -226,9 +218,7 @@ public class ImageDescriberView {
 					// Copy original elements back into main list. "Undo!"
 					imgDesc.copyUndo2MainList();
 
-					// Close the dialog without committing changes.
-					//imgDescShell.close();
-				}
+				} // msgBx()
 
 			} // widgetSelected()
 
@@ -247,7 +237,7 @@ public class ImageDescriberView {
 				if( msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
 				{
 					// Apply what is in the edit box first.
-					imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
+					imgDesc.setDescription(imgDescTextBox.getText(), null, null, null);
 
 					// Current image path.
 					String curImgPath = "";
@@ -265,7 +255,7 @@ public class ImageDescriberView {
 						if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
 						{
 							// Change description to current prod text.
-							imgDesc.setProdAtIndex(curImg, imgDescTextBox.getText(), null, null, null);
+							imgDesc.setDescAtIndex(curImg, imgDescTextBox.getText(), null, null, null);
 
 						} // if( imgDesc.getElementAtIndex...
 
@@ -289,7 +279,7 @@ public class ImageDescriberView {
 				if( msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
 				{
 					// Apply what is in the edit box first.
-					imgDesc.setCurElmProd("", null, null, null);
+					imgDesc.setDescription("", null, null, null);
 					imgDescTextBox.setText("");
 
 					// Current image path.
@@ -308,7 +298,7 @@ public class ImageDescriberView {
 						if( imgDesc.getElementAtIndex(curImg).getAttributeValue("src").compareTo(curImgPath) == 0 )
 						{
 							// Change description to current prod text.
-							imgDesc.setProdAtIndex(curImg, "", null, null, null);
+							imgDesc.setDescAtIndex(curImg, "", null, null, null);
 							// Change alt text.
 							imgDesc.setElementAttributesAtIndex(curImg, null, null, "");
 
@@ -322,20 +312,36 @@ public class ImageDescriberView {
 
 		}); // clearAllBtn.addSelectionListener
 
-		// Create image description text box.
-		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		//imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
-		setFormData(imgDescTextBox, 0, 49, 0, 40);
-		imgDescTextBox.addModifyListener(new ModifyListener() {
+		// Label for alt box.
+		altLabel = new Label(group, SWT.NONE);
+		altLabel.setText("Alt Text ->");
+		setFormData(altLabel, 1, 6, 5, 9);
+		
+		// The alt box is for updating the "alt text" in an image element.
+		altBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		setFormData(altBox, 6, 49, 5, 9);
+		if(imgDesc.getCurElmAttribute("alt") != null)
+			altBox.setText(imgDesc.getCurElmAttribute("alt"));
+		altBox.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent arg0) { 
 
 			} // modifyText()
 
 		}); // addModifyListener(new ModiftyListener() { 
 
+		// Create image description text box.
+		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
+		//imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
+		setFormData(imgDescTextBox, 0, 49, 9, 40);
+		imgDescTextBox.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) { 
+
+			} // modifyText()
+
+		}); // addModifyListener(new ModiftyListener() { 
 		
 		//set TextBox
-		setTextBox();
+		setTextBox(imgDesc.getCurDescription());
 		
 		// Setup main image.
 		mainImage = new Label(group, SWT.CENTER | SWT.BORDER);
@@ -358,7 +364,17 @@ public class ImageDescriberView {
 	public void setTextBox(){
 		// Get prodnote text/image description.
 		if(imgDesc.getImageList().size() > 0)
-			imgDescTextBox.setText( imgDesc.getCurProdText() );
+			imgDescTextBox.setText( imgDesc.getCurDescription() );
+	}
+	
+	public String getAltBox()
+	{
+		return altBox.getText();
+	}
+	
+	public void setAltBox(String str)
+	{
+		altBox.setText(str);
 	}
 	
 	public void setMainImage(){
@@ -402,12 +418,9 @@ public class ImageDescriberView {
 			// Set browser bounds.
 			//browser.setBounds(browserX, browserY, browserW, browserH);
 			setFormData(browser, 49, 100, 0, 100);
-			// Browser Widget.
-			//////////////////
 		}
 		else {
 			// Set browser bounds.
-			//	browser.setUrl("www.google.com");
 			//browser.setBounds(browserX, browserY, browserW, browserH);
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
 			setFormData(browser, 49, 100, 0, 100);
@@ -541,6 +554,21 @@ public class ImageDescriberView {
 		data.top = new FormAttachment(top);
 		data.bottom = new FormAttachment(bottom);
 		c.setLayoutData(data);
+		
+		// Change font size depending on screen resolution.
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		FontData[] oldFontData = c.getFont().getFontData();
+		if( (int)screenSize.getWidth() >= 1920)
+			oldFontData[0].setHeight(10);
+		else if( (int)screenSize.getWidth() >= 1600)
+			oldFontData[0].setHeight(9);
+		else if( (int)screenSize.getWidth() >= 1280)
+			oldFontData[0].setHeight(7);
+		else if( (int)screenSize.getWidth() >= 1024)
+			oldFontData[0].setHeight(5);
+		else if( (int)screenSize.getWidth() >= 800)
+			oldFontData[0].setHeight(4);
+		c.setFont( new Font(null, oldFontData[0]) );
 	}
 	
 	public void disposeUI(){
@@ -556,7 +584,6 @@ public class ImageDescriberView {
 	//	prevBtn.setEnabled(enabled);
 	//	nextBtn.setEnabled(enabled);
 	//	applyBtn.setEnabled(enabled);
-	//	okayBtn.setEnabled(enabled);
 	//	cancelBtn.setEnabled(enabled);
 	//	applyToAllBtn.setEnabled(enabled);
 	//	clearAllBtn.setEnabled(enabled);

@@ -1,3 +1,10 @@
+# Semantic Action File
+# based on the HTML5 Specification
+#
+# Copyright 2013 American Printing House for the Blind
+#
+# Licensed under LGPL
+
 # Basic	 
 	newentries no
 	document body
@@ -40,7 +47,6 @@ boldx b
 	no tspan 
 	no g
 	skip track
-	no math
 
 
 # section elements
@@ -92,7 +98,7 @@ boldx b
 	no sub	
 	no sup	
 	no time	
-	no u	
+	underlinex u	
 	no var	
 	no wbr
 # Forms	 

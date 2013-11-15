@@ -13,6 +13,8 @@
 	para prodnote
 	italicx dfn
 	italicx kbd
+	boldx strong
+boldx b
 	no acronym
 	pagenum pagenum
 	softreturn br
@@ -38,6 +40,7 @@
 	no tspan 
 	no g
 	skip track
+	no math
 
 
 # section elements
@@ -61,7 +64,7 @@
 # Formatting	 
 
 	no abbr	
-	generic address
+	generic address	
 	no bdi
 	no bdo	
 	quotation blockquote
@@ -71,8 +74,7 @@
 	compbrl code	
 	no del	
 	no dfn	
-	italicx em	
-	italicx i	
+	italicx em		
 	no ins	
 	no kbd	
 	no mark
@@ -87,12 +89,10 @@
 	no s	
 	no samp	
 	no small		
-	boldx b
-	boldx strong
 	no sub	
 	no sup	
 	no time	
-	underlinex u	
+	no u	
 	no var	
 	no wbr
 # Forms	 
@@ -180,16 +180,13 @@
 	no base	
 
 # Programming	 
-	no script	
-	no noscript	
+	skip script	
+	skip noscript	
 	no embed	
 	no object	
 	no param	
 
-
-
 # Global Attribute 
-
 #	accesskey	
 #	class	
 #	contenteditable
@@ -220,5 +217,16 @@
 
 #word
 	generic w
+
+
+#	no link,type,text/css
+	#no p,class,text-right
+	#no p,class,text-center
+	#no style,type,text/css
+	#no meta,content,Text
+	#no script,type,text/javascript
+	#no body,text
+	#no body,text,black
+
 
 

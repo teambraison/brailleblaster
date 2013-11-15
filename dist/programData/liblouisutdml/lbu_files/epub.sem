@@ -5,6 +5,8 @@
 #
 # Licensed under LGPL
 
+include nemeth.sem
+
 # Basic	 
 	newentries no
 	document body

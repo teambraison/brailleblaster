@@ -47,7 +47,7 @@ public class BrailleDocument extends BBDocument {
 				removeNode(list.get((Integer)message.getValue("index")), message);
 				break;
 			case REMOVE_MATHML:
-				removeMathML(list, message);
+				removeMathML((TextMapElement)message.getValue("TextMapElement"), message);
 				break;
 			default:
 				System.out.println("No available operations for this message type");
@@ -252,11 +252,11 @@ public class BrailleDocument extends BBDocument {
 		m.put("newBrailleLength", insertionString.length());
 	}
 	
-	private void removeMathML(MapList list, Message m){
-		int length = list.getCurrent().brailleList.getLast().end - list.getCurrent().brailleList.getFirst().start; 
+	private void removeMathML(TextMapElement t, Message m){
+		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start; 
 		
-		Element parent = list.getCurrent().parentElement();
-		int index = parent.indexOf(list.getCurrent().n);
+		Element parent = t.parentElement();
+		int index = parent.indexOf(t.n);
 		
 		parent.removeChild(index);
 		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl")){

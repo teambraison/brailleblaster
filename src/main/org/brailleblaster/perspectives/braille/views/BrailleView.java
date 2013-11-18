@@ -635,7 +635,7 @@ public class BrailleView extends AbstractView {
 		if(c == SWT.DEL && (start != currentEnd && start != previousEnd)){
 			start--;
 		}
-	
+		
 		view.replaceTextRange(start, Math.abs(length), "");
 		setListenerLock(false);
 	}

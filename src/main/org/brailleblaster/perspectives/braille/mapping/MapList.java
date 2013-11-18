@@ -181,7 +181,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			if(this.get(i).brailleList.size() > 0 && location >= this.get(i).brailleList.getFirst().start  && location <= this.get(i).brailleList.getLast().end){
 				return i;
 			}
-			else if(this.get(i).brailleList.size() > 0 && location > this.get(i).brailleList.getLast().end  && location < this.get(i + 1).brailleList.getFirst().start){
+			else if(this.get(i).brailleList.size() > 0 && this.get(i + 1).brailleList.size() > 0 && location > this.get(i).brailleList.getLast().end  && location < this.get(i + 1).brailleList.getFirst().start){
 				if(location -  this.get(i).brailleList.getLast().end > this.get(i + 1).brailleList.getFirst().start - location){
 					return i + 1;
 				}

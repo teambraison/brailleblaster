@@ -338,8 +338,11 @@ public class TextView extends AbstractView {
 		// use a verify listener to dispose the images	
 		view.addVerifyListener(verifyListener = new VerifyListener()  {
 			public void verifyText(VerifyEvent event) {
-				if(event.doit != false && event.start != event.end && !getLock()){
-					StyleRange style = view.getStyleRangeAtOffset(event.start);
+				if(event.doit != false && event.start != event.end && !getLock() && selectionLength != view.getCharCount()){
+					TextMapElement t = dm.getClosest(event.start);
+					StyleRange style = null;
+					if(t != null)
+						style = view.getStyleRangeAtOffset(t.start);
 					if (style != null) {
 						Image image = (Image)style.data;
 						if (image != null && !image.isDisposed()) {
@@ -347,7 +350,8 @@ public class TextView extends AbstractView {
 							image.dispose();
 							currentChanges--;
 							event.doit = false;
-							sendRemoveMathML(dm, event.start);
+							sendRemoveMathML(dm, t);
+						
 							if(view.getCaretOffset() != 0 && event.keyCode == SWT.BS)
 								view.setCaretOffset(view.getCaretOffset() - 1);
 							
@@ -463,8 +467,8 @@ public class TextView extends AbstractView {
 		}
 	}
 	
-	private void sendRemoveMathML(Manager manager, int offset){
-		Message removeMessage = Message.createRemoveMathMLMessage(offset, -(currentEnd - currentStart));
+	private void sendRemoveMathML(Manager manager, TextMapElement t){
+		Message removeMessage = Message.createRemoveMathMLMessage(t.start, -(t.end - t.start), t);
 		removeMessage.put("offset", currentChanges);
 		manager.dispatch(removeMessage);
 		currentChanges = 0;
@@ -567,7 +571,7 @@ public class TextView extends AbstractView {
 		view.append(" ");
 		setImageRange(image, total, length);
 		handleStyle(prevStyle, style, math, " ");
-		/*
+		
 		for(int i = 1; i < brl.getChildCount(); i++){
 			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
 				view.append("\n");
@@ -578,7 +582,7 @@ public class TextView extends AbstractView {
 				length++;
 			}	
 		}
-		*/
+		
 		StyleRange s = view.getStyleRangeAtOffset(total);
 		s.length = length;
 		view.setStyleRange(s);
@@ -640,10 +644,11 @@ public class TextView extends AbstractView {
 		setListenerLock(true);
 		int pos = view.getCaretOffset();
 		
-		if(view.getCharCount() > 0)
+		if(view.getCharCount() > 0) {
 			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
+		}
 		
-		view.setCaretOffset(pos);		
+	//	view.setCaretOffset(pos);		
 		setListenerLock(false);
 	}
 	
@@ -1003,7 +1008,10 @@ public class TextView extends AbstractView {
 						changes = currentEnd - currentStart;
 						makeTextChange(-changes);
 						selectionLength -= changes;
-						sendUpdate(dm);
+						if(currentElement.isMathML())
+							sendRemoveMathML(dm, currentElement);
+						else
+							sendUpdate(dm);
 						setCurrent(dm);
 					}
 					else {

@@ -49,7 +49,6 @@ import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -147,8 +146,10 @@ public class BBDocument {
 				deleteFile(tempPath);
 				return buildDOM(outFile);
 			}
-			else 
+			else {
+				new CheckLiblouisutdmlLog().displayLog();
 				return false;
+			}
 		} 
 		else if (ext.equalsIgnoreCase ("txt")) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))

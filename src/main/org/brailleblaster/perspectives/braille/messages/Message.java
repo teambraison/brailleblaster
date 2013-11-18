@@ -161,10 +161,11 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createRemoveMathMLMessage(int offset, int length){
+	public static Message createRemoveMathMLMessage(int offset, int length, TextMapElement t){
 		Message m = new Message(BBEvent.REMOVE_MATHML);
 		m.put("start", offset);
 		m.put("length", length);
+		m.put("TextMapElement", t);
 		
 		return m;
 	}

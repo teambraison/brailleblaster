@@ -65,7 +65,6 @@ import org.brailleblaster.perspectives.braille.views.TreeView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
-import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
@@ -341,8 +340,8 @@ public class Manager extends Controller {
 		try{
 			if(document.startDocument(filePath, currentConfig, configSettings)){
 				group.setRedraw(false);
-				getText().view.setWordWrap(false);
-				getBraille().view.setWordWrap(false);
+				text.view.setWordWrap(false);
+				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
 				startProgressBar();
@@ -351,17 +350,17 @@ public class Manager extends Controller {
 				treeView.setRoot(document.getRootElement(), this);
 				initializeViews(document.getRootElement());
 				document.notifyUser();
-				getText().initializeListeners(this);
-				getBraille().initializeListeners(this);
+				text.initializeListeners(this);
+				braille.initializeListeners(this);
 				treeView.initializeListeners(this);
-				getText().hasChanged = false;
-				getBraille().hasChanged = false;
+				text.hasChanged = false;
+				braille.hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
 				pb.stop();
 				wp.getStatusBar().setText("Words: " + getText().words);
-				getBraille().setWords(getText().words);
-				getText().view.setWordWrap(true);
-				getBraille().view.setWordWrap(true);
+				braille.setWords(getText().words);
+				text.view.setWordWrap(true);
+				braille.view.setWordWrap(true);
 				group.setRedraw(true);
 			}
 			else {
@@ -378,7 +377,7 @@ public class Manager extends Controller {
 	
 	private void initializeViews(Node current){
 		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current.getValue())){
-			getText().setText(current, list);
+			text.setText(current, list);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -386,7 +385,12 @@ public class Manager extends Controller {
 				initializeBraille(current.getChild(i), list.getLast());
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
-				initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
+				//if math is empty skip next brl element
+				if(validateMath((Element)current.getChild(i))){
+					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
+				}
+				else
+					i++;
 			}
 			else {
 				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
@@ -406,7 +410,7 @@ public class Manager extends Controller {
 		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
 			Element grandParent = (Element)current.getParent().getParent();
 			if(!(grandParent.getLocalName().equals("span") && document.checkAttributeValue(grandParent, "class", "brlonly")))
-				getBraille().setBraille(list, current, t);
+				braille.setBraille(list, current, t);
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
@@ -421,6 +425,20 @@ public class Manager extends Controller {
 	
 	private void initializeMathML(Element math, Element brl){
 		text.setMathML(list, math);
+	}
+	
+	private boolean validateMath(Element math){
+		int count = math.getChildCount();
+		for(int i = 0; i < count; i++){
+			if(math.getChild(i) instanceof Text)
+				return true;
+			else if(math.getChild(i) instanceof Element){
+				if(validateMath((Element)math.getChild(i)))
+					return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public void dispatch(Message message){
@@ -570,7 +588,7 @@ public class Manager extends Controller {
 	private void handleUpdate(Message message){
 		message.put("selection", this.treeView.getSelection(list.getCurrent()));
 		if(list.getCurrent().isMathML()){
-			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), -1));
+			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), list.getCurrent().end - list.getCurrent().start, list.getCurrent()));
 			message.put("diff", 0);
 		}
 		else {
@@ -762,22 +780,25 @@ public class Manager extends Controller {
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
+			text.view.setEditable(false);
 		}
 	}
 	
 	private void handleRemoveMathML(Message m){
+		TextMapElement t = (TextMapElement)m.getValue("TextMapElement");
 		document.updateDOM(list, m);
-		braille.removeMathML(list.getCurrent());
+		braille.removeMathML(t);
 		text.removeMathML(m);
-		treeView.removeMathML(list.getCurrent(), m);
-		list.updateOffsets(list.getCurrentIndex(), m);
-		list.remove(list.getCurrent());
+		treeView.removeMathML(t, m);
+		list.updateOffsets(list.indexOf(t), m);
+		list.remove(t);
 		
 		if(list.size() == 0){
 			text.removeListeners();
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
+			text.view.setEditable(false);
 		}
 	}
 	
@@ -1216,6 +1237,18 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
+	
+	public TextMapElement getClosest(int offset){
+		Message m = new Message(null);
+		m.put("offset", offset);
+		TextMapElement t = list.get(list.findClosest(m, 0, list.size() - 1));
+		
+		if(offset >= t.start && offset <= t.end)
+			return t;
+		else
+			return null;
+	}
+	
 	public void toggleBrailleFont(){
 		FontManager.toggleBrailleFont(wp, this);
 	}

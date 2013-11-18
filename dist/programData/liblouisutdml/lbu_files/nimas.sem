@@ -6,8 +6,6 @@
 #
 # Licensed under LGPL
 
-include nemeth.sem
-
 newentries no
 markhead head
 document book

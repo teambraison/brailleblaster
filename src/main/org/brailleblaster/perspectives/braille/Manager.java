@@ -593,8 +593,8 @@ public class Manager extends Controller {
 		}
 		else {
 			document.updateDOM(list, message);
-			getBraille().updateBraille(list.getCurrent(), message);
-			getText().reformatText(list.getCurrent().n, message, this);
+			braille.updateBraille(list.getCurrent(), message);
+			text.reformatText(list.getCurrent().n, message, this);
 			list.updateOffsets(list.getCurrentIndex(), message);
 			list.checkList();
 		}
@@ -1183,6 +1183,16 @@ public class Manager extends Controller {
 		}
 	}
 	
+	public void toggleFont(int fontType){
+		if(list.size() > 0){
+			Element parent = list.getCurrent().parentElement();
+			if((parent.getLocalName().equals("em") && fontType == SWT.ITALIC)|| (parent.getLocalName().equals("strong") && fontType == SWT.BOLD) || (parent.getLocalName().equals("u") && fontType == SWT.UNDERLINE_SINGLE)){
+				document.changeTextStyle(fontType, list.getCurrent());
+				text.update(this, true);
+			}
+		}
+	}
+	
 	public void closeUntitledTab(){
 		document.deleteDOM();
 		if(!currentConfig.equals(BBIni.getDefaultConfigFile())){
@@ -1220,8 +1230,8 @@ public class Manager extends Controller {
 	}
 	
 	public void checkForUpdatedViews(){
-		if(getText().hasChanged)
-			getText().update(this);
+		if(text.hasChanged)
+			text.update(this, false);
 	}
 	
 	public TextMapElement getPrevious(){
@@ -1326,7 +1336,7 @@ public class Manager extends Controller {
 
 	@Override
 	public void dispose() {
-		text.update(this);
+		text.update(this, false);
 		list.clearList();
 		group.dispose();
 	}

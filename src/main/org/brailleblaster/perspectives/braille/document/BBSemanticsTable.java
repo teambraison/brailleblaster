@@ -37,8 +37,7 @@ public class BBSemanticsTable {
 		keepWithNext,
 		dontSplit,
 		orphanControl,
-		newlineAfter,
-		Font;
+		newlineAfter;
 	}
 	
 	public class Styles{
@@ -89,11 +88,11 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\tFont " + SWT.ITALIC);
+			insertValue("italicx","\temphasis " + SWT.ITALIC);
 			makeStylesObject("boldx");
-			insertValue("boldx","\tFont " + SWT.BOLD);
+			insertValue("boldx","\temphasis " + SWT.BOLD);
 			makeStylesObject("underlinex");
-			insertValue("underlinex","\tFont " + SWT.UNDERLINE_SINGLE);
+			insertValue("underlinex","\temphasis " + SWT.UNDERLINE_SINGLE);
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -208,7 +207,7 @@ public class BBSemanticsTable {
 				if(!st.contains(styleType)){
 					st.put(styleType, (String)newStyle.get(styleType));
 				}
-				else if(st.contains(styleType) && styleType.equals(StylesType.Font)){
+				else if(st.contains(styleType) && styleType.equals(StylesType.emphasis)){
 					st.put(styleType, (String.valueOf(combineFontStyles((String)st.get(styleType), (String)newStyle.get(styleType)))));
 				}
 			}

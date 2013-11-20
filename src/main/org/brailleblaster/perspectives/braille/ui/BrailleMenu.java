@@ -355,27 +355,27 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		boldToggleItem = new MenuItem(editMenu, SWT.PUSH);
-		boldToggleItem.setText(lh.localValue("&BoldToggle"));
-		boldToggleItem.setEnabled(false);
+		boldToggleItem.setText(lh.localValue("&BoldToggle") + "\t" + lh.localValue("Ctrl + B"));
+		boldToggleItem.setAccelerator(SWT.CTRL + 'B');
 		boldToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.toggleFont(SWT.BOLD);
 			}
 		});
 		italicToggleItem = new MenuItem(editMenu, SWT.PUSH);
-		italicToggleItem.setText(lh.localValue("&ItalicToggle"));
-		italicToggleItem.setEnabled(false);
+		italicToggleItem.setText(lh.localValue("&ItalicToggle") + "\t" + lh.localValue("Ctrl + I"));
+		italicToggleItem.setAccelerator(SWT.CTRL + 'I');
 		italicToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.toggleFont(SWT.ITALIC);
 			}
 		});
 		underlineToggleItem = new MenuItem(editMenu, SWT.PUSH);
-		underlineToggleItem.setText(lh.localValue("&UnderlineToggle"));
-		underlineToggleItem.setEnabled(false);
+		underlineToggleItem.setText(lh.localValue("&UnderlineToggle") + "\t" + lh.localValue("Ctrl + U"));
+		underlineToggleItem.setAccelerator(SWT.CTRL + 'U');
 		underlineToggleItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.toggleFont(SWT.UNDERLINE_SINGLE);
 			}
 		});
 		zoomImageItem = new MenuItem(editMenu, SWT.PUSH);
@@ -387,7 +387,7 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		selectAllItem = new MenuItem(editMenu, SWT.PUSH);
-		selectAllItem.setText(lh.localValue("&SelectAll") + "\tCtrl + A");
+		selectAllItem.setText(lh.localValue("&SelectAll") + "\t" + lh.localValue("Ctrl + A"));
 		//selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {

@@ -23,6 +23,7 @@ import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.eclipse.swt.SWT;
 
 public class BrailleDocument extends BBDocument {
 	private int idCount = 0;
@@ -464,6 +465,78 @@ public class BrailleDocument extends BBDocument {
 		}
 		
 		m.put("diff", diff);
+	}
+	
+	public void changeTextStyle(int fontType, TextMapElement t){
+		Element e = (Element)t.n.getParent();
+		
+		if(SWT.BOLD == fontType){
+			//e = checkParentFontStyle(e, "boldx");
+			createSemanticEntry(e, "boldx", new String []{"italicx", "underlinex"});
+		}
+		else if(SWT.ITALIC == fontType){
+			//e = checkParentFontStyle(e, "italicx");
+			createSemanticEntry(e, "italicx",  new String []{"boldx", "underlinex"});
+		}
+		else if(SWT.UNDERLINE_SINGLE == fontType){
+			//e =  checkParentFontStyle(e, "underlinex");
+			createSemanticEntry(e, "underlinex",  new String []{"italicx", "boldx"});
+		}
+	}
+	
+	private void createSemanticEntry(Element e, String fontStyle, String [] removalItems){
+		String elementStyle = table.getKeyFromAttribute(e);
+		String type = table.getSemanticTypeFromAttribute(e);
+		Attribute attr = e.getAttribute("semantics");
+		
+		if(attr.getValue().contains(fontStyle)){
+			if(type.equals("action")){
+				elementStyle = "generic";
+				attr.setValue("action," + elementStyle);
+			}
+			else {
+				elementStyle = elementStyle.replace(fontStyle, "");
+				attr.setValue(type + "," + elementStyle);
+			}
+			
+		}
+		else {
+			if(type.equals("action")){
+				elementStyle = fontStyle;
+				attr.setValue("action," + elementStyle);
+			}
+			else {
+				elementStyle =  fontStyle + elementStyle.replace(removalItems[0], "").replace(removalItems[1], "");
+				attr.setValue("style," + elementStyle);
+			}
+		}
+		
+		addSemanticEntry(e, elementStyle);
+	}
+	
+	private void addSemanticEntry(Element e, String name){
+		if(checkAttribute(e, "id")){
+			String fileName; 
+			if(dm.getWorkingPath() == null)
+				fileName = "outFile";
+			else
+				fileName = fu.getFileName(dm.getWorkingPath());
+			
+			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
+			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
+		}
+		else {
+			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+			String fileName; 
+			if(dm.getWorkingPath() == null)
+				fileName = "outFile";
+			else
+				fileName = fu.getFileName(dm.getWorkingPath());
+			
+			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
+			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
+			idCount++;
+		}
 	}
 	
 	public void changeSemanticAction(Message m, Element e){

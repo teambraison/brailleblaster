@@ -237,7 +237,7 @@ public class PropertyView {
 					
 					combo.setEnabled(true);
 					break;	
-				case Font:			
+				case emphasis:			
 					 break;
 				case leftMargin:
 					lineWrapSpinner.setSelection(Integer.valueOf(entry.getValue()));

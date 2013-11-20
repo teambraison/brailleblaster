@@ -285,7 +285,7 @@ public class BrailleView extends AbstractView {
 				case format:
 					setAlignment(spaceBeforeText + total, spaceBeforeText + total + n.getValue().length(), style);
 					break;	
-				case Font:
+				case emphasis:
 			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
 					 break;
 				case leftMargin:

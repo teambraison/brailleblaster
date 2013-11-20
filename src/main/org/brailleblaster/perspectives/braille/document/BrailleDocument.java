@@ -117,7 +117,7 @@ public class BrailleDocument extends BBDocument {
 		Element brlParent = ((Element)d.getRootElement().getChild(0));
 		Elements els = brlParent.getChildElements();
 		
-		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em")){
+		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em") ||  els.get(0).getLocalName().equals("u") ){
 			e = els.get(0).getChildElements().get(0);
 			addNamespace(e);
 			brlParent.getChildElements().get(0).removeChild(e);
@@ -300,6 +300,10 @@ public class BrailleDocument extends BBDocument {
 			}
 			else if(parent.getAttributeValue("semantics").equals("action,boldx")){
 				text = "<strong>" + text + "</strong>";
+				break;
+			}
+			else if(parent.getAttributeValue("semantics").equals("action,underlinex")){
+				text = "<u>" + text + "</u>";
 				break;
 			}
 			parent = (Element)parent.getParent();

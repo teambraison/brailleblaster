@@ -612,8 +612,10 @@ public class TextView extends AbstractView {
 		StyleRange range = getStyleRange();
 		
 		if(range != null){
-			 if(!style.contains(StylesType.emphasis))
+			 if(!style.contains(StylesType.emphasis)){
 			 	range.fontStyle = SWT.NORMAL;
+				range.underline = false;
+			}
 			 else {
 				 range.fontStyle = Integer.valueOf((String)style.get(StylesType.emphasis));
 				 if(range.fontStyle == SWT.UNDERLINE_SINGLE)

@@ -240,11 +240,11 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\tFont " + SWT.ITALIC);
+			insertValue("italicx","\temphasis " + SWT.ITALIC);
 			makeStylesObject("boldx");
-			insertValue("boldx","\tFont " + SWT.BOLD);
+			insertValue("boldx","\temphasis " + SWT.BOLD);
 			makeStylesObject("underlinex");
-			insertValue("underlinex","\tFont " + SWT.UNDERLINE_SINGLE);
+			insertValue("underlinex","\temphasis " + SWT.UNDERLINE_SINGLE);
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();

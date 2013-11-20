@@ -415,8 +415,8 @@ public class TextView extends AbstractView {
 	}
 	
 	//public method to check if an update should be made before exiting or saving
-	public void update(Manager dm){
-		if(textChanged){
+	public void update(Manager dm, boolean forceUpdate){
+		if(textChanged || forceUpdate){
 			sendUpdate(dm);
 		}
 	}
@@ -611,6 +611,19 @@ public class TextView extends AbstractView {
 		setListenerLock(true);
 		StyleRange range = getStyleRange();
 		
+		if(range != null){
+			 if(!style.contains(StylesType.emphasis))
+			 	range.fontStyle = SWT.NORMAL;
+			 else {
+				 range.fontStyle = Integer.valueOf((String)style.get(StylesType.emphasis));
+				 if(range.fontStyle == SWT.UNDERLINE_SINGLE)
+					 range.underline = true;
+				 else
+					 range.underline = false;
+			 }
+		}
+		
+		
 		if(!n.getValue().equals(""))
 			reformattedText =  appendToView(n, false);
 		else
@@ -629,8 +642,8 @@ public class TextView extends AbstractView {
 		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(currentStart, style);
 		
-		if(style.contains(StylesType.Font))
-			setFontRange(currentStart, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
+		if(style.contains(StylesType.emphasis))
+			setFontRange(currentStart, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.emphasis)));
 		
 		checkStyleRange(range);
 	
@@ -678,8 +691,8 @@ public class TextView extends AbstractView {
 		if(style.contains(StylesType.format))
 			setAlignment(start, start + n.getValue().length(), style);
 		
-		if(style.contains(StylesType.Font))
-			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.Font)));
+		if(style.contains(StylesType.emphasis))
+			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.emphasis)));
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -782,7 +795,7 @@ public class TextView extends AbstractView {
 				case format:
 					setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style);
 					break;	
-				case Font:
+				case emphasis:
 					setFontRange(total, spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
 					break;
 				case leftMargin:

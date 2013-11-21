@@ -1186,10 +1186,23 @@ public class Manager extends Controller {
 	public void toggleFont(int fontType){
 		if(list.size() > 0){
 			Element parent = list.getCurrent().parentElement();
+			
+			Message message = new Message(null);
+			message.put("offset", 0);
+			int currentIndex = list.getCurrentIndex();
 			if((parent.getLocalName().equals("em") && fontType == SWT.ITALIC)|| (parent.getLocalName().equals("strong") && fontType == SWT.BOLD) || (parent.getLocalName().equals("u") && fontType == SWT.UNDERLINE_SINGLE)){
 				document.changeTextStyle(fontType, list.getCurrent());
+				list.setCurrent(list.getCurrentIndex());
+				list.getCurrentNodeData(message);
+				text.updateCursorPosition(message);
+				braille.updateCursorPosition(message);
 				text.update(this, true);
 			}
+			
+			list.setCurrent(currentIndex);
+			list.getCurrentNodeData(message);
+			text.updateCursorPosition(message);
+			braille.updateCursorPosition(message);
 		}
 	}
 	

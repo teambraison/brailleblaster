@@ -596,7 +596,7 @@ public class BrailleView extends AbstractView {
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		int total = (Integer)message.getValue("brailleLength");
 		int margin = 0;
-		
+		int pos = view.getCaretOffset();
 		System.out.println("Value: " + t.value());
 		String insertionString = (String)message.getValue("newBrailleText");
 		
@@ -616,7 +616,7 @@ public class BrailleView extends AbstractView {
 				
 			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
 				setFirstLineIndent(t.brailleList.getFirst().start, style);
-			
+			view.setCaretOffset(pos);
 			setListenerLock(false);	
 		}
 	}

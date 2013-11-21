@@ -140,6 +140,10 @@ public class ImageDescriberController extends Controller {
 				workingFilePath = fileName;
 		}
 		
+		////////////////
+		// Recent Files.
+		addRecentFileEntry(fileName);
+		
 		if(fileName == null){
 			return imgDesc.startDocument(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", currentConfig, null);
 		}
@@ -195,6 +199,7 @@ public class ImageDescriberController extends Controller {
 		else {
 			if(arch != null) { // Save archiver supported file.
 				if(arch.getOrigDocPath().endsWith("epub"))
+					//imgDesc.getDOM().toXML().
 					arch.save(imgDesc, null);
 				else if(arch.getOrigDocPath().endsWith("xml"))
 				{
@@ -381,11 +386,6 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void apply(){
-		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
-		setDocumentEdited(true);
-	}
-	
-	public void okay(){
 		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
 		setDocumentEdited(true);
 	}

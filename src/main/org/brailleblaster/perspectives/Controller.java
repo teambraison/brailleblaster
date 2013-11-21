@@ -37,6 +37,11 @@ public abstract class Controller implements DocumentManager{
 	}
 	
 	protected void addRecentFileEntry(String fileName){
+		
+		// Make sure there is a main menu up before we go messing with it.
+		if(wp.getMainMenu() == null)
+			return;
+		
 		////////////////
 		// Recent Files.
 			

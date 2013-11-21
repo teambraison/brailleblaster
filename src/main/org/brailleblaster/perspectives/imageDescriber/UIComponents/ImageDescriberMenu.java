@@ -20,7 +20,7 @@ public class ImageDescriberMenu extends BBMenu{
 
 	//editMenu
 	Menu editMenu;
-	MenuItem editItem, prevItem, nextItem, applyItem, okayItem, undoAllItem, applyToAllItem, clearAllItem;
+	MenuItem editItem, prevItem, nextItem, applyItem, undoAllItem, applyToAllItem, clearAllItem;
 			
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
@@ -144,20 +144,6 @@ public class ImageDescriberMenu extends BBMenu{
 				//idd.setDocumentEdited(true);
 			} // widgetSelected()
 		}); // applyBtn.addSelectionListener...
-		
-		okayItem = new MenuItem(editMenu, SWT.PUSH);
-		okayItem.setText(lh.localValue("&Okay"));
-		okayItem.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				currentController.okay();
-				// Set image's description.
-				//imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
-
-				//Close the dialog.
-				//imgDescShell.close();
-
-			} // widgetSelected()
-		}); // okayBtn.addSelectionListener...
 		
 		undoAllItem = new MenuItem(editMenu, SWT.PUSH);
 		undoAllItem.setText(lh.localValue("&Undo All"));

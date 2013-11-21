@@ -17,6 +17,8 @@ import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.ProgressEvent;
+import org.eclipse.swt.browser.ProgressListener;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -132,12 +134,7 @@ public class ImageDescriberView {
 			imgDesc.prevImageElement();
 
 			//Change current image in dialog.
-			Image curElmImage = imgDesc.getCurElementImage();
-			if(curElmImage != null)
-				mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
-			else
-				mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-						imageWidth, imageHeight) );
+			setMainImage();
 
 			// Get prodnote text/image description.
 			imgDescTextBox.setText( imgDesc.getCurDescription() );
@@ -149,6 +146,9 @@ public class ImageDescriberView {
 			idd.setImageInfo();
 			// Show current image index and name.
 			//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
+			
+			// Scroll the browser widget to the current image.
+			scrollBrowserToCurImg();
 			
 		} // widgetSelected()
 
@@ -166,12 +166,7 @@ public class ImageDescriberView {
 				imgDesc.nextImageElement();
 
 				// Change current image in dialog.
-				Image curElmImage = imgDesc.getCurElementImage();
-				if(curElmImage != null)
-					mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
-				else
-					mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-							imageWidth, imageHeight) );
+				setMainImage();
 
 				// Get prodnote text/image description.
 				imgDescTextBox.setText( imgDesc.getCurDescription() );
@@ -183,6 +178,9 @@ public class ImageDescriberView {
 				idd.setImageInfo();
 				//Show current image index and name.
 			//	imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
+				
+				// Scroll the browser widget to the current image.
+				scrollBrowserToCurImg();
 
 			} // widgetSelected()
 
@@ -374,14 +372,26 @@ public class ImageDescriberView {
 	
 	public void setAltBox(String str)
 	{
+		if(str == null)
+			return;
 		altBox.setText(str);
 	}
 	
+	//////////////////////////////////////////////////////////////////////////////
+	// Sets the main image to the current in the image list from the document.
 	public void setMainImage(){
-		// Set main image to first image found. If the first <img> tag 
+		
+		// Set image widget to current element's image. 
 		Image curElmImage = imgDesc.getCurElementImage();
-		if(curElmImage != null)
-			mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
+		
+		// If this is a valid image, set the widget. Else, display error image.
+		if(curElmImage != null) {
+			// If the image is larger than the widget size, scale down. Otherwise, just display it.
+			if(curElmImage.getBounds().width > imageWidth || curElmImage.getBounds().height > imageHeight)
+				mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
+			else
+				mainImage.setImage( imgHelper.createScaledImage(curElmImage, curElmImage.getBounds().width, curElmImage.getBounds().height) );
+		}
 		else
 			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
 				imageWidth, imageHeight) );
@@ -413,6 +423,24 @@ public class ImageDescriberView {
 			catch (FileNotFoundException e1) { e1.printStackTrace();} 
             catch (IOException e1) { e1.printStackTrace(); }
 
+            //Progress listener. Adds javascript code that will modify our img elements with 
+            // height information.
+            browser.addProgressListener(new ProgressListener() 
+            {
+                public void changed(ProgressEvent event) {
+                }
+                public void completed(ProgressEvent event) {
+                	
+                	// Script that will add "positions" to <img> tags.
+                	 String s = "var allLinks = document.getElementsByTagName('img'); " +
+                             "for (var i=0, il=allLinks.length; i<il; i++)" +
+                             "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
+                	 
+                	 // Execute the script.
+                     browser.execute(s);
+                }
+            });
+            
 			// Set url.
 			browser.setUrl( idd.getWorkingPath().replaceAll(".xml", ".html") );
 			// Set browser bounds.
@@ -425,6 +453,22 @@ public class ImageDescriberView {
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
 			setFormData(browser, 49, 100, 0, 100);
 		}
+	}
+	
+	////////////////////////////////////////////////////////////
+	// Scrolls browser view to current image.
+	void scrollBrowserToCurImg()
+	{
+		// Get the index of the current element.
+		String indexStr = Integer.toString( imgDesc.getCurrentElementIndex() );
+		
+		// Create script.
+		String s = "var allLinks = document.getElementsByTagName('img'); " +
+                "elm = allLinks[" + indexStr + "];" +
+                "window.scrollTo(0, elm.posY);";
+   	 
+		// Execute script.
+        browser.execute(s);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////

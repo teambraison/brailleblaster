@@ -47,6 +47,28 @@ public class ImageDescriberContext {
 	} // ImageDescriberContext()
 	
 	//////////////////////////////////////////////////////////////////////////////
+	// Searches the given element for a child with a particular name.
+	public Element FindChild(Element e, String childName)
+	{
+		// Is this the named child?
+		Element foundElm = null;
+		if(e.getLocalName().compareTo(childName) == 0) {
+			return e;
+		}
+		
+		// Also search the children.
+		for(int curC = 0; curC < e.getChildCount(); curC++)
+			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0 ) {
+				if( (foundElm = FindChild( ((Element)(e.getChild(curC))), childName )) != null ) 
+					break;
+			}
+		
+		// Didn't find it.
+		return foundElm;
+		
+	} // FindChild()
+	
+	//////////////////////////////////////////////////////////////////////////////
 	// Returns true if element has a parent <imggroup>, <fig>, etc.
 	public boolean hasContainer(Element e)
 	{
@@ -61,7 +83,7 @@ public class ImageDescriberContext {
 		} // if( NIMAS...
 		else if( documentType == ET_EPUB ) // EPUB
 		{
-			// Does this element have <imggroup> as a parent?
+			// Does this element have <figure> as a parent?
 			if( ((nu.xom.Element)(e.getParent())).getLocalName().compareTo("figure") == 0 )
 				return true;
 			else
@@ -194,34 +216,54 @@ public class ImageDescriberContext {
 	// Checks for a description element.
 	public boolean hasDescElement(Element e)
 	{
-		// Get parent of <img> element.
-		nu.xom.Node parNode = e.getParent();
 		
-		///////////////////////////
-				
-		// Find <prodnote>.
-		Element ch = null;
-		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			// Make sure this is an element and not a comment or something crazy.
-			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
-				
-				// Get the element.
-				ch = (Element)parNode.getChild(curC);
-				if( documentType == ET_NIMAS ) {
-					if( ch.getLocalName().compareTo("prodnote") == 0 )
-						return true;
-				}
-				else if( documentType == ET_EPUB )
-					if( ch.getLocalName().compareTo("aside") == 0 )
-						return true;
-				
-			} // if element and not comment.
+		// Is there a description element?
+		if( documentType == ET_NIMAS )
+			if( FindChild(((Element)(e.getParent())), "prodnote") != null )
+				return true;
+		if( documentType == ET_EPUB ) {
+			if( FindChild(((Element)(e.getParent())), "aside") != null )
+				return true;
+			if( FindChild(((Element)(e.getParent())), "summary") != null )
+				return true;
+		}
 		
-		} // for(int curC = 0...
-		
-		// Return false... there was either no description element, or we can't handle 
+		// There was either no description element, or we can't handle 
 		// the document type.
 		return false;
+		
+		
+		
+		
+		// Get parent of <img> element.
+//		nu.xom.Node parNode = e.getParent();
+//		
+//		///////////////////////////
+//				
+//		// Find description.
+//		Element ch = null;
+//		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+//			// Make sure this is an element and not a comment or something crazy.
+//			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+//				
+//				// Get the element.
+//				ch = (Element)parNode.getChild(curC);
+//				if( documentType == ET_NIMAS ) {
+//					if( ch.getLocalName().compareTo("prodnote") == 0 )
+//						return true;
+//				}
+//				else if( documentType == ET_EPUB )
+//					if( ch.getLocalName().compareTo("aside") == 0)
+//						return true;
+//					
+//				
+//			} // if element and not comment.
+//		
+//		} // for(int curC = 0...
+//		
+//		// Return false... there was either no description element, or we can't handle 
+//		// the document type.
+//		return false;
 		
 	} // hasDescElement()
 	
@@ -238,40 +280,95 @@ public class ImageDescriberContext {
 	{
 		// String for description text.
 		String descText = "NO DESCRIPTION.";
+		// Description element found.
+		Element descElm = null;
+		
+		// Nimas?
+		if( documentType == ET_NIMAS )
+			descElm = FindChild( ((Element)(e.getParent())), "prodnote" );
+		// EPUB?
+		if( documentType == ET_EPUB ) {
+			if( (descElm = FindChild(((Element)(e.getParent())), "aside")) != null );
+			else if( (descElm = FindChild(((Element)(e.getParent())), "summary")) != null );
+		}
+		
+		// If a description element was found, pull the text.
+		if(descElm != null)
+		{
+			// If there are no children, then there's no text node. Create it.
+			if(descElm.getChildCount() == 0)
+				descElm.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+			
+			// Store text and get ready to return it.
+			descText = descElm.getChild(0).getValue();
+			
+		} // if(descElm != null)
+		
+		// Return description, if we found one.
+		return descText;
+		
 		
 		// Get parent of <img> element.
-		nu.xom.Node parNode = e.getParent();
-		
-		///////////////////////////
-		
-		// Find description.
-		Element ch = null;
-		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
-			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
-				ch = (Element)parNode.getChild(curC);
-				
-				if( documentType == ET_NIMAS ) {
-					if( ch.getLocalName().compareTo("prodnote") == 0 ) {
-						if(ch.getChildCount() == 0)
-							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-						descText = ch.getChild(0).getValue();
-						break;
-					} // if element is prodnote...
-				}
-				else if( documentType == ET_EPUB )
-					if( ch.getLocalName().compareTo("aside") == 0 ) {
-						if(ch.getChildCount() == 0)
-							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-						descText = ch.getChild(0).getValue();
-						break;
-					} // if element is aside...
-			
-			} // If child is an element...
-			
-		} // for(int curC = 0...
-		
-		// Return description text.
-		return descText;
+//		nu.xom.Node parNode = e.getParent();
+//		
+//		///////////////////////////
+//		
+//		// Find description.
+//		Element ch = null;
+//		for(int curC = 0; curC < parNode.getChildCount(); curC++) {
+//			// Make sure this is an element, and not something crazy... like a comment.
+//			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+//				ch = (Element)parNode.getChild(curC);
+//				
+//				// Nimas or epub?
+//				if( documentType == ET_NIMAS )
+//				{
+//					// Is this a prodnote element?
+//					if( ch.getLocalName().compareTo("prodnote") == 0 ) {
+//						if(ch.getChildCount() == 0)
+//							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+//						descText = ch.getChild(0).getValue();
+//						break;
+//						
+//					} // if element is prodnote...
+//					
+//				} // if NIMAS
+//				else if( documentType == ET_EPUB )
+//				{
+//					// Is this an aside element, or even a summary element?
+////					if( ch.getLocalName().compareTo("aside") == 0 || ch.getLocalName().compareTo("summary") == 0) {
+////						if(ch.getChildCount() == 0)
+////							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+////						descText = ch.getChild(0).getValue();
+////						break;
+////						
+////					} // if element is aside...
+//					
+//					// Find the element that contains the actual description.
+//					// We are doing the if()'s below so every condition doesn't get tested.
+//					Element descElm = null;
+//					if( (descElm = FindChild(ch, "aside")) != null );
+//					else if( (descElm = FindChild(ch, "summary")) != null);
+//					
+//					// If temp isn't null, we found a description.
+//					if( descElm != null )
+//					{
+//						// If 
+//						if(descElm.getChildCount() == 0)
+//							descElm.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+//						descText = descElm.getChild(0).getValue();
+//						break;
+//						
+//					} // if( descElm != null )
+//					
+//				} // if EPUB
+//			
+//			} // If child is an element...
+//			
+//		} // for(int curC = 0...
+//		
+//		// Return description text.
+//		return descText;
 		
 	} // getDescription()
 	
@@ -279,65 +376,96 @@ public class ImageDescriberContext {
 	// Sets the description for a particular element.
 	public void setDescription(Element e, String text)
 	{
-		// Get parent of <img> element.
-		nu.xom.Node parNode = e.getParent();
+		// Description element.
+		Element descElm = null;
 		
-		///////////////////////////
+		// Nimas?
+		if( documentType == ET_NIMAS )
+			descElm = FindChild( ((Element)(e.getParent())), "prodnote" );
+		// EPUB?
+		if( documentType == ET_EPUB ) {
+			if( (descElm = FindChild(((Element)(e.getParent())), "aside")) != null );
+			else if( (descElm = FindChild(((Element)(e.getParent())), "summary")) != null );
+		}
 		
-		// Find description.
-		Element ch = null;
-		int curC = 0;
-		for( ; curC < parNode.getChildCount(); curC++) {
-			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
-				
-				// Grab element...
-				ch = (Element)parNode.getChild(curC);
-				
-				// Handle all doc types.
-				if( documentType == ET_NIMAS ) {
-					if( ch.getLocalName().compareTo("prodnote") == 0 )
-					{
-						// Append text node if one didn't exist.
-						if(ch.getChildCount() == 0)
-							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-						
-						// Set text value.
-						if(text != null)
-						{
-							// Set the text.
-							nu.xom.Node oldNode = ch.getChild(0);
-							nu.xom.Node newNode = new nu.xom.Text(text);
-							ch.replaceChild(oldNode, newNode);
-							
-						} // if(text != null)
-						
-						break;
-					} // if element is prodnote...
-				} // If nimas
-				else if( documentType == ET_EPUB ) {
-					if( ch.getLocalName().compareTo("aside") == 0 )
-					{
-						// Append text node if one didn't exist.
-						if(ch.getChildCount() == 0)
-							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
-						
-						// Set text value.
-						if(text != null)
-						{
-							// Set the text.
-							nu.xom.Node oldNode = ch.getChild(0);
-							nu.xom.Node newNode = new nu.xom.Text(text);
-							ch.replaceChild(oldNode, newNode);
-							
-						} // if(text != null)
-						
-						break;
-					} // if element is aside...
-				} // if epub.
-				
-			} // if element and not comment...
+		// If a description element was found, set the text.
+		if(descElm != null)
+		{
+			// Append text node if one didn't exist.
+			if(descElm.getChildCount() == 0)
+				descElm.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
 			
-		} // for(int curC = 0...
+			// Set text value.
+			if(text != null)
+			{
+				// Set the text.
+				nu.xom.Node oldNode = descElm.getChild(0);
+				nu.xom.Node newNode = new nu.xom.Text(text);
+				descElm.replaceChild(oldNode, newNode);
+				
+			} // if(text != null)
+			
+		} // if(descElm != null)
+		
+		// Get parent of <img> element.
+//		nu.xom.Node parNode = e.getParent();
+//		
+//		///////////////////////////
+//		
+//		// Find description.
+//		Element ch = null;
+//		int curC = 0;
+//		for( ; curC < parNode.getChildCount(); curC++) {
+//			if( parNode.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0) {
+//				
+//				// Grab element...
+//				ch = (Element)parNode.getChild(curC);
+//				
+//				// Handle all doc types.
+//				if( documentType == ET_NIMAS ) {
+//					if( ch.getLocalName().compareTo("prodnote") == 0 )
+//					{
+//						// Append text node if one didn't exist.
+//						if(ch.getChildCount() == 0)
+//							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+//						
+//						// Set text value.
+//						if(text != null)
+//						{
+//							// Set the text.
+//							nu.xom.Node oldNode = ch.getChild(0);
+//							nu.xom.Node newNode = new nu.xom.Text(text);
+//							ch.replaceChild(oldNode, newNode);
+//							
+//						} // if(text != null)
+//						
+//						break;
+//					} // if element is prodnote...
+//				} // If nimas
+//				else if( documentType == ET_EPUB ) {
+//					if( ch.getLocalName().compareTo("aside") == 0 || ch.getLocalName().compareTo("summary") == 0  )
+//					{
+//						// Append text node if one didn't exist.
+//						if(ch.getChildCount() == 0)
+//							ch.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+//						
+//						// Set text value.
+//						if(text != null)
+//						{
+//							// Set the text.
+//							nu.xom.Node oldNode = ch.getChild(0);
+//							nu.xom.Node newNode = new nu.xom.Text(text);
+//							ch.replaceChild(oldNode, newNode);
+//							
+//						} // if(text != null)
+//						
+//						break;
+//					} // if element is aside...
+//				} // if epub.
+//				
+//			} // if element and not comment...
+//			
+//		} // for(int curC = 0...
 		
 	} // setDescription()
 	

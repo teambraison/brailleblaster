@@ -258,8 +258,10 @@ public class BBDocument {
 			if(checkAttribute(e, "name") && e.getAttributeValue("name").equals("utd"))
 				e.getParent().removeChild(e);
 			else {
-				Attribute attr = e.getAttribute("semantics");
-				e.removeAttribute(attr);
+				if(checkAttribute(e, "semantics")){
+					Attribute attr = e.getAttribute("semantics");
+					e.removeAttribute(attr);
+				}
 			}
 				
 		}

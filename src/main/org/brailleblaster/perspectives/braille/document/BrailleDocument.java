@@ -113,21 +113,9 @@ public class BrailleDocument extends BBDocument {
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
-		Element e;
 		Element brlParent = ((Element)d.getRootElement().getChild(0));
-		Elements els = brlParent.getChildElements();
-		
-		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em") ||  els.get(0).getLocalName().equals("u") ){
-			e = els.get(0).getChildElements().get(0);
-			addNamespace(e);
-			brlParent.getChildElements().get(0).removeChild(e);
-		}
-		else {
-			e = brlParent.getChildElements("brl").get(0);
-			addNamespace(e);
-			brlParent.removeChild(e);
-		}
-		
+		Element e = findAndRemoveBrailleElement(brlParent);
+
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
 		
@@ -214,22 +202,10 @@ public class BrailleDocument extends BBDocument {
 	
 	private void insertBrailleNode(Message m, TextMapElement t, int startingOffset, String text){
 		Document d = getStringTranslation(t, text);
-		Element e;
 		Element brlParent = ((Element)d.getRootElement().getChild(0));
-		Elements els = brlParent.getChildElements();
+		Element e = findAndRemoveBrailleElement(brlParent);
 		String insertionString = "";
-		
-		if(els.get(0).getLocalName().equals("strong") || els.get(0).getLocalName().equals("em")){
-			e = els.get(0).getChildElements().get(0);
-			addNamespace(e);
-			brlParent.getChildElements().get(0).removeChild(e);
-		}
-		else {
-			e = brlParent.getChildElements("brl").get(0);
-			addNamespace(e);
-			brlParent.removeChild(e);
-		}
-		
+
 		t.parentElement().appendChild(e);
 		int newOffset = startingOffset;
 		
@@ -295,19 +271,28 @@ public class BrailleDocument extends BBDocument {
 		Element parent = t.parentElement();
 		while(!parent.getAttributeValue("semantics").contains("style")){
 			if(parent.getAttributeValue("semantics").equals("action,italicx")){
-				text = "<em>" + text + "</em>";
-				break;
+				if(checkAttribute(parent, "id"))
+					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
+				else
+					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
 			}
 			else if(parent.getAttributeValue("semantics").equals("action,boldx")){
-				text = "<strong>" + text + "</strong>";
-				break;
+				if(checkAttribute(parent, "id"))
+					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
+				else
+					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
 			}
 			else if(parent.getAttributeValue("semantics").equals("action,underlinex")){
-				text = "<u>" + text + "</u>";
-				break;
+				if(checkAttribute(parent, "id"))
+					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
+				else
+					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
 			}
 			parent = (Element)parent.getParent();
 		}
+		
+		text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
+		
 		String xml = getXMLString(text);
 		return getXML(xml);
 	}
@@ -339,9 +324,9 @@ public class BrailleDocument extends BBDocument {
 	private String getXMLString(String text){
 		text = text.replace("\n", "");
 		if(dm.getCurrentConfig().equals("epub.cfg"))
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><body><string>" + text + "</string></body>";
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><body>" + text + "</body>";
 		else
-			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book><string>" + text + "</string></book>";
+			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book>" + text + "</book>";
 	}
 	
 	private int translateString(String text, byte[] outbuffer) {
@@ -588,5 +573,27 @@ public class BrailleDocument extends BBDocument {
 		}
 		
 		return parent;
+	}
+	
+	//Helper methods for methods that update text in the DOM during text editing
+	private Element findAndRemoveBrailleElement(Element element){
+		Element parent = element;
+		
+		while(!(parent.getChild(0) instanceof Text) && parent.getChildCount() > 0)
+			parent = (Element)parent.getChild(0);
+			
+		if(parent.getChild(0) instanceof Text){
+			for(int i = 0; i < parent.getChildCount(); i++){
+				Element brl;
+				if(parent.getChild(i) instanceof Element && ((Element)parent.getChild(i)).getLocalName().equals("brl")){
+					brl = (Element)parent.getChild(i);
+					addNamespace(brl);
+					parent.removeChild(brl);
+					return brl;
+				}
+			}	
+		}
+	
+		return null;
 	}
 }

@@ -74,7 +74,7 @@ public class SemanticFileHandler {
 				while ((currentLine = br.readLine()) != null) {
 					if(!currentLine.contains("#") && !currentLine.equals("")){
 						String [] tokens2 = currentLine.split(" ");
-						defaults.put(tokens2[1], tokens2[0]);
+						defaults.put(tokens2[1].trim(), tokens2[0].trim());
 					}
 				}
 				

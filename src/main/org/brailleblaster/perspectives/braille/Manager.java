@@ -1190,19 +1190,20 @@ public class Manager extends Controller {
 			Message message = new Message(null);
 			message.put("offset", 0);
 			int currentIndex = list.getCurrentIndex();
-			if((parent.getLocalName().equals("em") && fontType == SWT.ITALIC)|| (parent.getLocalName().equals("strong") && fontType == SWT.BOLD) || (parent.getLocalName().equals("u") && fontType == SWT.UNDERLINE_SINGLE)){
+			
+			if((document.getSemantic(parent).equals("italicx") && fontType == SWT.ITALIC)|| (document.getSemantic(parent).equals("boldx") && fontType == SWT.BOLD) || (document.getSemantic(parent).equals("underlinex") && fontType == SWT.UNDERLINE_SINGLE)){
 				document.changeTextStyle(fontType, list.getCurrent());
 				list.setCurrent(list.getCurrentIndex());
 				list.getCurrentNodeData(message);
 				text.updateCursorPosition(message);
 				braille.updateCursorPosition(message);
 				text.update(this, true);
+				
+				list.setCurrent(currentIndex);
+				list.getCurrentNodeData(message);
+				text.updateCursorPosition(message);
+				braille.updateCursorPosition(message);
 			}
-			
-			list.setCurrent(currentIndex);
-			list.getCurrentNodeData(message);
-			text.updateCursorPosition(message);
-			braille.updateCursorPosition(message);
 		}
 	}
 	
@@ -1216,8 +1217,8 @@ public class Manager extends Controller {
 		}
 		treeView.removeListeners();
 		treeView.clearTree();
-		getText().removeListeners();
-		getBraille().removeListeners();
+		text.removeListeners();
+		braille.removeListeners();
 		list.clearList();	
 	}
 	

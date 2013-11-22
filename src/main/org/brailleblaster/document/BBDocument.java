@@ -415,6 +415,10 @@ public class BBDocument {
 		return semHandler;
 	}
 	
+	public String getSemantic(Element element){
+		return semHandler.getDefault(element.getLocalName());
+	}
+	
 	public Nodes query(String query){
 		XPathContext context = XPathContext.makeNamespaceContext(doc.getRootElement());
 		return doc.query(query, context);

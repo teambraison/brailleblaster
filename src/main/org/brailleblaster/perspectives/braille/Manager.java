@@ -1185,13 +1185,11 @@ public class Manager extends Controller {
 	
 	public void toggleFont(int fontType){
 		if(list.size() > 0){
-			Element parent = list.getCurrent().parentElement();
-			
 			Message message = new Message(null);
 			message.put("offset", 0);
 			int currentIndex = list.getCurrentIndex();
 			
-			if((document.getSemantic(parent).equals("italicx") && fontType == SWT.ITALIC)|| (document.getSemantic(parent).equals("boldx") && fontType == SWT.BOLD) || (document.getSemantic(parent).equals("underlinex") && fontType == SWT.UNDERLINE_SINGLE)){
+			if(document.hasEmphasisElement(list.getCurrent(), fontType)){
 				document.changeTextStyle(fontType, list.getCurrent());
 				list.setCurrent(list.getCurrentIndex());
 				list.getCurrentNodeData(message);

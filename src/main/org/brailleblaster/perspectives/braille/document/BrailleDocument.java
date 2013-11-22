@@ -460,17 +460,32 @@ public class BrailleDocument extends BBDocument {
 		Element e = (Element)t.n.getParent();
 		
 		if(SWT.BOLD == fontType){
-			//e = checkParentFontStyle(e, "boldx");
+			e = checkParentFontStyle(e, "boldx");
 			createSemanticEntry(e, "boldx", new String []{"italicx", "underlinex"});
 		}
 		else if(SWT.ITALIC == fontType){
-			//e = checkParentFontStyle(e, "italicx");
+			e = checkParentFontStyle(e, "italicx");
 			createSemanticEntry(e, "italicx",  new String []{"boldx", "underlinex"});
 		}
 		else if(SWT.UNDERLINE_SINGLE == fontType){
-			//e =  checkParentFontStyle(e, "underlinex");
+			e =  checkParentFontStyle(e, "underlinex");
 			createSemanticEntry(e, "underlinex",  new String []{"italicx", "boldx"});
 		}
+	}
+	
+	private Element checkParentFontStyle(Element e, String style){
+		Element parent = (Element)e.getParent();
+		while(table.getSemanticTypeFromAttribute(parent).equals("action")) {
+			if(table.getSemanticTypeFromAttribute(parent).equals("action")){
+				String parentStyle = table.getKeyFromAttribute(parent);
+				if(parentStyle.equals(style)){
+					return parent;
+				}
+			}
+			parent = (Element)parent.getParent();
+		} 
+		
+		return e;
 	}
 	
 	private void createSemanticEntry(Element e, String fontStyle, String [] removalItems){
@@ -573,6 +588,27 @@ public class BrailleDocument extends BBDocument {
 		}
 		
 		return parent;
+	}
+	
+	public boolean hasEmphasisElement(TextMapElement t, int fontType){
+		String semantic;
+		if(fontType == SWT.BOLD)
+			semantic = "boldx";
+		else if(fontType == SWT.ITALIC)
+			semantic = "italicx";
+		else
+			semantic = "underlinex";
+		
+		Element parent = t.parentElement();
+		
+		while(!parent.getAttributeValue("semantics").contains("style")){
+			if(parent.getAttributeValue("semantics").contains(semantic) || semHandler.getDefault(parent.getLocalName()).equals(semantic))
+				return true;
+			
+			parent = (Element)parent.getParent();
+		}
+		
+		return false;
 	}
 	
 	//Helper methods for methods that update text in the DOM during text editing

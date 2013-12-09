@@ -54,6 +54,10 @@ import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
 import org.xml.sax.SAXException;
 
+class Response {
+	   String  list_of_suggestions;
+	   }
+
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares an EPub document for opening.
 public class EPubArchiver extends Archiver {
@@ -79,6 +83,12 @@ public class EPubArchiver extends Archiver {
 	// The last bookmark we were at.
 	String bkMarkStr = null;
 
+//	private static native int openDict(String name);
+//    private static native int checkWord(int hp, String wd);
+//    private static native Response checkSug(int hp, String wd);
+//    private static native void closeDict(int hp);
+//    private static native void rubber();
+	
 	EPubArchiver(String docToPrepare) {
 		super(docToPrepare);
 	}
@@ -96,6 +106,14 @@ public class EPubArchiver extends Archiver {
 		mainHtmlElement = null;
 		opfDoc = null;
 		epubFileList = new ArrayList<String>();
+		
+//		System.loadLibrary("jhunCheck.dll");
+//		System.load("C:\\Windows\\System32\\jhunCheck.dll");
+//		
+//		int libref = -1; 
+//		// libref = openDict("en_US");
+//		// closeDict(libref);
+//		rubber();
 		
 		// First things first, we have to unzip the EPub doc.
 		
@@ -145,12 +163,13 @@ public class EPubArchiver extends Archiver {
 			// Build factory, and parse the opf.
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder builder;
+	        factory.setNamespaceAware(true); // Needed, just in case manifest/spine are in a namespace.
 			builder = factory.newDocumentBuilder();
 			opfDoc = builder.parse(opfPath);
 			
 			// Grab the spine elements and manifest elements.
-			manifestElements = opfDoc.getElementsByTagName("item");
-			spineElements = opfDoc.getElementsByTagName("itemref");
+			manifestElements = opfDoc.getElementsByTagNameNS("*", "item");
+			spineElements = opfDoc.getElementsByTagNameNS("*", "itemref");
 			
 			// Filepath to current document.
 			String curDocFilePath = null;
@@ -165,7 +184,7 @@ public class EPubArchiver extends Archiver {
 				String fileID = spineAtts.getNamedItem("idref").getNodeValue();
 				
 				// Get the file path from the manifest.
-				curDocFilePath = opfPath.substring( 0, opfPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep(); 
+				curDocFilePath = opfPath.substring( 0, opfPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep();
 				curDocFilePath += findHrefById(fileID).replace("/", BBIni.getFileSep());
 				
 				// Add this path to the list of document paths.

@@ -78,16 +78,14 @@ public class ImageDescriberContext {
 			// Does this element have <imggroup> as a parent?
 			if( ((nu.xom.Element)(e.getParent())).getLocalName().compareTo("imggroup") == 0 )
 				return true;
-			else
-				return false;
+
 		} // if( NIMAS...
 		else if( documentType == ET_EPUB ) // EPUB
 		{
 			// Does this element have <figure> as a parent?
 			if( ((nu.xom.Element)(e.getParent())).getLocalName().compareTo("figure") == 0 )
 				return true;
-			else
-				return false;
+
 		} // else if( EPUB...
 		
 		

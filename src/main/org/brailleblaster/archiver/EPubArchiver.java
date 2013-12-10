@@ -82,18 +82,10 @@ public class EPubArchiver extends Archiver {
 	
 	// The last bookmark we were at.
 	String bkMarkStr = null;
-
-//	private static native int openDict(String name);
-//    private static native int checkWord(int hp, String wd);
-//    private static native Response checkSug(int hp, String wd);
-//    private static native void closeDict(int hp);
-//    private static native void rubber();
 	
 	EPubArchiver(String docToPrepare) {
 		super(docToPrepare);
 	}
-
-
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
@@ -106,14 +98,6 @@ public class EPubArchiver extends Archiver {
 		mainHtmlElement = null;
 		opfDoc = null;
 		epubFileList = new ArrayList<String>();
-		
-//		System.loadLibrary("jhunCheck.dll");
-//		System.load("C:\\Windows\\System32\\jhunCheck.dll");
-//		
-//		int libref = -1; 
-//		// libref = openDict("en_US");
-//		// closeDict(libref);
-//		rubber();
 		
 		// First things first, we have to unzip the EPub doc.
 		

@@ -51,6 +51,9 @@ import org.eclipse.swt.custom.PaintObjectEvent;
 import org.eclipse.swt.custom.PaintObjectListener;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -552,6 +555,7 @@ public class TextView extends AbstractView {
 		
 		int index = math.getParent().indexOf(math);
 		Element brl = (Element)math.getParent().getChild(index + 1);
+		
 		if(brl.getChild(0) instanceof Element){
 			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
 				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
@@ -623,8 +627,7 @@ public class TextView extends AbstractView {
 				 else
 					 range.underline = false;
 			 }
-		}
-		
+		}		
 		
 		if(!n.getValue().equals(""))
 			reformattedText =  appendToView(n, false);
@@ -657,7 +660,7 @@ public class TextView extends AbstractView {
 	
 	public void removeMathML(Message m){
 		setListenerLock(true);
-		int pos = view.getCaretOffset();
+	//	int pos = view.getCaretOffset();
 		
 		if(view.getCharCount() > 0) {
 			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
@@ -883,7 +886,9 @@ public class TextView extends AbstractView {
 				else {				
 					if(selectionLength != e.length)
 						changes = e.length - selectionLength;
-					
+					else if(selectionLength == e.length)
+						changes = 0;
+						
 					makeTextChange(changes);
 				}
 			}
@@ -1211,6 +1216,27 @@ public class TextView extends AbstractView {
 	private void setSelection(int start, int length){
 		selectionStart = start;
 		selectionLength = length;
+	}
+	
+	public void highlight(int start, int end){
+		view.setSelection(start, end);
+	}
+	
+	public void copyAndPaste(Manager m, String text, int start, int end){
+		//int pos = view.getCaretOffset();
+		view.setCaretOffset(start);
+		setCurrent(m);
+		view.setSelection(start, end);
+		setSelection(start, end - start);
+	
+		Clipboard cb = new Clipboard(view.getDisplay());
+        TextTransfer textTransfer = TextTransfer.getInstance();
+		cb.setContents(new Object[]{text}, new Transfer[]{textTransfer});
+		view.paste();
+		cb.dispose();
+
+		sendUpdate(m);
+		//view.setCaretOffset(pos);
 	}
 	
 	public void adjustStyle(Manager dm, Message m, Node n){		

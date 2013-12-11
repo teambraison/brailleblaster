@@ -145,6 +145,11 @@ public final class BBIni {
 			styleDir.mkdirs();
 		}
 		
+		String dictPath = userProgramDataPath + fileSep + "dictionaries";
+		File dictDir = new File(dictPath);
+		if(!dictDir.exists())
+			dictDir.mkdir();
+		
 		///////////////////////
 		// Default Config File.
 		

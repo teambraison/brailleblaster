@@ -19,6 +19,10 @@ public class TextMapElement extends AbstractMapElement {
 		this.n = n;
 	}
 	
+	public String getText(){
+		return n.getValue();
+	}
+	
 	public int textLength(){
 		return n.getValue().length();
 	}

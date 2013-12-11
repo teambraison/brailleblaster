@@ -58,6 +58,7 @@ import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.views.BrailleView;
 import org.brailleblaster.perspectives.braille.views.TextView;
@@ -104,7 +105,7 @@ public class Manager extends Controller {
 	static Logger logger;
 	public BrailleDocument document;
 	private boolean simBrailleDisplayed = false;
-	MapList list;
+	private MapList list;
 	Archiver arch = null;
 	
 	//Constructor that sets things up for a new document.
@@ -376,7 +377,7 @@ public class Manager extends Controller {
 	}
 	
 	private void initializeViews(Node current){
-		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current.getValue())){
+		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current, current.getValue())){
 			text.setText(current, list);
 		}
 		
@@ -1154,8 +1155,13 @@ public class Manager extends Controller {
 		    new Notify("An error occured while saving a temporary file.  Please restart brailleblaster");
 	}
 	
-	private boolean vaildTextElement(String text){
+	private boolean vaildTextElement(Node n , String text){
+		Element e = (Element)n.getParent();
+		int index = e.indexOf(n);
 		int length = text.length();
+		
+		if(index == e.getChildCount() - 1 || !(e.getChild(index + 1) instanceof Element && ((Element)e.getChild(index + 1)).getLocalName().equals("brl")))
+			return false;
 		
 		for(int i = 0; i < length; i++){
 			if(text.charAt(i) != '\n' && text.charAt(i) != '\t')
@@ -1245,7 +1251,7 @@ public class Manager extends Controller {
 		if(text.hasChanged)
 			text.update(this, false);
 	}
-	
+
 	public TextMapElement getPrevious(){
 		if(list.getCurrentIndex() > 0)
 			return list.get(list.getCurrentIndex() - 1);
@@ -1269,6 +1275,13 @@ public class Manager extends Controller {
 			return t;
 		else
 			return null;
+	}
+	
+	public void initiateSpellCheck(){
+		if(text.view.getText().equals(""))
+			new Notify(lh.localValue("noText"));
+		else
+			new SpellCheckManager(this);
 	}
 	
 	public void toggleBrailleFont(){
@@ -1358,7 +1371,6 @@ public class Manager extends Controller {
 		return document.getDOM();
 	}
 
-
 	@Override
 	public void setStatusBarText(BBStatusBar statusBar) {
 		if(text.view.getCharCount() > 0) 
@@ -1367,7 +1379,6 @@ public class Manager extends Controller {
 			statusBar.setText("Words: " + 0);
 	}
 
-
 	@Override
 	public boolean canReuseTab() {
 		if(text.hasChanged || braille.hasChanged || documentName != null)
@@ -1375,7 +1386,6 @@ public class Manager extends Controller {
 		else
 			return true;
 	}
-
 
 	@Override
 	public void reuseTab(String file) {

@@ -265,9 +265,7 @@ public class BrailleMenu extends BBMenu{
 				wp.removeController(temp);
 				
 				if(count > 0)
-					temp.close();
-
-				
+					temp.close();			
 	
 				if(wp.getList().size() == 0)
 					setCurrent(null);
@@ -348,10 +346,9 @@ public class BrailleMenu extends BBMenu{
 		});
 		spellCheckItem = new MenuItem(editMenu, SWT.PUSH);
 		spellCheckItem.setText(lh.localValue("&SpellCheck"));
-		spellCheckItem.setEnabled(false);
 		spellCheckItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.initiateSpellCheck();
 			}
 		});
 		boldToggleItem = new MenuItem(editMenu, SWT.PUSH);

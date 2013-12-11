@@ -194,7 +194,7 @@ return null;
 public boolean writeToUserProgrramData (String partialPath) {
 return true;
 }
-/*
+
 public void appendToFile(String path, String text){
 	File f = new File(path);
 	if(f.exists()){
@@ -207,7 +207,7 @@ public void appendToFile(String path, String text){
 		}
 	}
 }
-*/
+
 public void writeToFile(String path, String text){
 	FileWriter fw;
 	try {

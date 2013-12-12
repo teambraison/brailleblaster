@@ -62,6 +62,17 @@ class SpellCheckView {
 			}		
     	});
     	
+    	shell.addListener (SWT.Traverse, new Listener () {
+    		@Override
+    		public void handleEvent (Event e) {
+    			if(e.detail == SWT.TRAVERSE_ESCAPE) {
+    					close ();
+    					e.detail = SWT.TRAVERSE_NONE;
+    					e.doit = false;
+    			}
+    		}
+    	});
+    	
     	text = new Text(shell, SWT.BORDER);
     	setLayout(text, 5, 95, 5, 15);
     	text.addFocusListener(new FocusListener(){

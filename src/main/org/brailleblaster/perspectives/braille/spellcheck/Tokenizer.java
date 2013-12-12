@@ -17,7 +17,7 @@ public class Tokenizer {
 		if(endPos > 0)
 			startPos = endPos + 1;
 		
-		while(startPos < text.length() && !Character.isLetter(text.charAt(startPos))){
+		while(startPos < text.length() && (!Character.isLetter(text.charAt(startPos)) && !Character.isDigit(text.charAt(startPos)))){
 			startPos++;
 		}
 	}
@@ -25,7 +25,7 @@ public class Tokenizer {
 	private void setEndPos(){
 		endPos = startPos;
 		
-		while(endPos < text.length() && (Character.isLetter(text.charAt(endPos)) || text.charAt(endPos) == '\'')){
+		while(endPos < text.length() && ((Character.isLetter(text.charAt(endPos))|| Character.isDigit(text.charAt(endPos))) || text.charAt(endPos) == '\'')){
 			endPos++;
 		}
 	}

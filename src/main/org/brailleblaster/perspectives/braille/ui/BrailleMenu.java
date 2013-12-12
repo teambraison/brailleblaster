@@ -345,7 +345,8 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		spellCheckItem = new MenuItem(editMenu, SWT.PUSH);
-		spellCheckItem.setText(lh.localValue("&SpellCheck"));
+		spellCheckItem.setText(lh.localValue("&SpellCheck") + "\t" + lh.localValue("F7"));
+		spellCheckItem.setAccelerator(SWT.F7);
 		spellCheckItem.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				currentEditor.initiateSpellCheck();

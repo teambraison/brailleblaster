@@ -59,7 +59,7 @@ public class SpellChecker {
 	}
 	
 	public void open(){
-		 open(dictPath, affPath);
+		open(dictPath, affPath);
 	}
 	
 	public void close(){

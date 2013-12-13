@@ -30,11 +30,12 @@ class SpellCheckView {
     protected Text text;
     protected org.eclipse.swt.widgets.List suggestionBox;
     protected Group group, suggestionGroup;
-    protected Button replace, ignore, ignoreAll, add;
+    protected Button replace, replaceAll, ignore, ignoreAll, add;
 	private SpellCheckManager m;
 	private int lastItem;
 	private boolean locked = false;
 	private LocaleHandler lh;
+	private String currentWord;
 	
 	SpellCheckView(Display display, final SpellCheckManager m){
 		this.m = m;
@@ -89,11 +90,11 @@ class SpellCheckView {
     	
     	group = new Group(shell, SWT.NONE);
     	group.setLayout(new FormLayout());
-    	setLayout(group, 65,95,17,75);
+    	setLayout(group, 65,95,17,85);
     	
     	replace = new Button(group, SWT.PUSH);
     	replace.setText(lh.localValue("spellReplace"));
-    	setLayout(replace, 0,100,0,25);
+    	setLayout(replace, 0,100,0,20);
     	replace.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -118,9 +119,31 @@ class SpellCheckView {
 			}    		
     	});
     	
+    	replaceAll = new Button(group, SWT.PUSH);
+    	replaceAll.setText(lh.localValue("spellReplaceAll"));
+    	setLayout(replaceAll, 0, 100, 20, 40);
+    	replaceAll.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub			
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(suggestionBox.getSelectionCount() == 0){
+					m.replaceAll(currentWord, text.getText());
+					m.checkWord();
+				}
+				else if(!(suggestionBox.getItemCount() == 1 && suggestionBox.getItem(0).equals(lh.localValue("noSuggestion")))){
+					m.replaceAll(currentWord, suggestionBox.getSelection()[0]);
+					m.checkWord();
+				}	
+			}
+    	});
+    	
     	ignore = new Button(group, SWT.PUSH);
     	ignore.setText(lh.localValue("spellIgnore"));
-    	setLayout(ignore, 0,100,25,50);
+    	setLayout(ignore, 0,100,40,60);
     	ignore.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -135,7 +158,7 @@ class SpellCheckView {
     	
     	ignoreAll = new Button(group, SWT.PUSH);
     	ignoreAll.setText(lh.localValue("spellIgnoreAll"));
-    	setLayout(ignoreAll, 0,100,50,75);
+    	setLayout(ignoreAll, 0,100,60,80);
     	ignoreAll.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -151,7 +174,7 @@ class SpellCheckView {
     	
     	add = new Button(group, SWT.NONE);
     	add.setText(lh.localValue("spellAdd"));
-    	setLayout(add, 0,100, 75, 100);
+    	setLayout(add, 0,100, 80, 100);
     	add.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -168,7 +191,7 @@ class SpellCheckView {
     	suggestionGroup = new Group(shell, SWT.NONE);
     	suggestionGroup.setLayout(new FormLayout());
     	suggestionGroup.setText(lh.localValue("Suggestions"));
-    	setLayout(suggestionGroup, 5, 64, 17, 75);
+    	setLayout(suggestionGroup, 5, 64, 17, 85);
     	
     	suggestionBox = new org.eclipse.swt.widgets.List(suggestionGroup, SWT.MULTI | SWT.BORDER);
     	setLayout(suggestionBox, 0, 100, 0, 100);
@@ -212,6 +235,8 @@ class SpellCheckView {
 	}
     
     protected void setWord(String word, String [] suggestions){
+    	currentWord = word;
+    	
     	text.setText(word);
     	
     	suggestionBox.removeAll();

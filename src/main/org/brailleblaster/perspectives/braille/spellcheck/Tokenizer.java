@@ -13,6 +13,13 @@ public class Tokenizer {
 		complete = false;
 	}
 	
+	public Tokenizer(String text, int startPos, int endPos){
+		this.startPos = startPos;
+		this.endPos = endPos;
+		this.text = text.replaceAll("’", "'");
+		complete = false;
+	}
+	
 	private void setStartPos(){
 		if(endPos > 0)
 			startPos = endPos + 1;

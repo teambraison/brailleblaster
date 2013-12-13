@@ -106,6 +106,24 @@ public class SpellCheckManager {
 		tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
 	}
 	
+	public void replaceAll(String oldWord, String newWord){
+		sc.addToDictionary(newWord);
+
+		if(!oldWord.equals(newWord)){
+			Tokenizer tk = new Tokenizer(m.getText().view.getText().replace("\n", " "), tokenizer.getStartPos(), tokenizer.getEndPos());
+		
+			do{
+				if(tk.getCurrentWord().equals(oldWord)){
+					m.getText().copyAndPaste(m, newWord, tk.getStartPos(), tk.getEndPos());
+					tk.resetText(m.getText().view.getText().replace("\n", " "));
+				}
+				tk.next();
+			} while(!tk.isComplete());
+		
+			tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
+		}
+	}
+	
 	public void closeSpellChecker(){
 		if(sc.isActive())
 			sc.close();

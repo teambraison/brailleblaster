@@ -127,7 +127,7 @@ public class SpellCheckManager {
 	public void closeSpellChecker(){
 		if(sc.isActive())
 			sc.close();
-		
+
 		int pos = m.getText().view.getCaretOffset();
 		m.getText().view.setSelection(pos, pos);
 		m.dispatch(Message.createSetCurrentMessage("text", pos, false));

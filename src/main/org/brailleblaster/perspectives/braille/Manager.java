@@ -115,7 +115,6 @@ public class Manager extends Controller {
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
-		
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
@@ -149,7 +148,6 @@ public class Manager extends Controller {
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
-
 		this.item = item;
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
@@ -1280,7 +1278,7 @@ public class Manager extends Controller {
 	public void initiateSpellCheck(){
 		if(text.view.getText().equals(""))
 			new Notify(lh.localValue("noText"));
-		else
+		else 
 			new SpellCheckManager(this);
 	}
 	

@@ -33,14 +33,13 @@ class SpellCheckView {
     protected Button replace, replaceAll, ignore, ignoreAll, add;
 	private SpellCheckManager m;
 	private int lastItem;
-	private boolean locked = false;
 	private LocaleHandler lh;
 	private String currentWord;
 	
 	SpellCheckView(Display display, final SpellCheckManager m){
 		this.m = m;
 		lh = new LocaleHandler();
-		shell = new Shell(display, SWT.CLOSE);
+		shell = new Shell(display, SWT.APPLICATION_MODAL | SWT.CLOSE);
     	shell.setText(lh.localValue("spellCheck"));
     	setShellScreenLocation(shell.getDisplay(), shell);
     	shell.setLayout(new FormLayout());
@@ -50,17 +49,6 @@ class SpellCheckView {
 			public void handleEvent(Event e) {
 				close();
 			}
-    	});
-    	
-    	shell.addListener(SWT.Deactivate, new Listener(){
-			@Override
-			public void handleEvent(Event e) {
-				if(!locked){
-					shell.setMinimized(true);
-					shell.setFocus();
-					shell.setMinimized(false);
-				}
-			}		
     	});
     	
     	shell.addListener (SWT.Traverse, new Listener () {
@@ -112,9 +100,7 @@ class SpellCheckView {
 					m.checkWord();
 				}
 				else{
-					locked = true;
 					new Notify(lh.localValue("suggestionError"));
-					locked = false;
 				}
 			}    		
     	});
@@ -248,7 +234,7 @@ class SpellCheckView {
     }
     
     protected void close(){
-    	shell.dispose();
+    	shell.dispose();	
     	m.closeSpellChecker();
     }
     

@@ -51,7 +51,7 @@ public class StyleTable {
 		this.group.setVisible(false);
 		
 		this.t = new Table(this.group, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
-		setLayoutData(this.t, 0, 100, 0, 90);
+		setLayoutData(this.t, 0, 100, 0, 85);
 	    
 		TableColumn tc1 = new TableColumn(this.t, SWT.CENTER);
 		tc1.setWidth(0);
@@ -69,12 +69,12 @@ public class StyleTable {
 	    
 	    applyButton = new Button(this.group, SWT.NONE);
 	    applyButton.setText("Apply");
-	    setLayoutData(applyButton, 0, 100, 90, 100);
+	    setLayoutData(applyButton, 0, 100, 85, 100);
 		
 	    group.pack();
 	    tc2.setWidth(group.getClientArea().width);
 	    t.getHorizontalBar().dispose();
-	    
+		
 		this.group.addListener(SWT.Resize, new Listener(){
 			@Override
 			public void handleEvent(Event e) {
@@ -124,6 +124,7 @@ public class StyleTable {
 		location.right = new FormAttachment(right);
 		location.top = new FormAttachment(top);
 		location.bottom = new FormAttachment(bottom);
+		
 		c.setLayoutData(location);
 	}
 	

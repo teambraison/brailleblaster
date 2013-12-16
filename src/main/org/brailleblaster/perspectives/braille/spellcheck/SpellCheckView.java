@@ -35,6 +35,7 @@ class SpellCheckView {
 	private int lastItem;
 	private LocaleHandler lh;
 	private String currentWord;
+	private Font newFont;
 	
 	SpellCheckView(Display display, final SpellCheckManager m){
 		this.m = m;
@@ -247,7 +248,10 @@ class SpellCheckView {
     		while(stringWidth > b.getBounds().width){
     			int Ssize = fontData[0].getHeight() - 1;
     			fontData[0].setHeight(Ssize);
-    			b.setFont(new Font(Display.getCurrent(), fontData[0]));
+    			if(newFont != null && !newFont.isDisposed())
+    				newFont.dispose();
+    			newFont = new Font(Display.getCurrent(), fontData[0]);
+    			b.setFont(newFont);
     			charWidth = getFontWidth(b);
     			stringWidth = b.getText().length() * charWidth;
     		}

@@ -1,7 +1,11 @@
 package org.brailleblaster.perspectives;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
@@ -116,4 +120,59 @@ public abstract class Controller implements DocumentManager{
 	public void setDocumentEdited(boolean edited){
 		documentEdited = edited;
 	}
+	
+	////////////////////////////////////////////////////////////////
+	// Opens our auto config settings file and determines 
+	// what file is associated with the given file type.
+	// 
+	// Appropriate strings to pass so far are: epub, nimas, 
+	public String getAutoCfg(String settingStr)
+	{
+		// Init and load properties.
+		Properties props = new Properties();
+		try
+		{
+			// Load it!
+			props.load( new FileInputStream(BBIni.getAutoConfigSettings()) );
+		}
+		catch (IOException e) { e.printStackTrace(); }
+		
+		// Loop through the properties, and find the setting.
+		for(String key : props.stringPropertyNames())
+		{
+			// Is this the string/setting we're looking for?
+			if( key.compareTo(settingStr) == 0 )
+				return props.getProperty(key);
+		}
+		
+		// If we made it here, there was no setting by that name.
+		return null;
+		
+	} // getAutoCfg()
+	
+	////////////////////////////////////////////////////////////////
+	// Opens our auto config settings file and determines 
+	// what file is associated with the given file type.
+	// 
+	// Pass these to settingStr: epub, nimas, or
+	// You can pass whatever you want to fileNameStr, but it's 
+	// highly recommended you pass the filename of an existing 
+	// config file. epub.cfg, nimas.cfg, etc.
+	public void setAutoCfg(String settingStr, String fileNameStr)
+	{
+		// Init and load properties.
+		Properties props = new Properties();
+		try
+		{
+			// Load it!
+			props.load( new FileInputStream(BBIni.getAutoConfigSettings()) );
+			// Set the property.
+			props.setProperty(settingStr, fileNameStr);
+			// Now write the properties back to the file.
+			props.store( new FileOutputStream(BBIni.getAutoConfigSettings()), null );
+		}
+		catch (IOException e) { e.printStackTrace(); }
+		
+	} // setAutoCfg()
+	
 }

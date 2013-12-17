@@ -98,6 +98,7 @@ public final class BBIni {
 	private static final String BBID = "brlblst";
 	private static String instanceId;
 	private static String defaultCfg;
+	private static String autoConfigSettings;
 
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
@@ -149,6 +150,12 @@ public final class BBIni {
 		File dictDir = new File(dictPath);
 		if(!dictDir.exists())
 			dictDir.mkdir();
+		
+		// File associations and settings for when we automatically switch config files.
+		autoConfigSettings = userProgramDataPath + fileSep + "liblouisutdml" + fileSep + "lbu_files" + fileSep + "autoConfigSettings.txt";
+		if (!fu.exists(autoConfigSettings)) {
+			fu.copyFile(programDataPath + fileSep + "liblouisutdml" + fileSep + "lbu_files" + fileSep + "autoConfigSettings.txt", autoConfigSettings);
+		}
 		
 		///////////////////////
 		// Default Config File.
@@ -397,5 +404,9 @@ public final class BBIni {
 	
 	public static void setDefaultConfigFile(String configFileName) {
 		defaultCfg = configFileName;
+	}
+	
+	public static String getAutoConfigSettings() {
+		return autoConfigSettings;
 	}
 }

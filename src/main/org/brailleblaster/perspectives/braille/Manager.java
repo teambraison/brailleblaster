@@ -332,6 +332,16 @@ public class Manager extends Controller {
 		// Zip and Recent Files.
 		////////////////////////
 		
+		// Change current config based on file type.
+		if(arch != null)
+		{
+			// Is this an epub document?
+			if( arch.getOrigDocPath().endsWith(".epub") == true )
+				currentConfig = getAutoCfg("epub");
+		}
+		else
+			currentConfig = getAutoCfg("nimas"); // Nimas document.
+			
 		initializeAllViews(fileName, workingFilePath, null);
 	}	
 	

@@ -51,6 +51,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one
 // to modify the descriptions.
@@ -139,6 +141,16 @@ public class ImageDescriberController extends Controller {
 			else
 				workingFilePath = fileName;
 		}
+		
+		// Change current config based on file type.
+		if(arch != null)
+		{
+			// Is this an epub document?
+			if( arch.getOrigDocPath().endsWith(".epub") == true )
+				currentConfig = getAutoCfg("epub");
+		}
+		else
+			currentConfig = getAutoCfg("nimas"); // Nimas document.
 		
 		////////////////
 		// Recent Files.

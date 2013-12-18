@@ -127,6 +127,7 @@ public abstract class BBMenu {
 		languageItem.setText(lh.localValue("&Language"));
 		languageItem.setEnabled(false); /* FO */
 		languageItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -137,6 +138,7 @@ public abstract class BBMenu {
 			exitItem.setText(lh.localValue("e&xit") + "\tCtrl + Q");
 			exitItem.setAccelerator(SWT.MOD1 + 'Q');
 			exitItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					while(wp.getList().size() > 0){
 						Controller temp = wp.getList().getFirst();
@@ -209,6 +211,7 @@ public abstract class BBMenu {
 		aboutItem = new MenuItem(helpMenu, SWT.PUSH);
 		aboutItem.setText(lh.localValue("&About"));
 		aboutItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new UserHelp(HelpOptions.AboutBB);
 			}
@@ -216,6 +219,7 @@ public abstract class BBMenu {
 		helpInfoItem = new MenuItem(helpMenu, SWT.PUSH);
 		helpInfoItem.setText(lh.localValue("&helpInfo"));
 		helpInfoItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new UserHelp(HelpOptions.HelpInfo);
 			}
@@ -223,6 +227,7 @@ public abstract class BBMenu {
 		tutorialsItem = new MenuItem(helpMenu, SWT.PUSH);
 		tutorialsItem.setText(lh.localValue("&Tutorials"));
 		tutorialsItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new UserHelp(HelpOptions.ReadTutorial);
 			}
@@ -230,6 +235,7 @@ public abstract class BBMenu {
 		readManualItem = new MenuItem(helpMenu, SWT.PUSH);
 		readManualItem.setText(lh.localValue("&ReadManuals"));
 		readManualItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new UserHelp(HelpOptions.ReadManuals);
 			}
@@ -238,6 +244,7 @@ public abstract class BBMenu {
 		checkUpdatesItem.setText(lh.localValue("&CheckUpdates"));
 		checkUpdatesItem.setEnabled(false); /* FO */
 		checkUpdatesItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new UserHelp(HelpOptions.CheckUpdates);
 			}
@@ -317,6 +324,7 @@ public abstract class BBMenu {
 		newItem.addSelectionListener(new SelectionAdapter()
 		{
 			// Action to perform when widget selected!
+			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
 				int index= wordProc.getFolder().getSelectionIndex();

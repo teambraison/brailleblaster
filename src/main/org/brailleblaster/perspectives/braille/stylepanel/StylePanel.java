@@ -135,7 +135,7 @@ public class StylePanel extends Dialog{
 			displayArr.add(displayName);
 		}
 		if(combo != null){
-			combo.setItems((String[])displayArr.toArray(new String[displayArr.size()]));
+			combo.setItems(displayArr.toArray(new String[displayArr.size()]));
 			int index = (styleName!=null)?displayArr.indexOf(styleName):0;
 			combo.select(index);
 		}
@@ -214,7 +214,7 @@ public class StylePanel extends Dialog{
 		name.setText(lh.localValue("styleName"));
 
 		combo = new Combo (stylePanel, SWT.DROP_DOWN);
-		combo.setItems((String[])displayArr.toArray(new String[displayArr.size()]));
+		combo.setItems(displayArr.toArray(new String[displayArr.size()]));
 		combo.select(0);
 		GridData data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
@@ -254,6 +254,7 @@ public class StylePanel extends Dialog{
 
 
 		apply.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int key = combo.getSelectionIndex();
 				if(key != -1){
@@ -266,6 +267,7 @@ public class StylePanel extends Dialog{
 		});
 
 		modify.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int key = combo.getSelectionIndex();
 				if(key != -1){
@@ -284,6 +286,7 @@ public class StylePanel extends Dialog{
 		});
 
 		create.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String styleName = combo.getText();
 				create(styleName);
@@ -291,6 +294,7 @@ public class StylePanel extends Dialog{
 		});
 		
 		delete.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				YesNoChoice prompt =  new YesNoChoice(lh.localValue("styleDeleteMsg")+"\""+combo.getText()+"\"?");
 				if(prompt.result == SWT.YES){

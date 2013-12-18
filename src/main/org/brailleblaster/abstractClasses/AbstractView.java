@@ -72,6 +72,7 @@ public abstract class AbstractView {
 
 	// Better use a ModifyListener to set the change flag.
 	ModifyListener viewMod = new ModifyListener() {
+		@Override
 		public void modifyText(ModifyEvent e) {
 			hasChanged = true;
 		}

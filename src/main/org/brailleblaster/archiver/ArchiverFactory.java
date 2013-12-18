@@ -28,9 +28,6 @@
 
 package org.brailleblaster.archiver;
 
-import org.brailleblaster.BBIni;
-import org.brailleblaster.util.Zipper;
-
 //////////////////////////////////////////////////////////////////////////////////
 // Archiver Factory determines file type of document, and gives appropriate 
 // object for opening/handling.

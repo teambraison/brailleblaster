@@ -119,13 +119,15 @@ class RecentDocuments {
         shell.setDefaultButton(open);
 
         cancel.addSelectionListener (new SelectionAdapter() {
-        	public void widgetSelected (SelectionEvent e) {
+        	@Override
+			public void widgetSelected (SelectionEvent e) {
         		shell.close();
         	}
         });
         
         open.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
+            @Override
+			public void widgetSelected(SelectionEvent e) {
                 int key = combo.getSelectionIndex();
                 if(key != -1){
                 	String path = recentDocsList.get(key);

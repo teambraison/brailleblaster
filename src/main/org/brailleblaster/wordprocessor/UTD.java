@@ -214,7 +214,8 @@ class UTD {
               if(brailleLine.length() > 4096 || i == node.getChildCount()-1) {
 
             	dm.getDisplay().syncExec(new Runnable() {    
-                    public void run() {    
+                    @Override
+					public void run() {    
                     	// FO
                     	if (firstTime) {
                     		dm.getBraille().view.replaceTextRange(0, dm.getBraille().view.getCharCount(), 

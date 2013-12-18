@@ -105,6 +105,7 @@ public class TextView extends AbstractView {
 		this.spaceAfterText = 0;
 	}
 
+	@Override
 	public void initializeListeners(final Manager dm){	
 		view.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
@@ -340,6 +341,7 @@ public class TextView extends AbstractView {
 		
 		// use a verify listener to dispose the images	
 		view.addVerifyListener(verifyListener = new VerifyListener()  {
+			@Override
 			public void verifyText(VerifyEvent event) {
 				if(event.doit != false && event.start != event.end && !getLock() && selectionLength != view.getCharCount()){
 					TextMapElement t = dm.getClosest(event.start);
@@ -368,6 +370,7 @@ public class TextView extends AbstractView {
 		
 		// draw images on paint event
 		view.addPaintObjectListener(paintObjListener = new PaintObjectListener() {
+			@Override
 			public void paintObject(PaintObjectEvent event) {
 				StyleRange style = event.style;
 				Image image = (Image)style.data;
@@ -381,6 +384,7 @@ public class TextView extends AbstractView {
 		
 		//handles image on dispose
 		view.addListener(SWT.Dispose, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				StyleRange[] styles = view.getStyleRanges();
 				for (int i = 0; i < styles.length; i++) {
@@ -480,6 +484,7 @@ public class TextView extends AbstractView {
 			restoreStyleState(currentStart, currentEnd);
 	}
 	
+	@Override
 	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("start");
 		currentEnd = (Integer)message.getValue("end");
@@ -1404,6 +1409,7 @@ public class TextView extends AbstractView {
 		setListenerLock(false);
 	}
 	
+	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);

@@ -85,6 +85,7 @@ public class SettingsDialog {
 		saveButton.setLayoutData(data);
 		saveButton.pack();
 		saveButton.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String showWelcome; 
 				if(checkbox[0].getSelection()) {
@@ -101,6 +102,7 @@ public class SettingsDialog {
 				}
 				dialog.close();
 			}
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});

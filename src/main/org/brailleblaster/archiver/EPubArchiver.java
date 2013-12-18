@@ -30,7 +30,6 @@ package org.brailleblaster.archiver;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -275,7 +274,7 @@ public class EPubArchiver extends Archiver {
 			// Prepare output stream.
 			LSOutput lsOutput = domImplementationLS.createLSOutput();
 			FileOutputStream outputStream = new FileOutputStream( outFileName );
-			lsOutput.setByteStream( (OutputStream) outputStream );
+			lsOutput.setByteStream( outputStream );
 			
 			// Create the serializer, serialize/output xml, then close the stream.
 			LSSerializer lsSerializer = domImplementationLS.createLSSerializer();

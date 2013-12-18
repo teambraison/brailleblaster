@@ -120,6 +120,7 @@ public class ImageDescriberMenu extends BBMenu{
 		prevItem = new MenuItem(editMenu, SWT.PUSH);
 		prevItem.setText("Previous");
 		prevItem.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.setImageToPrevious();
 			} // widgetSelected()
@@ -128,6 +129,7 @@ public class ImageDescriberMenu extends BBMenu{
 		nextItem = new MenuItem(editMenu, SWT.PUSH);
 		nextItem.setText(lh.localValue("&Next"));
 		nextItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.setImageToNext();
 			} // widgetSelected()
@@ -137,6 +139,7 @@ public class ImageDescriberMenu extends BBMenu{
 		applyItem = new MenuItem(editMenu, SWT.PUSH);
 		applyItem.setText(lh.localValue("&Apply"));
 		applyItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.apply();
 				// Set image's description.
@@ -148,6 +151,7 @@ public class ImageDescriberMenu extends BBMenu{
 		undoAllItem = new MenuItem(editMenu, SWT.PUSH);
 		undoAllItem.setText(lh.localValue("&Undo All"));
 		undoAllItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.cancel();
 			} // widgetSelected()
@@ -157,6 +161,7 @@ public class ImageDescriberMenu extends BBMenu{
 		applyToAllItem = new MenuItem(editMenu, SWT.PUSH);
 		applyToAllItem.setText(lh.localValue("A&pply to All"));
 		applyToAllItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.applyToAll();
 			} // widgetSelected()
@@ -166,6 +171,7 @@ public class ImageDescriberMenu extends BBMenu{
 		clearAllItem = new MenuItem(editMenu, SWT.PUSH);
 		clearAllItem.setText(lh.localValue("&Clear All"));
 		clearAllItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentController.clearAll();
 			} // widgetSelected()
@@ -184,6 +190,7 @@ public class ImageDescriberMenu extends BBMenu{
 		MenuItem transTemplateItem = new MenuItem(brailleMenu, SWT.PUSH);
 		transTemplateItem.setText(lh.localValue("&Translation Templates"));
 		transTemplateItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
 			}

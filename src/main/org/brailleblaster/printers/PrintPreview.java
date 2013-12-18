@@ -79,6 +79,7 @@ public class PrintPreview {
 		}
 
 		
+		@Override
 		public void resetView(Group group) {
 			// TODO Auto-generated method stub		
 		}
@@ -121,6 +122,7 @@ public class PrintPreview {
 		});
 		
 		this.shell.addListener(SWT.Close, new Listener() { 
+			@Override
 			public void handleEvent(Event event) { 
 				previewText.deleteTempFile();
 				shell.dispose();

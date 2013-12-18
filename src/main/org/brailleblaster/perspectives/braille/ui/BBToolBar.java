@@ -104,6 +104,7 @@ public class BBToolBar {
 		openItem.setImage( imgHelper.createScaledImage(new Image(null, distPath + sep + "images" + sep + "open.png"), MAX_W, MAX_H) );
 //		openItem.setImage( new Image(null, distPath + sep + "images" + sep + "open.png") );
 		openItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -130,6 +131,7 @@ public class BBToolBar {
 		saveItem.setText(tlabel.replace("&", ""));
 		saveItem.setImage(new Image(null, distPath  + sep + "images" + sep + "save.png"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -152,6 +154,7 @@ public class BBToolBar {
 		saveAsItem.setText("Save As");
 		saveAsItem.setImage(new Image(null, distPath  + sep + "images" + sep + "saveAs.png"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -177,6 +180,7 @@ public class BBToolBar {
 		translateItem.setImage(new Image(null, distPath  + sep + "images" + sep + "translate.png"));
 		// FO
 		translateItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// dm.translateView(true);
 			}
@@ -188,6 +192,7 @@ public class BBToolBar {
 		embossNow.setText(tlabel.replace("&", ""));
 		embossNow.setImage(new Image(null, distPath  + sep + "images" + sep + "emboss.png"));
 		embossNow.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
@@ -210,6 +215,7 @@ public class BBToolBar {
 		daisyPrint.setText(tlabel.replace("&", ""));
 		daisyPrint.setImage(new Image(null, distPath  + sep + "images" + sep + "print.png"));
 		daisyPrint.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// dm.daisyPrint();
 			}
@@ -261,6 +267,7 @@ public class BBToolBar {
 		checkBrailleItem.setText(lh.localValue("viewBraille"));
 		checkBrailleItem.pack();
 		checkBrailleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){

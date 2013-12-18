@@ -13,6 +13,7 @@ public 	class Resolver implements EntityResolver {
 	String originalPublicId;
 	String originalSystemId;
 	
+	@Override
 	public InputSource resolveEntity(String publicId, String systemId) {
 		originalSystemId = systemId;
 		originalPublicId = publicId;

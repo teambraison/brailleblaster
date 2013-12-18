@@ -29,22 +29,9 @@
 package org.brailleblaster.abstractClasses;
 
 import org.eclipse.swt.printing.*;
-import org.brailleblaster.BBIni;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.*;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.FontDialog;
-import org.eclipse.swt.widgets.ColorDialog;
 
 /**
  * This class handles printing, printer setup and print preview. Since 
@@ -67,6 +54,7 @@ shell.dispose();
 }
 
 Thread printingThread = new Thread("Printing") {
+@Override
 public void run() {
 //print(printer);
 //printer.dispose();

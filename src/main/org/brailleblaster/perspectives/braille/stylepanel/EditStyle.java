@@ -92,11 +92,13 @@ public class EditStyle extends Dialog{
     static int MODIFY = 2;
     
 	private static  FocusListener focusListener = new FocusListener() {
+		@Override
 		public void focusGained(FocusEvent e) {
 			Text t = (Text) e.widget;
 			t.selectAll();
 		}
 
+		@Override
 		public void focusLost(FocusEvent e) {
 			final Text t = (Text) e.widget;
 			
@@ -108,6 +110,7 @@ public class EditStyle extends Dialog{
 			if(! t.getText().toString().matches("^[a-zA-Z0-9_]+$")) {
 				new Notify(lh.localValue("styleNotBlank"));
 				Display.getCurrent().asyncExec(new Runnable(){
+					@Override
 					public void run(){
 						t.setFocus();
 					}
@@ -282,12 +285,14 @@ public class EditStyle extends Dialog{
 		parent.setDefaultButton(confirmButt);
 
 		cancelButt.addSelectionListener(new SelectionAdapter(){ 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				parent.dispose();
 			}
 		});
 
 		confirmButt.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Group abs = (Group) parent.getChildren()[0];
 				Control aList[] = abs.getChildren();
@@ -434,6 +439,7 @@ public class EditStyle extends Dialog{
 		});
 
 		text.addVerifyListener(new VerifyListener() {
+			@Override
 			public void verifyText(VerifyEvent e) {
 				final String oldS = text.getText();
 				final String newS = oldS.substring(0, e.start) + e.text + oldS.substring(e.end);

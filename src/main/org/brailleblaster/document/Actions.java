@@ -31,24 +31,7 @@
 
 package org.brailleblaster.document;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import nu.xom.Builder;
-import nu.xom.Node;
-import nu.xom.ParsingException;
-import nu.xom.Serializer;
-import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Text;
-import nu.xom.Attribute;
-import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.util.Notify;
-import org.brailleblaster.util.YesNoChoice;
-import java.util.Hashtable;
 
 /**
  * This class contains the actions which can be performed on elements. 

@@ -45,13 +45,11 @@ import nu.xom.ParsingException;
 import nu.xom.Serializer;
 import nu.xom.Document;
 import nu.xom.Element;
-import nu.xom.Text;
 import nu.xom.Attribute;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.YesNoChoice;
 import java.util.HashMap;
 import java.util.ArrayList;
 

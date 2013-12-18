@@ -122,6 +122,7 @@ class Style {
 		}
 	}
 
+	@Override
 	public String toString(){
 		return styleName;
 	}

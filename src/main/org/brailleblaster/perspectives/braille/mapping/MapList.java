@@ -53,6 +53,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			this.brailleOffset = brailleOffset;
 		}
 		
+		@Override
 		public void run(){
 			for(int i = start; i < end; i++){
 				list.get(i).start +=offset;

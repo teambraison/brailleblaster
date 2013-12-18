@@ -128,6 +128,7 @@ public class ImageDescriberView {
 		//prevBtn.setBounds(prevBtnX,  prevBtnY, prevBtnW, prevBtnH);
 		setFormData(prevBtn, 0, 7, 0, 5);
 		prevBtn.addSelectionListener(new SelectionAdapter() {
+		@Override
 		public void widgetSelected(SelectionEvent e) {
 
 			// Change main image to previous element image.
@@ -160,6 +161,7 @@ public class ImageDescriberView {
 		//nextBtn.setBounds(nextBtnX,  nextBtnY, nextBtnW, nextBtnH);
 		setFormData(nextBtn, 7, 14, 0, 5);
 		nextBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				// Change main image to next element image.
@@ -193,6 +195,7 @@ public class ImageDescriberView {
 //		setFormData(applyBtn, 14, 21, 0, 5);
 		setFormData(applyBtn, 21, 28, 0, 5);
 		applyBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				// Set image's description.
@@ -208,6 +211,7 @@ public class ImageDescriberView {
 		//undoAllBtn.setBounds(undoBtnX,  undoBtnY, undoBtnW, undoBtnH);
 		setFormData(undoAllBtn, 28, 35, 0, 5);
 		undoAllBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				// Warn user that all changes will be discarded.
@@ -229,6 +233,7 @@ public class ImageDescriberView {
 		//applyToAllBtn.setBounds(applyAllBtnX,  applyAllBtnY, applyAllBtnW, applyAllBtnH);
 		setFormData(applyToAllBtn, 35, 42, 0, 5);
 		applyToAllBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				// Warn user before doing this. It could take a while.
@@ -271,6 +276,7 @@ public class ImageDescriberView {
 		//clearAllBtn.setBounds(clearAllBtnX,  clearAllBtnY, clearAllBtnW, clearAllBtnH);
 		setFormData(clearAllBtn, 42, 49, 0, 5);
 		clearAllBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				// Clear every description for this image, and clear alt text.
@@ -321,6 +327,7 @@ public class ImageDescriberView {
 		if(imgDesc.getCurElmAttribute("alt") != null)
 			altBox.setText(imgDesc.getCurElmAttribute("alt"));
 		altBox.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent arg0) { 
 
 			} // modifyText()
@@ -332,6 +339,7 @@ public class ImageDescriberView {
 		//imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
 		setFormData(imgDescTextBox, 0, 49, 9, 40);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(ModifyEvent arg0) { 
 
 			} // modifyText()
@@ -427,9 +435,11 @@ public class ImageDescriberView {
             // height information.
             browser.addProgressListener(new ProgressListener() 
             {
-                public void changed(ProgressEvent event) {
+                @Override
+				public void changed(ProgressEvent event) {
                 }
-                public void completed(ProgressEvent event) {
+                @Override
+				public void completed(ProgressEvent event) {
                 	
                 	// Script that will add "positions" to <img> tags.
                 	 String s = "var allLinks = document.getElementsByTagName('img'); " +
@@ -550,6 +560,7 @@ public class ImageDescriberView {
 		okBtn.setText("Okay");
 		okBtn.setBounds(0,  75, 100, 25);
 		okBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// User hit okay.
@@ -565,6 +576,7 @@ public class ImageDescriberView {
 		canBtn.setText("Cancel");
 		canBtn.setBounds(101,  75, 100, 25);
 		canBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// User hit okay.

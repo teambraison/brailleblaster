@@ -28,6 +28,7 @@
 
 package org.brailleblaster.perspectives.imageDescriber.document;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import nu.xom.Attribute;
@@ -41,6 +42,10 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.eclipse.swt.graphics.Image;
+
+import org.apache.batik.transcoder.image.JPEGTranscoder;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
 
 public class ImageDescriber extends BBDocument {
 	// The document with images we want to add descriptions to.
@@ -330,6 +335,37 @@ public class ImageDescriber extends BBDocument {
 //			imgElmList.set(curElementIndex, curImgElement);
 //			
 //		} // if( hasImgGrpParent(...
+		
+		//////////////////
+		// SVG Conversion.
+		
+			// If this element uses an svg file, convert to jpeg.
+			
+			// Create a JPEG transcoder
+//	        JPEGTranscoder t = new JPEGTranscoder();
+//	        
+//	        // Set the transcoding hints.
+//	        t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
+//	                   new Float(.8));
+//
+//	        // Create the transcoder input.
+//	        String svgURI = new File("changeMe.svg").toURL().toString();
+//	        TranscoderInput input = new TranscoderInput(svgURI);
+//
+//	        // Create the transcoder output.
+//	        OutputStream ostream = new FileOutputStream("out.jpg");
+//	        TranscoderOutput output = new TranscoderOutput(ostream);
+//
+//	        // Save the image.
+//	        t.transcode(input, output);
+//
+//	        // Flush and close the stream.
+//	        ostream.flush();
+//	        ostream.close();
+
+		// SVG Conversion.
+        //////////////////
+        
 		if( imgContext.hasContainer(curImgElement) == false ) {
 			curImgElement = imgContext.addContainer(curImgElement);
 			imgElmList.set(curElementIndex, curImgElement);

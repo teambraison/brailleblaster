@@ -149,8 +149,10 @@ public class ImageDescriberController extends Controller {
 			if( arch.getOrigDocPath().endsWith(".epub") == true )
 				currentConfig = getAutoCfg("epub");
 		}
-		else
+		else if( workingFilePath.endsWith(".xml") )
 			currentConfig = getAutoCfg("nimas"); // Nimas document.
+		else if( workingFilePath.endsWith(".xhtml") )
+			currentConfig = getAutoCfg("epub");
 		
 		////////////////
 		// Recent Files.

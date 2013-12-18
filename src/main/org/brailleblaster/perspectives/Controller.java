@@ -49,26 +49,26 @@ public abstract class Controller implements DocumentManager{
 		////////////////
 		// Recent Files.
 			
-		// Get recent file list.
-		ArrayList<String> strs = wp.getMainMenu().getRecentDocumentsList();
-			
-		// Search list for duplicate. If one exists, don't add this new one.
-		for(int curStr = 0; curStr < strs.size(); curStr++) {
-			if(strs.get(curStr).compareTo(fileName) == 0) {
-					
-				// This isn't a new document. First, remove from doc list and recent item submenu.
-				wp.getMainMenu().getRecentDocumentsList().remove(curStr);
-				wp.getMainMenu().getRecentItemSubMenu().getItem(curStr).dispose();
-					
-				// We found a duplicate, so there is no point in going further.
-				break;
-					
-			} // if(strs.get(curStr)...
+			// Get recent file list.
+			ArrayList<String> strs = wp.getMainMenu().getRecentDocumentsList();
 				
-		} // for(int curStr = 0...
-			
-		// Add to top of recent items submenu.
-		wp.getMainMenu().addRecentEntry(fileName);
+			// Search list for duplicate. If one exists, don't add this new one.
+			for(int curStr = 0; curStr < strs.size(); curStr++) {
+				if(strs.get(curStr).compareTo(fileName) == 0) {
+						
+					// This isn't a new document. First, remove from doc list and recent item submenu.
+					wp.getMainMenu().getRecentDocumentsList().remove(curStr);
+					wp.getMainMenu().getRecentItemSubMenu().getItem(curStr).dispose();
+						
+					// We found a duplicate, so there is no point in going further.
+					break;
+						
+				} // if(strs.get(curStr)...
+					
+			} // for(int curStr = 0...
+				
+			// Add to top of recent items submenu.
+			wp.getMainMenu().addRecentEntry(fileName);
 			
 		// Recent Files.
 		////////////////
@@ -170,6 +170,7 @@ public abstract class Controller implements DocumentManager{
 			props.setProperty(settingStr, fileNameStr);
 			// Now write the properties back to the file.
 			props.store( new FileOutputStream(BBIni.getAutoConfigSettings()), null );
+			
 		}
 		catch (IOException e) { e.printStackTrace(); }
 		

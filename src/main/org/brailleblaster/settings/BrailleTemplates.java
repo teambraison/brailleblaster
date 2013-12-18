@@ -31,26 +31,6 @@
 
 package org.brailleblaster.settings;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Properties;
-import org.eclipse.swt.*;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.userHelp.CallOutsideWP;
-import org.brailleblaster.util.Notify;
-
 /**
  * This class provides the methods for dealing with liblouisutdml 
  * configuration files. The user can chose a file to use, edit one, copy 

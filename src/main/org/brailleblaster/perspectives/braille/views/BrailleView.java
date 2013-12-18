@@ -87,6 +87,7 @@ public class BrailleView extends AbstractView {
 		this.stylesTable = table;
 	}
 	
+	@Override
 	public void initializeListeners(final Manager dm){
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
@@ -193,6 +194,7 @@ public class BrailleView extends AbstractView {
 		charAtOffset = null;
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	protected void setViewData(Message message){
 		currentStart = (Integer)message.getValue("brailleStart");
@@ -737,6 +739,7 @@ public class BrailleView extends AbstractView {
 		this.words = words;
 	}
 
+	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);

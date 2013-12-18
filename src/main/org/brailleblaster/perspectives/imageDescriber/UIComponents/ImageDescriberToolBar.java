@@ -102,6 +102,7 @@ public class ImageDescriberToolBar {
 		openItem.setImage( imgHelper.createScaledImage(new Image(null, distPath + sep + "images" + sep + "open.png"), MAX_W, MAX_H) );
 //		openItem.setImage( new Image(null, distPath + sep + "images" + sep + "open.png") );
 		openItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -128,6 +129,7 @@ public class ImageDescriberToolBar {
 		saveItem.setText(tlabel.replace("&", ""));
 		saveItem.setImage(new Image(null, distPath  + sep + "images" + sep + "save.png"));
 		saveItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);
@@ -150,6 +152,7 @@ public class ImageDescriberToolBar {
 		saveAsItem.setText("Save As");
 		saveAsItem.setImage(new Image(null, distPath  + sep + "images" + sep + "saveAs.png"));
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					// dm.setReturn (WP.OpenDocumentGetFile);

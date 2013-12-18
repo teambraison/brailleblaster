@@ -31,7 +31,6 @@ package org.brailleblaster.abstractClasses;
 import org.eclipse.swt.custom.StyledTextContent;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TextChangeListener;
-import nu.xom.*;
 
 public abstract class AbstractContent implements StyledTextContent {
 
@@ -56,6 +55,7 @@ styledText.setContent(this);
  *    <li>ERROR_NULL_ARGUMENT when listener is null</li>
  * </ul>
  */
+@Override
 public void addTextChangeListener(TextChangeListener listener){}
 
 /**
@@ -64,6 +64,7 @@ public void addTextChangeListener(TextChangeListener listener){}
  *
  * @return the number of characters in the content.
  */
+@Override
 public int getCharCount() {
 return 0;
 }
@@ -77,6 +78,7 @@ return 0;
  * 	content.
  * @return the line text without delimiters
  */
+@Override
 public String getLine(int lineIndex) {
 return null;
 }
@@ -100,6 +102,7 @@ return null;
  * <li>getLineAtOffset(4) == 2
  * </ul>
  */
+@Override
 public int getLineAtOffset(int offset) {
 return 0;
 }
@@ -118,6 +121,7 @@ return 0;
  * <li>	"\n\n" ==> 3			
  * </ul>
  */
+@Override
 public int getLineCount() {
 return 0;
 }
@@ -133,6 +137,7 @@ return 0;
  * @return the line delimiter that should be used by the StyledText widget
  *	when inserting new lines.
  */
+@Override
 public String getLineDelimiter() {
 return null;
 }
@@ -155,6 +160,7 @@ return null;
  * <li>getOffsetAtLine(2) == 8
  * </ul>
  */
+@Override
 public int getOffsetAtLine(int lineIndex) {
 return 0;
 }
@@ -168,6 +174,7 @@ return 0;
  * @param length the length of the text to return
  * @return the text at the given range
  */
+@Override
 public String getTextRange(int start, int length) {
 return null;
 }
@@ -182,6 +189,7 @@ return null;
  *    <li>ERROR_NULL_ARGUMENT when listener is null</li>
  * </ul>
  */
+@Override
 public void removeTextChangeListener(TextChangeListener listener){}
 
 /**
@@ -229,6 +237,7 @@ public void removeTextChangeListener(TextChangeListener listener){}
  * @param text text to replace
  * @see TextChangeListener
  */
+@Override
 public void replaceTextRange(int start, int replaceLength, String text){}
 
 /**
@@ -241,6 +250,7 @@ public void replaceTextRange(int start, int replaceLength, String text){}
  * @param text the new text
  * @see TextChangeListener
  */
+@Override
 public void setText(String text){}
 
 }

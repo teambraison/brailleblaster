@@ -125,6 +125,7 @@ public class TreeView extends AbstractView {
 		this.tree.pack();
 	}
 	
+	@Override
 	public void initializeListeners(final Manager dm){
 		this.tree.addSelectionListener(selectionListener = new SelectionListener(){
 			@Override
@@ -526,7 +527,7 @@ public class TreeView extends AbstractView {
 			for(int i = 0; i < list.size(); i++)
 				if(list.get(i).equals(t)){
 					setListenerLock(false);
-					return (TextMapElement)list.get(i);
+					return list.get(i);
 				}
 		}
 		setListenerLock(false);
@@ -535,7 +536,7 @@ public class TreeView extends AbstractView {
 	
 	private ArrayList<TextMapElement> getList(TreeItem item){
 		TreeItemData temp = (TreeItemData)item.getData();
-		return (ArrayList<TextMapElement>)temp.textMapList;
+		return temp.textMapList;
 	}
 	
 	private void resetTree(TreeItem currentItem){
@@ -650,6 +651,7 @@ public class TreeView extends AbstractView {
 		// TODO Auto-generated method stub
 	}
 	
+	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
 		this.root.setExpanded(false);

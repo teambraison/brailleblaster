@@ -34,10 +34,7 @@ package org.brailleblaster;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.util.ProgramCaller;
-import org.brailleblaster.embossers.EmbossersManager;
 import org.liblouis.liblouisutdml;
-import java.io.IOException;
 import java.io.Console;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
@@ -45,7 +42,6 @@ import javax.print.PrintException;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.Arrays;
-import org.eclipse.swt.widgets.Display;
 
 /**
  * Process subcommands. If the first argument is not a recognized subcommand,

@@ -47,6 +47,7 @@ public class ShowBriefly {
 		label.setText(message);
 		shell.open();
 		display.timerExec(60000, new Runnable() {
+			@Override
 			public void run() {
 				endShow();
 			}

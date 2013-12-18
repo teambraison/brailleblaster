@@ -80,7 +80,8 @@ public class PrinterDevice implements Device {
          * @throws FileNotFoundException
          * @throws PrintException
          */
-        public void transmit(File file) throws PrintException {
+        @Override
+		public void transmit(File file) throws PrintException {
                 try {
                         transmit(new FileInputStream(file));
                 } catch (FileNotFoundException e) {
@@ -106,23 +107,28 @@ public class PrinterDevice implements Device {
                         this.stream = stream;
                 }
 
-                public DocAttributeSet getAttributes() {
+                @Override
+				public DocAttributeSet getAttributes() {
                         return null;
                 }
 
-                public DocFlavor getDocFlavor() {
+                @Override
+				public DocFlavor getDocFlavor() {
                         return FLAVOR;
                 }
 
-                public Object getPrintData() throws IOException {
+                @Override
+				public Object getPrintData() throws IOException {
                         return getStreamForBytes();
                 }
 
-                public Reader getReaderForText() throws IOException {
+                @Override
+				public Reader getReaderForText() throws IOException {
                         return null;
                 }
 
-                public InputStream getStreamForBytes() throws IOException {
+                @Override
+				public InputStream getStreamForBytes() throws IOException {
                         return stream;
                 }
         }

@@ -333,16 +333,16 @@ public class Manager extends Controller {
 		////////////////////////
 		
 		// Change current config based on file type.
-		if(arch != null)
-		{
-			// Is this an epub document?
-			if( arch.getOrigDocPath().endsWith(".epub") == true )
-				currentConfig = getAutoCfg("epub");
-		}
-		else if( workingFilePath.endsWith(".xml") )
-			currentConfig = getAutoCfg("nimas"); // Nimas document.
-		else if( workingFilePath.endsWith(".xhtml") )
-			currentConfig = getAutoCfg("epub");
+//		if(arch != null)
+//		{
+//			// Is this an epub document?
+//			if( arch.getOrigDocPath().endsWith(".epub") == true )
+//				currentConfig = getAutoCfg("epub");
+//		}
+//		else if( workingFilePath.endsWith(".xml") )
+//			currentConfig = getAutoCfg("nimas"); // Nimas document.
+//		else if( workingFilePath.endsWith(".xhtml") )
+//			currentConfig = getAutoCfg("epub");
 			
 		initializeAllViews(fileName, workingFilePath, null);
 	}	
@@ -962,6 +962,7 @@ public class Manager extends Controller {
 		}
 	}
 	
+	@Override
 	public void close() {
 		if (getText().hasChanged || getBraille().hasChanged || documentEdited) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
@@ -1322,6 +1323,7 @@ public class Manager extends Controller {
 		return documentName;
 	}
 	
+	@Override
 	public String getWorkingPath(){
 		return this.workingFilePath;
 	}
@@ -1330,6 +1332,7 @@ public class Manager extends Controller {
 		return document;
 	}
 	
+	@Override
 	public String getCurrentConfig(){
 		return currentConfig;
 	}

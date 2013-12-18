@@ -115,7 +115,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Create shell, get display, etc.
 		dm = fdm;
-		display = dm.getDisplay();
+		display = WPManager.getDisplay();
 		Display display = parent.getDisplay();
 		configShell = new Shell(parent, SWT.DIALOG_TRIM);
 		configShell.setText(lh.localValue("editTranslationTemplates"));
@@ -225,6 +225,7 @@ public class ConfigFileDialog extends Dialog {
 		restoreDefaultBtn.setText("Restore Default Cfg");
 //		restoreDefaultBtn.setLayoutData(data);
 		restoreDefaultBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Point to user's version of cfg file.
@@ -318,6 +319,7 @@ public class ConfigFileDialog extends Dialog {
 		// Set up default cfg check box.
 		defaultCfgChk.setText("Set As Default");
 		defaultCfgChk.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// If the checkbox isn't checked, get current  
@@ -341,6 +343,7 @@ public class ConfigFileDialog extends Dialog {
 		apply.setText("Apply");
 		apply.setLayoutData(data);
 		apply.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Save settings, but don't close the window.
@@ -358,6 +361,7 @@ public class ConfigFileDialog extends Dialog {
 		okayBtn.setText("Okay");
 		okayBtn.setLayoutData(data);
 		okayBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Save settings.
@@ -378,6 +382,7 @@ public class ConfigFileDialog extends Dialog {
 		saveAsBtn.setText("Save As");
 		saveAsBtn.setLayoutData(data);
 		saveAsBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Create and open Save-As Dialog.
@@ -434,6 +439,7 @@ public class ConfigFileDialog extends Dialog {
 		cancelBtn.setText("Cancel");
 		cancelBtn.setLayoutData(data);
 		cancelBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Close dialog.
@@ -445,6 +451,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Filename Combo Listener.
 		fileNameCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Fill variable name combo box.
@@ -464,6 +471,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Variable Name Combo Listener.
 		variableCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// We have to search the variable list for one that 
@@ -498,6 +506,7 @@ public class ConfigFileDialog extends Dialog {
 		
 		// Variable Value Combo Listener.
 		valueCombo.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Set text to this.

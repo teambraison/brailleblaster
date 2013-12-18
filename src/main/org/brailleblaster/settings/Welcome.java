@@ -103,10 +103,12 @@ data2.top = new FormAttachment(checkbox, 5);
 tutBtn.setLayoutData(data2);
 
 tutBtn.addSelectionListener(new SelectionListener() {
-  public void widgetSelected(SelectionEvent e) {
+  @Override
+public void widgetSelected(SelectionEvent e) {
     new CallOutsideWP().showTutorial();
   }
-  public void widgetDefaultSelected(SelectionEvent e) {
+  @Override
+public void widgetDefaultSelected(SelectionEvent e) {
   }
 });
 
@@ -119,7 +121,8 @@ data3.right = new FormAttachment(100, 0);
 data3.top = new FormAttachment(checkbox, 5);
 okBtn.setLayoutData(data3);
 okBtn.addSelectionListener(new SelectionListener() {
-  public void widgetSelected(SelectionEvent e) {
+  @Override
+public void widgetSelected(SelectionEvent e) {
     String showWelcome; 
     if(checkbox.getSelection()) {
       showWelcome = "yes";
@@ -131,7 +134,8 @@ okBtn.addSelectionListener(new SelectionListener() {
     storeProperty();
     shell.dispose();
   }
-  public void widgetDefaultSelected(SelectionEvent e) {
+  @Override
+public void widgetDefaultSelected(SelectionEvent e) {
   }
 });
 

@@ -92,6 +92,7 @@ public class BrailleMenu extends BBMenu{
 		newItem.setText(lh.localValue("&New") + "\tCtrl + N");
 		newItem.setAccelerator(SWT.MOD1 + 'N');
 		newItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 
@@ -106,6 +107,7 @@ public class BrailleMenu extends BBMenu{
 		openItem.setText(lh.localValue("&Open") + "\tCtrl + O");
 		openItem.setAccelerator(SWT.MOD1 + 'O');
 		openItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 
@@ -138,6 +140,7 @@ public class BrailleMenu extends BBMenu{
 		saveItem.setText(lh.localValue("&Save") + "\tCtrl + S");
 		saveItem.setAccelerator(SWT.MOD1 + 'S');
 		saveItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count= wp.getFolder().getItemCount();
 				//if(index != -1){
@@ -151,6 +154,7 @@ public class BrailleMenu extends BBMenu{
 		saveAsItem.setText(lh.localValue("Save&As") + "\tF12");
 		saveAsItem.setAccelerator(SWT.F12);
 		saveAsItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1){
@@ -166,6 +170,7 @@ public class BrailleMenu extends BBMenu{
 		embosserSetupItem.setText(lh.localValue("&EmbosserSetup"));
 		embosserSetupItem.setEnabled(false); /* FO */
 		embosserSetupItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -193,6 +198,7 @@ public class BrailleMenu extends BBMenu{
 		embossNowItem = new MenuItem(fileMenu, SWT.PUSH, 6);
 		embossNowItem.setText(lh.localValue("E&mboss&Now!"));
 		embossNowItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1){
@@ -228,6 +234,7 @@ public class BrailleMenu extends BBMenu{
 		printPreviewItem.setText(lh.localValue("&BraillePreview") + "\tAlt + HOME");
 		printPreviewItem.setAccelerator(SWT.MOD3 + SWT.HOME);
 		printPreviewItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 			//	if(index != -1){
@@ -242,6 +249,7 @@ public class BrailleMenu extends BBMenu{
 		printItem.setText(lh.localValue("&Print") + "\tCtrl + P");
 		printItem.setAccelerator(SWT.MOD1 + 'p');
 		printItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1){
@@ -256,6 +264,7 @@ public class BrailleMenu extends BBMenu{
 		closeItem.setText(lh.localValue("&Close") + "\tCtrl + W");
 		closeItem.setAccelerator(SWT.MOD1 + 'W');
 		closeItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//wp.getList().get(index).close();
@@ -279,6 +288,7 @@ public class BrailleMenu extends BBMenu{
 		undoItem.setText(lh.localValue("&Undo"));
 		undoItem.setEnabled(false);
 		undoItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 					//dm.setReturn(WP.SwitchDocuments);
@@ -291,6 +301,7 @@ public class BrailleMenu extends BBMenu{
 		redoItem.setText(lh.localValue("&Redo"));
 		redoItem.setEnabled(false);
 		redoItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -298,6 +309,7 @@ public class BrailleMenu extends BBMenu{
 		cutItem = new MenuItem(editMenu, SWT.PUSH);
 		cutItem.setText(lh.localValue("&Cut") + "\tCtrl + X");
 		cutItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getSelectionIndex();
 				//if(index != -1)
@@ -309,6 +321,7 @@ public class BrailleMenu extends BBMenu{
 		copyItem = new MenuItem(editMenu, SWT.PUSH);
 		copyItem.setText(lh.localValue("&Copy") + "\tCtrl + C");
 		copyItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1)
@@ -320,6 +333,7 @@ public class BrailleMenu extends BBMenu{
 		pasteItem = new MenuItem(editMenu, SWT.PUSH);
 		pasteItem.setText(lh.localValue("&Paste") + "\tCtrl + V");
 		pasteItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1)
@@ -332,6 +346,7 @@ public class BrailleMenu extends BBMenu{
 		searchItem.setText(lh.localValue("&Search"));
 		searchItem.setEnabled(false);
 		searchItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -340,6 +355,7 @@ public class BrailleMenu extends BBMenu{
 		replaceItem.setText(lh.localValue("&Replace"));
 		replaceItem.setEnabled(false);
 		replaceItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -348,6 +364,7 @@ public class BrailleMenu extends BBMenu{
 		spellCheckItem.setText(lh.localValue("&SpellCheck") + "\t" + lh.localValue("F7"));
 		spellCheckItem.setAccelerator(SWT.F7);
 		spellCheckItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentEditor.initiateSpellCheck();
 			}
@@ -356,6 +373,7 @@ public class BrailleMenu extends BBMenu{
 		boldToggleItem.setText(lh.localValue("&BoldToggle") + "\t" + lh.localValue("Ctrl + B"));
 		boldToggleItem.setAccelerator(SWT.CTRL + 'B');
 		boldToggleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentEditor.toggleFont(SWT.BOLD);
 			}
@@ -364,6 +382,7 @@ public class BrailleMenu extends BBMenu{
 		italicToggleItem.setText(lh.localValue("&ItalicToggle") + "\t" + lh.localValue("Ctrl + I"));
 		italicToggleItem.setAccelerator(SWT.CTRL + 'I');
 		italicToggleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentEditor.toggleFont(SWT.ITALIC);
 			}
@@ -372,6 +391,7 @@ public class BrailleMenu extends BBMenu{
 		underlineToggleItem.setText(lh.localValue("&UnderlineToggle") + "\t" + lh.localValue("Ctrl + U"));
 		underlineToggleItem.setAccelerator(SWT.CTRL + 'U');
 		underlineToggleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				currentEditor.toggleFont(SWT.UNDERLINE_SINGLE);
 			}
@@ -380,6 +400,7 @@ public class BrailleMenu extends BBMenu{
 		zoomImageItem.setText(lh.localValue("&ZoomImage"));
 		zoomImageItem.setEnabled(false);
 		zoomImageItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -388,6 +409,7 @@ public class BrailleMenu extends BBMenu{
 		selectAllItem.setText(lh.localValue("&SelectAll") + "\t" + lh.localValue("Ctrl + A"));
 		//selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				//if(index != -1){
@@ -400,6 +422,7 @@ public class BrailleMenu extends BBMenu{
 		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);
 		stylePanelItem.setText(lh.localValue("&StylePanel"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (BBIni.debugging()) {
 
@@ -419,6 +442,7 @@ public class BrailleMenu extends BBMenu{
 		assocSelectionItem.setText(lh.localValue("&AssocSelection"));
 		assocSelectionItem.setEnabled(false);
 		assocSelectionItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -427,6 +451,7 @@ public class BrailleMenu extends BBMenu{
 		lockSelectionItem.setText(lh.localValue("&LockSelection"));
 		lockSelectionItem.setEnabled(false);
 		lockSelectionItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -435,6 +460,7 @@ public class BrailleMenu extends BBMenu{
 		unlockSelectionItem.setText(lh.localValue("&UnlockSelection"));
 		unlockSelectionItem.setEnabled(false);
 		unlockSelectionItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -443,6 +469,7 @@ public class BrailleMenu extends BBMenu{
 		editLockedItem.setText(lh.localValue("&EditLocked"));
 		editLockedItem.setEnabled(false);
 		editLockedItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -451,6 +478,7 @@ public class BrailleMenu extends BBMenu{
 		keybdBrlToggleItem.setText(lh.localValue("&KeybdBrlToggle"));
 		keybdBrlToggleItem.setEnabled(false);
 		keybdBrlToggleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -483,6 +511,7 @@ public class BrailleMenu extends BBMenu{
 		prevElementItem.setText(lh.localValue("&PreviousElement") + "\tCtrl + Up");
 		prevElementItem.setAccelerator(SWT.MOD1 + SWT.ARROW_UP);
 		prevElementItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 			//if(index != -1)
@@ -496,6 +525,7 @@ public class BrailleMenu extends BBMenu{
 		nextElementItem.setText(lh.localValue("&NexstElement") + "\tCtrl + Down");
 		nextElementItem.setAccelerator(SWT.MOD1 + SWT.ARROW_DOWN);
 		nextElementItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 			//if(index != -1)
@@ -513,6 +543,7 @@ public class BrailleMenu extends BBMenu{
 		refreshItem.setText("Refresh\tF5");
 		refreshItem.setAccelerator(SWT.F5);
 		refreshItem.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 			//if(index  > -1)
@@ -525,6 +556,7 @@ public class BrailleMenu extends BBMenu{
 		increaseFontSizeItem.setText(lh.localValue("&IncreaseFontSize") + "\tCtrl + '+'");
 		increaseFontSizeItem.setAccelerator(SWT.MOD1 + '+');
 		increaseFontSizeItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)
@@ -535,6 +567,7 @@ public class BrailleMenu extends BBMenu{
 		decreaseFontSizeItem.setText(lh.localValue("&DecreaseFontSize") + "\tCtrl + '-'");
 		decreaseFontSizeItem.setAccelerator(SWT.MOD1 + '-');
 		decreaseFontSizeItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)
@@ -545,6 +578,7 @@ public class BrailleMenu extends BBMenu{
 		increaseContrastItem.setText(lh.localValue("&IncreaseContrast"));
 		increaseContrastItem.setEnabled(false);
 		increaseContrastItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -553,6 +587,7 @@ public class BrailleMenu extends BBMenu{
 		decreaseContrastItem.setText(lh.localValue("&DecreaseContrast"));
 		decreaseContrastItem.setEnabled(false);
 		decreaseContrastItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -561,6 +596,7 @@ public class BrailleMenu extends BBMenu{
 		showOutlineItem.setText(lh.localValue("&ShowOutline"));
 		showOutlineItem.setEnabled(false);
 		showOutlineItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				//dm.placeholder();
 			}
@@ -596,6 +632,7 @@ public class BrailleMenu extends BBMenu{
 		xtranslateItem = new MenuItem(brailleMenu, SWT.PUSH);
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 					int count = wp.getFolder().getItemCount();
 				//if(index != -1)
@@ -608,6 +645,7 @@ public class BrailleMenu extends BBMenu{
 			backTranslateItem.setText(lh.localValue("&BackTranslate"));
 			backTranslateItem.setEnabled(false);
 			backTranslateItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -615,6 +653,7 @@ public class BrailleMenu extends BBMenu{
 			translationTemplatesItem = new MenuItem(brailleMenu, SWT.PUSH);
 			translationTemplatesItem.setText(lh.localValue("&TranslationTemplates"));
 			translationTemplatesItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
 				}
@@ -626,6 +665,7 @@ public class BrailleMenu extends BBMenu{
 			inLineMathItem = new MenuItem(insertMenu, SWT.PUSH);
 			inLineMathItem.setText(lh.localValue("&InLineMath"));
 			inLineMathItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -633,6 +673,7 @@ public class BrailleMenu extends BBMenu{
 			displayedMathItem = new MenuItem(insertMenu, SWT.PUSH);
 			displayedMathItem.setText(lh.localValue("&DisplayedMath"));
 			displayedMathItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -640,6 +681,7 @@ public class BrailleMenu extends BBMenu{
 			inLineGraphicItem = new MenuItem(insertMenu, SWT.PUSH);
 			inLineGraphicItem.setText(lh.localValue("&InLineGraphic"));
 			inLineGraphicItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -647,6 +689,7 @@ public class BrailleMenu extends BBMenu{
 			displayedGraphicItem = new MenuItem(insertMenu, SWT.PUSH);
 			displayedGraphicItem.setText(lh.localValue("&DisplayedGraphic"));
 			displayedGraphicItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -654,6 +697,7 @@ public class BrailleMenu extends BBMenu{
 			tableItem = new MenuItem(insertMenu, SWT.PUSH);
 			tableItem.setText(lh.localValue("&Table"));
 			tableItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -666,6 +710,7 @@ public class BrailleMenu extends BBMenu{
 			brlFormatItem.setText(lh.localValue("&BrailleFormat"));
 			brlFormatItem.setEnabled(false);
 			brlFormatItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -684,6 +729,7 @@ public class BrailleMenu extends BBMenu{
 			showTranslationTemplatesItem.setText(lh.localValue("&ShowTranslationTemplates"));
 			showTranslationTemplatesItem.setEnabled(false);
 			showTranslationTemplatesItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -692,6 +738,7 @@ public class BrailleMenu extends BBMenu{
 			showFormatTemplatesItem.setText(lh.localValue("&ShowFormatTemplates"));
 			showFormatTemplatesItem.setEnabled(false);
 			showFormatTemplatesItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					//dm.placeholder();
 				}
@@ -699,6 +746,7 @@ public class BrailleMenu extends BBMenu{
 			changeSettingsItem = new MenuItem(advancedMenu, SWT.PUSH);
 			changeSettingsItem.setText(lh.localValue("&changeSettings"));
 			changeSettingsItem.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					new SettingsDialog().open();
 				}
@@ -707,11 +755,13 @@ public class BrailleMenu extends BBMenu{
 			advancedItem.setEnabled(true);
 	}
 
+	@Override
 	public void setCurrent(Controller controller){
 		currentEditor = (Manager)controller;
 	}
 
 	
+	@Override
 	public Controller getCurrent() {
 		return currentEditor;
 	}

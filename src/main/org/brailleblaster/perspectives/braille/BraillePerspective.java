@@ -19,7 +19,8 @@ public class BraillePerspective extends Perspective{
     	return toolBar;
     }
     
-    public void dispose(){
+    @Override
+	public void dispose(){
     	menu.dispose();
     	//controller.dispose();
     	toolBar.dispose();

@@ -95,24 +95,28 @@ public class Encoder {
 			selShell.setLocation(x, y);
 
 			b1.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					encoding = Encodings.UTF_8.encoding();
 				}
 			});
 
 			b2.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					encoding = Encodings.ISO_8859_1.encoding();
 				}
 			});
 
 			b3.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					encoding = Encodings.WINDOWS_1252.encoding();
 				}
 			});
 
 			b4.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					encoding = Encodings.US_ASCII.encoding();
 				}
@@ -120,12 +124,14 @@ public class Encoder {
 
 			/* Select */
 			bsel.addSelectionListener(new SelectionAdapter() {
+				@Override
 				public void widgetSelected(SelectionEvent e) {
 					selShell.dispose();
 				}
 			});
 
 			selShell.addListener(SWT.Close, new Listener() {
+				@Override
 				public void handleEvent(Event event) {
 					event.doit = false; // must pick a value
 				}

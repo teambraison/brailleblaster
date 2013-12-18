@@ -91,21 +91,24 @@ public class SaveOptionsDialog extends Dialog {
 
             /* text and Braille */
             b1.addSelectionListener (new SelectionAdapter() {
-            	public void widgetSelected (SelectionEvent e) {
+            	@Override
+				public void widgetSelected (SelectionEvent e) {
             		textAndBraille = true;
             	}
             });
 
             /* Text only */
             b2.addSelectionListener (new SelectionAdapter() {
-            	public void widgetSelected (SelectionEvent e) {
+            	@Override
+				public void widgetSelected (SelectionEvent e) {
             		textAndBraille = false;
             	}
             });
 
             /* Save */
             b3.addSelectionListener (new SelectionAdapter() {
-            	public void widgetSelected (SelectionEvent e) {
+            	@Override
+				public void widgetSelected (SelectionEvent e) {
 
             		if ((b1.getSelection()) || (b2.getSelection()) ) {
             			//FO make sure we get the default selection
@@ -123,7 +126,8 @@ public class SaveOptionsDialog extends Dialog {
     	
             /* Cancel */
             b4.addSelectionListener (new SelectionAdapter() {
-            	public void widgetSelected (SelectionEvent e) {
+            	@Override
+				public void widgetSelected (SelectionEvent e) {
             		selShell.dispose();
             	}
             });

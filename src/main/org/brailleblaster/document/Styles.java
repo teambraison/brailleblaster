@@ -191,7 +191,7 @@ return null;
   st.rightMargin = Integer.parseInt (prop.getProperty ("rightMargin"));
   st.firstLineIndent = Integer.parseInt (prop.getProperty 
   ("firstLineIndent"));
-  st.format = st.format.valueOf (prop.getProperty ("format"));
+  st.format = StyleFormat.valueOf (prop.getProperty ("format"));
   return st;  
 }
 

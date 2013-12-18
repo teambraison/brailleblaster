@@ -128,7 +128,8 @@ public class WPManager {
 	    });
 	    
 	    this.shell.addListener(SWT.Close, new Listener() { 
-	        public void handleEvent(Event event) { 
+	        @Override
+			public void handleEvent(Event event) { 
 	           System.out.println("Main Shell handling Close event, about to dispose the main Display");
 	           //int count = getList().size();
 	           //for(int i = 0; i < count; i++){

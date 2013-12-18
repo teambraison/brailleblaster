@@ -43,9 +43,9 @@ import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.eclipse.swt.graphics.Image;
 
-import org.apache.batik.transcoder.image.JPEGTranscoder;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
+//import org.apache.batik.transcoder.image.JPEGTranscoder;
+//import org.apache.batik.transcoder.TranscoderInput;
+//import org.apache.batik.transcoder.TranscoderOutput;
 
 public class ImageDescriber extends BBDocument {
 	// The document with images we want to add descriptions to.

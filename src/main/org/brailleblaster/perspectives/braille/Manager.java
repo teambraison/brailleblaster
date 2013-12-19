@@ -549,7 +549,7 @@ public class Manager extends Controller {
 	
 	private void handleSetCurrent(Message message){
 		int index;
-		list.checkList();
+	//	list.checkList();
 		if(message.getValue("isBraille").equals(true)){
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
@@ -836,7 +836,7 @@ public class Manager extends Controller {
 	}
 	
 	private void handleUpdateStyle(Message message){
-		if(document.getDOM() != null){
+		if(document.getDOM() != null && text.view.getText().length() > 0){
 			group.setRedraw(false);
 			Element parent = document.getParent(list.getCurrent().n, true);
 			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
@@ -866,6 +866,8 @@ public class Manager extends Controller {
 			document.changeSemanticAction(message, list.getCurrent().parentElement());
 			group.setRedraw(true);
 		}
+		else
+			new Notify(lh.localValue("nothingToApply"));
 	}
 	
 	public String getFileExt(String fileName) {
@@ -1268,6 +1270,10 @@ public class Manager extends Controller {
 			return list.get(list.getCurrentIndex() - 1);
 		else
 			return null;
+	}
+	
+	public TextMapElement getCurrent(){
+		return list.getCurrent();
 	}
 	
 	public TextMapElement getNext(){

@@ -123,6 +123,10 @@ public class BBSemanticsTable {
 		}
 	}
 	
+	public Styles getNewStyle(String name){
+		return new Styles(name);
+	}
+	
 	private void makeStylesObject(String key){
 		Styles temp = new Styles(key);
 		this.table.put(key, temp);
@@ -132,15 +136,19 @@ public class BBSemanticsTable {
 		Styles temp = this.table.get(styleName);
 		String [] tokens = keyValuePair.split(" ");
 		
-		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered")){
+		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered"))
 			tokens[1] = String.valueOf(SWT.CENTER);
-		}
-		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified")){
+		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified"))
 			tokens[1] = String.valueOf(SWT.RIGHT);
-		}
-		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("leftJustified")){
+		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("leftJustified"))
 			tokens[1] = String.valueOf(SWT.LEFT);
-		}
+		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("boldx"))
+			tokens[1] = String.valueOf(SWT.BOLD);
+		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("italicx"))
+			tokens[1] = String.valueOf(SWT.ITALIC);
+		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("underlinex"))
+			tokens[1] = String.valueOf(SWT.UNDERLINE_SINGLE);
+		
 		temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
 	}
 	

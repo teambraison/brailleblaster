@@ -31,13 +31,13 @@
 
 package org.brailleblaster.perspectives.braille.stylepanel;
 
+import org.brailleblaster.document.ConfigFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
-//import org.brailleblaster.views.PropertyView;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -45,10 +45,11 @@ public class StyleManager{
 	
     private StylePanel sp;
     private StyleTable table;
-    //private PropertyView propView;
+    private EditStyleView editor;
     private String configFile;
     Manager dm;
-    
+    TextMapElement t;
+    private int lastSelection;
     private BBSemanticsTable semanticsTable;
     
     public StyleManager(Manager dm) {
@@ -80,6 +81,21 @@ public class StyleManager{
     	table.showTable(item);
     }
     
+    public void openEditStyle(){
+    	lastSelection = table.getTable().getSelectionIndex();
+    	String style = table.getTable().getSelection()[0].getText(1);
+    	this.table.dispose();
+    	editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+    }
+    
+    public void closeEditStyle(){
+    	editor.dispose();
+    	table = new StyleTable(this, dm.getGroup());
+    	displayTable(dm.getCurrent());
+    	dm.getGroup().layout();
+    	table.getTable().setSelection(lastSelection);
+    }
+    
     public void apply(String item){
     	Message m = new Message(BBEvent.UPDATE_STYLE);
     	Styles style = semanticsTable.get(item);
@@ -87,6 +103,14 @@ public class StyleManager{
     		m.put("Style", style);
     		dm.dispatch(m);
     	}
+    }
+    
+    protected void saveEditedStyle(Styles oldStyle, Styles newStyle){  	
+    	ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    	handler.updateStyle(newStyle);
+    	semanticsTable.resetStyleTable(configFile);
+    	closeEditStyle();
+    	dm.refresh();
     }
     
     public void setStyleTableItem(TextMapElement t){

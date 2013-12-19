@@ -330,15 +330,15 @@ public class Manager extends Controller {
 			addRecentFileEntry(fileName);
 
 		// Zip and Recent Files.
-		////////////////////////
-		
+		////////////////////////	
+			
 		// Change current config based on file type.
-//		if(arch != null)
-//		{
-//			// Is this an epub document?
-//			if( arch.getOrigDocPath().endsWith(".epub") == true )
-//				currentConfig = getAutoCfg("epub");
-//		}
+		if(arch != null)
+		{
+			// Is this an epub document?
+			if( arch.getOrigDocPath().endsWith(".epub") == true )
+				currentConfig = getAutoCfg("epub");
+		}
 //		else if( workingFilePath.endsWith(".xml") )
 //			currentConfig = getAutoCfg("nimas"); // Nimas document.
 //		else if( workingFilePath.endsWith(".xhtml") )

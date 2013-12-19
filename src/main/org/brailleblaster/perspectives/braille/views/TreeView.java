@@ -73,7 +73,7 @@ public class TreeView extends AbstractView {
 	private final static int RIGHT_MARGIN = 15;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;
-	private final static int ADJUSTED_BOTTOM_MARGIN = 69;
+	private final static int ADJUSTED_BOTTOM_MARGIN = 49;
 	
 	public Tree tree;
 	private TreeItem root, previousItem;

@@ -32,7 +32,7 @@ import org.eclipse.swt.widgets.TableItem;
 public class StyleTable {
 	private final static int LEFT_MARGIN = 0;
 	private final static int RIGHT_MARGIN = 15;
-	private final static int TOP_MARGIN = 70;
+	private final static int TOP_MARGIN = 50;
 	private final static int BOTTOM_MARGIN = 100;
 	
 	private Group group;
@@ -40,7 +40,7 @@ public class StyleTable {
 	private Logger logger = BBIni.getLogger();
 	private FileUtils fu;
 	private StyleManager sm;
-	private Button applyButton;
+	private Button editButton, applyButton;
 	
 	public StyleTable(final StyleManager sm, Group documentWindow){
 		this.fu = new FileUtils();
@@ -51,7 +51,7 @@ public class StyleTable {
 		this.group.setVisible(false);
 		
 		this.t = new Table(this.group, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
-		setLayoutData(this.t, 0, 100, 0, 85);
+		setLayoutData(this.t, 0, 100, 0, 90);
 	    
 		TableColumn tc1 = new TableColumn(this.t, SWT.CENTER);
 		tc1.setWidth(0);
@@ -62,17 +62,18 @@ public class StyleTable {
 	   
 	    this.t.setLinesVisible(true);
 	    this.t.setHeaderVisible(true);	
-	  
-	//   Button newButton = new Button(this.group, SWT.NONE);
-	//   newButton.setText("New");
-	//   setLayoutData(newButton, 0, 50, 90, 100);
+	   	
+	    editButton = new Button(this.group, SWT.NONE);
+	   	editButton.setText("Edit");
+	   	setLayoutData(editButton, 0, 50, 90, 100);
 	    
 	    applyButton = new Button(this.group, SWT.NONE);
 	    applyButton.setText("Apply");
-	    setLayoutData(applyButton, 0, 100, 85, 100);
+	    setLayoutData(applyButton, 50, 100, 90, 100);
 		
 	    group.pack();
 	    tc2.setWidth(group.getClientArea().width);
+	   
 	    t.getHorizontalBar().dispose();
 		
 		this.group.addListener(SWT.Resize, new Listener(){
@@ -104,6 +105,19 @@ public class StyleTable {
 	}
 	
 	private void initializeListeners(){
+		editButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+		
+				sm.openEditStyle();
+			}		
+		});
+		
 		applyButton.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -217,5 +231,10 @@ public class StyleTable {
     
     public Group getGroup(){
     	return group;
+    }
+    
+    protected void dispose(){
+    	t.dispose();
+    	group.dispose();
     }
 }

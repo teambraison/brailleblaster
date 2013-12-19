@@ -34,9 +34,14 @@ package org.brailleblaster.perspectives.imageDescriber.document;
 //import java.io.IOException;
 //import java.io.OutputStream;
 //import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import nu.xom.Attribute;
+import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -131,11 +136,11 @@ public class ImageDescriber extends BBDocument {
 		
 		// Set the image context.
 		if(dm.getArchiver() != null) {
-			if(dm.getArchiver().getOrigDocPath().endsWith(".epub"))
+			if(dm.getArchiver().getOrigDocPath().toLowerCase().endsWith(".epub"))
 					imgContext.setDocType(ImageDescriberContext.ET_EPUB);
 		}
 		else if(dm.getWorkingPath() != null)
-			if(dm.getWorkingPath().endsWith(".xml"))
+			if(dm.getWorkingPath().toLowerCase().endsWith(".xml"))
 				imgContext.setDocType(ImageDescriberContext.ET_NIMAS);
 		
 		// Point to root.
@@ -148,7 +153,7 @@ public class ImageDescriber extends BBDocument {
 		numImgElms = imgElmList.size();
 			
 		// Go to first image.
-		nextImageElement();	
+		nextImageElement();
 	}
 	
 	///////////////////////////////////////////////////////////////////////////	
@@ -306,7 +311,11 @@ public class ImageDescriber extends BBDocument {
 				tempStr = tempStr.replace("/", "\\");
 			
 			// Add.
-			imgFileList.add( new Image(null, tempStr) );
+			if( imgElmList.get(curTag).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
+				imgFileList.add( null );
+			else	
+				imgFileList.add( new Image(null, tempStr) );
+			
 		
 		} // for(int...
 		
@@ -315,7 +324,56 @@ public class ImageDescriber extends BBDocument {
 	
 	} // fillImgList_XPath()
 	
-	
+	//////////////////////////////////////////////////////////////////////
+	// Pass the path to an svg file, and we'll convert it to a jpg. 
+	// Returns path to jpg.
+	public String convertSVG2JPG(String svgPath)
+	{
+		//////////////////
+		// SVG Conversion.
+		
+			// If this element uses an svg file, convert to jpeg.
+//			try {
+//				// Create a JPEG transcoder
+//		        JPEGTranscoder t = new JPEGTranscoder();
+//		        
+//		        // Set the transcoding hints.
+//		        t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
+//		                   new Float(.8));
+//	
+//		        // Create the transcoder input.
+//		        String svgURI = new File( svgPath ).toURL().toString();
+//		        TranscoderInput input = new TranscoderInput(svgURI);
+//	
+//		        // Create the transcoder output.
+//		        OutputStream ostream;
+//				
+//		        // Get output stream.
+//		        String imgSrcStr = svgPath;
+//		        String outStr = imgSrcStr.substring(0, imgSrcStr.lastIndexOf(".")) + ".jpg";
+//				ostream = new FileOutputStream(outStr);
+//		        TranscoderOutput output = new TranscoderOutput(ostream);
+//	
+//		        // Save the image.
+//		        t.transcode(input, output);
+//	
+//		        // Flush and close the stream.
+//		        ostream.flush();
+//		        ostream.close();
+//		        
+//		        // Return path to jpg.
+//		        return outStr;
+//			}
+//			catch (IOException ioe) { ioe.printStackTrace(); }
+//			catch (TranscoderException te) { te.printStackTrace(); }
+
+		// SVG Conversion.
+        //////////////////
+		
+		// Return null if we couldn't do the conversion for some reason.
+		return null;
+			
+	} // convertSVG2JPG()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Returns the next <img> element that was found in the xml doc.
@@ -342,43 +400,6 @@ public class ImageDescriber extends BBDocument {
 //			
 //		} // if( hasImgGrpParent(...
 		
-		//////////////////
-		// SVG Conversion.
-		
-			// If this element uses an svg file, convert to jpeg.
-//			try {
-//				// Create a JPEG transcoder
-//		        JPEGTranscoder t = new JPEGTranscoder();
-//		        
-//		        // Set the transcoding hints.
-//		        t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
-//		                   new Float(.8));
-//	
-//		        // Create the transcoder input.
-//		        String svgURI = new File( curImgElement.getAttributeValue("src") ).toURL().toString();
-//		        TranscoderInput input = new TranscoderInput(svgURI);
-//	
-//		        // Create the transcoder output.
-//		        OutputStream ostream;
-//				
-//				ostream = new FileOutputStream("out.jpg");
-//				
-//		        TranscoderOutput output = new TranscoderOutput(ostream);
-//	
-//		        // Save the image.
-//		        t.transcode(input, output);
-//	
-//		        // Flush and close the stream.
-//		        ostream.flush();
-//		        ostream.close();
-//		        
-//			}
-//			catch (IOException ioe) { ioe.printStackTrace(); }
-//			catch (TranscoderException te) { te.printStackTrace(); }
-
-		// SVG Conversion.
-        //////////////////
-        
 		if( imgContext.hasContainer(curImgElement) == false ) {
 			curImgElement = imgContext.addContainer(curImgElement);
 			imgElmList.set(curElementIndex, curImgElement);
@@ -526,7 +547,29 @@ public class ImageDescriber extends BBDocument {
 	{
 		// Return the image.
 		if(imgFileList.size() > 0)
-			return imgFileList.get(curElementIndex);
+		{
+			// If this is an svg file, we'll have to do a conversion.
+			if( imgElmList.get(curElementIndex).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
+			{
+				// Now to build a path to the current image.
+				String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
+				
+				// Remove dots and slashes at beginning.
+				if( tempStr.startsWith(".") && dm.getArchiver() == null)
+					tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+				
+				// Build image path.
+				tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+				if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+					tempStr = tempStr.replace("/", "\\");
+				
+				// Return the svg image.
+				return new Image( null, convertSVG2JPG(tempStr) );
+			}
+			else
+				return imgFileList.get(curElementIndex);
+			
+		} // if svg
 		
 		// Return null if the list is empty.
 		return null;

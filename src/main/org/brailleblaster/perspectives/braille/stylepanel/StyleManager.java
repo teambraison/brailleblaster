@@ -86,6 +86,7 @@ public class StyleManager{
     	String style = table.getTable().getSelection()[0].getText(1);
     	this.table.dispose();
     	editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+    	dm.setTabList();
     }
     
     public void closeEditStyle(){
@@ -94,6 +95,7 @@ public class StyleManager{
     	displayTable(dm.getCurrent());
     	dm.getGroup().layout();
     	table.getTable().setSelection(lastSelection);
+    	dm.setTabList();
     }
     
     public void apply(String item){
@@ -118,8 +120,11 @@ public class StyleManager{
     		table.setSelection(t);
     }
     
-    public boolean tableIsVisible(){
-    	return table.isVisible();
+    public boolean panelIsVisible(){
+        if((table != null && table.isVisible()) || (editor != null && editor.isVisible()))
+            return true;
+        else
+            return false;
     }
     
     public BBSemanticsTable getSemanticsTable(){
@@ -135,7 +140,10 @@ public class StyleManager{
     }
     
     public Group getGroup(){
-    	return table.getGroup();
+        if(table.isVisible())
+            return table.getGroup();
+        else
+            return editor.getGroup();
     }
     
     public void hideTable(){

@@ -195,8 +195,8 @@ public class Manager extends Controller {
 		wp.getShell().layout();
 	}
 	
-	private void setTabList(){
-		if(sm.tableIsVisible()){
+	public void setTabList(){
+		if(sm.panelIsVisible()){
 			tabList = new Control[]{treeView.view, sm.getGroup(), getText().view, getBraille().view};
 		}
 		else {
@@ -1185,7 +1185,7 @@ public class Manager extends Controller {
 	}
 	
 	public void toggleAttributeEditor(){
-		if(!sm.tableIsVisible()){
+		if(!sm.panelIsVisible()){
 			treeView.adjustLayout(false);
 			if(list.size() == 0){
 				sm.displayTable(null);

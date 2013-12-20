@@ -173,6 +173,17 @@ public class EditStyleView {
 		}
 	}
 	
+	protected boolean isVisible(){
+        if(!t.isDisposed() && t.isVisible())
+            return true;
+        else
+            return false;
+    }
+	
+	protected Group getGroup(){
+        return group;
+    }
+	
 	protected void dispose(){
 		group.dispose();
 	}

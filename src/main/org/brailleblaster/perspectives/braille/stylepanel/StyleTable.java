@@ -222,7 +222,10 @@ public class StyleTable {
     }
     
     public boolean isVisible(){
-    	return t.isVisible();
+        if(!t.isDisposed() && t.isVisible())
+            return true;
+        else
+            return false;
     }
     
     public Table getTable(){

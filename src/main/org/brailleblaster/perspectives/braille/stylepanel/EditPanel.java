@@ -131,4 +131,11 @@ public class EditPanel {
 	protected void dispose(){
 		group.dispose();
 	}
+	
+	protected boolean isVisible(){
+        if(!group.isDisposed() && group.isVisible())
+            return true;
+        else
+            return false;
+    }
 }

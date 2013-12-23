@@ -31,6 +31,8 @@
 
 package org.brailleblaster.perspectives.braille.stylepanel;
 
+import java.util.Set;
+
 import org.brailleblaster.document.ConfigFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -38,6 +40,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -45,7 +48,7 @@ public class StyleManager{
 	
     private StylePanel sp;
     private StyleTable table;
-    private EditStyleView editor;
+    private EditPanel editor;
     private String configFile;
     Manager dm;
     TextMapElement t;
@@ -55,8 +58,8 @@ public class StyleManager{
     public StyleManager(Manager dm) {
     	this.dm = dm;
     	this.configFile = dm.getCurrentConfig();
-    	this.table = new StyleTable(this, dm.getGroup());
     	this.semanticsTable = dm.getStyleTable();
+       	this.table = new StyleTable(this, dm.getGroup());
 	}
 
 	void createStyle(String styleName){
@@ -84,7 +87,7 @@ public class StyleManager{
     public void openNewStyleTable(){
     	lastSelection = table.getTable().getSelectionIndex();
     	this.table.dispose();
-    	new NewStyleView(this, dm.getGroup());
+    	editor = new NewStyleView(this, dm.getGroup());
     	dm.setTabList();
     }
     
@@ -122,6 +125,18 @@ public class StyleManager{
     	dm.refresh();
     }
     
+    protected void saveNewItem(Styles style){
+    	if(semanticsTable.containsKey(style.getName())){
+    		new Notify("A style with the same name already exists");
+    	}
+    	else {
+    		ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    		handler.appendStyle(style);
+    		semanticsTable.resetStyleTable(configFile);
+    		closeEditStyle();
+    	}
+    }
+    
     public void setStyleTableItem(TextMapElement t){
     	if(table.isVisible())
     		table.setSelection(t);
@@ -136,6 +151,10 @@ public class StyleManager{
     
     public BBSemanticsTable getSemanticsTable(){
     	return this.semanticsTable;
+    }
+    
+    public Set<String>getKeySet(){
+    	return semanticsTable.getKeySet();
     }
     
     public StyleTable getStyleTable(){

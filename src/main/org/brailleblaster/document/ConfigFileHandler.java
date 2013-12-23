@@ -39,6 +39,16 @@ public class ConfigFileHandler {
 		}
 	}
 	
+	public void appendStyle(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
+		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
+		if(!fu.exists(path))
+			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
+		
+		String entry = formatEntry(style);
+		
+		fu.appendToFile(path, entry);
+	}
+	
 	private String formatEntry(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
 		String entry = "style " + style.getName() + "\n"; 
 		

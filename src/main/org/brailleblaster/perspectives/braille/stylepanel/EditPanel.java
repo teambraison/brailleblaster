@@ -3,6 +3,7 @@ package org.brailleblaster.perspectives.braille.stylepanel;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -122,6 +123,63 @@ public class EditPanel {
 		setLayoutData(cb, left, right, top, bottom);
 		
 		return cb;
+	}
+	
+	protected Styles getNewStyle(){
+		Styles newStyle;
+		if(styleName.getText().length() == 0){
+			new Notify(lh.localValue("blankName"));
+			return null;
+		}
+		else
+			newStyle = sm.getSemanticsTable().getNewStyle(styleName.getText());
+		
+		
+		int selectionIndex = emphasisCombo.getSelectionIndex(); 
+		if(selectionIndex != -1){
+			if(selectionIndex == BOLD)
+				newStyle.put(StylesType.emphasis, "boldx");
+			else if(selectionIndex == ITALIC)
+				newStyle.put(StylesType.emphasis, "italicx");
+			else if(selectionIndex == UNDERLINE)
+				newStyle.put(StylesType.emphasis, "underlinex");		
+		}
+		
+		
+		selectionIndex = alignmentCombo.getSelectionIndex(); 
+		if(selectionIndex != -1){
+			if(selectionIndex == LEFT)
+				newStyle.put(StylesType.format, "leftjustified");
+			else if(selectionIndex == CENTER)
+				newStyle.put(StylesType.format, "center");
+			else if(selectionIndex == RIGHT)
+				newStyle.put(StylesType.format, "rightJustified");
+						
+		}
+		
+		int value = linesBeforeSpinner.getSelection();
+		if(value > 0)
+				newStyle.put(StylesType.linesBefore, String.valueOf(value));
+		
+		
+		value = linesAfterSpinner.getSelection();
+		if(value > 0)
+			newStyle.put(StylesType.linesAfter, String.valueOf(value));
+		
+		value = marginSpinner.getSelection();
+		if(value > 0)
+			newStyle.put(StylesType.leftMargin, String.valueOf(value));
+		
+		value = indentSpinner.getSelection();
+		if(value > 0 || value < 0)
+			newStyle.put(StylesType.firstLineIndent, String.valueOf(value));
+		
+		if(newStyle.getKeySet().size() > 0)
+			return newStyle;
+		else{
+			new Notify(lh.localValue("blankStyle"));
+			return null;
+		}
 	}
 	
 	protected Group getGroup(){

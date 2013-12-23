@@ -59,7 +59,9 @@ public class EditStyleView extends EditPanel {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				new Notify("NOT YET IMPLEMENTED");
+				Styles style = getNewStyle();
+				if(style != null)
+					sm.saveNewItem(style);
 			}
 		};
 		

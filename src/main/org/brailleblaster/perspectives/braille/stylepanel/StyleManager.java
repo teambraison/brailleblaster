@@ -34,6 +34,7 @@ package org.brailleblaster.perspectives.braille.stylepanel;
 import java.util.Set;
 
 import org.brailleblaster.document.ConfigFileHandler;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
@@ -127,7 +128,8 @@ public class StyleManager{
     
     protected void saveNewItem(Styles style){
     	if(semanticsTable.containsKey(style.getName())){
-    		new Notify("A style with the same name already exists");
+    		LocaleHandler lh = new LocaleHandler();
+    		new Notify(lh.localValue("styleExists"));
     	}
     	else {
     		ConfigFileHandler handler = new ConfigFileHandler(configFile);

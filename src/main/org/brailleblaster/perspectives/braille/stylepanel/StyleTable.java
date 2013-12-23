@@ -12,6 +12,7 @@ import nu.xom.Element;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -40,7 +41,7 @@ public class StyleTable {
 	private Logger logger = BBIni.getLogger();
 	private FileUtils fu;
 	private StyleManager sm;
-	private Button editButton, applyButton;
+	private Button newButton, editButton, applyButton;
 	
 	public StyleTable(final StyleManager sm, Group documentWindow){
 		this.fu = new FileUtils();
@@ -63,13 +64,17 @@ public class StyleTable {
 	    this.t.setLinesVisible(true);
 	    this.t.setHeaderVisible(true);	
 	   	
+	    newButton = new Button(this.group, SWT.NONE);
+	    newButton.setText("New");
+	    setLayoutData(newButton, 0, 33, 90, 100);
+	    
 	    editButton = new Button(this.group, SWT.NONE);
 	   	editButton.setText("Edit");
-	   	setLayoutData(editButton, 0, 50, 90, 100);
+	   	setLayoutData(editButton, 33, 66, 90, 100);
 	    
 	    applyButton = new Button(this.group, SWT.NONE);
 	    applyButton.setText("Apply");
-	    setLayoutData(applyButton, 50, 100, 90, 100);
+	    setLayoutData(applyButton, 66, 100, 90, 100);
 		
 	    group.pack();
 	    tc2.setWidth(group.getClientArea().width);
@@ -105,6 +110,19 @@ public class StyleTable {
 	}
 	
 	private void initializeListeners(){
+		newButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub	
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				//sm.openNewStyleTable();
+				new Notify("Not yet implemented");
+			}
+		});
+		
 		editButton.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -112,8 +130,7 @@ public class StyleTable {
 			}
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-		
+			public void widgetSelected(SelectionEvent e) {	
 				sm.openEditStyle();
 			}		
 		});

@@ -81,6 +81,13 @@ public class StyleManager{
     	table.showTable(item);
     }
     
+    public void openNewStyleTable(){
+    	lastSelection = table.getTable().getSelectionIndex();
+    	this.table.dispose();
+    	new NewStyleView(this, dm.getGroup());
+    	dm.setTabList();
+    }
+    
     public void openEditStyle(){
     	lastSelection = table.getTable().getSelectionIndex();
     	String style = table.getTable().getSelection()[0].getText(1);

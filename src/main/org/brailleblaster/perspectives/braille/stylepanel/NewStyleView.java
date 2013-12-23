@@ -57,7 +57,7 @@ public class NewStyleView extends EditPanel{
 	private Styles getNewStyle(){
 		Styles newStyle;
 		if(styleName.getText().length() == 0){
-			new Notify("Style name cannot be blank");
+			new Notify(lh.localValue("blankName"));
 			return null;
 		}
 		else
@@ -106,7 +106,7 @@ public class NewStyleView extends EditPanel{
 		if(newStyle.getKeySet().size() > 0)
 			return newStyle;
 		else{
-			new Notify("No values entered to create a new style.  Style cannot be blank");
+			new Notify(lh.localValue("blankStyle"));
 			return null;
 		}
 	}

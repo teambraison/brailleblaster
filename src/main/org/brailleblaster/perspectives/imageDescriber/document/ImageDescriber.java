@@ -28,12 +28,6 @@
 
 package org.brailleblaster.perspectives.imageDescriber.document;
 
-//import java.io.File;
-//import java.io.FileNotFoundException;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.io.OutputStream;
-//import java.net.MalformedURLException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,10 +47,10 @@ import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.eclipse.swt.graphics.Image;
 
-//import org.apache.batik.transcoder.image.JPEGTranscoder;
-//import org.apache.batik.transcoder.TranscoderException;
-//import org.apache.batik.transcoder.TranscoderInput;
-//import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.JPEGTranscoder;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
 
 public class ImageDescriber extends BBDocument {
 	// The document with images we want to add descriptions to.
@@ -333,39 +327,39 @@ public class ImageDescriber extends BBDocument {
 		// SVG Conversion.
 		
 			// If this element uses an svg file, convert to jpeg.
-//			try {
-//				// Create a JPEG transcoder
-//		        JPEGTranscoder t = new JPEGTranscoder();
-//		        
-//		        // Set the transcoding hints.
-//		        t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
-//		                   new Float(.8));
-//	
-//		        // Create the transcoder input.
-//		        String svgURI = new File( svgPath ).toURL().toString();
-//		        TranscoderInput input = new TranscoderInput(svgURI);
-//	
-//		        // Create the transcoder output.
-//		        OutputStream ostream;
-//				
-//		        // Get output stream.
-//		        String imgSrcStr = svgPath;
-//		        String outStr = imgSrcStr.substring(0, imgSrcStr.lastIndexOf(".")) + ".jpg";
-//				ostream = new FileOutputStream(outStr);
-//		        TranscoderOutput output = new TranscoderOutput(ostream);
-//	
-//		        // Save the image.
-//		        t.transcode(input, output);
-//	
-//		        // Flush and close the stream.
-//		        ostream.flush();
-//		        ostream.close();
-//		        
-//		        // Return path to jpg.
-//		        return outStr;
-//			}
-//			catch (IOException ioe) { ioe.printStackTrace(); }
-//			catch (TranscoderException te) { te.printStackTrace(); }
+			try {
+				// Create a JPEG transcoder
+		        JPEGTranscoder t = new JPEGTranscoder();
+		        
+		        // Set the transcoding hints.
+		        t.addTranscodingHint(JPEGTranscoder.KEY_QUALITY,
+		                   new Float(.8));
+	
+		        // Create the transcoder input.
+		        String svgURI = new File( svgPath ).toURL().toString();
+		        TranscoderInput input = new TranscoderInput(svgURI);
+	
+		        // Create the transcoder output.
+		        OutputStream ostream;
+				
+		        // Get output stream.
+		        String imgSrcStr = svgPath;
+		        String outStr = imgSrcStr.substring(0, imgSrcStr.lastIndexOf(".")) + ".jpg";
+				ostream = new FileOutputStream(outStr);
+		        TranscoderOutput output = new TranscoderOutput(ostream);
+	
+		        // Save the image.
+		        t.transcode(input, output);
+	
+		        // Flush and close the stream.
+		        ostream.flush();
+		        ostream.close();
+		        
+		        // Return path to jpg.
+		        return outStr;
+			}
+			catch (IOException ioe) { ioe.printStackTrace(); }
+			catch (TranscoderException te) { te.printStackTrace(); }
 
 		// SVG Conversion.
         //////////////////
@@ -483,6 +477,7 @@ public class ImageDescriber extends BBDocument {
 		}
 		
 		return newImgElement;
+		
 	} // getNextImageElement(Element e)
 	
 	///////////////////////////////////////////////////////////////////////////

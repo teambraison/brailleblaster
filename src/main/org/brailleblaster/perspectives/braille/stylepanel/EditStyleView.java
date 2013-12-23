@@ -151,13 +151,6 @@ public class EditStyleView extends EditPanel {
 		}
 	}
 	
-	protected boolean isVisible(){
-        if(!group.isDisposed() && group.isVisible())
-            return true;
-        else
-            return false;
-    }
-	
 	protected Styles saveEditedStyle(){
 		Styles newStyle = sm.getSemanticsTable().getNewStyle(originalStyle.getName());
 		boolean changed = false;

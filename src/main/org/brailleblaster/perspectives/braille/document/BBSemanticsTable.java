@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -75,13 +74,13 @@ public class BBSemanticsTable {
 	}
 	
 	Document doc;
-	HashMap<String,Styles> table;
+	TreeMap<String,Styles> table;
 	FileUtils fu = new FileUtils();
 	static Logger logger = BBIni.getLogger();
 	
 	public BBSemanticsTable(String config){
 		try {
-			this.table = new HashMap<String, Styles>();
+			this.table = new TreeMap<String, Styles>();
 			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
 			FileReader file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
@@ -260,5 +259,9 @@ public class BBSemanticsTable {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public Set<String>getKeySet(){
+		return table.keySet();
 	}
 }

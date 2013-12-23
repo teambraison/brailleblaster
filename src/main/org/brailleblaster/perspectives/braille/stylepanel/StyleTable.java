@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,7 +13,6 @@ import nu.xom.Element;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -105,7 +105,7 @@ public class StyleTable {
 			}
 		});
 	
-	   	populateTable(sm.getConfigFile());
+	   	populateTable(sm.getKeySet());
 	   	initializeListeners();
 	}
 	
@@ -118,8 +118,7 @@ public class StyleTable {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//sm.openNewStyleTable();
-				new Notify("Not yet implemented");
+				sm.openNewStyleTable();
 			}
 		});
 		
@@ -199,38 +198,17 @@ public class StyleTable {
 		t.setSelection(searchTree(text));
 	}
 	
-    private void populateTable(String config){
-    	String fullPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
-    	String currentLine;
+    private void populateTable(Set<String> list){  	
+    	for(String s : list){
+    		if(!s.equals("document"))
+    			addTableItem(s);
+    	}
     	
-    	try {
-    		FileReader file = new FileReader(fullPath);
-			BufferedReader reader = new BufferedReader(file);
-			
-			while((currentLine = reader.readLine()) != null){
-				if(currentLine.contains("style")){
-					if(currentLine.length() >= 5 && currentLine.substring(0, 5).equals("style")){
-						String item = currentLine.substring(6, currentLine.length()).trim();
-						if(!item.equals("document"))
-							addTableItem(item);
-					}
-				}
-			}
-			reader.close();
-    	}
-    	catch(FileNotFoundException e){
-    		e.printStackTrace();
-    		logger.log(Level.SEVERE, "File Not Found Exception", e);
-    	}
-    	catch(IOException e){
-    		e.printStackTrace();
-    		logger.log(Level.SEVERE, "File Not Found Exception", e);
-    	}
     }
     
     public void resetTable(String configFile){
     	t.removeAll();
-    	populateTable(configFile);
+    	populateTable(sm.getKeySet());
     }
     
     private void addTableItem(String item){

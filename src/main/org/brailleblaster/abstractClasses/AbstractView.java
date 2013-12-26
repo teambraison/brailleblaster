@@ -288,6 +288,7 @@ public abstract class AbstractView {
 	protected void recreateView(Group group, int left, int right, int top, int bottom){
 		view.dispose();
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		view.addModifyListener(viewMod);
 		setLayout(left, right, top, bottom);
 		view.getParent().layout();
 	}

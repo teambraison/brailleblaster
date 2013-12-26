@@ -64,7 +64,6 @@ public class EditPanel {
 		linesAfterSpinner = makeSpinner(50, 100, 20, 30);
 		linesAfterSpinner.setMinimum(0);
 		
-		
 		marginLabel = makeLabel(lh.localValue("margin"), 0, 50, 30, 40);
 		marginSpinner = makeSpinner(50, 100, 30, 40);
 		marginSpinner.setMinimum(0);

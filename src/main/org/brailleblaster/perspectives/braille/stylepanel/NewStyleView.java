@@ -24,12 +24,12 @@ public class NewStyleView extends EditPanel{
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.closeEditStyle();
+				sm.closeEditStyle(null);
 			}		
 		});
 		
 		saveButton = new Button(group, SWT.NONE);
-		saveButton.setText(lh.localValue("apply"));
+		saveButton.setText(lh.localValue("save"));
 		setLayoutData(saveButton, 50, 100, 90, 100);
 		
 		saveButton.addSelectionListener(new SelectionListener(){

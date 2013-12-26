@@ -1,16 +1,9 @@
 package org.brailleblaster.perspectives.braille.stylepanel;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nu.xom.Element;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.util.FileUtils;
 import org.eclipse.swt.SWT;
@@ -38,7 +31,7 @@ public class StyleTable {
 	
 	private Group group;
 	private Table t;
-	private Logger logger = BBIni.getLogger();
+
 	private FileUtils fu;
 	private StyleManager sm;
 	private Button newButton, editButton, applyButton;
@@ -196,6 +189,15 @@ public class StyleTable {
 		}
 		String text = sm.getSemanticsTable().getKeyFromAttribute(parent);
 		t.setSelection(searchTree(text));
+	}
+	
+	public void setSelection(String style){
+		for(int i = 0; i < t.getItemCount(); i++){
+			if(t.getItem(i).getText(1).equals(style)){
+				t.setSelection(i);
+				break;
+			}
+		}
 	}
 	
     private void populateTable(Set<String> list){  	

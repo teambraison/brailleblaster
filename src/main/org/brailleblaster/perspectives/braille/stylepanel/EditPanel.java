@@ -52,7 +52,7 @@ public class EditPanel {
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());   	
 		
-		styleLabel = makeLabel(lh.localValue("element"), 0, 50, 0, 10);
+		styleLabel = makeLabel(lh.localValue("styleName"), 0, 50, 0, 10);
 		styleName = new Text(group, SWT.BORDER);
 		setLayoutData(styleName, 50, 100, 0, 10);
 		

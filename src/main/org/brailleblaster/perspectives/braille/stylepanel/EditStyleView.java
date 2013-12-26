@@ -16,24 +16,24 @@ import org.eclipse.swt.widgets.Group;
 
 public class EditStyleView extends EditPanel {
 
-	private Button applyButton, cancelButton;
-	private SelectionListener applyListener, saveAsListener;
+	private Button saveButton, cancelButton;
+	private SelectionListener saveListener, saveAsListener;
 	
-	private boolean apply;
+	private boolean save;
 	
 	public EditStyleView(final StyleManager sm, Group documentWindow, Styles style){
 		super(sm, documentWindow, style);
-		apply = true;
+		save = true;
 		
 		cancelButton = new Button(group, SWT.NONE);
 		cancelButton.setText(lh.localValue("styleCancel"));
 		setLayoutData(cancelButton, 0, 50, 90, 100);
 		
-		applyButton = new Button(group, SWT.NONE);
-		applyButton.setText(lh.localValue("apply"));
-		setLayoutData(applyButton, 50, 100, 90, 100);
+		saveButton = new Button(group, SWT.NONE);
+		saveButton.setText(lh.localValue("save"));
+		setLayoutData(saveButton, 50, 100, 90, 100);
 		
-		applyListener = new SelectionListener(){
+		saveListener = new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
@@ -65,7 +65,7 @@ public class EditStyleView extends EditPanel {
 			}
 		};
 		
-		Control [] tablist = {styleName, linesBeforeSpinner, linesAfterSpinner, marginSpinner, indentSpinner, alignmentCombo, emphasisCombo, cancelButton, applyButton};
+		Control [] tablist = {styleName, linesBeforeSpinner, linesAfterSpinner, marginSpinner, indentSpinner, alignmentCombo, emphasisCombo, cancelButton, saveButton};
 		group.setTabList(tablist);
 		resetLayout();
 		
@@ -87,15 +87,15 @@ public class EditStyleView extends EditPanel {
 			}
 		});
 		
-		applyButton.addSelectionListener(applyListener);
+		saveButton.addSelectionListener(saveListener);
 		
 		
 		styleName.addModifyListener(new ModifyListener(){
 			@Override
 			public void modifyText(ModifyEvent e) {
-				if(!styleName.getText().equals(originalStyle.getName()) && apply)
+				if(!styleName.getText().equals(originalStyle.getName()) && save)
 					toggleApplyButton();
-				else if(styleName.getText().equals(originalStyle.getName()) && !apply)
+				else if(styleName.getText().equals(originalStyle.getName()) && !save)
 					toggleApplyButton();
 			}		
 		});
@@ -139,17 +139,17 @@ public class EditStyleView extends EditPanel {
 	
 	protected void toggleApplyButton(){
 		LocaleHandler lh = new LocaleHandler();
-		if(apply){
-			applyButton.setText(lh.localValue("saveAs"));
-			apply = false;
-			applyButton.removeSelectionListener(applyListener);
-			applyButton.addSelectionListener(saveAsListener);
+		if(save){
+			saveButton.setText(lh.localValue("saveAs"));
+			save = false;
+			saveButton.removeSelectionListener(saveListener);
+			saveButton.addSelectionListener(saveAsListener);
 		}
 		else{
-			applyButton.setText(lh.localValue("apply"));
-			apply = true;
-			applyButton.removeSelectionListener(saveAsListener);
-			applyButton.addSelectionListener(applyListener);
+			saveButton.setText(lh.localValue("save"));
+			save = true;
+			saveButton.removeSelectionListener(saveAsListener);
+			saveButton.addSelectionListener(saveListener);
 		}
 	}
 	

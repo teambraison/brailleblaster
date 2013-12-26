@@ -59,7 +59,7 @@ public class ImageDescriberContext {
 		// Also search the children.
 		for(int curC = 0; curC < e.getChildCount(); curC++)
 			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0 ) {
-				if( (foundElm = FindChild( ((Element)(e.getChild(curC))), childName )) != null ) 
+				if( (foundElm = FindChild( ((Element)(e.getChild(curC))), childName )) != null )
 					break;
 			}
 		

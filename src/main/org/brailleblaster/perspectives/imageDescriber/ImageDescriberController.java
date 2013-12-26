@@ -84,9 +84,9 @@ public class ImageDescriberController extends Controller {
 		
 		this.imgDesc = new ImageDescriber(this);
 		
-		// Start the image describer and build the DOM	
+		// Start the image describer and build the DOM
 		if(fileName != null){
-			if(openDocument(fileName)) 
+			if(openDocument(fileName))
 				item.setText(fileName.substring(fileName.lastIndexOf(File.separatorChar) + 1));
 		}
 		else {

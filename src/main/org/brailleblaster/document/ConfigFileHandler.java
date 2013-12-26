@@ -33,7 +33,10 @@ public class ConfigFileHandler {
 			int startIndex = fileString.indexOf(key);
 			int endIndex = fileString.substring(startIndex + 5).indexOf("style");
 			
-			fileString = fileString.replace(fileString.substring(startIndex, startIndex + endIndex + 5), entry);
+			if(endIndex != -1)
+				fileString = fileString.replace(fileString.substring(startIndex, startIndex + endIndex + 5), entry);
+			else
+				fileString = fileString.replace(fileString.substring(startIndex), entry);
 			
 			fu.writeToFile(path, fileString);
 		}

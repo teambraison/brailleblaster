@@ -419,7 +419,7 @@ public class BrailleMenu extends BBMenu{
 					currentEditor.getText().selectAll(currentEditor);
 			}
 		});
-		stylePanelItem = new MenuItem(editMenu, SWT.PUSH);
+		stylePanelItem = new MenuItem(editMenu, SWT.CHECK);
 		stylePanelItem.setText(lh.localValue("&StylePanel"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			@Override

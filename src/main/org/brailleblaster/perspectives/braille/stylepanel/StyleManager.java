@@ -100,13 +100,16 @@ public class StyleManager{
     	dm.setTabList();
     }
     
-    public void closeEditStyle(){
+    public void closeEditStyle(String styleName){
     	editor.dispose();
     	table = new StyleTable(this, dm.getGroup());
     	displayTable(dm.getCurrent());
     	dm.getGroup().layout();
     	table.getTable().setSelection(lastSelection);
     	dm.setTabList();
+    	
+    	if(styleName != null)
+    		table.setSelection(styleName);
     }
     
     public void apply(String item){
@@ -122,8 +125,8 @@ public class StyleManager{
     	ConfigFileHandler handler = new ConfigFileHandler(configFile);
     	handler.updateStyle(newStyle);
     	semanticsTable.resetStyleTable(configFile);
-    	closeEditStyle();
     	dm.refresh();
+    	closeEditStyle(newStyle.getName());
     }
     
     protected void saveNewItem(Styles style){
@@ -135,7 +138,7 @@ public class StyleManager{
     		ConfigFileHandler handler = new ConfigFileHandler(configFile);
     		handler.appendStyle(style);
     		semanticsTable.resetStyleTable(configFile);
-    		closeEditStyle();
+    		closeEditStyle(style.getName());
     	}
     }
     

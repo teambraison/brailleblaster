@@ -83,7 +83,7 @@ public class EditStyleView extends EditPanel {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.closeEditStyle();
+				sm.closeEditStyle(null);
 			}
 		});
 		

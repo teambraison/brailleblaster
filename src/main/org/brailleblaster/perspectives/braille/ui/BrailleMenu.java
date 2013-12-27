@@ -758,8 +758,16 @@ public class BrailleMenu extends BBMenu{
 	@Override
 	public void setCurrent(Controller controller){
 		currentEditor = (Manager)controller;
+		if(stylePanelItem != null)
+			setStylePanelItem();
 	}
-
+	
+	private void setStylePanelItem(){
+		if(currentEditor.isAttributeEditorOpen())
+			stylePanelItem.setSelection(true);
+		else
+			stylePanelItem.setSelection(false);
+	}
 	
 	@Override
 	public Controller getCurrent() {

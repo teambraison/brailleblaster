@@ -76,11 +76,13 @@ public class BBSemanticsTable {
 	Document doc;
 	TreeMap<String,Styles> table;
 	FileUtils fu = new FileUtils();
+	String config;
 	static Logger logger = BBIni.getLogger();
 	
 	public BBSemanticsTable(String config){
 		try {
 			this.table = new TreeMap<String, Styles>();
+			this.config = config;
 			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
 			FileReader file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
@@ -240,7 +242,8 @@ public class BBSemanticsTable {
 	public void resetStyleTable(String configFile){
 		table.clear();
 		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
-	
+		this.config = configFile;
+		
 		try {
 			FileReader file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
@@ -263,5 +266,9 @@ public class BBSemanticsTable {
 	
 	public Set<String>getKeySet(){
 		return table.keySet();
+	}
+	
+	public String getConfig(){
+		return config;
 	}
 }

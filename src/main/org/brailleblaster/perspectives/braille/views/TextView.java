@@ -71,7 +71,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
-
 public class TextView extends AbstractView {
 	private final static int LEFT_MARGIN = 16;
 	private final static int RIGHT_MARGIN = 57;

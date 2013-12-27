@@ -303,7 +303,7 @@ public class BBDocument {
 	public boolean createBrlFile(Controller dm, String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
-		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + BBIni.getDefaultConfigFile());
+		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
 		String logFile = BBIni.getTempFilesPath() + fileSep + "liblouisutdml.log";
 		String semFile = "";
 		

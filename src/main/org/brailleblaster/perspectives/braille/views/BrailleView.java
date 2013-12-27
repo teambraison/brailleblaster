@@ -393,8 +393,8 @@ public class BrailleView extends AbstractView {
 				case leftMargin:
 					if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
 						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
-					else if(startLine == view.getLineAtOffset(currentStart))
-						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
+			//		else if(startLine == view.getLineAtOffset(currentStart))
+			//			handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
 					else
 						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
 					break;

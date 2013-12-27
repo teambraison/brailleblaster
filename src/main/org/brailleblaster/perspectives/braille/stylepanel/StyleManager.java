@@ -154,6 +154,11 @@ public class StyleManager{
             return false;
     }
     
+    public void resetStylePanel(String configFile){
+    	this.configFile = configFile;
+    	table.resetTable(configFile);
+    }
+    
     public BBSemanticsTable getSemanticsTable(){
     	return this.semanticsTable;
     }

@@ -350,6 +350,7 @@ public class Manager extends Controller {
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
 			if(document.startDocument(filePath, currentConfig, configSettings)){
+				checkSemanticsTable();
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
@@ -373,6 +374,7 @@ public class Manager extends Controller {
 				text.view.setWordWrap(true);
 				braille.view.setWordWrap(true);
 				group.setRedraw(true);
+				checkAtributeEditor();
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
@@ -1200,6 +1202,26 @@ public class Manager extends Controller {
 			sm.hideTable();
 			setTabList();
 		}
+	}
+	
+	public void checkAtributeEditor(){
+		if(sm != null){
+			if(!sm.getConfigFile().equals(currentConfig)){
+				sm.resetStylePanel(currentConfig);
+			}
+		}
+	}
+	
+	public boolean isAttributeEditorOpen(){
+		if(sm != null && sm.panelIsVisible())
+			return true;
+		else
+			return false;
+	}
+	
+	public void checkSemanticsTable(){
+		if(!styles.getConfig().equals(currentConfig))
+			styles.resetStyleTable(currentConfig);	
 	}
 	
 	public void toggleFont(int fontType){

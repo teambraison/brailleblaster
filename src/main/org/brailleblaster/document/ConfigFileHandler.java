@@ -88,4 +88,32 @@ public class ConfigFileHandler {
 			return null;
 		}
 	}
+	
+	public void deleteStyle(String style){
+		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
+		if(!fu.exists(path))
+			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
+		
+		String key = "style " + style;
+		
+		String fileString = getFileContentsAsString(path);
+		
+		if(fileString != null){
+			int startIndex = fileString.indexOf(key);
+			int endIndex = fileString.substring(startIndex + 5).indexOf("style");
+			
+			if(endIndex != -1)
+				fileString = fileString.replace(fileString.substring(startIndex, startIndex + endIndex + 5), "");
+			else
+				fileString = fileString.replace(fileString.substring(startIndex), "");
+			
+			fu.writeToFile(path, fileString);
+		}
+	}
+	
+	public void restoreDefaults(){
+		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
+		if(fu.exists(path))
+			fu.deleteFile(path);	
+	}
 }

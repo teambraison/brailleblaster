@@ -4,8 +4,9 @@ import java.util.Set;
 
 import nu.xom.Element;
 
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
-import org.brailleblaster.util.FileUtils;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
@@ -19,6 +20,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -32,42 +34,49 @@ public class StyleTable {
 	private Group group;
 	private Table t;
 
-	private FileUtils fu;
 	private StyleManager sm;
-	private Button newButton, editButton, applyButton;
+	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
 	
 	public StyleTable(final StyleManager sm, Group documentWindow){
-		this.fu = new FileUtils();
+		LocaleHandler lh = new LocaleHandler();
 		this.sm = sm;
 		this.group = new Group(documentWindow, SWT.FILL | SWT.BORDER);
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());
 		this.group.setVisible(false);
 		
+		restoreButton = new Button(this.group, SWT.CHECK);
+		restoreButton.setText(lh.localValue("restore"));
+		setLayoutData(restoreButton, 1, 100, 0, 5);
+		
 		this.t = new Table(this.group, SWT.BORDER | SWT.SINGLE | SWT.FULL_SELECTION);
-		setLayoutData(this.t, 0, 100, 0, 90);
+		setLayoutData(this.t, 0, 100, 5, 90);
 	    
 		TableColumn tc1 = new TableColumn(this.t, SWT.CENTER);
 		tc1.setWidth(0);
 		tc1.setResizable(false);
 		
 		final TableColumn tc2 = new TableColumn(this.t, SWT.CENTER);   
-	    tc2.setText("Styles");
+	    tc2.setText(lh.localValue("styles"));
 	   
 	    this.t.setLinesVisible(true);
 	    this.t.setHeaderVisible(true);	
 	   	
 	    newButton = new Button(this.group, SWT.NONE);
-	    newButton.setText("New");
-	    setLayoutData(newButton, 0, 33, 90, 100);
+	    newButton.setText(lh.localValue("new"));
+	    setLayoutData(newButton, 0, 25, 90, 100);
 	    
 	    editButton = new Button(this.group, SWT.NONE);
-	   	editButton.setText("Edit");
-	   	setLayoutData(editButton, 33, 66, 90, 100);
+	   	editButton.setText(lh.localValue("edit"));
+	   	setLayoutData(editButton, 25, 50, 90, 100);
+	   	
+	   	deleteButton = new Button(this.group, SWT.NONE);
+	   	deleteButton.setText(lh.localValue("delete"));
+	   	setLayoutData(deleteButton, 50, 75, 90, 100);
 	    
 	    applyButton = new Button(this.group, SWT.NONE);
-	    applyButton.setText("Apply");
-	    setLayoutData(applyButton, 66, 100, 90, 100);
+	    applyButton.setText(lh.localValue("apply"));
+	    setLayoutData(applyButton, 75, 100, 90, 100);
 		
 	    group.pack();
 	    tc2.setWidth(group.getClientArea().width);
@@ -103,6 +112,30 @@ public class StyleTable {
 	}
 	
 	private void initializeListeners(){
+		restoreButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				LocaleHandler lh = new LocaleHandler();
+				MessageBox mb = new MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+				mb.setText(lh.localValue("restoreMB"));
+				mb.setMessage(lh.localValue("restoreMBMessage"));
+				int choice = mb.open();
+				
+				if(choice == SWT.OK){
+					sm.restoreDefaults();
+					restoreButton.setSelection(false);
+				}
+				else
+					restoreButton.setSelection(false);
+			}	
+		});
+		
 		newButton.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
@@ -125,6 +158,18 @@ public class StyleTable {
 			public void widgetSelected(SelectionEvent e) {	
 				sm.openEditStyle();
 			}		
+		});
+		
+		deleteButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				deleteStyle();
+			}			
 		});
 		
 		applyButton.addSelectionListener(new SelectionListener(){
@@ -206,6 +251,20 @@ public class StyleTable {
     			addTableItem(s);
     	}
     	
+    }
+    
+    private void deleteStyle(){
+    	LocaleHandler lh = new LocaleHandler();
+    	MessageBox mb = new MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+		mb.setText(lh.localValue("deleteMB"));
+		mb.setMessage(lh.localValue("deleteMBMessage"));
+		
+		int open = mb.open();
+		
+		if(open == SWT.OK){
+			sm.deleteStyle(t.getSelection()[0].getText(1));
+			t.remove(t.getSelectionIndex());
+		}
     }
     
     public void resetTable(String configFile){

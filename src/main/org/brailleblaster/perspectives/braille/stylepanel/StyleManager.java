@@ -142,6 +142,18 @@ public class StyleManager{
     	}
     }
     
+    protected void deleteStyle(String style){
+    	ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    	handler.deleteStyle(style);
+    }
+    
+    protected void restoreDefaults(){
+    	ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    	handler.restoreDefaults();
+    	semanticsTable.resetStyleTable(configFile);
+    	resetStylePanel(configFile);
+    }
+    
     public void setStyleTableItem(TextMapElement t){
     	if(table.isVisible())
     		table.setSelection(t);

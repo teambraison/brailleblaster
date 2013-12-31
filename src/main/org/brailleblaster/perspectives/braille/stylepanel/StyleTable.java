@@ -12,11 +12,16 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
@@ -33,7 +38,8 @@ public class StyleTable {
 	
 	private Group group;
 	private Table t;
-
+	private Font initialFont;
+	
 	private StyleManager sm;
 	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
 	
@@ -44,6 +50,13 @@ public class StyleTable {
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());
 		this.group.setVisible(false);
+		
+		Listener resizeListener = new Listener(){
+			@Override
+			public void handleEvent(Event e) {
+				checkFontSize((Button)e.widget);
+			}		
+		};
 		
 		restoreButton = new Button(this.group, SWT.CHECK);
 		restoreButton.setText(lh.localValue("restore"));
@@ -65,19 +78,24 @@ public class StyleTable {
 	    newButton = new Button(this.group, SWT.NONE);
 	    newButton.setText(lh.localValue("new"));
 	    setLayoutData(newButton, 0, 25, 90, 100);
+	    initialFont = newButton.getFont();
+	    newButton.addListener(SWT.Resize, resizeListener);
 	    
 	    editButton = new Button(this.group, SWT.NONE);
 	   	editButton.setText(lh.localValue("edit"));
 	   	setLayoutData(editButton, 25, 50, 90, 100);
+	   	editButton.addListener(SWT.Resize, resizeListener);
 	   	
 	   	deleteButton = new Button(this.group, SWT.NONE);
 	   	deleteButton.setText(lh.localValue("delete"));
 	   	setLayoutData(deleteButton, 50, 75, 90, 100);
-	    
+	   	deleteButton.addListener(SWT.Resize, resizeListener);
+	   	
 	    applyButton = new Button(this.group, SWT.NONE);
 	    applyButton.setText(lh.localValue("apply"));
 	    setLayoutData(applyButton, 75, 100, 90, 100);
-		
+	    applyButton.addListener(SWT.Resize, resizeListener);
+	    
 	    group.pack();
 	    tc2.setWidth(group.getClientArea().width);
 	   
@@ -272,6 +290,37 @@ public class StyleTable {
     	populateTable(sm.getKeySet());
     }
     
+    private void checkFontSize(Button b){
+    	Font newFont = (Font)b.getData();
+    	
+    	b.setFont(initialFont);
+    	int charWidth = getFontWidth(b);
+    	int stringWidth = b.getText().length() * charWidth;
+    	FontData[] fontData = b.getFont().getFontData();
+    	 
+    	int Ssize = fontData[0].getHeight();
+    	if(stringWidth > b.getBounds().width){
+    		while(stringWidth > b.getBounds().width && Ssize > 0){
+    			Ssize = fontData[0].getHeight() - 1;
+    			fontData[0].setHeight(Ssize);
+    			if(newFont != null && !newFont.isDisposed())
+    				newFont.dispose();
+    			newFont = new Font(Display.getCurrent(), fontData[0]);
+    			b.setFont(newFont);
+    			b.setData(newFont);
+    			charWidth = getFontWidth(b);
+    			stringWidth = b.getText().length() * charWidth;
+    		}
+    	}
+    }
+    
+    protected int getFontWidth(Button b){
+		GC gc = new GC(b);
+		FontMetrics fm = gc.getFontMetrics();
+		gc.dispose();
+		return fm.getAverageCharWidth();
+	}
+    
     private void addTableItem(String item){
     	TableItem tItem = new TableItem(t, SWT.CENTER);
     	tItem.setText(new String[]{"", item});
@@ -294,6 +343,17 @@ public class StyleTable {
     
     protected void dispose(){
     	t.dispose();
+    	disposeFont(newButton);
+    	disposeFont(editButton);
+    	disposeFont(deleteButton);
+    	disposeFont(applyButton);
     	group.dispose();
+    	
+    }
+    
+    private void disposeFont(Button b){
+    	Font f = (Font)b.getData();
+    	if(f != null && !f.isDisposed())
+    		f.dispose();
     }
 }

@@ -82,7 +82,11 @@ public class StyleManager{
     }
     
     public void displayTable(TextMapElement item){
-    	table.showTable(item);
+    	if(table != null && !table.getGroup().isDisposed())
+    		table.showTable(item);
+    	else if(editor != null && !editor.getGroup().isDisposed()){
+    		editor.showTable();
+    	}
     }
     
     public void openNewStyleTable(){
@@ -195,7 +199,10 @@ public class StyleManager{
     }
     
     public void hideTable(){
-    	table.hideTable();
+    	if(table != null && !table.getGroup().isDisposed())
+    		table.hideTable();
+    	else if(editor != null && !editor.getGroup().isDisposed())
+    		editor.hideTable();
     }
     
     public String getConfigFile(){

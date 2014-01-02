@@ -196,6 +196,15 @@ public class EditPanel {
 		}
 	}
 	
+	protected void showTable(){
+		group.setVisible(true);
+		styleName.setFocus();
+	}
+	
+	protected void hideTable(){
+		group.setVisible(false);
+	}
+	
 	protected Group getGroup(){
         return group;
     }

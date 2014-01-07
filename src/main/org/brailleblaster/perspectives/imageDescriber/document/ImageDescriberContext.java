@@ -250,7 +250,7 @@ public class ImageDescriberContext {
 		
 		// Nimas?
 		if( documentType == ET_NIMAS )
-			descElm = FindChild( ((Element)(e.getParent())), "prodnote" );
+			descElm = FindChild(((Element)(e.getParent())), "prodnote" );
 		// EPUB?
 		if( documentType == ET_EPUB ) {
 			if( (descElm = FindChild( ((Element)(e.getParent())), "aside") ) != null );

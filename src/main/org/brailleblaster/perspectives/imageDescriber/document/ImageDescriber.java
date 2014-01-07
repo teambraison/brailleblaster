@@ -731,6 +731,10 @@ public class ImageDescriber extends BBDocument {
 		return prodText;
 		*/
 		
+		// If there are no images, just return null.
+		if(numImgElms < 1)
+			return null;
+		
 		return imgContext.getDescription(curImgElement);
 		
 	} // getCurProdText()
@@ -776,6 +780,11 @@ public class ImageDescriber extends BBDocument {
 		// Return <prodnote> text.
 		return prodText;
 		*/
+		
+		// If there are no images, just return null.
+		if(numImgElms < 1)
+			return null;
+		
 		
 		return imgContext.getDescription(imgElmList.get(index));
 	

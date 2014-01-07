@@ -113,7 +113,6 @@ public class ImageDescriberController extends Controller {
 			workingFilePath = docName;
 		}
 		imgDesc = new ImageDescriber(this, docName, doc);
-		
 		this.item = tabItem;
 		this.group = new Group(wp.getFolder(), SWT.NONE);
 		this.group.setLayout(new FormLayout());

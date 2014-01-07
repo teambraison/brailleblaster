@@ -651,7 +651,8 @@ public class ImageDescriberView {
 	}
 	
 	public void setTextBox(String text){
-		imgDescTextBox.setText(text);
+		if(text != null)
+			imgDescTextBox.setText(text);
 	}
 	
 	public void resetViews(ImageDescriber imgDesc){

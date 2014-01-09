@@ -99,13 +99,15 @@ public class ImageDescriberView {
 	ImageDescriber imgDesc;
 	ImageDescriberController idd;
 	Group group;
-	Button prevBtn, nextBtn, applyBtn, undoAllBtn, applyToAllBtn, clearAllBtn;
+	Button prevBtn, nextBtn, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
 	Text imgDescTextBox;
 	Label altLabel;
 	Text altBox;
 	Browser browser;
 	ImageHelper imgHelper;
 	Label mainImage;
+	String oldDescText = "";
+	String oldAltText = "";
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -137,12 +139,16 @@ public class ImageDescriberView {
 			//Change current image in dialog.
 			setMainImage();
 
+			// Get description and alt text.
+			oldDescText = imgDesc.getCurDescription();
+			oldAltText = imgDesc.getCurElmAttribute("alt");
+			
 			// Get prodnote text/image description.
-			imgDescTextBox.setText( imgDesc.getCurDescription() );
+			setTextBox( oldDescText );
 			
 			// Get alt attribute.
-			if(imgDesc.getCurElmAttribute("alt") != null)
-				altBox.setText(imgDesc.getCurElmAttribute("alt"));
+			if(oldAltText != null)
+				altBox.setText(oldAltText);
 			
 			idd.setImageInfo();
 			// Show current image index and name.
@@ -170,12 +176,16 @@ public class ImageDescriberView {
 				// Change current image in dialog.
 				setMainImage();
 
+				// Get description and alt text.
+				oldDescText = imgDesc.getCurDescription();
+				oldAltText = imgDesc.getCurElmAttribute("alt");
+				
 				// Get prodnote text/image description.
-				imgDescTextBox.setText( imgDesc.getCurDescription() );
+				setTextBox( oldDescText );
 				
 				// Get alt attribute.
-				if(imgDesc.getCurElmAttribute("alt") != null)
-					altBox.setText(imgDesc.getCurElmAttribute("alt"));
+				if(oldAltText != null)
+					altBox.setText(oldAltText);
 
 				idd.setImageInfo();
 				//Show current image index and name.
@@ -188,43 +198,25 @@ public class ImageDescriberView {
 
 		}); // nextBtn.addSelectionListener...
 
-		// Create apply button.
-		applyBtn = new Button(group, SWT.PUSH);
-		applyBtn.setText("Apply");
-		//applyBtn.setBounds(applyBtnX,  applyBtnY, applyBtnW, applyBtnH);
-//		setFormData(applyBtn, 14, 21, 0, 5);
-		setFormData(applyBtn, 21, 28, 0, 5);
-		applyBtn.addSelectionListener(new SelectionAdapter() {
+		// Create undo button.
+		undoBtn = new Button(group, SWT.PUSH);
+		undoBtn.setText("Undo");
+		//undoBtn.setBounds(undoBtnX,  undoBtnY, undoBtnW, undoBtnH);
+		setFormData(undoBtn, 28, 35, 0, 5);
+		undoBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
-				// Set image's description.
-				imgDesc.setDescription(imgDescTextBox.getText(), null, null, altBox.getText());
-				idd.setDocumentEdited(true);
-			} // widgetSelected()
-
-		}); // applyBtn.addSelectionListener...
-
-		// Create undo all button.
-		undoAllBtn = new Button(group, SWT.PUSH);
-		undoAllBtn.setText("Undo All");
-		//undoAllBtn.setBounds(undoBtnX,  undoBtnY, undoBtnW, undoBtnH);
-		setFormData(undoAllBtn, 28, 35, 0, 5);
-		undoAllBtn.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				// Warn user that all changes will be discarded.
-				if( msgBx("Warning", "This will discard all changes, even the ones you Apply'd. Continue?") == true)
-				{
-					// Copy original elements back into main list. "Undo!"
-					imgDesc.copyUndo2MainList();
-
-				} // msgBx()
+				
+				// Get prodnote text/image description.
+				setTextBox( oldDescText );
+				
+				// Get alt attribute.
+				if(oldAltText != null)
+					altBox.setText(oldAltText);
 
 			} // widgetSelected()
 
-		}); // undoAllBtn.addSelectionListener...
+		}); // undoBtn.addSelectionListener...
 
 		// Apply to all button. Finds every image with this name and changes description
 		// to what was in the notes.
@@ -329,7 +321,8 @@ public class ImageDescriberView {
 		altBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent arg0) { 
-
+					imgDesc.setCurElmImgAttributes( null, null, altBox.getText() );
+					idd.setDocumentEdited(true);
 			} // modifyText()
 
 		}); // addModifyListener(new ModiftyListener() { 
@@ -341,7 +334,8 @@ public class ImageDescriberView {
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent arg0) { 
-
+					imgDesc.setDescription(imgDescTextBox.getText(), null, null, null);
+					idd.setDocumentEdited(true);
 			} // modifyText()
 
 		}); // addModifyListener(new ModiftyListener() { 

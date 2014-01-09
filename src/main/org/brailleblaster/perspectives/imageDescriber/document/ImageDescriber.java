@@ -206,7 +206,7 @@ public class ImageDescriber extends BBDocument {
 			if(getDescAtIndex(curItem) != null)
 				sb = new StringBuilder( getDescAtIndex(curItem) );
 			else
-				sb = new StringBuilder( "Error" );
+				sb = new StringBuilder( "" );
 			
 			// Add this to string.
 			prodCopyList.add( sb.toString() );

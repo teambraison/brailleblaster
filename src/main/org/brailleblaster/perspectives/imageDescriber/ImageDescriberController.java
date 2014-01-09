@@ -217,7 +217,7 @@ public class ImageDescriberController extends Controller {
 				else if(arch.getOrigDocPath().endsWith("xml"))
 				{
 					if(fu.createXMLFile(imgDesc.getNewXML(), workingFilePath)){
-						String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+						String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
 						copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
 					}
 					else {
@@ -227,7 +227,7 @@ public class ImageDescriberController extends Controller {
 			}
 			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(imgDesc.getNewXML(), workingFilePath)){
-					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
 					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
 				}
 				else {

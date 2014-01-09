@@ -244,7 +244,7 @@ public class ImageDescriberContext {
 	public String getDescription(Element e)
 	{
 		// String for description text.
-		String descText = "NO DESCRIPTION.";
+		String descText = null;
 		// Description element found.
 		Element descElm = null;
 		
@@ -262,7 +262,7 @@ public class ImageDescriberContext {
 		{
 			// If there are no children, then there's no text node. Create it.
 			if(descElm.getChildCount() == 0)
-				descElm.appendChild( new nu.xom.Text("ADD DESCRIPTION!") );
+				descElm.appendChild( new nu.xom.Text("") );
 			
 			// Store text and get ready to return it.
 			descText = descElm.getChild(0).getValue();

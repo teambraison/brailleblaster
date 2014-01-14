@@ -77,18 +77,6 @@ public class PrintPreview {
 		protected void setViewData(Message message) {
 			// TODO Auto-generated method stub		
 		}
-
-		
-		@Override
-		public void resetView(Group group) {
-			// TODO Auto-generated method stub		
-		}
-
-		@Override
-		public void initializeListeners(Manager dm) {
-			// TODO Auto-generated method stub
-			
-		}
 	}
 	
 	public PrintPreview(Display display, BBDocument doc, Manager dm){

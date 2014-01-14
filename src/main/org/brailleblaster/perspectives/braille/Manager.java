@@ -60,9 +60,9 @@ import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
-import org.brailleblaster.perspectives.braille.views.BrailleView;
-import org.brailleblaster.perspectives.braille.views.TextView;
-import org.brailleblaster.perspectives.braille.views.TreeView;
+import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
@@ -88,7 +88,7 @@ import org.eclipse.swt.widgets.TabItem;
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class Manager extends Controller {
 	Group group;
-	TreeView treeView;
+	XMLTree treeView;
 	private TextView text;
 	private BrailleView braille;
 	private BBProgressBar pb;
@@ -119,7 +119,7 @@ public class Manager extends Controller {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
-		this.treeView = new TreeView(this, this.group);
+		this.treeView = new XMLTree(this, this.group);
 		this.text = new TextView(this.group, this.styles);
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
@@ -152,7 +152,7 @@ public class Manager extends Controller {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
-		this.treeView = new TreeView(this, this.group);
+		this.treeView = new XMLTree(this, this.group);
 		this.text = new TextView(this.group, this.styles);
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
@@ -166,7 +166,7 @@ public class Manager extends Controller {
 		this.document = new BrailleDocument(this, doc, this.styles);
 
 		group.setRedraw(false);
-		treeView.setRoot(document.getRootElement(), this);
+		treeView.setRoot(document.getRootElement());
 		initializeViews(document.getRootElement());
 		document.notifyUser();
 		text.initializeListeners(this);
@@ -359,7 +359,7 @@ public class Manager extends Controller {
 				startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
-				treeView.setRoot(document.getRootElement(), this);
+				treeView.setRoot(document.getRootElement());
 				initializeViews(document.getRootElement());
 				document.notifyUser();
 				text.initializeListeners(this);
@@ -514,13 +514,13 @@ public class Manager extends Controller {
 	
 	private void handleIncrement(Message message){
 		list.incrementCurrent(message);
-		treeView.setSelection(list.getCurrent(), message, this);
+		treeView.setSelection(list.getCurrent(), message);
 		resetCursorData();
 	}
 	
 	private void handleDecrement(Message message){
 		list.decrementCurrent(message);
-		treeView.setSelection(list.getCurrent(), message, this);
+		treeView.setSelection(list.getCurrent(), message);
 		resetCursorData();
 	}
 	
@@ -556,19 +556,19 @@ public class Manager extends Controller {
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
 			list.getCurrentNodeData(message);
-			treeView.setSelection(list.getCurrent(), message, this);
+			treeView.setSelection(list.getCurrent(), message);
 		}
 		else {
 			message.put("selection", treeView.getSelection(list.getCurrent()));
 			index = list.findClosest(message, 0, list.size() - 1);
 			if(index == -1){
 				list.getCurrentNodeData(message);
-				treeView.setSelection(list.getCurrent(), message, this);
+				treeView.setSelection(list.getCurrent(), message);
 			}
 			else {
 				list.setCurrent(index);
 				list.getCurrentNodeData(message);
-				treeView.setSelection(list.getCurrent(), message, this);
+				treeView.setSelection(list.getCurrent(), message);
 			}
 			sm.setStyleTableItem(list.getCurrent());
 			resetCursorData();
@@ -579,7 +579,7 @@ public class Manager extends Controller {
 		message.put("selection", treeView.getSelection(list.getCurrent()));
 		list.getCurrentNodeData(message);
 		if(list.size() > 0)
-			treeView.setSelection(list.getCurrent(), message, this);
+			treeView.setSelection(list.getCurrent(), message);
 	}
 	
 	private void handleTextDeletion(Message message){
@@ -1092,7 +1092,7 @@ public class Manager extends Controller {
 				braille.setPositionFromStart();
 				braille.view.setFocus();
 			}
-			else if(treeView.tree.isFocusControl()){	
+			else if(treeView.getTree().isFocusControl()){	
 				if(text.view.getCaretOffset() > 0)
 					currentOffset = text.view.getCaretOffset();
 				else
@@ -1272,8 +1272,8 @@ public class Manager extends Controller {
 	
 	//if tree has focus when opening a document and closing an untitled document, the trees selection must be reset
 	public void checkTreeFocus(){
-		if(treeView.tree.isFocusControl() && treeView.tree.getSelectionCount() == 0){
-			treeView.setSelection(list.getFirst(), new Message(null), this);
+		if(treeView.getTree().isFocusControl() && treeView.getTree().getSelectionCount() == 0){
+			treeView.setSelection(list.getFirst(), new Message(null));
 		}
 	}
 	
@@ -1314,6 +1314,10 @@ public class Manager extends Controller {
 			return t;
 		else
 			return null;
+	}
+	
+	public TextMapElement getTextMapElement(int index){
+		return list.get(index);
 	}
 	
 	public void initiateSpellCheck(){

@@ -26,14 +26,13 @@
   * Maintained by John J. Boyer john.boyer@abilitiessoft.com
 */
 
-package org.brailleblaster.perspectives.braille.views;
+package org.brailleblaster.perspectives.braille.views.wp;
 
 import java.util.Map.Entry;
 
 import nu.xom.Element;
 import nu.xom.Node;
 
-import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.mathml.ImageCreator;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -71,7 +70,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
-public class TextView extends AbstractView {
+public class TextView extends WPView {
 	private final static int LEFT_MARGIN = 16;
 	private final static int RIGHT_MARGIN = 57;
 	private final static int TOP_MARGIN = 0;
@@ -82,7 +81,6 @@ public class TextView extends AbstractView {
 	private int currentStart, currentEnd, previousEnd, nextStart, selectionStart, selectionLength;
 	private int currentChanges = 0;
 	private boolean textChanged;
-	private BBSemanticsTable stylesTable;
 	private StyleRange range;
 	private int[] selectionArray;
 	private SelectionListener selectionListener, scrollbarListener;
@@ -97,8 +95,7 @@ public class TextView extends AbstractView {
 	private TextMapElement currentElement;
 	
  	public TextView (Group documentWindow, BBSemanticsTable table) {
-		super (documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
-		this.stylesTable = table;
+		super (documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;

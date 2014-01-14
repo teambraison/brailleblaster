@@ -170,6 +170,16 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createSplitTreeMessage(int firstElementIndex, int secondElementIndex, int currentIndex, int treeIndex){
+		Message m = new Message(BBEvent.SPLIT_TREE);
+		m.put("firstElementIndex", firstElementIndex);
+		m.put("secondElementIndex", secondElementIndex);
+		m.put("currentIndex", currentIndex);
+		m.put("treeIndex",treeIndex);
+		
+		return m;
+	}
+	
 	public void put(String key, Object value){
 		args.put(key, value);
 	}

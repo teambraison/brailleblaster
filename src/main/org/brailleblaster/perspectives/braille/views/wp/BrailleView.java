@@ -26,7 +26,7 @@
  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
  */
 
-package org.brailleblaster.perspectives.braille.views;
+package org.brailleblaster.perspectives.braille.views.wp;
 
 import java.util.ArrayList;
 import java.util.Map.Entry;
@@ -35,7 +35,6 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 
-import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
@@ -61,14 +60,13 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Group;
 
 
-public class BrailleView extends AbstractView {
+public class BrailleView extends WPView {
 	private final static int LEFT_MARGIN = 58;
 	private final static int RIGHT_MARGIN = 100;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;
 	
 	private int currentStart, currentEnd, nextStart, previousEnd;
-	private BBSemanticsTable stylesTable;
 	private int oldCursorPosition = -1;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	private String charAtOffset;
@@ -80,11 +78,10 @@ public class BrailleView extends AbstractView {
 	private SelectionListener selectionListener;
 	
 	public BrailleView(Group documentWindow, BBSemanticsTable table) {
-		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
-		this.stylesTable = table;
 	}
 	
 	@Override

@@ -1316,6 +1316,14 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public int indexOf(TextMapElement t){
+		return list.indexOf(t);
+	}
+	
+	public int findNodeIndex(Node n, int startIndex){
+		return list.findNodeIndex(n, startIndex);
+	}
+	
 	public TextMapElement getTextMapElement(int index){
 		return list.get(index);
 	}

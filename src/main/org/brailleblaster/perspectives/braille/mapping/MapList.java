@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import nu.xom.Element;
+import nu.xom.Node;
 import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
@@ -540,6 +541,14 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 		
 		return list;
+	}
+	
+	public int findNodeIndex(Node n, int startIndex){
+		for(int i = startIndex; i < this.size(); i++){
+			if(this.get(i).n.equals(n))
+				return i;
+		}
+		return -1;
 	}
 	
 	public void clearList(){

@@ -216,5 +216,13 @@ public abstract class AbstractView {
 		return (n instanceof Text);
 	}
 	
+	public void setCursorOffset(int offset){
+		cursorOffset = offset;
+	}
+	
+	public int getCursorOffset(){
+		return cursorOffset;
+	}
+	
 	protected abstract void setViewData(Message message);
 }

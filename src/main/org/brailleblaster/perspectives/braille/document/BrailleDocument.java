@@ -370,7 +370,7 @@ public class BrailleDocument extends BBDocument {
 		
 		String xml = getXMLString(e.toXML().toString());
 		d = getXML(xml);
-		Element parent = (Element)d.getRootElement().getChild(0);
+		Element parent = (Element)d.getRootElement();
 		return (Element)parent.removeChild(0);
 	}
 	

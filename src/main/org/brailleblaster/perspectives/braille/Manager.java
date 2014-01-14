@@ -32,9 +32,15 @@
 package org.brailleblaster.perspectives.braille;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,6 +66,7 @@ import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
+import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
@@ -88,7 +95,7 @@ import org.eclipse.swt.widgets.TabItem;
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class Manager extends Controller {
 	Group group;
-	XMLTree treeView;
+	BBTree treeView;
 	private TextView text;
 	private BrailleView braille;
 	private BBProgressBar pb;
@@ -119,7 +126,7 @@ public class Manager extends Controller {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
-		this.treeView = new XMLTree(this, this.group);
+		this.treeView = loadTree();
 		this.text = new TextView(this.group, this.styles);
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
@@ -152,7 +159,7 @@ public class Manager extends Controller {
 		this.group = new Group(wp.getFolder(),SWT.NONE);
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
-		this.treeView = new XMLTree(this, this.group);
+		this.treeView = loadTree();
 		this.text = new TextView(this.group, this.styles);
 		this.braille = new BrailleView(this.group, this.styles);
 		this.item.setControl(this.group);
@@ -166,8 +173,8 @@ public class Manager extends Controller {
 		this.document = new BrailleDocument(this, doc, this.styles);
 
 		group.setRedraw(false);
-		treeView.setRoot(document.getRootElement());
 		initializeViews(document.getRootElement());
+		treeView.setRoot(document.getRootElement());
 		document.notifyUser();
 		text.initializeListeners(this);
 		braille.initializeListeners(this);
@@ -197,10 +204,10 @@ public class Manager extends Controller {
 	
 	public void setTabList(){
 		if(sm.panelIsVisible()){
-			tabList = new Control[]{treeView.view, sm.getGroup(), text.view, braille.view};
+			tabList = new Control[]{treeView.getView(), sm.getGroup(), text.view, braille.view};
 		}
 		else {
-			tabList = new Control[]{treeView.view, text.view, braille.view};
+			tabList = new Control[]{treeView.getView(), text.view, braille.view};
 		}
 		group.setTabList(tabList);
 	}
@@ -359,8 +366,8 @@ public class Manager extends Controller {
 				startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
-				treeView.setRoot(document.getRootElement());
 				initializeViews(document.getRootElement());
+				treeView.setRoot(document.getRootElement());
 				document.notifyUser();
 				text.initializeListeners(this);
 				braille.initializeListeners(this);
@@ -638,7 +645,6 @@ public class Manager extends Controller {
 		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
 				
 		int currentIndex = list.getCurrentIndex();
-		treeView.removeCurrent();
 		
 		for(int i = originalElements.size() - 1; i >= 0; i--){
 			int pos = originalElements.get(i);
@@ -658,8 +664,6 @@ public class Manager extends Controller {
 		
 		int firstElementIndex = currentIndex;
 		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
-		addTreeItems(firstElementIndex, currentIndex + 1, treeIndex);
-		
 		
 		String insertionString = "";
 		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
@@ -685,26 +689,10 @@ public class Manager extends Controller {
 		
 		int secondElementIndex = currentIndex + 1;
 		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
-		addTreeItems(secondElementIndex, currentIndex,treeIndex + 1);
+
 		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
-	}
-	
-	private void addTreeItems(int start, int end, int treeIndex){
-		Element parent = document.getParent(list.get(start).n, true);
-		ArrayList<TextMapElement> elementList = new ArrayList<TextMapElement>();
 		
-		for(int i = start; i < end; i++){
-			if(parent.equals(list.get(i).n.getParent())){
-				elementList.add(list.get(i));
-			}
-		}
-		
-		if(elementList.size() > 0){
-			treeView.newTreeItem(elementList, treeIndex);
-		}
-		else {
-			treeView.newTreeItem(list.get(start), treeIndex);
-		}
+		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
 	
 	public int insertElement(Element e, int index, int start, int brailleStart){
@@ -1335,6 +1323,81 @@ public class Manager extends Controller {
 			new SpellCheckManager(this);
 	}
 	
+	private BBTree loadTree(){
+		Properties properties = new Properties();
+		try {
+			properties.load(new FileInputStream(BBIni.getUserSettings()));
+			if(!properties.containsKey("tree")){
+				properties.setProperty("tree", XMLTree.class.getCanonicalName().toString());
+				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
+				return new XMLTree(this, group);
+			}
+			else {
+				Class<?> clss = Class.forName((String)properties.getProperty("tree"));
+				Constructor<?> constructor = clss.getConstructor(Manager.class, Group.class);
+				return (BBTree)constructor.newInstance(this, group);
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} 
+		
+		return null;
+	}
+	
+	public void swapTree(Class<?> clss){
+		try {
+			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
+			treeView.dispose();
+			treeView = (BBTree)constructor.newInstance(this, group);
+			setTabList();
+			treeView.setRoot(document.getRootElement());
+			treeView.getView().getParent().layout();
+			treeView.initializeListeners(this);
+			saveTree();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void saveTree(){
+		Properties prop = new Properties();
+    	try {
+			prop.load(new FileInputStream(BBIni.getUserSettings()));
+			prop.setProperty("tree", treeView.getClass().getCanonicalName().toString());
+			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void toggleBrailleFont(){
 		FontManager.toggleBrailleFont(wp, this);
 	}
@@ -1388,6 +1451,10 @@ public class Manager extends Controller {
 	public BrailleView getBraille() {
 		return braille;
 	}
+	
+	public BBTree getTreeView(){
+		return treeView;
+	}
 
 	public boolean isSimBrailleDisplayed() {
 		return simBrailleDisplayed;
@@ -1405,12 +1472,10 @@ public class Manager extends Controller {
 		this.metaContent = metaContent;
 	}
 
-
 	@Override
 	public void restore(WPManager wp) {
 		checkTreeFocus();
 	}
-
 
 	@Override
 	public void dispose() {

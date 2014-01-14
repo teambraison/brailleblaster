@@ -3,6 +3,8 @@ package org.brailleblaster.perspectives.braille.ui;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.views.tree.BookTree;
+import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
@@ -11,6 +13,7 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -48,6 +51,11 @@ public class BrailleMenu extends BBMenu{
 	MenuItem editLockedItem;
 	MenuItem keybdBrlToggleItem;
 	// MenuItem imgDescItem;
+	Menu treeViewMenu;
+	MenuItem treeViewItem;
+	MenuItem xmlTreeItem;
+	MenuItem bookTreeItem;
+	MenuItem selectedTree;
 	MenuItem prevElementItem;
 	MenuItem nextElementItem;
 	MenuItem refreshItem;
@@ -537,7 +545,51 @@ public class BrailleMenu extends BBMenu{
 				
 		navigateItem.setMenu(navigateMenu);
 		
+		treeViewItem = new MenuItem(viewMenu, SWT.CASCADE);
+		treeViewItem.setText(lh.localValue("tree"));
+		treeViewMenu = new Menu(viewMenu.getShell(), SWT.DROP_DOWN);
+		treeViewItem.setMenu(treeViewMenu);
 		
+		xmlTreeItem = new MenuItem(treeViewMenu, SWT.CHECK);
+		xmlTreeItem.setText(lh.localValue("xmlTree"));
+		xmlTreeItem.setData(XMLTree.class);
+		xmlTreeItem.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(xmlTreeItem.getSelection() == true && !selectedTree.equals(xmlTreeItem)){
+					selectedTree = xmlTreeItem;
+					bookTreeItem.setSelection(false);
+					currentEditor.swapTree((Class<?>)xmlTreeItem.getData());
+				}
+			}	
+		});
+		
+		bookTreeItem = new MenuItem(treeViewMenu, SWT.CHECK);
+		bookTreeItem.setText(lh.localValue("bookTree"));
+		bookTreeItem.setData(BookTree.class);
+		bookTreeItem.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(bookTreeItem.getSelection() == true && !selectedTree.equals(bookTreeItem)){
+					selectedTree = bookTreeItem;
+					xmlTreeItem.setSelection(false);
+					currentEditor.swapTree((Class<?>)bookTreeItem.getData());
+				}
+			}	
+		});
+		setTreeItem();
 				
 		refreshItem = new MenuItem(viewMenu, SWT.PUSH);
 		refreshItem.setText("Refresh\tF5");
@@ -760,6 +812,11 @@ public class BrailleMenu extends BBMenu{
 		currentEditor = (Manager)controller;
 		if(stylePanelItem != null)
 			setStylePanelItem();
+		
+		if(treeViewMenu != null){
+			selectedTree.setSelection(false);
+			setTreeItem();
+		}
 	}
 	
 	private void setStylePanelItem(){
@@ -772,5 +829,17 @@ public class BrailleMenu extends BBMenu{
 	@Override
 	public Controller getCurrent() {
 		return currentEditor;
+	}
+	
+	private void setTreeItem(){
+		Class<?> clss = currentEditor.getTreeView().getClass();
+		
+		for(int  i = 0; i < treeViewMenu.getItemCount(); i++){
+			if(treeViewMenu.getItem(i).getData().equals(clss)){
+				selectedTree = treeViewMenu.getItem(i);
+				treeViewMenu.getItem(i).setSelection(true);
+				break;
+			}
+		}
 	}
 }

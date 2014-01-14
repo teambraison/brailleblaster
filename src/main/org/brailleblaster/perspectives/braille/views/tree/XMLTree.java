@@ -594,10 +594,10 @@ public class XMLTree extends TreeView {
 		int currentIndex = (Integer)m.getValue("currentIndex");
 		int treeIndex = (Integer)m.getValue("treeIndex");
 		int firstElementIndex = (Integer)m.getValue("firstElementIndex");
-		int secondElementIndex = (Integer)m.getValue("secondTextMapElement");
+		int secondElementIndex = (Integer)m.getValue("secondElementIndex");
 		
 		removeCurrent();
-		addTreeItems(firstElementIndex, currentIndex + 1, treeIndex);
+		addTreeItems(firstElementIndex, currentIndex - 1, treeIndex);
 		addTreeItems(secondElementIndex, currentIndex,treeIndex + 1);	
 	}
 	

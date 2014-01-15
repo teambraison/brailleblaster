@@ -1361,15 +1361,25 @@ public class Manager extends Controller {
 	}
 	
 	public void swapTree(Class<?> clss){
+		boolean focused = false;
 		try {
+			if(treeView.getTree().isFocusControl())
+				focused = true;
+			
 			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
+			treeView.removeListeners();
 			treeView.dispose();
 			treeView = (BBTree)constructor.newInstance(this, group);
 			setTabList();
 			treeView.setRoot(document.getRootElement());
+			if(focused)
+				treeView.getTree().setFocus();
+			
+			treeView.setSelection(list.getCurrent(), new Message(null));
 			treeView.getView().getParent().layout();
 			treeView.initializeListeners(this);
 			saveTree();
+			
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (SecurityException e) {

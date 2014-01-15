@@ -21,7 +21,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	private Group group;
 	
 	protected Manager manager;
-	
+	private FocusListener focusListener;
 	public TreeView(final Manager dm, Group documentWindow){
 		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group = documentWindow;
@@ -32,7 +32,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		view.getVerticalBar().dispose();
 		view.getHorizontalBar().dispose();
 		
-		view.addFocusListener(new FocusListener(){
+		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
 				tree.setFocus();
@@ -59,6 +59,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	}
 	
 	public void dispose(){
+		view.removeFocusListener(focusListener);
 		tree.removeAll();
 		tree.dispose();
 		view.dispose();

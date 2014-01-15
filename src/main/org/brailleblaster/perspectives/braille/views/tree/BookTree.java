@@ -67,8 +67,6 @@ public class BookTree extends TreeView {
 						Message m = Message.createSetCurrentMessage("tree", data.element.start, false);
 						setCursorOffset(0);
 						dm.dispatch(m);
-					
-						System.out.println(getStartRange(tree.getSelection()[0]) + " " + getEndRange(tree.getSelection()[0]));
 					}
 				}
 			}
@@ -86,8 +84,7 @@ public class BookTree extends TreeView {
 					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					dm.dispatch(cursorMessage);
 				}
-			}
-			
+			}		
 		});
 	}
 

@@ -558,7 +558,7 @@ public class Manager extends Controller {
 	
 	private void handleSetCurrent(Message message){
 		int index;
-	//	list.checkList();
+		list.checkList();
 		if(message.getValue("isBraille").equals(true)){
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
@@ -579,6 +579,27 @@ public class Manager extends Controller {
 			}
 			sm.setStyleTableItem(list.getCurrent());
 			resetCursorData();
+		}
+		
+		if(treeView.getTree().isFocusControl() && !currentElementOnScreen()){
+			text.view.setTopIndex(text.view.getLineAtOffset(list.getCurrent().start));
+			handleUpdateScrollbar(Message.createUpdateScollbarMessage("tree", list.getCurrent().start));
+		}
+	}
+	
+	private boolean currentElementOnScreen(){
+		int viewHeight = text.view.getClientArea().height;
+		int lineHeight = text.view.getLineHeight();
+		int totalLines = viewHeight / lineHeight;
+		
+		int currentLine = text.view.getLineAtOffset(list.getCurrent().start);
+		int topIndex = text.view.getTopIndex();
+		
+		if(currentLine >= topIndex && currentLine <= (topIndex + totalLines - 1)){
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 	

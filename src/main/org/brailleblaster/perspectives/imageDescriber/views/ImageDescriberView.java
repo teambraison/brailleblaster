@@ -37,61 +37,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ImageDescriberView {
-	// UI Positioning and Sizes.
-	// Buttons.
-	int defBtnW = 100;
-	int defBtnH = 50;
-	int prevBtnX = 0;
-	int prevBtnY = 0;
-	int prevBtnW = defBtnW;
-	int prevBtnH = defBtnH;
-	int nextBtnX = prevBtnW + prevBtnX + 1;
-	int nextBtnY = 0;
-	int nextBtnW = defBtnW;
-	int nextBtnH = defBtnH;
-	int applyBtnX = nextBtnW + nextBtnX + 1;
-	int applyBtnY = 0;
-	int applyBtnW = defBtnW;
-	int applyBtnH = defBtnH;
-	int okayBtnX = applyBtnW + applyBtnX + 1;
-	int okayBtnY = 0;
-	int okayBtnW = defBtnW;
-	int okayBtnH = defBtnH;
-	int undoBtnX = okayBtnW + okayBtnX + 1;
-	int undoBtnY = 0;
-	int undoBtnW = defBtnW;
-	int undoBtnH = defBtnH;
-	int applyAllBtnX = 0; // Apply All.
-	int applyAllBtnY = okayBtnY + okayBtnH + 1;
-	int applyAllBtnW = defBtnW;
-	int applyAllBtnH = defBtnH;
-	int clearAllBtnX = 0; // Clear All.
-	int clearAllBtnY = applyAllBtnY + applyAllBtnH + 1;
-	int clearAllBtnW = defBtnW;
-	int clearAllBtnH = defBtnH;
 	
-	// Overall dialog.
-	int dialogWidth = 1000;
-	int dialogHeight = 700;
-	// Main image.
-	int imageOffsetX = 0;
-	int imageOffsetY = 250;
 	int imageWidth = 500;
 	int imageHeight = 500;
 	// Client Area.
 	int clientWidth = -1;
 	int clientHeight = -1;
-		
-	// Text box.
-	int txtBoxX = 0;
-	int txtBoxY = 55;
-	int txtBoxW = 400;
-	int txtBoxH = 150;
-	// Browser.
-	int browserX = 505;
-	int browserY = 0;
-	int browserW = -1;
-	int browserH = -1;
 	
 	// True if usr hit okay. False if cancel.
 	boolean msgBxBool = false;
@@ -127,35 +78,13 @@ public class ImageDescriberView {
 		// Create previous button.
 		prevBtn = new Button(group, SWT.PUSH);
 		prevBtn.setText("Previous");
-		//prevBtn.setBounds(prevBtnX,  prevBtnY, prevBtnW, prevBtnH);
 		setFormData(prevBtn, 0, 7, 0, 5);
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 
-			// Change main image to previous element image.
-			imgDesc.prevImageElement();
-
-			//Change current image in dialog.
-			setMainImage();
-
-			// Get description and alt text.
-			oldDescText = imgDesc.getCurDescription();
-			oldAltText = imgDesc.getCurElmAttribute("alt");
-			
-			// Get prodnote text/image description.
-			setTextBox( oldDescText );
-			
-			// Get alt attribute.
-			if(oldAltText != null)
-				altBox.setText(oldAltText);
-			
-			idd.setImageInfo();
-			// Show current image index and name.
-			//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
-			
-			// Scroll the browser widget to the current image.
-			scrollBrowserToCurImg();
+			// Move to previous element.
+			idd.setImageToPrevious();
 			
 		} // widgetSelected()
 
@@ -164,35 +93,13 @@ public class ImageDescriberView {
 		// Create next button.
 		nextBtn = new Button(group, SWT.PUSH);
 		nextBtn.setText("Next");
-		//nextBtn.setBounds(nextBtnX,  nextBtnY, nextBtnW, nextBtnH);
 		setFormData(nextBtn, 7, 14, 0, 5);
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				// Change main image to next element image.
-				imgDesc.nextImageElement();
-
-				// Change current image in dialog.
-				setMainImage();
-
-				// Get description and alt text.
-				oldDescText = imgDesc.getCurDescription();
-				oldAltText = imgDesc.getCurElmAttribute("alt");
-				
-				// Get prodnote text/image description.
-				setTextBox( oldDescText );
-				
-				// Get alt attribute.
-				if(oldAltText != null)
-					altBox.setText(oldAltText);
-
-				idd.setImageInfo();
-				//Show current image index and name.
-			//	imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
-				
-				// Scroll the browser widget to the current image.
-				scrollBrowserToCurImg();
+				// Move to next element.
+				idd.setImageToNext();
 
 			} // widgetSelected()
 
@@ -201,18 +108,13 @@ public class ImageDescriberView {
 		// Create undo button.
 		undoBtn = new Button(group, SWT.PUSH);
 		undoBtn.setText("Undo");
-		//undoBtn.setBounds(undoBtnX,  undoBtnY, undoBtnW, undoBtnH);
 		setFormData(undoBtn, 28, 35, 0, 5);
 		undoBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
-				// Get prodnote text/image description.
-				setTextBox( oldDescText );
-				
-				// Get alt attribute.
-				if(oldAltText != null)
-					altBox.setText(oldAltText);
+				// Undo current element changes.
+				idd.undo();
 
 			} // widgetSelected()
 
@@ -222,7 +124,6 @@ public class ImageDescriberView {
 		// to what was in the notes.
 		applyToAllBtn = new Button(group, SWT.PUSH);
 		applyToAllBtn.setText("Apply To All");
-		//applyToAllBtn.setBounds(applyAllBtnX,  applyAllBtnY, applyAllBtnW, applyAllBtnH);
 		setFormData(applyToAllBtn, 35, 42, 0, 5);
 		applyToAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -256,6 +157,7 @@ public class ImageDescriberView {
 
 					} // for(int curImg...
 					idd.setDocumentEdited(true);
+					
 				} // if msgBx == true
 
 			} // widgetSelected()
@@ -265,7 +167,6 @@ public class ImageDescriberView {
 		// Clear all button. Clears the prodnote and alt attribute.
 		clearAllBtn = new Button(group, SWT.PUSH);
 		clearAllBtn.setText("Clear All");
-		//clearAllBtn.setBounds(clearAllBtnX,  clearAllBtnY, clearAllBtnW, clearAllBtnH);
 		setFormData(clearAllBtn, 42, 49, 0, 5);
 		clearAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -329,7 +230,6 @@ public class ImageDescriberView {
 
 		// Create image description text box.
 		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		//imgDescTextBox.setBounds(txtBoxX, txtBoxY, txtBoxW, txtBoxH);
 		setFormData(imgDescTextBox, 0, 49, 9, 40);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			@Override
@@ -345,15 +245,8 @@ public class ImageDescriberView {
 		
 		// Setup main image.
 		mainImage = new Label(group, SWT.CENTER | SWT.BORDER);
-		//mainImage.setBounds(imageOffsetX, imageOffsetY, imageWidth, imageHeight);
 		setFormData(mainImage, 0, 49, 40, 100);
 		setMainImage();
-
-		// Show current image index and name.
-		//imgDescShell.setText( "Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
-
-		//////////////////
-		// Browser Widget.
 
 		// Setup browser window.
 		browser = new Browser(group, SWT.BORDER );
@@ -361,17 +254,20 @@ public class ImageDescriberView {
 		
 	} // public void createUIelements()
 	
+	// Set text in image description text box UI.
 	public void setTextBox(){
 		// Get prodnote text/image description.
 		if(imgDesc.getImageList().size() > 0)
 			imgDescTextBox.setText( imgDesc.getCurDescription() );
 	}
 	
+	// Get text in alt box UI.
 	public String getAltBox()
 	{
 		return altBox.getText();
 	}
 	
+	// Set text in alt box.
 	public void setAltBox(String str)
 	{
 		if(str == null)
@@ -448,12 +344,10 @@ public class ImageDescriberView {
 			// Set url.
 			browser.setUrl( idd.getWorkingPath().replaceAll(".xml", ".html") );
 			// Set browser bounds.
-			//browser.setBounds(browserX, browserY, browserW, browserH);
 			setFormData(browser, 49, 100, 0, 100);
 		}
 		else {
 			// Set browser bounds.
-			//browser.setBounds(browserX, browserY, browserW, browserH);
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
 			setFormData(browser, 49, 100, 0, 100);
 		}
@@ -461,7 +355,7 @@ public class ImageDescriberView {
 	
 	////////////////////////////////////////////////////////////
 	// Scrolls browser view to current image.
-	void scrollBrowserToCurImg()
+	public void scrollBrowserToCurImg()
 	{
 		// Get the index of the current element.
 		String indexStr = Integer.toString( imgDesc.getCurrentElementIndex() );
@@ -481,59 +375,13 @@ public class ImageDescriberView {
 	{
 		// Screen resolution.
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-		// Overall dialog.
-		dialogWidth = (int)(screenSize.getWidth() * 0.70f);
-		dialogHeight = (int)(screenSize.getWidth() * 0.70f);
 		// Client Area.
 		clientWidth = group.getShell().getBounds().width;
 		clientHeight = group.getShell().getBounds().height;
-		// Buttons.
-		defBtnW = dialogWidth / 15;
-		defBtnH = dialogHeight / 25;
-		prevBtnX = 0;
-		prevBtnY = 0;
-		prevBtnW = defBtnW;
-		prevBtnH = defBtnH;
-		nextBtnX = prevBtnW + prevBtnX + 1;
-		nextBtnY = 0;
-		nextBtnW = defBtnW;
-		nextBtnH = defBtnH;
-		applyBtnX = nextBtnW + nextBtnX + 1;
-		applyBtnY = 0;
-		applyBtnW = defBtnW;
-		applyBtnH = defBtnH;
-		okayBtnX = applyBtnW + applyBtnX + 1;
-		okayBtnY = 0;
-		okayBtnW = defBtnW;
-		okayBtnH = defBtnH;
-		undoBtnX = okayBtnW + okayBtnX + 1;
-		undoBtnY = 0;
-		undoBtnW = defBtnW;
-		undoBtnH = defBtnH;
-		applyAllBtnX = 0; // Apply All.
-		applyAllBtnY = okayBtnY + okayBtnH + 1;
-		applyAllBtnW = clientWidth / 12;
-		applyAllBtnH = defBtnH;
-		clearAllBtnX = applyAllBtnX + clientWidth / 12; // Clear All.
-		clearAllBtnY = applyAllBtnY;
-		clearAllBtnW = clientWidth / 12;
-		clearAllBtnH = defBtnH;
-		// Text box.
-		txtBoxX = 0;
-		txtBoxY = applyAllBtnY + applyAllBtnH + 1;
-		txtBoxW = clientWidth / 3;
-		txtBoxH = clientHeight / 4;
 		// Main image.
-		imageOffsetX = 0;
-		imageOffsetY = txtBoxY + txtBoxH + 5;
 		imageWidth = clientWidth / 3;
 		imageHeight = clientWidth / 3;
-		// Browser.
-		browserX = imageWidth + 10;
-		browserY = 0;
-		browserW = clientWidth / 2;
-		browserH = clientHeight;
+		
 	} // public void resizeUI()
 
 
@@ -630,13 +478,7 @@ public class ImageDescriberView {
 		
 		if(imgDesc.getImageList().size() > 0)
 			enabled = true;
-		
-	//	prevBtn.setEnabled(enabled);
-	//	nextBtn.setEnabled(enabled);
-	//	applyBtn.setEnabled(enabled);
-	//	cancelBtn.setEnabled(enabled);
-	//	applyToAllBtn.setEnabled(enabled);
-	//	clearAllBtn.setEnabled(enabled);
+
 		imgDescTextBox.setEditable(enabled);
 	}
 	

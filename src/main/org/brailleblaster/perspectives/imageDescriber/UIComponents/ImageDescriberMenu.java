@@ -20,7 +20,7 @@ public class ImageDescriberMenu extends BBMenu{
 
 	//editMenu
 	Menu editMenu;
-	MenuItem editItem, prevItem, nextItem, applyItem, undoAllItem, applyToAllItem, clearAllItem;
+	MenuItem editItem, prevItem, nextItem, applyItem, undoItem, applyToAllItem, clearAllItem;
 			
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
@@ -136,24 +136,13 @@ public class ImageDescriberMenu extends BBMenu{
 
 		}); // nextBtn.addSelectionListener...)
 		
-		applyItem = new MenuItem(editMenu, SWT.PUSH);
-		applyItem.setText(lh.localValue("&Apply"));
-		applyItem.addSelectionListener(new SelectionAdapter() {
+		undoItem = new MenuItem(editMenu, SWT.PUSH);
+		undoItem.setText(lh.localValue("&Undo"));
+		undoItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				currentController.apply();
-				// Set image's description.
-				//imgDesc.setCurElmProd(imgDescTextBox.getText(), null, null, null);
-				//idd.setDocumentEdited(true);
-			} // widgetSelected()
-		}); // applyBtn.addSelectionListener...
-		
-		undoAllItem = new MenuItem(editMenu, SWT.PUSH);
-		undoAllItem.setText(lh.localValue("&Undo All"));
-		undoAllItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				currentController.cancel();
+				// Undo current element changes.
+				currentController.undo();
 			} // widgetSelected()
 
 		}); // undoAllItem.addSelectionListener...

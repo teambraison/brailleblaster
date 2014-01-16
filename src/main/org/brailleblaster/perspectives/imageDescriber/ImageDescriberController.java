@@ -251,8 +251,9 @@ public class ImageDescriberController extends Controller {
 			}
 			
 			// If the document came from a zip file, then rezip it.
-			if(zippedPath.length() > 0)
-				zipDocument();
+			if(zippedPath != null)
+				if(zippedPath.length() > 0)
+					zipDocument();
 		
 			documentEdited = false;
 		}
@@ -358,17 +359,21 @@ public class ImageDescriberController extends Controller {
 	public void setImageToPrevious(){
 		// Change main image to previous element image.
 		imgDesc.prevImageElement();
+		
+		// Set image preview.
 		idv.setMainImage();
 		
 		// Get prodnote text/image description.
 		idv.setTextBox();
-		//imgDescTextBox.setText( imgDesc.getCurProdText() );
 
 		// Show current image index and name.
 		setImageInfo();
-		//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
 		
+		// Set alt text.
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		
+		// Scroll browser to current image.
+		idv.scrollBrowserToCurImg();
 	}
 	
 	public void setImageToNext(){
@@ -377,42 +382,35 @@ public class ImageDescriberController extends Controller {
 		
 		//Change current image in dialog.
 		idv.setMainImage();
-		/*
-		Image curElmImage = imgDesc.getCurElementImage();
-		if(curElmImage != null)
-			mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
-		else
-			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
-				imageWidth, imageHeight) );
-	*/
 			
 		// Get prodnote text/image description.
 		idv.setTextBox();
-		
-		//imgDescTextBox.setText( imgDesc.getCurProdText() );
 
 		// Show current image index and name.
 		setImageInfo();
-		//imgDescShell.setText("Image Describer - " + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );
 		
+		// Set alt text.
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		
+		// Scroll browser to current image.
+		idv.scrollBrowserToCurImg();
+	}
+	
+	// Undo-es current element/image changes.
+	public void undo()
+	{
+		// Undo the changes.
+		imgDesc.undoCurDescAndAlt();
+		// Get prodnote text/image description.
+		idv.setTextBox();
+		// Set alt text.
+		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		
 	}
 	
 	public void apply(){
 		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
 		setDocumentEdited(true);
-	}
-	
-	public void cancel(){
-		// Warn user that all changes will be discarded.
-		if(idv.msgBx("Warning", "This will discard all changes, even the ones you Apply'd. Continue?") == true)
-		{
-			// Copy original elements back into main list. "Undo!"
-			imgDesc.copyUndo2MainList();
-
-			// Close the dialog without committing changes.
-			//imgDescShell.close();
-		}
 	}
 	
 	public void applyToAll(){

@@ -875,6 +875,7 @@ public class Manager extends Controller {
 			}
 			list.setCurrent(currentIndex);
 			document.changeSemanticAction(message, list.getCurrent().parentElement());
+			treeView.adjustItemStyle(list.getCurrent());
 			group.setRedraw(true);
 		}
 		else

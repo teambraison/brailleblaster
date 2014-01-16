@@ -107,19 +107,25 @@ public class BookTree extends TreeView {
 		previousItem = null;
 	}
 	
-	public void setTree(Element e, TreeItem item){
+	public void setTree(Element e, TreeItem item){		
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
-			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){
-				TreeItem childItem = new TreeItem(findCorrectLevel(item, els.get(i)), SWT.LEFT | SWT.BORDER);
+			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){			
+				TreeItem childItem;
+				if(previousItem == null){
+					childItem = new TreeItem(findCorrectLevel(root, els.get(i)), SWT.LEFT | SWT.BORDER);
+				}
+				else
+					childItem =  new TreeItem(findCorrectLevel(previousItem, els.get(i)), SWT.LEFT | SWT.BORDER);
+					
 				setNewItemData(childItem, els.get(i));
 				setTree(els.get(i), childItem);
-				
-				if(!childItem.isDisposed())
-					item = childItem;
 			}
 			else if(!els.get(i).getLocalName().equals("brl"))
-				setTree(els.get(i), item);
+				if(previousItem ==  null)
+					setTree(els.get(i), root);
+				else
+					setTree(els.get(i), previousItem);
 		}
 	}
 	
@@ -155,12 +161,14 @@ public class BookTree extends TreeView {
 		
 			previousItem = item;
 		}
-		else if(item.getItemCount() == 0)
+		else if(item.getItemCount() == 0){
 			item.dispose();
+		}
 	}
 	
 	private int findIndex(TreeItem item, Element e){
-		for(int i = 0; i < e.getChildCount(); i++){
+		int count = e.getChildCount();
+		for(int i = 0; i < count; i++){
 			if(e.getChild(i) instanceof Text){
 				int searchIndex;
 				
@@ -168,10 +176,10 @@ public class BookTree extends TreeView {
 					searchIndex = 0;
 				else
 					searchIndex = getItemData(previousItem).startRange + 1;
-				
+			
 				return manager.findNodeIndex(e.getChild(i), searchIndex);
 			}
-			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl") &&  !((Element)e.getChild(i)).getLocalName().equals("img") && table.getSemanticTypeFromAttribute((Element)e.getChild(i)).equals("action"))
+			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl") &&  !((Element)e.getChild(i)).getLocalName().equals("img") && table.getSemanticTypeFromAttribute((Element)e.getChild(i)).equals("action") && e.getChild(i).getChildCount() != 0)
 				return findIndex(item, (Element)e.getChild(i));
 		}
 		
@@ -262,6 +270,7 @@ public class BookTree extends TreeView {
 	
 	private boolean isHeading(TextMapElement t){
 		Element parent = t.parentElement();
+		
 		if(table.getSemanticTypeFromAttribute(parent).equals("action")){
 			parent = (Element)t.parentElement().getParent();
 			while(!table.getSemanticTypeFromAttribute(parent).equals("style")){

@@ -64,5 +64,4 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		tree.dispose();
 		view.dispose();
 	}
-
 }

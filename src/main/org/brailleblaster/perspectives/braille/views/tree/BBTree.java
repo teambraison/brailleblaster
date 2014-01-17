@@ -15,9 +15,9 @@ public interface BBTree extends BBView {
 	public void newTreeItem(TextMapElement t, int index);
 	public void removeCurrent();
 	public void removeItem(TextMapElement t, Message m);
-	public void removeMathML(TextMapElement t, Message m);
+	public void removeMathML(TextMapElement t);
 	public int getBlockElementIndex();
-	public void setSelection(TextMapElement t, Message message);
+	public void setSelection(TextMapElement t);
 	public TextMapElement getSelection(TextMapElement t);
 	public int getSelectionIndex();
 	public void clearTree();

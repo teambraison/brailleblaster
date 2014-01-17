@@ -521,13 +521,13 @@ public class Manager extends Controller {
 	
 	private void handleIncrement(Message message){
 		list.incrementCurrent(message);
-		treeView.setSelection(list.getCurrent(), message);
+		treeView.setSelection(list.getCurrent());
 		resetCursorData();
 	}
 	
 	private void handleDecrement(Message message){
 		list.decrementCurrent(message);
-		treeView.setSelection(list.getCurrent(), message);
+		treeView.setSelection(list.getCurrent());
 		resetCursorData();
 	}
 	
@@ -563,19 +563,19 @@ public class Manager extends Controller {
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
 			list.getCurrentNodeData(message);
-			treeView.setSelection(list.getCurrent(), message);
+			treeView.setSelection(list.getCurrent());
 		}
 		else {
 			message.put("selection", treeView.getSelection(list.getCurrent()));
 			index = list.findClosest(message, 0, list.size() - 1);
 			if(index == -1){
 				list.getCurrentNodeData(message);
-				treeView.setSelection(list.getCurrent(), message);
+				treeView.setSelection(list.getCurrent());
 			}
 			else {
 				list.setCurrent(index);
 				list.getCurrentNodeData(message);
-				treeView.setSelection(list.getCurrent(), message);
+				treeView.setSelection(list.getCurrent());
 			}
 			sm.setStyleTableItem(list.getCurrent());
 			resetCursorData();
@@ -607,7 +607,7 @@ public class Manager extends Controller {
 		message.put("selection", treeView.getSelection(list.getCurrent()));
 		list.getCurrentNodeData(message);
 		if(list.size() > 0)
-			treeView.setSelection(list.getCurrent(), message);
+			treeView.setSelection(list.getCurrent());
 	}
 	
 	private void handleTextDeletion(Message message){
@@ -792,9 +792,9 @@ public class Manager extends Controller {
 	
 	private void handleRemoveNode(Message message){
 		int index = (Integer)message.getValue("index");
+		treeView.removeItem(list.get(index), message);
 		document.updateDOM(list, message);
 		list.get(index).brailleList.clear();
-		treeView.removeItem(list.get(index), message);
 		list.remove(index);
 					
 		if(list.size() == 0){
@@ -811,7 +811,7 @@ public class Manager extends Controller {
 		document.updateDOM(list, m);
 		braille.removeMathML(t);
 		text.removeMathML(m);
-		treeView.removeMathML(t, m);
+		treeView.removeMathML(t);
 		list.updateOffsets(list.indexOf(t), m);
 		list.remove(t);
 		
@@ -1283,7 +1283,7 @@ public class Manager extends Controller {
 	//if tree has focus when opening a document and closing an untitled document, the trees selection must be reset
 	public void checkTreeFocus(){
 		if(treeView.getTree().isFocusControl() && treeView.getTree().getSelectionCount() == 0){
-			treeView.setSelection(list.getFirst(), new Message(null));
+			treeView.setSelection(list.getFirst());
 		}
 	}
 	
@@ -1397,7 +1397,7 @@ public class Manager extends Controller {
 			if(focused)
 				treeView.getTree().setFocus();
 			
-			treeView.setSelection(list.getCurrent(), new Message(null));
+			treeView.setSelection(list.getCurrent());
 			treeView.getView().getParent().layout();
 			treeView.initializeListeners(this);
 			saveTree();

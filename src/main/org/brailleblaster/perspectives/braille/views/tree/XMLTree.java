@@ -407,7 +407,7 @@ public class XMLTree extends TreeView {
 				for(int j = 0; j < list.size(); j++){
 					if(list.get(j).equals(t)){
 						m.put("item",item.getItem(i));
-						m.put("index", j);
+						m.put("treeIndex", j);
 						found = true;
 						break;
 					}
@@ -476,7 +476,8 @@ public class XMLTree extends TreeView {
 			item.dispose();
 	}
 	
-	public void removeMathML(TextMapElement t, Message m){
+	public void removeMathML(TextMapElement t){
+		Message m = new Message(null);
 		setListenerLock(true);
 		searchTree(this.getRoot(), t, m);
 		if((TreeItem)m.getValue("item") != null){
@@ -501,7 +502,8 @@ public class XMLTree extends TreeView {
 		return parent.getParentItem().indexOf(parent);
 	}
 	
-	public void setSelection(TextMapElement t, Message message){
+	public void setSelection(TextMapElement t){
+		Message message = new Message(null);
 		setListenerLock(true);
 		searchTree(this.getRoot(), t, message);
 		if(message.getValue("item") != null){		
@@ -533,7 +535,7 @@ public class XMLTree extends TreeView {
 		searchTree(this.getRoot(), t, m);
 		if((TreeItem)m.getValue("item") != null){
 			TreeItem item = (TreeItem)m.getValue("item");
-			int index = (Integer)m.getValue("index");
+			int index = (Integer)m.getValue("treeIndex");
 			ArrayList<TextMapElement> list = getList(item);
 			list.remove(index);
 			

@@ -357,7 +357,7 @@ public class BookTree extends TreeView {
 	}
 
 	@Override
-	public void removeMathML(TextMapElement t, Message m) {	
+	public void removeMathML(TextMapElement t) {	
 	
 	}
 
@@ -367,7 +367,7 @@ public class BookTree extends TreeView {
 	}
 
 	@Override
-	public void setSelection(TextMapElement t, Message message) {		
+	public void setSelection(TextMapElement t) {		
 		setListenerLock(true);
 		TreeItem item = findRange(manager.indexOf(t));
 		if(item != null){

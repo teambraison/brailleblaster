@@ -680,7 +680,7 @@ public class BrailleMenu extends BBMenu{
 		Menu brailleMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		xtranslateItem = new MenuItem(brailleMenu, SWT.PUSH);
 		xtranslateItem.setAccelerator(SWT.F5);
-		xtranslateItem.setText(lh.localValue("&Translate"));
+		xtranslateItem.setText(lh.localValue("Refresh&Translation"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

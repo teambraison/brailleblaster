@@ -11,7 +11,6 @@ import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
-import org.brailleblaster.wordprocessor.FontManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
@@ -53,7 +52,7 @@ public class PrintPreview {
 					this.text = scanner.useDelimiter("\\Z").next();
 					scanner.close();
 					this.view.setText(this.text);
-					Font font = FontManager.getFont();
+					Font font = dm.getFontManager().getFont();
 					this.view.setFont(font);
 					this.view.setMargins(MARGINS, MARGINS, MARGINS, MARGINS);
 					this.view.getShell().open();

@@ -111,7 +111,8 @@ public class Manager extends Controller {
 	LocaleHandler lh = new LocaleHandler();
 	static Logger logger;
 	public BrailleDocument document;
-	private boolean simBrailleDisplayed = false;
+	private FontManager fontManager;
+	private boolean simBrailleDisplayed;
 	private MapList list;
 	Archiver arch = null;
 	
@@ -119,6 +120,8 @@ public class Manager extends Controller {
 	public Manager(WPManager wp, String docName) {
 		super(wp, docName);
 //		
+		simBrailleDisplayed = loadSimBrailleProperty();
+		fontManager = new FontManager(this);
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
@@ -133,7 +136,7 @@ public class Manager extends Controller {
 		initializeDocumentTab();
 		this.document = new BrailleDocument(this, this.styles);
 		pb = new BBProgressBar(wp.getShell());
-		FontManager.setFontWidth(this);
+		fontManager.setFontWidth(simBrailleDisplayed);
 		
 		logger = BBIni.getLogger();
 		
@@ -152,6 +155,8 @@ public class Manager extends Controller {
 	public Manager(WPManager wp, String docName, Document doc, TabItem item){
 		super(wp, docName);
 		
+		simBrailleDisplayed = loadSimBrailleProperty();
+		fontManager = new FontManager(this);
 		this.styles = new BBSemanticsTable(currentConfig);
 		this.documentName = docName;
 		this.list = new MapList(this);
@@ -166,7 +171,7 @@ public class Manager extends Controller {
 		initializeDocumentTab();
 		this.document = new BrailleDocument(this, this.styles);
 		pb = new BBProgressBar(wp.getShell());
-		FontManager.setFontWidth(this);
+		fontManager.setFontWidth(simBrailleDisplayed);
 		
 		logger = BBIni.getLogger();
 		
@@ -197,7 +202,7 @@ public class Manager extends Controller {
 	
 
 	private void initializeDocumentTab(){
-		FontManager.setShellFonts(wp.getShell(), this);	
+		fontManager.setShellFonts(wp.getShell(), simBrailleDisplayed);	
 		setTabList();
 		wp.getShell().layout();
 	}
@@ -1430,8 +1435,49 @@ public class Manager extends Controller {
 		}
 	}
 	
-	public void toggleBrailleFont(){
-		FontManager.toggleBrailleFont(wp, this);
+	public void toggleBrailleFont(boolean showSimBraille){
+		fontManager.toggleBrailleFont(showSimBraille);
+		saveSimBrailleProperty(showSimBraille);
+		setSimBrailleDisplayed(showSimBraille);
+	}
+	
+	private void saveSimBrailleProperty(boolean showSimBraille){
+		Properties prop = new Properties();
+    	try {
+			prop.load(new FileInputStream(BBIni.getUserSettings()));
+			prop.setProperty("simBraille", String.valueOf(showSimBraille));
+			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean loadSimBrailleProperty(){
+		Properties properties = new Properties();
+		
+		try {
+			properties.load(new FileInputStream(BBIni.getUserSettings()));
+			if(!properties.containsKey("simBraille")){
+				properties.setProperty("simBraille", "true");	
+				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
+				return true;
+			}
+			else {
+					return Boolean.valueOf((String)properties.get("simBraille"));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public FontManager getFontManager(){
+		return fontManager;
 	}
 		
 	public StyledText getTextView(){
@@ -1492,7 +1538,7 @@ public class Manager extends Controller {
 		return simBrailleDisplayed;
 	}
 
-	public void setSimBrailleDisplayed(boolean simBrailleDisplayed) {
+	private void setSimBrailleDisplayed(boolean simBrailleDisplayed) {
 		this.simBrailleDisplayed = simBrailleDisplayed;
 	}
 

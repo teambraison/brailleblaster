@@ -44,7 +44,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -55,7 +54,6 @@ public class BBToolBar {
 	int MAX_H = 32;
 	
 	private ToolBar toolBar;
-	private Button checkBrailleItem;
 	WPManager wordProc;
 	ImageHelper imgHelper;
 	Manager currentEditor;
@@ -262,27 +260,8 @@ public class BBToolBar {
 		bloc.left = new FormAttachment(40);
 		bloc.right = new FormAttachment(50);
 		bloc.top = new FormAttachment(5);
-		checkBrailleItem = new Button(shell, SWT.CHECK);
-		checkBrailleItem.setLayoutData(bloc);
-		checkBrailleItem.setText(lh.localValue("viewBraille"));
-		checkBrailleItem.pack();
-		checkBrailleItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index= wp.getFolder().getSelectionIndex();
-				if(index != -1){
-					//wp.getList().get(index).toggleBrailleFont();
-					currentEditor.toggleBrailleFont();
-				}
-			}
-		});
 		
 		toolBar.pack();
-	}
-	
-	public void toggleCheckBox(boolean enabled, boolean state){
-		this.checkBrailleItem.setEnabled(enabled);
-		this.checkBrailleItem.setSelection(state);
 	}
 	
 	public void setEditor(Manager editor){
@@ -290,7 +269,6 @@ public class BBToolBar {
 	}
 	
 	public void dispose(){
-		checkBrailleItem.dispose();
 		toolBar.dispose();
 	}
 }

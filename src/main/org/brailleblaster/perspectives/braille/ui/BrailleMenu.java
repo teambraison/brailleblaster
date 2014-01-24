@@ -8,7 +8,6 @@ import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.settings.SettingsDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
-import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -56,6 +55,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem xmlTreeItem;
 	MenuItem bookTreeItem;
 	MenuItem selectedTree;
+	MenuItem viewBrailleItem;
 	MenuItem prevElementItem;
 	MenuItem nextElementItem;
 	MenuItem refreshItem;
@@ -590,6 +590,17 @@ public class BrailleMenu extends BBMenu{
 			}	
 		});
 		setTreeItem();
+		
+		viewBrailleItem = new MenuItem(viewMenu, SWT.CHECK);
+		viewBrailleItem.setText(lh.localValue("viewBraille"));
+		viewBrailleItem.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();
+				if(count > 0)
+					currentEditor.toggleBrailleFont(viewBrailleItem.getSelection());
+			}
+		});
+		setBrailleFont();
 				
 		refreshItem = new MenuItem(viewMenu, SWT.PUSH);
 		refreshItem.setText("Refresh\tF5");
@@ -612,7 +623,7 @@ public class BrailleMenu extends BBMenu{
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)
-					FontManager.increaseFont(wp, currentEditor);
+					currentEditor.getFontManager().increaseFont();
 			}
 		});
 		decreaseFontSizeItem = new MenuItem(viewMenu, SWT.PUSH);
@@ -623,7 +634,7 @@ public class BrailleMenu extends BBMenu{
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)
-					FontManager.decreaseFont(wp, currentEditor);
+					currentEditor.getFontManager().decreaseFont();
 			}
 		});
 		increaseContrastItem = new MenuItem(viewMenu, SWT.PUSH);
@@ -816,6 +827,7 @@ public class BrailleMenu extends BBMenu{
 		if(treeViewMenu != null){
 			selectedTree.setSelection(false);
 			setTreeItem();
+			setBrailleFont();
 		}
 	}
 	
@@ -841,5 +853,9 @@ public class BrailleMenu extends BBMenu{
 				break;
 			}
 		}
+	}
+	
+	private void setBrailleFont(){
+		viewBrailleItem.setSelection(currentEditor.isSimBrailleDisplayed());
 	}
 }

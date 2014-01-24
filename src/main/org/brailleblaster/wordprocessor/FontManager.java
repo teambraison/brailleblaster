@@ -45,33 +45,38 @@ import org.eclipse.swt.widgets.Shell;
 
 public class FontManager {
 
-	private static Font simBrailleFont;
-	private static Font daisyFont;
-	static boolean SimBraille = false;
-	static boolean Courier = false;
-	static String altFont = "unibraille29";
-	static String courierFont = "Courier New";
-	static int daisyFontHeight = 10;
-	static int brailleFontHeight = 14;
+	private Font simBrailleFont;
+	private Font daisyFont;
+	private boolean SimBraille = false;
+	private boolean Courier = false;
+	private String altFont = "unibraille29";
+	private String courierFont = "Courier New";
+	private int daisyFontHeight = 10;
+	private int brailleFontHeight = 14;
 	static LocaleHandler lh = new LocaleHandler();
 	static Logger logger = BBIni.getLogger();
-	static boolean displayBrailleFont = false;
+	private boolean displayBrailleFont = false;
 	
-	public static void setFontWidth(Manager dm){
-		dm.getText().setcharWidth();
-		if(SimBraille){
-			simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
-			dm.getBraille().view.setFont(simBrailleFont);
-			dm.getBraille().setcharWidth();
+	private Manager m;
+	public FontManager(Manager m){
+		this.m = m;
+	}
+	
+	public void setFontWidth(boolean simBrailleDisplayed){	
+		m.getText().setcharWidth();
+		if(SimBraille && !simBrailleDisplayed){
+			setSimBraille();
+			m.getBraille().setcharWidth();
 			
-			dm.getBraille().view.setFont(daisyFont);
+			setDaisyFont();
 		}
 		else {
-			dm.getBraille().setcharWidth();
+			m.getBraille().setcharWidth();
 		}
 	}
 	
-	public static void setShellFonts(Shell shell, Manager dm){
+	public void setShellFonts(Shell shell, boolean showSimBraille){
+		displayBrailleFont = showSimBraille;
 		FontData[] fd = shell.getDisplay().getFontList(null, true);
 		String fileSep = BBIni.getFileSep();
 		String fn;
@@ -109,14 +114,14 @@ public class FontManager {
 			daisyFont = new Font(shell.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
 		}
 
-		dm.getText().view.setFont(daisyFont);
+		m.getText().view.setFont(daisyFont);
 		if(SimBraille && displayBrailleFont) {
-			setBrailleFont(dm.getWPManager(), dm, true);
+			setBrailleFont(true);
 		}
 		else {
-			dm.getBraille().view.setFont(daisyFont);
+			setDaisyFont();
 		}
-		dm.getBraille().view.setEditable(false);
+		m.getBraille().view.setEditable(false);
 
 		String loc = lh.getLocale().toString();
 		if (!loc.contentEquals(lh.localValue("localeResource"))) {
@@ -125,77 +130,80 @@ public class FontManager {
 		}	
 	}
 	
-	public static void increaseFont(WPManager wp, Manager dm) {
+	public void increaseFont() {
 		if (daisyFontHeight + (daisyFontHeight / 4) <= 48) {
 			daisyFontHeight += daisyFontHeight / 4;
-			if (Courier) {
-				daisyFont = new Font(WPManager.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
-			} else {
-				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
-			}
-			dm.getTextView().setFont(daisyFont);
+			replaceDaisyFont();
 
 			brailleFontHeight += brailleFontHeight / 4;
-			if (displayBrailleFont) {
-				simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
-				dm.getBrailleView().setFont(simBrailleFont);
-			} 
-			else {
-				dm.getBrailleView().setFont(daisyFont);
-			}
+			if (displayBrailleFont && SimBraille) 
+				replaceSimBraille();
+			else 
+				setDaisyFont();
 		}
 	}
 
-	public static void decreaseFont(WPManager wp, Manager dm) {	
+	public void decreaseFont() {	
 		if (daisyFontHeight - (daisyFontHeight / 5) >= 8) {
 			daisyFontHeight -= daisyFontHeight / 5;
-			if (Courier) {
-				daisyFont = new Font(WPManager.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
-			} 
-			else {
-				daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
-			}
-			dm.getTextView().setFont(daisyFont);
-
+			replaceDaisyFont();
+			
 			brailleFontHeight -= brailleFontHeight / 5;
-			if (displayBrailleFont) {
-				simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
-				dm.getBrailleView().setFont(simBrailleFont);
-			} 
-			else {
-				dm.getBrailleView().setFont(daisyFont);
-			}
+			if (displayBrailleFont && SimBraille) 
+				replaceSimBraille();
+			else 
+				setDaisyFont();
 		}
 	}
 	
-	public static void toggleBrailleFont(WPManager wp, Manager dm) {
-		if (displayBrailleFont) {
-			displayBrailleFont = false;
-		} else {
-			displayBrailleFont = true;
-		}
-		setBrailleFont(wp, dm, !dm.isSimBrailleDisplayed());
+	public void toggleBrailleFont(boolean showSimBraille) {
+		displayBrailleFont = showSimBraille;
+		setBrailleFont(showSimBraille);
 	}
 
-	private static void setBrailleFont(WPManager wp, Manager dm, boolean toggle) {
-		if (toggle  && SimBraille) {
-		//	simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
-			dm.getBraille().view.setFont(simBrailleFont);
-			dm.setSimBrailleDisplayed(true);
-		} 
-		else {
-	//		if (Courier) {
-	//			simBrailleFont = new Font(WPManager.getDisplay(),courierFont, daisyFontHeight, SWT.NORMAL);
-	//		} 
-	//		else {
-	//			simBrailleFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
-	//		}
-			dm.getBraille().view.setFont(daisyFont);
-			dm.setSimBrailleDisplayed(false);
+	private void setBrailleFont(boolean toggle) {
+		if (toggle  && SimBraille){ 
+			setSimBraille();
 		}
+		else 
+			setDaisyFont();
 	}	
 	
-	public static Font getFont(){
+	public Font getFont(){
 		return daisyFont;
+	}
+	
+	private void setSimBraille(){
+		if(simBrailleFont == null || simBrailleFont.isDisposed())
+			simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
+		
+		m.getBraille().view.setFont(simBrailleFont);
+	}
+	
+	private void replaceSimBraille(){
+		Font temp = simBrailleFont;
+		simBrailleFont = new Font(WPManager.getDisplay(), "SimBraille", brailleFontHeight, SWT.NORMAL);
+		m.getBrailleView().setFont(simBrailleFont);
+		temp.dispose();
+	}
+	
+	private void replaceDaisyFont(){
+		Font temp = daisyFont;
+		if (Courier) {
+			daisyFont = new Font(WPManager.getDisplay(), courierFont, daisyFontHeight, SWT.NORMAL);
+		} 
+		else {
+			daisyFont = new Font(WPManager.getDisplay(), altFont, daisyFontHeight, SWT.NORMAL);
+		}
+		m.getTextView().setFont(daisyFont);
+		
+		if (!(displayBrailleFont && SimBraille))
+			setDaisyFont();
+		
+		temp.dispose();
+	}
+	
+	private void setDaisyFont(){
+		m.getBraille().view.setFont(daisyFont);
 	}
 }

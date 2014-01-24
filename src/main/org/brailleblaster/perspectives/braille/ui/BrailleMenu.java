@@ -58,7 +58,6 @@ public class BrailleMenu extends BBMenu{
 	MenuItem viewBrailleItem;
 	MenuItem prevElementItem;
 	MenuItem nextElementItem;
-	MenuItem refreshItem;
 	MenuItem increaseFontSizeItem;
 	MenuItem decreaseFontSizeItem;
 	MenuItem increaseContrastItem;
@@ -601,20 +600,7 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		setBrailleFont();
-				
-		refreshItem = new MenuItem(viewMenu, SWT.PUSH);
-		refreshItem.setText("Refresh\tF5");
-		refreshItem.setAccelerator(SWT.F5);
-		refreshItem.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int count = wp.getFolder().getItemCount();
-			//if(index  > -1)
-				//wp.getList().get(index).refresh();
-				if(count > 0)
-					currentEditor.refresh();
-			}
-		});
+		
 		increaseFontSizeItem = new MenuItem(viewMenu, SWT.PUSH);
 		increaseFontSizeItem.setText(lh.localValue("&IncreaseFontSize") + "\tCtrl + '+'");
 		increaseFontSizeItem.setAccelerator(SWT.MOD1 + '+');
@@ -693,6 +679,7 @@ public class BrailleMenu extends BBMenu{
 		// Set up translate menu
 		Menu brailleMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		xtranslateItem = new MenuItem(brailleMenu, SWT.PUSH);
+		xtranslateItem.setAccelerator(SWT.F5);
 		xtranslateItem.setText(lh.localValue("&Translate"));
 		xtranslateItem.addSelectionListener(new SelectionAdapter() {
 			@Override

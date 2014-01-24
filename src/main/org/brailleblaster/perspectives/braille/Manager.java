@@ -67,7 +67,7 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
+import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
@@ -1355,9 +1355,9 @@ public class Manager extends Controller {
 		try {
 			properties.load(new FileInputStream(BBIni.getUserSettings()));
 			if(!properties.containsKey("tree")){
-				properties.setProperty("tree", XMLTree.class.getCanonicalName().toString());
+				properties.setProperty("tree", BookTree.class.getCanonicalName().toString());
 				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
-				return new XMLTree(this, group);
+				return new BookTree(this, group);
 			}
 			else {
 				Class<?> clss = Class.forName((String)properties.getProperty("tree"));

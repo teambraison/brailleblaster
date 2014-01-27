@@ -142,14 +142,16 @@ public class BBDocument {
 		String ext = completePath.substring (extPos);
 		if (ext.equalsIgnoreCase ("xml") || ext.equals("xhtml") || ext.equals("html") || ext.equals("htm")) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
-			if(normalizeFile(completePath, tempPath) && lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0)){
-				deleteFile(tempPath);
-				return buildDOM(outFile);
-			}
-			else {
-				new CheckLiblouisutdmlLog().displayLog();
-				return false;
-			}
+			if( normalizeFile(completePath, tempPath) )
+				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0) )
+				{
+					deleteFile(tempPath);
+					return buildDOM(outFile);
+				}
+				else {
+					new CheckLiblouisutdmlLog().displayLog();
+					return false;
+				}
 		} 
 		else if (ext.equalsIgnoreCase ("txt")) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))

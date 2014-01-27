@@ -71,6 +71,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem inLineGraphicItem;
 	MenuItem displayedGraphicItem;
 	MenuItem tableItem;
+	MenuItem insertTRItem;
 	MenuItem brlFormatItem;
 	MenuItem showTranslationTemplatesItem;
 	MenuItem showFormatTemplatesItem;
@@ -89,7 +90,7 @@ public class BrailleMenu extends BBMenu{
 		translateItem.setText(lh.localValue("&Braille"));
 		MenuItem insertItem = new MenuItem(menuBar, SWT.CASCADE, 5);
 		insertItem.setText(lh.localValue("&Insert"));
-		insertItem.setEnabled(false); /* FO */
+		//insertItem.setEnabled(false); /* FO */
 
 		MenuItem advancedItem = new MenuItem(menuBar, SWT.CASCADE, 6);
 		advancedItem.setText(lh.localValue("&Advanced"));
@@ -555,8 +556,7 @@ public class BrailleMenu extends BBMenu{
 		xmlTreeItem.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				
+				// TODO Auto-generated method stub			
 			}
 
 			@Override
@@ -575,8 +575,7 @@ public class BrailleMenu extends BBMenu{
 		bookTreeItem.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				
+				// TODO Auto-generated method stub				
 			}
 
 			@Override
@@ -685,8 +684,7 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 					int count = wp.getFolder().getItemCount();
-				//if(index != -1)
-					//wp.getList().get(index).refresh();
+		
 					if(count > 0)
 						currentEditor.refresh();
 				}
@@ -712,6 +710,15 @@ public class BrailleMenu extends BBMenu{
 				
 			// Set up insert menu
 			Menu insertMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
+			insertTRItem = new MenuItem(insertMenu, SWT.PUSH);
+			insertTRItem.setText(lh.localValue("transcriberNote"));
+			insertTRItem.addSelectionListener(new SelectionAdapter(){
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					currentEditor.insertTranscriberNote();
+				}
+			});
+			/*
 			inLineMathItem = new MenuItem(insertMenu, SWT.PUSH);
 			inLineMathItem.setText(lh.localValue("&InLineMath"));
 			inLineMathItem.addSelectionListener(new SelectionAdapter() {
@@ -752,6 +759,7 @@ public class BrailleMenu extends BBMenu{
 					//dm.placeholder();
 				}
 			});
+			*/
 			insertItem.setMenu(insertMenu);
 				
 			// Set up advanced menu

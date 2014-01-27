@@ -204,14 +204,14 @@ public class XMLTree extends TreeView {
 		return temp;
 	}
 	
-	public void newTreeItem(TextMapElement t, int index){
+	public void newTreeItem(TextMapElement t, int index, int offset){
 		Element parentElement = (Element)t.n.getParent();
 		while(parentElement.getAttributeValue("semantics").contains("action")){
 			parentElement = (Element)parentElement.getParent();
 		}
 		
 		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());
-		TreeItem newItem = newTreeItem(parentElement, parent, index);
+		TreeItem newItem = newTreeItem(parentElement, parent, index + offset);
 		TreeItemData data = new TreeItemData(parentElement);
 		
 		if(parentElement.equals(t.n.getParent()))
@@ -220,14 +220,14 @@ public class XMLTree extends TreeView {
 		newItem.setData(data);
 	}
 	
-	public void newTreeItem(ArrayList<TextMapElement>list, int index){
+	public void newTreeItem(ArrayList<TextMapElement>list, int index, int offset){
 		Element parentElement = (Element)list.get(0).n.getParent();
 		while(parentElement.getAttributeValue("semantics").contains("action")){
 			parentElement = (Element)parentElement.getParent();
 		}
 		
 		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());
-		TreeItem newItem = newTreeItem(parentElement, parent, index);
+		TreeItem newItem = newTreeItem(parentElement, parent, index + offset);
 		TreeItemData data = new TreeItemData(parentElement);
 		
 		for(int i = 0; i < list.size(); i++){
@@ -574,7 +574,16 @@ public class XMLTree extends TreeView {
 	
 	public int getSelectionIndex(){
 		TreeItem parent = tree.getSelection()[0].getParentItem();
-		return parent.indexOf(tree.getSelection()[0]);
+		TreeItem item = tree.getSelection()[0];
+			
+		TreeItemData data = (TreeItemData)item.getData();
+		while(manager.getStyleTable().getSemanticTypeFromAttribute(data.element).equals("action")){
+			item = parent;
+			parent = parent.getParentItem();
+			data = (TreeItemData)item.getData();
+		}
+				
+		return parent.indexOf(item);
 	}
 	
 	public void clearTree(){
@@ -599,11 +608,11 @@ public class XMLTree extends TreeView {
 		int secondElementIndex = (Integer)m.getValue("secondElementIndex");
 		
 		removeCurrent();
-		addTreeItems(firstElementIndex, currentIndex - 1, treeIndex);
-		addTreeItems(secondElementIndex, currentIndex,treeIndex + 1);	
+		addTreeItems(firstElementIndex, currentIndex - 1, treeIndex, 0);
+		addTreeItems(secondElementIndex, currentIndex,treeIndex, 1);
 	}
 	
-	private void addTreeItems(int start, int end, int treeIndex){
+	private void addTreeItems(int start, int end, int treeIndex, int offset){
 		Element parent = manager.getDocument().getParent(manager.getTextMapElement(start).n, true);
 		ArrayList<TextMapElement> elementList = new ArrayList<TextMapElement>();
 		
@@ -614,10 +623,10 @@ public class XMLTree extends TreeView {
 		}
 		
 		if(elementList.size() > 0){
-			newTreeItem(elementList, treeIndex);
+			newTreeItem(elementList, treeIndex, offset);
 		}
 		else {
-			newTreeItem(manager.getTextMapElement(start), treeIndex);
+			newTreeItem(manager.getTextMapElement(start), treeIndex, offset);
 		}
 	}
 	

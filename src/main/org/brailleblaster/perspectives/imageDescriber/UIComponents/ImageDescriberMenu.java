@@ -118,7 +118,7 @@ public class ImageDescriberMenu extends BBMenu{
 		
 		editMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		prevItem = new MenuItem(editMenu, SWT.PUSH);
-		prevItem.setText("Previous");
+		prevItem.setText(lh.localValue("Pre&vious"));
 		prevItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {

@@ -5,13 +5,14 @@
 #
 # Licensed under LGPL
 
-# Basic	 
+# Basic
+	italicx i
 	newentries no
 	document body
 	markhead head
-	para p	
-	no br	
-	no hr	 
+	para p
+	#no br
+	no hr
 	stanza poem
 	generic linegroup
 	line line
@@ -21,7 +22,7 @@
 	italicx dfn
 	italicx kbd
 	boldx strong
-boldx b
+	boldx b
 	no acronym
 	pagenum pagenum
 	softreturn br
@@ -44,7 +45,7 @@ boldx b
 	no image
 	skip path
 	skip ClipPath
-	no tspan 
+	no tspan
 	no g
 	skip track
 
@@ -75,17 +76,17 @@ boldx b
 	no bdo	
 	quotation blockquote
 	quotation epigraph
-	caption caption
+	#caption caption
 	boldx cite	
 	compbrl code	
 	no del	
-	no dfn	
+	#no dfn	
 	italicx em		
 	no ins	
-	no kbd	
+	#no kbd	
 	no mark
 	no meter
-	no pre	
+	#no pre	
 	code pre
 	no progress
 	generic q	
@@ -142,7 +143,7 @@ boldx b
 	no ol	
 	list li	
 	generic dl	
-	para dt	
+	#para dt	
 	list dt
 	para dd	
 	no menu	
@@ -152,10 +153,10 @@ boldx b
 # Tables	 
 	table table
 	caption caption	
- 	no caption
+ 	#no caption
 	no th	
 	list tr
-	no tr	
+	#no tr	
 	no td	
 	no thead	
 	no tbody	
@@ -168,22 +169,22 @@ boldx b
 	no table,width
 
 # Style/Sections	 
-	skip style	
-	no div	
-	no span	
+	skip style
+	#no div
+	no span
 	no header
 	no footer
 	no section
-	no article	
+	no article
 	no aside
 	no details
 	no dialog
 	no summary
 
 # Meta Info	 
-	no head	
-	no meta	
-	no base	
+	#no head
+	no meta
+	no base
 
 # Programming	 
 	skip script	

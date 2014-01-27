@@ -232,13 +232,13 @@ public class BookTree extends TreeView {
 	}
 
 	@Override
-	public void newTreeItem(TextMapElement t, int index) {
+	public void newTreeItem(TextMapElement t, int index, int offset) {
 		if(isHeading(t)){
 			TreeItem temp;
 			if(lastParent != null)
-				temp = new TreeItem(lastParent, SWT.None, index);
+				temp = new TreeItem(lastParent, SWT.None, index + offset);
 			else
-				temp = new TreeItem(root, SWT.None, index);
+				temp = new TreeItem(root, SWT.None, index + offset);
 			
 			temp.setText(t.getText());
 			temp.setData(new TreeItemData(t.parentElement(), manager.indexOf(t)));
@@ -481,7 +481,7 @@ public class BookTree extends TreeView {
 		int treeIndex = (Integer)m.getValue("treeIndex");
 		
 		if(isHeading(manager.getTextMapElement(firstElementIndex)))
-			newTreeItem(manager.getTextMapElement(firstElementIndex), treeIndex);
+			newTreeItem(manager.getTextMapElement(firstElementIndex), treeIndex, 0);
 		
 		if(isHeading(manager.getTextMapElement(secondElementIndex))){
 			if(!item.equals(root)){
@@ -489,7 +489,7 @@ public class BookTree extends TreeView {
 				item.setData(new TreeItemData(manager.getTextMapElement(secondElementIndex).parentElement(), manager.indexOf(manager.getTextMapElement(secondElementIndex))));
 			}
 			else {
-				newTreeItem(manager.getTextMapElement(secondElementIndex), treeIndex + 1);
+				newTreeItem(manager.getTextMapElement(secondElementIndex), treeIndex, 1);
 			}
 		}
 		

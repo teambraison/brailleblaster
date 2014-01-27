@@ -87,8 +87,21 @@ public class BrailleDocument extends BBDocument {
 		Element p = makeElement("p", "semantics", "style,para");
 		p.appendChild(new Text(""));
 		
-		Element parent = (Element)current.parentElement().getParent();
-		int nodeIndex = parent.indexOf(current.parentElement());
+		Element parent = current.parentElement();
+		int nodeIndex = 0;
+		if(table.getSemanticTypeFromAttribute(parent).equals("style")){
+			parent = (Element)parent.getParent();
+			nodeIndex = parent.indexOf(current.parentElement());
+		}
+		else {
+			while(table.getSemanticTypeFromAttribute(parent).equals("action")){
+				nodeIndex = parent.getParent().indexOf(parent);
+				parent = (Element)parent.getParent();
+			}
+			nodeIndex = parent.getParent().indexOf(parent);
+			parent = (Element)parent.getParent();
+		}
+		
 		parent.insertChild(p, nodeIndex + 1);
 		
 		list.add(index, new TextMapElement(textOffset, textOffset, p.getChild(0)));

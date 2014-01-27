@@ -46,6 +46,7 @@ import java.util.logging.Logger;
 
 import javax.print.PrintException;
 
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -63,6 +64,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
@@ -721,7 +723,7 @@ public class Manager extends Controller {
 		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
 	
-	public int insertElement(Element e, int index, int start, int brailleStart){
+	private int insertElement(Element e, int index, int start, int brailleStart){
 		int count = e.getChildCount();
 		int currentIndex = index;
 		int currentStart = start;
@@ -777,7 +779,7 @@ public class Manager extends Controller {
 		else
 			braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
 			
-		treeView.newTreeItem(list.get(list.getCurrentIndex()), index);
+		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
 	}
 	
 	private void insertElementAtEnd(Message m){
@@ -792,7 +794,23 @@ public class Manager extends Controller {
 		m.put("brailleLength", 0);
 
 		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
-		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index + 1);
+		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
+	}
+	
+	public void insertTranscriberNote(){
+		text.update(this, false);
+			
+		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
+			
+		text.insertNewNode(this, list.get(posList.get(posList.size() - 1)).end);
+			
+		Element e = list.getCurrent().parentElement();
+		e.addAttribute(new Attribute("class", "trNote"));
+			
+		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
+		Styles style = styles.get("trnote");
+		styleMessage.put("Style", style);
+		dispatch(styleMessage);
 	}
 	
 	private void handleRemoveNode(Message message){

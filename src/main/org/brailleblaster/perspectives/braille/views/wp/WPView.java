@@ -47,7 +47,8 @@ public abstract class WPView extends AbstractView implements BBView {
 		
 		return insertionString;
 	}
-	
+
+	//sets range and applies given form of emphasis
 	protected void setFontRange(int start, int length, int style){
 		StyleRange styleRange = new StyleRange();
 		styleRange.start = start;
@@ -62,11 +63,21 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setStyleRange(styleRange);
 	}
 	
+	//lengthens or shortens style range
 	protected void updateRange(StyleRange style, int start, int length){
 		style.start = start;
 		style.length = length;
 		view.setStyleRange(style);
 	}
+	
+	//reverts range to plain text
+	protected void resetStyleRange(StyleRange range){
+		if(range.fontStyle != SWT.NORMAL || (range.fontStyle == SWT.NORMAL && range.underline == true)){
+			range.fontStyle = SWT.NORMAL;
+			range.underline = false;
+		}
+		view.setStyleRange(range);
+	}	
 	
 	protected int[] getIndexArray(Element e){
 		int[] indexArray;

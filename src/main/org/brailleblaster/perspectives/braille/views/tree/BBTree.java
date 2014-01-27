@@ -12,7 +12,7 @@ import org.eclipse.swt.widgets.TreeItem;
 public interface BBTree extends BBView {
 	public void setRoot(Element e);
 	public TreeItem getRoot();
-	public void newTreeItem(TextMapElement t, int index);
+	public void newTreeItem(TextMapElement t, int index, int offset);
 	public void removeCurrent();
 	public void removeItem(TextMapElement t, Message m);
 	public void removeMathML(TextMapElement t);

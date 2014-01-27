@@ -147,26 +147,13 @@ public class TextView extends WPView {
 					
 					if(atEnd) {
 						Message m = Message.createInsertNodeMessage(false, false, true);
-						m.put("length", originalEnd - originalStart);
-						dm.dispatch(m);
-						setListenerLock(true);
-						view.setCaretOffset(currentEnd);
-						view.insert("\n");
-						view.setCaretOffset(view.getCaretOffset() + 1);
-						setListenerLock(false);
-						e.doit = false;
-						setCurrent(dm);
+						insertNewNode(dm, m, currentEnd);			
+						e.doit = false;	
 					}
 					else if(atStart){
 						Message m = Message.createInsertNodeMessage(false, true, false);
-						m.put("length", originalEnd - originalStart);
-						dm.dispatch(m);
-						setListenerLock(true);
-						view.insert("\n");
-						view.setCaretOffset(view.getCaretOffset() + 1);
-						setListenerLock(false);
+						insertNewNode(dm, m, null);						
 						e.doit = false;
-						setCurrent(dm);
 					}
 					else {
 						Message m;
@@ -1404,6 +1391,40 @@ public class TextView extends WPView {
 		}
 		setListenerLock(false);
 	}
+	
+	public void insertNewNode(Manager manager, int pos){
+		Message m = Message.createInsertNodeMessage(false, false, true);
+		
+		if(pos > currentEnd){
+			view.setCaretOffset(pos);
+			setCurrent(manager);
+		}
+				
+		insertNewNode(manager, m, pos);
+	}
+			
+	//Calls manager to insert a node or element in the DOM and updates the view
+	//Used when inserting new paragraphs or transcriber notes
+	private void insertNewNode(Manager dm, Message m, Integer pos){
+		m.put("length", originalEnd - originalStart);
+		dm.dispatch(m);
+		setListenerLock(true);
+				
+		if(pos != null)
+			view.setCaretOffset(pos);
+		
+		view.insert("\n");
+		view.setCaretOffset(view.getCaretOffset() + 1);	
+				
+		if(view.getCharCount() != view.getCaretOffset()){
+			StyleRange range = view.getStyleRangeAtOffset(view.getCaretOffset());
+			if(range != null)
+				resetStyleRange(range);
+		}
+				
+		setListenerLock(false);
+		setCurrent(dm);
+	}	
 	
 	@Override
 	public void resetView(Group group) {

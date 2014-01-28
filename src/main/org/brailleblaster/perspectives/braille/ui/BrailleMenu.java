@@ -352,7 +352,7 @@ public class BrailleMenu extends BBMenu{
 		});
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
 		searchItem.setText(lh.localValue("&Search"));
-		searchItem.setEnabled(false);
+		searchItem.setEnabled(true);
 		searchItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

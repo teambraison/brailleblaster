@@ -11,7 +11,7 @@
 	document body
 	markhead head
 	para p
-	no br
+	# no br
 	no hr
 	stanza poem
 	generic linegroup
@@ -76,18 +76,18 @@
 	no bdo	
 	quotation blockquote
 	quotation epigraph
-	caption caption
+	# caption caption
 	boldx cite	
 	compbrl code	
 	no del	
-	no dfn	
+	# no dfn	
 	italicx em		
 	no ins	
-	no kbd	
+	# no kbd	
 	no mark
 	no meter
 	no pre	
-	code pre
+	# code pre
 	no progress
 	generic q	
 	no rp
@@ -125,7 +125,7 @@
 	no canvas
 	no figcaption
 	no figure
-	no img
+	# no img
 	no img,width
 	no img,src
 	no img,height
@@ -143,7 +143,7 @@
 	no ol	
 	list li	
 	generic dl	
-	para dt	
+	# para dt	
 	list dt
 	para dd	
 	no menu	
@@ -153,10 +153,10 @@
 # Tables	 
 	table table
 	caption caption	
- 	no caption
+ 	# no caption
 	no th	
 	list tr
-	no tr	
+	# no tr	
 	no td	
 	no thead	
 	no tbody	
@@ -170,7 +170,7 @@
 
 # Style/Sections	 
 	skip style
-	no div
+	# no div
 	no span
 	no header
 	no footer
@@ -182,7 +182,7 @@
 	no summary
 
 # Meta Info	 
-	no head
+	# no head
 	no meta
 	no base
 

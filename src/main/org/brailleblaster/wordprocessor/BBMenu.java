@@ -46,7 +46,6 @@ import org.brailleblaster.userHelp.UserHelp;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -168,12 +167,7 @@ public abstract class BBMenu {
 		brailleEditorItem.setSelection(true);
 		brailleEditorItem.setData(Manager.class);
 		selectedPerspective = brailleEditorItem;
-		brailleEditorItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		brailleEditorItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(brailleEditorItem.getSelection() == true && !selectedPerspective.equals(brailleEditorItem)){
@@ -188,12 +182,7 @@ public abstract class BBMenu {
 		imageDescriberItem.setText(lh.localValue("Image Describer"));
 		imageDescriberItem.setSelection(false);
 		imageDescriberItem.setData(ImageDescriberController.class);
-		imageDescriberItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		imageDescriberItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(imageDescriberItem.getSelection() == true && !selectedPerspective.equals(imageDescriberItem)){

@@ -12,7 +12,6 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -129,7 +128,6 @@ public class BrailleMenu extends BBMenu{
 							((Manager)wp.getList().getFirst()).close();					
 					}
 					else {
-						//wp.getList().get(index).fileOpenDialog();
 						currentEditor.fileOpenDialog();
 					}
 				}
@@ -151,9 +149,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count= wp.getFolder().getItemCount();
-				//if(index != -1){
-					//wp.getList().get(index).fileSave();
-				//}
 				if(count > 0)
 					currentEditor.fileSave();
 			}
@@ -165,9 +160,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1){
-					//wp.getList().get(index).saveAs();
-				//}
 				if(count > 0)
 					currentEditor.saveAs();
 			}
@@ -209,9 +201,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1){
-				//	wp.getList().get(index).fileEmbossNow();
-				//}
 				if(count > 0)
 					currentEditor.fileEmbossNow();
 			}
@@ -245,9 +234,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-			//	if(index != -1){
-			//		wp.getList().get(index).printPreview();
-			//	}
 				if(count > 0)
 					currentEditor.printPreview();
 			}
@@ -260,9 +246,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1){
-					//wp.getList().get(index).textPrint();
-				//}
 				if(count > 0)
 					currentEditor.textPrint();
 			}
@@ -320,8 +303,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getSelectionIndex();
-				//if(index != -1)
-					//wp.getList().get(index).getText().copy();
 				if(count > 0)
 					currentEditor.getText().cut();
 			}
@@ -332,8 +313,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1)
-					//wp.getList().get(index).getText().copy();
 				if(count > 0)
 					currentEditor.getText().copy();
 			}
@@ -344,8 +323,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1)
-					//wp.getList().get(index).getText().paste();
 				if(count > 0)
 					currentEditor.getText().paste();
 			}
@@ -415,14 +392,10 @@ public class BrailleMenu extends BBMenu{
 		});
 		selectAllItem = new MenuItem(editMenu, SWT.PUSH);
 		selectAllItem.setText(lh.localValue("&SelectAll") + "\t" + lh.localValue("Ctrl + A"));
-		//selectAllItem.setEnabled(false);
 		selectAllItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-				//if(index != -1){
-				//	wp.getList().get(index).getText().selectAll(wp.getList().get(index));
-				//}
 				if(count > 0)
 					currentEditor.getText().selectAll(currentEditor);
 			}
@@ -437,9 +410,6 @@ public class BrailleMenu extends BBMenu{
 				} 
 				else {
 					int count = wp.getFolder().getItemCount();
-			//		if(index != -1){
-			//			wp.getList().get(index).toggleAttributeEditor();
-			//		}
 					if(count > 0)
 						currentEditor.toggleAttributeEditor();
 				}
@@ -522,8 +492,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-			//if(index != -1)
-				//wp.getList().get(index).prevElement();
 				if(count > 0)
 					currentEditor.prevElement();
 			}
@@ -536,8 +504,6 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
-			//if(index != -1)
-				//wp.getList().get(index).nextElement();
 				if(count > 0)
 					currentEditor.nextElement();
 			}
@@ -553,13 +519,7 @@ public class BrailleMenu extends BBMenu{
 		xmlTreeItem = new MenuItem(treeViewMenu, SWT.CHECK);
 		xmlTreeItem.setText(lh.localValue("xmlTree"));
 		xmlTreeItem.setData(XMLTree.class);
-		xmlTreeItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub			
-			}
-
-			@Override
+		xmlTreeItem.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				if(xmlTreeItem.getSelection() == true && !selectedTree.equals(xmlTreeItem)){
 					selectedTree = xmlTreeItem;
@@ -572,13 +532,7 @@ public class BrailleMenu extends BBMenu{
 		bookTreeItem = new MenuItem(treeViewMenu, SWT.CHECK);
 		bookTreeItem.setText(lh.localValue("bookTree"));
 		bookTreeItem.setData(BookTree.class);
-		bookTreeItem.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub				
-			}
-
-			@Override
+		bookTreeItem.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				if(bookTreeItem.getSelection() == true && !selectedTree.equals(bookTreeItem)){
 					selectedTree = bookTreeItem;

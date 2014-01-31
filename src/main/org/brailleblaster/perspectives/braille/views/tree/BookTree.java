@@ -15,8 +15,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
@@ -59,7 +59,7 @@ public class BookTree extends TreeView {
 	
 	private TreeItem root, previousItem, lastParent;
 	private BBSemanticsTable table;
-	private SelectionListener selectionListener;
+	private SelectionAdapter selectionListener;
 	private FocusListener focusListener;
 	
 	public BookTree(final Manager dm, Group documentWindow){
@@ -79,13 +79,7 @@ public class BookTree extends TreeView {
 
 	@Override
 	public void initializeListeners(final Manager dm) {
-		this.tree.addSelectionListener(selectionListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				
-			}
-
-			@Override
+		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
 					if(!e.item.equals(root)){

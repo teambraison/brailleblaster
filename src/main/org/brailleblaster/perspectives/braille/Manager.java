@@ -32,15 +32,11 @@
 package org.brailleblaster.perspectives.braille;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,6 +72,7 @@ import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
@@ -1369,38 +1366,33 @@ public class Manager extends Controller {
 	}
 	
 	private BBTree loadTree(){
-		Properties properties = new Properties();
-		try {
-			properties.load(new FileInputStream(BBIni.getUserSettings()));
-			if(!properties.containsKey("tree")){
-				properties.setProperty("tree", BookTree.class.getCanonicalName().toString());
-				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
-				return new BookTree(this, group);
-			}
-			else {
-				Class<?> clss = Class.forName((String)properties.getProperty("tree"));
+		PropertyFileManager prop = BBIni.getPropertyFileManager();
+		String tree = prop.getProperty("tree");
+		if(tree == null){
+			prop.save("tree", BookTree.class.getCanonicalName().toString());
+			return new BookTree(this, group);
+		}
+		else {			
+			try {
+				Class<?> clss = Class.forName(tree);
 				Constructor<?> constructor = clss.getConstructor(Manager.class, Group.class);
-				return (BBTree)constructor.newInstance(this, group);
+				return (BBTree)constructor.newInstance(this, group);		
+			} catch (ClassNotFoundException e) {		
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (InstantiationException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} 
+		}
 		
 		return null;
 	}
@@ -1423,7 +1415,8 @@ public class Manager extends Controller {
 			treeView.setSelection(list.getCurrent());
 			treeView.getView().getParent().layout();
 			treeView.initializeListeners(this);
-			saveTree();
+			//save latest setting to user settings file
+			BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 			
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
@@ -1440,58 +1433,22 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void saveTree(){
-		Properties prop = new Properties();
-    	try {
-			prop.load(new FileInputStream(BBIni.getUserSettings()));
-			prop.setProperty("tree", treeView.getClass().getCanonicalName().toString());
-			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void toggleBrailleFont(boolean showSimBraille){
 		fontManager.toggleBrailleFont(showSimBraille);
-		saveSimBrailleProperty(showSimBraille);
+		//save setting to user settings property file
+		BBIni.getPropertyFileManager().save("simBraille", String.valueOf(showSimBraille));
 		setSimBrailleDisplayed(showSimBraille);
 	}
 	
-	private void saveSimBrailleProperty(boolean showSimBraille){
-		Properties prop = new Properties();
-    	try {
-			prop.load(new FileInputStream(BBIni.getUserSettings()));
-			prop.setProperty("simBraille", String.valueOf(showSimBraille));
-			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public boolean loadSimBrailleProperty(){
-		Properties properties = new Properties();
-		
-		try {
-			properties.load(new FileInputStream(BBIni.getUserSettings()));
-			if(!properties.containsKey("simBraille")){
-				properties.setProperty("simBraille", "true");	
-				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
-				return true;
-			}
-			else {
-					return Boolean.valueOf((String)properties.get("simBraille"));
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
+		PropertyFileManager prop = BBIni.getPropertyFileManager();
+		String simBraille = prop.getProperty("simBraille");
+		if(simBraille == null){
+			prop.save("simBraille", "true");
+			return true;
 		}
+		else
+			return Boolean.valueOf(simBraille);
 	}
 	
 	public FontManager getFontManager(){

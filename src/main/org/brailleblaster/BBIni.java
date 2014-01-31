@@ -40,6 +40,7 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.liblouis.liblouisutdml;
 import java.net.URL;
@@ -98,7 +99,8 @@ public final class BBIni {
 	private static String instanceId;
 	private static String defaultCfg;
 	private static String autoConfigSettings;
-
+	private static PropertyFileManager propManager;
+	
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
@@ -137,6 +139,8 @@ public final class BBIni {
 		if (!fu.exists(userSettings)) {
 			fu.copyFile(programDataPath + fileSep + "settings" + fileSep + "user_settings.properties", userSettings);
 		}
+		propManager = new PropertyFileManager(userSettings);
+		
 		recentDocs = userProgramDataPath + fileSep + "recent_documents.txt";
 		fu.create(recentDocs);
 		stylePath = userProgramDataPath + fileSep + "styles";
@@ -383,6 +387,10 @@ public final class BBIni {
 
 	public static Logger getLogger() {
 		return logger;
+	}
+	
+	public static PropertyFileManager getPropertyFileManager(){
+		return propManager;
 	}
 
 	public static boolean multCommands() {

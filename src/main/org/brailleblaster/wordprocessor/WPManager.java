@@ -46,15 +46,10 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.Welcome;
+import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.LinkedList;
-import java.util.Properties;
 
 public class WPManager {
     /**
@@ -131,10 +126,7 @@ public class WPManager {
 	        @Override
 			public void handleEvent(Event event) { 
 	           System.out.println("Main Shell handling Close event, about to dispose the main Display");
-	           //int count = getList().size();
-	           //for(int i = 0; i < count; i++){
-	        	 //  getList().get(i).close();
-	           //}
+	         
 	           while(managerList.size() > 0){
 	        	   Controller temp = managerList.removeFirst(); 
 	        	   temp.close();
@@ -227,39 +219,26 @@ public class WPManager {
     	lastPerspective = controllerClass;
     }
 
-    private Class<?> getDefaultPerspective(){
-    	Properties properties = new Properties();
-    	try {
-			properties.load(new FileInputStream(BBIni.getUserSettings()));
-			if(!properties.containsKey("defaultPerspective")){
-				properties.setProperty("defaultPerspective", Manager.class.getCanonicalName().toString());
-				properties.store(new FileOutputStream(BBIni.getUserSettings()), null);
+    private Class<?> getDefaultPerspective(){   	
+    	PropertyFileManager prop = BBIni.getPropertyFileManager();
+    	String defaultPerspective =prop.getProperty("defaultPerspective");
+    	
+    	if(defaultPerspective == null){
+    		prop.save("defaultPerspective", Manager.class.getCanonicalName().toString());
+    		return Manager.class;
+    	} else {
+			try {
+				return Class.forName(defaultPerspective);
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+				return null;
 			}
-			
-			return Class.forName(((String)properties.get("defaultPerspective")));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		}
+    	}
     }
     
     private void savePerspectiveSetting(){
-    	Properties prop = new Properties();
-    	try {
-			prop.load(new FileInputStream(BBIni.getUserSettings()));
-			prop.setProperty("defaultPerspective", lastPerspective.getCanonicalName().toString());
-			prop.store(new FileOutputStream(BBIni.getUserSettings()), null);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    	PropertyFileManager prop = BBIni.getPropertyFileManager();
+    	prop.save("defaultPerspective", lastPerspective.getCanonicalName().toString());
     }
     
     public void removeController(Controller c){

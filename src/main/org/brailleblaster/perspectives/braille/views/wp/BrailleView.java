@@ -50,12 +50,12 @@ import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Group;
 
@@ -73,9 +73,9 @@ public class BrailleView extends WPView {
 	
 	private VerifyKeyListener verifyListener;
 	private FocusListener focusListener;
-	private MouseListener mouseListener;
+	private MouseAdapter mouseListener;
 	private CaretListener caretListener;
-	private SelectionListener selectionListener;
+	private SelectionAdapter selectionListener;
 	
 	public BrailleView(Group documentWindow, BBSemanticsTable table) {
 		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
@@ -113,23 +113,12 @@ public class BrailleView extends WPView {
 			}
 		});
 		
-		view.addMouseListener(mouseListener = new MouseListener(){
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				// TODO Auto-generated method stub	
-			}
-
-			@Override
+		view.addMouseListener(mouseListener = new MouseAdapter(){
 			public void mouseDown(MouseEvent e) {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 					setCurrent(dm);
 				}
-			}
-
-			@Override
-			public void mouseUp(MouseEvent e) {
-				// TODO Auto-generated method stub			
-			}		
+			}	
 		});
 		
 		view.addCaretListener(caretListener = new CaretListener(){
@@ -150,13 +139,7 @@ public class BrailleView extends WPView {
 			}
 		});
 		
-		view.getVerticalBar().addSelectionListener(selectionListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub		
-			}
-
-			@Override
+		view.getVerticalBar().addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				checkStatusBar("braille", dm);
 			}

@@ -14,8 +14,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Group;
@@ -38,7 +38,7 @@ public class XMLTree extends TreeView {
 	private TreeItem root, previousItem;
 	private Menu menu;
 	private FocusListener treeFocusListener;
-	private SelectionListener selectionListener;
+	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
 	
 	public XMLTree(final Manager dm, Group documentWindow){
@@ -47,13 +47,7 @@ public class XMLTree extends TreeView {
 		MenuItem item = new MenuItem(menu, SWT.NONE);
 		item.setText("Edit Element Style");
 		
-		item.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub				
-			}
-
-			@Override
+		item.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				dm.toggleAttributeEditor();	
 			}		
@@ -65,13 +59,7 @@ public class XMLTree extends TreeView {
 
 
 	public void initializeListeners(final Manager dm){
-		this.tree.addSelectionListener(selectionListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				
-			}
-
-			@Override
+		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {	
 				if(!getLock()){
 					TreeItem [] items = tree.getSelection();

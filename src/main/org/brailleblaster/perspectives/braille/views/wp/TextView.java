@@ -55,12 +55,12 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.GlyphMetrics;
@@ -83,13 +83,14 @@ public class TextView extends WPView {
 	private boolean textChanged;
 	private StyleRange range;
 	private int[] selectionArray;
-	private SelectionListener selectionListener, scrollbarListener;
+	private SelectionAdapter selectionListener;
+	private SelectionAdapter scrollbarListener;
 	private VerifyKeyListener verifyKeyListener;
 	private VerifyListener verifyListener;
 	private ExtendedModifyListener modListener;
 	private FocusListener focusListener;
 	private CaretListener caretListener;
-	private MouseListener mouseListener;
+	private MouseAdapter mouseListener;
 	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
@@ -103,13 +104,7 @@ public class TextView extends WPView {
 
 	@Override
 	public void initializeListeners(final Manager dm){	
-		view.addSelectionListener(selectionListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
+		view.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
@@ -287,13 +282,7 @@ public class TextView extends WPView {
 			}
 		});
 		
-		view.addMouseListener(mouseListener = new MouseListener(){
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-				// TODO Auto-generated method stub	
-			}
-
-			@Override
+		view.addMouseListener(mouseListener = new MouseAdapter(){
 			public void mouseDown(MouseEvent e) {
 				if( (view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart) && textChanged == true){
 					sendUpdate(dm);
@@ -302,21 +291,10 @@ public class TextView extends WPView {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 					setCurrent(dm);
 				}
-			}
-
-			@Override
-			public void mouseUp(MouseEvent e) {
-				// TODO Auto-generated method stub			
-			}		
+			}	
 		});
 
-		view.getVerticalBar().addSelectionListener(scrollbarListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub	
-			}
-
-			@Override
+		view.getVerticalBar().addSelectionListener(scrollbarListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {		
 				checkStatusBar("text", dm);
 			}

@@ -129,8 +129,8 @@ public class Manager extends Controller {
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
 		this.treeView = loadTree();
-		this.text = new TextView(this.group, this.styles);
-		this.braille = new BrailleView(this.group, this.styles);
+		this.text = new TextView(this, this.group, this.styles);
+		this.braille = new BrailleView(this, this.group, this.styles);
 		this.item.setControl(this.group);
 		initializeDocumentTab();
 		this.document = new BrailleDocument(this, this.styles);
@@ -164,8 +164,8 @@ public class Manager extends Controller {
 		this.group.setLayout(new FormLayout());	
 		this.sm = new StyleManager(this);
 		this.treeView = loadTree();
-		this.text = new TextView(this.group, this.styles);
-		this.braille = new BrailleView(this.group, this.styles);
+		this.text = new TextView(this, this.group, this.styles);
+		this.braille = new BrailleView(this, this.group, this.styles);
 		this.item.setControl(this.group);
 		initializeDocumentTab();
 		this.document = new BrailleDocument(this, this.styles);
@@ -180,9 +180,9 @@ public class Manager extends Controller {
 		initializeViews(document.getRootElement());
 		treeView.setRoot(document.getRootElement());
 		document.notifyUser();
-		text.initializeListeners(this);
-		braille.initializeListeners(this);
-		treeView.initializeListeners(this);
+		text.initializeListeners();
+		braille.initializeListeners();
+		treeView.initializeListeners();
 		text.hasChanged = false;
 		braille.hasChanged = false;
 		text.view.setWordWrap(true);
@@ -373,9 +373,9 @@ public class Manager extends Controller {
 				initializeViews(document.getRootElement());
 				treeView.setRoot(document.getRootElement());
 				document.notifyUser();
-				text.initializeListeners(this);
-				braille.initializeListeners(this);
-				treeView.initializeListeners(this);
+				text.initializeListeners();
+				braille.initializeListeners();
+				treeView.initializeListeners();
 				text.hasChanged = false;
 				braille.hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
@@ -618,14 +618,14 @@ public class Manager extends Controller {
 		list.checkList();
 		if((Integer)message.getValue("deletionType") == SWT.BS){
 			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS, this);
+				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS);
 			}
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 		}
 		else if((Integer)message.getValue("deletionType") == SWT.DEL){
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL, this);
+				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL);
 			}
 		}
 	}
@@ -795,11 +795,11 @@ public class Manager extends Controller {
 	}
 	
 	public void insertTranscriberNote(){
-		text.update(this, false);
+		text.update(false);
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
 			
-		text.insertNewNode(this, list.get(posList.get(posList.size() - 1)).end);
+		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end);
 			
 		Element e = list.getCurrent().parentElement();
 		e.addAttribute(new Attribute("class", "trNote"));
@@ -882,7 +882,7 @@ public class Manager extends Controller {
 				list.setCurrent(i);
 				list.getCurrentNodeData(message);
 				text.adjustStyle(this, message, list.getCurrent().n);
-				braille.adjustStyle(this, message, list.getCurrent());
+				braille.adjustStyle(message, list.getCurrent());
 				if(message.contains("linesBeforeOffset")){
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
 					message.remove("linesBeforeOffset");
@@ -1014,11 +1014,11 @@ public class Manager extends Controller {
 	public void nextElement(){
 		if(list.size() != 0){		
 			if(text.view.isFocusControl()){
-				text.increment(this);
+				text.incrementCurrent();
 				text.view.setCaretOffset(list.getCurrent().start);
 			}
 			else if(braille.view.isFocusControl()){
-				braille.increment(this);
+				braille.incrementCurrent();
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
@@ -1033,11 +1033,11 @@ public class Manager extends Controller {
 	public void prevElement(){
 		if(list.size() != 0){
 			if(text.view.isFocusControl()){
-				text.decrement(this);
+				text.decrementCurrent();
 				text.view.setCaretOffset(list.getCurrent().start);
 			}
 			else if(braille.view.isFocusControl()){
-				braille.decrement(this);
+				braille.decrementCurrent();
 				braille.view.setCaretOffset(list.getCurrent().brailleList.getFirst().start);
 			}
 			else {
@@ -1266,7 +1266,7 @@ public class Manager extends Controller {
 				list.getCurrentNodeData(message);
 				text.updateCursorPosition(message);
 				braille.updateCursorPosition(message);
-				text.update(this, true);
+				text.update(true);
 				
 				list.setCurrent(currentIndex);
 				list.getCurrentNodeData(message);
@@ -1314,7 +1314,7 @@ public class Manager extends Controller {
 	
 	public void checkForUpdatedViews(){
 		if(text.hasChanged)
-			text.update(this, false);
+			text.update(false);
 	}
 
 	public TextMapElement getPrevious(){
@@ -1414,7 +1414,7 @@ public class Manager extends Controller {
 			
 			treeView.setSelection(list.getCurrent());
 			treeView.getView().getParent().layout();
-			treeView.initializeListeners(this);
+			treeView.initializeListeners();
 			//save latest setting to user settings file
 			BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 			
@@ -1532,7 +1532,7 @@ public class Manager extends Controller {
 
 	@Override
 	public void dispose() {
-		text.update(this, false);
+		text.update(false);
 		list.clearList();
 		group.dispose();
 	}

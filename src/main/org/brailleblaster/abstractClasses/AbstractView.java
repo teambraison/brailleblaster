@@ -56,11 +56,13 @@ public abstract class AbstractView {
 	protected static int currentAlignment;
 	protected static int topIndex;
 	protected Group group;
+	protected Manager manager;
 	
 	public AbstractView() {
 	}
 
-	public AbstractView(Group group, int left, int right, int top, int bottom) {
+	public AbstractView(Manager manager, Group group, int left, int right, int top, int bottom) {
+		this.manager = manager;
 		this.group = group;
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		setLayout(left, right, top, bottom);
@@ -84,23 +86,15 @@ public abstract class AbstractView {
 		view.setLayoutData(location);
 	}
 	
-	public void increment(Manager dm){
-		sendIncrementCurrent(dm);
-	}
-	
-	protected void sendIncrementCurrent(Manager dm){
+	public void incrementCurrent(){
 		Message message = Message.createIncrementMessage();
-		dm.dispatch(message);
+		manager.dispatch(message);
 		setViewData(message);
 	}
 	
-	public void decrement(Manager dm){
-		sendDecrementCurrent(dm);
-	}
-	
-	protected void sendDecrementCurrent(Manager dm){
+	public void decrementCurrent(){
 		Message message = Message.createDecrementMessage();
-		dm.dispatch(message);
+		manager.dispatch(message);
 		setViewData(message);
 	}
 	
@@ -170,7 +164,7 @@ public abstract class AbstractView {
 		setListenerLock(false);
 	}
 	
-	protected void sendStatusBarUpdate(Manager dm, int line){
+	protected void sendStatusBarUpdate(int line){
 		String statusBarText = "Line: " + String.valueOf(line + 1);
 		
 		if(view.getLineIndent(line) > 0){
@@ -185,16 +179,16 @@ public abstract class AbstractView {
 		}
 		
 		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);
-		dm.dispatch(statusMessage);
+		manager.dispatch(statusMessage);
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}
 	
-	public void checkStatusBar(String sender, Manager dm){
+	public void checkStatusBar(String sender){
 		if(!getLock()){
 			if(topIndex != view.getTopIndex()){
 				topIndex = view.getTopIndex();
 				Message scrollMessage = Message.createUpdateScollbarMessage(sender, view.getOffsetAtLine(topIndex));
-				dm.dispatch(scrollMessage);
+				manager.dispatch(scrollMessage);
 			}
 		}
 	}

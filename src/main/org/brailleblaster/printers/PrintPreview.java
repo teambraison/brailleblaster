@@ -38,8 +38,8 @@ public class PrintPreview {
 		String text;
 		File f;
 		
-		public PreviewText(Group group){
-			super(group, 0, 100, 0, 100);
+		public PreviewText(Manager manager, Group group){
+			super(manager, group, 0, 100, 0, 100);
 			this.view.setEditable(false);
 		}
 
@@ -78,7 +78,7 @@ public class PrintPreview {
 		}
 	}
 	
-	public PrintPreview(Display display, BBDocument doc, Manager dm){
+	public PrintPreview(Display display, BBDocument doc, Manager manager){
 		this.doc = doc;
 		
 		this.shell = new Shell(display, SWT.SHELL_TRIM);
@@ -95,7 +95,7 @@ public class PrintPreview {
 	    gp.setLayoutData (location);
 		gp.setLayout(new FormLayout());
 		
-		this.previewText = new PreviewText(gp);
+		this.previewText = new PreviewText(manager, gp);
 		
 		previewText.view.addVerifyKeyListener(new VerifyKeyListener(){
 			@Override
@@ -116,6 +116,6 @@ public class PrintPreview {
 	        } 
 	     });	
 		
-		this.previewText.setPreviewText(dm, this.doc);	
+		this.previewText.setPreviewText(manager, this.doc);	
 	}
 }

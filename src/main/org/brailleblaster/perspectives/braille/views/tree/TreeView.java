@@ -20,13 +20,12 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	protected Tree tree;
 	private Group group;
 	
-	protected Manager manager;
 	private FocusListener focusListener;
-	public TreeView(final Manager dm, Group documentWindow){
-		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+	public TreeView(final Manager manager, Group documentWindow){
+		super(manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group = documentWindow;
 		this.tree = new Tree(view, SWT.VIRTUAL | SWT.NONE);
-		manager = dm;
+		
 		
 		view.setLayout(new FillLayout());
 		view.getVerticalBar().dispose();

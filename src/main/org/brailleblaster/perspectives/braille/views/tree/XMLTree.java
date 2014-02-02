@@ -57,8 +57,8 @@ public class XMLTree extends TreeView {
 		this.tree.pack();
 	}
 
-
-	public void initializeListeners(final Manager dm){
+	@Override
+	public void initializeListeners(){
 		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {	
 				if(!getLock()){
@@ -100,7 +100,7 @@ public class XMLTree extends TreeView {
 						}
 						
 						cursorOffset = 0;
-						dm.dispatch(message);	
+						manager.dispatch(message);	
 					}
 				}
 			}
@@ -152,7 +152,7 @@ public class XMLTree extends TreeView {
 				
 				if(tree.getItemCount() > 0){
 					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
-					dm.dispatch(cursorMessage);
+					manager.dispatch(cursorMessage);
 				}
 			}
 		});
@@ -161,13 +161,13 @@ public class XMLTree extends TreeView {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
-					sendIncrementCurrent(manager);
+					incrementCurrent();
 					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					manager.dispatch(cursorMessage);
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP){
-					sendDecrementCurrent(manager);
+					decrementCurrent();
 					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
 					manager.dispatch(cursorMessage);
 					e.doit = false;

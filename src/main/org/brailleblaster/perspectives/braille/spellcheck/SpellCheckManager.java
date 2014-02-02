@@ -102,7 +102,7 @@ public class SpellCheckManager {
 	}
 	
 	public void replace(String text){
-		m.getText().copyAndPaste(m, text, tokenizer.getStartPos(), tokenizer.getEndPos());
+		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());
 		tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
 	}
 	
@@ -114,7 +114,7 @@ public class SpellCheckManager {
 		
 			do{
 				if(tk.getCurrentWord().equals(oldWord)){
-					m.getText().copyAndPaste(m, newWord, tk.getStartPos(), tk.getEndPos());
+					m.getText().copyAndPaste(newWord, tk.getStartPos(), tk.getEndPos());
 					tk.resetText(m.getText().view.getText().replace("\n", " "));
 				}
 				tk.next();

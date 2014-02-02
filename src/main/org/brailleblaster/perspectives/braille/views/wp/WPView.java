@@ -5,6 +5,7 @@ import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.abstractClasses.BBView;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
@@ -15,8 +16,8 @@ import org.eclipse.swt.widgets.Group;
 public abstract class WPView extends AbstractView implements BBView {
 	protected BBSemanticsTable stylesTable;
 	
-	public WPView(Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
-		super(group, left, right, top, bottom);
+	public WPView(Manager manager, Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
+		super(manager, group, left, right, top, bottom);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;

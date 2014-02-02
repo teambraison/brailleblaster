@@ -397,7 +397,7 @@ public class BrailleMenu extends BBMenu{
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)
-					currentEditor.getText().selectAll(currentEditor);
+					currentEditor.getText().selectAll();
 			}
 		});
 		stylePanelItem = new MenuItem(editMenu, SWT.CHECK);

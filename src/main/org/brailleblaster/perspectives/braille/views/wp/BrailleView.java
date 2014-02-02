@@ -77,15 +77,15 @@ public class BrailleView extends WPView {
 	private CaretListener caretListener;
 	private SelectionAdapter selectionListener;
 	
-	public BrailleView(Group documentWindow, BBSemanticsTable table) {
-		super(documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
+	public BrailleView(Manager manager, Group documentWindow, BBSemanticsTable table) {
+		super(manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 	}
 	
 	@Override
-	public void initializeListeners(final Manager dm){
+	public void initializeListeners(){
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
@@ -98,7 +98,7 @@ public class BrailleView extends WPView {
 			@Override
 			public void focusGained(FocusEvent e) {
 				Message message = Message.createGetCurrentMessage("braille", view.getCaretOffset());
-				dm.dispatch(message);
+				manager.dispatch(message);
 				setViewData(message);
 				if(oldCursorPosition == -1 && positionFromStart  == 0){
 					view.setCaretOffset((Integer)message.getValue("brailleStart"));
@@ -109,14 +109,14 @@ public class BrailleView extends WPView {
 			public void focusLost(FocusEvent e) {
 				setPositionFromStart();
 				Message message = Message.createUpdateCursorsMessage("braille");
-				dm.dispatch(message);
+				manager.dispatch(message);
 			}
 		});
 		
 		view.addMouseListener(mouseListener = new MouseAdapter(){
 			public void mouseDown(MouseEvent e) {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
-					setCurrent(dm);
+					setCurrent();
 				}
 			}	
 		});
@@ -128,12 +128,12 @@ public class BrailleView extends WPView {
 					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 						if(view.getCaretOffset() > currentEnd && view.getCaretOffset() < nextStart)
 							charAtOffset = view.getText(view.getCaretOffset(), view.getCaretOffset());
-						setCurrent(dm);
+						setCurrent();
 					}
 				
 				
 					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
-						 sendStatusBarUpdate(dm, view.getLineAtOffset(view.getCaretOffset()));
+						 sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 					}
 				}
 			}
@@ -141,14 +141,14 @@ public class BrailleView extends WPView {
 		
 		view.getVerticalBar().addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
-				checkStatusBar("braille", dm);
+				checkStatusBar("braille");
 			}
 		});
 		
 		view.addPaintListener(new PaintListener(){
 			@Override
 			public void paintControl(PaintEvent e) {
-				checkStatusBar("braille", dm);
+				checkStatusBar("braille");
 			}			
 		});
 	
@@ -163,13 +163,13 @@ public class BrailleView extends WPView {
 		view.getVerticalBar().removeSelectionListener(selectionListener);
 	}
 	
-	private void setCurrent(Manager dm){
+	private void setCurrent(){
 		Message message = Message.createSetCurrentMessage("braille", view.getCaretOffset(), true);
 		
 		if(charAtOffset != null)
 			message.put("char", charAtOffset);
 		
-		dm.dispatch(message);
+		manager.dispatch(message);
 		setViewData(message);
 		charAtOffset = null;
 	}
@@ -284,7 +284,7 @@ public class BrailleView extends WPView {
 		}
 	}
 	
-	public void adjustStyle(Manager dm, Message m, TextMapElement t){
+	public void adjustStyle(Message m, TextMapElement t){
 		int startLine = (Integer)m.getValue("firstLine");
 		int length = 0;
 		int spaces = 0;
@@ -608,10 +608,10 @@ public class BrailleView extends WPView {
 		view.replaceTextRange(t.brailleList.getFirst().start, total, "");
 	}
 	
-	public void removeWhitespace(int start, int length, char c, Manager dm){
+	public void removeWhitespace(int start, int length, char c){
 		setListenerLock(true);
 		Message message = Message.createGetCurrentMessage("braille", view.getCaretOffset());
-		dm.dispatch(message);
+		manager.dispatch(message);
 		setViewData(message);
 	
 		if(c == SWT.DEL && (start != currentEnd && start != previousEnd)){

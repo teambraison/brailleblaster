@@ -78,7 +78,7 @@ public class BookTree extends TreeView {
 	}
 
 	@Override
-	public void initializeListeners(final Manager dm) {
+	public void initializeListeners() {
 		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
@@ -86,7 +86,7 @@ public class BookTree extends TreeView {
 						TreeItemData data = getItemData((TreeItem)e.item);
 						Message m = Message.createSetCurrentMessage("tree", data.list.getFirst().start, false);
 						setCursorOffset(0);
-						dm.dispatch(m);
+						manager.dispatch(m);
 					}
 				}
 			}
@@ -102,7 +102,7 @@ public class BookTree extends TreeView {
 			public void focusLost(FocusEvent e) {
 				if(tree.getItemCount() > 0){
 					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
-					dm.dispatch(cursorMessage);
+					manager.dispatch(cursorMessage);
 				}
 			}		
 		});

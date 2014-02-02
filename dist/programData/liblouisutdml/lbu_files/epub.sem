@@ -1,0 +1,239 @@
+# Semantic Action File
+# based on the HTML5 Specification
+#
+# Copyright 2013 American Printing House for the Blind
+#
+# Licensed under LGPL
+
+# Basic
+	italicx i
+	newentries no
+	document body
+	markhead head
+	para p
+	# no br
+	no hr
+	stanza poem
+	generic linegroup
+	line line
+	line byline
+	line dateline
+	para prodnote
+	italicx dfn
+	italicx kbd
+	boldx strong
+	boldx b
+	no acronym
+	pagenum pagenum
+	softreturn br
+	no note
+	no div
+	no sidebar
+	no html,lang
+	skip doctitle
+	skip docauthor
+#newly added
+	skip title
+	skip video
+	skip audio
+	skip svg
+	no hgroup
+	no source
+	skip trigger
+	no default
+	no text
+	no image
+	skip path
+	skip ClipPath
+	no tspan
+	no g
+	skip track
+
+
+# section elements
+	no level1
+	no level2
+	no level3
+	no level4
+	no level5
+	no level6
+	no level
+
+# headings
+	heading1 h1
+	heading2 h2
+	heading3 h3
+	heading4 h4
+	heading4 h5
+	heading4 h6
+
+
+# Formatting	 
+
+	no abbr	
+	generic address	
+	no bdi
+	no bdo	
+	quotation blockquote
+	quotation epigraph
+	# caption caption
+	boldx cite	
+	compbrl code	
+	no del	
+	# no dfn	
+	italicx em		
+	no ins	
+	# no kbd	
+	no mark
+	no meter
+	no pre	
+	# code pre
+	no progress
+	generic q	
+	no rp
+	no rt
+	no ruby
+	no s	
+	no samp	
+	no small		
+	no sub	
+	no sup	
+	no time	
+	underlinex u	
+	no var	
+	no wbr
+# Forms	 
+	no form
+	no input	
+	no textarea	
+	no button	
+	no select	
+	no optgroup	
+	no option	
+	no label	
+	no fieldset	
+	no legend
+	no datalist
+	no keygen
+	no output
+# Frames	 
+	no iframe
+#  Images	 
+
+	no map	
+	no area	
+	no canvas
+	no figcaption
+	no figure
+	# no img
+	no img,width
+	no img,src
+	no img,height
+	no img,alt
+	skip img
+	generic imggroup
+
+# Links	 
+	no a	
+	no link	
+	no nav
+# Lists	
+	generic list 
+	no ul	
+	no ol	
+	list li	
+	generic dl	
+	# para dt	
+	list dt
+	para dd	
+	no menu	
+	no command
+	no lic
+
+# Tables	 
+	table table
+	caption caption	
+ 	# no caption
+	no th	
+	list tr
+	# no tr	
+	no td	
+	no thead	
+	no tbody	
+	no tfoot	
+	no col	
+	no colgroup
+	no table,cellpadding
+	no table,border,0
+	no table,cellspacing,0
+	no table,width
+
+# Style/Sections	 
+	skip style
+	# no div
+	no span
+	no header
+	no footer
+	no section
+	no article
+	no aside
+	no details
+	no dialog
+	no summary
+
+# Meta Info	 
+	# no head
+	no meta
+	no base
+
+# Programming	 
+	skip script	
+	skip noscript	
+	no embed	
+	no object	
+	no param	
+
+# Global Attribute 
+#	accesskey	
+#	class	
+#	contenteditable
+#	contextmenu
+#	dir
+#	draggable
+#	dropzone
+#	hidden
+#	id	
+#	lang	
+#	spellcheck
+#	style	
+#	tabindex	
+#	title	
+#	translate
+
+
+#generic headings
+
+	heading4 hd
+	heading4 bridgehead
+	heading4 author
+
+#Pseudo-actions
+
+# sentence
+	generic sent
+
+#word
+	generic w
+
+
+#	no link,type,text/css
+	#no p,class,text-right
+	#no p,class,text-center
+	#no style,type,text/css
+	#no meta,content,Text
+	#no script,type,text/javascript
+	#no body,text
+	#no body,text,black
+
+
+

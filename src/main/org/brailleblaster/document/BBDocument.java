@@ -123,10 +123,10 @@ public class BBDocument {
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		
 		if (configSettings == null) {
-			configWithUTD = "formatFor utd\n mode notUC\n printPages no\n";
+			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
 		} 
 		else {
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages no\n";
+			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
 		}
 		
 		if(dm.getWorkingPath() != null){

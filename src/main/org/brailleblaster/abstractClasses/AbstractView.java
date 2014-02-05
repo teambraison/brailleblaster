@@ -165,17 +165,23 @@ public abstract class AbstractView {
 	}
 	
 	protected void sendStatusBarUpdate(int line){
-		String statusBarText = "Line: " + String.valueOf(line + 1);
+		String statusBarText = "";
+		int page = manager.getCurrentPrintPage();
+		if(page != -1){
+			//add 1 to account for 0 based list
+			statusBarText += "Page: " + (page  + 1) + " | ";
+		}
+		statusBarText += "Line: " + String.valueOf(line + 1) + " | ";
 		
 		if(view.getLineIndent(line) > 0){
-			statusBarText += " Indent: " + ((view.getLineIndent(line) / charWidth)); 
+			statusBarText += " Indent: " + ((view.getLineIndent(line) / charWidth)) + " | "; 
 		}
 		
 		if(view.getLineAlignment(line) != SWT.LEFT){
 			if(view.getLineAlignment(line) == SWT.CENTER)
-				statusBarText += " Alignment: Center";
+				statusBarText += " Alignment: Center" + " | ";
 			else if(view.getLineAlignment(line) == SWT.RIGHT)
-				statusBarText += " Alignment: Right";
+				statusBarText += " Alignment: Right" + " | ";
 		}
 		
 		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);

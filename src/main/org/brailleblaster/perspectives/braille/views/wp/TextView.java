@@ -39,6 +39,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.SWT;
@@ -109,6 +111,7 @@ public class TextView extends WPView {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
 					setSelection(selectionArray[0], selectionArray[1]);
+					currentChar = ' ';
 				}
 			}			
 		});
@@ -199,6 +202,13 @@ public class TextView extends WPView {
 					manager.dispatch(message);
 					e.doit = false;
 				}
+				
+				//Blocks text from crossing page boundaries in original markup
+				if(e.keyCode == SWT.BS && manager.inPrintPageRange(view.getCaretOffset() - 1))
+					e.doit = false;
+				else if(e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset() + 1))
+					e.doit = false;
+				
 				/*
 				else if(oldCursorPosition > 0 && oldCursorPosition < view.getCharCount() && e.character == SWT.BS){
 					if(view.getLineAtOffset(oldCursorPosition) != view.getLineAtOffset(oldCursorPosition - 1) && view.getLineIndent(view.getLineAtOffset(oldCursorPosition)) != 0){
@@ -220,6 +230,13 @@ public class TextView extends WPView {
 				
 				if(currentElement.isMathML() && (e.keyCode != SWT.BS && e.keyCode != SWT.DEL && e.keyCode != SWT.ARROW_DOWN && e.keyCode != SWT.ARROW_LEFT && e.keyCode != SWT.ARROW_RIGHT && e.keyCode != SWT.ARROW_UP))
 					e.doit = false;
+				
+				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
+				if(manager.inPrintPageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1){
+					setListenerLock(true);
+					nextPageStart(view.getCaretOffset());
+					setListenerLock(false);
+				}
 			}		
 		});
 		
@@ -271,7 +288,32 @@ public class TextView extends WPView {
 								sendUpdate();
 							}
 					
+							setListenerLock(true);
+							if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
+								if(manager.inPrintPageRange(e.caretOffset)){
+									if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+										nextPageStart(e.caretOffset);
+									}
+									else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+										previousPageEnd(e.caretOffset);
+									}
+								}	
+							}
+							else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
+								if(manager.inPrintPageRange(e.caretOffset)){
+									if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+										previousPageEnd(e.caretOffset);
+									}
+									else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+										nextPageStart(e.caretOffset);
+									}
+								}
+							}
+							setListenerLock(false);
+							
 							setCurrent();
+							currentChar = ' ';
+							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 						}
 					}
 				}
@@ -284,11 +326,18 @@ public class TextView extends WPView {
 		
 		view.addMouseListener(mouseListener = new MouseAdapter(){
 			public void mouseDown(MouseEvent e) {
-				if( (view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart) && textChanged == true){
-					sendUpdate();
-				}
-				
-				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
+				if( (view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart)){
+					if(textChanged == true)
+						sendUpdate();
+					
+					if(manager.inPrintPageRange(view.getCaretOffset())){
+						if(view.getCaretOffset() < currentStart){
+							previousPageEnd(view.getCaretOffset());
+						}
+						else if(view.getCaretOffset() > currentEnd){
+							nextPageStart(view.getCaretOffset());
+						} 
+					}
 					setCurrent();
 				}
 			}	
@@ -380,6 +429,24 @@ public class TextView extends WPView {
 			view.removePaintObjectListener(paintObjListener);
 			view.removeVerifyListener(verifyListener);
 		}
+	}
+	
+	private void nextPageStart(int offset){
+		int pos = manager.getPageEnd(offset);
+		if(pos != -1 && pos != view.getCharCount())
+			view.setCaretOffset(pos + 1);
+		else {
+			pos = manager.getPageStart(offset);
+			view.setCaretOffset(pos - 1);
+		}
+	}
+	
+	private void previousPageEnd(int offset){
+		int pos = manager.getPageStart(offset);
+		if(pos != -1 && pos != 0)
+			view.setCaretOffset(pos - 1);
+		else 
+			view.setCaretOffset(oldCursorPosition);
 	}
 	
 	//public method to check if an update should be made before exiting or saving
@@ -955,6 +1022,32 @@ public class TextView extends WPView {
 		else if(selectionStart + selectionLength > currentEnd && selectionStart + selectionLength >= nextStart || previousEnd == -1){	
 			int changes = 0;
 			while(selectionLength > 0){
+				if(manager.inPrintPageRange(selectionStart + 1)){
+					PageMapElement p = manager.getPageElement(selectionStart + 1);
+					int pos = p.end;
+					
+					setListenerLock(true);
+					String pageText = "\n"+ p.n.getValue() + "\n";
+					view.setCaretOffset(selectionStart);
+					view.insert(pageText);
+					selectionStart++;
+					selectionLength--;
+					if(selectionLength - pageText.length() - 1 <= 0)
+						view.replaceTextRange(view.getCharCount() -1, 1, "");
+					setListenerLock(false);
+					
+					selectionLength -= pageText.length() - 1;
+					selectionStart = pos + 1;
+					view.setCaretOffset(selectionStart);
+					if(manager.inPrintPageRange(view.getCaretOffset())){
+						int start = manager.getPageStart(view.getCaretOffset());
+						view.setCaretOffset(start - 1);
+					}
+					setCurrent();
+					if(selectionLength <= 0)
+						break;
+				}
+				
 				if(selectionStart > currentStart && selectionStart != currentEnd){
 					changes = currentEnd - selectionStart;
 					makeTextChange(-changes);
@@ -1233,6 +1326,8 @@ public class TextView extends WPView {
 						saveStyleState(currentStart);
 						if(-1 != previousEnd){
 							prev = previousEnd;
+							if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
+								prev = manager.getPageEnd((previousEnd + currentStart) / 2);
 						}
 						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
 						if(currentStart != prev){
@@ -1262,11 +1357,18 @@ public class TextView extends WPView {
 					if(isLast){
 						if(-1 != nextStart){
 							next = nextStart;
+							if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
+								next = manager.getPageStart((currentEnd + nextStart) / 2) + offset;
+							else
+								indent  = view.getLineIndent(view.getLineAtOffset(next));
+							
 							saveStyleState(currentStart);
-							indent  = view.getLineIndent(view.getLineAtOffset(next));
 						}
 						else {
-							next = currentEnd;
+							if(manager.inPrintPageRange((currentEnd + view.getCharCount()) / 2))
+								next = manager.getPageStart((currentEnd + view.getCharCount()) / 2) + offset;
+							else
+								next = currentEnd;
 						}
 					
 						if(currentEnd != next && next != 0){
@@ -1309,6 +1411,8 @@ public class TextView extends WPView {
 		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore) && isFirst){
 			if(-1 != previousEnd){
 				prev = previousEnd;
+				if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
+					prev = manager.getPageEnd((previousEnd + currentStart) / 2);
 			}
 			
 			if(currentStart != prev){
@@ -1340,20 +1444,25 @@ public class TextView extends WPView {
 		if(!style.contains(StylesType.linesAfter) && previousStyle.contains(StylesType.linesAfter) && isLast){
 			if(currentEnd != nextStart){
 				int removedSpaces;
-				if(nextStart != -1)
-					removedSpaces = nextStart - currentEnd;
+				if(nextStart != -1){
+					next = nextStart;
+					if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
+						next = manager.getPageStart((currentEnd + nextStart) / 2) + offset;
+					
+					removedSpaces = next - currentEnd;
+				}
 				else
 					removedSpaces = view.getCharCount() - currentEnd;
 				
 				saveStyleState(currentStart);
-				if(nextStart != -1)
-					indent  = view.getLineIndent(view.getLineAtOffset(nextStart)); 
+				if(next != -1)
+					indent  = view.getLineIndent(view.getLineAtOffset(next)); 
 					
 				view.replaceTextRange(currentEnd, removedSpaces, "");
 				length = removedSpaces;
 			}
 			
-			if(isLast && nextStart != -1){
+			if(isLast && next != -1){
 				spaces = 1;
 				textBefore = makeInsertionString(1,'\n');
 				insertBefore(currentEnd, textBefore);
@@ -1361,9 +1470,9 @@ public class TextView extends WPView {
 				m.put("linesAfterOffset", offset);
 				if(nextStart != -1)
 					nextStart += offset;
-				if(nextStart != -1) {
+				if(next != -1) {
 					restoreStyleState(currentStart, currentEnd);
-					view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+					view.setLineIndent(view.getLineAtOffset(next), 1, indent);
 				}
 			}
 		}
@@ -1403,6 +1512,18 @@ public class TextView extends WPView {
 		setListenerLock(false);
 		setCurrent();
 	}	
+	
+	@Override
+	public void addPageNumber(Paginator list, Node node){
+		String text = node.getValue();
+		
+		view.append("\n" + text);
+		spaceBeforeText++;
+		
+		list.add(new PageMapElement(spaceBeforeText + total, spaceBeforeText + total + text.length(), node));
+		total += spaceBeforeText + text.length();
+		spaceBeforeText = 0;
+	}
 	
 	@Override
 	public void resetView(Group group) {

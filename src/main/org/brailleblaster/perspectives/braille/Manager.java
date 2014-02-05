@@ -59,6 +59,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -113,6 +115,7 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
+	private Paginator paginator;
 	Archiver arch = null;
 	
 	//Constructor that sets things up for a new document.
@@ -121,19 +124,20 @@ public class Manager extends Controller {
 //		
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		this.styles = new BBSemanticsTable(currentConfig);
-		this.documentName = docName;
-		this.list = new MapList(this);
-		this.item = new TabItem(wp.getFolder(), 0);
-		this.group = new Group(wp.getFolder(),SWT.NONE);
-		this.group.setLayout(new FormLayout());	
-		this.sm = new StyleManager(this);
-		this.treeView = loadTree();
-		this.text = new TextView(this, this.group, this.styles);
-		this.braille = new BrailleView(this, this.group, this.styles);
-		this.item.setControl(this.group);
+		styles = new BBSemanticsTable(currentConfig);
+		documentName = docName;
+		list = new MapList(this);
+		paginator = new Paginator();
+		item = new TabItem(wp.getFolder(), 0);
+		group = new Group(wp.getFolder(),SWT.NONE);
+		group.setLayout(new FormLayout());	
+		sm = new StyleManager(this);
+		treeView = loadTree();
+		text = new TextView(this, group, styles);
+		braille = new BrailleView(this, group, styles);
+		item.setControl(this.group);
 		initializeDocumentTab();
-		this.document = new BrailleDocument(this, this.styles);
+		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		
@@ -144,9 +148,9 @@ public class Manager extends Controller {
 		else {
 			docCount++;
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
-			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
+			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
 			((Element)n.get(0)).appendChild(new Text(""));
-			this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			setTabTitle(docName);
 		}				
 	}
@@ -156,25 +160,25 @@ public class Manager extends Controller {
 		
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		this.styles = new BBSemanticsTable(currentConfig);
-		this.documentName = docName;
-		this.list = new MapList(this);
+		styles = new BBSemanticsTable(currentConfig);
+		documentName = docName;
+		list = new MapList(this);
 		this.item = item;
-		this.group = new Group(wp.getFolder(),SWT.NONE);
-		this.group.setLayout(new FormLayout());	
-		this.sm = new StyleManager(this);
-		this.treeView = loadTree();
-		this.text = new TextView(this, this.group, this.styles);
-		this.braille = new BrailleView(this, this.group, this.styles);
+		group = new Group(wp.getFolder(),SWT.NONE);
+		group.setLayout(new FormLayout());	
+		sm = new StyleManager(this);
+		treeView = loadTree();
+		text = new TextView(this, group, styles);
+		braille = new BrailleView(this, this.group, styles);
 		this.item.setControl(this.group);
 		initializeDocumentTab();
-		this.document = new BrailleDocument(this, this.styles);
+		this.document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		
 		logger = BBIni.getLogger();
 		
-		this.document = new BrailleDocument(this, doc, this.styles);
+		document = new BrailleDocument(this, doc, this.styles);
 
 		group.setRedraw(false);
 		initializeViews(document.getRootElement());
@@ -417,11 +421,16 @@ public class Manager extends Controller {
 					i++;
 			}
 			else {
-				if(current.getChild(i) instanceof Element && !((Element)current.getChild(i)).getLocalName().equals("pagenum")){
-					Element currentChild = (Element)current.getChild(i);
-					document.checkSemantics(currentChild);
-					if(!currentChild.getLocalName().equals("meta") & !currentChild.getAttributeValue("semantics").contains("skip"))
-						initializeViews(currentChild);
+				if(current.getChild(i) instanceof Element){
+					if(((Element)current.getChild(i)).getLocalName().equals("pagenum")){
+						initializePrintPage((Element)current.getChild(i));
+					}
+					else {
+						Element currentChild = (Element)current.getChild(i);
+						document.checkSemantics(currentChild);
+						if(!currentChild.getLocalName().equals("meta") & !currentChild.getAttributeValue("semantics").contains("skip"))
+							initializeViews(currentChild);
+					}
 				}
 				else if(!(current.getChild(i) instanceof Element)) {
 					initializeViews(current.getChild(i));
@@ -445,6 +454,18 @@ public class Manager extends Controller {
 				initializeBraille(current.getChild(i), t);
 			}
 		}
+	}
+	
+	private void initializePrintPage(Element page){
+		Node textNode = paginator.findTextNode(page);
+		if(textNode != null){
+			text.addPageNumber(paginator, textNode);
+		
+			Node brailleText = paginator.findBrailleNode(page);
+			braille.addPageNumber(paginator, brailleText);
+		}
+		else
+			new Notify("LiblouisUTDML did not translate the following XML element properly:\n" + page.toXML().toString());
 	}
 	
 	private void initializeMathML(Element math, Element brl){
@@ -621,9 +642,11 @@ public class Manager extends Controller {
 				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS);
 			}
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
+			paginator.updateOffsets(list.getCurrent(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 		}
 		else if((Integer)message.getValue("deletionType") == SWT.DEL){
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
+			paginator.updateOffsets(list.get(list.getCurrentIndex() + 1), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 			if(list.hasBraille(list.getCurrentIndex())){
 				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL);
 			}
@@ -641,6 +664,7 @@ public class Manager extends Controller {
 			braille.updateBraille(list.getCurrent(), message);
 			text.reformatText(list.getCurrent().n, message, this);
 			list.updateOffsets(list.getCurrentIndex(), message);
+			paginator.updateOffsets(list.getCurrent(), message);
 			list.checkList();
 		}
 	}
@@ -716,6 +740,7 @@ public class Manager extends Controller {
 		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
 
 		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
+		paginator.updateOffsets(list.getCurrent(), 1, 1);
 		
 		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
@@ -757,13 +782,17 @@ public class Manager extends Controller {
 	}
 	
 	private void insertElementAtBeginning(Message m){
-		if(list.getCurrentIndex() > 0)
-			document.insertEmptyTextNode(list, list.get(list.getCurrentIndex() - 1),  list.get(list.getCurrentIndex() - 1).end + 1, list.get(list.getCurrentIndex() - 1).brailleList.getLast().end + 1,list.getCurrentIndex());
+		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
+			document.insertEmptyTextNode(list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex());
 		else
 			document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex());
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
+			if(list.getCurrentIndex() == 0)
+				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
+			else
+				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1);
+			paginator.updateOffsets(list.get(list.getCurrentIndex()), 1, 1);
 		}
 		int index = treeView.getSelectionIndex();
 		
@@ -771,9 +800,9 @@ public class Manager extends Controller {
 		m.put("newBrailleLength", 1);
 		m.put("brailleLength", 0);
 
-		if(list.getCurrentIndex()  > 0)
-			braille.insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
-		else
+		//if(list.getCurrentIndex()  > 0)
+		//	braille.insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
+		//else
 			braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
 			
 		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
@@ -783,7 +812,9 @@ public class Manager extends Controller {
 		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1);
 		if(list.size() - 1 != list.getCurrentIndex() + 1){
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
+			paginator.updateOffsets(list.get(list.getCurrentIndex() + 1), 1, 1);
 		}
+		
 		int index = treeView.getSelectionIndex();
 		
 		m.put("length", 1);
@@ -833,6 +864,7 @@ public class Manager extends Controller {
 		text.removeMathML(m);
 		treeView.removeMathML(t);
 		list.updateOffsets(list.indexOf(t), m);
+		paginator.updateOffsets(list.get(list.indexOf(t)), m);
 		list.remove(t);
 		
 		if(list.size() == 0){
@@ -885,11 +917,13 @@ public class Manager extends Controller {
 				braille.adjustStyle(message, list.getCurrent());
 				if(message.contains("linesBeforeOffset")){
 					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
+					paginator.updateOffsets(list.getCurrent(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
 					message.remove("linesBeforeOffset");
 				}
 		
 				if(message.contains("linesAfterOffset")){
 					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"));
+					paginator.updateOffsets(list.get(list.getCurrentIndex()), (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"));
 					message.remove("linesAfterOffset");
 				}
 			}
@@ -1449,6 +1483,61 @@ public class Manager extends Controller {
 		}
 		else
 			return Boolean.valueOf(simBraille);
+	}
+	
+	public boolean inPrintPageRange(int offset){
+		return paginator.inPrintPageRange(offset);
+	}
+	
+	public boolean inBraillePageRange(int offset){
+		return paginator.inBraillePageRange(offset);
+	}
+	
+	public int getCurrentPrintPage(){
+		if(list.size() > 0)
+			return paginator.findCurrentPrintPage(list.getCurrent().start);
+		else 
+			return -1;
+	}
+	
+	public int getPageStart(int offset){
+		PageMapElement p = paginator.findPage(offset);
+		
+		if(p != null)
+			return p.start;
+		else
+			return -1;  
+	}
+	
+	public int getPageEnd(int offset){
+		PageMapElement p = paginator.findPage(offset);
+		
+		if(p != null)
+			return p.end;
+		else
+			return -1;  
+	}
+	
+	public int getBraillePageStart(int offset){
+		PageMapElement p = paginator.findBraillePage(offset);
+		
+		if(p != null)
+			return p.brailleStart;
+		else
+			return -1;  
+	}
+	
+	public int getBraillePageEnd(int offset){
+		PageMapElement p = paginator.findBraillePage(offset);
+		
+		if(p != null)
+			return p.brailleEnd;
+		else
+			return -1;  
+	}
+	
+	public PageMapElement getPageElement(int offset){
+		return paginator.findPage(offset);
 	}
 	
 	public FontManager getFontManager(){

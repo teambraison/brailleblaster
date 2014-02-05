@@ -41,6 +41,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
@@ -68,6 +69,7 @@ public class BrailleView extends WPView {
 	
 	private int currentStart, currentEnd, nextStart, previousEnd;
 	private int oldCursorPosition = -1;
+	private int currentChar;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	private String charAtOffset;
 	
@@ -89,6 +91,15 @@ public class BrailleView extends WPView {
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
+				currentChar = e.keyCode;
+				
+				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
+				if(manager.inBraillePageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1){
+					setListenerLock(true);
+					nextPageStart(view.getCaretOffset());
+					setListenerLock(false);
+				}
+				
 				oldCursorPosition = view.getCaretOffset();
 			}
 			
@@ -116,6 +127,14 @@ public class BrailleView extends WPView {
 		view.addMouseListener(mouseListener = new MouseAdapter(){
 			public void mouseDown(MouseEvent e) {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
+					if(manager.inBraillePageRange(view.getCaretOffset())){
+						if(view.getCaretOffset() < currentStart){
+							previousPageEnd(view.getCaretOffset());
+						}
+						else if(view.getCaretOffset() > currentEnd){
+							nextPageStart(view.getCaretOffset());
+						} 
+					}
 					setCurrent();
 				}
 			}	
@@ -125,15 +144,35 @@ public class BrailleView extends WPView {
 			@Override
 			public void caretMoved(CaretEvent e) {
 				if(!getLock()){
-					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
-						if(view.getCaretOffset() > currentEnd && view.getCaretOffset() < nextStart)
-							charAtOffset = view.getText(view.getCaretOffset(), view.getCaretOffset());
+					if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
+						setListenerLock(true);
+						if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
+							if(manager.inBraillePageRange(e.caretOffset)){
+								if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+									nextPageStart(e.caretOffset);
+								}
+								else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+									previousPageEnd(e.caretOffset);
+								}
+							}	
+						}
+						else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
+							if(manager.inBraillePageRange(e.caretOffset)){
+								if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+									previousPageEnd(e.caretOffset);
+								}
+								else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+									nextPageStart(e.caretOffset);
+								}
+							}
+						}
+						setListenerLock(false);
+						
 						setCurrent();
+						currentChar = ' ';
 					}
-				
-				
 					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
-						 sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+						sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 					}
 				}
 			}
@@ -153,6 +192,25 @@ public class BrailleView extends WPView {
 		});
 	
 		setListenerLock(false);
+	}
+	
+	private void previousPageEnd(int offset){
+		int pos = manager.getBraillePageStart(offset);
+		if(pos != -1 && pos != 0){
+			view.setCaretOffset(pos - 1);
+		}
+		else 
+			view.setCaretOffset(oldCursorPosition);
+	}
+	
+	private void nextPageStart(int offset){
+		int pos = manager.getBraillePageEnd(offset);
+		if(pos != -1 && pos != view.getCharCount())
+			view.setCaretOffset(pos + 1);
+		else {
+			pos = manager.getBraillePageStart(offset);
+			view.setCaretOffset(pos - 1);
+		}
 	}
 	
 	public void removeListeners(){
@@ -309,6 +367,8 @@ public class BrailleView extends WPView {
 						saveStyleState(currentStart);
 						if(-1 != previousEnd){
 							prev = previousEnd;
+							if(manager.inBraillePageRange((previousEnd + currentStart) / 2))
+								prev = manager.getBraillePageEnd((previousEnd + currentStart) / 2);
 						}
 					
 						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
@@ -339,11 +399,17 @@ public class BrailleView extends WPView {
 					if(isLast(t.brailleList.getLast().n)){
 						if(-1 != nextStart){
 							next = nextStart;
-							indent  = view.getLineIndent(view.getLineAtOffset(next));
+							if(manager.inBraillePageRange((currentEnd + nextStart) / 2))
+								next = manager.getBraillePageStart((currentEnd + nextStart) / 2) + offset;
+							else
+								indent  = view.getLineIndent(view.getLineAtOffset(next));
 							saveStyleState(currentStart);
 						}
 						else {
-							nextStart = currentEnd;
+							if(manager.inBraillePageRange((currentEnd + view.getCharCount()) / 2))
+								next = manager.getBraillePageStart((currentEnd + view.getCharCount()) / 2) + offset;
+							else
+								nextStart = currentEnd;
 						}
 				
 						if(currentEnd != next && next != 0){
@@ -386,6 +452,8 @@ public class BrailleView extends WPView {
 		if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore)){
 			if(-1 != previousEnd){
 				prev = previousEnd;
+				if(manager.inBraillePageRange((previousEnd + currentStart) / 2))
+					prev = manager.getBraillePageEnd((previousEnd + currentStart) / 2);
 			}
 			
 			if(currentStart != prev){
@@ -416,30 +484,34 @@ public class BrailleView extends WPView {
 		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter)){
 			if(currentEnd != nextStart){
 				int removedSpaces;
-				if(nextStart != -1)
-					removedSpaces = nextStart - currentEnd;
+				if(nextStart != -1){
+					next = nextStart;
+					if(manager.inBraillePageRange((currentEnd + nextStart) / 2))
+						next = manager.getBraillePageStart((currentEnd + nextStart) / 2) + offset;
+					removedSpaces = next - currentEnd;
+				}
 				else
 					removedSpaces = view.getCharCount() - currentEnd;
 				
 				saveStyleState(currentStart);
 				if(nextStart != -1)
-					indent  = view.getLineIndent(view.getLineAtOffset(nextStart)); 
+					indent  = view.getLineIndent(view.getLineAtOffset(next)); 
 					
 				view.replaceTextRange(currentEnd, removedSpaces, "");
 				length = removedSpaces;
 			}
 			
-			if(isLast(t.brailleList.getLast().n) && nextStart != -1){
+			if(isLast(t.brailleList.getLast().n) && next != -1){
 				spaces = 1;
 				textBefore = makeInsertionString(1,'\n');
 				insertBefore(currentEnd, textBefore);
 				offset = spaces - length;
 				m.put("linesAfterOffset", offset);
-				if(nextStart != -1)
+				if(next != -1)
 					nextStart += offset;
-				if(nextStart != -1){
+				if(next != -1){
 					restoreStyleState(currentStart, currentEnd);
-					view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
+					view.setLineIndent(view.getLineAtOffset(next), 1, indent);
 				}
 			}
 		}
@@ -774,5 +846,16 @@ public class BrailleView extends WPView {
 		view.insert("\n");
 		view.setCaretOffset(pos);
 		setListenerLock(false);
+	}
+
+	@Override
+	public void addPageNumber(Paginator list, Node node) {
+		String text = node.getValue();
+		view.append("\n" + text);
+		spaceBeforeText++;
+		
+		list.getLast().setBraillePage(spaceBeforeText + total, spaceBeforeText + total + text.length(), node);
+		total += spaceBeforeText + text.length();
+		spaceBeforeText = 0;
 	}
 }

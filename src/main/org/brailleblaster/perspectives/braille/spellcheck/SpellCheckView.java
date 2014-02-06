@@ -5,8 +5,8 @@ import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -84,12 +84,7 @@ class SpellCheckView {
     	replace = new Button(group, SWT.PUSH);
     	replace.setText(lh.localValue("spellReplace"));
     	setLayout(replace, 0,100,0,20);
-    	replace.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+    	replace.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {			
 				if(suggestionBox.getSelectionCount() == 0){
@@ -109,12 +104,7 @@ class SpellCheckView {
     	replaceAll = new Button(group, SWT.PUSH);
     	replaceAll.setText(lh.localValue("spellReplaceAll"));
     	setLayout(replaceAll, 0, 100, 20, 40);
-    	replaceAll.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub			
-			}
-
+    	replaceAll.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(suggestionBox.getSelectionCount() == 0){
@@ -131,12 +121,7 @@ class SpellCheckView {
     	ignore = new Button(group, SWT.PUSH);
     	ignore.setText(lh.localValue("spellIgnore"));
     	setLayout(ignore, 0,100,40,60);
-    	ignore.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+    	ignore.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				m.checkWord();
@@ -146,12 +131,7 @@ class SpellCheckView {
     	ignoreAll = new Button(group, SWT.PUSH);
     	ignoreAll.setText(lh.localValue("spellIgnoreAll"));
     	setLayout(ignoreAll, 0,100,60,80);
-    	ignoreAll.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub			
-			}
-
+    	ignoreAll.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				m.ignoreWord(text.getText());
@@ -162,12 +142,7 @@ class SpellCheckView {
     	add = new Button(group, SWT.NONE);
     	add.setText(lh.localValue("spellAdd"));
     	setLayout(add, 0,100, 80, 100);
-    	add.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+    	add.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				m.addWord(text.getText());

@@ -8,10 +8,10 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -109,7 +109,7 @@ public class StyleTable {
 			
 		});
 		
-		this.t.addKeyListener(new KeyListener(){
+		this.t.addKeyListener(new KeyAdapter(){
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(Character.isLetter(e.keyCode)){
@@ -118,11 +118,6 @@ public class StyleTable {
 						t.setSelection(loc);
 				}
 			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub			
-			}
 		});
 	
 	   	populateTable(sm.getKeySet());
@@ -130,13 +125,7 @@ public class StyleTable {
 	}
 	
 	private void initializeListeners(){
-		restoreButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-
+		restoreButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				LocaleHandler lh = new LocaleHandler();
@@ -154,48 +143,28 @@ public class StyleTable {
 			}	
 		});
 		
-		newButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub	
-			}
-
+		newButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				sm.openNewStyleTable();
 			}
 		});
 		
-		editButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		editButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {	
 				sm.openEditStyle();
 			}		
 		});
 		
-		deleteButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		deleteButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				deleteStyle();
 			}			
 		});
 		
-		applyButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		applyButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				sm.apply(t.getSelection()[0].getText(1));
@@ -265,10 +234,9 @@ public class StyleTable {
 	
     private void populateTable(Set<String> list){  	
     	for(String s : list){
-    		if(!s.equals("document"))
+    		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex"))
     			addTableItem(s);
-    	}
-    	
+    	}  	
     }
     
     private void deleteStyle(){

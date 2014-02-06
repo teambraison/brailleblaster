@@ -433,17 +433,33 @@ public class TextView extends WPView {
 	}
 	
 	private void nextPageStart(int offset){
-		int pos = manager.getPageEnd(offset);
+		int pos = manager.getPrintPageEnd(offset);
+		//account for blank pages before more text
+		while(manager.inPrintPageRange(pos + 1)){
+			pos = manager.getPrintPageEnd(pos + 1);
+		}
+		
 		if(pos != -1 && pos != view.getCharCount())
 			view.setCaretOffset(pos + 1);
 		else {
-			pos = manager.getPageStart(offset);
-			view.setCaretOffset(pos - 1);
+			pos = manager.getPrintPageStart(offset);
+			while(manager.inPrintPageRange(pos - 1)){
+				pos = manager.getPrintPageStart(pos - 1);
+			}
+			if(pos == -1)
+				view.setCaretOffset(oldCursorPosition);
+			else
+				view.setCaretOffset(pos - 1);
 		}
 	}
 	
 	private void previousPageEnd(int offset){
-		int pos = manager.getPageStart(offset);
+		int pos = manager.getPrintPageStart(offset);
+		//account for blank pages before more text
+		while(manager.inPrintPageRange(pos - 1)){
+			pos = manager.getPrintPageStart(pos - 1);
+		}
+		
 		if(pos != -1 && pos != 0)
 			view.setCaretOffset(pos - 1);
 		else 
@@ -1028,7 +1044,14 @@ public class TextView extends WPView {
 					int pos = p.end;
 					
 					setListenerLock(true);
-					String pageText = "\n"+ p.n.getValue() + "\n";
+					String pageText = "\n"+ p.n.getValue();
+					while(manager.inPrintPageRange(pos + 1)){
+						p = manager.getPageElement(pos + 1);
+						pos = p.end;
+						pageText += "\n"+ p.n.getValue();
+					}
+					pageText += "\n";
+					
 					view.setCaretOffset(selectionStart);
 					view.insert(pageText);
 					selectionStart++;
@@ -1041,15 +1064,14 @@ public class TextView extends WPView {
 					selectionStart = pos + 1;
 					view.setCaretOffset(selectionStart);
 					if(manager.inPrintPageRange(view.getCaretOffset())){
-						int start = manager.getPageStart(view.getCaretOffset());
+						int start = manager.getPrintPageStart(view.getCaretOffset());
 						view.setCaretOffset(start - 1);
 					}
 					setCurrent();
 					if(selectionLength <= 0)
 						break;
 				}
-				
-				if(selectionStart > currentStart && selectionStart != currentEnd){
+				else if(selectionStart > currentStart && selectionStart != currentEnd){
 					changes = currentEnd - selectionStart;
 					makeTextChange(-changes);
 					selectionLength -= changes;
@@ -1106,6 +1128,8 @@ public class TextView extends WPView {
 			}
 		}
 		setSelection(-1, -1);
+		if(manager.inPrintPageRange(view.getCaretOffset()))
+			previousPageEnd(view.getCaretOffset());
 	}
 	
 	private boolean isFirst(Node n){
@@ -1328,7 +1352,7 @@ public class TextView extends WPView {
 						if(-1 != previousEnd){
 							prev = previousEnd;
 							if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
-								prev = manager.getPageEnd((previousEnd + currentStart) / 2);
+								prev = manager.getPrintPageEnd((previousEnd + currentStart) / 2);
 						}
 						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
 						if(currentStart != prev){
@@ -1359,7 +1383,7 @@ public class TextView extends WPView {
 						if(-1 != nextStart){
 							next = nextStart;
 							if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
-								next = manager.getPageStart((currentEnd + nextStart) / 2) + offset;
+								next = manager.getPrintPageStart((currentEnd + nextStart) / 2) + offset;
 							else
 								indent  = view.getLineIndent(view.getLineAtOffset(next));
 							
@@ -1367,7 +1391,7 @@ public class TextView extends WPView {
 						}
 						else {
 							if(manager.inPrintPageRange((currentEnd + view.getCharCount()) / 2))
-								next = manager.getPageStart((currentEnd + view.getCharCount()) / 2) + offset;
+								next = manager.getPrintPageStart((currentEnd + view.getCharCount()) / 2) + offset;
 							else
 								next = currentEnd;
 						}
@@ -1413,7 +1437,7 @@ public class TextView extends WPView {
 			if(-1 != previousEnd){
 				prev = previousEnd;
 				if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
-					prev = manager.getPageEnd((previousEnd + currentStart) / 2);
+					prev = manager.getPrintPageEnd((previousEnd + currentStart) / 2);
 			}
 			
 			if(currentStart != prev){
@@ -1448,7 +1472,7 @@ public class TextView extends WPView {
 				if(nextStart != -1){
 					next = nextStart;
 					if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
-						next = manager.getPageStart((currentEnd + nextStart) / 2) + offset;
+						next = manager.getPrintPageStart((currentEnd + nextStart) / 2) + offset;
 					
 					removedSpaces = next - currentEnd;
 				}

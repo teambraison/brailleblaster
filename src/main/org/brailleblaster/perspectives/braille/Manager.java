@@ -64,6 +64,7 @@ import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
@@ -559,15 +560,15 @@ public class Manager extends Controller {
 	private void handleUpdateCursors(Message message){
 		message.put("element", list.getCurrent().n);
 		
-		if(message.getValue("sender").equals("text")){
+		if(message.getValue("sender").equals(Sender.TEXT)){
 			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
 			braille.updateCursorPosition(message);
 		}
-		else if(message.getValue("sender").equals("braille")) {
+		else if(message.getValue("sender").equals(Sender.BRAILLE)) {
 			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
 			text.updateCursorPosition(message);
 		}
-		else if(message.getValue("sender").equals("tree")){
+		else if(message.getValue("sender").equals(Sender.TREE)){
 			setUpdateCursorMessage(message, text.positionFromStart, text.cursorOffset);
 			braille.updateCursorPosition(message);
 			setUpdateCursorMessage(message, braille.positionFromStart, braille.cursorOffset);
@@ -608,7 +609,7 @@ public class Manager extends Controller {
 		
 		if(treeView.getTree().isFocusControl() && !currentElementOnScreen()){
 			text.view.setTopIndex(text.view.getLineAtOffset(list.getCurrent().start));
-			handleUpdateScrollbar(Message.createUpdateScollbarMessage("tree", list.getCurrent().start));
+			handleUpdateScrollbar(Message.createUpdateScollbarMessage(Sender.TREE, list.getCurrent().start));
 		}
 	}
 	
@@ -890,7 +891,7 @@ public class Manager extends Controller {
 	}
 	
 	private void handleUpdateScrollbar(Message message){
-		if(message.getValue("sender").equals("braille")){
+		if(message.getValue("sender").equals(Sender.BRAILLE)){
 			text.positionScrollbar(braille.view.getTopIndex());
 		}
 		else{
@@ -1125,7 +1126,7 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void setCurrentOnRefresh(String sender, int offset, boolean isBraille){
+	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
 		Message m = Message.createSetCurrentMessage(sender, offset, isBraille);
 		dispatch(m);
 	}
@@ -1143,7 +1144,7 @@ public class Manager extends Controller {
 				else
 					text.view.setCaretOffset(0);
 			
-				setCurrentOnRefresh("text",currentOffset, false);
+				setCurrentOnRefresh(Sender.TEXT,currentOffset, false);
 				text.setPositionFromStart();
 				text.view.setFocus();
 			}
@@ -1152,7 +1153,7 @@ public class Manager extends Controller {
 				resetViews();
 			
 				braille.view.setCaretOffset(currentOffset);
-				setCurrentOnRefresh("braille",currentOffset, true);	
+				setCurrentOnRefresh(Sender.BRAILLE,currentOffset, true);	
 				braille.setPositionFromStart();
 				braille.view.setFocus();
 			}

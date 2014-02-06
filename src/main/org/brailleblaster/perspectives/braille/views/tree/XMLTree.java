@@ -10,6 +10,7 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
@@ -93,10 +94,10 @@ public class XMLTree extends TreeView {
 						TextMapElement temp = list.get(0);
 						Message message;
 						if(items[0].getText().equals("brl")){
-							message = Message.createSetCurrentMessage("tree", temp.brailleList.getFirst().start, true);
+							message = Message.createSetCurrentMessage(Sender.TREE, temp.brailleList.getFirst().start, true);
 						}
 						else {
-							message = Message.createSetCurrentMessage("tree", temp.start, false);
+							message = Message.createSetCurrentMessage(Sender.TREE, temp.start, false);
 						}
 						
 						cursorOffset = 0;
@@ -131,7 +132,7 @@ public class XMLTree extends TreeView {
 					
 							ArrayList<TextMapElement>list = data.textMapList;
 							TextMapElement temp = list.get(0);
-							Message message = Message.createSetCurrentMessage("tree", temp.start, false);
+							Message message = Message.createSetCurrentMessage(Sender.TREE, temp.start, false);
 							manager.dispatch(message);
 						}
 						if(index < parent.getItemCount() - 1){
@@ -151,7 +152,7 @@ public class XMLTree extends TreeView {
 
 				
 				if(tree.getItemCount() > 0){
-					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage(Sender.TREE);
 					manager.dispatch(cursorMessage);
 				}
 			}
@@ -162,13 +163,13 @@ public class XMLTree extends TreeView {
 			public void keyTraversed(TraverseEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_DOWN){
 					incrementCurrent();
-					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage(Sender.TREE);
 					manager.dispatch(cursorMessage);
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == SWT.ARROW_UP){
 					decrementCurrent();
-					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage(Sender.TREE);
 					manager.dispatch(cursorMessage);
 					e.doit = false;
 				}

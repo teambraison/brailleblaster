@@ -43,6 +43,7 @@ import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -184,11 +185,11 @@ public class TextView extends WPView {
 					
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
-						message = Message.createAdjustAlignmentMessage("text",SWT.CENTER);
+						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.CENTER);
 					}
 					else {
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.LEFT);
-						message = Message.createAdjustAlignmentMessage("text",SWT.LEFT);
+						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.LEFT);
 					}
 					manager.dispatch(message);
 					e.doit = false;
@@ -196,7 +197,7 @@ public class TextView extends WPView {
 				}
 				
 				if(oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
-					Message message = Message.createAdjustIndentMessage("text", 0, view.getLineAtOffset(currentStart));
+					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
 				
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
@@ -257,7 +258,7 @@ public class TextView extends WPView {
 		view.addFocusListener(focusListener = new FocusListener(){
 			@Override
 			public void focusGained(FocusEvent e) {
-				Message message = Message.createGetCurrentMessage("text", view.getCaretOffset());
+				Message message = Message.createGetCurrentMessage(Sender.TEXT, view.getCaretOffset());
 				manager.dispatch(message);
 				setViewData(message);
 				if(oldCursorPosition == -1 && positionFromStart == 0){
@@ -273,7 +274,7 @@ public class TextView extends WPView {
 					sendUpdate();	
 				
 				setPositionFromStart();
-				Message message = Message.createUpdateCursorsMessage("text");
+				Message message = Message.createUpdateCursorsMessage(Sender.TEXT);
 				manager.dispatch(message);
 			}
 		});
@@ -345,7 +346,7 @@ public class TextView extends WPView {
 
 		view.getVerticalBar().addSelectionListener(scrollbarListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {		
-				checkStatusBar("text");
+				checkStatusBar(Sender.TEXT);
 			}
 		});
 		
@@ -410,7 +411,7 @@ public class TextView extends WPView {
 		view.addPaintListener(new PaintListener(){
 			@Override
 			public void paintControl(PaintEvent e) {
-				checkStatusBar("text");
+				checkStatusBar(Sender.TEXT);
 			}
 		});
 		
@@ -467,7 +468,7 @@ public class TextView extends WPView {
 	}
 	
 	private void setCurrent(){
-		Message message = Message.createSetCurrentMessage("text", view.getCaretOffset(), false);
+		Message message = Message.createSetCurrentMessage(Sender.TEXT, view.getCaretOffset(), false);
 		manager.dispatch(message);
 		setViewData(message);
 	}

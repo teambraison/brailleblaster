@@ -6,6 +6,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 
@@ -130,6 +131,6 @@ public class SpellCheckManager {
 
 		int pos = m.getText().view.getCaretOffset();
 		m.getText().view.setSelection(pos, pos);
-		m.dispatch(Message.createSetCurrentMessage("text", pos, false));
+		m.dispatch(Message.createSetCurrentMessage(Sender.TEXT, pos, false));
 	}
 }

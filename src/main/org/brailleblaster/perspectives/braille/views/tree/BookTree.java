@@ -11,6 +11,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
@@ -84,7 +85,7 @@ public class BookTree extends TreeView {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
 					if(!e.item.equals(root)){
 						TreeItemData data = getItemData((TreeItem)e.item);
-						Message m = Message.createSetCurrentMessage("tree", data.list.getFirst().start, false);
+						Message m = Message.createSetCurrentMessage(Sender.TREE, data.list.getFirst().start, false);
 						setCursorOffset(0);
 						manager.dispatch(m);
 					}
@@ -101,7 +102,7 @@ public class BookTree extends TreeView {
 			@Override
 			public void focusLost(FocusEvent e) {
 				if(tree.getItemCount() > 0){
-					Message cursorMessage = Message.createUpdateCursorsMessage("tree");
+					Message cursorMessage = Message.createUpdateCursorsMessage(Sender.TREE);
 					manager.dispatch(cursorMessage);
 				}
 			}		

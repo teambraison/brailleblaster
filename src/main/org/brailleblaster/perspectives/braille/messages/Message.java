@@ -46,7 +46,7 @@ public class Message {
 		this.args = new HashMap<String, Object>();
 	}
 	
-	public static Message createAdjustAlignmentMessage(String sender, int alignment){
+	public static Message createAdjustAlignmentMessage(Sender sender, int alignment){
 		Message m = new Message(BBEvent.ADJUST_ALIGNMENT);
 		m.put("sender", sender);
 		m.put("alignment", alignment);
@@ -54,7 +54,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createAdjustIndentMessage(String sender, int indent, int line){
+	public static Message createAdjustIndentMessage(Sender sender, int indent, int line){
 		Message m = new Message(BBEvent.ADJUST_INDENT);
 		m.put("sender", sender);
 		m.put("indent", indent);
@@ -88,7 +88,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createUpdateScollbarMessage(String sender, int offset){
+	public static Message createUpdateScollbarMessage(Sender sender, int offset){
 		Message m = new Message(BBEvent.UPDATE_SCROLLBAR);
 		m.put("sender", sender);
 		m.put("offset", offset);
@@ -96,7 +96,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createUpdateCursorsMessage(String sender){
+	public static Message createUpdateCursorsMessage(Sender sender){
 		Message m = new Message(BBEvent.UPDATE_CURSORS);
 		m.put("sender", sender);
 		
@@ -119,7 +119,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createGetCurrentMessage(String sender, int offset){
+	public static Message createGetCurrentMessage(Sender sender, int offset){
 		Message m = new Message(BBEvent.GET_CURRENT);
 		m.put("sender", sender);
 		m.put("offset", offset);
@@ -143,7 +143,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createSetCurrentMessage(String sender, int offset, boolean isBraille){
+	public static Message createSetCurrentMessage(Sender sender, int offset, boolean isBraille){
 		Message m = new Message(BBEvent.SET_CURRENT);
 		m.put("sender", sender);
 		m.put("offset", offset);

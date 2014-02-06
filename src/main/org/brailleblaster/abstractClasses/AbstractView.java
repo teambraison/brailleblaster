@@ -167,10 +167,10 @@ public abstract class AbstractView {
 	
 	protected void sendStatusBarUpdate(int line){
 		String statusBarText = "";
-		int page = manager.getCurrentPrintPage();
-		if(page != -1){
-			//add 1 to account for 0 based list
-			statusBarText += "Page: " + (page  + 1) + " | ";
+		String page = manager.getCurrentPrintPage();
+		if(page != null){
+		
+			statusBarText += "Page: " + page + " | ";
 		}
 		statusBarText += "Line: " + String.valueOf(line + 1) + " | ";
 		

@@ -1298,7 +1298,7 @@ public class TextView extends WPView {
 		//view.setCaretOffset(pos);
 	}
 	
-	public void adjustStyle(Manager dm, Message m, Node n){		
+	public void adjustStyle(Message m, Node n){		
 		int startLine = (Integer)m.getValue("firstLine");
 		int length = 0;
 		int spaces = 0;

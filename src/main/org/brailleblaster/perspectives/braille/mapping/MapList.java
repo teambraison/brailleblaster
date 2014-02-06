@@ -285,6 +285,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			int next = index + 1;
 			int previous = index - 1;
 		
+			//if start is equal to next start, then length is zero, so remove
 			if(next < this.size()){	
 				if(this.get(index).start == this.get(next).start){
 					Message m = Message.createRemoveNodeMessage(index, this.get(index).textLength());
@@ -294,6 +295,8 @@ public class MapList extends LinkedList<TextMapElement>{
 				}
 			}
 		
+			//if previous end + 1 equals next, then current is no longer between two block elements
+			//or if current length is zero and equal to previous end, then delete
 			if(previous >= 0 && next < this.size()){
 				if((this.get(previous).start + this.get(previous).textLength() + 1 == this.get(next).start && this.get(index).textLength() == 0)
 						|| (this.get(previous).end == this.get(index).start && this.get(index).textLength() == 0)){
@@ -304,8 +307,10 @@ public class MapList extends LinkedList<TextMapElement>{
 				}
 			}
 		
+			//if last element is length zero and equals previousEnd then delete
+			//if document name is null, then it is a new empty document, so do not delete
 			if(this.size() > 0 && this.get(this.size() - 1).n.getValue().length() == 0){
-				if(this.get(this.size() - 1).start == this.prevEnd || this.get(this.size() - 1).start == 0){
+				if(this.get(this.size() - 1).start == this.prevEnd || (this.get(this.size() - 1).start == 0 && dm.getDocumentName() != null)){
 					Message m = Message.createRemoveNodeMessage(this.size() - 1, this.get(this.size() - 1).textLength());
 					System.out.println("Node 1:\t" + this.get(this.size() - 1).textLength());
 					System.out.println("Node 2:\t none");

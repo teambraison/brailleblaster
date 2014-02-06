@@ -81,18 +81,26 @@ public class Paginator {
 		if(list.size() == 0)
 			return -1;
 		else
-			return findRange(offset);
+			return findRange(offset, 0, list.size() - 1);
 	}
 	
-	private int findRange(int offset){
-		for(int i = 0; i < list.size(); i++){
-			if(i == 0 && offset < list.get(i).start)
-				return i;
-			else if(offset < list.get(i).start && offset > list.get(i - 1).end)
-				return i;
-			else if(i == list.size() - 1 && offset > list.get(i).end)
-				return i;
-		}
+	private int findRange(int offset, int low, int high){
+		if(low > high)
+			return -1;
+		
+		int mid = low + (high - low) / 2;
+		PageMapElement current = list.get(mid);
+		
+		if(mid == 0 && offset < current.start)
+			return mid;
+		else if(offset < current.start && offset > list.get(mid - 1).end)
+			return mid;
+		else if(mid == list.size() - 1 && offset > current.end)
+			return mid;
+		else if(offset > current.end)
+			return findRange(offset, mid + 1, high);
+		else if(offset < current.start)
+			return findRange(offset, low, mid - 1);
 		
 		return -1;
 	}
@@ -179,5 +187,9 @@ public class Paginator {
 				list.get(i).brailleEnd += brailleOffset;
 			}
 		}
+	}
+	
+	public int getSize(){
+		return list.size();
 	}
 }

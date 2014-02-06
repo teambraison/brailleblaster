@@ -77,11 +77,14 @@ public class Paginator {
 			return null;
 	}
 	
-	public int findCurrentPrintPage(int offset){
+	public String findCurrentPrintPageValue(int offset){
 		if(list.size() == 0)
-			return -1;
-		else
-			return findRange(offset, 0, list.size() - 1);
+			return null;
+		else{
+			int pos = findRange(offset, 0, list.size() - 1);
+			String value = list.get(pos).n.getValue();
+			return value.substring(value.lastIndexOf("-") + 1);
+		}
 	}
 	
 	private int findRange(int offset, int low, int high){

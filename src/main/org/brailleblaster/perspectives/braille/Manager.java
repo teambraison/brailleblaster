@@ -1495,7 +1495,7 @@ public class Manager extends Controller {
 	}
 	
 	//Values returned are in relation to position in arrayList, i.e. zero based.  Returns list size if offset is greater than last page start
-	public int getCurrentPrintPage(){
+	public String getCurrentPrintPage(){
 		if(paginator.getSize() > 0){
 			StyledText stView;
 			if(text.view.isFocusControl())
@@ -1504,12 +1504,12 @@ public class Manager extends Controller {
 				stView = braille.view;
 			
 			if(stView.getCaretOffset() > paginator.getLast().start)
-				return paginator.getSize();
+				return String.valueOf(paginator.getSize());
 			else
-				return paginator.findCurrentPrintPage(stView.getCaretOffset());
+				return paginator.findCurrentPrintPageValue(stView.getCaretOffset());
 		}
 		else 
-			return -1;
+			return null;
 	}
 	
 	public int getPrintPageStart(int offset){

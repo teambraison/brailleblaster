@@ -34,6 +34,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.*;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Group;
@@ -189,7 +190,7 @@ public abstract class AbstractView {
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}
 	
-	public void checkStatusBar(String sender){
+	public void checkStatusBar(Sender sender){
 		if(!getLock()){
 			if(topIndex != view.getTopIndex()){
 				topIndex = view.getTopIndex();

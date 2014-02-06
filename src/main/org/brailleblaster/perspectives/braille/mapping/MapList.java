@@ -38,6 +38,7 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 
 public class MapList extends LinkedList<TextMapElement>{
 	private class UpdaterThread extends Thread {
@@ -426,7 +427,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	public void getCurrentNodeData(Message m){
 		if(this.current == null){
 			int index;
-			if(m.getValue("sender").equals("braille"))
+			if(m.getValue("sender").equals(Sender.BRAILLE))
 				index = findClosestBraille(m);			
 			else
 				index = findClosest(m, 0, this.size() - 1);

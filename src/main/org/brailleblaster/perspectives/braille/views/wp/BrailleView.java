@@ -197,20 +197,35 @@ public class BrailleView extends WPView {
 	
 	private void previousPageEnd(int offset){
 		int pos = manager.getBraillePageStart(offset);
-		if(pos != -1 && pos != 0){
-			view.setCaretOffset(pos - 1);
+		//account for blank pages before more text
+		while(manager.inBraillePageRange(pos - 1)){
+			pos = manager.getBraillePageStart(pos - 1);
 		}
+		
+		if(pos != -1 && pos != 0)
+			view.setCaretOffset(pos - 1);
 		else 
 			view.setCaretOffset(oldCursorPosition);
 	}
 	
 	private void nextPageStart(int offset){
 		int pos = manager.getBraillePageEnd(offset);
+		//account for blank pages before more text
+		while(manager.inBraillePageRange(pos + 1)){
+			pos = manager.getBraillePageEnd(pos + 1);
+		}
+		
 		if(pos != -1 && pos != view.getCharCount())
 			view.setCaretOffset(pos + 1);
 		else {
 			pos = manager.getBraillePageStart(offset);
-			view.setCaretOffset(pos - 1);
+			while(manager.inBraillePageRange(pos - 1)){
+				pos = manager.getBraillePageStart(pos - 1);
+			}
+			if(pos == -1)
+				view.setCaretOffset(oldCursorPosition);
+			else
+				view.setCaretOffset(pos - 1);
 		}
 	}
 	

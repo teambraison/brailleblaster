@@ -170,10 +170,10 @@ public class Manager extends Controller {
 		sm = new StyleManager(this);
 		treeView = loadTree();
 		text = new TextView(this, group, styles);
-		braille = new BrailleView(this, this.group, styles);
-		this.item.setControl(this.group);
+		braille = new BrailleView(this, group, styles);
+		this.item.setControl(group);
 		initializeDocumentTab();
-		this.document = new BrailleDocument(this, styles);
+		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		
@@ -196,10 +196,10 @@ public class Manager extends Controller {
 		if(list.size() == 0){
 			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
 			if(n.get(0).getChildCount() > 0)
-				this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			else {
 				((Element)n.get(0)).appendChild(new Text(""));
-				this.list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			}
 		}
 	}	
@@ -1512,7 +1512,7 @@ public class Manager extends Controller {
 			return -1;
 	}
 	
-	public int getPageStart(int offset){
+	public int getPrintPageStart(int offset){
 		PageMapElement p = paginator.findPage(offset);
 		
 		if(p != null)
@@ -1521,7 +1521,7 @@ public class Manager extends Controller {
 			return -1;  
 	}
 	
-	public int getPageEnd(int offset){
+	public int getPrintPageEnd(int offset){
 		PageMapElement p = paginator.findPage(offset);
 		
 		if(p != null)

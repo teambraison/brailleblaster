@@ -49,80 +49,82 @@ import java.io.BufferedReader;
  * command line.
  */
 public class CheckLiblouisutdmlLog {
-String logFileName;
+	String logFileName;
 
-public CheckLiblouisutdmlLog () {
-logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + 
-"liblouisutdml.log";
-}
+	public CheckLiblouisutdmlLog () {
+		logFileName = BBIni.getTempFilesPath() + BBIni.getFileSep() + "liblouisutdml.log";
+	}
 
-/**
- * Display the log in the GUI.
- */
-public void displayLog () {
-StringBuilder logMessages = new StringBuilder (4096);
-Display display = WPManager.getDisplay();
-Shell shell = new Shell(display, SWT.DIALOG_TRIM);
-MessageBox mb = new MessageBox(shell, SWT.OK);
-String line;
-BufferedReader logStream = null;
-try {
-logStream = new BufferedReader (new FileReader 
-(logFileName));
-} catch (FileNotFoundException e) {
-return;
-}
-while(true) {
-try {
-line = logStream.readLine();
-} catch (IOException e) {
-new Notify ("Problem reading " + logFileName);
-return;
-}
-if (line == null) {
-break;
-}
-logMessages.append (line + "\n");
-}
-try {
-logStream.close();
-} catch (IOException e) {
-}
-if (logMessages.length() > 0) {
-mb.setMessage (logMessages.toString());
-mb.open();
-}
-shell.dispose();
-}
+	/**
+	 * Display the log in the GUI.
+	 */
+	public void displayLog () {
+		StringBuilder logMessages = new StringBuilder (4096);
+		Display display = WPManager.getDisplay();
+		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
+		MessageBox mb = new MessageBox(shell, SWT.OK);
+		String line;
+		BufferedReader logStream = null;
+		try {
+			logStream = new BufferedReader (new FileReader (logFileName));
+			while(true) {
+				line = logStream.readLine();
 
-/**
- * Show the log on the command line.
- */
-public void showLog () {
-String line;
-BufferedReader logStream = null;
-try {
-logStream = new BufferedReader (new FileReader 
-(logFileName));
-} catch (FileNotFoundException e) {
-return;
-}
-while(true) {
-try {
-line = logStream.readLine();
-} catch (IOException e) {
-System.out.println ("Problem reading " + logFileName);
-return;
-}
-if (line == null) {
-break;
-}
-System.out.println (line);
-}
-try {
-logStream.close();
-} catch (IOException e) {
-}
-}
+				if (line == null) {
+					break;
+				}
+				logMessages.append (line + "\n");
+				if (logMessages.length() > 0) {
+					mb.setMessage (logMessages.toString());
+					mb.open();
+				}
+			}
+		} catch (FileNotFoundException e) {
+			shell.dispose();
+			return;
+		}
+		catch (IOException e) {
+			new Notify ("Problem reading " + logFileName);
+			shell.dispose();
+			return;
+		}	
+		finally {
+			try {
+				logStream.close();
+			} catch (IOException e) {
+			}
+			shell.dispose();
+		}
+	}
 
+	/**
+	 * Show the log on the command line.
+	 */
+	public void showLog () {
+		String line;
+		BufferedReader logStream = null;
+		try {
+			logStream = new BufferedReader (new FileReader (logFileName));
+			while(true) {
+				line = logStream.readLine();
+	 
+				if (line == null) {
+					break;
+				}
+				System.out.println (line);
+			}
+		} catch (FileNotFoundException e) {
+			return;
+		}
+		catch (IOException e) {
+			System.out.println ("Problem reading " + logFileName);
+			return;
+		}
+		finally {
+			try {
+				logStream.close();
+			} catch (IOException e) {
+			}
+		}
+	}
 }

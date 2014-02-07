@@ -87,6 +87,16 @@ public class Paginator {
 		}
 	}
 	
+	public String findCurrentBraillePageValue(int offset){
+		if(list.size() == 0)
+			return null;
+		else{
+			int pos = findBrailleRange(offset, 0, list.size() - 1);
+			String value = list.get(pos).n.getValue();
+			return value.substring(value.lastIndexOf("-") + 1);
+		}
+	}
+	
 	private int findRange(int offset, int low, int high){
 		if(low > high)
 			return -1;
@@ -104,6 +114,27 @@ public class Paginator {
 			return findRange(offset, mid + 1, high);
 		else if(offset < current.start)
 			return findRange(offset, low, mid - 1);
+		
+		return -1;
+	}
+	
+	private int findBrailleRange(int offset, int low, int high){
+		if(low > high)
+			return -1;
+		
+		int mid = low + (high - low) / 2;
+		PageMapElement current = list.get(mid);
+		
+		if(mid == 0 && offset < current.brailleStart)
+			return mid;
+		else if(offset < current.brailleStart && offset > list.get(mid - 1).brailleEnd)
+			return mid;
+		else if(mid == list.size() - 1 && offset > current.brailleEnd)
+			return mid;
+		else if(offset > current.brailleEnd)
+			return findBrailleRange(offset, mid + 1, high);
+		else if(offset < current.brailleStart)
+			return findBrailleRange(offset, low, mid - 1);
 		
 		return -1;
 	}

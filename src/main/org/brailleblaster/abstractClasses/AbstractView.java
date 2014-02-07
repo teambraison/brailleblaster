@@ -28,10 +28,13 @@
 
 package org.brailleblaster.abstractClasses;
 
+import java.util.logging.Logger;
+
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
@@ -58,7 +61,7 @@ public abstract class AbstractView {
 	protected static int topIndex;
 	protected Group group;
 	protected Manager manager;
-	
+	protected static Logger logger = BBIni.getLogger();
 	public AbstractView() {
 	}
 

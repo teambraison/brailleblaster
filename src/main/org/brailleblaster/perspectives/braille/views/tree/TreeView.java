@@ -1,5 +1,9 @@
 package org.brailleblaster.perspectives.braille.views.tree;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -62,5 +66,26 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		tree.removeAll();
 		tree.dispose();
 		view.dispose();
+	}
+	
+	public static BBTree createTree(Class<?>clss, Manager manager, Group group){
+		try {
+			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
+			return (BBTree)constructor.newInstance(manager, group);
+		} catch (NoSuchMethodException e) {
+			logger.log(Level.SEVERE, "No Such Method Exception", e);
+		} catch (SecurityException e) {
+			logger.log(Level.SEVERE, "Security Exception", e);
+		} catch (InstantiationException e) {
+			logger.log(Level.SEVERE, "Instantiation Exception", e);
+		} catch (IllegalAccessException e) {
+			logger.log(Level.SEVERE, "Illegal Access Exception", e);
+		} catch (IllegalArgumentException e) {
+			logger.log(Level.SEVERE, "Illegal Argument Exception", e);
+		} catch (InvocationTargetException e) {
+			logger.log(Level.SEVERE, "Invocation Exception", e);
+		}
+		
+		return null;
 	}
 }

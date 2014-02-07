@@ -33,8 +33,6 @@ package org.brailleblaster.perspectives.braille;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -69,6 +67,7 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
+import org.brailleblaster.perspectives.braille.views.tree.TreeView;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
@@ -1373,9 +1372,13 @@ public class Manager extends Controller {
 	public TextMapElement getClosest(int offset){
 		Message m = new Message(null);
 		m.put("offset", offset);
-		TextMapElement t = list.get(list.findClosest(m, 0, list.size() - 1));
 		
-		if(offset >= t.start && offset <= t.end)
+		int index = list.findClosest(m, 0, list.size() - 1);
+		TextMapElement t = null;
+		if(index != -1)
+			t = list.get(index);
+		
+		if(t != null && offset >= t.start && offset <= t.end)
 			return t;
 		else
 			return null;
@@ -1410,23 +1413,10 @@ public class Manager extends Controller {
 		else {			
 			try {
 				Class<?> clss = Class.forName(tree);
-				Constructor<?> constructor = clss.getConstructor(Manager.class, Group.class);
-				return (BBTree)constructor.newInstance(this, group);		
+				return TreeView.createTree(clss, this, group);	
 			} catch (ClassNotFoundException e) {		
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
+				logger.log(Level.SEVERE, "Class Not Found Exception", e);
+			} 
 		}
 		
 		return null;
@@ -1434,38 +1424,23 @@ public class Manager extends Controller {
 	
 	public void swapTree(Class<?> clss){
 		boolean focused = false;
-		try {
-			if(treeView.getTree().isFocusControl())
-				focused = true;
+
+		if(treeView.getTree().isFocusControl())
+			focused = true;
 			
-			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
-			treeView.removeListeners();
-			treeView.dispose();
-			treeView = (BBTree)constructor.newInstance(this, group);
-			setTabList();
-			treeView.setRoot(document.getRootElement());
-			if(focused)
-				treeView.getTree().setFocus();
+		treeView.removeListeners();
+		treeView.dispose();
+		treeView = TreeView.createTree(clss, this, group);
+		setTabList();
+		treeView.setRoot(document.getRootElement());
+		if(focused)
+			treeView.getTree().setFocus();
 			
-			treeView.setSelection(list.getCurrent());
-			treeView.getView().getParent().layout();
-			treeView.initializeListeners();
-			//save latest setting to user settings file
-			BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
-			
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		treeView.setSelection(list.getCurrent());
+		treeView.getView().getParent().layout();
+		treeView.initializeListeners();
+		//save latest setting to user settings file
+		BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 	}
 	
 	public void toggleBrailleFont(boolean showSimBraille){

@@ -319,7 +319,7 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
+				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset())){
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 				}
 			}

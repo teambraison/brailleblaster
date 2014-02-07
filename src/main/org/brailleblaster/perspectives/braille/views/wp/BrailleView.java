@@ -172,7 +172,7 @@ public class BrailleView extends WPView {
 						setCurrent();
 						currentChar = ' ';
 					}
-					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
+					if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inBraillePageRange(view.getCaretOffset())){
 						sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 					}
 				}

@@ -82,58 +82,58 @@ public class FileUtils {
 		return true;
 	}
 
-    public void copyFile (String inputFileName, 
-            String outputFileName) {
+    public void copyFile (String inputFileName, String outputFileName) {
         FileInputStream inFile = null;
         FileOutputStream outFile = null;
         try {
-            inFile = new FileInputStream (new File(inputFileName));
-        } catch (FileNotFoundException e) {
-            new Notify ("Could not open input file " + inputFileName);
-            return;
+        	try {
+        		inFile = new FileInputStream (new File(inputFileName));
+        	} catch (FileNotFoundException e) {
+        		new Notify ("Could not open input file " + inputFileName);
+        		return;
+        	}
+        	try {
+        		outFile = new FileOutputStream (new File(outputFileName));
+        	} catch (FileNotFoundException e) {
+        		new Notify ("Could not open output file " + outputFileName);
+        		return;
+        	}
+        	byte[] buffer = new byte[1024];
+        	int length = 0;
+        	while (length != -1) {
+            	try {
+                	length = inFile.read (buffer, 0, buffer.length);
+            	} catch (IOException e) {
+                	new Notify ("Problem reading " + inputFileName);
+                	break;
+            	}
+            	if (length == -1) {
+            		break;
+            	}
+            	try {
+                	outFile.write (buffer, 0, length);
+            	} catch (IOException e) {
+                	new Notify ("Problem writing to " + outputFileName);
+                	break;
+            	}
+        	}
         }
-        try {
-            outFile = new FileOutputStream (new File(outputFileName));
-        } catch (FileNotFoundException e) {
-            new Notify ("Could not open output file " + outputFileName);
-            return;
-        }
-        byte[] buffer = new byte[1024];
-        int length = 0;
-        while (length != -1) {
-            try {
-                length = inFile.read (buffer, 0, buffer.length);
-            } catch (IOException e) {
-                new Notify ("Problem reading " + inputFileName);
-                break;
-            }
-            if (length == -1) {
-                break;
-            }
-            try {
-                outFile.write (buffer, 0, length);
-            } catch (IOException e) {
-                new Notify ("Problem writing to " + outputFileName);
-                break;
-            }
-        }
-        try {
-            outFile.close();
-        } catch (IOException e) {
-            new Notify ("output file " + outputFileName + 
-                    "could not be completed");
-        }
-        try {
-        	inFile.close();
-        }
-        catch (IOException e){
-        	e.printStackTrace();
+        finally {
+        	try {
+            	outFile.close();
+        	} catch (IOException e) {
+            	new Notify ("output file " + outputFileName + "could not be completed");
+        	}
+        	try {
+        		inFile.close();
+        	}
+        	catch (IOException e){
+        		e.printStackTrace();
+        	}
         }
     }
 
 	public boolean deleteDirectory(File directory) {
-
-
 		  if (directory == null)
 		    return false;
 		  if (!directory.exists())

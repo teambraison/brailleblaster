@@ -120,8 +120,7 @@ public class Manager extends Controller {
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
-		super(wp, docName);
-//		
+		super(wp, docName);		
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(currentConfig);
@@ -156,8 +155,7 @@ public class Manager extends Controller {
 	}
 	
 	public Manager(WPManager wp, String docName, Document doc, TabItem item){
-		super(wp, docName);
-		
+		super(wp, docName);	
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(currentConfig);
@@ -289,8 +287,6 @@ public class Manager extends Controller {
 		// Don't do any of this if the user failed to choose a file.
 		if(tempName != null)
 		{
-			// 
-			
 			// Open it.
 			if(workingFilePath != null || text.hasChanged || braille.hasChanged || documentName != null){
 				wp.addDocumentManager(tempName);
@@ -299,8 +295,7 @@ public class Manager extends Controller {
 				closeUntitledTab();
 				openDocument(tempName);
 				checkTreeFocus();
-			}
-			
+			}	
 		} // if(tempName != null)
 	}
 	
@@ -853,6 +848,7 @@ public class Manager extends Controller {
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
+			paginator.clear();
 			text.view.setEditable(false);
 		}
 	}
@@ -872,6 +868,7 @@ public class Manager extends Controller {
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
+			paginator.clear();
 			text.view.setEditable(false);
 		}
 	}
@@ -1188,6 +1185,7 @@ public class Manager extends Controller {
 			f.createNewFile();
 			fu.createXMLFile(document.getNewXML(), path);
 			list.clearList();
+			paginator.clear();
 			text.removeListeners();
 			text.resetView(group);
 			braille.removeListeners();
@@ -1323,6 +1321,7 @@ public class Manager extends Controller {
 		text.removeListeners();
 		braille.removeListeners();
 		list.clearList();	
+		paginator.clear();
 	}
 	
 	private void startProgressBar(){
@@ -1336,9 +1335,8 @@ public class Manager extends Controller {
 	
 	//if tree has focus when opening a document and closing an untitled document, the trees selection must be reset
 	public void checkTreeFocus(){
-		if(treeView.getTree().isFocusControl() && treeView.getTree().getSelectionCount() == 0){
+		if(treeView.getTree().isFocusControl() && treeView.getTree().getSelectionCount() == 0)
 			treeView.setSelection(list.getFirst());
-		}
 	}
 	
 	public void setCurrentConfig(String config){
@@ -1610,6 +1608,7 @@ public class Manager extends Controller {
 	public void dispose() {
 		text.update(false);
 		list.clearList();
+		paginator.clear();
 		group.dispose();
 	}
 

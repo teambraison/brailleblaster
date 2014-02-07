@@ -192,6 +192,10 @@ public class Paginator {
 		}
 	}
 	
+	public void clear(){
+		list.clear();
+	}
+	
 	public int getSize(){
 		return list.size();
 	}

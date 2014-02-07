@@ -1478,8 +1478,12 @@ public class Manager extends Controller {
 			
 			if(stView.getCaretOffset() > paginator.getLast().start)
 				return String.valueOf(paginator.getSize());
-			else
-				return paginator.findCurrentPrintPageValue(stView.getCaretOffset());
+			else{
+				if(stView.equals(text.view))
+					return paginator.findCurrentPrintPageValue(stView.getCaretOffset());
+				else
+					return paginator.findCurrentBraillePageValue(stView.getCaretOffset());
+			}
 		}
 		else 
 			return null;

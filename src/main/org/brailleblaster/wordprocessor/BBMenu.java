@@ -30,6 +30,7 @@ package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -300,6 +301,12 @@ public abstract class BBMenu {
 		String fileName = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
 		final String curStr = fileName + "  [" + path + "]";
 		final String curStr2 = path;
+		
+		// Make sure the file exists.
+		// If not, don't add it.
+		File f = new File(path);
+		if( !f.exists() || f.isDirectory() )
+			return;
 		
 		// Add path to recent document list.
 		recentDocsList.add(0, path);

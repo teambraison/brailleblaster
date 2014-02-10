@@ -151,10 +151,11 @@ public abstract class Controller implements DocumentManager{
 	} // getAutoCfg()
 	
 	////////////////////////////////////////////////////////////////
-	// Opens our auto config settings file and determines 
-	// what file is associated with the given file type.
+	// Opens auto config file, and sets the given setting 
+	// to given value.
 	// 
-	// Pass these to settingStr: epub, nimas, or
+	// Pass these to settingStr: epub, nimas.
+	// 
 	// You can pass whatever you want to fileNameStr, but it's 
 	// highly recommended you pass the filename of an existing 
 	// config file. epub.cfg, nimas.cfg, etc.

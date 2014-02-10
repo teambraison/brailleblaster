@@ -41,7 +41,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
@@ -865,12 +864,12 @@ public class BrailleView extends WPView {
 	}
 
 	@Override
-	public void addPageNumber(Paginator list, Node node) {
+	public void addPageNumber(MapList list, Node node) {
 		String text = node.getValue();
 		view.append("\n" + text);
 		spaceBeforeText++;
 		
-		list.getLast().setBraillePage(spaceBeforeText + total, spaceBeforeText + total + text.length(), node);
+		list.getLastPage().setBraillePage(spaceBeforeText + total, spaceBeforeText + total + text.length(), node);
 		total += spaceBeforeText + text.length();
 		spaceBeforeText = 0;
 	}

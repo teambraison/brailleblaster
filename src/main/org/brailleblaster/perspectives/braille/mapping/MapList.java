@@ -78,9 +78,11 @@ public class MapList extends LinkedList<TextMapElement>{
 	private TextMapElement current;
 	private int currentIndex = -1;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
-		
+	private Paginator paginator;
+	
 	public MapList(Manager dm){
 		this.dm = dm;
+		paginator = new Paginator();
 	}
 	
 	public int findClosest(Message message, int low, int high){
@@ -208,6 +210,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 		
 	public void updateOffsets(int index, Message message){
+		paginator.updateOffsets(get(index), message);
 		int offset = (Integer)message.getValue("length");
 		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
 		
@@ -219,10 +222,10 @@ public class MapList extends LinkedList<TextMapElement>{
 
 		for(int i = 0; i < arr.length; i++){
 			if(i == arr.length - 1){
-					arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
+				arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
 			}
 			else {	
-					arr[i] = new UpdaterThread(this, start, start + length , offset, total);
+				arr[i] = new UpdaterThread(this, start, start + length , offset, total);
 			}
 			
 			arr[i].start();
@@ -231,7 +234,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			
 		for (int i = 0; i < arr.length; i++) {
 		    try {
-		    		arr[i].join();
+		    	arr[i].join();
 		    } catch (InterruptedException e) {
 			   	e.printStackTrace();
 			}
@@ -239,7 +242,8 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 
 	
-	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset){
+	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int originalStartPosition){
+		paginator.shiftOffsets(originalStartPosition, offset, brailleOffset);
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;
@@ -559,7 +563,52 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public void clearList(){
 		this.clear();
+		paginator.clear();
 		this.current = null;
 		currentIndex = -1;
+	}
+	
+	public void addPrintPage(PageMapElement p){
+		paginator.add(p);
+	}
+	
+	public Node findPrintPageNode(Element page){
+		return paginator.findTextNode(page);
+	}
+	
+	public Node findBraillePageNode(Element page){
+		 return paginator.findBrailleNode(page);
+	}
+	
+	public PageMapElement getLastPage(){
+		return paginator.getLast();
+	}
+	
+	public boolean inPrintPageRange(int offset){
+		return paginator.inPrintPageRange(offset);
+	}
+	
+	public boolean inBraillePageRange(int offset){
+		return paginator.inBraillePageRange(offset);
+	}
+	
+	public PageMapElement findPage(int offset){
+		return paginator.findPage(offset);
+	}
+	
+	public PageMapElement findBraillePage(int offset){
+		return paginator.findBraillePage(offset);
+	}
+	
+	public String findCurrentPrintPageValue(int offset){
+		return paginator.findCurrentPrintPageValue(offset);
+	}
+	
+	public String findCurrentBraillePageValue(int offset){
+		return paginator.findCurrentBraillePageValue(offset);
+	}
+	
+	public int getPageCount(){
+		return paginator.getSize();
 	}
 }

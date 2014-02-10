@@ -58,7 +58,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
-import org.brailleblaster.perspectives.braille.mapping.Paginator;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -115,7 +114,6 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
-	private Paginator paginator;
 	Archiver arch = null;
 	
 	//Constructor that sets things up for a new document.
@@ -126,7 +124,6 @@ public class Manager extends Controller {
 		styles = new BBSemanticsTable(currentConfig);
 		documentName = docName;
 		list = new MapList(this);
-		paginator = new Paginator();
 		item = new TabItem(wp.getFolder(), 0);
 		group = new Group(wp.getFolder(),SWT.NONE);
 		group.setLayout(new FormLayout());	
@@ -452,12 +449,12 @@ public class Manager extends Controller {
 	}
 	
 	private void initializePrintPage(Element page){
-		Node textNode = paginator.findTextNode(page);
+		Node textNode = list.findPrintPageNode(page);
 		if(textNode != null){
-			text.addPageNumber(paginator, textNode);
+			text.addPageNumber(list, textNode);
 		
-			Node brailleText = paginator.findBrailleNode(page);
-			braille.addPageNumber(paginator, brailleText);
+			Node brailleText = list.findBraillePageNode(page);
+			braille.addPageNumber(list, brailleText);
 		}
 		else
 			new Notify("LiblouisUTDML did not translate the following XML element properly:\n" + page.toXML().toString());
@@ -636,12 +633,10 @@ public class Manager extends Controller {
 			if(list.hasBraille(list.getCurrentIndex())){
 				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS);
 			}
-			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
-			paginator.updateOffsets(list.getCurrent(), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
+			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"), list.getCurrent().start);
 		}
 		else if((Integer)message.getValue("deletionType") == SWT.DEL){
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
-			paginator.updateOffsets(list.get(list.getCurrentIndex() + 1), (Integer)message.getValue("length"), (Integer)message.getValue("length"));
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), list.get(list.getCurrentIndex() + 1).start);
 			if(list.hasBraille(list.getCurrentIndex())){
 				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL);
 			}
@@ -659,7 +654,6 @@ public class Manager extends Controller {
 			braille.updateBraille(list.getCurrent(), message);
 			text.reformatText(list.getCurrent().n, message, this);
 			list.updateOffsets(list.getCurrentIndex(), message);
-			paginator.updateOffsets(list.getCurrent(), message);
 			list.checkList();
 		}
 	}
@@ -677,6 +671,7 @@ public class Manager extends Controller {
 	}
 	
 	private void splitElement(Message m){
+		int origPos =list.getCurrent().start;
 		int treeIndex = treeView.getBlockElementIndex();
 		
 		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
@@ -704,7 +699,7 @@ public class Manager extends Controller {
 		
 		text.clearRange(textStart, textEnd - textStart);
 		braille.clearRange(brailleStart, brailleEnd - brailleStart);
-		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart));	
+		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart), origPos);	
 		
 		int firstElementIndex = currentIndex;
 		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
@@ -734,8 +729,7 @@ public class Manager extends Controller {
 		int secondElementIndex = currentIndex + 1;
 		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
 
-		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
-		paginator.updateOffsets(list.getCurrent(), 1, 1);
+		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart, origPos);
 		
 		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
@@ -777,6 +771,7 @@ public class Manager extends Controller {
 	}
 	
 	private void insertElementAtBeginning(Message m){
+		int origPos = list.getCurrent().start;
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
 			document.insertEmptyTextNode(list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex());
 		else
@@ -784,10 +779,9 @@ public class Manager extends Controller {
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
 			if(list.getCurrentIndex() == 0)
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
+				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1, origPos);
 			else
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1);
-			paginator.updateOffsets(list.get(list.getCurrentIndex()), 1, 1);
+				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1, origPos);
 		}
 		int index = treeView.getSelectionIndex();
 		
@@ -804,11 +798,10 @@ public class Manager extends Controller {
 	}
 	
 	private void insertElementAtEnd(Message m){
+		int origPos = list.getCurrent().start;
 		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1);
-		if(list.size() - 1 != list.getCurrentIndex() + 1){
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
-			paginator.updateOffsets(list.get(list.getCurrentIndex() + 1), 1, 1);
-		}
+		if(list.size() - 1 != list.getCurrentIndex() + 1)
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
 		
 		int index = treeView.getSelectionIndex();
 		
@@ -848,7 +841,6 @@ public class Manager extends Controller {
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
-			paginator.clear();
 			text.view.setEditable(false);
 		}
 	}
@@ -860,7 +852,6 @@ public class Manager extends Controller {
 		text.removeMathML(m);
 		treeView.removeMathML(t);
 		list.updateOffsets(list.indexOf(t), m);
-		paginator.updateOffsets(list.get(list.indexOf(t)), m);
 		list.remove(t);
 		
 		if(list.size() == 0){
@@ -868,7 +859,6 @@ public class Manager extends Controller {
 			braille.removeListeners();
 			treeView.removeListeners();
 			list.clearList();
-			paginator.clear();
 			text.view.setEditable(false);
 		}
 	}
@@ -913,14 +903,12 @@ public class Manager extends Controller {
 				text.adjustStyle(message, list.getCurrent().n);
 				braille.adjustStyle(message, list.getCurrent());
 				if(message.contains("linesBeforeOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
-					paginator.updateOffsets(list.getCurrent(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"));
+					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"), list.getCurrent().start);
 					message.remove("linesBeforeOffset");
 				}
 		
 				if(message.contains("linesAfterOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"));
-					paginator.updateOffsets(list.get(list.getCurrentIndex()), (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"));
+					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), list.get(list.getCurrentIndex()).start);
 					message.remove("linesAfterOffset");
 				}
 			}
@@ -1185,7 +1173,6 @@ public class Manager extends Controller {
 			f.createNewFile();
 			fu.createXMLFile(document.getNewXML(), path);
 			list.clearList();
-			paginator.clear();
 			text.removeListeners();
 			text.resetView(group);
 			braille.removeListeners();
@@ -1321,7 +1308,6 @@ public class Manager extends Controller {
 		text.removeListeners();
 		braille.removeListeners();
 		list.clearList();	
-		paginator.clear();
 	}
 	
 	private void startProgressBar(){
@@ -1460,29 +1446,29 @@ public class Manager extends Controller {
 	}
 	
 	public boolean inPrintPageRange(int offset){
-		return paginator.inPrintPageRange(offset);
+		return list.inPrintPageRange(offset);
 	}
 	
 	public boolean inBraillePageRange(int offset){
-		return paginator.inBraillePageRange(offset);
+		return list.inBraillePageRange(offset);
 	}
 	
 	//Values returned are in relation to position in arrayList, i.e. zero based.  Returns list size if offset is greater than last page start
 	public String getCurrentPrintPage(){
-		if(paginator.getSize() > 0){
+		if(list.getPageCount() > 0){
 			StyledText stView;
 			if(text.view.isFocusControl())
 				stView = text.view;
 			else
 				stView = braille.view;
 			
-			if(stView.getCaretOffset() > paginator.getLast().start)
-				return String.valueOf(paginator.getSize());
+			if(stView.getCaretOffset() >list.getLastPage().start)
+				return String.valueOf(list.getPageCount());
 			else{
 				if(stView.equals(text.view))
-					return paginator.findCurrentPrintPageValue(stView.getCaretOffset());
+					return list.findCurrentPrintPageValue(stView.getCaretOffset());
 				else
-					return paginator.findCurrentBraillePageValue(stView.getCaretOffset());
+					return list.findCurrentBraillePageValue(stView.getCaretOffset());
 			}
 		}
 		else 
@@ -1490,7 +1476,7 @@ public class Manager extends Controller {
 	}
 	
 	public int getPrintPageStart(int offset){
-		PageMapElement p = paginator.findPage(offset);
+		PageMapElement p = list.findPage(offset);
 		
 		if(p != null)
 			return p.start;
@@ -1499,7 +1485,7 @@ public class Manager extends Controller {
 	}
 	
 	public int getPrintPageEnd(int offset){
-		PageMapElement p = paginator.findPage(offset);
+		PageMapElement p = list.findPage(offset);
 		
 		if(p != null)
 			return p.end;
@@ -1508,7 +1494,7 @@ public class Manager extends Controller {
 	}
 	
 	public int getBraillePageStart(int offset){
-		PageMapElement p = paginator.findBraillePage(offset);
+		PageMapElement p = list.findBraillePage(offset);
 		
 		if(p != null)
 			return p.brailleStart;
@@ -1517,7 +1503,7 @@ public class Manager extends Controller {
 	}
 	
 	public int getBraillePageEnd(int offset){
-		PageMapElement p = paginator.findBraillePage(offset);
+		PageMapElement p = list.findBraillePage(offset);
 		
 		if(p != null)
 			return p.brailleEnd;
@@ -1526,7 +1512,7 @@ public class Manager extends Controller {
 	}
 	
 	public PageMapElement getPageElement(int offset){
-		return paginator.findPage(offset);
+		return list.findPage(offset);
 	}
 	
 	public FontManager getFontManager(){
@@ -1612,7 +1598,6 @@ public class Manager extends Controller {
 	public void dispose() {
 		text.update(false);
 		list.clearList();
-		paginator.clear();
 		group.dispose();
 	}
 

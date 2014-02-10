@@ -175,23 +175,6 @@ public class Paginator {
 			return searchBraille(offset, mid + 1, high);
 	}
 	
-	/*
-	private int findNext(int offset, int low, int high){
-		if(low > high)
-			return -1;
-		
-		int mid = low + (high - low) / 2;
-		PageMapElement current = list.get(mid);
-		if(offset < current.start){
-			if(mid > 0 && list.get(mid - 1).end < offset)
-				return mid;
-			else
-				return findNext(offset, low, mid - 1);
-		}
-		else 
-			return findNext(offset, mid + 1, high);
-	}
-	*/
 	public void updateOffsets(TextMapElement t, Message message){
 		int textOffset = (Integer)message.getValue("length");
 		int brailleOffset;
@@ -201,7 +184,7 @@ public class Paginator {
 			brailleOffset =  (Integer)message.getValue("length");
 		
 		for(int i = 0; i < list.size(); i++){
-			if(list.get(i).start + textOffset > t.end){
+			if(list.get(i).start > t.end){
 				list.get(i).start += textOffset;
 				list.get(i).end += textOffset;
 					
@@ -211,9 +194,9 @@ public class Paginator {
 		}	
 	}
 	
-	public void updateOffsets(TextMapElement t, int textOffset, int brailleOffset){
+	public void shiftOffsets(int offset, int textOffset, int brailleOffset){
 		for(int i = 0; i < list.size(); i++){
-			if(list.get(i).start + textOffset > t.end){
+			if(list.get(i).start > offset){
 				list.get(i).start += textOffset;
 				list.get(i).end += textOffset;
 			

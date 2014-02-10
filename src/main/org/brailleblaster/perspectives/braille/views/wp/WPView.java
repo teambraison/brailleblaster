@@ -9,7 +9,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.mapping.Paginator;
+import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Group;
@@ -25,7 +25,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		this.stylesTable = table;
 	}
 	
-	public abstract void addPageNumber(Paginator list, Node node);
+	public abstract void addPageNumber(MapList list, Node node);
 	
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();

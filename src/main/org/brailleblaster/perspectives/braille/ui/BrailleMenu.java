@@ -14,7 +14,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.brailleblaster.search.*;
+//import org.brailleblaster.search.*;
 
 public class BrailleMenu extends BBMenu{
 
@@ -78,13 +78,13 @@ public class BrailleMenu extends BBMenu{
 	MenuItem changeSettingsItem;
 	
 	// Open this dialog when user wants to search for a word.
-	SearchDialog srch = null;
+	//SearchDialog srch = null;
 	
 	public BrailleMenu(final WPManager wp, final Manager editor) {
 		super(wp);
 
 		setCurrent(editor);
-		srch = new SearchDialog(wp.getShell(), SWT.NONE, editor);
+		//srch = new SearchDialog(wp.getShell(), SWT.NONE, editor);
 		MenuItem editItem = new MenuItem(menuBar, SWT.CASCADE, 1);
 		editItem.setText(lh.localValue("&Edit"));
 		MenuItem navigateItem = new MenuItem(menuBar, SWT.CASCADE, 2);
@@ -338,7 +338,7 @@ public class BrailleMenu extends BBMenu{
 		searchItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				srch.open();
+				//srch.open();
 			}
 		});
 		replaceItem = new MenuItem(editMenu, SWT.PUSH);

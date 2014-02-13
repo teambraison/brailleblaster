@@ -7,8 +7,8 @@ import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Group;
 public class EditStyleView extends EditPanel {
 
 	private Button saveButton, cancelButton;
-	private SelectionListener saveListener, saveAsListener;
+	private SelectionAdapter saveListener, saveAsListener;
 	
 	private boolean save;
 	
@@ -33,12 +33,7 @@ public class EditStyleView extends EditPanel {
 		saveButton.setText(lh.localValue("save"));
 		setLayoutData(saveButton, 50, 100, 90, 100);
 		
-		saveListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		saveListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				LocaleHandler lh = new LocaleHandler();
@@ -51,12 +46,7 @@ public class EditStyleView extends EditPanel {
 			}
 		};
 		
-		saveAsListener = new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub			
-			}
-
+		saveAsListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Styles style = getNewStyle();
@@ -75,12 +65,7 @@ public class EditStyleView extends EditPanel {
 	}
 	
 	private void initializeListeners(){
-		cancelButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		cancelButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				sm.closeEditStyle(null);

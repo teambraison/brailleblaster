@@ -357,180 +357,182 @@ public class BrailleView extends WPView {
 		}
 	}
 	
-	public void adjustStyle(Message m, TextMapElement t){
-		int startLine = (Integer)m.getValue("firstLine");
+	public void adjustStyle(Message m, ArrayList<TextMapElement>list){
+		int start = list.get(0).brailleList.getFirst().start;
+		int end = list.get(list.size() - 1).brailleList.getLast().end;
 		int length = 0;
 		int spaces = 0;
 		int offset = 0;
-		int indent = 0;
-		int prev = 0;
-		int next = 0;
+		m.put("start", start);
+		m.put("end", end);
+		m.put("braillePrev", getPrev(m));
+		m.put("brailleNext", getNext(m));
+		m.put("offset", offset);	
+	
 		String textBefore = "";
-		setViewData(m);
-		Styles style = (Styles)m.getValue("Style");
+		Styles style = (Styles)m.getValue("style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		
-		setListenerLock(true);
-		if(isFirst(t.brailleList.getFirst().n) || (!isFirst(t.brailleList.getFirst().n) && view.getLineAtOffset(currentStart) != startLine))
-			view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
-		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
+		setListenerLock(true);	
+		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
+		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
+		
+		if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore))
+			removeLinesBefore(m);
+		
+		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter))
+			removeLinesAfter(m);
+		
+		start = (Integer)m.getValue("start");
+		end = (Integer)m.getValue("end");
+		int prev = (Integer)m.getValue("braillePrev");
+		int next = (Integer)m.getValue("brailleNext");
 		
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst(t.brailleList.getFirst().n)){
-						saveStyleState(currentStart);
-						if(-1 != previousEnd){
-							prev = previousEnd;
-							if(manager.inBraillePageRange((previousEnd + currentStart) / 2))
-								prev = manager.getBraillePageEnd((previousEnd + currentStart) / 2);
-						}
-					
-						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
-						if(currentStart != prev){
-							view.replaceTextRange(prev, (currentStart - prev), "");
-							length = currentStart - prev;	
-						}
-						spaces = Integer.valueOf(entry.getValue());
-						if(previousEnd == -1){
-							textBefore = makeInsertionString(spaces,'\n');
-							offset = spaces - length;
-						}
-						else {	
-							textBefore = makeInsertionString(spaces + 1,'\n');
-							offset = (spaces + 1) - length;
-						}					
-						insertBefore(currentStart - (currentStart - prev), textBefore);
-						currentStart += offset;
-						currentEnd += offset;
-						if(nextStart != -1)
-							nextStart += offset;
-						
-						view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-						restoreStyleState(currentStart, currentEnd);
+					if(start != prev){
+						view.replaceTextRange(prev, (start - prev), "");
+						length = start - prev;	
 					}
+					
+					spaces = Integer.valueOf(entry.getValue());
+					textBefore = makeInsertionString(spaces,'\n');
+					offset = spaces - length;
+									
+					insertBefore(start - (start - prev), textBefore);
+					start += offset;
+					end += offset;
+					if(next != -1)
+						next += offset;
 					break;
 				case linesAfter:
-					if(isLast(t.brailleList.getLast().n)){
-						if(-1 != nextStart){
-							next = nextStart;
-							if(manager.inBraillePageRange((currentEnd + nextStart) / 2))
-								next = manager.getBraillePageStart((currentEnd + nextStart) / 2) + offset;
-							else
-								indent  = view.getLineIndent(view.getLineAtOffset(next));
-							saveStyleState(currentStart);
-						}
-						else {
-							if(manager.inBraillePageRange((currentEnd + view.getCharCount()) / 2))
-								next = manager.getBraillePageStart((currentEnd + view.getCharCount()) / 2) + offset;
-							else
-								nextStart = currentEnd;
-						}
-				
-						if(currentEnd != next && next != 0){
-							view.replaceTextRange(currentEnd, (next - currentEnd), "");
-							length = next - currentEnd;	
-						}
-						spaces = Integer.valueOf(entry.getValue());
-						textBefore = makeInsertionString(spaces + 1,'\n');
-						insertBefore(currentEnd, textBefore);
-						offset = (spaces + 1) - length;
-						if(nextStart != -1)
-							nextStart += offset;
-						
-						if(nextStart != -1){
-							view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
-							restoreStyleState(currentStart, currentEnd);
-						}
+					length = 0;
+					if(end != next && next != 0){
+						view.replaceTextRange(end, (next - end), "");
+						length = next - end;	
 					}
+					spaces = Integer.valueOf(entry.getValue());
+					textBefore = makeInsertionString(spaces,'\n');
+					insertBefore(end, textBefore);
+					offset = spaces - length;
 					break;
 				case format:
-					setAlignment(currentStart, currentEnd, style);
+					setAlignment(start, end, style);
 					break;
 				case firstLineIndent:
-					if(isFirst(t.brailleList.getFirst().n) && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
-						setFirstLineIndent(currentStart, style);
+					if(Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+						setFirstLineIndent(start, style);
 					break;
 				case leftMargin:
-					if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
-						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
-			//		else if(startLine == view.getLineAtOffset(currentStart))
-			//			handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
+					if(style.contains(StylesType.firstLineIndent))
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), true);
 					else
-						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), false);
 					break;
 				default:
 					break;
 			}
 		}
-		
-		if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore)){
-			if(-1 != previousEnd){
-				prev = previousEnd;
-				if(manager.inBraillePageRange((previousEnd + currentStart) / 2))
-					prev = manager.getBraillePageEnd((previousEnd + currentStart) / 2);
-			}
-			
-			if(currentStart != prev){
-				saveStyleState(currentStart);
-				indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
-				view.replaceTextRange(prev, (currentStart - prev), "");
-				length = currentStart - prev;	
-			}
-			
-			if(isFirst(t.brailleList.getFirst().n)){
-				spaces = 1;
-				textBefore = makeInsertionString(spaces,'\n');
-				offset = spaces - length;
-		
-				insertBefore(currentStart - (currentStart - prev), textBefore);
-				m.put("linesBeforeOffset", offset);
-				currentStart += offset;
-				currentEnd += offset;
-				if(nextStart != -1)
-					nextStart += offset;
-				if(previousEnd != -1){
-					view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-					restoreStyleState(currentStart, currentEnd);
-				}
-			}
-		}
-		
-		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter)){
-			if(currentEnd != nextStart){
-				int removedSpaces;
-				if(nextStart != -1){
-					next = nextStart;
-					if(manager.inBraillePageRange((currentEnd + nextStart) / 2))
-						next = manager.getBraillePageStart((currentEnd + nextStart) / 2) + offset;
-					removedSpaces = next - currentEnd;
-				}
-				else
-					removedSpaces = view.getCharCount() - currentEnd;
-				
-				saveStyleState(currentStart);
-				if(nextStart != -1)
-					indent  = view.getLineIndent(view.getLineAtOffset(next)); 
-					
-				view.replaceTextRange(currentEnd, removedSpaces, "");
-				length = removedSpaces;
-			}
-			
-			if(isLast(t.brailleList.getLast().n) && next != -1){
-				spaces = 1;
-				textBefore = makeInsertionString(1,'\n');
-				insertBefore(currentEnd, textBefore);
-				offset = spaces - length;
-				m.put("linesAfterOffset", offset);
-				if(next != -1)
-					nextStart += offset;
-				if(next != -1){
-					restoreStyleState(currentStart, currentEnd);
-					view.setLineIndent(view.getLineAtOffset(next), 1, indent);
-				}
-			}
-		}
 		setListenerLock(false);
+	}
+	
+	private int getPrev(Message m){
+		int prev = (Integer)m.getValue("braillePrev");
+		int start = (Integer)m.getValue("start");
+		
+		if(-1 != prev){
+			prev++;
+			if(manager.inBraillePageRange((prev + start) / 2)){
+				prev = manager.getBraillePageEnd((prev + start) / 2);
+				while(manager.inBraillePageRange(prev)){
+					prev = manager.getBraillePageEnd(prev) + 1;
+				}
+			}
+		}
+		else {
+			if(manager.inBraillePageRange(start / 2)){
+				prev = manager.getBraillePageEnd(start / 2);
+				while(manager.inBraillePageRange(prev)){
+					prev = manager.getBraillePageEnd(prev) + 1;
+				}
+			}
+			else
+				prev = 0;
+		}
+		
+		return prev;
+	}
+	
+	private int getNext(Message m){
+		//int start = (Integer)m.getValue("start");
+		int end = (Integer)m.getValue("end");
+		int next = (Integer)m.getValue("brailleNext");
+		
+		if(-1 != next){
+			next--;
+			if(manager.inBraillePageRange((end + next) / 2)){
+				next = manager.getBraillePageStart((end + next) / 2);
+				while(manager.inBraillePageRange(next)){
+					next = manager.getBraillePageStart(next) - 1;
+				}
+			}
+		}
+		else {
+			if(manager.inBraillePageRange((end + view.getCharCount()) / 2)){
+				next = manager.getBraillePageStart((end + view.getCharCount()) / 2);
+				while(manager.inBraillePageRange(next)){
+					next = manager.getBraillePageStart(next) - 1;
+				}
+			}
+			else
+				next = view.getCharCount();
+		}
+		
+		return next;
+	}
+	
+	private void removeLinesBefore(Message m){
+		int prev = (Integer)m.getValue("braillePrev");
+		int start = (Integer)m.getValue("start");
+		int end = (Integer)m.getValue("end");
+		int next = (Integer)m.getValue("brailleNext");
+		int offset = (Integer)m.getValue("offset");
+		int length = 0;
+		
+		if(start != prev){
+			view.replaceTextRange(prev, (start - prev), "");
+			length = start - prev;	
+			offset -= length;
+		}
+	
+		m.put("linesBeforeOffset", offset);
+		m.put("offset", offset);
+		start += offset;
+		end += offset;
+		m.put("start", start);
+		m.put("end", end);
+		m.put("prev", prev);
+		if(next != -1)
+			m.put("brailleNext", next + offset);
+	}
+	
+	public void removeLinesAfter(Message m){
+		int end = (Integer)m.getValue("end");
+		int next = (Integer)m.getValue("brailleNext");
+		int offset = (Integer)m.getValue("offset");
+		
+		if(end != next){
+			int removedSpaces;
+			removedSpaces = next - end;
+		
+			view.replaceTextRange(end, removedSpaces, "");
+		}
+
+		if(next != -1){
+			m.put("linesAfterOffset", offset);
+			m.put("brailleNext", next + offset);
+		}
 	}
 	
 	

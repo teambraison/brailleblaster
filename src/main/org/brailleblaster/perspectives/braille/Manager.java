@@ -58,6 +58,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
+
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -890,30 +891,41 @@ public class Manager extends Controller {
 			group.setRedraw(false);
 			Element parent = document.getParent(list.getCurrent().n, true);
 			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
+			document.changeSemanticAction(message, list.getCurrent().parentElement());
+			message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
 			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
 		
-			int start = list.getNodeIndex(itemList.get(0));
-			int end = list.getNodeIndex(itemList.get(itemList.size() - 1));
-			int currentIndex = list.getCurrentIndex();
-			message.put("firstLine", text.view.getLineAtOffset(itemList.get(0).start));
-			
-			for(int i = start; i <= end; i++){
-				list.setCurrent(i);
-				list.getCurrentNodeData(message);
-				text.adjustStyle(message, list.getCurrent().n);
-				braille.adjustStyle(message, list.getCurrent());
-				if(message.contains("linesBeforeOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"), list.getCurrent().start);
-					message.remove("linesBeforeOffset");
-				}
-		
-				if(message.contains("linesAfterOffset")){
-					list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), list.get(list.getCurrentIndex()).start);
-					message.remove("linesAfterOffset");
-				}
+			int start = list.indexOf(itemList.get(0));
+			int end = list.indexOf(itemList.get(itemList.size() - 1));
+	//		int currentIndex = list.getCurrentIndex();
+			int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
+			if(start > 0){
+				message.put("prev", list.get(start - 1).end);
+				message.put("braillePrev", list.get(start - 1).brailleList.getLast().end);
 			}
-			list.setCurrent(currentIndex);
-			document.changeSemanticAction(message, list.getCurrent().parentElement());
+			else {
+				message.put("prev", -1);
+				message.put("braillePrev", -1);
+			}
+			
+			if(end < list.size() - 1){
+				message.put("next", list.get(end + 1).start);
+				message.put("brailleNext",  list.get(end + 1).brailleList.getFirst().start);
+			}
+			else {
+				message.put("next", -1);
+				message.put("brailleNext", -1);
+			}
+			
+			text.adjustStyle(message, itemList);
+			braille.adjustStyle(message, itemList);
+			
+			if(message.contains("linesBeforeOffset"))
+				list.shiftOffsetsFromIndex(start, (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"), origPos);	
+			if(message.contains("linesAfterOffset"))
+				list.shiftOffsetsFromIndex(end + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), origPos);
+
+			//list.setCurrent(currentIndex);
 			treeView.adjustItemStyle(list.getCurrent());
 			group.setRedraw(true);
 		}

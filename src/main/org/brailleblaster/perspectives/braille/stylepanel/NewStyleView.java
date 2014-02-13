@@ -2,8 +2,8 @@ package org.brailleblaster.perspectives.braille.stylepanel;
 
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 
@@ -16,12 +16,7 @@ public class NewStyleView extends EditPanel{
 		cancelButton = new Button(group, SWT.NONE);
 		cancelButton.setText(lh.localValue("styleCancel"));
 		setLayoutData(cancelButton, 0, 50, 90, 100);
-		cancelButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		cancelButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				sm.closeEditStyle(null);
@@ -32,12 +27,7 @@ public class NewStyleView extends EditPanel{
 		saveButton.setText(lh.localValue("save"));
 		setLayoutData(saveButton, 50, 100, 90, 100);
 		
-		saveButton.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-			}
-
+		saveButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Styles style = getNewStyle();

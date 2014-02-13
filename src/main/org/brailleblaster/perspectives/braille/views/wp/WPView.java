@@ -10,12 +10,17 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Group;
 
 public abstract class WPView extends AbstractView implements BBView {
 	protected BBSemanticsTable stylesTable;
+	protected static int currentAlignment;
+	public static int currentLine;
+	protected static int topIndex;
 	
 	public WPView(Manager manager, Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
 		super(manager, group, left, right, top, bottom);
@@ -26,6 +31,7 @@ public abstract class WPView extends AbstractView implements BBView {
 	}
 	
 	public abstract void addPageNumber(MapList list, Node node);
+	protected abstract void setViewData(Message message);
 	
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();
@@ -50,6 +56,15 @@ public abstract class WPView extends AbstractView implements BBView {
 		}
 		
 		return insertionString;
+	}
+	
+	public void insertText(int start, String text){
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.insert(text);
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
 	}
 
 	//sets range and applies given form of emphasis
@@ -98,12 +113,13 @@ public abstract class WPView extends AbstractView implements BBView {
 			return null;
 		}
 	}
-	
+	//saves alignment, used when updating text since alignment info is removed with previous text is deleted and new translation is inserted
 	protected void saveStyleState(int start){
 		int line = this.view.getLineAtOffset(start);
 		currentAlignment = view.getLineAlignment(line);
 	}
 	
+	//restores previous alignment when updating text
 	protected void restoreStyleState(int start, int end){
 		int line = view.getLineAtOffset(start);
 		int lineCount = view.getLineAtOffset(end) - view.getLineAtOffset(start);
@@ -126,7 +142,6 @@ public abstract class WPView extends AbstractView implements BBView {
 			if(text.charAt(i) == '\n' && i != text.length() - 1){
 				i++;
 				newPos = pos + i;
-				//this.view.setLineIndent(this.view.getLineAtOffset(newPos), 1, this.view.getLineIndent(this.view.getLineAtOffset(newPos)) + (indent * this.charWidth));
 				view.setLineIndent(view.getLineAtOffset(newPos), 1, indent * charWidth);
 			}
 		}
@@ -198,5 +213,47 @@ public abstract class WPView extends AbstractView implements BBView {
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");
 		setListenerLock(false);
+	}
+	
+	protected void sendStatusBarUpdate(int line){
+		String statusBarText = "";
+		String page = manager.getCurrentPrintPage();
+		if(page != null){
+		
+			statusBarText += "Page: " + page + " | ";
+		}
+		statusBarText += "Line: " + String.valueOf(line + 1) + " | ";
+		
+		if(view.getLineIndent(line) > 0){
+			statusBarText += " Indent: " + ((view.getLineIndent(line) / charWidth)) + " | "; 
+		}
+		
+		if(view.getLineAlignment(line) != SWT.LEFT){
+			if(view.getLineAlignment(line) == SWT.CENTER)
+				statusBarText += " Alignment: Center" + " | ";
+			else if(view.getLineAlignment(line) == SWT.RIGHT)
+				statusBarText += " Alignment: Right" + " | ";
+		}
+		
+		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);
+		manager.dispatch(statusMessage);
+		currentLine = view.getLineAtOffset(view.getCaretOffset());
+	}
+	
+	public void setTopIndex(int line){
+		setListenerLock(true);
+		view.setTopIndex(line);
+		topIndex = line;
+		setListenerLock(false);
+	}
+	
+	public void checkStatusBar(Sender sender){
+		if(!getLock()){
+			if(topIndex != view.getTopIndex()){
+				topIndex = view.getTopIndex();
+				Message scrollMessage = Message.createUpdateScollbarMessage(sender, view.getOffsetAtLine(topIndex));
+				manager.dispatch(scrollMessage);
+			}
+		}
 	}
 }

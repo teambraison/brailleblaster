@@ -28,6 +28,7 @@
 
 package org.brailleblaster.perspectives.braille.views.wp;
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import nu.xom.Element;
@@ -209,19 +210,7 @@ public class TextView extends WPView {
 				else if(e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset() + 1))
 					e.doit = false;
 				
-				/*
-				else if(oldCursorPosition > 0 && oldCursorPosition < view.getCharCount() && e.character == SWT.BS){
-					if(view.getLineAtOffset(oldCursorPosition) != view.getLineAtOffset(oldCursorPosition - 1) && view.getLineIndent(view.getLineAtOffset(oldCursorPosition)) != 0){
-						Message message = new Message(BBEvent.ADJUST_INDENT);
-						message.put("sender", "text");
-						message.put("indent", 0);
-						message.put("line", view.getLineAtOffset(oldCursorPosition));
-						view.setLineIndent(view.getLineAtOffset(oldCursorPosition), 1, 0);
-						dm.dispatch(message);
-						e.doit = false;
-					}
-				}
-				*/
+				
 				if(selectionLength > 0){
 					saveStyleState(selectionStart);
 				}
@@ -709,13 +698,11 @@ public class TextView extends WPView {
 	
 	public void removeMathML(Message m){
 		setListenerLock(true);
-	//	int pos = view.getCaretOffset();
 		
 		if(view.getCharCount() > 0) {
 			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
 		}
-		
-	//	view.setCaretOffset(pos);		
+			
 		setListenerLock(false);
 	}
 	
@@ -853,9 +840,7 @@ public class TextView extends WPView {
 					setFontRange(total, spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
 					break;
 				case leftMargin:
-					if(isFirst)
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
-					else if(!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total))
+					if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
 						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
 					else
 						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), false);
@@ -1002,11 +987,7 @@ public class TextView extends WPView {
 				view.setCaretOffset(view.getCaretOffset() - 1);
 				makeTextChange(offset);
 			}
-			else if(oldCursorPosition < currentStart && previousEnd == -1){
-				shiftLeft(offset);
-				sendDeleteSpaceMessage(offset, SWT.BS);
-			}
-			else if(oldCursorPosition < currentStart && oldCursorPosition > previousEnd){
+			else if(oldCursorPosition < currentStart && (previousEnd == -1 || oldCursorPosition > previousEnd)){
 				shiftLeft(offset);
 				sendDeleteSpaceMessage(offset, SWT.BS);
 			}
@@ -1306,7 +1287,6 @@ public class TextView extends WPView {
 	}
 	
 	public void copyAndPaste(String text, int start, int end){
-		//int pos = view.getCaretOffset();
 		view.setCaretOffset(start);
 		setCurrent();
 		view.setSelection(start, end);
@@ -1319,188 +1299,208 @@ public class TextView extends WPView {
 		cb.dispose();
 
 		sendUpdate();
-		//view.setCaretOffset(pos);
 	}
 	
-	public void adjustStyle(Message m, Node n){		
-		int startLine = (Integer)m.getValue("firstLine");
+	//adjusts style when changed from the style panel, style adjustments occur at block element level
+	public void adjustStyle(Message m, ArrayList<TextMapElement>list){		
+		int start = list.get(0).start;
+		int end = list.get(list.size() - 1).end;
 		int length = 0;
 		int spaces = 0;
-		int offset = 0;
-		int indent = 0;
-		int prev = 0;
-		int next = 0;
-		boolean isFirst = isFirst(n);
-		boolean isLast = isLast(n);
+		m.put("start", list.get(0).start);
+		m.put("end", list.get(list.size() - 1).end);
+		m.put("prev", getPrev(m));
+		m.put("next", getNext(m));
+		m.put("offset", 0);
 		String textBefore = "";
-		setViewData(m);
-		Styles style = (Styles)m.getValue("Style");
+		
+		//Get previous style for comparison on adding or removing lines before or after
+		Styles style = (Styles)m.getValue("style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		
-		setListenerLock(true);	
+		setListenerLock(true);
+		//Reset indent, alignment, and emphasis
+		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
+		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
+		setFontRange(start, end - start, 4);
 		
-		if(isFirst || (!isFirst && view.getLineAtOffset(currentStart) != startLine))
-			view.setLineIndent(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), 0);
-		view.setLineAlignment(view.getLineAtOffset(currentStart), getLineNumber(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart))), SWT.LEFT);
+		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore))
+			removeLinesBefore(m);
 			
+		if(!style.contains(StylesType.linesAfter) && previousStyle.contains(StylesType.linesAfter))
+			removeLinesAfter(m);
+		start = (Integer)m.getValue("start");
+		end = (Integer)m.getValue("end");
+		int prev = (Integer)m.getValue("prev");
+		int next = (Integer)m.getValue("next");
+		
 		for (Entry<StylesType, String> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
-					if(isFirst){
-						saveStyleState(currentStart);
-						if(-1 != previousEnd){
-							prev = previousEnd;
-							if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
-								prev = manager.getPrintPageEnd((previousEnd + currentStart) / 2);
-						}
-						indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
-						if(currentStart != prev){
-							view.replaceTextRange(prev, (currentStart - prev), "");
-							length = currentStart - prev;	
-						}
-						spaces = Integer.valueOf(entry.getValue());
-						if(previousEnd == -1){
-							textBefore = makeInsertionString(spaces,'\n');
-							offset = spaces - length;
-						}
-						else {	
-							textBefore = makeInsertionString(spaces + 1,'\n');
-							offset = (spaces + 1) - length;
-						}
-						insertBefore(currentStart - (currentStart - prev), textBefore);
-						m.put("linesBeforeOffset", offset);
-						currentStart += offset;
-						currentEnd += offset;
-						if(nextStart != -1)
-							nextStart += offset;
-						view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-						restoreStyleState(currentStart, currentEnd);
+					int linesBeforeOffset;
+					if(start != prev){
+						view.replaceTextRange(prev, (start - prev), "");
+						length = start - prev;	
 					}
+					spaces = Integer.valueOf(entry.getValue());
+						
+					textBefore = makeInsertionString(spaces,'\n');
+					linesBeforeOffset = spaces - length;
+				
+					insertBefore(start - (start - prev), textBefore);
+					m.put("linesBeforeOffset", linesBeforeOffset);
+					start += linesBeforeOffset;
+					end += linesBeforeOffset;
+					if(next != -1)
+						next += linesBeforeOffset;
 					break;
 				case linesAfter:
-					if(isLast){
-						if(-1 != nextStart){
-							next = nextStart;
-							if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
-								next = manager.getPrintPageStart((currentEnd + nextStart) / 2) + offset;
-							else
-								indent  = view.getLineIndent(view.getLineAtOffset(next));
-							
-							saveStyleState(currentStart);
-						}
-						else {
-							if(manager.inPrintPageRange((currentEnd + view.getCharCount()) / 2))
-								next = manager.getPrintPageStart((currentEnd + view.getCharCount()) / 2) + offset;
-							else
-								next = currentEnd;
-						}
-					
-						if(currentEnd != next && next != 0){
-							view.replaceTextRange(currentEnd, (next - currentEnd), "");
-							length = next - currentEnd;	
-						}
-						spaces = Integer.valueOf(entry.getValue());
-						textBefore = makeInsertionString(spaces + 1,'\n');
-						insertBefore(currentEnd, textBefore);
-						offset = (spaces + 1) - length;
-						m.put("linesAfterOffset", offset);
-						if(nextStart != -1)
-							nextStart += offset;
-						if(nextStart != -1){
-							view.setLineIndent(view.getLineAtOffset(nextStart), 1, indent);
-							restoreStyleState(currentStart, currentEnd);
-						}
+					length = 0;
+					int linesAfterOffset;
+					if(end != next && next != 0){
+						view.replaceTextRange(end, (next - end), "");
+						length = next - end;	
 					}
+						
+					spaces = Integer.valueOf(entry.getValue());
+					textBefore = makeInsertionString(spaces,'\n');
+					insertBefore(end, textBefore);
+					linesAfterOffset = spaces - length;
+					m.put("linesAfterOffset", linesAfterOffset);
 					break;
 				case format:
-					setAlignment(currentStart, currentEnd, style);	
+					setAlignment(start, end, style);	
 					break;
 				case firstLineIndent:
-					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
-						setFirstLineIndent(currentStart, style);
+					if(Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+						setFirstLineIndent(start, style);
 					break;
 				case leftMargin:
-					if(isFirst && style.contains(StylesType.firstLineIndent))
-						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), true);
-				//	else if(startLine == view.getLineAtOffset(currentStart))
-				//		handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
+					if(style.contains(StylesType.firstLineIndent))
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), true);
 					else
-						handleLineWrap(currentStart, view.getTextRange(currentStart, (currentEnd - currentStart)), Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), false);
 					break;
+				
 				default:
 					break;
 			}
-		}
-
-		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore) && isFirst){
-			if(-1 != previousEnd){
-				prev = previousEnd;
-				if(manager.inPrintPageRange((previousEnd + currentStart) / 2))
-					prev = manager.getPrintPageEnd((previousEnd + currentStart) / 2);
-			}
-			
-			if(currentStart != prev){
-				saveStyleState(currentStart);
-				indent  = view.getLineIndent(view.getLineAtOffset(currentStart));
-				view.replaceTextRange(prev, (currentStart - prev), "");
-				length = currentStart - prev;	
-			}
-			
-			if(isFirst){
-				spaces = 1;
-				textBefore = makeInsertionString(spaces,'\n');
-				offset = spaces - length;
 		
-				insertBefore(currentStart - (currentStart - prev), textBefore);
-				m.put("linesBeforeOffset", offset);
-				m.put("firstLine", startLine + offset);
-				currentStart += offset;
-				currentEnd += offset;
-				if(nextStart != -1)
-					nextStart += offset;
-				if(previousEnd != -1){
-					restoreStyleState(currentStart, currentEnd);
-					view.setLineIndent(view.getLineAtOffset(currentStart), 1, indent);
-				}
-			}
-		}
-		
-		if(!style.contains(StylesType.linesAfter) && previousStyle.contains(StylesType.linesAfter) && isLast){
-			if(currentEnd != nextStart){
-				int removedSpaces;
-				if(nextStart != -1){
-					next = nextStart;
-					if(manager.inPrintPageRange((currentEnd + nextStart) / 2))
-						next = manager.getPrintPageStart((currentEnd + nextStart) / 2) + offset;
-					
-					removedSpaces = next - currentEnd;
-				}
-				else
-					removedSpaces = view.getCharCount() - currentEnd;
-				
-				saveStyleState(currentStart);
-				if(next != -1)
-					indent  = view.getLineIndent(view.getLineAtOffset(next)); 
-					
-				view.replaceTextRange(currentEnd, removedSpaces, "");
-				length = removedSpaces;
-			}
+			int offset = (Integer)m.getValue("offset");
 			
-			if(isLast && next != -1){
-				spaces = 1;
-				textBefore = makeInsertionString(1,'\n');
-				insertBefore(currentEnd, textBefore);
-				offset = spaces - length;
-				m.put("linesAfterOffset", offset);
-				if(nextStart != -1)
-					nextStart += offset;
-				if(next != -1) {
-					restoreStyleState(currentStart, currentEnd);
-					view.setLineIndent(view.getLineAtOffset(next), 1, indent);
-				}
+			//inline elements may have different emphasis, so all must be check seperately 
+			for(int i = 0; i < list.size(); i++){
+				Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
+				if(nodeStyle.contains(StylesType.emphasis))
+					setFontRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), Integer.valueOf((String)nodeStyle.get(StylesType.emphasis)));
 			}
+		
 		}
 		setListenerLock(false);
+	}
+	
+	//private helper method used by adjust style
+	//finds the point from which to remove any excess spacing before applying lines before
+	private int getPrev(Message m){
+		int start = (Integer)m.getValue("start");
+		int prev = (Integer)m.getValue("prev");
+		if(-1 != prev){
+			prev++;
+			if(manager.inPrintPageRange((prev + start) / 2)){
+				prev = manager.getPrintPageEnd((prev + start) / 2);
+				while(manager.inPrintPageRange(prev)){
+					prev = manager.getPrintPageEnd(prev) + 1;
+				}
+			}						
+		}
+		else {
+			if(manager.inPrintPageRange(start / 2)){
+				prev = manager.getPrintPageEnd(start / 2);
+				while(manager.inPrintPageRange(prev)){
+					prev = manager.getPrintPageEnd(prev) + 1;
+				}
+			}
+			else
+				prev = 0;
+		}
+		
+		return prev;
+	}
+	
+	//private helper method used by adjust style
+	//finds the point from which to remove any excess spacing before applying lines after
+	private int getNext(Message m){
+		int end = (Integer)m.getValue("end");
+		int next = (Integer)m.getValue("next");
+		if(next != -1){
+			next--;
+			if(manager.inPrintPageRange((end + next) / 2)){
+				next = manager.getPrintPageStart((end + next) / 2);
+				while(manager.inPrintPageRange(next)){
+					next = manager.getPrintPageStart(next) - 1;
+				}
+			}
+		}
+		else {
+			if(manager.inPrintPageRange((end + view.getCharCount()) / 2)){
+				next = manager.getPrintPageStart((end + view.getCharCount()) / 2);
+				while(manager.inPrintPageRange(next)){
+					next = manager.getPrintPageStart(next) - 1;
+				}
+			}
+			else
+				next = view.getCharCount();
+		}
+		
+		return next;
+	}
+	
+	//helper method used by adjustStyles to remove lines before
+	private void removeLinesBefore(Message m){
+		int start = (Integer)m.getValue("start");
+		int end = (Integer)m.getValue("end");
+		int prev = (Integer)m.getValue("prev");
+		int next = (Integer)m.getValue("next");
+		int offset = (Integer)m.getValue("offset");
+		int length = 0;
+		
+		if(start != prev){
+			view.replaceTextRange(prev, (start - prev), "");
+			length = start - prev;	
+			offset -= length;
+		}
+
+		start += offset;
+		end += offset;
+		if(next != -1)
+			next += offset;
+		
+		m.put("linesBeforeOffset", offset);
+		m.put("offset", offset);
+		m.put("start", start);
+		m.put("end", end);
+		m.put("prev", prev);
+		if(next != -1)
+			m.put("next", next);
+	}
+	
+	//helper method used by adjustStyles to remove lines after
+	private void removeLinesAfter(Message m){
+		int end = (Integer)m.getValue("end");
+		int next = (Integer)m.getValue("next");
+		int offset = (Integer)m.getValue("offset");
+		
+		if(end != next){
+			int removedSpaces;
+			removedSpaces = next - end;
+			view.replaceTextRange(end, removedSpaces, "");
+		}
+		
+		if(next != -1){
+			m.put("linesAfterOffset", offset);
+			next += offset;
+			m.put("next", next + offset);
+		}
 	}
 	
 	public void insertNewNode(int pos){

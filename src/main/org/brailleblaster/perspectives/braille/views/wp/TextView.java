@@ -103,6 +103,7 @@ public class TextView extends WPView {
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
+		this.manager = manager;
 	}
 
 	@Override
@@ -343,7 +344,7 @@ public class TextView extends WPView {
 			@Override
 			public void verifyText(VerifyEvent event) {
 				if(event.doit != false && event.start != event.end && !getLock() && selectionLength != view.getCharCount()){
-					TextMapElement t = manager.getClosest(event.start);
+					TextMapElement t = manager.getElementInRange(event.start);
 					StyleRange style = null;
 					if(t != null)
 						style = view.getStyleRangeAtOffset(t.start);
@@ -553,9 +554,12 @@ public class TextView extends WPView {
 		nextStart += offset;
 	}
 	
-	public void setCursor(int offset){
+	public void setCursor(int offset, Manager cont){
 		view.setFocus();
 		view.setCaretOffset(offset);
+		
+		if(offset < currentStart || offset > currentEnd)
+			setCurrent();
 	}
 
 	public void setText(Node n, MapList list){

@@ -1365,7 +1365,7 @@ public class Manager extends Controller {
 			return null;
 	}
 	
-	public TextMapElement getClosest(int offset){
+	public TextMapElement getElementInRange(int offset){
 		Message m = new Message(null);
 		m.put("offset", offset);
 		
@@ -1380,6 +1380,13 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public TextMapElement getClosest(int offset){
+		Message m = new Message(null);
+		m.put("offset", offset);
+		TextMapElement t = list.get(list.findClosest(m, 0, list.size() - 1));
+		return t;
+	}
+	
 	public int indexOf(TextMapElement t){
 		return list.indexOf(t);
 	}
@@ -1390,6 +1397,10 @@ public class Manager extends Controller {
 	
 	public TextMapElement getTextMapElement(int index){
 		return list.get(index);
+	}
+	
+	public int getListSize() {
+		return list.size();
 	}
 	
 	public void initiateSpellCheck(){

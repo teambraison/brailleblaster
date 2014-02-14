@@ -45,31 +45,31 @@ public class BBSemanticsTable {
 		
 		public Styles(String elementName){
 			this.elementName = elementName;
-			this.map = new TreeMap<StylesType, String>();
+			map = new TreeMap<StylesType, String>();
 		}
 		
 		public void put(StylesType key, String value){	
-			this.map.put(key, value);
+			map.put(key, value);
 		}
 		
 		public Object get(StylesType st){
-			return this.map.get(st);
+			return map.get(st);
 		}
 		
 		public Set<StylesType> getKeySet(){
-			return this.map.keySet(); 
+			return map.keySet(); 
 		}
 		
 		public Set<Entry<StylesType, String>> getEntrySet(){
-			return this.map.entrySet();
+			return map.entrySet();
 		}
 		
 		public boolean contains(StylesType key){
-			return this.map.containsKey(key);
+			return map.containsKey(key);
 		}
 		
 		public String getName(){
-			return this.elementName;
+			return elementName;
 		}
 	}
 	
@@ -81,7 +81,7 @@ public class BBSemanticsTable {
 	
 	public BBSemanticsTable(String config){
 		try {
-			this.table = new TreeMap<String, Styles>();
+			table = new TreeMap<String, Styles>();
 			this.config = config;
 			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
 			FileReader file = new FileReader(filePath);
@@ -210,7 +210,7 @@ public class BBSemanticsTable {
 	}
 	
 	private void makeComposite(String key, Styles st){
-		Styles newStyle = this.table.get(key);
+		Styles newStyle = table.get(key);
 		if(newStyle != null){
 			for (StylesType styleType : newStyle.getKeySet()) {
 				if(!st.contains(styleType)){

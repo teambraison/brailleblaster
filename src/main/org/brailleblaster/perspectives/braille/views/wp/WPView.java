@@ -14,6 +14,9 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.graphics.GlyphMetrics;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Group;
 
 public abstract class WPView extends AbstractView implements BBView {
@@ -66,35 +69,28 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
+	
+	protected void setImageStyleRange(Image image, int offset, int length) {
+		StyleRange style = new StyleRange ();
+		style.start = offset;
+		style.length = length;
+		style.data = image;
+		Rectangle rect = image.getBounds();
+		style.metrics = new GlyphMetrics(rect.height, 0, rect.width);
+		view.setStyleRange(style);		
+	}
 
 	//sets range and applies given form of emphasis
-	protected void setFontRange(int start, int length, int style){
-		StyleRange styleRange = new StyleRange();
+	protected void setFontStyleRange(int start, int length, StyleRange styleRange){
 		styleRange.start = start;
-		styleRange.length = length;
-		styleRange.fontStyle = style;
-		
-		if(style == SWT.UNDERLINE_SINGLE)
-			styleRange.underline = true;
-		else
-			styleRange.underline = false;
-			
+		styleRange.length = length;	
 		view.setStyleRange(styleRange);
-	}
-	
-	//lengthens or shortens style range
-	protected void updateRange(StyleRange style, int start, int length){
-		style.start = start;
-		style.length = length;
-		view.setStyleRange(style);
 	}
 	
 	//reverts range to plain text
 	protected void resetStyleRange(StyleRange range){
-		if(range.fontStyle != SWT.NORMAL || (range.fontStyle == SWT.NORMAL && range.underline == true)){
-			range.fontStyle = SWT.NORMAL;
-			range.underline = false;
-		}
+		range.fontStyle = SWT.NORMAL;
+		range.underline = false;
 		view.setStyleRange(range);
 	}	
 	
@@ -209,7 +205,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
 	}
 	
-	public void clearRange(int start, int length){
+	public void clearTextRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");
 		setListenerLock(false);

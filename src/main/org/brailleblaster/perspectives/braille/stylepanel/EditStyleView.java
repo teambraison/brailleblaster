@@ -5,6 +5,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,9 +39,8 @@ public class EditStyleView extends EditPanel {
 			public void widgetSelected(SelectionEvent e) {
 				LocaleHandler lh = new LocaleHandler();
 				Styles newStyle = saveEditedStyle();
-				if(newStyle != null){
+				if(newStyle != null)
 					sm.saveEditedStyle(originalStyle, newStyle);
-				}
 				else
 					new Notify(lh.localValue("noChange"));
 			}
@@ -72,8 +72,7 @@ public class EditStyleView extends EditPanel {
 			}
 		});
 		
-		saveButton.addSelectionListener(saveListener);
-		
+		saveButton.addSelectionListener(saveListener);		
 		
 		styleName.addModifyListener(new ModifyListener(){
 			@Override
@@ -94,7 +93,7 @@ public class EditStyleView extends EditPanel {
 		setSpinnerData(indentSpinner, style, StylesType.firstLineIndent);
 		
 		if(originalStyle.contains(StylesType.emphasis)){	
-			int emphasisValue = Integer.valueOf((String)originalStyle.get(StylesType.emphasis));
+			int emphasisValue = ((StyleRange)originalStyle.get(StylesType.emphasis)).fontStyle;
 			
 			if(emphasisValue == SWT.BOLD)
 				emphasisCombo.select(BOLD);
@@ -138,6 +137,9 @@ public class EditStyleView extends EditPanel {
 		}
 	}
 	
+	//Values in the style object are saved using the liblouisutdml keyword and are used to edit the user configuration file
+	//The style object is not stored back to the style table
+	//After saving to file, the style table is refreshed and the data type and value will correspond to those needed by the SWT object in the UI that applies them 
 	protected Styles saveEditedStyle(){
 		Styles newStyle = sm.getSemanticsTable().getNewStyle(originalStyle.getName());
 		boolean changed = false;
@@ -160,11 +162,21 @@ public class EditStyleView extends EditPanel {
 					emphasis = SWT.UNDERLINE_SINGLE;
 				}
 				
-				if(emphasis != Integer.valueOf((String)originalStyle.get(StylesType.emphasis))){
+				if(emphasis != ((StyleRange)originalStyle.get(StylesType.emphasis)).fontStyle){				
 					newStyle.put(StylesType.emphasis, value);
 					changed = true;
 				}
 				else{
+					StyleRange range =  (StyleRange)originalStyle.get(StylesType.emphasis);
+					emphasis = range.fontStyle;
+					
+					if(emphasis == SWT.BOLD)
+						value = "boldx";
+					else if(emphasis == SWT.ITALIC)
+						value = "italicx"; 
+					else 
+						value = "underlinex";
+
 					newStyle.put(StylesType.emphasis, value);
 				}
 			}
@@ -277,8 +289,7 @@ public class EditStyleView extends EditPanel {
 		else if(indentSpinner.getSelection() != 0){
 			newStyle.put(StylesType.firstLineIndent, String.valueOf(indentSpinner.getSelection()));
 			changed = true;
-		}
-		
+		}	
 		
 		if(changed)
 			return newStyle;

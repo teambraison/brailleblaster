@@ -5,8 +5,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -57,17 +57,12 @@ public class EditPanel {
 		styleLabel = makeLabel(lh.localValue("styleName"), 0, 50, 0, 10);
 		styleName = new Text(group, SWT.BORDER);
 		setLayoutData(styleName, 50, 100, 0, 10);
-		styleName.addKeyListener(new KeyListener(){
+		styleName.addKeyListener(new KeyAdapter(){
 			@Override
 			public void keyPressed(KeyEvent e) {
 				String key = String.valueOf(e.character);
 				if(key.matches("\\s+"))
 					e.doit = false;
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub			
 			}
 		});
 		
@@ -163,7 +158,7 @@ public class EditPanel {
 		selectionIndex = alignmentCombo.getSelectionIndex(); 
 		if(selectionIndex != -1){
 			if(selectionIndex == LEFT)
-				newStyle.put(StylesType.format, "leftjustified");
+				newStyle.put(StylesType.format, "leftJustified");
 			else if(selectionIndex == CENTER)
 				newStyle.put(StylesType.format, "center");
 			else if(selectionIndex == RIGHT)
@@ -173,8 +168,7 @@ public class EditPanel {
 		
 		int value = linesBeforeSpinner.getSelection();
 		if(value > 0)
-				newStyle.put(StylesType.linesBefore, String.valueOf(value));
-		
+				newStyle.put(StylesType.linesBefore, String.valueOf(value));	
 		
 		value = linesAfterSpinner.getSelection();
 		if(value > 0)

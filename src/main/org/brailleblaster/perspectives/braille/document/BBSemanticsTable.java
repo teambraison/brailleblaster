@@ -14,6 +14,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 
 import nu.xom.Document;
 import nu.xom.Element;
@@ -41,11 +42,15 @@ public class BBSemanticsTable {
 	
 	public class Styles{
 		String elementName;
-		TreeMap<StylesType, String> map;
+		TreeMap<StylesType, Object> map;
 		
 		public Styles(String elementName){
 			this.elementName = elementName;
-			map = new TreeMap<StylesType, String>();
+			map = new TreeMap<StylesType, Object>();
+		}
+		
+		public void put(StylesType key, StyleRange value){	
+			map.put(key, value);
 		}
 		
 		public void put(StylesType key, String value){	
@@ -60,7 +65,7 @@ public class BBSemanticsTable {
 			return map.keySet(); 
 		}
 		
-		public Set<Entry<StylesType, String>> getEntrySet(){
+		public Set<Entry<StylesType, Object>> getEntrySet(){
 			return map.entrySet();
 		}
 		
@@ -89,14 +94,13 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\temphasis " + SWT.ITALIC);
+			insertValue("italicx","\temphasis italicx");
 			makeStylesObject("boldx");
-			insertValue("boldx","\temphasis " + SWT.BOLD);
+			insertValue("boldx","\temphasis boldx");
 			makeStylesObject("underlinex");
-			insertValue("underlinex","\temphasis " + SWT.UNDERLINE_SINGLE);
+			insertValue("underlinex","\temphasis underlinex");
 		}
 		catch(Exception e){
-			e.printStackTrace();
 			new Notify("The application failed to load due to errors in " + BBIni.getDefaultConfigFile());
 			logger.log(Level.SEVERE, "Config File Error", e);
 		}
@@ -130,35 +134,47 @@ public class BBSemanticsTable {
 	
 	private void makeStylesObject(String key){
 		Styles temp = new Styles(key);
-		this.table.put(key, temp);
+		table.put(key, temp);
 	}
 	
 	private void insertValue(String styleName, String keyValuePair){
-		Styles temp = this.table.get(styleName);
+		Styles temp = table.get(styleName);
 		String [] tokens = keyValuePair.split(" ");
 		
 		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered"))
-			tokens[1] = String.valueOf(SWT.CENTER);
+			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.CENTER));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified"))
-			tokens[1] = String.valueOf(SWT.RIGHT);
+			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.RIGHT));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("leftJustified"))
-			tokens[1] = String.valueOf(SWT.LEFT);
+			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.LEFT));
 		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("boldx"))
-			tokens[1] = String.valueOf(SWT.BOLD);
+			setFontAttributes(temp, tokens[0].substring(1), SWT.BOLD, false);
 		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("italicx"))
-			tokens[1] = String.valueOf(SWT.ITALIC);
+			setFontAttributes(temp, tokens[0].substring(1), SWT.ITALIC, false);
 		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("underlinex"))
-			tokens[1] = String.valueOf(SWT.UNDERLINE_SINGLE);
+			setFontAttributes(temp, tokens[0].substring(1), SWT.UNDERLINE_SINGLE, true);
+		else
+			temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
+	}
+	
+	//Used to set a new SWT SyleRange object to a styles map.  StyleRange controls fontstyle which is an integer and underline which is boolean
+	private void setFontAttributes(Styles style, String key, int value, boolean underline){
+		StyleRange 	sr = new StyleRange();
 		
-		temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
+		if(underline == true)
+			sr.underline = true;
+		else
+			sr.fontStyle = value;
+		
+		style.put(StylesType.valueOf(key), sr);
 	}
 	
 	public boolean containsKey(String key){
-		return this.table.containsKey(key);
+		return table.containsKey(key);
 	}
 	
 	public Styles get(String key){
-		return this.table.get(key);
+		return table.get(key);
 	}
 	
 	public String getKeyFromAttribute(Element e){
@@ -214,22 +230,30 @@ public class BBSemanticsTable {
 		if(newStyle != null){
 			for (StylesType styleType : newStyle.getKeySet()) {
 				if(!st.contains(styleType)){
-					st.put(styleType, (String)newStyle.get(styleType));
+					if(styleType.equals(StylesType.emphasis))
+						st.put(styleType, (StyleRange)newStyle.get(styleType));
+					else {
+						st.put(styleType, (String)newStyle.get(styleType));
+					}
 				}
 				else if(st.contains(styleType) && styleType.equals(StylesType.emphasis)){
-					st.put(styleType, (String.valueOf(combineFontStyles((String)st.get(styleType), (String)newStyle.get(styleType)))));
+					st.put(styleType, (combineFontStyles(((StyleRange)st.get(styleType)), ((StyleRange)newStyle.get(styleType)))));
 				}
 			}
 		}
 	}
 	
-	private int combineFontStyles(String font1, String font2){
-		if(font1.equals(font2)){
-			return Integer.valueOf(font1);
-		}
-		else {
-			return Integer.valueOf(font1) + Integer.valueOf(font2);
-		}
+	private StyleRange combineFontStyles(StyleRange font1, StyleRange font2){
+		StyleRange newStyle = new StyleRange();
+		newStyle.fontStyle = font1.fontStyle;
+		
+		if(font1.fontStyle != font2.fontStyle && font1.fontStyle + font2.fontStyle <= 3) 
+			newStyle.fontStyle = font1.fontStyle + font2.fontStyle;
+		
+		if(font2.underline == true)
+			newStyle.underline = true;
+		
+		return newStyle;
 	}
 	
 	public boolean isBlockElement(Element e){
@@ -250,11 +274,11 @@ public class BBSemanticsTable {
 			makeHashTable(reader);
 			reader.close();
 			makeStylesObject("italicx");
-			insertValue("italicx","\temphasis " + SWT.ITALIC);
+			insertValue("italicx","\temphasis italicx");
 			makeStylesObject("boldx");
-			insertValue("boldx","\temphasis " + SWT.BOLD);
+			insertValue("boldx","\temphasis boldx");
 			makeStylesObject("underlinex");
-			insertValue("underlinex","\temphasis " + SWT.UNDERLINE_SINGLE);
+			insertValue("underlinex","\temphasis underlinex");
 		} 
 		catch (FileNotFoundException e) {
 			e.printStackTrace();

@@ -323,7 +323,7 @@ public class BrailleView extends WPView {
 		boolean isFirst = isFirst(n);
 		String viewText = n.getValue();
 
-		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
 					if(isFirst && (prevStyle == null || !prevStyle.contains(StylesType.linesAfter)))
@@ -334,7 +334,7 @@ public class BrailleView extends WPView {
 						setLinesAfter(spaceBeforeText + total + viewText.length() + spaceAfterText, style);
 					break;
 				case firstLineIndent: 
-					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
+					if(isFirst && (Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
 						setFirstLineIndent(spaceBeforeText + total, style);
 					break;
 				case format:
@@ -346,9 +346,9 @@ public class BrailleView extends WPView {
 				case leftMargin:
 					if(followsNewLine(n)){
 						if(isFirst && !style.contains(StylesType.firstLineIndent))
-							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf(entry.getValue()) * charWidth));
+							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf((String)entry.getValue()) * charWidth));
 						else if(!isFirst)
-							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf(entry.getValue()) * charWidth));
+							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf((String)entry.getValue()) * charWidth));
 					}
 					break;
 				default:
@@ -388,7 +388,7 @@ public class BrailleView extends WPView {
 		int prev = (Integer)m.getValue("braillePrev");
 		int next = (Integer)m.getValue("brailleNext");
 		
-		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
 					if(start != prev){
@@ -396,7 +396,7 @@ public class BrailleView extends WPView {
 						length = start - prev;	
 					}
 					
-					spaces = Integer.valueOf(entry.getValue());
+					spaces = Integer.valueOf((String)entry.getValue());
 					textBefore = makeInsertionString(spaces,'\n');
 					offset = spaces - length;
 									
@@ -412,7 +412,7 @@ public class BrailleView extends WPView {
 						view.replaceTextRange(end, (next - end), "");
 						length = next - end;	
 					}
-					spaces = Integer.valueOf(entry.getValue());
+					spaces = Integer.valueOf((String)entry.getValue());
 					textBefore = makeInsertionString(spaces,'\n');
 					insertBefore(end, textBefore);
 					offset = spaces - length;
@@ -421,14 +421,14 @@ public class BrailleView extends WPView {
 					setAlignment(start, end, style);
 					break;
 				case firstLineIndent:
-					if(Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
 						setFirstLineIndent(start, style);
 					break;
 				case leftMargin:
 					if(style.contains(StylesType.firstLineIndent))
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), true);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
 					else
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
 					break;
 				default:
 					break;

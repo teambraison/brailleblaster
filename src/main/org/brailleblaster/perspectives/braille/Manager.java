@@ -698,8 +698,8 @@ public class Manager extends Controller {
 			}
 		}
 		
-		text.clearRange(textStart, textEnd - textStart);
-		braille.clearRange(brailleStart, brailleEnd - brailleStart);
+		text.clearTextRange(textStart, textEnd - textStart);
+		braille.clearTextRange(brailleStart, brailleEnd - brailleStart);
 		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart), origPos);	
 		
 		int firstElementIndex = currentIndex;

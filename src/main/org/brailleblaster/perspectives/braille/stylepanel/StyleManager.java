@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Table;
 
 public class StyleManager{
 	
-    private StylePanel sp;
     private StyleTable table;
     private EditPanel editor;
     private String configFile;
@@ -62,24 +61,6 @@ public class StyleManager{
     	this.semanticsTable = dm.getStyleTable();
        	this.table = new StyleTable(this, dm.getGroup());
 	}
-
-	void createStyle(String styleName){
-    	EditStyle es = new EditStyle(this);
-    	es.create(styleName);
-    }
-    
-    void modifyStyle(Style style){
-    	EditStyle es = new EditStyle(this);
-    	es.modify(style);
-    }
-    
-    public void stylePanel(){
-    	sp.open();
-    }
-    
-    void readStyleFiles(String styleName){
-    	sp.readStyleFiles(styleName);
-    }
     
     public void displayTable(TextMapElement item){
     	if(table != null && !table.getGroup().isDisposed())
@@ -125,6 +106,8 @@ public class StyleManager{
     	}
     }
     
+	//Values in the style object are saved using the liblouisutdml keyword
+	//After saving to file, the style table is refreshed and the data type and value will correspond to the SWT object in the UI that applies them 
     protected void saveEditedStyle(Styles oldStyle, Styles newStyle){  	
     	ConfigFileHandler handler = new ConfigFileHandler(configFile);
     	handler.updateStyle(newStyle);

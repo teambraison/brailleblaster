@@ -66,9 +66,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
-import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
@@ -615,7 +613,7 @@ public class TextView extends WPView {
 		
 		Image image = ImageCreator.createImage(view.getDisplay(), math, getFontHeight());
 		view.append(" ");
-		setImageRange(image, total, length);
+		setImageStyleRange(image, total, length);
 		handleStyle(prevStyle, style, math, " ");
 		
 		for(int i = 1; i < brl.getChildCount(); i++){
@@ -630,8 +628,7 @@ public class TextView extends WPView {
 		}
 		
 		StyleRange s = view.getStyleRangeAtOffset(total);
-		s.length = length;
-		view.setStyleRange(s);
+		setFontStyleRange(s.start, length, s);
 		
 		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText, math));
 		total += spaceBeforeText + length + spaceAfterText;
@@ -639,37 +636,12 @@ public class TextView extends WPView {
 		spaceBeforeText = 0;	
 	}	
 	
-	private void setImageRange(Image image, int offset, int length) {
-		StyleRange style = new StyleRange ();
-		style.start = offset;
-		style.length = length;
-		style.data = image;
-		Rectangle rect = image.getBounds();
-		style.metrics = new GlyphMetrics(rect.height, 0, rect.width);
-		view.setStyleRange(style);		
-	}
-	
 	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		int margin = 0;
 		int pos = view.getCaretOffset();
-		setListenerLock(true);
-		StyleRange range = getStyleRange();
-		
-		if(range != null){
-			 if(!style.contains(StylesType.emphasis)){
-			 	range.fontStyle = SWT.NORMAL;
-				range.underline = false;
-			}
-			 else {
-				 range.fontStyle = Integer.valueOf((String)style.get(StylesType.emphasis));
-				 if(range.fontStyle == SWT.UNDERLINE_SINGLE)
-					 range.underline = true;
-				 else
-					 range.underline = false;
-			 }
-		}		
+		setListenerLock(true);		
 		
 		if(!n.getValue().equals(""))
 			reformattedText =  appendToView(n, false);
@@ -690,9 +662,12 @@ public class TextView extends WPView {
 			setFirstLineIndent(currentStart, style);
 		
 		if(style.contains(StylesType.emphasis))
-			setFontRange(currentStart, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.emphasis)));
-		
-		checkStyleRange(range);
+			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+		else {
+			StyleRange range = getStyleRange();
+			if(range != null)
+				 resetStyleRange(range);		
+		}
 	
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;
@@ -703,9 +678,8 @@ public class TextView extends WPView {
 	public void removeMathML(Message m){
 		setListenerLock(true);
 		
-		if(view.getCharCount() > 0) {
+		if(view.getCharCount() > 0) 
 			view.replaceTextRange((Integer)m.getValue("start"), Math.abs((Integer)m.getValue("length")), "");
-		}
 			
 		setListenerLock(false);
 	}
@@ -737,7 +711,7 @@ public class TextView extends WPView {
 			setAlignment(start, start + n.getValue().length(), style);
 		
 		if(style.contains(StylesType.emphasis))
-			setFontRange(start, reformattedText.length(), Integer.valueOf((String)style.get(StylesType.emphasis)));
+			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -823,7 +797,7 @@ public class TextView extends WPView {
 	private void handleStyle(Styles prevStyle, Styles style, Node n, String viewText){
 		boolean isFirst = isFirst(n);
 		
-		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
 					if(isFirst && (prevStyle == null || !prevStyle.contains(StylesType.linesAfter)))
@@ -834,20 +808,20 @@ public class TextView extends WPView {
 						setLinesAfter(spaceBeforeText + total + viewText.length(), style);
 					break;
 				case firstLineIndent: 
-					if(isFirst && (Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
+					if(isFirst && (Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
 						setFirstLineIndent(spaceBeforeText + total, style);
 					break;
 				case format:
 					setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style);
 					break;	
 				case emphasis:
-					setFontRange(total, spaceBeforeText + viewText.length(), Integer.valueOf(entry.getValue()));
+					setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
 					break;
 				case leftMargin:
 					if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), style.contains(StylesType.firstLineIndent));
+						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), style.contains(StylesType.firstLineIndent));
 					else
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
 					break;
 				default:
 					System.out.println(entry.getKey());
@@ -878,7 +852,7 @@ public class TextView extends WPView {
 				if(selectionStart < currentStart){
 					sendAdjustRangeMessage("start", currentStart - selectionStart);
 					if(range != null)
-						updateRange(range, currentStart, e.length);
+						setFontStyleRange(currentStart, e.length, range);
 				}
 				else if(selectionStart > currentEnd){
 					sendAdjustRangeMessage("end", selectionStart - currentEnd);	
@@ -1277,7 +1251,7 @@ public class TextView extends WPView {
 	
 	private void checkStyleRange(StyleRange range){
 		if(range != null){
-			updateRange(range, currentStart, currentEnd - currentStart);
+			setFontStyleRange(currentStart, currentEnd - currentStart, range);
 		}
 	}
 	
@@ -1326,7 +1300,7 @@ public class TextView extends WPView {
 		//Reset indent, alignment, and emphasis
 		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
 		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
-		setFontRange(start, end - start, 4);
+		setFontStyleRange(start, end - start, new StyleRange());
 		
 		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore))
 			removeLinesBefore(m);
@@ -1338,7 +1312,7 @@ public class TextView extends WPView {
 		int prev = (Integer)m.getValue("prev");
 		int next = (Integer)m.getValue("next");
 		
-		for (Entry<StylesType, String> entry : style.getEntrySet()) {
+		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
 					int linesBeforeOffset;
@@ -1346,7 +1320,7 @@ public class TextView extends WPView {
 						view.replaceTextRange(prev, (start - prev), "");
 						length = start - prev;	
 					}
-					spaces = Integer.valueOf(entry.getValue());
+					spaces = Integer.valueOf((String)entry.getValue());
 						
 					textBefore = makeInsertionString(spaces,'\n');
 					linesBeforeOffset = spaces - length;
@@ -1366,7 +1340,7 @@ public class TextView extends WPView {
 						length = next - end;	
 					}
 						
-					spaces = Integer.valueOf(entry.getValue());
+					spaces = Integer.valueOf((String)entry.getValue());
 					textBefore = makeInsertionString(spaces,'\n');
 					insertBefore(end, textBefore);
 					linesAfterOffset = spaces - length;
@@ -1376,14 +1350,14 @@ public class TextView extends WPView {
 					setAlignment(start, end, style);	
 					break;
 				case firstLineIndent:
-					if(Integer.valueOf(entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
 						setFirstLineIndent(start, style);
 					break;
 				case leftMargin:
 					if(style.contains(StylesType.firstLineIndent))
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), true);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
 					else
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf(entry.getValue()), false);
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
 					break;
 				
 				default:
@@ -1396,7 +1370,7 @@ public class TextView extends WPView {
 			for(int i = 0; i < list.size(); i++){
 				Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
 				if(nodeStyle.contains(StylesType.emphasis))
-					setFontRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), Integer.valueOf((String)nodeStyle.get(StylesType.emphasis)));
+					setFontStyleRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), (StyleRange)nodeStyle.get(StylesType.emphasis));
 			}
 		
 		}

@@ -56,15 +56,14 @@ public class ConfigFileHandler {
 		String entry = "style " + style.getName() + "\n"; 
 		
 		Set<StylesType> set = style.getKeySet();
-    	for(StylesType type : set){
+    	for(StylesType type : set)
     		entry += "\t" + type.toString() + " " + style.get(type) + "\n";
-    	}
 		
     	return entry;
 	}
 	
 	private String  getFileContentsAsString(String path){
-		 BufferedReader reader;
+		 BufferedReader reader = null;
 
 		try {
 			reader = new BufferedReader( new FileReader (path));
@@ -76,7 +75,6 @@ public class ConfigFileHandler {
 				stringBuilder.append( line );
 				stringBuilder.append( ls );
 			}
-			reader.close();
 
 			return stringBuilder.toString();
 		} catch (FileNotFoundException e) {
@@ -86,6 +84,15 @@ public class ConfigFileHandler {
 		catch (IOException e) {
 			e.printStackTrace();
 			return null;
+		}
+		finally {
+			if(reader != null){
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	

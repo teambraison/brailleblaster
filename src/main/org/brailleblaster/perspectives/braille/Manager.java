@@ -65,6 +65,7 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
+import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
@@ -116,6 +117,7 @@ public class Manager extends Controller {
 	private boolean simBrailleDisplayed;
 	private MapList list;
 	Archiver arch = null;
+	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -137,6 +139,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
+		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
 		
 		logger = BBIni.getLogger();
 		
@@ -171,6 +174,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
+		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
 		
 		logger = BBIni.getLogger();
 		
@@ -214,6 +218,12 @@ public class Manager extends Controller {
 			tabList = new Control[]{treeView.getView(), text.view, braille.view};
 		}
 		group.setTabList(tabList);
+	}
+	
+	///////////////////////////////////////////////////////////////
+	// Opens the search/replace dialog.
+	public void search() {
+		srch.open();
 	}
 	
 	public void fileSave(){	

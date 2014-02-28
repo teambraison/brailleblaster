@@ -373,8 +373,6 @@ public class ImageDescriberView {
 	// Resizes our widgets depending on screen resolution.
 	public void setUIDimensions()
 	{
-		// Screen resolution.
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		// Client Area.
 		clientWidth = group.getShell().getBounds().width;
 		clientHeight = group.getShell().getBounds().height;

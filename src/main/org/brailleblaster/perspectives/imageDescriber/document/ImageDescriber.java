@@ -35,22 +35,20 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 
 import nu.xom.Attribute;
-import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.TranscoderInput;
+import org.apache.batik.transcoder.TranscoderOutput;
+import org.apache.batik.transcoder.image.JPEGTranscoder;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.eclipse.swt.graphics.Image;
-
-import org.apache.batik.transcoder.image.JPEGTranscoder;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
 
 public class ImageDescriber extends BBDocument {
 	// The document with images we want to add descriptions to.

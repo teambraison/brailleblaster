@@ -522,7 +522,6 @@ public class ImageDescriberController extends Controller {
 	@Override
 	public void reuseTab(String file) {
 		closeUntitledDocument();
-		String currentPath = workingFilePath;
 		openDocument(file);
 		idv.setMainImage();
 		idv.setBrowser();

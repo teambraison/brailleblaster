@@ -43,7 +43,7 @@ public class ConfigEntry {
 	
 	/////////////////////////////////////////////////////////
 	// Constructor.
-	public void ConfigEntry()
+	public ConfigEntry()
 	{
 		line = new String();
 		name = new String();

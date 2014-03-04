@@ -34,6 +34,11 @@ import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,6 +61,15 @@ import org.liblouis.liblouisutdml;
 
 
 public class BBDocument {
+	private static final Map<FileTypes, List<String>> SUPPORTED_FILE_TYPES;
+	static {
+		Map<FileTypes, List<String>> temp = new EnumMap<FileTypes, List<String>>(FileTypes.class);
+		temp.put(FileTypes.XML, Arrays.asList("xml", "xht", "xhtm", "xhtml", "htm", "html"));
+		temp.put(FileTypes.TXT, Arrays.asList("txt"));
+		temp.put(Filetypes.BRF, Arrays.asList("brf"));
+		temp.put(FileTypes.UTD, Arrays.asList("utd"));
+		SUPPORTED_FILE_TYPES = Collections.unmodifiableMap(temp);
+	}
 	protected Controller dm;
 	protected Document doc;
 	private static String fileSep = BBIni.getFileSep();
@@ -139,8 +153,8 @@ public class BBDocument {
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
 		int extPos = completePath.lastIndexOf (".") + 1;
-		String ext = completePath.substring (extPos);
-		if (ext.equalsIgnoreCase ("xml") || ext.equals("xhtml") || ext.equals("html") || ext.equals("htm")) {
+		String ext = completePath.substring (extPos).toLowerCase();
+		if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
 			if( normalizeFile(completePath, tempPath) )
 				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0) )
@@ -153,15 +167,15 @@ public class BBDocument {
 					return false;
 				}
 		} 
-		else if (ext.equalsIgnoreCase ("txt")) {
+		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.TXT).contains(ext)) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
 				return buildDOM(outFile);
 		} 
-		else if (ext.equalsIgnoreCase ("brf")) {
+		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.BRF).contains(ext)) {
 			if(lutdml.backTranslateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
 				return buildDOM(outFile);
 		} 
-		else if (ext.equalsIgnoreCase ("utd")) {
+		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
 			normalizeUTD(completePath, tempPath);
 			return buildDOM(tempPath);

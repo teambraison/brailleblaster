@@ -292,7 +292,7 @@ public class ImageDescriber extends BBDocument {
 		                   new Float(.8));
 	
 		        // Create the transcoder input.
-		        String svgURI = new File( svgPath ).toURL().toString();
+		        String svgURI = new File( svgPath ).toURI().toURL().toString();
 		        TranscoderInput input = new TranscoderInput(svgURI);
 	
 		        // Create the transcoder output.

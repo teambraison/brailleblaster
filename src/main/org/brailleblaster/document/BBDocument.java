@@ -66,7 +66,7 @@ public class BBDocument {
 		Map<FileTypes, List<String>> temp = new EnumMap<FileTypes, List<String>>(FileTypes.class);
 		temp.put(FileTypes.XML, Arrays.asList("xml", "xht", "xhtm", "xhtml", "htm", "html"));
 		temp.put(FileTypes.TXT, Arrays.asList("txt"));
-		temp.put(Filetypes.BRF, Arrays.asList("brf"));
+		temp.put(FileTypes.BRF, Arrays.asList("brf"));
 		temp.put(FileTypes.UTD, Arrays.asList("utd"));
 		SUPPORTED_FILE_TYPES = Collections.unmodifiableMap(temp);
 	}

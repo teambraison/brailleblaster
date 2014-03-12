@@ -52,9 +52,12 @@ public class ArchiverFactory {
 //			
 //		} // UNZIP
 		
+		// Is this EPub3?
+		if( isEPUB3(filePath) )
+			return new EPub3Archiver(filePath);
 		// Is this EPub?
 		if( isEPUB(filePath) )
-			return new EPubArchiver(filePath);
+			return new EPub3Archiver(filePath);
 		// Is this Nimas?
 //		if( isNIMAS(filePath) )
 //			return new NimasArchiver(filePath);
@@ -68,6 +71,17 @@ public class ArchiverFactory {
 	// Is this an ePub document?
 	static boolean isEPUB(String pathToDoc)
 	{
+		
+	
+		// This isn't an EPUB document.
+		return false;
+	
+	} // isEPUB()
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Is this an ePub3 document?
+	static boolean isEPUB3(String pathToDoc)
+	{
 		// Does it end with .epub?
 		if(pathToDoc.toLowerCase().endsWith(".epub"))
 			return true;
@@ -75,7 +89,7 @@ public class ArchiverFactory {
 		// This isn't an EPUB document.
 		return false;
 		
-	} // isEPUB()
+	} // isEPUB3()
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Is this a Nimas document?

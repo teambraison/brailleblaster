@@ -325,9 +325,101 @@ public class SearchDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Replace every instance of word.
+				int oldTopIndex = man.getTextView().getTopIndex();
+				int oldCursorPos = man.getText().getCursorOffset(); 
+				man.getText().setCursor(0, man);
 				while( findStr() == true )
 					man.getText().copyAndPaste( replaceCombo.getText(), startCharIndex, endCharIndex );
+				man.getTextView().setTopIndex( oldTopIndex );
+				man.getText().setCursorOffset(oldCursorPos);
 				
+				if( 0 == 1 ) {
+				// Grab text view.
+				TextView tv = man.getText();
+				
+				// Are there any characters in the text view? If there 
+				// are no characters, we probably don't have a document 
+				// loaded yet.
+				if(tv.view.getCharCount() == 0)
+					return;
+				
+				// Grab search string.
+				String findMeStr = searchCombo.getText();
+				
+				// Get number of characters in text view.
+				int numChars = tv.view.getText().length();
+				
+				// If the search string is larger than the total number of 
+				// characters in the view, don't bother.
+				if(findMeStr.length() > numChars)
+					return;
+				
+				// Get current cursor position.
+				startCharIndex = tv.view.getCaretOffset();
+				endCharIndex = startCharIndex + findMeStr.length();
+				
+				// Scour the view for the search string.
+				while( startCharIndex < numChars && endCharIndex < numChars )
+				{
+					// Get current snippet of text we're testing.
+					String curViewSnippet = tv.view.getText().substring(startCharIndex, endCharIndex);
+					
+					// Should we be checking case sensitive version?
+					if( searchCaseSensitive == SCH_CASE_OFF ) {
+						curViewSnippet = curViewSnippet.toLowerCase();
+						findMeStr = findMeStr.toLowerCase();
+					}
+					
+					// Compare the two strings. Is there a match?
+					if( curViewSnippet.matches(findMeStr) == true)
+					{
+						// Whole word?
+						boolean haveAmatch = true;
+						if( searchWholeWord == SCH_WHOLE_ON )
+						{
+//							"^[\pL\pN]*$";
+							if( startCharIndex - 1 >= 0)
+								if( tv.view.getText().substring(startCharIndex - 1, startCharIndex).matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+							if( endCharIndex + 1 < numChars )
+								if( tv.view.getText().substring(endCharIndex, endCharIndex + 1).matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+							
+						} // if( searchWholeWord...
+						
+						// Update view if we have a match.
+						if(haveAmatch == true)
+						{
+							// Set cursor and view to point to search string we found.
+							man.getText().copyAndPaste( replaceCombo.getText(), startCharIndex, endCharIndex );
+							startCharIndex += replaceCombo.getText().length();
+							endCharIndex = startCharIndex + findMeStr.length();
+							
+						} // if( haveAmatch = true)
+						
+					} // if( curViewSnippet...
+					
+					// Move forward a character.
+					startCharIndex++;
+					endCharIndex++;
+					
+					// If search wrap is on, move to other end of document, if at 
+					// the end.
+					if( searchWrap == SCH_WRAP_ON )
+					{
+						// If we're at the end, move to the other end.
+						if( startCharIndex >= numChars || endCharIndex >= numChars )
+						{
+							// Reset position.
+							startCharIndex = 0;
+							endCharIndex = startCharIndex + findMeStr.length();
+							
+						} // if( startCharIndex...
+						
+					} // if( searchWrap == SCH_WRAP_ON )
+					
+				} // while( startCharIndex...
+				} //if( 0 == 1 ) {
 			} // widgetSelected()
 			
 		}); // replaceBtn.addSelectionListener()

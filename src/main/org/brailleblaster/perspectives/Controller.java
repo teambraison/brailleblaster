@@ -97,7 +97,7 @@ public abstract class Controller implements DocumentManager{
 		}
 		else {
 			if(docCount == 1){
-				item.setText("Untitled");			
+				item.setText("Untitled");
 			}
 			else {
 				item.setText("Untitled #" + docCount);

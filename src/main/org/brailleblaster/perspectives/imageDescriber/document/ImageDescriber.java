@@ -255,8 +255,8 @@ public class ImageDescriber extends BBDocument {
 			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
 			
 			// Remove dots and slashes at beginning.
-			if( tempStr.startsWith(".") && dm.getArchiver() == null)
-				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
+//			if( tempStr.startsWith(".") && dm.getArchiver() == null)
+//				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
 			
 			// Build image path.
 			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;

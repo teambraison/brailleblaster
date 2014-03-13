@@ -460,15 +460,13 @@ public class Manager extends Controller {
 	}
 	
 	private void initializePrintPage(Element page){
-		Node textNode = list.findPrintPageNode(page);
+		Node textNode = document.findPrintPageNode(page);
 		if(textNode != null){
 			text.addPageNumber(list, textNode);
 		
-			Node brailleText = list.findBraillePageNode(page);
+			Node brailleText = document.findBraillePageNode(page);
 			braille.addPageNumber(list, brailleText);
 		}
-		else
-			new Notify("LiblouisUTDML did not translate the following XML element properly:\n" + page.toXML().toString());
 	}
 	
 	private void initializeMathML(Element math, Element brl){

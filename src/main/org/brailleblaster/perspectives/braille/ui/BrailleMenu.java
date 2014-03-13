@@ -772,13 +772,16 @@ public class BrailleMenu extends BBMenu{
 	@Override
 	public void setCurrent(Controller controller){
 		currentEditor = (Manager)controller;
-		if(stylePanelItem != null)
-			setStylePanelItem();
-		
-		if(treeViewMenu != null){
-			selectedTree.setSelection(false);
-			setTreeItem();
-			setBrailleFont();
+		// If the document was closed then there may be no current editor
+		if(currentEditor != null){
+			if(stylePanelItem != null)
+				setStylePanelItem();
+			
+			if(treeViewMenu != null){
+				selectedTree.setSelection(false);
+				setTreeItem();
+				setBrailleFont();
+			}
 		}
 	}
 	

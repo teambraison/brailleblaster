@@ -142,13 +142,11 @@ public abstract class BBMenu {
 				public void widgetSelected(SelectionEvent e) {
 					while(wp.getList().size() > 0){
 						Controller temp = wp.getList().getFirst();
-						//if(temp.getText().hasChanged || temp.getBraille().hasChanged){
 						wp.removeController(temp);
-						temp.close();
-						//}
+						temp.close();		
 					}
-					//wp.getList().clear();
-					wp.getShell().getDisplay().dispose();
+					
+					wp.getShell().dispose();
 				}
 			});
 		}

@@ -1042,7 +1042,7 @@ public class Manager extends Controller {
 		if (text.hasChanged || braille.hasChanged || documentEdited) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
-				this.fileSave();
+				fileSave();
 			}
 		}
 		dispose();

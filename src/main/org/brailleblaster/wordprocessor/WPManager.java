@@ -29,8 +29,8 @@
 package org.brailleblaster.wordprocessor;
 
 import org.eclipse.swt.*;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -70,38 +70,33 @@ public class WPManager {
     
     //This constructor is the entry point to the word processor. It gets things set up, handles multiple documents, etc.
     public WPManager(String fileName) {
-    	this.managerList = new LinkedList<Controller>();
+    	managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
         display = new Display();
-    	this.shell = new Shell(display, SWT.SHELL_TRIM);
-        this.shell.setText("BrailleBlaster"); 
-		this.layout = new FormLayout();
-		this.shell.setLayout(this.layout);
+    	shell = new Shell(display, SWT.SHELL_TRIM);
+        shell.setText("BrailleBlaster"); 
+		layout = new FormLayout();
+		shell.setLayout(this.layout);
 		
-		this.folder = new TabFolder(this.shell, SWT.NONE);	
-		this.location = new FormData();
-	    this.location.left = new FormAttachment(0);
-	    this.location.right = new FormAttachment(100);
-	    this.location.top = new FormAttachment (13);
-	    this.location.bottom = new FormAttachment(98);
-	    this.folder.setLayoutData (this.location);    
-	    this.statusBar = new BBStatusBar(this.shell);
+		folder = new TabFolder(this.shell, SWT.NONE);	
+		location = new FormData();
+	    location.left = new FormAttachment(0);
+	    location.right = new FormAttachment(100);
+	    location.top = new FormAttachment (13);
+	    location.bottom = new FormAttachment(98);
+	    folder.setLayoutData (location);    
+	    statusBar = new BBStatusBar(shell);
 	   
 	    if(fileName == null)
-	    	this.currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), null);
+	    	currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), null);
 	    else
-	    	this.currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), fileName);
+	    	currentPerspective = Perspective.getPerspective(this, getDefaultPerspective(), fileName);
 	    
-	    this.managerList.add(this.currentPerspective.getController());
-	    this.currentPerspective.getController().setStatusBarText(statusBar);
-	    this.bbMenu = currentPerspective.getMenu();
+	    managerList.add(currentPerspective.getController());
+	    currentPerspective.getController().setStatusBarText(statusBar);
+	    bbMenu = currentPerspective.getMenu();
 	    
-	    this.folder.addSelectionListener(new SelectionListener(){
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub			
-			}
-
+	    folder.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
@@ -122,7 +117,7 @@ public class WPManager {
 			}
 	    });
 	    
-	    this.shell.addListener(SWT.Close, new Listener() { 
+	    shell.addListener(SWT.Close, new Listener() { 
 	        @Override
 			public void handleEvent(Event event) { 
 	           System.out.println("Main Shell handling Close event, about to dispose the main Display");
@@ -132,17 +127,17 @@ public class WPManager {
 	        	   temp.close();
 	           }
 	           
-	           display.dispose();
+	           shell.dispose();
 	           bbMenu.writeRecentsToFile();
 	        } 
 	     });
 		
-		setShellScreenLocation(display, this.shell);
+		setShellScreenLocation(display, shell);
    
         new Welcome(); 
-		this.shell.open();
+		shell.open();
 		
-        while (!display.isDisposed())  { 
+        while (!shell.isDisposed())  { 
 	        try { 
 	           if (!display.readAndDispatch()) { 
 	              display.sleep(); 
@@ -152,6 +147,7 @@ public class WPManager {
 	           e.printStackTrace(); 
 	        } 
 	    } 
+        display.dispose();
         
         if(lastPerspective != null)
         	savePerspectiveSetting();

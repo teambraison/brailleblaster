@@ -572,14 +572,6 @@ public class MapList extends LinkedList<TextMapElement>{
 		paginator.add(p);
 	}
 	
-	public Node findPrintPageNode(Element page){
-		return paginator.findTextNode(page);
-	}
-	
-	public Node findBraillePageNode(Element page){
-		 return paginator.findBrailleNode(page);
-	}
-	
 	public PageMapElement getLastPage(){
 		return paginator.getLast();
 	}

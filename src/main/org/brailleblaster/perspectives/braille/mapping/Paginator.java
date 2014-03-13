@@ -4,9 +4,6 @@ import java.util.LinkedList;
 
 import org.brailleblaster.perspectives.braille.messages.Message;
 
-import nu.xom.Element;
-import nu.xom.Node;
-import nu.xom.Text;
 
 public class Paginator {
 	private LinkedList<PageMapElement>list;
@@ -17,34 +14,6 @@ public class Paginator {
 	
 	public PageMapElement getPageMapElement(int index){
 		return list.get(index);
-	}
-	
-	public Node findTextNode(Element e){
-		int count = e.getChildCount();
-		for(int i = 0; i < count; i++){
-			if(e.getChild(i) instanceof Element && (((Element)e.getChild(i)).getLocalName().equals("span") || ((Element)e.getChild(i)).getLocalName().equals("brl"))){
-				return findTextNode((Element)e.getChild(i));
-			}
-			else if(e.getChild(i) instanceof Text && ((Element)e.getChild(i).getParent()).getLocalName().equals("span")){
-				return e.getChild(i);
-			}
-		}
-		
-		return null;
-	}
-	
-	public Node findBrailleNode(Element e){
-		int count = e.getChildCount();
-		for(int i = 0; i < count; i++){
-			if(e.getChild(i) instanceof Element && (((Element)e.getChild(i)).getLocalName().equals("span") || ((Element)e.getChild(i)).getLocalName().equals("brl"))){
-				return findBrailleNode((Element)e.getChild(i));
-			}
-			else if(e.getChild(i) instanceof Text && ((Element)e.getChild(i).getParent()).getLocalName().equals("brl")){
-				return e.getChild(i);
-			}
-		}
-		
-		return null;
 	}
 	
 	public PageMapElement getLast(){

@@ -48,11 +48,14 @@ import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.ParsingException;
+import nu.xom.Text;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
@@ -77,21 +80,26 @@ public class BBDocument {
 	protected FileUtils fu = new FileUtils();
 	protected static Logger logger = BBIni.getLogger();
 	private ArrayList<String>missingSemanticsList;
+	private ArrayList<String>mistranslationList;
 	private String systemId;
 	private String publicId;
 	protected SemanticFileHandler semHandler;
-	
+	protected LocaleHandler lh;
 	public BBDocument(Controller dm){		
 		this.dm = dm;
-		this.missingSemanticsList = new ArrayList<String>();
-		this.semHandler = new SemanticFileHandler(dm.getCurrentConfig());
+		lh = new LocaleHandler();
+		missingSemanticsList = new ArrayList<String>();
+		mistranslationList = new ArrayList<String>();
+		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 	}
 	
 	public BBDocument(Controller dm, Document doc){
 		this.dm = dm;
 		this.doc = doc;
-		this.missingSemanticsList = new ArrayList<String>();
-		this.semHandler = new SemanticFileHandler(dm.getCurrentConfig());
+		lh = new LocaleHandler();
+		missingSemanticsList = new ArrayList<String>();
+		mistranslationList = new ArrayList<String>();
+		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 	}
 	
 	public boolean createNewDocument(){
@@ -379,20 +387,78 @@ public class BBDocument {
 			//Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
 			Attribute attr = new Attribute("semantics", "style,para");
 			e.addAttribute(attr);
-			if(!e.getLocalName().equals("meta") && !this.missingSemanticsList.contains(e.getLocalName()))
-				this.missingSemanticsList.add(e.getLocalName());
+			if(!e.getLocalName().equals("meta") && !missingSemanticsList.contains(e.getLocalName()))
+				missingSemanticsList.add(e.getLocalName());
 		}
 	}
 	
 	public void notifyUser(){
-		if(this.missingSemanticsList.size() > 0){
-			String text = "No semantic attribute exists for the following element(s): \n";
-			for(int i = 0; i < this.missingSemanticsList.size(); i++){
-				text += this.missingSemanticsList.get(i) + "\n";
+		if(missingSemanticsList.size() > 0){
+			String text = lh.localValue("missingSem");
+			for(int i = 0; i < missingSemanticsList.size(); i++){
+				text += missingSemanticsList.get(i) + "\n";
 			}
-			text += "Please check your document and consider editing the configuration files.";
+			text += lh.localValue("checkConfig");
 			new Notify(text);
+			missingSemanticsList.clear();
 		}
+		
+		if(mistranslationList.size() > 0){
+			String text = lh.localValue("mistransError");
+			for(int i = 0; i < mistranslationList.size(); i++){
+				text += mistranslationList.get(i) + "\n";
+			}
+			new Notify(text);
+			mistranslationList.clear();
+		}
+	}
+	
+	public Node findPrintPageNode(Element e){
+		Node n = findPrintPageNodeHelper(e);
+		if(n == null){
+			mistranslationList.add(e.toXML().toString());
+			return null;
+		}
+		else
+			return n;
+	}
+	
+	private Node findPrintPageNodeHelper(Element e){
+		int count = e.getChildCount();
+		for(int i = 0; i < count; i++){
+			if(e.getChild(i) instanceof Element && (((Element)e.getChild(i)).getLocalName().equals("span") || ((Element)e.getChild(i)).getLocalName().equals("brl"))){
+				return findPrintPageNodeHelper((Element)e.getChild(i));
+			}
+			else if(e.getChild(i) instanceof Text && ((Element)e.getChild(i).getParent()).getLocalName().equals("span")){
+				return e.getChild(i);
+			}
+		}
+	
+		return null;
+	}
+	
+	public Node findBraillePageNode(Element e){
+		Node n = findBraillePageNodeHelper(e);
+		if(n == null){
+			mistranslationList.add(e.toXML().toString());
+			return null;
+		}
+		else
+			return n;
+	}
+	
+	private Node findBraillePageNodeHelper(Element e){
+		int count = e.getChildCount();
+		for(int i = 0; i < count; i++){
+			if(e.getChild(i) instanceof Element && (((Element)e.getChild(i)).getLocalName().equals("span") || ((Element)e.getChild(i)).getLocalName().equals("brl"))){
+				return findBraillePageNodeHelper((Element)e.getChild(i));
+			}
+			else if(e.getChild(i) instanceof Text && ((Element)e.getChild(i).getParent()).getLocalName().equals("brl")){
+				return e.getChild(i);
+			}
+		}
+		
+		return null;
 	}
 	
 	public String getOutfile(){

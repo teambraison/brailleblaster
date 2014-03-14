@@ -119,7 +119,7 @@ public class BBDocument {
 		} 
 		catch (ParsingException e) {
 			e.printStackTrace();
-			new Notify("Framework is malformed");
+			new Notify(lh.localValue("malformedFramework"));
 			return false;
 		} 
 		catch (IOException e) {
@@ -211,26 +211,26 @@ public class BBDocument {
 			return true;
 		} 
 		catch(ConnectException e){
-			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
+			new Notify(lh.localValue("connectionError"));
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "Connections Error", e);
 			return false;
 		}
 		catch(UnknownHostException e){
-			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
+			new Notify(lh.localValue("connectionError"));
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "Unknown Host Error", e);
 			return false;
 		}
 		catch (ParsingException e) {
-			new Notify("Problem processing " + fileName + " See stack trace.");
+			new Notify(lh.localValue("processingProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			new CheckLiblouisutdmlLog().displayLog();
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "Parse Error", e);
 			return false;
 		} 
 		catch (IOException e) {
-			new Notify ("IO error occurred while parsing " + fileName + " See stack trace.");
+			new Notify (lh.localValue("ioProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "IO Error", e);
 			return false;
@@ -385,7 +385,6 @@ public class BBDocument {
 	
 	public void checkSemantics(Element e){
 		if(e.getAttributeValue("semantics") == null){
-			//Notify errorMessage = new Notify("No semantic attribute exists for element \"" + e.getLocalName() + "\". Please consider editing the configuration files.");
 			Attribute attr = new Attribute("semantics", "style,para");
 			e.addAttribute(attr);
 			if(!e.getLocalName().equals("meta") && !missingSemanticsList.contains(e.getLocalName()))

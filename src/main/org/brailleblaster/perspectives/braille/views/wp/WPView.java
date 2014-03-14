@@ -118,6 +118,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	//restores previous alignment when updating text
 	protected void restoreStyleState(int start, int end){
 		int line = view.getLineAtOffset(start);
+		if(end > view.getCharCount())
+			end = view.getCharCount();
 		int lineCount = view.getLineAtOffset(end) - view.getLineAtOffset(start);
 		view.setLineAlignment(line, lineCount + 1, currentAlignment);
 	}

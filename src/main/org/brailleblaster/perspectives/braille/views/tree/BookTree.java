@@ -66,21 +66,21 @@ public class BookTree extends TreeView {
 	public BookTree(final Manager dm, Group documentWindow){
 		super(dm, documentWindow);
 		table = dm.getStyleTable();
-		this.tree.pack();
+		tree.pack();
 	}
 	
 	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
-		this.root.setExpanded(false);
-		this.root.dispose();
-		this.root = null;
+		root.setExpanded(false);
+		root.dispose();
+		root = null;
 		setListenerLock(false);
 	}
 
 	@Override
 	public void initializeListeners() {
-		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
+		tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
 					if(!e.item.equals(root)){
@@ -320,7 +320,7 @@ public class BookTree extends TreeView {
 			TreeItemData data = getItemData(item.getItem(i));
 			
 			if(!found){
-				if(data.endRange >= index ||(data.endRange == -1 && !item.getItem(i).equals(getLastItem())))
+				if(data.endRange >= index ||(data.endRange == -1))
 					found = true;
 			}
 			

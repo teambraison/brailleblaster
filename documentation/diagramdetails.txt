@@ -1,0 +1,199 @@
+This is a step-by-step description of how the BrailleBlaster document 
+model is built and used. It explains the block diagram in more detail.
+
+It begins with an xml file containing utd and a semantic-action file for 
+that flavor of xml.
+
+The file is parsed to produce a parse tree and then closed. The document 
+node is pased to a method in the Semantics class.
+
+This method looks for a semantic-action file in the semantics 
+subdirectory of the programData folder. The name of this file is formed 
+by adding .sem to the name of the root element. If such a file does not 
+exist a prototype file containing a line for each distinct markup in the 
+document is created. A dialog box informs the user of this situation. 
+The file can later be edited by a developer and added to 
+BrailleBlaster's repertoire.
+
+An example semantic-action file for dtbook DAISY xml files is shown 
+below. Note that this file is not a final version, nor is the Semantics 
+class shown later.
+
+--------------------
+newEntries=no
+internetAccesRequired=no
+book=style document
+p=style para
+h1=style heading1
+h2=style heading2
+h3=style heading3
+h4=style heading4
+h5=style heading4
+h6=style heading4
+a,href=action htmlLink
+a,name=action htmlTarget
+code=style computerCode
+code,class,inline=action compbrl
+em=action italic \s,\s
+b=action bold
+acronym=action notranslate
+li=style list
+pagenum=action pagenum
+docauthor=style para
+doctitle=style heading1
+th=style para
+tr=style para
+strong=action italic \s,\s
+code,class,display=style computerCode
+note=style note
+blockquote=style blockquote
+samp=style para
+sidebar=style para
+br=action softReturn
+abbr=style para
+--------------------
+
+The semantic-action file is read into an array of the inner class 
+SemanticEntry, shown below. This array is called semanticTable If no 
+semantic-action file exists a default semanticTable which will give a 
+bare-bones display in the print window is built. The display in the 
+Braille window is defined by the utd part of the document.
+
+--------------------
+package newclasses;
+
+public class Semantics {
+enum Action {
+  no,
+  skip,
+  generic,
+  cdata,
+  htmlLink,
+  htmlTarget,
+  document,
+  para,
+  heading1,
+  heading2,
+  heading3,
+  heading4,
+  heading5,
+  heading6,
+  heading7,
+  heading8,
+  heading9,
+  heading10,
+  contentsHeader,
+  contents1,
+  contents2,
+  contents3,
+  contents4,
+  conents5,
+  contents6,
+  contents7,
+  contents8,
+  contents9,
+  contents10,
+  noTranslate,
+  attrToText,
+  runningHead,
+  footer,
+  boxLine,
+  italic,
+  bold,
+  underline,
+  compbrl,
+  lineSpacing,
+  blankLine,
+  softReturn,
+  newPage,
+  brl,
+  music,
+  math,
+  chemistry,
+  graphic
+};
+
+class SemanticEntry {
+  String markup;
+  String operation;
+  String operand;
+  String parameters;
+  Action action;
+  StyleType style;
+  String macro;
+}
+
+SemanticEntry[] semanticTable = new SemanticEntry[100];
+
+}
+--------------------
+
+A hashtable is then constructed in which the key is the markup field of 
+each SementicEntry and the value is its position in the 
+semanticTable array.
+
+The array is searched for XPath expresions. If they are found they are 
+applied to the parse tree. Each node in the nodeset is then augmented 
+with a new attribure, bbsem whose value is the position of the 
+SemanticEntry in semanticTable
+
+The parse tree is then traversed. If a node does not contain a bbsem 
+attribute the hash table is used to discover whether it is in the 
+semanticTable array. First the attributes with their values, together 
+with the element name are looked up, then just the element name and the 
+name of each attribute, then just the element name. if any of these 
+lookups is successful, a bbsem atttribute is added. During this 
+traversal information on the document, such as whether it references 
+graphics, is also collected.
+
+This completes the construction of the document model.
+
+BrailleBlaster then calls another method in the Semantics class to 
+display the document in both the print and Braille windows. In the 
+Braille window each line of Braille is displayed with proper indentation 
+and vertical spacing. Tactile images are also displayed. In the print 
+window the bbsem attribute of each node is used to find the appropriate 
+entry in the semanticTable. the style, action or macro referenced in 
+that table is applied. Actions cause methods to be invoked. For example, 
+such a method might underline a block of characters. Instances of class 
+StyleType are created the first time a particular style is used. Macros 
+are compiled the first time they are invoked.
+
+BrailleBlaster then calls a readAndEdit method. If a text node is edited 
+in the print window it is dynamically retranslated at each character 
+keystroke in the Braille window. If a new block of characters is created 
+it is assigned the style para (paragraph), but the user can bring up a 
+list of valid styles. When a style or action is chosen, the block of 
+characters is added to the parse treee with the markup in the 
+corresponding entry in the semanticTable. The entry is found by a linear 
+search for the style or action name. There may be several entries that 
+match. The first one is taken. For example, there are several entries in 
+the dtbok.sem file shown above for the para style. The desired one has 
+been placed before all the others, which are used to display various 
+things.
+
+When something in the Braille window is edited the markup to be used for 
+locking 
+it is obtained from the semanticTable, as is the markup to be used to 
+indicate that the corresponding part of the print window is to be 
+skipped during retranslation.
+
+At any time the user can chose the save menu item. This has two options: 
+save working (utd) file and save enhanced document. In either case 
+the save process involves removal of the bbsem attributes. If the save 
+working document is chosen the parse tree is used to create a file with 
+the utd extension in the same directory as the original document. If the 
+save enhanced document option is chosen any edited Braille is moved into 
+the print part of the document with its appropriate markup. The <brl> 
+subtrees are deleted and a file with the original document name is 
+written to the original directory.
+
+If the user choses the Save As menu item s/he can chose a number of 
+options, among them, save as a brf file and save as pef.
+
+The emboss menu item will send the <brl> portions of the document to the 
+appropriate embosser driver.
+
+The print menu item will print the document as it is shown in the print 
+window.
+

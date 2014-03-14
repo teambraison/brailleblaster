@@ -1,0 +1,5 @@
+This directory contains semantic-action files and also the starter files 
+for new documents. There should be a starter file for each 
+semantic-action file. See 
+org.brailleblaster.wordprocessor.NewDocument.java 
+

@@ -668,6 +668,12 @@ public class TextView extends WPView {
 			if(range != null)
 				 resetStyleRange(range);		
 		}
+		
+		if(style.contains(StylesType.format))
+			setAlignment(currentStart, currentEnd, style);
+		else{
+			setAlignment(currentStart, currentEnd, SWT.LEFT);
+		}
 	
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;
@@ -988,7 +994,7 @@ public class TextView extends WPView {
 					view.setCaretOffset(selectionStart);
 					view.insert(pageText);
 					setSelection(selectionStart + 1, selectionLength - 1);
-					if(selectionLength - pageText.length() - 1 <= 0)
+					if(selectionLength - pageText.length() - 1 <= 0 && selectionStart + pageText.length() >= view.getCharCount())
 						view.replaceTextRange(view.getCharCount() -1, 1, "");
 					setListenerLock(false);
 					

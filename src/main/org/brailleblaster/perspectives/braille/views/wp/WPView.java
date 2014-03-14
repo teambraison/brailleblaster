@@ -207,6 +207,11 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
 	}
 	
+	protected void setAlignment(int start, int end, int style){
+		int startLine = view.getLineAtOffset(start);
+		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  style);	
+	}
+	
 	public void clearTextRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");

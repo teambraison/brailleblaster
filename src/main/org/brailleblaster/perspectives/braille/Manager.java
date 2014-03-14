@@ -585,6 +585,7 @@ public class Manager extends Controller {
 	private void handleSetCurrent(Message message){
 		int index;
 		list.checkList();
+		
 		if(message.getValue("isBraille").equals(true)){
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
@@ -637,23 +638,38 @@ public class Manager extends Controller {
 	}
 	
 	private void handleTextDeletion(Message message){
+		int brailleStart = 0;
 		list.checkList();
-		if((Integer)message.getValue("deletionType") == SWT.BS){
-			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.getCurrent().brailleList.getFirst().start + (Integer)message.getValue("length"),  (Integer)message.getValue("length"), SWT.BS);
+		if(list.size() > 0){		
+			int start = (Integer)message.getValue("offset");
+			int index = list.findClosest(message, 0, list.size() - 1);
+			TextMapElement t = list.get(index);
+			if(start < t.start){
+				if(index > 0){
+					if(t.brailleList.size() > 0)
+						brailleStart = t.brailleList.getFirst().start + (Integer)message.getValue("length");
+				}
+				else{
+					brailleStart = 0;
+				}
 			}
-			list.shiftOffsetsFromIndex(list.getCurrentIndex(), (Integer)message.getValue("length"), (Integer)message.getValue("length"), list.getCurrent().start);
+			else if(t.brailleList.size() > 0)
+				brailleStart = t.brailleList.getLast().end;
+		
+			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
+				
+		
+			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
+				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
+			else if(index != list.size() -1 || (index == list.size() - 1 && start < t.start))
+				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
 		}
-		else if((Integer)message.getValue("deletionType") == SWT.DEL){
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), list.get(list.getCurrentIndex() + 1).start);
-			if(list.hasBraille(list.getCurrentIndex())){
-				braille.removeWhitespace(list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start,  (Integer)message.getValue("length"), SWT.DEL);
-			}
-		}
+		else
+			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
 	}
 	
 	private void handleUpdate(Message message){
-		message.put("selection", this.treeView.getSelection(list.getCurrent()));
+		message.put("selection", treeView.getSelection(list.getCurrent()));
 		if(list.getCurrent().isMathML()){
 			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), list.getCurrent().end - list.getCurrent().start, list.getCurrent()));
 			message.put("diff", 0);
@@ -930,7 +946,7 @@ public class Manager extends Controller {
 			
 			if(message.contains("linesBeforeOffset"))
 				list.shiftOffsetsFromIndex(start, (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"), origPos);	
-			if(message.contains("linesAfterOffset"))
+			if(message.contains("linesAfterOffset") && list.size() > 1 && end < list.size() - 1)
 				list.shiftOffsetsFromIndex(end + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), origPos);
 
 			//list.setCurrent(currentIndex);

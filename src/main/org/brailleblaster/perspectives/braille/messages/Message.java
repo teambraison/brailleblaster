@@ -152,10 +152,10 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createTextDeletionMessage(int length, int deletionType, boolean update){
+	public static Message createTextDeletionMessage(int offset, int length, boolean update){
 		Message m = new Message(BBEvent.TEXT_DELETION);
+		m.put("offset", offset);
 		m.put("length", length);
-		m.put("deletionType", deletionType);
 		m.put("update", update);
 		
 		return m;

@@ -303,7 +303,7 @@ public class BrailleMenu extends BBMenu{
 		cutItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int count = wp.getFolder().getSelectionIndex();
+				int count = wp.getFolder().getItemCount();
 				if(count > 0)
 					currentEditor.getText().cut();
 			}

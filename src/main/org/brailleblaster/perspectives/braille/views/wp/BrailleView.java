@@ -530,7 +530,7 @@ public class BrailleView extends WPView {
 		}
 
 		if(next != -1){
-			m.put("linesAfterOffset", offset);
+			//m.put("linesAfterOffset", offset);
 			m.put("brailleNext", next + offset);
 		}
 	}
@@ -674,7 +674,8 @@ public class BrailleView extends WPView {
 		if(t.brailleList.getFirst().start != -1){
 			setListenerLock(true);			
 			view.replaceTextRange(t.brailleList.getFirst().start, total, insertionString);
-			restoreStyleState(t.brailleList.getFirst().start, t.brailleList.getLast().end);
+			if(style.contains(StylesType.format) && t.brailleList.size() > 0)
+				setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
 			
 			//reset margin in case it is not applied
 			if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
@@ -697,16 +698,8 @@ public class BrailleView extends WPView {
 		view.replaceTextRange(t.brailleList.getFirst().start, total, "");
 	}
 	
-	public void removeWhitespace(int start, int length, char c){
+	public void removeWhitespace(int start, int length){
 		setListenerLock(true);
-		Message message = Message.createGetCurrentMessage(Sender.BRAILLE, view.getCaretOffset());
-		manager.dispatch(message);
-		setViewData(message);
-	
-		if(c == SWT.DEL && (start != currentEnd && start != previousEnd)){
-			start--;
-		}
-		
 		view.replaceTextRange(start, Math.abs(length), "");
 		setListenerLock(false);
 	}

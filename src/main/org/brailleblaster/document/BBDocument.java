@@ -164,7 +164,7 @@ public class BBDocument {
 		String ext = completePath.substring (extPos).toLowerCase();
 		if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
-			if( normalizeFile(completePath, tempPath) )
+			if( normalizeFile(completePath, tempPath) ){
 				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0) )
 				{
 					deleteFile(tempPath);
@@ -174,6 +174,7 @@ public class BBDocument {
 					new CheckLiblouisutdmlLog().displayLog();
 					return false;
 				}
+			}
 		} 
 		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.TXT).contains(ext)) {
 			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))

@@ -242,8 +242,8 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 
 	
-	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int originalStartPosition){
-		paginator.shiftOffsets(originalStartPosition, offset, brailleOffset);
+	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int origPos){
+		paginator.shiftOffsets(origPos, offset, brailleOffset);
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;
@@ -369,10 +369,13 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 	}
 	public int getCurrentIndex(){
-		if(this.current == null){
+		if(this.current == null && size() > 0){
 			Message message = Message.createSetCurrentMessage(null, this.getFirst().start, false);
 			dm.dispatch(message);
 			return this.currentIndex;
+		}
+		else if(this.size() == 0){
+			return -1;
 		}
 		else {
 			return this.currentIndex;
@@ -484,8 +487,8 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 	
 	public boolean hasBraille(int index){
-		if(this.get(index).brailleList.size() > 0)
-			return true;
+		if(this.size() != 0 && this.get(index).brailleList.size() > 0)
+ 			return true;
 		else
 			return false;
 	}

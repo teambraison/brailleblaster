@@ -1,7 +1,7 @@
 package org.brailleblaster.document;
 
 import java.io.File;
-
+import java.io.StringReader;
 import org.brailleblaster.BBIni;
 
 import org.xml.sax.EntityResolver;
@@ -15,13 +15,16 @@ public 	class Resolver implements EntityResolver {
 	
 	@Override
 	public InputSource resolveEntity(String publicId, String systemId) {
-		originalSystemId = systemId;
-		originalPublicId = publicId;
 		if (isOnlineResource(systemId) && checkForSystemId(systemId)) {
+			originalSystemId = systemId;
+			originalPublicId = publicId;
 			return new MyReader(publicId, dtdName);
 		} else {
-	         // use default
-			return null;
+			//use default(null) or add empty source for modularization files until determined if they should be added to project
+			if(systemId.contains(".mod"))
+				return new InputSource(new StringReader(""));
+			else
+				return null;
 		}
 	}
 	   

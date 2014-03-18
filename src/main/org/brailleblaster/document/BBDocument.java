@@ -489,7 +489,7 @@ public class BBDocument {
 	}
 	
 	public void setOriginalDocType(Document d) {
-		if(this.doc.getDocType() == null)
+		if(this.doc.getDocType() == null && (publicId != null || systemId != null))
 			d.setDocType(new DocType(this.getRootElement().getLocalName(), publicId, systemId));
 	}
 	

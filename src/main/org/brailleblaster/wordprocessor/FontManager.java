@@ -206,4 +206,12 @@ public class FontManager {
 	private void setDaisyFont(){
 		m.getBraille().view.setFont(daisyFont);
 	}
+	
+	public void disposeFonts(){
+		if(!simBrailleFont.isDisposed())
+			simBrailleFont.dispose();
+		
+		if(!daisyFont.isDisposed())
+			daisyFont.dispose();
+	}
 }

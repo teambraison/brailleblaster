@@ -1061,7 +1061,7 @@ public class Manager extends Controller {
 		}
 		dispose();
 		item.dispose();
-		
+		fontManager.disposeFonts();
 		if(workingFilePath == null & docCount > 0)
 			docCount--;
 	}

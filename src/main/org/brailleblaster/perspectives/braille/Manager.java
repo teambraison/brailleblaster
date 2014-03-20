@@ -212,10 +212,10 @@ public class Manager extends Controller {
 	
 	public void setTabList(){
 		if(sm.panelIsVisible()){
-			tabList = new Control[]{treeView.getView(), sm.getGroup(), text.view, braille.view};
+			tabList = new Control[]{treeView.getTree(), sm.getGroup(), text.view, braille.view};
 		}
 		else {
-			tabList = new Control[]{treeView.getView(), text.view, braille.view};
+			tabList = new Control[]{treeView.getTree(), text.view, braille.view};
 		}
 		group.setTabList(tabList);
 	}
@@ -1468,7 +1468,7 @@ public class Manager extends Controller {
 			treeView.getTree().setFocus();
 			
 		treeView.setSelection(list.getCurrent());
-		treeView.getView().getParent().layout();
+		treeView.getTree().getParent().layout();
 		treeView.initializeListeners();
 		//save latest setting to user settings file
 		BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());

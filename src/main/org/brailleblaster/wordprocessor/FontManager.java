@@ -162,9 +162,8 @@ public class FontManager {
 	}
 
 	private void setBrailleFont(boolean toggle) {
-		if (toggle  && SimBraille){ 
+		if (toggle  && SimBraille)
 			setSimBraille();
-		}
 		else 
 			setDaisyFont();
 	}	

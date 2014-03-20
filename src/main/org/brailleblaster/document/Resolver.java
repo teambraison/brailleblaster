@@ -19,7 +19,8 @@ public 	class Resolver implements EntityResolver {
 			originalSystemId = systemId;
 			originalPublicId = publicId;
 			return new MyReader(publicId, dtdName);
-		} else {
+		} 
+		else {
 			//use default(null) or add empty source for modularization files until determined if they should be added to project
 			if(systemId.contains(".mod"))
 				return new InputSource(new StringReader(""));

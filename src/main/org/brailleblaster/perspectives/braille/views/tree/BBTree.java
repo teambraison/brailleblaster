@@ -5,7 +5,6 @@ import nu.xom.Element;
 import org.brailleblaster.abstractClasses.BBView;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -21,7 +20,6 @@ public interface BBTree extends BBView {
 	public TextMapElement getSelection(TextMapElement t);
 	public int getSelectionIndex();
 	public void clearTree();
-	public StyledText getView();
 	public void adjustLayout(boolean fullSize);
 	public Tree getTree();
 	public void split(Message m);

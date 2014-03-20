@@ -6,18 +6,18 @@ import java.util.Scanner;
 
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
@@ -34,13 +34,15 @@ public class PrintPreview {
 	final int PAGE_WIDTH = 619;
 	final int PAGE_HEIGHT = 825;
 	
-	private class PreviewText extends AbstractView{
+	private class PreviewText {
 		String text;
 		File f;
+		StyledText view;
 		
 		public PreviewText(Manager manager, Group group){
-			super(manager, group, 0, 100, 0, 100);
-			this.view.setEditable(false);
+			view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+			view.setEditable(false);
+			setLayout(view, 0, 100, 0, 100);
 		}
 
 		public void setPreviewText(Manager dm, BBDocument doc){
@@ -70,11 +72,6 @@ public class PrintPreview {
 		
 		public void deleteTempFile(){
 			this.f.delete();
-		}
-		
-		@Override
-		protected void setViewData(Message message) {
-			// TODO Auto-generated method stub		
 		}
 	}
 	
@@ -117,5 +114,14 @@ public class PrintPreview {
 	     });	
 		
 		this.previewText.setPreviewText(manager, this.doc);	
+	}
+	
+	protected void setLayout(Control c, int left, int right, int top, int bottom){
+		FormData location = new FormData();
+		location.left = new FormAttachment(left);
+		location.right = new FormAttachment(right);
+		location.top = new FormAttachment(top);
+		location.bottom = new FormAttachment(bottom);
+		c.setLayoutData(location);
 	}
 }

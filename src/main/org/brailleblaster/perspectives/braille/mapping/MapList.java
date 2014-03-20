@@ -442,16 +442,16 @@ public class MapList extends LinkedList<TextMapElement>{
 			setCurrent(index);
 		}
 		
-		m.put("start", this.current.start);
-		m.put("end", this.current.end);
-		m.put("previous", this.prevEnd);
-		m.put("next", this.nextStart);
+		m.put("start", current.start);
+		m.put("end", current.end);
+		m.put("previous", prevEnd);
+		m.put("next", nextStart);
 		m.put("brailleStart", getCurrentBrailleOffset());
 		m.put("brailleEnd", getCurrentBrailleEnd());
-		m.put("nextBrailleStart", this.nextBraille);
-		m.put("previousBrailleEnd", this.prevBraille);
+		m.put("nextBrailleStart", nextBraille);
+		m.put("previousBrailleEnd", prevBraille);
 		m.put("pageRanges", getPageRanges());
-		m.put("currentElement", this.current);
+		m.put("currentElement", current);
 	}
 	
 	public int getNodeIndex(TextMapElement t){

@@ -14,6 +14,11 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.FontMetrics;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
@@ -24,18 +29,57 @@ public abstract class WPView extends AbstractView implements BBView {
 	protected static int currentAlignment;
 	public static int currentLine;
 	protected static int topIndex;
+	public StyledText view;
+	protected int charWidth;
 	
 	public WPView(Manager manager, Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
-		super(manager, group, left, right, top, bottom);
+		super(manager, group);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.stylesTable = table;
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		setLayout(view, left, right, top, bottom);
+		view.addModifyListener(viewMod);
 	}
+	
+	// Better use a ModifyListener to set the change flag.
+	ModifyListener viewMod = new ModifyListener() {
+		@Override
+		public void modifyText(ModifyEvent e) {
+			hasChanged = true;
+		}
+	};
 	
 	public abstract void addPageNumber(MapList list, Node node);
 	protected abstract void setViewData(Message message);
 	
+	protected int getFontWidth(){
+		GC gc = new GC(view);
+		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
+		return fm.getAverageCharWidth();
+	}
+	
+	protected int getFontHeight(){
+		GC gc = new GC(view);
+		FontMetrics fm =gc.getFontMetrics();
+		gc.dispose();
+		return fm.getHeight();
+	}
+	
+	public void setcharWidth(){
+		charWidth = getFontWidth();
+	}
+	
+	public void positionScrollbar(int topIndex){
+		setListenerLock(true);
+		group.setRedraw(false);
+		view.setTopIndex(topIndex);
+		group.setRedraw(true);
+		group.getDisplay().update();
+		setListenerLock(false);
+	}
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();
 		view.setCaretOffset(position);
@@ -258,5 +302,13 @@ public abstract class WPView extends AbstractView implements BBView {
 				manager.dispatch(scrollMessage);
 			}
 		}
+	}
+	
+	protected void recreateView(Group group, int left, int right, int top, int bottom){
+		view.dispose();
+		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		view.addModifyListener(viewMod);
+		setLayout(view, left, right, top, bottom);
+		view.getParent().layout();
 	}
 }

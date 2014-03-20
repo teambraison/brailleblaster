@@ -128,12 +128,10 @@ public class BrailleView extends WPView {
 			public void mouseDown(MouseEvent e) {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 					if(manager.inBraillePageRange(view.getCaretOffset())){
-						if(view.getCaretOffset() < currentStart){
+						if(view.getCaretOffset() < currentStart)
 							previousPageEnd(view.getCaretOffset());
-						}
-						else if(view.getCaretOffset() > currentEnd){
+						else if(view.getCaretOffset() > currentEnd)
 							nextPageStart(view.getCaretOffset());
-						} 
 					}
 					setCurrent();
 				}
@@ -148,22 +146,18 @@ public class BrailleView extends WPView {
 						setListenerLock(true);
 						if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
 							if(manager.inBraillePageRange(e.caretOffset)){
-								if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+								if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
 									nextPageStart(e.caretOffset);
-								}
-								else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+								else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
 									previousPageEnd(e.caretOffset);
-								}
 							}	
 						}
 						else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
 							if(manager.inBraillePageRange(e.caretOffset)){
-								if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+								if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
 									previousPageEnd(e.caretOffset);
-								}
-								else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+								else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
 									nextPageStart(e.caretOffset);
-								}
 							}
 						}
 						setListenerLock(false);
@@ -197,9 +191,8 @@ public class BrailleView extends WPView {
 	private void previousPageEnd(int offset){
 		int pos = manager.getBraillePageStart(offset);
 		//account for blank pages before more text
-		while(manager.inBraillePageRange(pos - 1)){
+		while(manager.inBraillePageRange(pos - 1))
 			pos = manager.getBraillePageStart(pos - 1);
-		}
 		
 		if(pos != -1 && pos != 0)
 			view.setCaretOffset(pos - 1);
@@ -297,9 +290,8 @@ public class BrailleView extends WPView {
 		Element parent = (Element)n.getParent();
 		int index = parent.indexOf(n);
 		if(index > 0){
-			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline"))
 				return true;
-			}
 		}
 		
 		return false;
@@ -786,12 +778,10 @@ public class BrailleView extends WPView {
 	
 	private int findCurrentPosition(int [] indexes, int textPos){
 		for(int i = 0; i < indexes.length; i++){
-			if(textPos == indexes[i]){
+			if(textPos == indexes[i])
 				return i;
-			}
-			else if(textPos < indexes[i]){
+			else if(textPos < indexes[i])
 				return i - 1;
-			}
 		}
 		
 		return indexes.length;

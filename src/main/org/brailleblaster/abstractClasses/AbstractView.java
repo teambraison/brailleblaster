@@ -37,53 +37,37 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
-import org.eclipse.swt.*;
-import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.FontMetrics;
-import org.eclipse.swt.graphics.GC;
 
 public abstract class AbstractView {
-	public StyledText view;
 	public boolean hasFocus = false;
 	public boolean hasChanged = false;
 	protected int total;
-	protected int charWidth;
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	protected boolean locked;
 	protected Group group;
 	protected Manager manager;
 	protected static Logger logger = BBIni.getLogger();
+	
 	public AbstractView() {
 	}
 
-	public AbstractView(Manager manager, Group group, int left, int right, int top, int bottom) {
+	public AbstractView(Manager manager, Group group) {
 		this.manager = manager;
 		this.group = group;
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		setLayout(left, right, top, bottom);
-		view.addModifyListener(viewMod);
 	}
-
-	// Better use a ModifyListener to set the change flag.
-	ModifyListener viewMod = new ModifyListener() {
-		@Override
-		public void modifyText(ModifyEvent e) {
-			hasChanged = true;
-		}
-	};
 	
-	protected void setLayout(int left, int right, int top, int bottom){
+	protected void setLayout(Control c, int left, int right, int top, int bottom){
 		FormData location = new FormData();
 		location.left = new FormAttachment(left);
 		location.right = new FormAttachment(right);
 		location.top = new FormAttachment(top);
 		location.bottom = new FormAttachment(bottom);
-		view.setLayoutData(location);
+		c.setLayoutData(location);
 	}
 	
 	public void incrementCurrent(){
@@ -96,20 +80,6 @@ public abstract class AbstractView {
 		Message message = Message.createDecrementMessage();
 		manager.dispatch(message);
 		setViewData(message);
-	}
-	
-	protected int getFontWidth(){
-		GC gc = new GC(this.view);
-		FontMetrics fm =gc.getFontMetrics();
-		gc.dispose();
-		return fm.getAverageCharWidth();
-	}
-	
-	protected int getFontHeight(){
-		GC gc = new GC(this.view);
-		FontMetrics fm =gc.getFontMetrics();
-		gc.dispose();
-		return fm.getHeight();
 	}
 	
 	protected Element getBrlNode(Node n){
@@ -134,27 +104,6 @@ public abstract class AbstractView {
 	
 	protected boolean getLock(){
 		return locked;
-	}
-	
-	public void setcharWidth(){
-		charWidth = getFontWidth();
-	}
-	
-	protected void recreateView(Group group, int left, int right, int top, int bottom){
-		view.dispose();
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		view.addModifyListener(viewMod);
-		setLayout(left, right, top, bottom);
-		view.getParent().layout();
-	}
-	
-	public void positionScrollbar(int topIndex){
-		setListenerLock(true);
-		group.setRedraw(false);
-		view.setTopIndex(topIndex);
-		group.setRedraw(true);
-		group.getDisplay().update();
-		setListenerLock(false);
 	}
 	
 	protected boolean isElement(Node n){

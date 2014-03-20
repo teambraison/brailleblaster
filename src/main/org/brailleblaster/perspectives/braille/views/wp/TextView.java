@@ -158,12 +158,10 @@ public class TextView extends WPView {
 					else {
 						Message m;
 						int origLength =  getString(currentStart, view.getCaretOffset() - currentStart).length();
-						if(view.getCaretOffset() == currentEnd){
+						if(view.getCaretOffset() == currentEnd)
 							m = Message.createInsertNodeMessage(true, false, true);
-						}
-						else if(view.getCaretOffset() == currentStart){
+						else if(view.getCaretOffset() == currentStart)
 							m = Message.createInsertNodeMessage(true, true, false);
-						}
 						else
 							m = Message.createInsertNodeMessage(true, false, false);
 							
@@ -232,12 +230,10 @@ public class TextView extends WPView {
 			@Override
 			public void modifyText(ExtendedModifyEvent e) {
 				if(!getLock()){
-					if(e.length > 0){
+					if(e.length > 0)
 						handleTextEdit(e);
-					}
-					else {					
+					else 				
 						handleTextDeletion(e);
-					}
 				}
 			}
 		});	
@@ -248,9 +244,8 @@ public class TextView extends WPView {
 				Message message = Message.createGetCurrentMessage(Sender.TEXT, view.getCaretOffset());
 				manager.dispatch(message);
 				setViewData(message);
-				if(oldCursorPosition == -1 && positionFromStart == 0){
+				if(oldCursorPosition == -1 && positionFromStart == 0)
 					view.setCaretOffset((Integer)message.getValue("start"));
-				}
 				
 				sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 			}
@@ -279,22 +274,18 @@ public class TextView extends WPView {
 							setListenerLock(true);
 							if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
 								if(manager.inPrintPageRange(e.caretOffset)){
-									if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+									if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
 										nextPageStart(e.caretOffset);
-									}
-									else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+									else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
 										previousPageEnd(e.caretOffset);
-									}
 								}	
 							}
 							else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
 								if(manager.inPrintPageRange(e.caretOffset)){
-									if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP){
+									if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
 										previousPageEnd(e.caretOffset);
-									}
-									else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT){
+									else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
 										nextPageStart(e.caretOffset);
-									}
 								}
 							}
 							setListenerLock(false);
@@ -306,9 +297,8 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset())){
+				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset()))
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-				}
 			}
 		});
 		
@@ -319,12 +309,10 @@ public class TextView extends WPView {
 						sendUpdate();
 					
 					if(manager.inPrintPageRange(view.getCaretOffset())){
-						if(view.getCaretOffset() < currentStart){
+						if(view.getCaretOffset() < currentStart)
 							previousPageEnd(view.getCaretOffset());
-						}
-						else if(view.getCaretOffset() > currentEnd){
+						else if(view.getCaretOffset() > currentEnd)
 							nextPageStart(view.getCaretOffset());
-						} 
 					}
 					setCurrent(view.getCaretOffset());
 				}
@@ -541,9 +529,8 @@ public class TextView extends WPView {
 	}
 	
 	private void incrementNext(int offset){
-		if(nextStart != -1){
+		if(nextStart != -1)
 			nextStart += offset;
-		}
 	}
 	
 	private void shiftLeft(int offset){
@@ -671,9 +658,8 @@ public class TextView extends WPView {
 		
 		if(style.contains(StylesType.format))
 			setAlignment(currentStart, currentEnd, style);
-		else{
+		else
 			setAlignment(currentStart, currentEnd, SWT.LEFT);
-		}
 	
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;
@@ -1102,9 +1088,8 @@ public class TextView extends WPView {
 		Element parent = (Element)n.getParent();
 		
 		if(parent.indexOf(n) == 0){
-			if(parent.getAttributeValue("semantics").contains("action")){
+			if(parent.getAttributeValue("semantics").contains("action"))
 				return isFirstElement(parent);
-			}
 			else 
 				return true;
 		}
@@ -1273,9 +1258,8 @@ public class TextView extends WPView {
 	}
 	
 	private void checkStyleRange(StyleRange range){
-		if(range != null){
+		if(range != null)
 			setFontStyleRange(currentStart, currentEnd - currentStart, range);
-		}
 	}
 	
 	private void setSelection(int start, int length){

@@ -18,5 +18,4 @@ public class PageMapElement extends AbstractMapElement {
 		this.brailleEnd = brailleEnd;
 		brailleNode = n;
 	}
-	
 }

@@ -12,7 +12,6 @@ import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -60,7 +59,7 @@ public class XMLTree extends TreeView {
 
 	@Override
 	public void initializeListeners(){
-		this.tree.addSelectionListener(selectionListener = new SelectionAdapter(){
+		tree.addSelectionListener(selectionListener = new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e) {	
 				if(!getLock()){
 					TreeItem [] items = tree.getSelection();
@@ -577,11 +576,6 @@ public class XMLTree extends TreeView {
 	
 	public void clearTree(){
 		tree.removeAll();
-	}
-
-	@Override
-	public StyledText getView() {
-		return view;
 	}
 
 	@Override

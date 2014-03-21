@@ -4,6 +4,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Group;
 
@@ -30,14 +32,39 @@ public class NewStyleView extends EditPanel{
 		saveButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Styles style = getNewStyle();
-				if(style != null){
-					sm.saveNewItem(style);
-				}
+				saveNewStyle();
 			}
+		});
+		
+		
+		group.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(hasFocus()){
+					if(e.stateMask == SWT.MOD3 && e.character == 's')
+						saveNewStyle();
+					else if(e.stateMask == SWT.MOD3 && e.character == 'c')
+						sm.closeEditStyle(null);
+				}
+			}	
 		});
 		
 		resetLayout();
 		styleName.setFocus();
+	}
+	
+	private void saveNewStyle(){
+		Styles style = getNewStyle();
+		if(style != null){
+			sm.saveNewItem(style);
+		}
+	}
+	
+	private boolean hasFocus(){
+		if(styleName.isFocusControl() || alignmentCombo.isFocusControl() || emphasisCombo.isFocusControl() || linesBeforeSpinner.isFocusControl() || 
+				linesAfterSpinner.isFocusControl() || marginSpinner.isFocusControl() || indentSpinner.isFocusControl() || cancelButton.isFocusControl() || saveButton.isFocusControl())
+			return true;
+		else
+			return false;
 	}
 }

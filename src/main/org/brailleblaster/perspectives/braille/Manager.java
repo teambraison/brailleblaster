@@ -85,6 +85,7 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.daisy.printing.PrinterDevice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.printing.PrintDialog;
 import org.eclipse.swt.printing.PrinterData;
@@ -121,7 +122,7 @@ public class Manager extends Controller {
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
-		super(wp, docName);		
+		super(wp, docName);	
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(currentConfig);
@@ -148,7 +149,7 @@ public class Manager extends Controller {
 		else {
 			docCount++;
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
-			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
+			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");		
 			((Element)n.get(0)).appendChild(new Text(""));
 			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			setTabTitle(docName);
@@ -289,7 +290,7 @@ public class Manager extends Controller {
 		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "BRF", "UTDML working document", };
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.brf", "*.utd", };
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
-		
+
 		tempName = dialog.open();
 		
 		// Don't do any of this if the user failed to choose a file.
@@ -1676,5 +1677,12 @@ public class Manager extends Controller {
 		checkTreeFocus();
 		if(docCount > 0)
 			docCount--;	
+	}
+	
+	public void setStyleTableFocus(TraverseEvent e){
+		if(this.sm.getStyleTable().isVisible()){
+			e.doit = false;
+			sm.getStyleTable().getTable().setFocus();
+		}
 	}
 }

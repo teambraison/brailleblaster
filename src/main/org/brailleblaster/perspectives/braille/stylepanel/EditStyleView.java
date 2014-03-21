@@ -10,6 +10,8 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -37,21 +39,14 @@ public class EditStyleView extends EditPanel {
 		saveListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				LocaleHandler lh = new LocaleHandler();
-				Styles newStyle = saveEditedStyle();
-				if(newStyle != null)
-					sm.saveEditedStyle(originalStyle, newStyle);
-				else
-					new Notify(lh.localValue("noChange"));
+				saveStyle();
 			}
 		};
 		
 		saveAsListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				Styles style = getNewStyle();
-				if(style != null)
-					sm.saveNewItem(style);
+				saveNewStyle();
 			}
 		};
 		
@@ -73,6 +68,7 @@ public class EditStyleView extends EditPanel {
 		});
 		
 		saveButton.addSelectionListener(saveListener);		
+		save = true;
 		
 		styleName.addModifyListener(new ModifyListener(){
 			@Override
@@ -81,6 +77,20 @@ public class EditStyleView extends EditPanel {
 					toggleApplyButton();
 				else if(styleName.getText().equals(originalStyle.getName()) && !save)
 					toggleApplyButton();
+			}		
+		});
+		
+		group.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.MOD3 && e.character == 'c')
+					sm.closeEditStyle(null);
+				else if(e.stateMask == SWT.MOD3 && e.character == 's'){
+					if(save)
+						saveStyle();
+					else
+						saveNewStyle();				
+				}
 			}		
 		});
 	}
@@ -295,5 +305,20 @@ public class EditStyleView extends EditPanel {
 			return newStyle;
 		else
 			return null;
+	}
+	
+	private void saveStyle(){
+		LocaleHandler lh = new LocaleHandler();
+		Styles newStyle = saveEditedStyle();
+		if(newStyle != null)
+			sm.saveEditedStyle(originalStyle, newStyle);
+		else
+			new Notify(lh.localValue("noChange"));
+	}
+	
+	private void saveNewStyle(){
+		Styles style = getNewStyle();
+		if(style != null)
+			sm.saveNewItem(style);
 	}
 }

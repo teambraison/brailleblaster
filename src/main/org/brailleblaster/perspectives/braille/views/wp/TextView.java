@@ -64,6 +64,8 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Image;
@@ -85,6 +87,7 @@ public class TextView extends WPView {
 	private StyleRange range;
 	private int[] selectionArray;
 	private SelectionAdapter selectionListener;
+	private TraverseListener traverseListener;
 	private SelectionAdapter scrollbarListener;
 	private VerifyKeyListener verifyKeyListener;
 	private VerifyListener verifyListener;
@@ -118,14 +121,27 @@ public class TextView extends WPView {
 			}			
 		});
 		
+		view.addTraverseListener(traverseListener = new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.MOD1 + SWT.MOD2 && e.keyCode == SWT.TAB)
+					manager.setStyleTableFocus(e);
+			}
+			
+		});
+		
 		view.addVerifyKeyListener(verifyKeyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				oldCursorPosition = view.getCaretOffset();
 				currentChar = e.keyCode;
-				
+
 				if(e.stateMask == SWT.CONTROL && e.keyCode == 'a'){
 					selectAll();
+				}
+				else if(e.stateMask == SWT.MOD1 + SWT.MOD2 && e.keyCode == SWT.TAB){
+					//when shift + tab traverse is overridden to set to style table, then key event fires so disregard
+					e.doit = false;
 				}
 				else if(e.character == SWT.CR){
 					boolean atEnd = false;
@@ -397,6 +413,7 @@ public class TextView extends WPView {
 		if(selectionListener != null) {
 			view.removeSelectionListener(selectionListener);
 			view.removeExtendedModifyListener(modListener);
+			view.removeTraverseListener(traverseListener);
 			view.removeFocusListener(focusListener);
 			view.removeVerifyKeyListener(verifyKeyListener);
 			view.removeMouseListener(mouseListener);

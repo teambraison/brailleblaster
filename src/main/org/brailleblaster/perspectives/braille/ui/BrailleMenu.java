@@ -403,7 +403,8 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		stylePanelItem = new MenuItem(editMenu, SWT.CHECK);
-		stylePanelItem.setText(lh.localValue("&StylePanel"));
+		stylePanelItem.setAccelerator(SWT.MOD1 + 'l');
+		stylePanelItem.setText(lh.localValue("&StylePanel") + "\t" + lh.localValue("Ctrl + L"));
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

@@ -12,6 +12,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
@@ -39,6 +41,7 @@ public class StyleTable {
 	private Group group;
 	private Table t;
 	private Font initialFont;
+	private boolean traverseFired;
 	
 	private StyleManager sm;
 	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
@@ -97,6 +100,9 @@ public class StyleTable {
 	    applyButton.addListener(SWT.Resize, resizeListener);
 	    
 	    group.pack();
+	    Control [] tabList = {t, newButton, editButton, deleteButton, applyButton, restoreButton};
+	    group.setTabList(tabList);
+	    
 	    tc2.setWidth(group.getClientArea().width);
 	   
 	    t.getHorizontalBar().dispose();
@@ -112,16 +118,23 @@ public class StyleTable {
 		this.t.addKeyListener(new KeyAdapter(){
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(Character.isLetter(e.keyCode)){
-					int loc = searchTree((char)e.keyCode);
+				if(!traverseFired && Character.isLetter(e.character)){
+					int loc = searchTree(e.character);
 					if(loc != -1)
 						t.setSelection(loc);
 				}
+				else if(e.keyCode == SWT.CR){
+					sm.apply(t.getSelection()[0].getText(1));
+					traverseFired = false;
+				}
+				else
+					traverseFired = false;
 			}
 		});
 	
 	   	populateTable(sm.getKeySet());
 	   	initializeListeners();
+	   	traverseFired = false;
 	}
 	
 	private void initializeListeners(){
@@ -170,6 +183,48 @@ public class StyleTable {
 				sm.apply(t.getSelection()[0].getText(1));
 			}		
 		});
+		
+		t.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.MOD1 & e.keyCode == SWT.TAB){
+					sm.dm.getText().view.setFocus();
+					e.doit = false;
+				}
+				else if(e.stateMask == SWT.MOD2 && e.keyCode == SWT.TAB){
+					sm.dm.getTreeView().getTree().setFocus();
+					e.doit = false;
+				}
+			}		
+		});
+		
+		group.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(groupHasFocus()){
+					if(e.stateMask == SWT.MOD3 && e.keyCode == 'n')
+						sm.openNewStyleTable();
+					else if(e.stateMask == SWT.MOD3 && e.keyCode == 'e')
+						sm.openEditStyle();
+					else if(e.stateMask == SWT.MOD3 && e.keyCode == 'd'){
+						int index = t.getSelectionIndex();
+						deleteStyle();
+						//selection must be reset or if user hits delete again an error occurs
+						if(index < t.getItemCount())
+							t.setSelection(index);
+						else if(t.getItemCount() < 0)
+							t.setSelection(t.getItemCount() -  1);
+						else
+							deleteButton.setFocus();
+					}
+					else if(e.stateMask == SWT.MOD3 && e.keyCode == 'y')
+						sm.apply(t.getSelection()[0].getText(1));
+					
+					e.doit = false;
+					traverseFired = true;
+				}
+			}		
+		});
 	}
 	
 	private void setLayoutData(Control c, int left, int right, int top, int bottom){
@@ -181,6 +236,13 @@ public class StyleTable {
 		location.bottom = new FormAttachment(bottom);
 		
 		c.setLayoutData(location);
+	}
+	
+	private boolean groupHasFocus(){
+		if(t.isFocusControl() || newButton.isFocusControl() || editButton.isFocusControl() || deleteButton.isFocusControl() || applyButton.isFocusControl() || restoreButton.isFocusControl())
+			return true;
+		else
+			return false;
 	}
 	
 	public void showTable(TextMapElement item){
@@ -239,7 +301,7 @@ public class StyleTable {
     	}  	
     }
     
-    private void deleteStyle(){
+    private boolean deleteStyle(){
     	LocaleHandler lh = new LocaleHandler();
     	MessageBox mb = new MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
 		mb.setText(lh.localValue("deleteMB"));
@@ -250,7 +312,10 @@ public class StyleTable {
 		if(open == SWT.OK){
 			sm.deleteStyle(t.getSelection()[0].getText(1));
 			t.remove(t.getSelectionIndex());
+			return true;
 		}
+		else
+			return false;
     }
     
     public void resetTable(String configFile){

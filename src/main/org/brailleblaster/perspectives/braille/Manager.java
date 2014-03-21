@@ -1068,7 +1068,7 @@ public class Manager extends Controller {
 	}
 	
 	public void nextElement(){
-		if(list.size() != 0){		
+		if(list.size() != 0 && list.getCurrentIndex() < list.size() - 1){		
 			if(text.view.isFocusControl()){
 				text.incrementCurrent();
 				text.view.setCaretOffset(list.getCurrent().start);
@@ -1087,7 +1087,7 @@ public class Manager extends Controller {
 	}
 	
 	public void prevElement(){
-		if(list.size() != 0){
+		if(list.size() != 0 && list.getCurrentIndex() > 0){
 			if(text.view.isFocusControl()){
 				text.decrementCurrent();
 				text.view.setCaretOffset(list.getCurrent().start);

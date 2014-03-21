@@ -57,6 +57,8 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.widgets.Group;
 
@@ -78,6 +80,7 @@ public class BrailleView extends WPView {
 	private MouseAdapter mouseListener;
 	private CaretListener caretListener;
 	private SelectionAdapter selectionListener;
+	private TraverseListener traverseListener;
 	
 	public BrailleView(Manager manager, Group documentWindow, BBSemanticsTable table) {
 		super(manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
@@ -88,6 +91,15 @@ public class BrailleView extends WPView {
 	
 	@Override
 	public void initializeListeners(){
+		view.addTraverseListener(traverseListener = new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.stateMask == SWT.MOD1 + SWT.MOD2 && e.keyCode == SWT.TAB)
+					manager.setStyleTableFocus(e);
+			}
+			
+		});
+		
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
@@ -222,6 +234,7 @@ public class BrailleView extends WPView {
 	}
 	
 	public void removeListeners(){
+		view.removeTraverseListener(traverseListener);
 		view.removeVerifyKeyListener(verifyListener);
 		view.removeFocusListener(focusListener);
 		view.removeMouseListener(mouseListener);

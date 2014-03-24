@@ -15,14 +15,16 @@ public 	class Resolver implements EntityResolver {
 	
 	@Override
 	public InputSource resolveEntity(String publicId, String systemId) {
-		if (isOnlineResource(systemId) && checkForSystemId(systemId)) {
-			originalSystemId = systemId;
-			originalPublicId = publicId;
+		if ((isOnlineResource(systemId) && checkForSystemId(systemId)) || checkForSystemId(systemId)) {
+			if(systemId.endsWith(".dtd")){
+				originalSystemId = systemId;
+				originalPublicId = publicId;
+			}
 			return new MyReader(publicId, dtdName);
 		} 
 		else {
 			//use default(null) or add empty source for modularization files until determined if they should be added to project
-			if(systemId.contains(".mod"))
+			if(systemId.endsWith(".mod") || systemId.endsWith(".ent"))
 				return new InputSource(new StringReader(""));
 			else
 				return null;

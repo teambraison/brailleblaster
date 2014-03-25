@@ -28,9 +28,6 @@
 
 package org.brailleblaster.perspectives.braille.ui;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -42,8 +39,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -72,21 +72,24 @@ public class BBToolBar {
 		imgHelper = new ImageHelper();
 		
 		// Calculate max width and height for toolbar buttons.
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		MAX_W = (int)screenSize.getWidth() / 30;
+		//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Monitor mon[] = Display.getDefault().getMonitors();
+		Rectangle screenSize = mon[0].getBounds();
+		
+		MAX_W = (int)screenSize.width / 30;
 		MAX_H = MAX_W;
 		
 		// Change font size depending on screen resolution.
 		FontData[] oldFontData = toolBar.getFont().getFontData();
-		if( (int)screenSize.getWidth() >= 1920)
+		if( (int)screenSize.width >= 1920)
 			oldFontData[0].setHeight(9);
-		else if( (int)screenSize.getWidth() >= 1600)
+		else if( (int)screenSize.width >= 1600)
 			oldFontData[0].setHeight(8);
-		else if( (int)screenSize.getWidth() >= 1280)
+		else if( (int)screenSize.width >= 1280)
 			oldFontData[0].setHeight(6);
-		else if( (int)screenSize.getWidth() >= 1024)
+		else if( (int)screenSize.width >= 1024)
 			oldFontData[0].setHeight(4);
-		else if( (int)screenSize.getWidth() >= 800)
+		else if( (int)screenSize.width >= 800)
 			oldFontData[0].setHeight(3);
 		toolBar.setFont( new Font(null, oldFontData[0]) );
 		

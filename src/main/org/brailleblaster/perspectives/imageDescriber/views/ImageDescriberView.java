@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import nu.xom.Element;
+import nu.xom.Nodes;
+import nu.xom.XPathContext;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
@@ -50,7 +54,7 @@ public class ImageDescriberView {
 	ImageDescriber imgDesc;
 	ImageDescriberController idd;
 	Group group;
-	Button prevBtn, nextBtn, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
+	Button prevBtn, nextBtn, useSimpleStylesCheck, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
 	Text imgDescTextBox;
 	Label altLabel;
 	Text altBox;
@@ -59,6 +63,7 @@ public class ImageDescriberView {
 	Label mainImage;
 	String oldDescText = "";
 	String oldAltText = "";
+	String oldCssHref = null;
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -104,6 +109,87 @@ public class ImageDescriberView {
 			} // widgetSelected()
 
 		}); // nextBtn.addSelectionListener...
+		
+		// Check box for simple style sheets. When checked, 
+		// we'll use our own style sheet instead of the given 
+		// one. This can help with documents not being displayed 
+		// properly in the browser view. In particular, 
+		// overlapping text.
+		useSimpleStylesCheck = new Button(group, SWT.CHECK);
+		useSimpleStylesCheck.setText("Simple Style");
+		setFormData(useSimpleStylesCheck, 17, 28, 0, 5);
+		useSimpleStylesCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				 // Script to replace current style sheet.
+	            String script = 
+   		        "var allsuspects=document.getElementsByTagName(\"link\")" + 
+   		        "for (var i=allsuspects.length; i>=0; i--){" + 
+       		        "if (allsuspects[i] && allsuspects[i].getAttribute(\"href\")!=null && allsuspects[i].getAttribute(\"href\").indexOf(OLDFILENAME)!=-1){" + 
+       		        "var newelement=document.createElement(\"link\");" +
+       		        "newelement.setAttribute(\"rel\", \"stylesheet\");" +
+       		        "newelement.setAttribute(\"type\", \"text/css\")" + 
+       		        "newelement.setAttribute(\"href\", NEWFILENAME)" + 
+       		        "allsuspects[i].parentNode.replaceChild(newelement, allsuspects[i]);" + 
+       		        "}" + 
+   		        "}";
+	            
+	         // Script that will add "positions" to <img> tags.
+            	String posScript = 
+    			"var allLinks = document.getElementsByTagName('img'); " + 
+                "for (var i=0, il=allLinks.length; i<il; i++)" + 
+                "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
+	            
+	         // Get namespace and context so we can search for "link."
+	            String nameSpace = idd.getDoc().getRootElement().getDocument().getRootElement().getNamespaceURI();
+	    		XPathContext context = new XPathContext("dtb", nameSpace);
+	    		// Search for first "link" element.
+	            Nodes linkElms = idd.getDoc().getRootElement().query("//dtb:link[1]", context);
+	            
+	            // If there are no link elements, just leave.
+	            if(linkElms == null)
+	            	return;
+	            if(linkElms.size() == 0)
+	            	return;
+	            
+	            // Get the name/path to the css file.
+	            if(oldCssHref == null)
+	            	oldCssHref = ((Element)linkElms.get(0)).getAttributeValue("href");
+	            
+	            // Check/uncheck.
+				Button button = (Button)e.widget;
+		        if (button.getSelection())
+		        {
+		        	// Check the box.
+		            button.setSelection(true);
+	        		
+		            // Insert the file name at the beginning of the script.
+		            script = 
+		            "var OLDFILENAME=\"" + oldCssHref + "\";" + 
+		            "var NEWFILENAME=\"IDONOTEXIST.css\";" + 
+		            script;
+		            ;
+		            
+		            // Execute script to remove css.
+		            browser.execute(posScript);
+		        }
+		        else
+		        {
+		        	// Uncheck the box.
+		        	button.setSelection(false);
+		            
+		            // Insert the file name at the beginning of the script.
+		            script = 
+		            "var OLDFILENAME=\"IDONOTEXIST.css\";" + 
+		            "var NEWFILENAME=\"" + oldCssHref + "\";" + 
+		            script;
+		        	
+		        	// Execute script to remove css.
+		            browser.execute(script);
+		        }
+			}
+		});
 
 		// Create undo button.
 		undoBtn = new Button(group, SWT.PUSH);
@@ -249,7 +335,7 @@ public class ImageDescriberView {
 		setMainImage();
 
 		// Setup browser window.
-		browser = new Browser(group, SWT.BORDER );
+		browser = new Browser(group, SWT.BORDER);
 		setBrowser();
 		
 	} // public void createUIelements()
@@ -296,7 +382,7 @@ public class ImageDescriberView {
 		
 		idd.setImageInfo();
 	}
-	
+
 	public void setBrowser(){
 		// Create copy of file as html and load into browser widget.
 		if(idd.getWorkingPath() != null && imgDesc.getImageList().size() > 0) {
@@ -321,7 +407,7 @@ public class ImageDescriberView {
 			catch (FileNotFoundException e1) { e1.printStackTrace();} 
             catch (IOException e1) { e1.printStackTrace(); }
 
-            //Progress listener. Adds javascript code that will modify our img elements with 
+            // Progress listener. Adds javascript code that will modify our img elements with 
             // height information.
             browser.addProgressListener(new ProgressListener() 
             {
@@ -330,19 +416,20 @@ public class ImageDescriberView {
                 }
                 @Override
 				public void completed(ProgressEvent event) {
-                	
-                	// Script that will add "positions" to <img> tags.
-                	 String s = "var allLinks = document.getElementsByTagName('img'); " +
-                             "for (var i=0, il=allLinks.length; i<il; i++)" +
-                             "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
-                	 
-                	 // Execute the script.
-                     browser.execute(s);
+                		
+	            	// Script that will add "positions" to <img> tags.
+	            	String s = "var allLinks = document.getElementsByTagName('img'); " + 
+	                         "for (var i=0, il=allLinks.length; i<il; i++)" + 
+	                         "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
+	            	
+	            	 // Execute the script.
+	                 browser.execute(s);
                 }
             });
             
 			// Set url.
-			browser.setUrl( idd.getWorkingPath().replaceAll(".xml", ".html") );
+            browser.setUrl( idd.getWorkingPath().replaceAll(".xml", ".html") );
+			
 			// Set browser bounds.
 			setFormData(browser, 49, 100, 0, 100);
 		}
@@ -377,8 +464,8 @@ public class ImageDescriberView {
 		clientWidth = group.getShell().getBounds().width;
 		clientHeight = group.getShell().getBounds().height;
 		// Main image.
-		imageWidth = clientWidth / 3;
-		imageHeight = clientWidth / 3;
+		imageWidth = clientWidth / 4;
+		imageHeight = clientWidth / 4;
 		
 	} // public void resizeUI()
 
@@ -497,3 +584,34 @@ public class ImageDescriberView {
 		toggleUI();
 	}
 }
+
+// Javascript functions to remove/replace css/stylesheets.
+//function createjscssfile(filename, filetype){
+//	 if (filetype=="js"){ //if filename is a external JavaScript file
+//	  var fileref=document.createElement('script')
+//	  fileref.setAttribute("type","text/javascript")
+//	  fileref.setAttribute("src", filename)
+//	 }
+//	 else if (filetype=="css"){ //if filename is an external CSS file
+//	  var fileref=document.createElement("link")
+//	  fileref.setAttribute("rel", "stylesheet")
+//	  fileref.setAttribute("type", "text/css")
+//	  fileref.setAttribute("href", filename)
+//	 }
+//	 return fileref
+//	}
+//
+//	function replacejscssfile(oldfilename, newfilename, filetype){
+//	 var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist using
+//	 var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
+//	 var allsuspects=document.getElementsByTagName(targetelement)
+//	 for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
+//	  if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(oldfilename)!=-1){
+//	   var newelement=createjscssfile(newfilename, filetype)
+//	   allsuspects[i].parentNode.replaceChild(newelement, allsuspects[i])
+//	  }
+//	 }
+//	}
+//
+//	replacejscssfile("oldscript.js", "newscript.js", "js") //Replace all occurences of "oldscript.js" with "newscript.js"
+//	replacejscssfile("oldstyle.css", "newstyle", "css") //Replace all occurences "oldstyle.css" with "newstyle.css"

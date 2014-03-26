@@ -358,6 +358,8 @@ public class Manager extends Controller {
 			if( arch.getOrigDocPath().endsWith(".epub") == true )
 				currentConfig = getAutoCfg("epub");
 		}
+		else if( workingFilePath.endsWith(".txt"))
+				currentConfig = getAutoCfg("preferences");
 //		else if( workingFilePath.endsWith(".xml") )
 //			currentConfig = getAutoCfg("nimas"); // Nimas document.
 //		else if( workingFilePath.endsWith(".xhtml") )

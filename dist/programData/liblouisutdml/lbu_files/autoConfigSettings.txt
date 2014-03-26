@@ -3,3 +3,4 @@
 
 epub=epub.cfg
 nimas=nimas.cfg
+preferences=preferences.cfg

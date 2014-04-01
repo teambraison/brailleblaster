@@ -134,12 +134,6 @@ public abstract class Controller implements DocumentManager{
 		{
 			// Load it!
 			props.load( new FileInputStream(BBIni.getAutoConfigSettings()) );
-			
-			//Adds a new entry to user config setting file to open text files
-			//This is so casual user do not have to manually delete or add the entry to their current installation
-			//Fresh installs will not need this, can be removed in the future as this is simply a workaround for testers
-			if(!props.contains("preferences"))
-				props.setProperty("preferences", "preferences.cfg");
 		}
 		catch (IOException e) { e.printStackTrace(); }
 		

@@ -9,12 +9,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import nu.xom.Element;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
@@ -55,6 +57,7 @@ public class ImageDescriberView {
 	ImageDescriberController idd;
 	Group group;
 	Button prevBtn, nextBtn, useSimpleStylesCheck, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
+	Button nextPage, prevPage;
 	Text imgDescTextBox;
 	Label altLabel;
 	Text altBox;
@@ -64,6 +67,13 @@ public class ImageDescriberView {
 	String oldDescText = "";
 	String oldAltText = "";
 	String oldCssHref = null;
+	String curBrowserFilePath = null;
+	
+	// Script that will add "positions" to <img> tags.
+	String posScript = 
+	"var allLinks = document.getElementsByTagName('img');" + 
+    "for (var i=0, il=allLinks.length; i<il; i++)" + 
+    "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -135,12 +145,6 @@ public class ImageDescriberView {
        		        "}" + 
    		        "}";
 	            
-	         // Script that will add "positions" to <img> tags.
-            	String posScript = 
-    			"var allLinks = document.getElementsByTagName('img'); " + 
-                "for (var i=0, il=allLinks.length; i<il; i++)" + 
-                "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
-	            
 	         // Get namespace and context so we can search for "link."
 	            String nameSpace = idd.getDoc().getRootElement().getDocument().getRootElement().getNamespaceURI();
 	    		XPathContext context = new XPathContext("dtb", nameSpace);
@@ -172,7 +176,7 @@ public class ImageDescriberView {
 		            ;
 		            
 		            // Execute script to remove css.
-		            browser.execute(posScript);
+		            browser.execute(script);
 		        }
 		        else
 		        {
@@ -333,12 +337,70 @@ public class ImageDescriberView {
 		mainImage = new Label(group, SWT.CENTER | SWT.BORDER);
 		setFormData(mainImage, 0, 49, 40, 100);
 		setMainImage();
+		
+		// Set up browser navigation buttons.
+		
+		// Next page/chapter/file button.
+		nextPage = new Button(group, SWT.PUSH);
+		nextPage.setText("Next Page >>");
+		setFormData(nextPage, 75, 85, 0, 5);
+		nextPage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				curBrowserFilePath = idd.nextSpineFilePath();
+				setBrowser();
+            	
+            	String s1 = 
+						"var allLinks = document.getElementsByTagName('img');" + 
+					    "for (var i=0, il=allLinks.length; i<il; i++)" + 
+					    "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
+				
+				browser.execute(s1);
+				
+				// Create script.
+				String s2 = "var allLinks = document.getElementsByTagName('img');" + 
+		                "elm = allLinks[" + 2 + "];" + 
+		                "window.scrollTo(0, elm.posY);";
+		   	 
+				// Execute script.
+		        browser.execute(s2);
+				
+				
+//				idd.setImageToNext();
+			}
+		});
+		
+		// Previous page/chapter/file button.
+		prevPage = new Button(group, SWT.PUSH);
+		prevPage.setText("<< Previous Page"); 
+		setFormData(prevPage, 65, 75, 0, 5);
+		prevPage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				curBrowserFilePath = idd.prevSpineFilePath();
+				setBrowser();
+				idd.setImageToPrevious();
+			}
+		});
 
 		// Setup browser window.
 		browser = new Browser(group, SWT.BORDER);
 		setBrowser();
+		setFormData(browser, 49, 100, 6, 100);
 		
 	} // public void createUIelements()
+	
+	// Enables the browser navigation buttons.
+	public void enableBrowserNavButtons() {
+		nextPage.setEnabled(true);
+		prevPage.setEnabled(true);
+	} // enableBrowserNavButtons()
+	
+	// Disables the browser navigation buttons.
+	public void disableBrowserNavButtons() {
+		nextPage.setEnabled(false);
+		prevPage.setEnabled(false);
+	} // disableBrowserNavButtons()
 	
 	// Set text in image description text box UI.
 	public void setTextBox(){
@@ -416,27 +478,30 @@ public class ImageDescriberView {
                 }
                 @Override
 				public void completed(ProgressEvent event) {
-                		
-	            	// Script that will add "positions" to <img> tags.
-	            	String s = "var allLinks = document.getElementsByTagName('img'); " + 
-	                         "for (var i=0, il=allLinks.length; i<il; i++)" + 
-	                         "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
 	            	
 	            	 // Execute the script.
-	                 browser.execute(s);
+	                 browser.execute(posScript);
                 }
             });
             
-			// Set url.
-            browser.setUrl( idd.getWorkingPath().replaceAll(".xml", ".html") );
-			
+			// Get path to full file.
+            curBrowserFilePath = fout.getAbsolutePath();
+            
+            // If there are spine paths, that means there are multiple 
+            // files to load.
+        	if(idd.getCurSpineFilePath() != null)
+        		curBrowserFilePath = idd.getCurSpineFilePath();
+        	
+        	// Finally, jam the file into the browser widget.
+            browser.setUrl( curBrowserFilePath );
+            
 			// Set browser bounds.
-			setFormData(browser, 49, 100, 0, 100);
+            setFormData(browser, 49, 100, 6, 100);
 		}
 		else {
 			// Set browser bounds.
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
-			setFormData(browser, 49, 100, 0, 100);
+			setFormData(browser, 49, 100, 6, 100);
 		}
 	}
 	
@@ -501,7 +566,7 @@ public class ImageDescriberView {
 		}); // okBtn.addSelectionListener...
 		Button canBtn = new Button(dlgShl, SWT.PUSH);
 		canBtn.setText("Cancel");
-		canBtn.setBounds(101,  75, 100, 25);
+		canBtn.setBounds(101, 75, 100, 25);
 		canBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

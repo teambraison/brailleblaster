@@ -41,8 +41,16 @@ import nu.xom.ValidityException;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Zipper;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -178,7 +186,15 @@ public class EPub3Archiver extends Archiver {
 				if(curSP == 0)
 				{
 					// Get main/first document.
-					mainDoc = builder.parse(curDocFilePath);
+					try
+					{
+						mainDoc = builder.parse(curDocFilePath);
+					}
+					catch(java.io.FileNotFoundException fnfe)
+					{
+						msgBx("Error", "Missing file in spine/manifest!", 200, 125);
+						return null;
+					}
 					
 					// Get body element.
 					mainBodyElement = mainDoc.getElementsByTagName("body");
@@ -405,5 +421,52 @@ public class EPub3Archiver extends Archiver {
 		///////
 		
 	} // save()
+	
+	///////////////////////////////////////////////////////////////////////////////////////////	
+	// Returns the list of documents that make up this book.
+	public ArrayList<String> getSpine() {
+		return epubFileList;
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////	
+	// Returns a path from a particular spine element.
+	public String getSpineFilePath(int idx) {
+		return epubFileList.get(idx);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Simple message box for alerts and messages to user.
+	public void msgBx(String cap, String msg, int w, int h)
+	{
+		// Tell user there are no image tags.
+		Display dlgDisp;
+		final Shell dlgShl;
+		dlgDisp = Display.getDefault();
+		dlgShl = new Shell(dlgDisp, SWT.WRAP);
+		dlgShl.setText(cap);
+		Button okBtn = new Button(dlgShl, SWT.PUSH);
+		okBtn.setText("Okay");
+		okBtn.setBounds(w / 2 - 100 / 2, h - 60, 100, 25);
+		okBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Close dialog.
+				dlgShl.close();
+			
+			} // widgetSelected()
+		
+		}); // okBtn.addSelectionListener...
+		
+		Label alertText = new Label(dlgShl, SWT.WRAP);
+		alertText.setBounds(0, 0, 250, 100);
+		alertText.setText(msg);
+		dlgShl.setSize(w, h);
+		dlgShl.open();
+		while (!dlgShl.isDisposed()) {
+			if (!dlgDisp.readAndDispatch())
+			dlgDisp.sleep();
+		}
+	
+	} // public void msgBx(String cap, string msg)
 	
 } // class EPubArchiver

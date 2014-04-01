@@ -59,6 +59,8 @@ public class ArchiverFactory {
 		if( isEPUB(filePath) )
 			return new EPub3Archiver(filePath);
 		// Is this Nimas?
+		if(isTextFile(filePath))
+			return new TextArchiver(filePath);
 //		if( isNIMAS(filePath) )
 //			return new NimasArchiver(filePath);
 		
@@ -104,4 +106,10 @@ public class ArchiverFactory {
 		
 	} // isNIMAS()
 	
+	static boolean isTextFile(String pathToDoc){
+		if(pathToDoc.endsWith(".txt"))
+			return true;
+		else
+			return false;
+	}
 } // class ArchiverFactory

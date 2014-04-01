@@ -727,7 +727,6 @@ public class TextView extends WPView {
 	}
 		
 	private String appendToView(Node n, boolean append){
-		System.out.println(n.getValue());
 		String text = "";
 		Element brl = getBrlNode(n);
 		int start = 0;

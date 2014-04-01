@@ -249,6 +249,9 @@ public class Manager extends Controller {
 						new Notify("An error occured while saving your document.  Please check your original document.");
 					}
 				}
+				else if(arch.getOrigDocPath().endsWith(".txt")){
+					arch.save(document, arch.getOrigDocPath());
+				}
 			}
 			else if(workingFilePath.endsWith("xml")){
 				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
@@ -355,11 +358,9 @@ public class Manager extends Controller {
 		if(arch != null)
 		{
 			// Is this an epub document?
-			if( arch.getOrigDocPath().endsWith(".epub") == true )
+			if( arch.getOrigDocPath().endsWith(".epub") == true || arch.getOrigDocPath().endsWith(".txt"))
 				currentConfig = getAutoCfg("epub");
 		}
-		else if( workingFilePath.endsWith(".txt") )
-			currentConfig = getAutoCfg("preferences");
 //		else if( workingFilePath.endsWith(".xml") )
 //			currentConfig = getAutoCfg("nimas"); // Nimas document.
 //		else if( workingFilePath.endsWith(".xhtml") )

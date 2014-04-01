@@ -29,12 +29,14 @@
 package org.brailleblaster.perspectives.imageDescriber;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import nu.xom.Document;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
@@ -72,6 +74,11 @@ public class ImageDescriberController extends Controller {
 	
 	// Archiver.
 	Archiver arch = null;
+	
+	// Index of current file we're looking at in the browser.
+	// Current file we're to load using the spine as a reference.
+	// Spine is in .opf file in epub.
+	int curSpineFileIdx = 0;
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Constructor.
@@ -141,7 +148,8 @@ public class ImageDescriberController extends Controller {
 				workingFilePath = fileName;
 		}
 		
-		// Change current config based on file type.
+		// Perform actions if the archiver exists, such as config 
+		// file switching.
 		if(arch != null)
 		{
 			// Is this an epub document?
@@ -359,7 +367,7 @@ public class ImageDescriberController extends Controller {
 	public void setImageToPrevious(){
 		// Change main image to previous element image.
 		imgDesc.prevImageElement();
-		
+
 		// Set image preview.
 		idv.setMainImage();
 		
@@ -487,6 +495,60 @@ public class ImageDescriberController extends Controller {
 		return arch;
 	}
 	
+	//////////////////////////////////////////////////////////////////////
+	// If working with an epub document, returns current spine file.
+	public String getCurSpineFilePath()
+	{
+		// Get current spine file path.
+		if(arch != null)
+			if(arch instanceof EPub3Archiver)
+				return ((EPub3Archiver)arch).getSpineFilePath(curSpineFileIdx);
+		
+		// If we get here, there is no spine path to return.
+		return null;
+		
+	} // getCurSpineFile()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Moves index to current file to the next one we see in the spine.
+	public String nextSpineFilePath()
+	{
+		// Make sure there is an archiver.
+		if(arch == null)
+			return null;
+		if(arch instanceof EPub3Archiver == false)
+			return null;
+		
+		// Go to next file path.
+		curSpineFileIdx++;
+		// If we've gone too far, wrap around.
+		if(curSpineFileIdx >= ((EPub3Archiver)arch).getSpine().size())
+			curSpineFileIdx = 0;
+		
+		// Return the current spine file path.
+		return ((EPub3Archiver)arch).getSpineFilePath(curSpineFileIdx);
+		
+	} // nextSpineFile()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Moves index to current file to the previous one we see in the spine.
+	public String prevSpineFilePath()
+	{
+		// Make sure there is an archiver.
+		if(arch == null)
+			return null;
+		
+		// Go to previous file path.
+		curSpineFileIdx--;
+		// If we've gone too far, wrap around.
+		if(curSpineFileIdx < 0 )
+			curSpineFileIdx = ((EPub3Archiver)arch).getSpine().size() - 1;
+		
+		// Return the current spine file path.
+		return ((EPub3Archiver)arch).getSpineFilePath(curSpineFileIdx);
+		
+	} // prevSpineFile()
+	
 	/////////////////////////////////////////////////////////////////
 	// Returns the image desciber "document"
 	public ImageDescriber getDocument() {
@@ -527,6 +589,10 @@ public class ImageDescriberController extends Controller {
 		idv.setBrowser();
 		idv.setTextBox(imgDesc.getCurDescription());
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		if( arch instanceof EPub3Archiver )
+			idv.enableBrowserNavButtons();
+		else
+			idv.disableBrowserNavButtons();
 //		if(file.endsWith(".zip")){
 //			openZipFile(file);
 //		}

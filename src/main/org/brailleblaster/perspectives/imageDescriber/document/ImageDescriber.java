@@ -336,6 +336,39 @@ public class ImageDescriber extends BBDocument {
 	} // elementUndo
 	
 	///////////////////////////////////////////////////////////////////////////
+	// Gets a particular image element.
+	public Element getImageElement(int idx)
+	{
+		// Move to element.
+		curElementIndex = idx;
+		
+		// Move to first if we hit the end.
+		if(curElementIndex >= numImgElms)
+			curElementIndex = 0;
+		
+		// Make sure there are images.
+		if(numImgElms == 0)
+			return null;
+		
+		// Set current element.
+		curImgElement = imgElmList.get(curElementIndex);
+		
+		// Wrap image in an appropriate container.
+		if( imgContext.hasContainer(curImgElement) == false ) {
+			curImgElement = imgContext.addContainer(curImgElement);
+			imgElmList.set(curElementIndex, curImgElement);
+		}
+		
+		// Set undo strings.
+		undoDesc = getCurDescription();
+		undoAlt = getCurElmAttribute("alt");
+		
+		// Return current <img> element.
+		return curImgElement;
+
+	} // gotoImageElement()
+	
+	///////////////////////////////////////////////////////////////////////////
 	// Returns the next <img> element that was found in the xml doc.
 	public Element nextImageElement()
 	{
@@ -395,45 +428,45 @@ public class ImageDescriber extends BBDocument {
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Traverses xml tree until it finds the next <img>.
-	public Element getNextImageElement(Element e)
-	{
-		// Get next image element.
-		curDocIndex++;
-		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
-			if( e.getLocalName().compareTo("img") == 0 ) {
-				if(curDocIndex > furthestDocIndex)
-				{
-					// Record depth.
-					furthestDocIndex = curDocIndex;
-					
-					// Return new element found.
-					return e;
-				
-				} // if(curDocIndex > furthestDocIndex)
-				
-			} // local name == img
-			
-		} // if xom element
-		
-		// 
-		Element newImgElement = null;
-		
-		// Go through every child and find the next image.
-		for(int curC = 0; curC < e.getChildCount(); curC++)
-		{
-			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
-			{
-				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
-				
-				if(newImgElement != null)
-					break;
-			}
-		
-		}
-		
-		return newImgElement;
-		
-	} // getNextImageElement(Element e)
+//	public Element getNextImageElement(Element e)
+//	{
+//		// Get next image element.
+//		curDocIndex++;
+//		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
+//			if( e.getLocalName().compareTo("img") == 0 ) {
+//				if(curDocIndex > furthestDocIndex)
+//				{
+//					// Record depth.
+//					furthestDocIndex = curDocIndex;
+//					
+//					// Return new element found.
+//					return e;
+//				
+//				} // if(curDocIndex > furthestDocIndex)
+//				
+//			} // local name == img
+//			
+//		} // if xom element
+//		
+//		// 
+//		Element newImgElement = null;
+//		
+//		// Go through every child and find the next image.
+//		for(int curC = 0; curC < e.getChildCount(); curC++)
+//		{
+//			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
+//			{
+//				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
+//				
+//				if(newImgElement != null)
+//					break;
+//			}
+//		
+//		}
+//		
+//		return newImgElement;
+//		
+//	} // getNextImageElement(Element e)
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Encapsulates given element into <imggroup>, and adds 
@@ -489,7 +522,7 @@ public class ImageDescriber extends BBDocument {
 		// Return null if the list is empty.
 		return null;
 		
-	} // getElementImage()
+	} // getImageFromElmIndex()
 	
 	///////////////////////////////////////////////////////////////////////////
 	// Returns image of current element.

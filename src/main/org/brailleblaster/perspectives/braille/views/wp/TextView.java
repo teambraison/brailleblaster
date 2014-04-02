@@ -631,7 +631,7 @@ public class TextView extends WPView {
 			}	
 		}
 		
-		StyleRange s = view.getStyleRangeAtOffset(total);
+		StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
 		setFontStyleRange(s.start, length, s);
 		
 		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText, math));

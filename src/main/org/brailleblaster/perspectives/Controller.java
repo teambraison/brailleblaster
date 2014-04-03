@@ -109,6 +109,11 @@ public abstract class Controller implements DocumentManager{
 		return workingFilePath;
 	}
 	
+	public void setCurrentConfig(String config){
+		if(workingFilePath != null)
+			currentConfig = config;
+	}
+	
 	public String getCurrentConfig(){
 		return currentConfig;
 	}

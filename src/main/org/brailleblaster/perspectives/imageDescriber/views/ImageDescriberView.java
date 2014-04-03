@@ -173,7 +173,6 @@ public class ImageDescriberView {
 		            "var OLDFILENAME=\"" + oldCssHref + "\";" + 
 		            "var NEWFILENAME=\"IDONOTEXIST.css\";" + 
 		            script;
-		            ;
 		            
 		            // Execute script to remove css.
 		            browser.execute(script);
@@ -349,24 +348,7 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 				curBrowserFilePath = idd.nextSpineFilePath();
 				setBrowser();
-            	
-            	String s1 = 
-						"var allLinks = document.getElementsByTagName('img');" + 
-					    "for (var i=0, il=allLinks.length; i<il; i++)" + 
-					    "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
-				
-				browser.execute(s1);
-				
-				// Create script.
-				String s2 = "var allLinks = document.getElementsByTagName('img');" + 
-		                "elm = allLinks[" + 2 + "];" + 
-		                "window.scrollTo(0, elm.posY);";
-		   	 
-				// Execute script.
-		        browser.execute(s2);
-				
-				
-//				idd.setImageToNext();
+				idd.setImageToNext();
 			}
 		});
 		
@@ -466,7 +448,7 @@ public class ImageDescriberView {
 				input.close();
 	            output.close();
 			}
-			catch (FileNotFoundException e1) { e1.printStackTrace();} 
+			catch (FileNotFoundException e1) { e1.printStackTrace(); } 
             catch (IOException e1) { e1.printStackTrace(); }
 
             // Progress listener. Adds javascript code that will modify our img elements with 
@@ -474,8 +456,8 @@ public class ImageDescriberView {
             browser.addProgressListener(new ProgressListener() 
             {
                 @Override
-				public void changed(ProgressEvent event) {
-                }
+				public void changed(ProgressEvent event) { }
+                
                 @Override
 				public void completed(ProgressEvent event) {
 	            	
@@ -649,34 +631,3 @@ public class ImageDescriberView {
 		toggleUI();
 	}
 }
-
-// Javascript functions to remove/replace css/stylesheets.
-//function createjscssfile(filename, filetype){
-//	 if (filetype=="js"){ //if filename is a external JavaScript file
-//	  var fileref=document.createElement('script')
-//	  fileref.setAttribute("type","text/javascript")
-//	  fileref.setAttribute("src", filename)
-//	 }
-//	 else if (filetype=="css"){ //if filename is an external CSS file
-//	  var fileref=document.createElement("link")
-//	  fileref.setAttribute("rel", "stylesheet")
-//	  fileref.setAttribute("type", "text/css")
-//	  fileref.setAttribute("href", filename)
-//	 }
-//	 return fileref
-//	}
-//
-//	function replacejscssfile(oldfilename, newfilename, filetype){
-//	 var targetelement=(filetype=="js")? "script" : (filetype=="css")? "link" : "none" //determine element type to create nodelist using
-//	 var targetattr=(filetype=="js")? "src" : (filetype=="css")? "href" : "none" //determine corresponding attribute to test for
-//	 var allsuspects=document.getElementsByTagName(targetelement)
-//	 for (var i=allsuspects.length; i>=0; i--){ //search backwards within nodelist for matching elements to remove
-//	  if (allsuspects[i] && allsuspects[i].getAttribute(targetattr)!=null && allsuspects[i].getAttribute(targetattr).indexOf(oldfilename)!=-1){
-//	   var newelement=createjscssfile(newfilename, filetype)
-//	   allsuspects[i].parentNode.replaceChild(newelement, allsuspects[i])
-//	  }
-//	 }
-//	}
-//
-//	replacejscssfile("oldscript.js", "newscript.js", "js") //Replace all occurences of "oldscript.js" with "newscript.js"
-//	replacejscssfile("oldstyle.css", "newstyle", "css") //Replace all occurences "oldstyle.css" with "newstyle.css"

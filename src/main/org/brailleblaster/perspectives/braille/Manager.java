@@ -1365,11 +1365,6 @@ public class Manager extends Controller {
 			treeView.setSelection(list.getFirst());
 	}
 	
-	public void setCurrentConfig(String config){
-		if(workingFilePath != null)
-			currentConfig = config;
-	}
-	
 	public void checkForUpdatedViews(){
 		if(text.hasChanged)
 			text.update(false);

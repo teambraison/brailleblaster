@@ -1015,13 +1015,14 @@ public class ConfigFileDialog extends Dialog {
 	} // void saveSettings()
 	
 	//////////////////////////////////////////////////////////////
-	// Refreshes the text and braille views.
+	// Refreshes views in current perspective.
 	void refreshViews()
 	{
 		int index = dm.getFolder().getSelectionIndex();
 		if(index  > -1) {
-			((Manager)dm.getList().get(index)).setCurrentConfig(defaultCfgFileName);
-			((Manager)dm.getList().get(index)).refresh();
+			dm.getList().get(index).setCurrentConfig(defaultCfgFileName);
+			if(dm.getList().get(index) instanceof Manager)
+				((Manager)dm.getList().get(index)).refresh();
 		}
 		
 	} // void refreshViews()

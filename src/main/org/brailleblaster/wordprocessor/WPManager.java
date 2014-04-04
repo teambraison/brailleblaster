@@ -82,7 +82,7 @@ public class WPManager {
 		location = new FormData();
 	    location.left = new FormAttachment(0);
 	    location.right = new FormAttachment(100);
-	    location.top = new FormAttachment (13);
+	    location.top = new FormAttachment (10);
 	    location.bottom = new FormAttachment(98);
 	    folder.setLayoutData (location);    
 	    statusBar = new BBStatusBar(shell);

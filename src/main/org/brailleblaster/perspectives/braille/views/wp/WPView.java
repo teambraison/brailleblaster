@@ -282,6 +282,15 @@ public abstract class WPView extends AbstractView implements BBView {
 				statusBarText += " Alignment: Right" + " | ";
 		}
 		
+		if(manager.getCurrent() != null){
+			Element e = manager.getCurrent().parentElement();
+			while(stylesTable.getSemanticTypeFromAttribute(e).equals("action"))
+				e = (Element)e.getParent();
+			
+			String style = this.stylesTable.getKeyFromAttribute(e);
+			statusBarText += "Style: " + style + " | ";
+		}
+		
 		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);
 		manager.dispatch(statusMessage);
 		currentLine = view.getLineAtOffset(view.getCaretOffset());

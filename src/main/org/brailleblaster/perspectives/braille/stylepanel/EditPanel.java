@@ -65,28 +65,35 @@ public class EditPanel {
 					e.doit = false;
 			}
 		});
+		styleName.setToolTipText(lh.localValue("styleNameTooltip"));
 		
 		linesBeforeLabel = makeLabel(lh.localValue("linesBefore"), 0, 50, 10, 20);
 		linesBeforeSpinner = makeSpinner(50, 100, 10, 20);
 		linesBeforeSpinner.setMinimum(0);
+		linesBeforeSpinner.setToolTipText(lh.localValue("linesBeforeTooltip"));
 		
 		linesAfterLabel = makeLabel(lh.localValue("linesAfter"), 0, 50, 20, 30);
 		linesAfterSpinner = makeSpinner(50, 100, 20, 30);
 		linesAfterSpinner.setMinimum(0);
+		linesAfterSpinner.setToolTipText(lh.localValue("linesAfterTooltip"));
 		
 		marginLabel = makeLabel(lh.localValue("margin"), 0, 50, 30, 40);
 		marginSpinner = makeSpinner(50, 100, 30, 40);
 		marginSpinner.setMinimum(0);
+		marginSpinner.setToolTipText(lh.localValue("marginToolTip"));
 		
 		indentLabel = makeLabel(lh.localValue("indent"), 0, 50, 40, 50);
 		indentSpinner = makeSpinner(50, 100, 40, 50);
 		indentSpinner.setMinimum(-100);
+		indentSpinner.setToolTipText(lh.localValue("indentTooltip"));
 		
 		alignmentLabel = makeLabel(lh.localValue("alignment"), 0, 50, 50, 60);
 		alignmentCombo = makeCombo(alignmentList, 50, 100, 50, 60);
+		alignmentCombo.setToolTipText(lh.localValue("alignmentTooltip"));
 		
 		emphasisLabel = makeLabel(lh.localValue("emphasis"), 0, 50, 60, 70);
 		emphasisCombo = makeCombo(emphasisList, 50, 100, 60, 70);
+		emphasisCombo.setToolTipText(lh.localValue("emphasisTooltip"));
 	}
 	
 	protected void setLayoutData(Control c, int left, int right, int top, int bottom){

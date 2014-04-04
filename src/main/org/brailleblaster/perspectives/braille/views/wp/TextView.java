@@ -536,6 +536,7 @@ public class TextView extends WPView {
 		}
 		
 		currentElement = (TextMapElement)message.getValue("currentElement");
+		sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 	}
 	
 	private void makeTextChange(int offset){

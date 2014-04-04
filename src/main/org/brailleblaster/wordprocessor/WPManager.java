@@ -133,7 +133,8 @@ public class WPManager {
 	     });
 		
 		setShellScreenLocation(display, shell);
-   
+		shell.setMaximized(true);
+		
         new Welcome(); 
 		shell.open();
 		

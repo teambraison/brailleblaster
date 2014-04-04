@@ -51,7 +51,7 @@ public class FontManager {
 	private boolean Courier = false;
 	private String altFont = "unibraille29";
 	private String courierFont = "Courier New";
-	private int daisyFontHeight = 10;
+	private int daisyFontHeight = 12;
 	private int brailleFontHeight = 14;
 	static LocaleHandler lh = new LocaleHandler();
 	static Logger logger = BBIni.getLogger();

@@ -1,7 +1,5 @@
 package org.brailleblaster.perspectives.imageDescriber.views;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,15 +7,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 import nu.xom.Element;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.imageDescriber.Falconator;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
@@ -32,6 +29,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -39,6 +37,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -68,6 +67,7 @@ public class ImageDescriberView {
 	String oldAltText = "";
 	String oldCssHref = null;
 	String curBrowserFilePath = null;
+	Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
 	
 	// Script that will add "positions" to <img> tags.
 	String posScript = 
@@ -523,7 +523,8 @@ public class ImageDescriberView {
 	{
 		// Tell user there are no image tags.
 		LocaleHandler lh = new LocaleHandler();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Monitor mon[] = Display.getDefault().getMonitors();
+		Rectangle screenSize = mon[0].getBounds();
 		msgBxBool = false;
 		Display dlgDisp;
 		final Shell dlgShl;
@@ -565,7 +566,7 @@ public class ImageDescriberView {
 		Label alertText = new Label(dlgShl, SWT.WRAP);
 		alertText.setBounds(0, 0, 250, 100);
 		alertText.setText(msg);
-		dlgShl.setSize((int)screenSize.getWidth() / 5, (int)screenSize.getWidth() / 12);
+		dlgShl.setSize((int)screenSize.width / 5, (int)screenSize.width / 12);
 		dlgShl.open();
 		while (!dlgShl.isDisposed()) {
 			if (!dlgDisp.readAndDispatch())
@@ -586,17 +587,18 @@ public class ImageDescriberView {
 		c.setLayoutData(data);
 		
 		// Change font size depending on screen resolution.
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Monitor mon[] = Display.getDefault().getMonitors();
+		Rectangle screenSize = mon[0].getBounds();
 		FontData[] oldFontData = c.getFont().getFontData();
-		if( (int)screenSize.getWidth() >= 1920)
+		if( (int)screenSize.width >= 1920)
 			oldFontData[0].setHeight(10);
-		else if( (int)screenSize.getWidth() >= 1600)
+		else if( (int)screenSize.width >= 1600)
 			oldFontData[0].setHeight(9);
-		else if( (int)screenSize.getWidth() >= 1280)
+		else if( (int)screenSize.width >= 1280)
 			oldFontData[0].setHeight(7);
-		else if( (int)screenSize.getWidth() >= 1024)
+		else if( (int)screenSize.width >= 1024)
 			oldFontData[0].setHeight(5);
-		else if( (int)screenSize.getWidth() >= 800)
+		else if( (int)screenSize.width >= 800)
 			oldFontData[0].setHeight(4);
 		c.setFont( new Font(null, oldFontData[0]) );
 	}

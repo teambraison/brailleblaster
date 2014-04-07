@@ -21,7 +21,7 @@ basedir=".">
 <target name="compile" depends="init">
 <javac srcdir="${srcdir}" destdir="${builddir}"
 debug="yes"
-includeantruntime="false" source="1.6" target="1.6" >
+includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
 <classpath>
 <pathelement path="${classpath}"/>
 <pathelement location="${classpath}/swt.jar"/>

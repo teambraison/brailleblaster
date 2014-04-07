@@ -14,7 +14,7 @@ import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.perspectives.imageDescriber.Falconator;
+//import org.brailleblaster.perspectives.imageDescriber.Falconator;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
@@ -67,7 +67,7 @@ public class ImageDescriberView {
 	String oldAltText = "";
 	String oldCssHref = null;
 	String curBrowserFilePath = null;
-	Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
+//	Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
 	
 	// Script that will add "positions" to <img> tags.
 	String posScript = 

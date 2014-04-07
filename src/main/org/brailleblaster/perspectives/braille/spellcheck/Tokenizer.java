@@ -9,14 +9,14 @@ public class Tokenizer {
 	public Tokenizer(String text){
 		startPos = 0;
 		endPos = 0;
-		this.text = text.replaceAll("’", "'");
+		this.text = text.replaceAll("\u2019", "'");
 		complete = false;
 	}
 	
 	public Tokenizer(String text, int startPos, int endPos){
 		this.startPos = startPos;
 		this.endPos = endPos;
-		this.text = text.replaceAll("’", "'");
+		this.text = text.replaceAll("\u2019", "'");
 		complete = false;
 	}
 	
@@ -38,7 +38,7 @@ public class Tokenizer {
 	}
 	
 	public void resetText(String text){
-		this.text = text.replaceAll("’", "'");
+		this.text = text.replaceAll("\u2019", "'");
 		setEndPos();
 	}
 	

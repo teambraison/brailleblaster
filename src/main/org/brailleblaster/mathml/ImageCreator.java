@@ -1,6 +1,5 @@
 package org.brailleblaster.mathml;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.logging.Level;
@@ -32,8 +31,6 @@ public class ImageCreator {
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Node n = dBuilder.parse(new InputSource(new StringReader(e.toXML().toString())));
 			MutableLayoutContext params = new LayoutContextImpl(LayoutContextImpl.getDefaultLayoutContext());
-			params.setParameter(Parameter.MATHBACKGROUND, Color.WHITE);
-			params.setParameter(Parameter.MATHCOLOR, Color.BLACK);
 			params.setParameter(Parameter.MATHSIZE, fontHeight);
 			ImageData imageData = mr.render(n, params);
 			return new Image(d, imageData);

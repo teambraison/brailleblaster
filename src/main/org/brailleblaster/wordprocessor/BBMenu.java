@@ -165,7 +165,6 @@ public abstract class BBMenu {
 		brailleEditorItem.setText(lh.localValue("Braille Editor"));
 		brailleEditorItem.setSelection(true);
 		brailleEditorItem.setData(Manager.class);
-		selectedPerspective = brailleEditorItem;
 		brailleEditorItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -191,7 +190,6 @@ public abstract class BBMenu {
 				}
 			}		
 		});
-	
 		viewItem.setMenu(viewMenu);
 
 		// Set up help menu
@@ -295,7 +293,6 @@ public abstract class BBMenu {
 	{
 		// Construct strings from path. These are added to the recent docs list and menu items.
 		// Current line.
-		String[] result = path.split( BBIni.getFileSep() + BBIni.getFileSep() );
 		String fileName = path.substring( path.lastIndexOf(BBIni.getFileSep()) + 1, path.length() );
 		final String curStr = fileName + "  [" + path + "]";
 		final String curStr2 = path;
@@ -379,6 +376,19 @@ public abstract class BBMenu {
 	
 	public void dispose(){
 		menuBar.dispose();
+	}
+	
+	protected void setPerspectiveMenuItem(int index){
+		Menu menu = viewMenu.getItem(0).getMenu();
+		int count = menu.getItemCount();
+		for(int i = 0; i < count; i++){
+			if(i == index){
+				menu.getItem(i).setSelection(true);
+				selectedPerspective = menu.getItem(i);
+			}
+			else
+				menu.getItem(i).setSelection(false);
+		}
 	}
 	
 	public abstract void setCurrent(Controller controller);

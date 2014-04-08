@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.MenuItem;
 //import org.brailleblaster.search.*;
 
 public class BrailleMenu extends BBMenu{
-
+	private final int MENU_INDEX = 0;
 	Manager currentEditor;
 	
 	MenuItem newItem;
@@ -79,7 +79,7 @@ public class BrailleMenu extends BBMenu{
 	
 	public BrailleMenu(final WPManager wp, final Manager editor) {
 		super(wp);
-
+		setPerspectiveMenuItem(MENU_INDEX);
 		setCurrent(editor);
 		MenuItem editItem = new MenuItem(menuBar, SWT.CASCADE, 1);
 		editItem.setText(lh.localValue("&Edit"));
@@ -799,18 +799,28 @@ public class BrailleMenu extends BBMenu{
 	}
 	
 	private void setTreeItem(){
-		Class<?> clss = currentEditor.getTreeView().getClass();
+		//If no open tabs, set 
+		if(currentEditor != null){
+			Class<?> clss = currentEditor.getTreeView().getClass();
 		
-		for(int  i = 0; i < treeViewMenu.getItemCount(); i++){
-			if(treeViewMenu.getItem(i).getData().equals(clss)){
-				selectedTree = treeViewMenu.getItem(i);
-				treeViewMenu.getItem(i).setSelection(true);
-				break;
+			for(int  i = 0; i < treeViewMenu.getItemCount(); i++){
+				if(treeViewMenu.getItem(i).getData().equals(clss)){
+					selectedTree = treeViewMenu.getItem(i);
+					treeViewMenu.getItem(i).setSelection(true);
+					break;
+				}
 			}
+		}
+		else {
+			selectedTree = treeViewMenu.getItem(0);
+			treeViewMenu.getItem(0).setSelection(true);
 		}
 	}
 	
 	private void setBrailleFont(){
-		viewBrailleItem.setSelection(currentEditor.isSimBrailleDisplayed());
+		if(currentEditor != null)
+			viewBrailleItem.setSelection(currentEditor.isSimBrailleDisplayed());
+		else
+			viewBrailleItem.setSelection(true);
 	}
 }

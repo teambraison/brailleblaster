@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
 public class ImageDescriberMenu extends BBMenu{
+	private final int MENU_INDEX = 1;
 	ImageDescriberController currentController;
 	
 	//file menu
@@ -24,9 +25,7 @@ public class ImageDescriberMenu extends BBMenu{
 			
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
-		viewMenu.getItem(0).getMenu().getItem(0).setSelection(false);
-		viewMenu.getItem(0).getMenu().getItem(1).setSelection(true);
-		selectedPerspective = viewMenu.getItem(0).getMenu().getItem(1);
+		setPerspectiveMenuItem(MENU_INDEX);
 		currentController = idc;
 		
 		openItem = new MenuItem(fileMenu, SWT.PUSH, 0);

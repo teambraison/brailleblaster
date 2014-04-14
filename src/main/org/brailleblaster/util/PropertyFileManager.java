@@ -26,7 +26,7 @@
   * If not, see
   * http://www.apache.org/licenses/
   *
-  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+  * Maintained by Keith Creasy <kcreasy@aph.org>, Project Manager
 */
 
 package org.brailleblaster.util;

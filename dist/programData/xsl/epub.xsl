@@ -28,7 +28,7 @@
   * If not, see
   * http://www.apache.org/licenses/
   *
-  * Maintained by John J. Boyer john.boyer@abilitiessoft.com
+  * Maintained by Keith Creasy <kcreasy@aph.org>, Project Manager
 -->
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">

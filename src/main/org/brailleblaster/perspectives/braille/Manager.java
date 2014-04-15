@@ -1,16 +1,18 @@
 /* BrailleBlaster Braille Transcription Application
  *
- * Copyright (C) 2010, 2012
+ * Copyright (C) 2014
+* American Printing House for the Blind, Inc. www.aph.org
+* and
  * ViewPlus Technologies, Inc. www.viewplus.com
  * and
  * Abilitiessoft, Inc. www.abilitiessoft.com
  * and
- * American Printing House for the Blind, Inc. www.aph.org
+ * American Printing House for the Blind, Inc. www.aph.org www.aph.org
  *
  * All rights reserved
  *
  * This file may contain code borrowed from files produced by various 
- * Java development teams. These are gratefully acknoledged.
+ * Java development teams. These are gratefully acknowledged.
  *
  * This file is free software; you can redistribute it and/or modify it
  * under the terms of the Apache 2.0 License, as given at

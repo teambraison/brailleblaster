@@ -49,7 +49,7 @@ public class UserHelp {
 		switch (helpChoice) {
 			case AboutBB:
 				new Notify (BBIni.getProductName() + " version " + BBIni.getVersion() +  ", released on " + 
-						BBIni.getReleaseDate() + ". "For more information or to report bugs visit http://www.brailleblaster.org.");
+						BBIni.getReleaseDate() + ". For more information or to report bugs visit http://www.brailleblaster.org.");
 				break;
 			case HelpInfo:
 				showHelp ("helpinfo.html");

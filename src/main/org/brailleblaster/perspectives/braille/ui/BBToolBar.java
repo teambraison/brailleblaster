@@ -78,20 +78,20 @@ public class BBToolBar {
 		Monitor mon[] = Display.getDefault().getMonitors();
 		Rectangle screenSize = mon[0].getBounds();
 		
-		MAX_W = (int)screenSize.width / 30;
+		MAX_W = screenSize.width / 30;
 		MAX_H = MAX_W;
 		
 		// Change font size depending on screen resolution.
 		FontData[] oldFontData = toolBar.getFont().getFontData();
-		if( (int)screenSize.width >= 1920)
+		if( screenSize.width >= 1920)
 			oldFontData[0].setHeight(9);
-		else if( (int)screenSize.width >= 1600)
+		else if( screenSize.width >= 1600)
 			oldFontData[0].setHeight(8);
-		else if( (int)screenSize.width >= 1280)
+		else if( screenSize.width >= 1280)
 			oldFontData[0].setHeight(6);
-		else if( (int)screenSize.width >= 1024)
+		else if( screenSize.width >= 1024)
 			oldFontData[0].setHeight(4);
-		else if( (int)screenSize.width >= 800)
+		else if( screenSize.width >= 800)
 			oldFontData[0].setHeight(3);
 		toolBar.setFont( new Font(null, oldFontData[0]) );
 		

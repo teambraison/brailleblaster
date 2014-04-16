@@ -523,6 +523,7 @@ public class BrailleMenu extends BBMenu{
 		xmlTreeItem.setText(lh.localValue("xmlTree"));
 		xmlTreeItem.setData(XMLTree.class);
 		xmlTreeItem.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(xmlTreeItem.getSelection() == true && !selectedTree.equals(xmlTreeItem)){
 					selectedTree = xmlTreeItem;
@@ -536,6 +537,7 @@ public class BrailleMenu extends BBMenu{
 		bookTreeItem.setText(lh.localValue("bookTree"));
 		bookTreeItem.setData(BookTree.class);
 		bookTreeItem.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(bookTreeItem.getSelection() == true && !selectedTree.equals(bookTreeItem)){
 					selectedTree = bookTreeItem;
@@ -549,6 +551,7 @@ public class BrailleMenu extends BBMenu{
 		viewBrailleItem = new MenuItem(viewMenu, SWT.CHECK);
 		viewBrailleItem.setText(lh.localValue("viewBraille"));
 		viewBrailleItem.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();
 				if(count > 0)

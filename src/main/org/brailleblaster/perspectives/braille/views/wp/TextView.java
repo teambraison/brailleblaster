@@ -112,6 +112,7 @@ public class TextView extends WPView {
 	@Override
 	public void initializeListeners(){	
 		view.addSelectionListener(selectionListener = new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
@@ -321,6 +322,7 @@ public class TextView extends WPView {
 		});
 		
 		view.addMouseListener(mouseListener = new MouseAdapter(){
+			@Override
 			public void mouseDown(MouseEvent e) {
 				if( (view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart)){
 					if(textChanged == true)
@@ -338,6 +340,7 @@ public class TextView extends WPView {
 		});
 
 		view.getVerticalBar().addSelectionListener(scrollbarListener = new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {		
 				checkStatusBar(Sender.TEXT);
 			}
@@ -411,6 +414,7 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	
+	@Override
 	public void removeListeners(){
 		if(selectionListener != null) {
 			view.removeSelectionListener(selectionListener);

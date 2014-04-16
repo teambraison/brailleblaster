@@ -1,9 +1,6 @@
 package org.brailleblaster.search;
 
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
-import org.brailleblaster.perspectives.braille.messages.Message;
-import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -19,7 +16,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TreeItem;
 
 
 public class SearchDialog extends Dialog {

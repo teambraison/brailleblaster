@@ -139,6 +139,7 @@ public class BrailleView extends WPView {
 		});
 		
 		view.addMouseListener(mouseListener = new MouseAdapter(){
+			@Override
 			public void mouseDown(MouseEvent e) {
 				if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 					if(manager.inBraillePageRange(view.getCaretOffset())){
@@ -187,6 +188,7 @@ public class BrailleView extends WPView {
 		});
 		
 		view.getVerticalBar().addSelectionListener(selectionListener = new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				checkStatusBar(Sender.BRAILLE);
 			}
@@ -235,6 +237,7 @@ public class BrailleView extends WPView {
 		}
 	}
 	
+	@Override
 	public void removeListeners(){
 		view.removeTraverseListener(traverseListener);
 		view.removeVerifyKeyListener(verifyListener);

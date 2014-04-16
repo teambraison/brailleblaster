@@ -80,6 +80,7 @@ public class BookTree extends TreeView {
 	@Override
 	public void initializeListeners() {
 		tree.addSelectionListener(selectionListener = new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
 					if(!e.item.equals(root)){
@@ -462,6 +463,7 @@ public class BookTree extends TreeView {
 			return false;
 	}
 
+	@Override
 	public void split(Message m) {
 		lastParent = tree.getSelection()[0].getParentItem();
 		TreeItem item = tree.getSelection()[0];
@@ -485,6 +487,7 @@ public class BookTree extends TreeView {
 		resetIndexes();		
 	}
 
+	@Override
 	public void adjustItemStyle(TextMapElement t) {
 		if(isHeading(t)){
 			tree.removeAll();

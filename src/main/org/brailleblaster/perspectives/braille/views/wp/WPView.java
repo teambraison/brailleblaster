@@ -52,6 +52,7 @@ public abstract class WPView extends AbstractView implements BBView {
 	};
 	
 	public abstract void addPageNumber(MapList list, Node node);
+	@Override
 	protected abstract void setViewData(Message message);
 	
 	protected int getFontWidth(){

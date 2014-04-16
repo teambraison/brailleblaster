@@ -31,8 +31,6 @@
 package org.brailleblaster.perspectives.imageDescriber;
 
 import java.io.File;
-import java.util.ArrayList;
-
 import nu.xom.Document;
 
 import org.brailleblaster.BBIni;
@@ -155,7 +153,7 @@ public class ImageDescriberController extends Controller {
 		if(arch != null)
 		{
 			// Is this an epub document?
-			if( arch.getOrigDocPath().endsWith(".epub") == true )
+			if( arch.getOrigDocPath().toLowerCase().endsWith(".epub") == true )
 				currentConfig = getAutoCfg("epub");
 		}
 //		else if( workingFilePath.endsWith(".xml") )
@@ -170,7 +168,7 @@ public class ImageDescriberController extends Controller {
 		if(fileName == null){
 			return imgDesc.startDocument(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", currentConfig, null);
 		}
-		else if(fileName.endsWith(".zip")){
+		else if(fileName.toLowerCase().endsWith(".zip")){
 			openZipFile(fileName);
 			return imgDesc.startDocument(workingFilePath, currentConfig, null);
 		}

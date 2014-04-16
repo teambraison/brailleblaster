@@ -14,7 +14,6 @@ import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
-//import org.brailleblaster.perspectives.imageDescriber.Falconator;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
@@ -60,6 +59,7 @@ public class ImageDescriberView {
 	Text imgDescTextBox;
 	Label altLabel;
 	Text altBox;
+	boolean refreshOnce = true;
 	Browser browser;
 	ImageHelper imgHelper;
 	Label mainImage;
@@ -67,13 +67,9 @@ public class ImageDescriberView {
 	String oldAltText = "";
 	String oldCssHref = null;
 	String curBrowserFilePath = null;
-//	Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
+	// Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
 	
-	// Script that will add "positions" to <img> tags.
-	String posScript = 
-	"var allLinks = document.getElementsByTagName('img');" + 
-    "for (var i=0, il=allLinks.length; i<il; i++)" + 
-    "{ elm = allLinks[i]; elm.setAttribute('posY', elm.getBoundingClientRect().top); }";
+	
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -100,6 +96,7 @@ public class ImageDescriberView {
 
 			// Move to previous element.
 			idd.setImageToPrevious();
+			// hw.setForce(0, 0, 0);
 			
 		} // widgetSelected()
 
@@ -115,6 +112,7 @@ public class ImageDescriberView {
 
 				// Move to next element.
 				idd.setImageToNext();
+				// hw.shutdown();
 
 			} // widgetSelected()
 
@@ -348,7 +346,6 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 				curBrowserFilePath = idd.nextSpineFilePath();
 				setBrowser();
-				idd.setImageToNext();
 			}
 		});
 		
@@ -361,14 +358,12 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 				curBrowserFilePath = idd.prevSpineFilePath();
 				setBrowser();
-				idd.setImageToPrevious();
 			}
 		});
 
 		// Setup browser window.
 		browser = new Browser(group, SWT.BORDER);
 		setBrowser();
-		setFormData(browser, 49, 100, 6, 100);
 		
 	} // public void createUIelements()
 	
@@ -388,7 +383,9 @@ public class ImageDescriberView {
 	public void setTextBox(){
 		// Get prodnote text/image description.
 		if(imgDesc.getImageList().size() > 0)
-			imgDescTextBox.setText( imgDesc.getCurDescription() );
+			if(imgDesc.getCurDescription() != null)
+				if(imgDesc.getCurDescription().length() > 0)
+					imgDescTextBox.setText( imgDesc.getCurDescription() );
 	}
 	
 	// Get text in alt box UI.
@@ -428,12 +425,12 @@ public class ImageDescriberView {
 	}
 
 	public void setBrowser(){
+		
 		// Create copy of file as html and load into browser widget.
 		if(idd.getWorkingPath() != null && imgDesc.getImageList().size() > 0) {
 			// Make copy of the file.
 		    File fin = new File(idd.getWorkingPath());
 		    File fout = new File(idd.getWorkingPath().replaceAll(".xml", ".html"));
-
             try
             {
     		    InputStream input = null;
@@ -448,23 +445,8 @@ public class ImageDescriberView {
 				input.close();
 	            output.close();
 			}
-			catch (FileNotFoundException e1) { e1.printStackTrace(); } 
+			catch (FileNotFoundException e1) { e1.printStackTrace(); }
             catch (IOException e1) { e1.printStackTrace(); }
-
-            // Progress listener. Adds javascript code that will modify our img elements with 
-            // height information.
-            browser.addProgressListener(new ProgressListener() 
-            {
-                @Override
-				public void changed(ProgressEvent event) { }
-                
-                @Override
-				public void completed(ProgressEvent event) {
-	            	
-	            	 // Execute the script.
-	                 browser.execute(posScript);
-                }
-            });
             
 			// Get path to full file.
             curBrowserFilePath = fout.getAbsolutePath();
@@ -473,12 +455,35 @@ public class ImageDescriberView {
             // files to load.
         	if(idd.getCurSpineFilePath() != null)
         		curBrowserFilePath = idd.getCurSpineFilePath();
+
+        		// Progress listener. Adds javascript code that will modify our img elements with 
+        	    // height information.
+        	    browser.addProgressListener(new ProgressListener() 
+        	    {
+        	        @Override
+        			public void changed(ProgressEvent event) { }
+        	        
+        	        @Override
+        			public void completed(ProgressEvent event) {
+        	        	
+        	        	// Refresh the view one time. This fixes 
+        	        	// an issue with certain documents 
+        	        	// not displaying properly in the browser 
+        	        	// view.
+        	        	if(refreshOnce == true) {
+        	        		refreshOnce = false;
+        	        		browser.refresh();
+        	        	}
+        	        	
+        	        } // completed()
+        	        
+        	    }); // addProgressListener()
         	
         	// Finally, jam the file into the browser widget.
-            browser.setUrl( curBrowserFilePath );
-            
+        	browser.setUrl( curBrowserFilePath );
+
 			// Set browser bounds.
-            setFormData(browser, 49, 100, 6, 100);
+        	setFormData(browser, 49, 100, 6, 100);
 		}
 		else {
 			// Set browser bounds.
@@ -497,10 +502,14 @@ public class ImageDescriberView {
 		// Create script.
 		String s = "var allLinks = document.getElementsByTagName('img'); " +
                 "elm = allLinks[" + indexStr + "];" +
-                "window.scrollTo(0, elm.posY);";
+                "var y = elm.offsetTop;" + 
+                "while (elm = elm.offsetParent) {" + 
+                	"y += elm.offsetTop;" + 
+                "}" + 
+                "window.scrollTo(0, y);";
    	 
 		// Execute script.
-        browser.execute(s);
+		browser.execute(s);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -566,7 +575,7 @@ public class ImageDescriberView {
 		Label alertText = new Label(dlgShl, SWT.WRAP);
 		alertText.setBounds(0, 0, 250, 100);
 		alertText.setText(msg);
-		dlgShl.setSize((int)screenSize.width / 5, (int)screenSize.width / 12);
+		dlgShl.setSize(screenSize.width / 5, screenSize.width / 12);
 		dlgShl.open();
 		while (!dlgShl.isDisposed()) {
 			if (!dlgDisp.readAndDispatch())
@@ -590,15 +599,15 @@ public class ImageDescriberView {
 		Monitor mon[] = Display.getDefault().getMonitors();
 		Rectangle screenSize = mon[0].getBounds();
 		FontData[] oldFontData = c.getFont().getFontData();
-		if( (int)screenSize.width >= 1920)
+		if( screenSize.width >= 1920)
 			oldFontData[0].setHeight(10);
-		else if( (int)screenSize.width >= 1600)
+		else if( screenSize.width >= 1600)
 			oldFontData[0].setHeight(9);
-		else if( (int)screenSize.width >= 1280)
+		else if( screenSize.width >= 1280)
 			oldFontData[0].setHeight(7);
-		else if( (int)screenSize.width >= 1024)
+		else if( screenSize.width >= 1024)
 			oldFontData[0].setHeight(5);
-		else if( (int)screenSize.width >= 800)
+		else if( screenSize.width >= 800)
 			oldFontData[0].setHeight(4);
 		c.setFont( new Font(null, oldFontData[0]) );
 	}

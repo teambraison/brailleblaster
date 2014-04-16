@@ -33,6 +33,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		// TODO Auto-generated method stub	
 	}
 	
+	@Override
 	public void adjustLayout(boolean fullSize){
 		if(fullSize)
 			setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
@@ -42,6 +43,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		group.layout();
 	}
 	
+	@Override
 	public void dispose(){
 		tree.removeAll();
 		tree.dispose();

@@ -48,6 +48,7 @@ public class XMLTree extends TreeView {
 		item.setText("Edit Element Style");
 		
 		item.addSelectionListener(new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				dm.toggleAttributeEditor();	
 			}		
@@ -60,6 +61,7 @@ public class XMLTree extends TreeView {
 	@Override
 	public void initializeListeners(){
 		tree.addSelectionListener(selectionListener = new SelectionAdapter(){
+			@Override
 			public void widgetSelected(SelectionEvent e) {	
 				if(!getLock()){
 					TreeItem [] items = tree.getSelection();
@@ -192,6 +194,7 @@ public class XMLTree extends TreeView {
 		return temp;
 	}
 	
+	@Override
 	public void newTreeItem(TextMapElement t, int index, int offset){
 		Element parentElement = (Element)t.n.getParent();
 		while(parentElement.getAttributeValue("semantics").contains("action")){
@@ -301,6 +304,7 @@ public class XMLTree extends TreeView {
 		return (TreeItemData)item.getData();
 	}
 	
+	@Override
 	public void setRoot(Element e){
 		this.root = new TreeItem(this.tree, 0);
 		this.root.setText(e.getLocalName());
@@ -310,6 +314,7 @@ public class XMLTree extends TreeView {
 		previousItem = root;
 	}
 	
+	@Override
 	public TreeItem getRoot(){
 		return this.tree.getItem(0);
 	}
@@ -447,6 +452,7 @@ public class XMLTree extends TreeView {
 		}
 	}
 	
+	@Override
 	public void removeCurrent(){
 		TreeItem item = tree.getSelection()[0];
 		TreeItemData data = (TreeItemData)item.getData();
@@ -464,6 +470,7 @@ public class XMLTree extends TreeView {
 			item.dispose();
 	}
 	
+	@Override
 	public void removeMathML(TextMapElement t){
 		Message m = new Message(null);
 		setListenerLock(true);
@@ -480,6 +487,7 @@ public class XMLTree extends TreeView {
 		setListenerLock(false);
 	}
 	
+	@Override
 	public int getBlockElementIndex(){
 		TreeItem parent = tree.getSelection()[0];
 		
@@ -490,6 +498,7 @@ public class XMLTree extends TreeView {
 		return parent.getParentItem().indexOf(parent);
 	}
 	
+	@Override
 	public void setSelection(TextMapElement t){
 		Message message = new Message(null);
 		setListenerLock(true);
@@ -518,6 +527,7 @@ public class XMLTree extends TreeView {
 		setListenerLock(false);
 	}
 	
+	@Override
 	public void removeItem(TextMapElement t, Message m){
 		setListenerLock(true);
 		searchTree(this.getRoot(), t, m);
@@ -545,6 +555,7 @@ public class XMLTree extends TreeView {
 		setListenerLock(false);
 	}
 	
+	@Override
 	public TextMapElement getSelection(TextMapElement t){
 		setListenerLock(true);
 		TreeItem [] arr = this.tree.getSelection();
@@ -560,6 +571,7 @@ public class XMLTree extends TreeView {
 		return null;
 	}
 	
+	@Override
 	public int getSelectionIndex(){
 		TreeItem parent = tree.getSelection()[0].getParentItem();
 		TreeItem item = tree.getSelection()[0];
@@ -574,6 +586,7 @@ public class XMLTree extends TreeView {
 		return parent.indexOf(item);
 	}
 	
+	@Override
 	public void clearTree(){
 		tree.removeAll();
 	}

@@ -43,7 +43,6 @@ import nu.xom.ValidityException;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Zipper;
 import org.eclipse.swt.SWT;

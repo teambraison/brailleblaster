@@ -53,6 +53,7 @@ lib/jeuclid/batik-xml-1.7.jar
 lib/jeuclid/xmlgraphics-commons-1.3.1.jar
 lib/jeuclid/commons-io-1.3.1.jar
 lib/jeuclid/batik-anim.jar
+lib/jeuclid/commons-logging-1.3.3.jar
 lib/jeuclid/batik-awt-util.jar
 lib/jeuclid/batik-bridge.jar
 lib/jeuclid/batik-codec.jar

@@ -106,13 +106,13 @@ public final class BBIni {
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
+		platformName = SWT.getPlatform();
 	//	LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
 		osName = System.getProperty("os.name");
 		osVersion = System.getProperty("os.version");
 		fileSep = System.getProperty("file.separator");
-		platformName = SWT.getPlatform();
 		String userHome = System.getProperty("user.home");
 		String BBHome;
 		programDataPath = brailleblasterPath + fileSep + "programData";
@@ -269,7 +269,7 @@ public final class BBIni {
 		String url = System.getenv("BBLASTER_WORK");
 		
 		if (url != null) {
-			if (platformName.equals("cocoa"))
+			if (BBIni.getPlatformName().equals("cocoa"))
 				url = "file://" + url;
 			else
 				url = "file:/" + url;

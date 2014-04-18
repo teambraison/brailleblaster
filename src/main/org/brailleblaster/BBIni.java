@@ -269,7 +269,10 @@ public final class BBIni {
 		String url = System.getenv("BBLASTER_WORK");
 		
 		if (url != null) {
-			url = "file:/" + url;
+			if (platformName.equals("cocoa"))
+				url = "file://" + url;
+			else
+				url = "file:/" + url;
 		} 
 		else {
 			url = classToUse.getClass().getResource("/"+ classToUse.getClass().getName().replaceAll("\\.", "/") + ".class").toString();

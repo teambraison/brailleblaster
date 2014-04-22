@@ -435,7 +435,7 @@ public class EPub3Archiver extends Archiver {
 	} // save()
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
-	// Takes in a document and adds its image count to 
+	// Takes in a document and adds its image count to the list.
 	public void addToNumImgsList(Document addMe)
 	{
 		// Create space big enough to hold our image integers if we haven't done so already.

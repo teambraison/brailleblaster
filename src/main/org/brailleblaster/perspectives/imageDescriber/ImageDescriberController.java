@@ -31,6 +31,8 @@
 package org.brailleblaster.perspectives.imageDescriber;
 
 import java.io.File;
+import java.util.ArrayList;
+
 import nu.xom.Document;
 
 import org.brailleblaster.BBIni;
@@ -364,6 +366,28 @@ public class ImageDescriberController extends Controller {
 		item.dispose();
 	}
 	
+	// 
+	public void setImageGoto(int index)
+	{
+		// Go to a particular image in the image describer.
+		imgDesc.gotoImageElement(index);
+		
+		// Set image preview.
+		idv.setMainImage();
+		
+		// Get prodnote text/image description.
+		idv.setTextBox();
+
+		// Show current image index and name.
+		setImageInfo();
+		
+		// Set alt text.
+		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		
+		// Scroll browser to current image.
+//		idv.scrollBrowserToCurImg();
+	}
+	
 	public void setImageToPrevious(){
 		// Change main image to previous element image.
 		imgDesc.prevImageElement();
@@ -381,7 +405,7 @@ public class ImageDescriberController extends Controller {
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 		
 		// Scroll browser to current image.
-		idv.scrollBrowserToCurImg();
+//		idv.scrollBrowserToCurImg();
 	}
 	
 	public void setImageToNext(){
@@ -401,7 +425,7 @@ public class ImageDescriberController extends Controller {
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 		
 		// Scroll browser to current image.
-		idv.scrollBrowserToCurImg();
+//		idv.scrollBrowserToCurImg();
 	}
 	
 	// Undo-es current element/image changes.
@@ -496,6 +520,33 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	//////////////////////////////////////////////////////////////////////
+	// Returns list of image counts for files in spine.
+	// Returns null if there is no list. Don't call 
+	// unless working with EPUB3 for now.
+	public ArrayList<Integer> getImgCountList() {
+		if(arch != null)
+			if(arch instanceof EPub3Archiver)
+				return ((EPub3Archiver)arch).getImgCounts();
+		
+		return null;
+	}
+	
+	//////////////////////////////////////////////////////////////////////
+	// Return number of spine elements.
+	public int getNumSpineElements()
+	{
+		// If there is an archiver, and this archiver 
+		// represents a multi-file document, return number of spine elements.
+		if(arch != null)
+			if(arch instanceof EPub3Archiver)
+				return ((EPub3Archiver)arch).getSpine().size();
+				
+		// This isn't a multi-file document. Return 0.
+		return 0;
+		
+	} // getNumSpineElements()
+	
+	//////////////////////////////////////////////////////////////////////
 	// If working with an epub document, returns current spine file.
 	public String getCurSpineFilePath()
 	{
@@ -508,6 +559,118 @@ public class ImageDescriberController extends Controller {
 		return null;
 		
 	} // getCurSpineFile()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Returns the current spine index.
+	public int getCurSpineIdx() {
+		return curSpineFileIdx;
+	} // getCurSpineIdx()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Converts image index to a local index, in reference to 
+	// a page.
+	// 
+	// For example: We could be on the 56th image, but it could be the 
+	// second image in this particular spine element/page.
+	// 
+	// Returns -1 if we can't find it, or if there isn't a supported 
+	// archiver.
+	public int getImageIndexInSpinePage(int imageIndex)
+	{
+		// Make sure there is an archiver.
+		if(arch == null)
+			return -1;
+		if(arch instanceof EPub3Archiver == false)
+			return -1;
+		
+		// Save some typing.
+		EPub3Archiver ep3Arch = ((EPub3Archiver)arch);
+		
+		// Get image counts for spine.
+		ArrayList<Integer> imgCntList = ep3Arch.getImgCounts();
+		
+		// Current image index in the spine we're testing against.
+		int curImgIdx = 0;
+		
+		// Add up the spine/image counts
+		for(int curS = 0; curS < curSpineFileIdx; curS++)
+			curImgIdx += imgCntList.get(curS);
+		
+		// Is this image index within range of this particular spine element?
+		if( imageIndex >= curImgIdx && imageIndex < curImgIdx + imgCntList.get(curSpineFileIdx) )
+		{
+			// Move to the spine element that we've found.
+			return imageIndex - curImgIdx;
+			
+		} // if( within range )
+		
+		// If we're here, we couldn't find the spine or image. Return failure.
+		return -1;
+	}
+	
+	//////////////////////////////////////////////////////////////////////
+	// Takes an image index, and finds the spine file 
+	// that contains this image.
+	public String setSpineFileWithImgIndex(int imgIndex)
+	{
+		// Make sure there is an archiver.
+		if(arch == null)
+			return null;
+		if(arch instanceof EPub3Archiver == false)
+			return null;
+		
+		// Save some typing.
+		EPub3Archiver ep3Arch = ((EPub3Archiver)arch);
+		
+		// Get image counts for spine.
+		ArrayList<Integer> imgCntList = ep3Arch.getImgCounts();
+		
+		// Current image index in the spine we're testing against.
+		int curImgIdx = 0;
+		
+		// Loop through the spine/image counts, until we find one that contains this image.
+		for(int curS = 0; curS < imgCntList.size(); curS++)
+		{
+			// Is this image index within range of this particular spine element?
+			if( imgIndex >= curImgIdx && imgIndex < curImgIdx + imgCntList.get(curS) )
+			{
+				// Move to the spine element that we've found.
+				return gotoSpineFilePath(curS);
+				
+			} // if( within range )
+			
+			// Move forward with the index.
+			curImgIdx += imgCntList.get(curS);
+				
+		} // for(curS)
+		
+		// If we make it here, we couldn't find that particular spine file/element.
+		return null;
+		
+	} // setSpineFileWithImgIndex()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Moves to a specific spine file using an index into the list.
+	public String gotoSpineFilePath(int idx)
+	{
+		// Make sure there is an archiver.
+		if(arch == null)
+			return null;
+		if(arch instanceof EPub3Archiver == false)
+			return null;
+		
+		// Go to next file path.
+		curSpineFileIdx = idx;
+		// If we've gone too far, wrap around.
+		if(curSpineFileIdx >= ((EPub3Archiver)arch).getSpine().size())
+			curSpineFileIdx = 0;
+		if(curSpineFileIdx < 0 )
+			curSpineFileIdx = ((EPub3Archiver)arch).getSpine().size() - 1;
+		
+		// Return the current spine file path.
+		return ((EPub3Archiver)arch).getSpineFilePath(curSpineFileIdx);
+		
+	} // gotoSpineFilePath()
 	
 	//////////////////////////////////////////////////////////////////////
 	// Moves index to current file to the next one we see in the spine.
@@ -536,6 +699,8 @@ public class ImageDescriberController extends Controller {
 	{
 		// Make sure there is an archiver.
 		if(arch == null)
+			return null;
+		if(arch instanceof EPub3Archiver == false)
 			return null;
 		
 		// Go to previous file path.
@@ -589,8 +754,12 @@ public class ImageDescriberController extends Controller {
 		idv.setBrowser();
 		idv.setTextBox(imgDesc.getCurDescription());
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
-		if( arch instanceof EPub3Archiver )
-			idv.enableBrowserNavButtons();
+		if(arch != null){
+			if( arch instanceof EPub3Archiver )
+				idv.enableBrowserNavButtons();
+			else
+				idv.disableBrowserNavButtons();
+		}
 		else
 			idv.disableBrowserNavButtons();
 //		if(file.endsWith(".zip")){

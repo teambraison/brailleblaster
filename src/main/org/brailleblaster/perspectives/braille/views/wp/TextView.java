@@ -734,7 +734,7 @@ public class TextView extends WPView {
 	}
 		
 	private String appendToView(Node n, boolean append){
-		String text = "";
+		StringBuilder text = new StringBuilder();
 		Element brl = getBrlNode(n);
 		int start = 0;
 		int end = 0;
@@ -752,28 +752,28 @@ public class TextView extends WPView {
 							if(totalLength == indexes.length){
 								if(start == 0 && append){
 									view.append("\n");
-									text += n.getValue().substring(start);
+									text.append(n.getValue().substring(start));
 									spaceBeforeText++;
 								}
 								else if(start == 0){
-									text += n.getValue().substring(start);
+									text.append(n.getValue().substring(start));
 								}
 								else {
-									text += "\n" + n.getValue().substring(start);
+									text.append("\n" + n.getValue().substring(start));
 								}
 							}
 							else{
 								    end += indexes[totalLength] - end;
 									if(start == 0 && append){
 										view.append("\n");
-										text += n.getValue().substring(start, end);
+										text.append(n.getValue().substring(start, end));
 										spaceBeforeText++;
 									}
 									else if(start == 0){
-										text += n.getValue().substring(start, end);
+										text.append(n.getValue().substring(start, end));
 									}
 									else{
-										text += "\n" + n.getValue().substring(start, end);
+										text.append("\n" + n.getValue().substring(start, end));
 									}
 							}
 							start = end;
@@ -783,11 +783,11 @@ public class TextView extends WPView {
 							totalLength += brltext.length();
 							end = indexes[totalLength - 1];
 							if(totalLength == indexes.length){
-								text += n.getValue().substring(start);
+								text.append(n.getValue().substring(start));
 							}
 							else{
 								end += indexes[totalLength] - end;
-								text += n.getValue().substring(start, end);
+								text.append(n.getValue().substring(start, end));
 							}
 							start = end;
 						}
@@ -796,18 +796,18 @@ public class TextView extends WPView {
 			}
 			else if(append){
 					view.append("\n");
-					text += n.getValue();
+					text.append(n.getValue());
 					spaceBeforeText++;
 			}
 			else {
-				text += n.getValue();
+				text.append(n.getValue());
 			}
 		}
 		else {
-			text += n.getValue();
+			text.append(n.getValue());
 		}
 		
-		return text;
+		return text.toString();
 	}
 	
 	private void handleStyle(Styles prevStyle, Styles style, Node n, String viewText){

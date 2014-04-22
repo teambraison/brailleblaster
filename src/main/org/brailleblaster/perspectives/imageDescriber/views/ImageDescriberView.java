@@ -158,6 +158,7 @@ public class ImageDescriberView {
 		useSimpleStylesCheck = new Button(group, SWT.CHECK);
 		useSimpleStylesCheck.setText("Simple Style");
 		setFormData(useSimpleStylesCheck, 17, 28, 0, 5);
+		useSimpleStylesCheck.setVisible(false);
 		useSimpleStylesCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

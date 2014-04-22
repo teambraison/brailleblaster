@@ -68,7 +68,6 @@ public class ImageDescriberView {
 	String oldAltText = "";
 	String oldCssHref = null;
 	String curBrowserFilePath = null;
-	long asdf = System.currentTimeMillis();
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -453,10 +452,8 @@ public class ImageDescriberView {
 	// Set text in image description text box UI.
 	public void setTextBox(){
 		// Get prodnote text/image description.
-		if(imgDesc.getImageList().size() > 0)
-			if(imgDesc.getCurDescription() != null)
-				if(imgDesc.getCurDescription().length() > 0)
-					imgDescTextBox.setText( imgDesc.getCurDescription() );
+		if(imgDesc.getCurDescription() != null)
+			imgDescTextBox.setText( imgDesc.getCurDescription() );
 	}
 	
 	// Get text in alt box UI.

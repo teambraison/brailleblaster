@@ -91,6 +91,11 @@ public class EPub3Archiver extends Archiver {
 	// The last bookmark we were at.
 	String bkMarkStr = null;
 	
+	// Number of images in each file that makes up our document.
+	// For every spine element we have, we're going to count the number of images 
+	// in that file. This helps with image traversal.
+	ArrayList<Integer> numImages = null;
+	
 	EPub3Archiver(String docToPrepare) {
 		super(docToPrepare);
 	}
@@ -202,6 +207,9 @@ public class EPub3Archiver extends Archiver {
 					// Get html element.
 					mainHtmlElement = mainDoc.getElementsByTagName("html");
 					
+					// Add image count to list.
+					addToNumImgsList(mainDoc);
+					
 					// We have the base document, skip to a document that we'll be adding to 
 					// this one.
 					continue;
@@ -213,6 +221,9 @@ public class EPub3Archiver extends Archiver {
 				
 				// Get new document's body.
 				NodeList newBodyElm = nextDoc.getElementsByTagName("body");
+				
+				// Add image count to list.
+				addToNumImgsList(nextDoc);
 				
 				//////////////
 				// Namespaces.
@@ -422,6 +433,27 @@ public class EPub3Archiver extends Archiver {
 		///////
 		
 	} // save()
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Takes in a document and adds its image count to 
+	public void addToNumImgsList(Document addMe)
+	{
+		// Create space big enough to hold our image integers if we haven't done so already.
+		if(numImages == null)
+			numImages = new ArrayList<Integer>();
+		
+		// Grab all <img> elements.
+		NodeList imgElements = addMe.getElementsByTagName("img");
+
+		// Add this value to the lsit.
+		numImages.add(imgElements.getLength());
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Returns list of image counts for documents in the spine.
+	public ArrayList<Integer> getImgCounts() {
+		return numImages;
+	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////	
 	// Returns the list of documents that make up this book.

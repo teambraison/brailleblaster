@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 import nu.xom.Element;
 import nu.xom.Nodes;
@@ -67,9 +68,7 @@ public class ImageDescriberView {
 	String oldAltText = "";
 	String oldCssHref = null;
 	String curBrowserFilePath = null;
-	// Falconator hw = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
-	
-	
+	long asdf = System.currentTimeMillis();
 	
 	public ImageDescriberView(Group group, ImageDescriber imgDesc, ImageDescriberController idd){
 		this.group = group;
@@ -96,7 +95,24 @@ public class ImageDescriberView {
 
 			// Move to previous element.
 			idd.setImageToPrevious();
-			// hw.setForce(0, 0, 0);
+			
+			// Grab index of current image.
+			int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
+			
+			// Is it time to move to another page/chapter?
+			String newPath = idd.setSpineFileWithImgIndex(imgIndex);
+			
+			// If the page needs to move/change, update.
+			// Otherwise, don't move the page yet.
+			if(newPath != null && newPath.compareTo(curBrowserFilePath) != 0) {
+				// Store path.
+				curBrowserFilePath = newPath;
+				// Update browser view.
+				setBrowser();
+			}
+			
+			// Force a scroll.
+			scrollBrowserToCurImg();
 			
 		} // widgetSelected()
 
@@ -109,10 +125,27 @@ public class ImageDescriberView {
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				
 				// Move to next element.
 				idd.setImageToNext();
-				// hw.shutdown();
+				
+				// Grab index of current image.
+				int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
+				
+				// Is it time to move to another page/chapter?
+				String newPath = idd.setSpineFileWithImgIndex(imgIndex);
+				
+				// If the page needs to move/change, update.
+				// Otherwise, don't move the page yet.
+				if(newPath != null && newPath.compareTo(curBrowserFilePath) != 0) {
+					// Store path.
+					curBrowserFilePath = newPath;
+					// Update browser view.
+					setBrowser();
+				}
+
+				// Scroll to current image.
+				scrollBrowserToCurImg();
 
 			} // widgetSelected()
 
@@ -344,8 +377,27 @@ public class ImageDescriberView {
 		nextPage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+
+				// Move to next page.
 				curBrowserFilePath = idd.nextSpineFilePath();
+				
+				// Grab image count list.
+				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				
+				// Count images in each page until we get to the first one 
+				// on the current page/chapter.
+				int curImgIdx = 0;
+				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+					curImgIdx += imgCntList.get(curP);
+					
+				// Set current image.
+				idd.setImageGoto(curImgIdx);
+
+				// Update current page if needed.
 				setBrowser();
+				
+				// Scroll to first image.
+				scrollBrowserToCurImg();
 			}
 		});
 		
@@ -356,8 +408,27 @@ public class ImageDescriberView {
 		prevPage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				// Previous page.
 				curBrowserFilePath = idd.prevSpineFilePath();
+				
+				// Grab image count list.
+				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				
+				// Count images in each page until we get to the first one 
+				// on the current page/chapter.
+				int curImgIdx = 0;
+				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+					curImgIdx += imgCntList.get(curP);
+					
+				// Set current image.
+				idd.setImageGoto(curImgIdx);
+
+				// Update current page if needed.
 				setBrowser();
+				
+				// Scroll to first image.
+				scrollBrowserToCurImg();
 			}
 		});
 
@@ -475,6 +546,10 @@ public class ImageDescriberView {
         	        		browser.refresh();
         	        	}
         	        	
+        	        	// By putting this here, we force the page to scroll after our 
+        	        	// first refresh on load.
+        	        	scrollBrowserToCurImg();
+        	        	
         	        } // completed()
         	        
         	    }); // addProgressListener()
@@ -496,17 +571,42 @@ public class ImageDescriberView {
 	// Scrolls browser view to current image.
 	public void scrollBrowserToCurImg()
 	{
-		// Get the index of the current element.
-		String indexStr = Integer.toString( imgDesc.getCurrentElementIndex() );
+		// Index of the image.
+		int imgIdx = imgDesc.getCurrentElementIndex();
 		
+		// If we're dealing with a multi-file document, 
+		// get the index on the PAGE!!!!
+		if(idd.getNumSpineElements() > 0)
+			imgIdx = idd.getImageIndexInSpinePage(imgIdx);
+		
+		// Get the index of the current element.
+		String indexStr = Integer.toString( imgIdx );
+
 		// Create script.
 		String s = "var allLinks = document.getElementsByTagName('img'); " +
                 "elm = allLinks[" + indexStr + "];" +
+                "var x = elm.offsetLeft;" +
                 "var y = elm.offsetTop;" + 
-                "while (elm = elm.offsetParent) {" + 
+                "while (elm = elm.offsetParent) {" +
+                	"x += elm.offsetLeft;" + 
                 	"y += elm.offsetTop;" + 
                 "}" + 
-                "window.scrollTo(0, y);";
+                "window.scrollTo(x, y);";
+   	 
+		// Execute script.
+		browser.execute(s);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Scrolls browser to a particular position.
+	public void scrollBrowserToXY(int x, int y)
+	{
+		// Get the index of the current element.
+		String strX = Integer.toString( x );
+		String strY = Integer.toString( y );
+
+		// Create script.
+		String s = "window.scrollTo(" + strX + ", " + strY + ");";
    	 
 		// Execute script.
 		browser.execute(s);

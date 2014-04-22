@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -113,6 +114,7 @@ public class Normalizer {
 			}
 		}
 	}
+	
 	/*
 	private boolean onlyWhitespace(String text){
 		for(int j = 0; j < text.length(); j++){
@@ -129,6 +131,7 @@ public class Normalizer {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
+		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(path));
 			transformer.transform(source, result);

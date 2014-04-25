@@ -1,0 +1,28 @@
+newEntries no
+internetAccessRequired no
+book style document
+p style para
+h1 style heading1
+h2 style heading2
+h3 style heading3
+h4 style heading4
+h5 style heading4
+h6 style heading4
+code style computerCode
+code,class,inline action compbrl
+em action italic \s,\s
+b action bold
+li style list
+pagenum action pagenum
+docauthor style para
+doctitle style heading1
+th style para
+tr style para
+strong action italic \s,\s
+code,class,display style computerCode
+note style note
+blockquote style blockquote
+samp style para
+sidebar style para
+br action softreturn
+abbr style para

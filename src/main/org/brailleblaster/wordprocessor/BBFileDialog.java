@@ -18,6 +18,9 @@ public class BBFileDialog {
 				filterPath = "c:\\";
 			}
 		}
+		else
+			filterPath = System.getProperty("user.home");
+		
 		dialog.setFilterNames(filterNames);
 		dialog.setFilterExtensions(filterExtensions);
 		dialog.setFilterPath(filterPath);

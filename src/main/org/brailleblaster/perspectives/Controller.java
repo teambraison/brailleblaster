@@ -8,36 +8,23 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
 
 public abstract class Controller implements DocumentManager{
 	protected TabItem item;
 	protected WPManager wp;
-	protected String workingFilePath;
-	protected String currentConfig;
+
 	protected static int docCount = 0;
-	protected boolean documentEdited = false;
-	protected String zippedPath;
+
 	protected FileUtils fu;
+	protected Archiver arch;
 	
-	public Controller(WPManager wp, String fileName){
+	public Controller(WPManager wp){
 		this.wp = wp;
-		
-		if(fileName != null)
-			currentConfig = BBIni.getDefaultConfigFile();
-		else 
-			currentConfig = "nimas.cfg";
-		
-		this.fu = new FileUtils();
-	}
-	
-	protected void copySemanticsFile(String tempSemFile, String savedFilePath) {
-		if(fu.exists(tempSemFile)){
-    		fu.copyFile(tempSemFile, savedFilePath);
-    	}
+		fu = new FileUtils();
 	}
 	
 	protected void addRecentFileEntry(String fileName){
@@ -74,17 +61,6 @@ public abstract class Controller implements DocumentManager{
 		////////////////
 	}
 	
-	protected  void zipDocument(){
-		// Create zipper.
-		Zipper zpr = new Zipper();
-		// Input string.
-		String sp = BBIni.getFileSep();
-		String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-//		String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
-		// Zip it!
-		zpr.Zip(inPath, zippedPath);
-	}
-	
 	protected void setTabTitle(String pathName) {
 		if(pathName != null){
 			int index = pathName.lastIndexOf(File.separatorChar);
@@ -106,54 +82,32 @@ public abstract class Controller implements DocumentManager{
 	}
 	
 	public String getWorkingPath(){
-		return workingFilePath;
+		return arch.getWorkingFilePath();
+	}
+	
+	public Archiver getArchvier(){
+		return arch;
 	}
 	
 	public void setCurrentConfig(String config){
-		if(workingFilePath != null)
-			currentConfig = config;
+		if(arch.getWorkingFilePath() != null)
+			arch.setCurrentConfig(config);
 	}
 	
 	public String getCurrentConfig(){
-		return currentConfig;
+		if(arch == null)
+			return BBIni.getDefaultConfigFile();
+		else
+			return arch.getCurrentConfig();
 	}
 	
 	public boolean documentHasBeenEdited(){
-		return documentEdited;
+		return arch.getDocumentEdited();
 	}
 	
 	public void setDocumentEdited(boolean edited){
-		documentEdited = edited;
+		arch.setDocumentEdited(edited);
 	}
-	
-	////////////////////////////////////////////////////////////////
-	// Opens our auto config settings file and determines 
-	// what file is associated with the given file type.
-	// 
-	// Appropriate strings to pass so far are: epub, nimas, 
-	public String getAutoCfg(String settingStr)
-	{
-		// Init and load properties.
-		Properties props = new Properties();
-		try
-		{
-			// Load it!
-			props.load( new FileInputStream(BBIni.getAutoConfigSettings()) );
-		}
-		catch (IOException e) { e.printStackTrace(); }
-		
-		// Loop through the properties, and find the setting.
-		for(String key : props.stringPropertyNames())
-		{
-			// Is this the string/setting we're looking for?
-			if( key.compareTo(settingStr) == 0 )
-				return props.getProperty(key);
-		}
-		
-		// If we made it here, there was no setting by that name.
-		return null;
-		
-	} // getAutoCfg()
 	
 	////////////////////////////////////////////////////////////////
 	// Opens auto config file, and sets the given setting 
@@ -182,4 +136,13 @@ public abstract class Controller implements DocumentManager{
 		
 	} // setAutoCfg()
 	
+	protected String getFileExt(String fileName) {
+		String ext = "";
+		String fn = fileName.toLowerCase();
+		int dot = fn.lastIndexOf(".");
+		if (dot > 0) {
+			ext = fn.substring(dot + 1);
+		}
+		return ext;
+	}
 }

@@ -1,12 +1,28 @@
 h1 {
-font-size: 1.5em;
-line-height: 1.33em;
-text-align: center;
-padding-bottom: 0em;
-text-align: center;
-text-transform: uppercase;
-font-weight: normal;
-letter-spacing: 4px;
+
+text-align: center !important;
+text-transform: uppercase !important;
+
+}
+
+h2 {
+
+text-indent: 4em  !important;
+
+}
+h3 {
+text-indent: 6em  !important;
+
+}
+h4{
+text-indent: 2em  !important;
+
+
+}
+
+img {
+
+
 }
 
 
@@ -16,11 +32,15 @@ letter-spacing: 4px;
 
 
 @media all and (orientation:portrait) {
-p { font-family: serif; }
+p { 
+	font-family: serif;
+	text-indent: 2em  !important; 
+  }
 }
 
 
 @media all and (orientation:landscape) {
-p { font-family: sans-serif; }
+p { font-family: sans-serif; 
+  text-indent: 2em  !important; }
 
 }

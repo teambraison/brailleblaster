@@ -65,7 +65,7 @@ public class webViewBrowser  {
 			index=0;
 		if (index<0)
 			index=webc.getSize()-1;	
-		// Script to replace current style sheet.
+		// Script to replace current style sheet and change picture with text
 		final String script = 
 				"var allsuspects=document.getElementsByTagName('link'); " + 
 				"for (var i=allsuspects.length-1; i>=0; i--) { " + 

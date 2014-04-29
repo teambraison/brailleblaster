@@ -35,12 +35,16 @@ img {
 p { 
 	font-family: serif;
 	text-indent: 2em  !important; 
+	margin-top:0% !important; 
+	margin-bottom:0% !important;
   }
 }
 
 
 @media all and (orientation:landscape) {
 p { font-family: sans-serif; 
-  text-indent: 2em  !important; }
+  text-indent: 2em  !important;
+  margin-top:0% !important; 
+  margin-bottom:0% !important; }
 
 }

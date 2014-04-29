@@ -63,8 +63,14 @@ public class ArchiverFactory {
 		// Is this Nimas?
 		if(isTextFile(filePath))
 			return new TextArchiver(filePath);
-//		if( isNIMAS(filePath) )
-//			return new NimasArchiver(filePath);
+		if( isNIMAS(filePath) )
+			return new NimasArchiver(filePath);
+		if(isUTD(filePath))
+			return new UTDArchiver(filePath);
+		if(isHTML(filePath))
+			return new WebArchiver(filePath);
+		if(isBRF(filePath))
+			return new BrfArchiver(filePath);
 		
 		// Could not determine file type.
 		return null;
@@ -100,7 +106,7 @@ public class ArchiverFactory {
 	static boolean isNIMAS(String pathToDoc)
 	{
 		// TODO: Add proper code to determine this doc type.
-		if(pathToDoc.toLowerCase().endsWith(".xml"))
+		if(pathToDoc.toLowerCase().endsWith(".xml") || pathToDoc.toLowerCase().endsWith(".zip"))
 			return true;
 		
 		// This isn't a Nimas document.
@@ -110,6 +116,27 @@ public class ArchiverFactory {
 	
 	static boolean isTextFile(String pathToDoc){
 		if(pathToDoc.endsWith(".txt"))
+			return true;
+		else
+			return false;
+	}
+	
+	static boolean isUTD(String path){
+		if(path.endsWith(".utd"))
+			return true;
+		else
+			return false;		
+	}
+	
+	static boolean isHTML(String path){
+		if(path.endsWith(".html") || path.endsWith(".htm") || path.endsWith(".xhtml"))
+			return true;
+		else
+			return false;
+	}
+	
+	static boolean isBRF(String path){
+		if(path.endsWith(".brf"))
 			return true;
 		else
 			return false;

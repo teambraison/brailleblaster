@@ -99,7 +99,7 @@ public class ImageDescriber extends BBDocument {
 		this.dm = dm;
 	} // ImageDescriber(DocumentManager docManager)
 	
-	public ImageDescriber(ImageDescriberController dm, String fileName, Document doc){
+	public ImageDescriber(ImageDescriberController dm, Document doc){
 		super(dm, doc);
 		this.dm = dm;
 		
@@ -133,13 +133,12 @@ public class ImageDescriber extends BBDocument {
 		imgs = doc.getRootElement().query("//dtb:img[1]", context);
 		
 		// Set the image context.
-		if(dm.getArchiver() != null) {
-			if(dm.getArchiver().getOrigDocPath().toLowerCase().endsWith(".epub"))
-					imgContext.setDocType(ImageDescriberContext.ET_EPUB);
-		}
-		else if(dm.getWorkingPath() != null)
-			if(dm.getWorkingPath().toLowerCase().endsWith(".xml"))
-				imgContext.setDocType(ImageDescriberContext.ET_NIMAS);
+		//if(dm.getArchiver() != null) {
+		if(dm.getArchiver().getOrigDocPath() != null && dm.getArchiver().getOrigDocPath().toLowerCase().endsWith(".epub"))
+			imgContext.setDocType(ImageDescriberContext.ET_EPUB);
+		//}
+		else if(dm.getWorkingPath() != null && dm.getWorkingPath().toLowerCase().endsWith(".xml"))
+			imgContext.setDocType(ImageDescriberContext.ET_NIMAS);
 		
 		// Point to root.
 		curImgElement = rootElement;

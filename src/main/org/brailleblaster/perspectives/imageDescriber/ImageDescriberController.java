@@ -44,9 +44,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.YesNoChoice;
-import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -60,8 +58,7 @@ import org.eclipse.swt.widgets.TabItem;
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Simple dialog that displays images in a document, and allows one
 // to modify the descriptions.
-public class ImageDescriberController extends Controller {
-	
+public class ImageDescriberController extends Controller {	
 	// Utils
 	LocaleHandler lh = new LocaleHandler();
 	
@@ -74,9 +71,6 @@ public class ImageDescriberController extends Controller {
 	// Helps with managing and manipulating images.
 	ImageHelper imgHelper;
 	
-	// Archiver.
-	Archiver arch = null;
-	
 	// Index of current file we're looking at in the browser.
 	// Current file we're to load using the spine as a reference.
 	// Spine is in .opf file in epub.
@@ -85,7 +79,7 @@ public class ImageDescriberController extends Controller {
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Constructor.
 	public ImageDescriberController(WPManager wordProcesserManager, String fileName) {
-		super(wordProcesserManager, fileName);
+		super(wordProcesserManager);
 		
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(), SWT.NONE);
@@ -116,12 +110,11 @@ public class ImageDescriberController extends Controller {
 		imgHelper = new ImageHelper();
 	}
 	
-	public ImageDescriberController(WPManager wp, String docName, Document doc, TabItem tabItem) {
-		super(wp, docName);
-		if(docName != null){
-			workingFilePath = docName;
-		}
-		imgDesc = new ImageDescriber(this, docName, doc);
+	public ImageDescriberController(WPManager wp, Document doc, TabItem tabItem, Archiver arch) {
+		super(wp);
+		this.arch = arch;
+		
+		imgDesc = new ImageDescriber(this, doc);
 		this.item = tabItem;
 		this.group = new Group(wp.getFolder(), SWT.NONE);
 		this.group.setLayout(new FormLayout());
@@ -133,62 +126,17 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public boolean openDocument(String fileName){
-		
-		// Create archiver and massage document if necessary.
-		String archFileName = null;
-		if(fileName != null) {
+		if(fileName != null) 
 			arch = ArchiverFactory.getArchive(fileName);
-			if(arch != null)
-				archFileName = arch.open();
+		else
+			arch = ArchiverFactory.getArchive(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml");
 			
-			// Potentially massaged archiver file, or just pass to BB.
-			if(archFileName != null) {
-				workingFilePath = archFileName;
-				zippedPath = "";
-			}
-			else
-				workingFilePath = fileName;
-		}
-		
-		// Perform actions if the archiver exists, such as config 
-		// file switching.
-		if(arch != null)
-		{
-			// Is this an epub document?
-			if( arch.getOrigDocPath().toLowerCase().endsWith(".epub") == true )
-				currentConfig = getAutoCfg("epub");
-		}
-//		else if( workingFilePath.endsWith(".xml") )
-//			currentConfig = getAutoCfg("nimas"); // Nimas document.
-//		else if( workingFilePath.endsWith(".xhtml") )
-//			currentConfig = getAutoCfg("epub");
-		
 		////////////////
 		// Recent Files.
-		addRecentFileEntry(fileName);
+		addRecentFileEntry(fileName);		
 		
-		if(fileName == null){
-			return imgDesc.startDocument(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", currentConfig, null);
-		}
-		else if(fileName.toLowerCase().endsWith(".zip")){
-			openZipFile(fileName);
-			return imgDesc.startDocument(workingFilePath, currentConfig, null);
-		}
-		else {
-//			workingFilePath = fileName;
-			return imgDesc.startDocument(workingFilePath, currentConfig, null);
-		}
-	}
-	
-	private void openZipFile(String file){
-		Zipper unzipr = new Zipper();
-		// Unzip and update "opened" file.
-//		workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
-		String sp = BBIni.getFileSep();
-		String tempOutPath = BBIni.getTempFilesPath() + file.substring(file.lastIndexOf(sp), file.lastIndexOf(".")) + sp;
-		workingFilePath = unzipr.Unzip(file, tempOutPath);
-		// Store paths.
-		zippedPath = file;
+//		workingFilePath = fileName;
+		return imgDesc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
 	}
 
 	public void fileOpenDialog(){
@@ -217,129 +165,34 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void save(){
-		if(workingFilePath == null)
+		if(arch.getOrigDocPath() == null)
 			saveAs();
 		else {
 			if(arch != null) { // Save archiver supported file.
 				if(arch.getOrigDocPath().endsWith("epub"))
 					//imgDesc.getDOM().toXML().
 					arch.save(imgDesc, null);
-				else if(arch.getOrigDocPath().endsWith("xml"))
-				{
-					if(fu.createXMLFile(imgDesc.getNewXML(), workingFilePath)){
-						String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
-						copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-					}
-					else {
-						new Notify("An error occured while saving your document.  Please check your original document.");
-					}
-				}
+				else if(arch.getOrigDocPath().endsWith("xml") || arch.getOrigDocPath().endsWith(".zip"))
+					arch.save(imgDesc, null);
+				else if(arch.getOrigDocPath().endsWith("utd"))		
+					arch.save(imgDesc, null);
+				else if(arch.getOrigDocPath().endsWith(".brf"))
+					arch.save(imgDesc, null);
 			}
-			else if(workingFilePath.endsWith("xml")){
-				if(fu.createXMLFile(imgDesc.getNewXML(), workingFilePath)){
-					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
-					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-				}
-				else {
-					new Notify("An error occured while saving your document.  Please check your original document.");
-				}
-			}
-			else if(workingFilePath.endsWith("utd")) {		
-				imgDesc.setOriginalDocType(imgDesc.getDOM());
-				if(fu.createXMLFile(imgDesc.getDOM(), workingFilePath)){
-					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-				}
-				else {
-					new Notify("An error occured while saving your document.  Please check your original document.");
-				}
-			}
-			else if(workingFilePath.endsWith("brf")){
-				if(!imgDesc.createBrlFile(this, workingFilePath)){
-					new Notify("An error has occurred.  Please check your original document");
-				}
-			}
-			
-			// If the document came from a zip file, then rezip it.
-			if(zippedPath != null)
-				if(zippedPath.length() > 0)
-					zipDocument();
 		
-			documentEdited = false;
+			arch.setDocumentEdited(false);
 		}
 	}
 	
 	public void saveAs(){
-		String[] filterNames = new String[] {"XML", "BRF", "UTDML"};
-		String[] filterExtensions = new String[] {".xml","*.brf", "*.utd"};
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
+		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
 		String filePath = dialog.open();
 		
 		if(filePath != null){
-//			String ext = fu.getFileExt(filePath);
-			
-			if(workingFilePath.endsWith("epub")) { // Save archiver supported file.
-				if(filePath.endsWith("epub"))
-					arch.save(imgDesc, filePath);
-				else
-					System.out.println("Can only save epub files as epub files... for now.");
-			}
-			else if(filePath.endsWith("brf")){
-				if(!imgDesc.createBrlFile(this, filePath)){
-					new Notify("An error has occurred.  Please check your original document");
-				}
-			}
-			else if(filePath.endsWith("xml")){
-			    if(fu.createXMLFile(imgDesc.getNewXML(), filePath)) {
-			    	setTabTitle(filePath);
-					//documentName = filePath;
-			    
-			    	String tempSemFile; 			    
-				    if(workingFilePath == null)
-				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName("outFile.utd") + ".sem";
-				    else
-				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
-				    
-				    //String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-			    	String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
-			    
-			    	//Save new semantic file to correct location and temp folder for further editing
-			    	copySemanticsFile(tempSemFile, savedSemFile);
-			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-			    	
-					//update working file path to newly saved file
-			    	workingFilePath = filePath;				    
-			    }
-			    else {
-			    	new Notify("An error occured while saving your document.  Please check your original document.");
-			    }
-			}
-			else if(filePath.endsWith("utd")) {				
-				imgDesc.setOriginalDocType(imgDesc.getDOM());
-				if(fu.createXMLFile(imgDesc.getDOM(), filePath)){
-					setTabTitle(filePath);
-			    	//documentName = filePath;
-				    
-				    String fileName;
-			    	if(workingFilePath == null)
-				    	fileName = "outFile";
-				    else
-				    	fileName = fu.getFileName(workingFilePath);
-				    
-				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"; 
-			    	String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
-				    
-			    	copySemanticsFile(tempSemFile, savedTempFile);
-			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-
-			    	workingFilePath = filePath;
-				}
-				else {
-			    	new Notify("An error occured while saving your document.  Please check your original document.");
-			    }
-			}
+			String ext = getFileExt(filePath);
+			arch.saveAs(imgDesc, filePath, ext);
 		   
-			documentEdited = false;
+			arch.setDocumentEdited(false);
 		}
 	}
 	
@@ -356,7 +209,7 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public void close() {
-		if(documentEdited){
+		if(arch.getDocumentEdited()){
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				save();
@@ -442,7 +295,7 @@ public class ImageDescriberController extends Controller {
 	
 	public void apply(){
 		imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
-		setDocumentEdited(true);
+		arch.setDocumentEdited(true);
 	}
 	
 	public void applyToAll(){
@@ -473,7 +326,7 @@ public class ImageDescriberController extends Controller {
 				} // if( imgDesc.getElementAtIndex...
 
 			} // for(int curImg...
-			setDocumentEdited(true);
+			arch.setDocumentEdited(true);
 		} // if msgBx == true
 	}
 	
@@ -736,7 +589,7 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public boolean canReuseTab() {
-		if((workingFilePath != null && imgDesc.getImageList().size() > 0) || documentEdited)
+		if((arch.getOrigDocPath() != null && imgDesc.getImageList().size() > 0) || arch.getDocumentEdited())
 			return false;
 		else
 			return true;
@@ -750,10 +603,12 @@ public class ImageDescriberController extends Controller {
 	public void reuseTab(String file) {
 		closeUntitledDocument();
 		openDocument(file);
+		item.setText(file.substring(file.lastIndexOf(File.separatorChar) + 1));
 		idv.setMainImage();
 		idv.setBrowser();
 		idv.setTextBox(imgDesc.getCurDescription());
 		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+
 		if(arch != null){
 			if( arch instanceof EPub3Archiver )
 				idv.enableBrowserNavButtons();

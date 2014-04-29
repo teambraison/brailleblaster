@@ -196,7 +196,6 @@ public class BBDocument {
 		}
 		new CheckLiblouisutdmlLog().displayLog();
 		
-		
 		return false;
 	}
 	
@@ -209,7 +208,7 @@ public class BBDocument {
 		Builder parser = new Builder();
 		try {
 			this.doc = parser.build (file);
-			removeBraillePageNumber();
+			removeBraillePageNumber();		
 			return true;
 		} 
 		catch(ConnectException e){
@@ -327,7 +326,7 @@ public class BBDocument {
 		}
 	}
 	
-	public boolean createBrlFile(Controller dm, String filePath){		
+	public boolean createBrlFile(String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
 		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());

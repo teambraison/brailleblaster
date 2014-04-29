@@ -79,7 +79,6 @@ import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
-import org.brailleblaster.util.Zipper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
@@ -119,15 +118,14 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
-	Archiver arch = null;
 	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
-		super(wp, docName);	
+		super(wp);	
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		styles = new BBSemanticsTable(currentConfig);
+		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
 		list = new MapList(this);
 		item = new TabItem(wp.getFolder(), 0);
@@ -150,6 +148,7 @@ public class Manager extends Controller {
 			openDocument(docName);
 		else {
 			docCount++;
+			arch = ArchiverFactory.getArchive( BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml");
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
 			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");		
 			((Element)n.get(0)).appendChild(new Text(""));
@@ -158,12 +157,13 @@ public class Manager extends Controller {
 		}				
 	}
 	
-	public Manager(WPManager wp, String docName, Document doc, TabItem item){
-		super(wp, docName);	
+	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
+		super(wp);	
+		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		styles = new BBSemanticsTable(currentConfig);
-		documentName = docName;
+		styles = new BBSemanticsTable(arch.getCurrentConfig());
+		documentName = arch.getOrigDocPath();
 		list = new MapList(this);
 		this.item = item;
 		group = new Group(wp.getFolder(),SWT.NONE);
@@ -232,68 +232,28 @@ public class Manager extends Controller {
 	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
-		if(workingFilePath == null){
+		if(arch.getOrigDocPath() == null){
 			saveAs();
 		}
 		else {
 			checkForUpdatedViews();
 			
-			if(arch != null) { // Save archiver supported file.
-				if(arch.getOrigDocPath().endsWith("epub"))
-					arch.save(document, null);
-				else if(arch.getOrigDocPath().endsWith("xml"))
-				{
-					if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
-						String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-						copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-					}
-					else {
-						new Notify("An error occured while saving your document.  Please check your original document.");
-					}
-				}
-				else if(arch.getOrigDocPath().endsWith(".txt")){
-					arch.save(document, arch.getOrigDocPath());
-				}
-			}
-			else if(workingFilePath.endsWith("xml")){
-				if(fu.createXMLFile(document.getNewXML(), workingFilePath)){
-					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-				}
-				else {
-					new Notify("An error occured while saving your document.  Please check your original document.");
-				}
-			}
-			else if(workingFilePath.endsWith("utd")) {		
-				document.setOriginalDocType(document.getDOM());
-				if(fu.createXMLFile(document.getDOM(), workingFilePath)){
-					String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-					copySemanticsFile(tempSemFile, fu.getPath(workingFilePath) + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem");
-				}
-				else {
-					new Notify("An error occured while saving your document.  Please check your original document.");
-				}
-			}
-			else if(workingFilePath.endsWith("brf")){
-				if(!document.createBrlFile(this, workingFilePath)){
-					new Notify("An error has occurred.  Please check your original document");
-				}
-			}
+			if(arch.getOrigDocPath().endsWith(".txt"))
+				arch.save(document, arch.getOrigDocPath());
+			else
+				arch.save(document, null);
 			
-			// If the document came from a zip file, then rezip it.
-			if(zippedPath.length() > 0)
-				zipDocument();
-		
 			text.hasChanged = false;
 			braille.hasChanged = false;
+			arch.setDocumentEdited(false);
 		}
 	}
 	
 	public void fileOpenDialog() {
 		String tempName;
 
-		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "BRF", "UTDML working document", };
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.brf", "*.utd", };
+		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "UTDML working document"};
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 
 		tempName = dialog.open();
@@ -302,7 +262,7 @@ public class Manager extends Controller {
 		if(tempName != null)
 		{
 			// Open it.
-			if(workingFilePath != null || text.hasChanged || braille.hasChanged || documentName != null){
+			if(arch.getOrigDocPath() != null || text.hasChanged || braille.hasChanged || documentName != null){
 				wp.addDocumentManager(tempName);
 			}
 			else {
@@ -313,67 +273,19 @@ public class Manager extends Controller {
 		} // if(tempName != null)
 	}
 	
-	public void openDocument(String fileName){
-		
+	public void openDocument(String fileName){	
 		// Create archiver and massage document if necessary.
 		arch = ArchiverFactory.getArchive(fileName);
-		String archFileName = null;
-		if(arch != null)
-			archFileName = arch.open();
 		
-		// Potentially massaged archiver file, or just pass to BB.
-		if(archFileName != null) {
-			workingFilePath = archFileName;
-			zippedPath = "";
-		}
-		else
-			workingFilePath = fileName;
-		
-		////////////////////////
-		// Zip and Recent Files.
-
-			// If the file opened was an xml zip file, unzip it.
-			if(fileName.endsWith(".zip") && archFileName == null) {
-				// Create unzipper.
-				Zipper unzipr = new Zipper();
-				// Unzip and update "opened" file.
-	//			workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
-				String sp = BBIni.getFileSep();
-				String tempOutPath = BBIni.getTempFilesPath() + fileName.substring(fileName.lastIndexOf(sp), fileName.lastIndexOf(".")) + sp;
-				workingFilePath = unzipr.Unzip(fileName, tempOutPath);
-				// Store paths.
-				zippedPath = fileName;
-			}
-			else {
-				// There is no zip file to deal with.
-				zippedPath = "";
-			}
+		// Recent Files.
+		addRecentFileEntry(fileName);
 			
-			////////////////
-			// Recent Files.
-			addRecentFileEntry(fileName);
-
-		// Zip and Recent Files.
-		////////////////////////	
-			
-		// Change current config based on file type.
-		if(arch != null)
-		{
-			// Is this an epub document?
-			if( arch.getOrigDocPath().endsWith(".epub") == true || arch.getOrigDocPath().endsWith(".txt"))
-				currentConfig = getAutoCfg("epub");
-		}
-//		else if( workingFilePath.endsWith(".xml") )
-//			currentConfig = getAutoCfg("nimas"); // Nimas document.
-//		else if( workingFilePath.endsWith(".xhtml") )
-//			currentConfig = getAutoCfg("epub");
-			
-		initializeAllViews(fileName, workingFilePath, null);
+		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
-			if(document.startDocument(filePath, currentConfig, configSettings)){
+			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
 				checkSemanticsTable();
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
@@ -403,7 +315,7 @@ public class Manager extends Controller {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.log(Level.SEVERE, "The Document Base document tree is null, the file failed to parse properly");
-				workingFilePath = null;
+				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -663,7 +575,6 @@ public class Manager extends Controller {
 				brailleStart = t.brailleList.getLast().end;
 		
 			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
-				
 		
 			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
 				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
@@ -687,6 +598,7 @@ public class Manager extends Controller {
 			list.updateOffsets(list.getCurrentIndex(), message);
 			list.checkList();
 		}
+		arch.setDocumentEdited(true);
 	}
 	
 	private void handleInsertNode(Message m){
@@ -908,12 +820,10 @@ public class Manager extends Controller {
 	}
 	
 	private void handleUpdateScrollbar(Message message){
-		if(message.getValue("sender").equals(Sender.BRAILLE)){
+		if(message.getValue("sender").equals(Sender.BRAILLE))
 			text.positionScrollbar(braille.view.getTopIndex());
-		}
-		else{
+		else
 			braille.positionScrollbar(text.view.getTopIndex());
-		}
 	}
 	
 	private void handleUpdateStyle(Message message){
@@ -963,103 +873,33 @@ public class Manager extends Controller {
 			new Notify(lh.localValue("nothingToApply"));
 	}
 	
-	public String getFileExt(String fileName) {
-		String ext = "";
-		String fn = fileName.toLowerCase();
-		int dot = fn.lastIndexOf(".");
-		if (dot > 0) {
-			ext = fn.substring(dot + 1);
-		}
-		return ext;
-	}
-	
 	public void saveAs(){
-		String[] filterNames = new String[] {"XML", "EPUB", "BRF", "UTDML"};
-		String[] filterExtensions = new String[] {".xml",".epub","*.brf", "*.utd"};
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, filterNames, filterExtensions);
+		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
 		String filePath = dialog.open();
 		
 		if(filePath != null){
 			checkForUpdatedViews();
 			String ext = getFileExt(filePath);
 			
-			if(ext.endsWith("epub")) { // Save archiver supported file.
-				if(arch != null) {
-					if(arch.getOrigDocPath().endsWith("epub")) {
-						arch.save(document, filePath);
-						setTabTitle(filePath);
-						documentName = filePath;
-					}
-					else
-						System.out.println("Can only save epub files as epub files... for now.");
-				}
-				else
-					System.out.println("Can only save epub files as epub files... for now.");
-			}
-			else if(ext.equals("brf")){
-				if(!this.document.createBrlFile(this, filePath)){
-					new Notify("An error has occurred.  Please check your original document");
-				}
-			}
-			else if(ext.equals("xml")){
-			    if(fu.createXMLFile(document.getNewXML(), filePath)) {
-			    	setTabTitle(filePath);
-					documentName = filePath;
-			    
-			    	String tempSemFile; 			    
-				    if(workingFilePath == null)
-				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName("outFile.utd") + ".sem";
-				    else
-				    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem";
-				    
-				    //String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
-			    	String savedSemFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";   
-			    
-			    	//Save new semantic file to correct location and temp folder for further editing
-			    	copySemanticsFile(tempSemFile, savedSemFile);
-			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-			    	
-					//update working file path to newly saved file
-			    	workingFilePath = filePath;				    
-			    }
-			    else {
-			    	new Notify("An error occured while saving your document.  Please check your original document.");
-			    }
-			}
-			else if(ext.equals("utd")) {				
-				document.setOriginalDocType(document.getDOM());
-				if(fu.createXMLFile(document.getDOM(), filePath)){
-					setTabTitle(filePath);
-			    	documentName = filePath;
-				    
-				    String fileName;
-			    	if(workingFilePath == null)
-				    	fileName = "outFile";
-				    else
-				    	fileName = fu.getFileName(workingFilePath);
-				    
-				    String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"; 
-			    	String savedTempFile = fu.getPath(filePath) + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem";
-				    
-			    	copySemanticsFile(tempSemFile, savedTempFile);
-			    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(filePath) + ".sem");
-
-			    	workingFilePath = filePath;
-				}
-				else {
-			    	new Notify("An error occured while saving your document.  Please check your original document.");
-			    }
+			String origExt = "";
+			if(arch.getOrigDocPath() != null)
+				origExt = getFileExt(arch.getOrigDocPath());
+			
+			arch = arch.saveAs(document, filePath, ext);
+			if((origExt.equals("txt") && ext.equals("txt")) || (!ext.equals("txt") && !ext.equals("brf"))){
+				setTabTitle(filePath);
+		    	documentName = filePath;
 			}
 			
 		    text.hasChanged = false;
 			braille.hasChanged = false;	
-			documentEdited = false;
+			arch.setDocumentEdited(false);
 		}
 	}
 	
 	@Override
 	public void close() {
-		if (text.hasChanged || braille.hasChanged || documentEdited) {
+		if (text.hasChanged || braille.hasChanged || arch.getDocumentEdited()) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				fileSave();
@@ -1068,7 +908,7 @@ public class Manager extends Controller {
 		dispose();
 		item.dispose();
 		fontManager.disposeFonts();
-		if(workingFilePath == null & docCount > 0)
+		if(arch.getOrigDocPath() == null & docCount > 0)
 			docCount--;
 	}
 	
@@ -1132,7 +972,7 @@ public class Manager extends Controller {
 		}
 		
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
-		if(this.document.createBrlFile(this, filePath)){
+		if(this.document.createBrlFile(filePath)){
 			File translatedFile = new File(filePath);
 			PrinterDevice embosserDevice;
 			try {
@@ -1227,10 +1067,10 @@ public class Manager extends Controller {
 			document.deleteDOM();
 			
 			String fileName;
-			if(workingFilePath == null)
+			if(arch.getOrigDocPath() == null)
 				fileName = "outFile";
 			else
-				fileName = fu.getFileName(workingFilePath);
+				fileName = fu.getFileName(arch.getWorkingFilePath());
 			
 			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"))
 				initializeAllViews(documentName, path, "semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem\n");
@@ -1242,7 +1082,7 @@ public class Manager extends Controller {
 			text.hasChanged = textChanged;
 			braille.hasChanged = brailleChanged;
 			
-			if(workingFilePath == null && list.size() == 0){
+			if(arch.getOrigDocPath() == null && list.size() == 0){
 				Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
 				((Element)n.get(0)).appendChild(new Text(""));
 				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
@@ -1297,8 +1137,8 @@ public class Manager extends Controller {
 	
 	public void checkAtributeEditor(){
 		if(sm != null){
-			if(!sm.getConfigFile().equals(currentConfig)){
-				sm.resetStylePanel(currentConfig);
+			if(!sm.getConfigFile().equals(arch.getCurrentConfig())){
+				sm.resetStylePanel(arch.getCurrentConfig());
 			}
 		}
 	}
@@ -1311,8 +1151,8 @@ public class Manager extends Controller {
 	}
 	
 	public void checkSemanticsTable(){
-		if(!styles.getConfig().equals(currentConfig))
-			styles.resetStyleTable(currentConfig);	
+		if(!styles.getConfig().equals(arch.getCurrentConfig()))
+			styles.resetStyleTable(arch.getCurrentConfig());	
 	}
 	
 	public void toggleFont(int fontType){
@@ -1339,11 +1179,10 @@ public class Manager extends Controller {
 	
 	public void closeUntitledTab(){
 		document.deleteDOM();
-		if(!currentConfig.equals(BBIni.getDefaultConfigFile())){
-			currentConfig = BBIni.getDefaultConfigFile();
-			document.resetBBDocument(currentConfig);
-			styles.resetStyleTable(currentConfig);
-			sm.getStyleTable().resetTable(currentConfig);
+		if(!arch.getCurrentConfig().equals(BBIni.getDefaultConfigFile())){
+			document.resetBBDocument(arch.getCurrentConfig());
+			styles.resetStyleTable(arch.getCurrentConfig());
+			sm.getStyleTable().resetTable(arch.getCurrentConfig());
 		}
 		treeView.removeListeners();
 		treeView.clearTree();
@@ -1353,7 +1192,7 @@ public class Manager extends Controller {
 	}
 	
 	private void startProgressBar(){
-    	if(workingFilePath != null)
+    	if(arch.getOrigDocPath() != null)
     		pb.start();
 	}
  
@@ -1591,18 +1430,8 @@ public class Manager extends Controller {
 		return documentName;
 	}
 	
-	@Override
-	public String getWorkingPath(){
-		return this.workingFilePath;
-	}
-	
 	public BrailleDocument getDocument(){
 		return document;
-	}
-	
-	@Override
-	public String getCurrentConfig(){
-		return currentConfig;
 	}
 	
 	public BBSemanticsTable getStyleTable(){

@@ -130,6 +130,7 @@ public class Normalizer {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 		    transformer.setOutputProperty(OutputKeys.INDENT, "no");
 

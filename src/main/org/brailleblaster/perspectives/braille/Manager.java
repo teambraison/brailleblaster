@@ -150,9 +150,7 @@ public class Manager extends Controller {
 			docCount++;
 			arch = ArchiverFactory.getArchive(templateFile);
 			initializeAllViews(docName, templateFile, null);
-			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
-			((Element)n.get(0)).appendChild(new Text(""));
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			formatTemplateDocument();
 			setTabTitle(docName);
 		}				
 	}
@@ -195,15 +193,8 @@ public class Manager extends Controller {
 		text.view.setWordWrap(true);
 		braille.view.setWordWrap(true);
 		group.setRedraw(true);
-		if(list.size() == 0){
-			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
-			if(n.get(0).getChildCount() > 0)
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			else {
-				((Element)n.get(0)).appendChild(new Text(""));
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			}
-		}
+		if(list.size() == 0)
+			formatTemplateDocument();
 	}	
 	
 
@@ -1082,11 +1073,8 @@ public class Manager extends Controller {
 			text.hasChanged = textChanged;
 			braille.hasChanged = brailleChanged;
 			
-			if(arch.getOrigDocPath() == null && list.size() == 0){
-				Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
-				((Element)n.get(0)).appendChild(new Text(""));
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			}
+			if(arch.getOrigDocPath() == null && list.size() == 0)
+				formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1512,6 +1500,17 @@ public class Manager extends Controller {
 		if(this.sm.getStyleTable().isVisible()){
 			e.doit = false;
 			sm.getStyleTable().getTable().setFocus();
+		}
+	}
+	
+	//adds or tracks a text node for a blank document when user starts working on a blank document
+	private void formatTemplateDocument(){
+		Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
+		if(n.get(0).getChildCount() > 0)
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+		else {
+			((Element)n.get(0)).appendChild(new Text(""));
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 		}
 	}
 }

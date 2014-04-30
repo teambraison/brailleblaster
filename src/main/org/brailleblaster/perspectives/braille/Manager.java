@@ -150,7 +150,7 @@ public class Manager extends Controller {
 			docCount++;
 			arch = ArchiverFactory.getArchive( BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml");
 			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
-			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");		
+			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
 			((Element)n.get(0)).appendChild(new Text(""));
 			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
 			setTabTitle(docName);

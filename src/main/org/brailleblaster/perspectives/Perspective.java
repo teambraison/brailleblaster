@@ -8,6 +8,7 @@ import java.util.Map;
 
 import nu.xom.Document;
 
+import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.perspectives.braille.BraillePerspective;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
@@ -53,8 +54,7 @@ public abstract class Perspective {
 	//creates a perspective when switching between tabs for the currently open tab.  If no tabs are currently open, perspective takes null as the controller
 	public static Perspective getDifferentPerspective(Perspective current, WPManager wp, Class<?> controllerClass, Document doc){
 		if(doc != null){
-			Controller c = instantiateController(current, wp, controllerClass, doc);
-			setCommonVariables(c, current.getController());
+			Controller c = instantiateController(current, wp, controllerClass, doc, current.getController().arch);
 			return instantiatePerspective(wp, c, controllerClass);
 		}
 		else {
@@ -75,14 +75,6 @@ public abstract class Perspective {
 	//returns the current perspectives class
 	public Class<?> getType(){
 		return perspectiveType;
-	}
-	
-	//private method thats set common class variables when switching perspectives
-	private static void setCommonVariables(Controller newController, Controller oldController){
-		newController.workingFilePath = oldController.workingFilePath;
-		newController.zippedPath = oldController.zippedPath;
-		newController.currentConfig = oldController.currentConfig;
-		newController.documentEdited = oldController.documentEdited;	
 	}
 	
 	private static Controller instantiateController(WPManager wp, Class<?>controllerClass, String fileName){
@@ -106,10 +98,10 @@ public abstract class Perspective {
 		return null;
 	}
 	
-	private static Controller instantiateController(Perspective current, WPManager wp, Class<?>controllerClass, Document doc){
+	private static Controller instantiateController(Perspective current, WPManager wp, Class<?>controllerClass, Document doc, Archiver arch){
 		try {
-			Constructor<?> controller = controllerClass.getConstructor(new Class[]{WPManager.class, String.class, Document.class, TabItem.class});
-			return (Controller)controller.newInstance(wp, current.getController().getWorkingPath(), doc, wp.getFolder().getSelection()[0]);
+			Constructor<?> controller = controllerClass.getConstructor(new Class[]{WPManager.class, Document.class, TabItem.class, Archiver.class});
+			return (Controller)controller.newInstance(wp, doc, wp.getFolder().getSelection()[0], arch);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {

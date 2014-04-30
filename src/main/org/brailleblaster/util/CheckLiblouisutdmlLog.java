@@ -76,10 +76,10 @@ public class CheckLiblouisutdmlLog {
 					break;
 				}
 				logMessages.append (line + "\n");
-				if (logMessages.length() > 0) {
-					mb.setMessage (logMessages.toString());
-					mb.open();
-				}
+			}
+			if (logMessages.length() > 0) {
+				mb.setMessage (logMessages.toString());
+				mb.open();
 			}
 		} catch (FileNotFoundException e) {
 			shell.dispose();

@@ -29,12 +29,17 @@ public class webViewBrowser  {
 	 * constructor
 	 * @param webc : a reference to WebViewController
 	 * @param folder: a reference to TabFolder widget of swt
+	 * @param item: check to see if it comes from another perspective so we will have item from previous perspective
 	 */
-	public webViewBrowser(WebViewController webc, TabFolder folder)
+	public webViewBrowser(WebViewController webc, TabFolder folder, TabItem item)
 	{
 		this.webc=webc;
+		if (item==null)
+			this.item = new TabItem(folder, SWT.NONE);
+		else
+			this.item=item;
+			
 		createContents(folder);
-
 	}
 
 
@@ -43,14 +48,14 @@ public class webViewBrowser  {
 	 * @param shell the main window
 	 */
 	private void createContents(TabFolder folder) {
-		item = new TabItem(folder, SWT.NONE);
+		//item = new TabItem(folder, SWT.NONE);
 		group = new Group(folder, SWT.BORDER);
 		group.setLayout(new FillLayout());
-		item.setControl(group);
+		this.item.setControl(group);
 		// Create a web browser
 		browser = new Browser(group, SWT.WEBKIT);
 		browser.setJavascriptEnabled(true);
-
+		group.layout();
 
 	}
 

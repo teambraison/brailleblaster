@@ -58,10 +58,13 @@ public class TextArchiver extends Archiver{
 	TextArchiver(String docToPrepare) {
 		super(docToPrepare);
 		fu = new FileUtils();
+		currentConfig = getAutoCfg("epub");
+		filterNames = new String[] { "HTML","TEXT", "BRF", "UTDML working document"};
+		filterExtensions = new String[] { "*.html", "*.txt", "*.brf", "*.utd"};
+		open();
 	}
 
-	@Override
-	public String open() {
+	private String open() {
 		formatDocument();
 		return this.workingDocPath;
 	}
@@ -74,6 +77,8 @@ public class TextArchiver extends Archiver{
 		try {
 			out = new PrintWriter(path);
 			out.println(text);
+			if(!path.equals("originalDocPath"))
+				originalDocPath = path;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -158,5 +163,31 @@ public class TextArchiver extends Archiver{
 	
 	private Element getStartingNode(){
 		return doc.getRootElement().getChildElements().get(BODYELEMENTINDEX);
+	}
+
+	@Override
+	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		if(ext.equals("html"))
+			return saveAsWeb(doc, path);
+		else if(ext.equals("utd"))
+			return saveAsUTD(doc, path);
+		else if(ext.equals("txt"))
+			save(doc, path);
+		else if(ext.equals("brf"))
+			saveBrf(doc, path);
+		
+		return this;
+	}
+	
+	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		UTDArchiver arch = new UTDArchiver(path, currentConfig);
+		arch.save(doc, path);
+		return arch;
+	}
+	
+	public WebArchiver saveAsWeb(BBDocument doc, String path){
+		WebArchiver arch = new WebArchiver(path);
+		arch.save(doc, path);
+		return arch;
 	}
 }

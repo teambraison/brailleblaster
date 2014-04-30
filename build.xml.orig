@@ -1,0 +1,128 @@
+<?xml version="1.0"?>
+
+<project name="BrailleBlaster" default="dist"
+    basedir=".">
+    
+    <property name="srcdir" location="src/main"/>
+    <property name="builddir" location="classes"/>
+    <property name="classpath" location="dist/lib"/>
+    <property name="distdir" location ="dist"/>
+    
+    <target name="init">
+        <mkdir dir="${builddir}"/>
+    </target>
+    
+    <path id="allJars.path">
+        <fileset dir="${classpath}">
+            <include name="**/*.jar"/>
+        </fileset>
+        <fileset dir="${distdir}">
+            <include name="**/*.properties"/>
+        </fileset>
+   
+    </path>
+    
+    <target name="compile" depends="init">
+        <javac srcdir="${srcdir}" destdir="${builddir}"
+            debug="yes"
+            includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
+            <classpath refid="allJars.path"/>
+        </javac>
+    </target>
+    
+    <target name="dist" depends="compile">
+        <manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar">
+            <classpath refid="allJars.path"/>
+        </manifestclasspath>
+        <jar jarfile="${distdir}/brailleblaster.jar"
+            basedir="${builddir}">
+
+        <manifest>
+                <attribute name="Main-Class" value="org.brailleblaster.Main"/>
+                <attribute name="Class-Path" value="${jar.classpath} programData/lang/"/>
+          
+
+
+<<<<<<< local
+        </manifest>
+          
+            
+        
+        </jar>
+    </target>
+    
+    <target name="clean">
+        <description>Deletes class folder so that next build is clean.  Is not part of main build and is a seperate task</description>
+        <delete dir="${builddir}"/>
+        
+    </target>
+    
+=======
+<path id="jeuclid.path">
+    <fileset dir="${classpath}/jeuclid">
+		<include name="*.jar"/>
+	</fileset>
+</path>
+  
+<target name="compile" depends="init">
+<javac srcdir="${srcdir}" destdir="${builddir}"
+debug="yes"
+includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
+<classpath>
+<pathelement path="${classpath}"/>
+<pathelement location="${classpath}/swt.jar"/>
+<pathelement location="${classpath}/commons-exec-1.1.jar"/>
+<pathelement location="${classpath}/jliblouisutdml.jar"/>
+<pathelement location="${classpath}/commons-cli-1.2.jar"/>
+<pathelement location="${classpath}/xom-1.2.6.jar"/>
+</classpath>
+<classpath refid="jeuclid.path"/>
+</javac>
+</target>
+
+<target name="dist" depends="compile">
+<jar jarfile="${distdir}/brailleblaster.jar"
+basedir="${builddir}">
+<manifest>
+<attribute name="Main-Class" value="org.brailleblaster.Main"/>
+<attribute name="Class-Path" value="lib/commons-exec-1.1.jar
+lib/jliblouisutdml.jar
+lib/swt.jar
+lib/xom-1.2.6.jar
+lib/commons-cli-1.2.jar
+lib/jeuclid/jeuclid-core-3.1.9.jar
+lib/jeuclid/jeuclid-swt-3.1.9.jar
+lib/jeuclid/batik-dom-1.7.jar
+lib/jeuclid/batik-ext-1.7.jar
+lib/jeuclid/batik-util-1.7.jar
+lib/jeuclid/batik-xml-1.7.jar
+lib/jeuclid/xmlgraphics-commons-1.3.1.jar
+lib/jeuclid/commons-io-1.3.1.jar
+lib/jeuclid/batik-anim.jar
+lib/jeuclid/commons-logging-1.3.3.jar
+lib/jeuclid/batik-awt-util.jar
+lib/jeuclid/batik-bridge.jar
+lib/jeuclid/batik-codec.jar
+lib/jeuclid/batik-css.jar
+lib/jeuclid/batik-gvt.jar
+lib/jeuclid/batik-parser.jar
+lib/jeuclid/batik-script.jar
+lib/jeuclid/batik-svg-dom.jar
+lib/jeuclid/batik-transcoder.jar
+lib/jeuclid/batik-xml.jar
+lib/jeuclid/xml-apis-ext.jar
+lib/jeuclid/commons-logging-1.1.3.jar
+programData/lang/
+programData/styles/"/>
+</manifest>
+</jar>
+</target>
+
+<target name="clean">
+	<description>Deletes class folder so that next build is clean.  Is not part of main build and is a seperate task</description>
+	<delete dir="${builddir}"/>
+</target>
+
+>>>>>>> other
+</project>
+

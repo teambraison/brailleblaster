@@ -1,0 +1,117 @@
+diff -r b0548436ce44 -r f2ef989ba0b1 src/main/org/brailleblaster/BBIni.java
+--- a/src/main/org/brailleblaster/BBIni.java	Tue Apr 22 19:55:30 2014 +0100
++++ b/src/main/org/brailleblaster/BBIni.java	Fri Apr 25 11:25:54 2014 -0400
+@@ -257,9 +257,11 @@
+ 			hLiblouisutdml = true;
+ 		} 
+ 		catch (UnsatisfiedLinkError e) {
++			e.printStackTrace();
+ 			logger.log(Level.SEVERE, "Problem with liblouisutdml library", e);
+ 		} 
+ 		catch (Exception e) {
++			e.printStackTrace();
+ 			logger.log(Level.WARNING, "This shouldn't happen", e);
+ 		}
+ 	}
+diff -r b0548436ce44 -r f2ef989ba0b1 src/main/org/brailleblaster/document/Normalizer.java
+--- a/src/main/org/brailleblaster/document/Normalizer.java	Tue Apr 22 19:55:30 2014 +0100
++++ b/src/main/org/brailleblaster/document/Normalizer.java	Fri Apr 25 11:25:54 2014 -0400
+@@ -10,7 +10,6 @@
+ import org.brailleblaster.BBIni;
+ import org.brailleblaster.util.Notify;
+ import org.w3c.dom.Document;
+-
+ import org.w3c.dom.DocumentType;
+ import org.w3c.dom.NodeList;
+ import org.w3c.dom.Element;
+@@ -131,7 +130,15 @@
+ 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+ 			Transformer transformer;
+ 			transformer = transformerFactory.newTransformer();
++<<<<<<< local
++			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
++=======
++>>>>>>> other
+ 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
++<<<<<<< local
++		    transformer.setOutputProperty(OutputKeys.INDENT, "no");
++=======
++>>>>>>> other
+ 			DOMSource source = new DOMSource(doc);
+ 			StreamResult result = new StreamResult(new File(path));
+ 			transformer.transform(source, result);
+diff -r b0548436ce44 -r f2ef989ba0b1 src/main/org/brailleblaster/perspectives/Perspective.java
+--- a/src/main/org/brailleblaster/perspectives/Perspective.java	Tue Apr 22 19:55:30 2014 +0100
++++ b/src/main/org/brailleblaster/perspectives/Perspective.java	Fri Apr 25 11:25:54 2014 -0400
+@@ -12,6 +12,8 @@
+ import org.brailleblaster.perspectives.braille.Manager;
+ import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
+ import org.brailleblaster.perspectives.imageDescriber.ImageDescriberPerspective;
++import org.brailleblaster.perspectives.webView.WebViewController;
++import org.brailleblaster.perspectives.webView.WebViewPerspective;
+ import org.brailleblaster.wordprocessor.BBMenu;
+ import org.brailleblaster.wordprocessor.WPManager;
+ import org.eclipse.swt.widgets.TabItem;
+@@ -22,6 +24,7 @@
+ 		HashMap<Class<?>, Class<?>> temp = new HashMap<Class<?>, Class<?>>();
+ 		temp.put(Manager.class, BraillePerspective.class);
+ 		temp.put(ImageDescriberController.class, ImageDescriberPerspective.class);
++		temp.put(WebViewController.class, WebViewPerspective.class);
+ 		PERSPECTIVE_MAP = Collections.unmodifiableMap(temp);
+ 	}
+ 	
+diff -r b0548436ce44 -r f2ef989ba0b1 src/main/org/brailleblaster/wordprocessor/BBFileDialog.java
+--- a/src/main/org/brailleblaster/wordprocessor/BBFileDialog.java	Tue Apr 22 19:55:30 2014 +0100
++++ b/src/main/org/brailleblaster/wordprocessor/BBFileDialog.java	Fri Apr 25 11:25:54 2014 -0400
+@@ -18,6 +18,9 @@
+ 				filterPath = "c:\\";
+ 			}
+ 		}
++		else
++			filterPath = System.getProperty("user.home");
++		
+ 		dialog.setFilterNames(filterNames);
+ 		dialog.setFilterExtensions(filterExtensions);
+ 		dialog.setFilterPath(filterPath);
+diff -r b0548436ce44 -r f2ef989ba0b1 src/main/org/brailleblaster/wordprocessor/BBMenu.java
+--- a/src/main/org/brailleblaster/wordprocessor/BBMenu.java	Tue Apr 22 19:55:30 2014 +0100
++++ b/src/main/org/brailleblaster/wordprocessor/BBMenu.java	Fri Apr 25 11:25:54 2014 -0400
+@@ -44,6 +44,7 @@
+ import org.brailleblaster.perspectives.Controller;
+ import org.brailleblaster.perspectives.braille.Manager;
+ import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
++import org.brailleblaster.perspectives.webView.WebViewController;
+ import org.brailleblaster.userHelp.HelpOptions;
+ import org.brailleblaster.userHelp.UserHelp;
+ import org.eclipse.swt.SWT;
+@@ -69,6 +70,7 @@
+ 	protected MenuItem selectedPerspective;
+ 	MenuItem brailleEditorItem;
+ 	MenuItem imageDescriberItem;
++	MenuItem webViewItem;
+ 	
+ 	MenuItem readManualItem;
+ 	MenuItem helpInfoItem;
+@@ -192,6 +194,22 @@
+ 				}
+ 			}		
+ 		});
++		
++		
++		webViewItem = new MenuItem(perspectiveMenu, SWT.CHECK);
++		webViewItem.setText(lh.localValue("Web View"));
++		webViewItem.setSelection(false);
++		webViewItem.setData(WebViewController.class);
++		webViewItem.addSelectionListener(new SelectionAdapter(){
++			@Override
++			public void widgetSelected(SelectionEvent e) {
++				if(webViewItem.getSelection() == true && !selectedPerspective.equals(webViewItem)){
++					selectedPerspective = webViewItem;
++					brailleEditorItem.setSelection(false);
++					wp.swapPerspectiveController((Class<?>)webViewItem.getData());
++				}
++			}		
++		});
+ 		viewItem.setMenu(viewMenu);
+ 
+ 		// Set up help menu

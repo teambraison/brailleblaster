@@ -98,12 +98,15 @@ public class EPub3Archiver extends Archiver {
 	
 	EPub3Archiver(String docToPrepare) {
 		super(docToPrepare);
+		open();
+		currentConfig = getAutoCfg("epub");
+		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
+		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	@Override
-	public String open() {
+	private String open() {
 		
 		// Init variables.
 		mainDoc = null;
@@ -310,6 +313,7 @@ public class EPub3Archiver extends Archiver {
 			lsSerializer.write( mainDoc, lsOutput );
 			outputStream.close();
 			
+			workingDocPath = outFileName;
 			// Return path to new document.
 			return outFileName;
 			
@@ -423,8 +427,10 @@ public class EPub3Archiver extends Archiver {
 			String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
 			
 			// If we are to save somewhere else... "Save As"
-			if(path != null)
+			if(path != null){
 				outFilePath = path;
+				originalDocPath = outFilePath;
+			}
 			
 			// Zip.
 			zpr.Zip(inputDir, outFilePath);
@@ -501,5 +507,24 @@ public class EPub3Archiver extends Archiver {
 		}
 	
 	} // public void msgBx(String cap, string msg)
+
+	@Override
+	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		if(ext.equals("epub"))
+			save(doc, path);
+		else if(ext.equals("brf"))
+			saveBrf(doc, path);
+		else if(ext.equals("utd"))
+			return saveAsUTD(doc, path);
+		
+		return this;
+	}
+	
+	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		UTDArchiver arch = new UTDArchiver(path, currentConfig);
+		arch.save(doc, path);
+		return arch;
+	}
+	
 	
 } // class EPubArchiver

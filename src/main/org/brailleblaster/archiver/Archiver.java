@@ -30,7 +30,14 @@
 
 package org.brailleblaster.archiver;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.Notify;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Archiver gives methods for opening/handling particular document types. 
@@ -38,13 +45,15 @@ import org.brailleblaster.document.BBDocument;
 // implementations. This class is ABSTRACT, and is to be used as a 
 // base for other archivers.
 abstract public class Archiver {
+	protected String[] filterNames;
+	protected String[] filterExtensions;
 	
-	String originalDocPath;
-	String unzippedDocPath;
-	String workingDocPath; 
+	protected String originalDocPath;
+	protected String zippedPath;
+	protected String workingDocPath; 
+	protected String currentConfig;
 	
-	// Get-er for original document path.
-	public String getOrigDocPath() { return originalDocPath; }
+	protected boolean documentEdited;
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Constructor. Stores path to document to prepare.
@@ -53,13 +62,84 @@ abstract public class Archiver {
 		// Store paths.
 		originalDocPath = docToPrepare;
 		workingDocPath = originalDocPath;
-		
+		zippedPath = "";
+		documentEdited = false;
 	}
-	//////////////////////////////////////////////////////////////////////////////////
+	
+	// Get-er for original document path.
+	public String getOrigDocPath() { return originalDocPath; }
+	
+	public String getWorkingFilePath(){
+		return workingDocPath;
+	}
+	
+	public String getCurrentConfig(){
+		return currentConfig;
+	}
+	
+	public String[]  getFileTypes(){
+		return filterNames;
+	}
+	
+	public String[] getFileExtensions(){
+		return filterExtensions;
+	}
+	
+	public void setCurrentConfig(String config){
+		currentConfig = config;
+	}
+	
+	////////////////////////////////////////////////////////////////
+	// Opens our auto config settings file and determines 
+	// what file is associated with the given file type.
 	// 
-	public abstract String open();
+	// Appropriate strings to pass so far are: epub, nimas, 
+	public String getAutoCfg(String settingStr) {
+		// Init and load properties.
+		Properties props = new Properties();
+		try {
+			// Load it!
+			props.load( new FileInputStream(BBIni.getAutoConfigSettings()) );
+		}
+		catch (IOException e) { e.printStackTrace(); }
+
+		// Loop through the properties, and find the setting.
+		for(String key : props.stringPropertyNames()){
+			// Is this the string/setting we're looking for?
+			if( key.compareTo(settingStr) == 0 )
+				return props.getProperty(key);
+		}
+
+		// If we made it here, there was no setting by that name.
+		return null;
+	} // getAutoCfg()
+	
+	public void copySemanticsFile(String tempSemFile, String savedFilePath) {
+		FileUtils fu = new FileUtils();
+		
+		if(fu.exists(tempSemFile)){
+    		fu.copyFile(tempSemFile, savedFilePath);
+    	}
+	}
+	
+	protected void saveBrf(BBDocument doc, String path){
+		if(!doc.createBrlFile(path)){
+			new Notify("An error has occurred.  Please check your original document");
+		}
+	}
+
+	public void setDocumentEdited(boolean documentEdited){
+		this.documentEdited = documentEdited;
+	}
+	
+	public boolean getDocumentEdited(){
+		return documentEdited;
+	}
+	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
 	public abstract void save(BBDocument doc, String path);
+	
+	public abstract Archiver saveAs(BBDocument doc, String path, String ext);
 	
 } // class Archiver

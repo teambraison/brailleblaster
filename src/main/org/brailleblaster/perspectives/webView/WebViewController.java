@@ -33,11 +33,12 @@ import org.eclipse.swt.widgets.TabItem;
 public class WebViewController extends Controller {
 
 
-	Archiver arch = null;
+	//Archiver arch ;
 	webViewBrowser vb=null;
 	webViewDocument webDoc;
 	int index=0;
 	String currentPath;
+	String currentConfig;
 	/**
 	 * constructor create new reference to Browser view 
 	 * @param wp :reference to WPManager class
@@ -45,9 +46,9 @@ public class WebViewController extends Controller {
 	 */
 	public WebViewController(WPManager wp, String fileName) {
 
-		super(wp, fileName);
+		super(wp);
 		currentPath=fileName;
-		vb=new webViewBrowser(this,wp.getFolder());
+		vb=new webViewBrowser(this,wp.getFolder(),null);
 
 	}
 	/**
@@ -58,9 +59,20 @@ public class WebViewController extends Controller {
 	 * @param tabItem
 	 */
 
-	public WebViewController(WPManager wp, String docName, Document doc, TabItem tabItem) {
-		super(wp, docName);
-		currentPath=docName; //save path of file in currentPath
+	public WebViewController(WPManager wp, Document doc, TabItem tabItem,Archiver arch) {
+		super(wp);
+		this.arch=arch;
+		currentPath =arch.getWorkingFilePath();
+		if(currentPath!=null){
+			// write css file in directory of the book
+			writeCss(currentPath);
+			vb=new webViewBrowser(this,wp.getFolder(),tabItem);
+			//vb.item.setText("Book");
+			vb.showContents(0);
+			vb.navigate();
+			
+		}
+		
 
 	
 
@@ -77,9 +89,8 @@ public class WebViewController extends Controller {
 		arch = ArchiverFactory.getArchive(fileName);
 		
 		if(arch != null){
-			archFileName = arch.open();
+			archFileName = arch.getWorkingFilePath();
 			currentPath = archFileName;
-			this.workingFilePath = currentPath;
 			currentConfig = "epub.cfg";
 			// write css file in directory of the book
 			writeCss(archFileName);

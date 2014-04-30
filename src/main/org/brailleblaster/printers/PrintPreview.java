@@ -47,7 +47,7 @@ public class PrintPreview {
 
 		public void setPreviewText(Manager dm, BBDocument doc){
 			String tempFilePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf"; 
-			if(doc.createBrlFile(dm, tempFilePath)){
+			if(doc.createBrlFile(tempFilePath)){
 				try {
 					this.f = new File(tempFilePath);
 					Scanner scanner = new Scanner(this.f);

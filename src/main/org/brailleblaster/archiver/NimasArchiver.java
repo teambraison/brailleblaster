@@ -39,7 +39,6 @@ import org.brailleblaster.util.Zipper;
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
 public class NimasArchiver extends Archiver {
-	private final String templateFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
 
 	NimasArchiver(String docToPrepare) {
 		super(docToPrepare);
@@ -49,9 +48,6 @@ public class NimasArchiver extends Archiver {
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.xml", "*.zip", "*.brf", "*.utd"};
-		
-		if(workingDocPath.equals(templateFile))
-			originalDocPath = null;
 	}
 	
 	@Override

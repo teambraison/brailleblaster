@@ -52,6 +52,7 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -148,11 +149,9 @@ public class Manager extends Controller {
 			openDocument(docName);
 		else {
 			docCount++;
-			arch = ArchiverFactory.getArchive( BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml");
-			initializeAllViews(docName, BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml", null);
-			Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
-			((Element)n.get(0)).appendChild(new Text(""));
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			arch = ArchiverFactory.getArchive(templateFile);
+			initializeAllViews(docName, templateFile, null);
+			formatTemplateDocument();
 			setTabTitle(docName);
 		}				
 	}
@@ -195,15 +194,8 @@ public class Manager extends Controller {
 		text.view.setWordWrap(true);
 		braille.view.setWordWrap(true);
 		group.setRedraw(true);
-		if(list.size() == 0){
-			Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
-			if(n.get(0).getChildCount() > 0)
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			else {
-				((Element)n.get(0)).appendChild(new Text(""));
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			}
-		}
+		if(list.size() == 0)
+			formatTemplateDocument();
 	}	
 	
 
@@ -1082,11 +1074,8 @@ public class Manager extends Controller {
 			text.hasChanged = textChanged;
 			braille.hasChanged = brailleChanged;
 			
-			if(arch.getOrigDocPath() == null && list.size() == 0){
-				Nodes n = document.query("/*/*[2]/*[2]/*[1]/*[1]");
-				((Element)n.get(0)).appendChild(new Text(""));
-				list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
-			}
+			if(arch.getOrigDocPath() == null && list.size() == 0)
+				formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1512,6 +1501,26 @@ public class Manager extends Controller {
 		if(this.sm.getStyleTable().isVisible()){
 			e.doit = false;
 			sm.getStyleTable().getTable().setFocus();
+		}
+	}
+	
+	//adds or tracks a text node for a blank document when user starts 
+	private void formatTemplateDocument(){
+		Nodes n = document.query("/*[1]/*[2]");
+		
+		if(n.get(0).getChildCount() > 0){
+			if(n.get(0).getChild(0).getChildCount() == 0)
+				((Element)n.get(0).getChild(0)).appendChild(new Text(""));
+			
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
+		}
+		else {
+			Element p = new Element("p", document.getRootElement().getNamespaceURI());
+			SemanticFileHandler sfh = new SemanticFileHandler(arch.getCurrentConfig());
+			p.addAttribute(new Attribute("semantics","styles," + sfh.getDefault("p")));	
+			p.appendChild(new Text(""));
+			((Element)n.get(0)).appendChild(p);
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
 		}
 	}
 }

@@ -52,6 +52,7 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -1503,14 +1504,23 @@ public class Manager extends Controller {
 		}
 	}
 	
-	//adds or tracks a text node for a blank document when user starts working on a blank document
+	//adds or tracks a text node for a blank document when user starts 
 	private void formatTemplateDocument(){
-		Nodes n = this.document.query("/*/*[2]/*[2]/*[1]/*[1]");
-		if(n.get(0).getChildCount() > 0)
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+		Nodes n = document.query("/*[1]/*[2]");
+		
+		if(n.get(0).getChildCount() > 0){
+			if(n.get(0).getChild(0).getChildCount() == 0)
+				((Element)n.get(0).getChild(0)).appendChild(new Text(""));
+			
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
+		}
 		else {
-			((Element)n.get(0)).appendChild(new Text(""));
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0)));
+			Element p = new Element("p", document.getRootElement().getNamespaceURI());
+			SemanticFileHandler sfh = new SemanticFileHandler(arch.getCurrentConfig());
+			p.addAttribute(new Attribute("semantics","styles," + sfh.getDefault("p")));	
+			p.appendChild(new Text(""));
+			((Element)n.get(0)).appendChild(p);
+			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
 		}
 	}
 }

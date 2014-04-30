@@ -57,6 +57,7 @@ public class ImageDescriberView {
 	Group group;
 	Button prevBtn, nextBtn, useSimpleStylesCheck, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
 	Button nextPage, prevPage;
+	Label descLabel;
 	Text imgDescTextBox;
 	Label altLabel;
 	Text altBox;
@@ -331,12 +332,12 @@ public class ImageDescriberView {
 
 		// Label for alt box.
 		altLabel = new Label(group, SWT.NONE);
-		altLabel.setText("Alt Text ->");
-		setFormData(altLabel, 1, 6, 5, 9);
+		altLabel.setText("Alt Text: ");
+		setFormData(altLabel, 0, 3, 5, 7);
 		
 		// The alt box is for updating the "alt text" in an image element.
 		altBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(altBox, 6, 49, 5, 9);
+		setFormData(altBox, 0, 49, 8, 15);
 		if(imgDesc.getCurElmAttribute("alt") != null)
 			altBox.setText(imgDesc.getCurElmAttribute("alt"));
 		altBox.addModifyListener(new ModifyListener() {
@@ -348,9 +349,14 @@ public class ImageDescriberView {
 
 		}); // addModifyListener(new ModiftyListener() { 
 
+		// Label for description box.
+		descLabel = new Label(group, SWT.NONE);
+		descLabel.setText("Description: ");
+		setFormData(descLabel, 0, 6, 17, 19);
+		
 		// Create image description text box.
 		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(imgDescTextBox, 0, 49, 9, 40);
+		setFormData(imgDescTextBox, 0, 49, 20, 40);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent arg0) { 

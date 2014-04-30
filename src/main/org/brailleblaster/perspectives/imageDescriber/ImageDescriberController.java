@@ -583,7 +583,9 @@ public class ImageDescriberController extends Controller {
 	
 	@Override
 	public void setStatusBarText(BBStatusBar statusBar) {
-		statusBar.setText("Image #" + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );	
+		String textToSet = "Image #" + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src");
+//		textToSet += ;
+		statusBar.setText( textToSet );	
 	}
 
 	@Override

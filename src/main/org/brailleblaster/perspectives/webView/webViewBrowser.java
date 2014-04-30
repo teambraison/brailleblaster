@@ -99,15 +99,17 @@ public class webViewBrowser  {
 
 	public void navigate()
 	{
-		//navigate through the book by keyboard left and right arrow
+		//navigate through the book by keyboard page up and page down arrow
+		//in mac lap top fn + arrow up is equal to page up -> go to next page
+		//in mac lap top fn + arrow down is equal to page down -> go to previous page 
 		browser.addListener(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event event) {
-				if(event.keyCode == SWT.ARROW_LEFT)
+				if(event.keyCode == SWT.PAGE_DOWN)
 				{
 					showContents(--index);
 
 				}
-				if(event.keyCode == SWT.ARROW_RIGHT)
+				if(event.keyCode == SWT.PAGE_UP)
 				{
 					showContents(++index);
 

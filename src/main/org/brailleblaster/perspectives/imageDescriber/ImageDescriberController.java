@@ -135,7 +135,6 @@ public class ImageDescriberController extends Controller {
 		// Recent Files.
 		addRecentFileEntry(fileName);		
 		
-//		workingFilePath = fileName;
 		return imgDesc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
 	}
 

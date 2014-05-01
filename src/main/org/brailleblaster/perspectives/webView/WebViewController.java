@@ -35,7 +35,7 @@ public class WebViewController extends Controller {
 
 	//Archiver arch ;
 	webViewBrowser vb=null;
-	webViewDocument webDoc;
+     webViewDocument webDoc;
 	int index=0;
 	String currentPath;
 	String currentConfig;
@@ -62,6 +62,7 @@ public class WebViewController extends Controller {
 	public WebViewController(WPManager wp, Document doc, TabItem tabItem,Archiver arch) {
 		super(wp);
 		this.arch=arch;
+
 		currentPath =arch.getWorkingFilePath();
 		if(currentPath!=null){
 			// write css file in directory of the book
@@ -69,10 +70,9 @@ public class WebViewController extends Controller {
 			vb=new webViewBrowser(this,wp.getFolder(),tabItem);
 			//vb.item.setText("Book");
 			vb.showContents(0);
-			vb.navigate();
-			
+			vb.navigate();	
 		}
-		
+		webDoc = new webViewDocument(this, doc);
 
 	
 
@@ -193,8 +193,8 @@ public class WebViewController extends Controller {
 	public Document getDoc() {
 		// TODO Auto-generated method stub
 		if(webDoc == null){
-			this.webDoc = new webViewDocument(this);
-			webDoc.startDocument(currentPath, currentConfig, null);
+			 this.webDoc = new webViewDocument(this);
+		     webDoc.startDocument(currentPath, currentConfig, null);
 		}
 		return webDoc.getDOM();
 		//return null;

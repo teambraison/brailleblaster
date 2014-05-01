@@ -70,7 +70,6 @@ public class MapList extends LinkedList<TextMapElement>{
 					}
 				}
 			}
-			
 		}
 	}
 	

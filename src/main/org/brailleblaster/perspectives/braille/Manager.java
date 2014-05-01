@@ -206,12 +206,11 @@ public class Manager extends Controller {
 	}
 	
 	public void setTabList(){
-		if(sm.panelIsVisible()){
+		if(sm.panelIsVisible())
 			tabList = new Control[]{treeView.getTree(), sm.getGroup(), text.view, braille.view};
-		}
-		else {
+		else 
 			tabList = new Control[]{treeView.getTree(), text.view, braille.view};
-		}
+		
 		group.setTabList(tabList);
 	}
 	
@@ -327,9 +326,8 @@ public class Manager extends Controller {
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
 				//if math is empty skip next brl element
-				if(validateMath((Element)current.getChild(i))){
+				if(validateMath((Element)current.getChild(i)))
 					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
-				}
 				else
 					i++;
 			}
@@ -360,12 +358,10 @@ public class Manager extends Controller {
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
-			if(current.getChild(i) instanceof Element){
+			if(current.getChild(i) instanceof Element)
 				initializeBraille(current.getChild(i), t);
-			}
-			else {
+			else 
 				initializeBraille(current.getChild(i), t);
-			}
 		}
 	}
 	
@@ -643,14 +639,12 @@ public class Manager extends Controller {
 		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
 
 		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++)
 				insertionString += "\n";
-			}
 		}
 		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++)
 				insertionString += "\n";
-			}
 		}
 		else {
 			insertionString = "\n";
@@ -959,9 +953,8 @@ public class Manager extends Controller {
 		PrintDialog embosser = new PrintDialog(shell);
 		PrinterData data = embosser.open();
 		
-		if (data == null || data.equals("")) {
+		if (data == null || data.equals("")) 
 			return;
-		}
 		
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
 		if(this.document.createBrlFile(filePath)){
@@ -979,9 +972,8 @@ public class Manager extends Controller {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0){
+		if(braille.view.getCharCount() > 0)
 			new PrintPreview(this.getDisplay(), document, this);
-		}
 	}
 	
 	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
@@ -996,9 +988,8 @@ public class Manager extends Controller {
 				currentOffset = text.view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount()){
+				if(currentOffset < text.view.getCharCount())
 					text.view.setCaretOffset(currentOffset);
-				}
 				else
 					text.view.setCaretOffset(0);
 			
@@ -1109,12 +1100,11 @@ public class Manager extends Controller {
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
 			treeView.adjustLayout(false);
-			if(list.size() == 0){
+			if(list.size() == 0)
 				sm.displayTable(null);
-			}
-			else {
+			else 
 				sm.displayTable(list.getCurrent());
-			}
+			
 			setTabList();
 		}
 		else {

@@ -53,7 +53,7 @@ public class webViewBrowser  {
 		group.setLayout(new FillLayout());
 		this.item.setControl(group);
 		// Create a web browser
-		browser = new Browser(group, SWT.WEBKIT);
+		browser = new Browser(group, SWT.NONE);
 		browser.setJavascriptEnabled(true);
 		group.layout();
 

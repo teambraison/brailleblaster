@@ -192,8 +192,10 @@ public class WebViewController extends Controller {
 	@Override
 	public Document getDoc() {
 		// TODO Auto-generated method stub
-		this.webDoc = new webViewDocument(this);
-		webDoc.startDocument(currentPath, currentConfig, null);
+		if(webDoc == null){
+			this.webDoc = new webViewDocument(this);
+			webDoc.startDocument(currentPath, currentConfig, null);
+		}
 		return webDoc.getDOM();
 		//return null;
 	}

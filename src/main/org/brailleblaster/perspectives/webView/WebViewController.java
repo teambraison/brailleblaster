@@ -64,14 +64,18 @@ public class WebViewController extends Controller {
 		this.arch=arch;
 
 		currentPath =arch.getWorkingFilePath();
-		if(currentPath!=null){
-			// write css file in directory of the book
-			writeCss(currentPath);
-			vb=new webViewBrowser(this,wp.getFolder(),tabItem);
-			//vb.item.setText("Book");
-			vb.showContents(0);
-			vb.navigate();	
+		vb=new webViewBrowser(this,wp.getFolder(),tabItem);
+		if(arch instanceof EPub3Archiver){
+			if(currentPath!=null){
+				// write css file in directory of the book
+				writeCss(currentPath);
+				//vb.item.setText("Book");
+				vb.showContents(0);
+				vb.navigate();	
+			}
 		}
+		
+			
 		webDoc = new webViewDocument(this, doc);
 
 	

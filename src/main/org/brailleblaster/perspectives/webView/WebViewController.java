@@ -219,11 +219,14 @@ public class WebViewController extends Controller {
 
 	@Override
 	public boolean canReuseTab() {
-		if (currentPath==null)
+		if (currentPath==null) 
 		{
 			return true;
 		}
-		else	
+		else if (currentPath.substring(currentPath.length()-5, currentPath.length() ).equals(".html"))
+			return true;
+		
+		else
 			return false;
 
 	}

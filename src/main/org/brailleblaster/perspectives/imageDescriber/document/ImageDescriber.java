@@ -85,7 +85,10 @@ public class ImageDescriber extends BBDocument {
 	// Description for undo.
 	String undoDesc;
 	String undoAlt;
-	
+	// Self-promoting ID for <img>'s that don't yet have one.
+	// We assign the current value to an image that we're wrapping,
+	// if it doesn't have an ID.
+	long imageIdRef = 1000000;
 	
 	// Image describer context helps us handle element manipulation in a generic way.
 	ImageDescriberContext imgContext = new ImageDescriberContext();
@@ -263,6 +266,9 @@ public class ImageDescriber extends BBDocument {
 			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
 			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
 				tempStr = tempStr.replace("/", "\\");
+			
+			// Remove %20(space).
+			tempStr = tempStr.replace("%20", " ");
 			
 			// Add.
 			if( imgElmList.get(curTag).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
@@ -512,7 +518,7 @@ public class ImageDescriber extends BBDocument {
 		// Create all elements.nameSpace
 		Element imgGrpElm = new Element("imggroup", nameSpace);
 		Element prodElm = new Element("prodnote", nameSpace);
-		Element captElm = new Element("caption", nameSpace);
+		//Element captElm = new Element("caption", nameSpace);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
 		// If there was no id attribute in the <img> element, add one.
@@ -521,19 +527,20 @@ public class ImageDescriber extends BBDocument {
 		
 		// If the original didn't have an ID value, add one.
 		String idValue = copyElm.getAttributeValue("id");
-		if(idValue == null)
-			idValue = "TODO!";
+		if(idValue == null){
+			idValue = Long.toString(imageIdRef);
+		}
 		
 		// Add <prodnote> attributes.
-		prodElm.addAttribute( new Attribute("id", "TODO!") );
-		prodElm.addAttribute( new Attribute("imgref", idValue) );
-		prodElm.addAttribute( new Attribute("render", "required") );
+	//	prodElm.addAttribute( new Attribute("id", "TODO!") );
+	//	prodElm.addAttribute( new Attribute("imgref", idValue) );
+	//	prodElm.addAttribute( new Attribute("render", "required") );
 		// Add <caption> attributes.
-		captElm.addAttribute( new Attribute("id", "TODO!") );
-		captElm.addAttribute( new Attribute("imgref", idValue) );
+	//	captElm.addAttribute( new Attribute("id", "TODO!") );
+	//	captElm.addAttribute( new Attribute("imgref", idValue) );
 		
 		// Arrange child hierarchy.
-		imgGrpElm.insertChild(captElm, 0);
+	//	imgGrpElm.insertChild(captElm, 0);
 		imgGrpElm.insertChild(prodElm, 0);
 		imgGrpElm.insertChild(copyElm, 0);
 		

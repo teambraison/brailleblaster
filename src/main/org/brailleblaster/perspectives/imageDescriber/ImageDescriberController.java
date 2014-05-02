@@ -129,7 +129,7 @@ public class ImageDescriberController extends Controller {
 		if(fileName != null) 
 			arch = ArchiverFactory.getArchive(fileName);
 		else
-			arch = ArchiverFactory.getArchive(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml");
+			arch = ArchiverFactory.getArchive(templateFile);
 			
 		////////////////
 		// Recent Files.
@@ -583,7 +583,9 @@ public class ImageDescriberController extends Controller {
 	
 	@Override
 	public void setStatusBarText(BBStatusBar statusBar) {
-		statusBar.setText("Image #" + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src") );	
+		String textToSet = "Image #" + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src");
+//		textToSet += ;
+		statusBar.setText( textToSet );
 	}
 
 	@Override

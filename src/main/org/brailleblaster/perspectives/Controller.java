@@ -14,6 +14,8 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
 
 public abstract class Controller implements DocumentManager{
+	protected final String templateFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "textFileTemplate.html";
+	
 	protected TabItem item;
 	protected WPManager wp;
 

@@ -6,6 +6,8 @@ import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 
 public class WebArchiver extends Archiver{
+	private final String templateFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "textFileTemplate.html";
+	
 	String ext;
 	
 	WebArchiver(String docToPrepare) {
@@ -14,6 +16,9 @@ public class WebArchiver extends Archiver{
 		ext = docToPrepare.substring(docToPrepare.lastIndexOf(".") + 1);
 		filterNames = new String[] {ext, "BRF", "UTDML working document", };
 		filterExtensions = new String[] {"*." + ext, "*.brf", "*.utd", };
+		
+		if(workingDocPath.equals(templateFile))
+			originalDocPath = null;
 	}
 
 	@Override

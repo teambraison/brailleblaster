@@ -48,9 +48,6 @@ public class NimasArchiver extends Archiver {
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.xml", "*.zip", "*.brf", "*.utd"};
-		
-		if(workingDocPath.equals(BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml"))
-			originalDocPath = null;
 	}
 	
 	@Override

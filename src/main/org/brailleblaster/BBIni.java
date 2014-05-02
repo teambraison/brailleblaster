@@ -257,11 +257,9 @@ public final class BBIni {
 			hLiblouisutdml = true;
 		} 
 		catch (UnsatisfiedLinkError e) {
-			e.printStackTrace();
 			logger.log(Level.SEVERE, "Problem with liblouisutdml library", e);
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
 			logger.log(Level.WARNING, "This shouldn't happen", e);
 		}
 	}

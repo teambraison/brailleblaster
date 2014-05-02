@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.w3c.dom.Document;
-
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
@@ -133,6 +132,8 @@ public class Normalizer {
 			transformer = transformerFactory.newTransformer();
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+		    transformer.setOutputProperty(OutputKeys.INDENT, "no");
+
 			DOMSource source = new DOMSource(doc);
 			StreamResult result = new StreamResult(new File(path));
 			transformer.transform(source, result);

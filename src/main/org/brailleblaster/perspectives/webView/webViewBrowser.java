@@ -67,9 +67,15 @@ public class webViewBrowser  {
 	 */
 	public void showContents(int index){
 		if (index> webc.getSize()-1)
+		{
 			index=0;
+			this.index=index;
+		}
 		if (index<0)
-			index=webc.getSize()-1;	
+		{
+			index=webc.getSize()-1;
+			this.index=index;
+		}
 		// Script to replace current style sheet and change picture with text
 		final String script = 
 				"var allsuspects=document.getElementsByTagName('link'); " + 
@@ -104,17 +110,17 @@ public class webViewBrowser  {
 
 	public void navigate()
 	{
-		//navigate through the book by keyboard page up and page down arrow
-		//in mac lap top fn + arrow up is equal to page up -> go to next page
-		//in mac lap top fn + arrow down is equal to page down -> go to previous page 
+		//navigate through the book by keyboard L and R character
+		//Other navigation keyboard reserved for reader
 		browser.addListener(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event event) {
-				if(event.keyCode == SWT.PAGE_DOWN)
+				if(event.character=='L' || event.character=='l')
 				{
+
 					showContents(--index);
 
 				}
-				if(event.keyCode == SWT.PAGE_UP)
+				if(event.character=='R' || event.character=='r')
 				{
 					showContents(++index);
 

@@ -239,7 +239,7 @@ public class WebViewController extends Controller {
 		if (file!=null)
 		{	
 			openBook(file);
-			vb.item.setText("Book");
+			vb.item.setText(file.substring(file.lastIndexOf(File.separatorChar) + 1));
 			vb.showContents(0);
 			vb.navigate();
 		}   

@@ -267,7 +267,10 @@ public class Manager extends Controller {
 	
 	public void openDocument(String fileName){	
 		// Create archiver and massage document if necessary.
-		String config = arch.getCurrentConfig();
+		String config = ""; 
+		if(arch != null)
+			config = arch.getCurrentConfig();
+		
 		arch = ArchiverFactory.getArchive(fileName);
 		
 		if(!config.equals(arch.getCurrentConfig()))

@@ -94,6 +94,10 @@ public class webViewBrowser  {
 		        "if (allimgs[j].getAttribute('alt')==null) { " + 
 		        "allimgs[j].createAttribute('alt'); "+
 		        "}" + 
+		        "if (allimgs[j].getAttribute('alt')=='') { " + 
+		        "allimgs[j].parentNode.replaceChild(null, allimgs[j]); " +
+
+		        "}" + 
 		        
 		        "var newtext=document.createTextNode('This picture is: '+allimgs[j].alt); "+
 		        "allimgs[j].parentNode.replaceChild(newtext, allimgs[j]); " +

@@ -40,6 +40,7 @@ public class webViewBrowser  {
 			this.item=item;
 			
 		createContents(folder);
+		
 	}
 
 

@@ -54,7 +54,9 @@ public class WebViewController extends Controller {
 		// if no file opened then create an empty template
 		if(currentPath == null)
 			arch = ArchiverFactory.getArchive(templateFile);
-
+		else
+			reuseTab(currentPath);
+		
 	}
 	/**
 	 * constructor : come to this constructor when changing between perspectives

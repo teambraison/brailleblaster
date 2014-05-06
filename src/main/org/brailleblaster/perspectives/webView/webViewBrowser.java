@@ -77,7 +77,7 @@ public class webViewBrowser  {
 			index=webc.getSize()-1;
 			this.index=index;
 		}
-		// Script to replace current style sheet and change picture with text
+		// Script to replace current style sheet and change picture with text and change svg and g tags with text
 		final String script = 
 				"var allsuspects=document.getElementsByTagName('link'); " + 
 				"for (var i=allsuspects.length-1; i>=0; i--) { " + 
@@ -88,7 +88,29 @@ public class webViewBrowser  {
 		        "newelement.setAttribute('href', 'brailstylesheet.css'); " + 
 		        "allsuspects[i].parentNode.replaceChild(newelement, allsuspects[i]); " +
 		        "}" + 
-		        "}";
+		        "}"+
+		        "var allimgs=document.getElementsByTagName('img'); "+
+		        "for (var j=allimgs.length-1; j>=0; j--) { " + 
+		        "if (allimgs[j].getAttribute('alt')==null) { " + 
+		        "allimgs[j].createAttribute('alt'); "+
+		        "}" + 
+		        
+		        "var newtext=document.createTextNode('This picture is: '+allimgs[j].alt); "+
+		        "allimgs[j].parentNode.replaceChild(newtext, allimgs[j]); " +
+		
+	
+                "}"+
+                "var allgraphics=document.getElementsByTagName('g'); "+
+				"for (var j=allgraphics.length-1; j>=0; j--) { " + 
+				"var newtext=document.createTextNode('This is a picture'); "+
+				"allgraphics[j].parentNode.replaceChild(newtext, allgraphics[j]); " +
+				"}"+
+				"var allsvgs=document.getElementsByTagName('svg'); "+
+				"for (var j=allsvgs.length-1; j>=0; j--) { " + 
+				"var newtext=document.createTextNode('This is a picture'); "+
+				"allsvgs[j].parentNode.replaceChild(newtext, allsvgs[j]); " +
+				"}";
+
 	
 		// listen to when the page load in browser
 		browser.addProgressListener(new ProgressListener() {

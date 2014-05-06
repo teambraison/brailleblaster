@@ -298,8 +298,12 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void applyToAll(){
+		// Message box to let user know that things are to be changed.
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+		msgB.setMessage("Image Describer will update every image like this one with the given description. CANNOT UNDO! Continue?");
+		
 		// Warn user before doing this. It could take a while.
-		if( idv.msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
+		if( msgB.open() == SWT.OK)
 		{
 			// Apply what is in the edit box first.
 			imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
@@ -330,8 +334,12 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void clearAll(){
-		// Clear every description for this image, and clear alt text.
-		if( idv.msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
+		// Message box to let user know that things are to be changed.
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+		msgB.setMessage("Image Describer will update every image like this one with NO DESCRIPTION. CANNOT UNDO! Continue?");
+		
+		// Warn user before doing this. It could take a while.
+		if( msgB.open() == SWT.OK)
 		{
 			// Apply what is in the edit box first.
 			imgDesc.setDescription("", null, null, null);

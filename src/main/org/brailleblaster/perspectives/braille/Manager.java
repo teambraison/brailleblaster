@@ -267,7 +267,11 @@ public class Manager extends Controller {
 	
 	public void openDocument(String fileName){	
 		// Create archiver and massage document if necessary.
+		String config = arch.getCurrentConfig();
 		arch = ArchiverFactory.getArchive(fileName);
+		
+		if(!config.equals(arch.getCurrentConfig()))
+			resetConfiguations();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
@@ -1168,16 +1172,17 @@ public class Manager extends Controller {
 	
 	public void closeUntitledTab(){
 		document.deleteDOM();
-		if(!arch.getCurrentConfig().equals(BBIni.getDefaultConfigFile())){
-			document.resetBBDocument(arch.getCurrentConfig());
-			styles.resetStyleTable(arch.getCurrentConfig());
-			sm.getStyleTable().resetTable(arch.getCurrentConfig());
-		}
 		treeView.removeListeners();
 		treeView.clearTree();
 		text.removeListeners();
 		braille.removeListeners();
 		list.clearList();	
+	}
+	
+	private void resetConfiguations(){
+		document.resetBBDocument(arch.getCurrentConfig());
+		styles.resetStyleTable(arch.getCurrentConfig());
+		sm.getStyleTable().resetTable(arch.getCurrentConfig());
 	}
 	
 	private void startProgressBar(){

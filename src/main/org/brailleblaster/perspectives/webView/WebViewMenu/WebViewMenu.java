@@ -21,8 +21,8 @@ import org.eclipse.swt.widgets.MenuItem;
 public class WebViewMenu extends BBMenu{
 	
 	private final int MENU_INDEX = 2;
-	private WebViewController currentController;
-	MenuItem openItem;
+	WebViewController currentController;
+	MenuItem openItem,closeItem;;
 
 	/**
 	 * constructor
@@ -62,10 +62,33 @@ public class WebViewMenu extends BBMenu{
 				}
 			}		
 		});
-		
 
+
+
+		closeItem = new MenuItem(fileMenu, SWT.PUSH, 2);
+		closeItem.setText(lh.localValue("&Close") + "\t" + lh.localValue("Ctrl + W"));
+		closeItem.setAccelerator(SWT.MOD1 + 'W');
+		closeItem.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();				
+				Controller temp = currentController;
+
+				if(count > 0)
+					currentController.close();
+
+				wp.removeController(temp);
+
+				if(wp.getList().size() == 0)
+					setCurrent(null);	
+			}
+		});
 	}
-
 
 	//public WebViewMenu(WPManager wp, WebViewController controller) {
 		//super(wp);

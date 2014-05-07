@@ -199,6 +199,7 @@ public class WebViewController extends Controller {
 	@Override
 	public void close() {
 		dispose();
+		vb.item.dispose();
 
 	}
 

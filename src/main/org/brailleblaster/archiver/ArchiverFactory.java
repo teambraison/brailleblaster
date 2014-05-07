@@ -115,7 +115,7 @@ public class ArchiverFactory {
 	} // isNIMAS()
 	
 	static boolean isTextFile(String pathToDoc){
-		if(pathToDoc.endsWith(".txt"))
+		if(pathToDoc.toLowerCase().endsWith(".txt"))
 			return true;
 		else
 			return false;

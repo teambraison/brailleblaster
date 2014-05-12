@@ -85,10 +85,6 @@ public class ImageDescriber extends BBDocument {
 	// Description for undo.
 	String undoDesc;
 	String undoAlt;
-	// Self-promoting ID for <img>'s that don't yet have one.
-	// We assign the current value to an image that we're wrapping,
-	// if it doesn't have an ID.
-	long imageIdRef = 1000000;
 	
 	// Image describer context helps us handle element manipulation in a generic way.
 	ImageDescriberContext imgContext = new ImageDescriberContext();
@@ -524,12 +520,6 @@ public class ImageDescriber extends BBDocument {
 		// If there was no id attribute in the <img> element, add one.
 		if(copyElm.getAttribute("id") == null)
 			copyElm.addAttribute( new Attribute("id", "TODO!") );
-		
-		// If the original didn't have an ID value, add one.
-		String idValue = copyElm.getAttributeValue("id");
-		if(idValue == null){
-			idValue = Long.toString(imageIdRef);
-		}
 		
 		// Add <prodnote> attributes.
 	//	prodElm.addAttribute( new Attribute("id", "TODO!") );

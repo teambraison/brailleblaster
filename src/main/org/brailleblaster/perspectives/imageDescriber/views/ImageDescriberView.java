@@ -81,7 +81,6 @@ public class ImageDescriberView {
 	// Creates all buttons, boxes, checks, etc.
 	public void createUIelements()
 	{
-		
 		// Create previous button.
 		prevBtn = new Button(group, SWT.PUSH);
 		prevBtn.setText("Previous");
@@ -122,7 +121,6 @@ public class ImageDescriberView {
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
 				// Move to next element.
 				idd.setImageToNext();
 				

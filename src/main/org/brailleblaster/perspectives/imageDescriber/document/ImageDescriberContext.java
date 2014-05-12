@@ -40,6 +40,10 @@ public class ImageDescriberContext {
 	public static int ET_NIMAS = 0;
 	public static int ET_EPUB = 1;
 	int documentType = ET_UNKNOWN;
+	// Self-promoting ID for <img>'s that don't yet have one.
+	// We assign the current value to an image that we're wrapping,
+	// if it doesn't have an ID.
+	long imageIdRef = 1000000;
 	
 	//////////////////////////////////////////////////////////////////////////////
 	// Constructor. Inits variables.
@@ -109,7 +113,7 @@ public class ImageDescriberContext {
 			// Create all elements.
 			Element imgGrpElm = new Element("imggroup", nameSpace);
 			Element prodElm = new Element("prodnote", nameSpace);
-			Element captElm = new Element("caption", nameSpace);
+			// Element captElm = new Element("caption", nameSpace);
 			Element copyElm = (nu.xom.Element)e.copy();
 			
 			// If there was no id attribute in the <img> element, add one.
@@ -118,19 +122,20 @@ public class ImageDescriberContext {
 			
 			// If the original didn't have an ID value, add one.
 			String idValue = copyElm.getAttributeValue("id");
-			if(idValue == null)
-				idValue = "TODO!";
+			if(idValue == null){
+				idValue = Long.toString(imageIdRef);
+			}
 			
 			// Add <prodnote> attributes.
-			prodElm.addAttribute( new Attribute("id", "TODO!") );
+//			prodElm.addAttribute( new Attribute("id", "TODO!") );
 			prodElm.addAttribute( new Attribute("imgref", idValue) );
-			prodElm.addAttribute( new Attribute("render", "required") );
+//			prodElm.addAttribute( new Attribute("render", "required") );
 			// Add <caption> attributes.
-			captElm.addAttribute( new Attribute("id", "TODO!") );
-			captElm.addAttribute( new Attribute("imgref", idValue) );
+//			captElm.addAttribute( new Attribute("id", "TODO!") );
+//			captElm.addAttribute( new Attribute("imgref", idValue) );
 			
 			// Arrange child hierarchy.
-			imgGrpElm.insertChild(captElm, 0);
+//			imgGrpElm.insertChild(captElm, 0);
 			imgGrpElm.insertChild(prodElm, 0);
 			imgGrpElm.insertChild(copyElm, 0);
 			
@@ -153,8 +158,9 @@ public class ImageDescriberContext {
 			
 			// If the original didn't have an ID value, add one.
 			String idValue = copyElm.getAttributeValue("id");
-			if(idValue == null)
-				idValue = "TODO!";
+			if(idValue == null){
+				idValue = Long.toString(imageIdRef);
+			}
 			
 			// Add aria-describedby attribute if not there.
 			if(copyElm.getAttribute("aria-describedby") == null)

@@ -11,8 +11,6 @@ import nu.xom.Document;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.perspectives.braille.BraillePerspective;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.falcon.FalconController;
-import org.brailleblaster.perspectives.falcon.FalconPerspective;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberPerspective;
 import org.brailleblaster.wordprocessor.BBMenu;
@@ -25,7 +23,6 @@ public abstract class Perspective {
 		HashMap<Class<?>, Class<?>> temp = new HashMap<Class<?>, Class<?>>();
 		temp.put(Manager.class, BraillePerspective.class);
 		temp.put(ImageDescriberController.class, ImageDescriberPerspective.class);
-		temp.put(FalconController.class, FalconPerspective.class);
 		PERSPECTIVE_MAP = Collections.unmodifiableMap(temp);
 	}
 	

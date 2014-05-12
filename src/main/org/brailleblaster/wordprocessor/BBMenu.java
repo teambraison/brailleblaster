@@ -43,7 +43,6 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.falcon.FalconController;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.userHelp.HelpOptions;
 import org.brailleblaster.userHelp.UserHelp;
@@ -70,7 +69,6 @@ public abstract class BBMenu {
 	protected MenuItem selectedPerspective;
 	MenuItem brailleEditorItem;
 	MenuItem imageDescriberItem;
-	MenuItem falconItem;
 	
 	MenuItem readManualItem;
 	MenuItem helpInfoItem;
@@ -191,23 +189,6 @@ public abstract class BBMenu {
 					selectedPerspective = imageDescriberItem;
 					brailleEditorItem.setSelection(false);
 					wp.swapPerspectiveController((Class<?>)imageDescriberItem.getData());
-				}
-			}		
-		});
-		
-		falconItem = new MenuItem(perspectiveMenu, SWT.CHECK);
-		falconItem.setText(lh.localValue("Novint Falcon"));
-		falconItem.setSelection(true);
-		falconItem.setData(FalconController.class);
-		falconItem.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(falconItem.getSelection() == true && !selectedPerspective.equals(falconItem)){
-					selectedPerspective = falconItem;
-					imageDescriberItem.setSelection(false);
-					brailleEditorItem.setSelection(false);
-					falconItem.setSelection(true);
-					wp.swapPerspectiveController((Class<?>)falconItem.getData());
 				}
 			}		
 		});

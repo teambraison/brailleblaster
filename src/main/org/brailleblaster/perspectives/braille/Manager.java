@@ -206,12 +206,11 @@ public class Manager extends Controller {
 	}
 	
 	public void setTabList(){
-		if(sm.panelIsVisible()){
+		if(sm.panelIsVisible())
 			tabList = new Control[]{treeView.getTree(), sm.getGroup(), text.view, braille.view};
-		}
-		else {
+		else 
 			tabList = new Control[]{treeView.getTree(), text.view, braille.view};
-		}
+		
 		group.setTabList(tabList);
 	}
 	
@@ -334,9 +333,8 @@ public class Manager extends Controller {
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
 				//if math is empty skip next brl element
-				if(validateMath((Element)current.getChild(i))){
+				if(validateMath((Element)current.getChild(i)))
 					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
-				}
 				else
 					i++;
 			}
@@ -539,12 +537,10 @@ public class Manager extends Controller {
 		int currentLine = text.view.getLineAtOffset(list.getCurrent().start);
 		int topIndex = text.view.getTopIndex();
 		
-		if(currentLine >= topIndex && currentLine <= (topIndex + totalLines - 1)){
+		if(currentLine >= topIndex && currentLine <= (topIndex + totalLines - 1))
 			return true;
-		}
-		else {
+		else 
 			return false;
-		}
 	}
 	
 	private void handleGetCurrent(Message message){
@@ -1402,7 +1398,7 @@ public class Manager extends Controller {
 	public FontManager getFontManager(){
 		return fontManager;
 	}
-		
+	
 	public StyledText getTextView(){
 		return text.view;
 	}

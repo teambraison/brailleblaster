@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.brailleblaster.BBIni;
@@ -25,7 +27,7 @@ public class ConfigFileHandler {
 			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
 		
 		String key = "style " + newStyle.getName();
-		String entry = formatEntry(newStyle);
+		String entry = formatStyleEntry(newStyle);
 		
 		String fileString = getFileContentsAsString(path);
 		
@@ -47,12 +49,12 @@ public class ConfigFileHandler {
 		if(!fu.exists(path))
 			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
 		
-		String entry = formatEntry(style);
+		String entry = formatStyleEntry(style);
 		
 		fu.appendToFile(path, entry);
 	}
 	
-	private String formatEntry(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
+	private String formatStyleEntry(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
 		String entry = "style " + style.getName() + "\n"; 
 		
 		Set<StylesType> set = style.getKeySet();
@@ -62,7 +64,7 @@ public class ConfigFileHandler {
     	return entry;
 	}
 	
-	private String  getFileContentsAsString(String path){
+	private String getFileContentsAsString(String path){
 		 BufferedReader reader = null;
 
 		try {
@@ -122,5 +124,41 @@ public class ConfigFileHandler {
 		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
 		if(fu.exists(path))
 			fu.deleteFile(path);	
+	}
+	
+	public void saveDocumentSettings(HashMap<String, String>map){
+		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
+		if(!fu.exists(path))
+			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
+		
+		String fileString = getFileContentsAsString(path);
+		
+		if(fileString != null){
+			for(Entry<String, String>entry : map.entrySet()){
+				int startIndex = fileString.indexOf(entry.getKey());
+				if(startIndex != -1){
+					int endIndex = startIndex + fileString.substring(startIndex).indexOf('\n');
+				
+				
+					if(endIndex != -1)
+						fileString = fileString.replace(fileString.substring(startIndex, endIndex), entry.getKey() + " " + entry.getValue());
+					else
+						fileString = fileString.replace(fileString.substring(startIndex), entry.getKey() + " " + entry.getValue());
+				}
+				else
+					fileString = insertDocumentSetting(fileString, entry.getKey() + " " + entry.getValue());
+			}
+			
+			fu.writeToFile(path, fileString);
+		}
+	}
+	
+	private String insertDocumentSetting(String fileString, String entry){
+		String heading = "outputFormat";
+		int startIndex = fileString.indexOf(heading);
+		int endIndex = startIndex + fileString.substring(startIndex).indexOf("\n");
+		
+		fileString = fileString.substring(0, endIndex + 1) + "\t" + entry + fileString.substring(endIndex);
+		return fileString;
 	}
 }

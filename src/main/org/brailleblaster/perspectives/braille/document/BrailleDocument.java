@@ -360,8 +360,7 @@ public class BrailleDocument extends BBDocument {
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
 			}
 			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
-			
-			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings, 0)){
+			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
 				return outlength[0];
 			}
 			else {

@@ -337,13 +337,19 @@ public class PagePropertiesTab {
 		if(width != 0 && height != 0){
 			boolean found = false;
 			for(int i = 0; i < sm.getStandardSizes().length && !found; i++){
-				if(sm.getStandardSizes()[i].height == height && sm.getStandardSizes()[i].width == width){
+				if(checkEqualHeight(sm.getStandardSizes()[i], height) && checkEqualWidth(sm.getStandardSizes()[i], width)){
 					pageTypes.select(i);
 					found = true;
 				
-					cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].width)));
-					linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].height)));
-				
+					if(!sm.isMetric()){
+						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].width)));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].height)));
+					}
+					else {
+						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].mmWidth)));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
+					}
+					
 					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals("Custom"))
 						pageTypes.remove(pageTypes.getItemCount() - 1);
 				}
@@ -369,10 +375,9 @@ public class PagePropertiesTab {
 	}
 	
 	private void setDefault(){
-		HashMap<String,String> temp = settingsMap;
-		if(temp.containsKey("paperWidth") && temp.containsKey("paperHeight")){
+		if(settingsMap.containsKey("paperWidth") && settingsMap.containsKey("paperHeight")){
 			for(int i = 0; i < sm.getStandardSizes().length; i++){
-				if(sm.getStandardSizes()[i].width == Double.valueOf(temp.get("paperWidth")) && sm.getStandardSizes()[i].height == Double.valueOf(temp.get("paperHeight"))){
+				if(checkEqualWidth(sm.getStandardSizes()[i], Double.valueOf(settingsMap.get("paperWidth"))) && checkEqualHeight(sm.getStandardSizes()[i], Double.valueOf(settingsMap.get("paperHeight")))){
 					pageTypes.select(i);
 					break;
 				}
@@ -428,6 +433,20 @@ public class PagePropertiesTab {
 			pHeight -= Double.valueOf(settingsMap.get("bottomMargin"));
 		
 		return (int)(pHeight / cellHeight);
+	}
+	
+	private boolean checkEqualWidth(Page p, double width){
+		if(sm.isMetric())
+			return p.mmWidth == width;
+		else
+			return p.width == width;
+	}
+	
+	private boolean checkEqualHeight(Page p, double height){
+		if(sm.isMetric())
+			return p.mmHeight == height;
+		else
+			return p.height == height;
 	}
 	
 	private void setFormLayout(Control c, int left, int right, int top, int bottom){

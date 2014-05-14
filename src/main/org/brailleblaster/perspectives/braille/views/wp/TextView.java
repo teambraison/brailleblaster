@@ -32,6 +32,7 @@ package org.brailleblaster.perspectives.braille.views.wp;
 
 import java.util.ArrayList;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 
 import nu.xom.Element;
 import nu.xom.Node;
@@ -46,6 +47,7 @@ import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -739,30 +741,30 @@ public class TextView extends WPView {
 		int start = 0;
 		int end = 0;
 		int totalLength = 0;
-		
-		if(brl != null){
-			int[] indexes = getIndexArray(brl);
-			if(indexes != null){
-				for(int i = 0; i < brl.getChildCount(); i++){
-					if(isText(brl.getChild(i))){
-						if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
-							String brltext = brl.getChild(i).getValue();						
-							totalLength += brltext.length();
-							end = indexes[totalLength - 1];
-							if(totalLength == indexes.length){
-								if(start == 0 && append){
-									view.append("\n");
-									text.append(n.getValue().substring(start));
-									spaceBeforeText++;
+		try {
+			if(brl != null){
+				int[] indexes = getIndexArray(brl);
+				if(indexes != null){
+					for(int i = 0; i < brl.getChildCount(); i++){
+						if(isText(brl.getChild(i))){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+								String brltext = brl.getChild(i).getValue();						
+								totalLength += brltext.length();
+								end = indexes[totalLength - 1];
+								if(totalLength == indexes.length){
+									if(start == 0 && append){
+										view.append("\n");
+										text.append(n.getValue().substring(start));
+										spaceBeforeText++;
+									}
+									else if(start == 0){
+										text.append(n.getValue().substring(start));
+									}
+									else {
+										text.append("\n" + n.getValue().substring(start));
+									}
 								}
-								else if(start == 0){
-									text.append(n.getValue().substring(start));
-								}
-								else {
-									text.append("\n" + n.getValue().substring(start));
-								}
-							}
-							else{
+								else{
 								    end += indexes[totalLength] - end;
 									if(start == 0 && append){
 										view.append("\n");
@@ -775,36 +777,42 @@ public class TextView extends WPView {
 									else{
 										text.append("\n" + n.getValue().substring(start, end));
 									}
+								}
+								start = end;
 							}
-							start = end;
-						}
-						else {
-							String brltext = brl.getChild(i).getValue();
-							totalLength += brltext.length();
-							end = indexes[totalLength - 1];
-							if(totalLength == indexes.length){
-								text.append(n.getValue().substring(start));
+							else {
+								String brltext = brl.getChild(i).getValue();
+								totalLength += brltext.length();
+								end = indexes[totalLength - 1];
+								if(totalLength == indexes.length){
+									text.append(n.getValue().substring(start));
+								}
+								else{
+									end += indexes[totalLength] - end;
+									text.append(n.getValue().substring(start, end));
+								}
+								start = end;
 							}
-							else{
-								end += indexes[totalLength] - end;
-								text.append(n.getValue().substring(start, end));
-							}
-							start = end;
 						}
 					}
 				}
-			}
-			else if(append){
+				else if(append){
 					view.append("\n");
 					text.append(n.getValue());
 					spaceBeforeText++;
+				}
+				else {
+					text.append(n.getValue());
+				}
 			}
 			else {
 				text.append(n.getValue());
 			}
 		}
-		else {
-			text.append(n.getValue());
+		catch(StringIndexOutOfBoundsException e){
+			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
+			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			text.append(n.getValue().substring(start));
 		}
 		
 		return text.toString();

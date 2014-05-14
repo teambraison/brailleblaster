@@ -154,6 +154,9 @@ public class Manager extends Controller {
 			formatTemplateDocument();
 			setTabTitle(docName);
 		}				
+		
+		if(BBIni.getPlatformName().equals("cocoa"))
+			treeView.getTree().select(treeView.getRoot());
 	}
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
@@ -196,6 +199,9 @@ public class Manager extends Controller {
 		group.setRedraw(true);
 		if(list.size() == 0)
 			formatTemplateDocument();
+		
+		if(BBIni.getPlatformName().equals("cocoa"))
+			treeView.getTree().select(treeView.getRoot());
 	}	
 	
 

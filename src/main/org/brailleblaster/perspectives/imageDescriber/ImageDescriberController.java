@@ -61,7 +61,6 @@ import org.eclipse.swt.widgets.TabItem;
 public class ImageDescriberController extends Controller {	
 	// Utils
 	LocaleHandler lh = new LocaleHandler();
-	
 	// UI Elements.
 	ImageDescriberView idv;
 	Group group;
@@ -86,7 +85,7 @@ public class ImageDescriberController extends Controller {
 		this.group.setLayout(new FormLayout());
 		
 		this.imgDesc = new ImageDescriber(this);
-		
+
 		// Start the image describer and build the DOM
 		if(fileName != null){
 			if(openDocument(fileName))
@@ -139,9 +138,8 @@ public class ImageDescriberController extends Controller {
 	}
 
 	public void fileOpenDialog(){
+		
 		String tempName;
-
-//		
 		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
@@ -202,7 +200,6 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public void dispose() {
-		imgDesc.disposeImages();
 		idv.disposeUI();
 	}
 

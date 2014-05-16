@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.SettingsManager;
+import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -38,7 +39,7 @@ public class ConfigPanel {
 		
 		final HashMap<String, String> settingsCopy = sm.getMapClone();
 		pageProperties = new PagePropertiesTab(folder, sm, settingsCopy);
-		//translationSettings = new TranslationSettingsTab(folder, ppm, settingsCopy);
+		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		
 		okButton = new Button(shell, SWT.PUSH);
 		okButton.setText("OK");
@@ -46,9 +47,13 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.saveConfiguration(settingsCopy);
-				sm.close();
-				m.refresh();
+				if(translationSettings.validate()){
+					sm.saveConfiguration(settingsCopy);
+					sm.close();
+					m.refresh();
+				}
+				else
+					new Notify("Please check that all required translation settings fields are completed");
 			}	
 		});
 		

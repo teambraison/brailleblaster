@@ -73,6 +73,13 @@ public class SettingsManager {
 						}
 					}
 				}
+				if(currentLine.equals("translation")){
+					while((currentLine  = reader.readLine()) != null && currentLine.length() > 0){
+						if(currentLine.length() > 0 && currentLine.charAt(0) != '#'){	
+							setPageSettings(currentLine);
+						}
+					}
+				}
 			}	
 		}
 	}
@@ -97,8 +104,26 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("linesPerPage"))
 			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("literaryTextTable")){
+			String correctTable = extractTable(tokens[1]);
+			outputMap.put(tokens[0], correctTable);
+		}
+		else if(tokens[0].equals("mathexprTable"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("compbrlTable"))
+			outputMap.put(tokens[0], tokens[1]);
 	}
 	
+	//do not include compress.cti because removing spaces should be left up to the user to remove
+	private String extractTable(String string) {
+		String[] tokens = string.split(",");
+		for(int i = 0; i < tokens.length; i++){
+			if(!tokens[i].contains("compress"))
+				return tokens[i];
+		}
+		return null;
+	}
+
 	public String getSettings(){		
 		String settingsString = "";
 		for(Entry<String, String> entry : outputMap.entrySet()){
@@ -115,7 +140,7 @@ public class SettingsManager {
 		outputMap.clear();
 		resetMap(map);
 		ConfigFileHandler handler = new ConfigFileHandler(config);
-		handler.saveDocumentSettings(outputMap);
+		handler.saveSettings(outputMap);
 	}
 	
 	public HashMap<String, String> getMapClone(){

@@ -472,6 +472,7 @@ public class BBDocument {
 	
 	public void resetBBDocument(String config){
 		deleteDOM();
+		sm = new SettingsManager(config);
 		semHandler.resetSemanticHandler(config);
 	}
 	

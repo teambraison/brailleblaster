@@ -88,7 +88,7 @@ public class ImageDescriberView {
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-
+			
 			// Move to previous element.
 			idd.setImageToPrevious();
 			
@@ -121,6 +121,7 @@ public class ImageDescriberView {
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
 				// Move to next element.
 				idd.setImageToNext();
 				
@@ -172,7 +173,7 @@ public class ImageDescriberView {
        		        "}" + 
    		        "}";
 	            
-	         // Get namespace and context so we can search for "link."
+	            // Get namespace and context so we can search for "link."
 	            String nameSpace = idd.getDoc().getRootElement().getDocument().getRootElement().getNamespaceURI();
 	    		XPathContext context = new XPathContext("dtb", nameSpace);
 	    		// Search for first "link" element.
@@ -494,6 +495,9 @@ public class ImageDescriberView {
 				mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
 			else
 				mainImage.setImage( imgHelper.createScaledImage(curElmImage, curElmImage.getBounds().width, curElmImage.getBounds().height) );
+			
+			// Release old image.
+			curElmImage.dispose();
 		}
 		else
 			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
@@ -658,6 +662,7 @@ public class ImageDescriberView {
 	}
 	
 	public void disposeUI(){
+		mainImage.getImage().dispose();
 		group.dispose();
 	}
 	

@@ -150,6 +150,7 @@ public class Manager extends Controller {
 		else {
 			docCount++;
 			arch = ArchiverFactory.getArchive( templateFile);
+			resetConfiguations();
 			initializeAllViews(docName, templateFile, null);
 			formatTemplateDocument();
 			setTabTitle(docName);

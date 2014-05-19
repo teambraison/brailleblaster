@@ -166,9 +166,10 @@ public class SettingsManager {
 	private void saveSettings(){
 		File f = new File(USER_SETTINGS);
 		
-		if(!f.exists())
 			try {
-				f.createNewFile();
+				if(!f.exists())
+					f.createNewFile();
+				
 				PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
 				for(Entry<String, String>entry : outputMap.entrySet()){
 					pfm.save(entry.getKey(), entry.getValue());

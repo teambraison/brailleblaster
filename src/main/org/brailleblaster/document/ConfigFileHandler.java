@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.brailleblaster.BBIni;
@@ -123,54 +122,5 @@ public class ConfigFileHandler {
 		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
 		if(fu.exists(path))
 			fu.deleteFile(path);	
-	}
-	
-	public void saveSettings(HashMap<String, String>map){
-		BufferedReader br = null;
-		String fileString = "";
-		String path = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile;
-		if(!fu.exists(path))
-			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
-		
-		try {
- 
-			String currentLine;
-			br = new BufferedReader(new FileReader(path));
- 
-			while ((currentLine = br.readLine()) != null) {
-				if(currentLine.length() > 0 && currentLine.charAt(0) != '#'){
-					if(containsKey(map, currentLine)){
-						String key = getKey(currentLine);
-						fileString += "\t" + key + " " + map.get(key) + "\n";
-					}
-					else
-						fileString += currentLine + "\n";
-				}
-				else
-					fileString += currentLine + "\n";
-			}
- 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-		fu.writeToFile(path, fileString);
-	}
-	
-	private boolean containsKey(HashMap<String, String>map, String line){
-		String [] tokens = line.split(" ");
-		if(map.containsKey(tokens[0].trim()))
-			return true;
-		else
-			return false;
-	}
-	
-	private String getKey(String line){
-		return line.split(" ")[0].trim();
 	}
 }

@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
 
 public class PropertyFileManager {
@@ -90,6 +91,30 @@ public class PropertyFileManager {
 			}
 			else
 				return null;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+    	finally {
+    		if(fis != null)
+				try {
+					fis.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+    	}
+	}
+	
+	public Enumeration<?> getKeySet(){
+		Properties properties = new Properties();
+		FileInputStream fis = null;
+    	try {
+    		fis = new FileInputStream(filePath);
+			properties.load(fis);
+			return properties.propertyNames();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;

@@ -974,7 +974,7 @@ public class Manager extends Controller {
 		}
 		
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
-		if(this.document.createBrlFile(filePath)){
+		if(document.createBrlFile(filePath)){
 			File translatedFile = new File(filePath);
 			PrinterDevice embosserDevice;
 			try {

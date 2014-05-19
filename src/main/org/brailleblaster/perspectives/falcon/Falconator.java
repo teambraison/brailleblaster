@@ -2,7 +2,7 @@
 // Java Native Interface for Novint Falcon. Wraps C functions so we can use 
 // the Falcon from Java.
 
-package org.brailleblaster.perspectives.imageDescriber;
+package org.brailleblaster.perspectives.falcon;
 
 public class Falconator
 {

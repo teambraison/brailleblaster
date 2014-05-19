@@ -1,39 +1,41 @@
 package org.brailleblaster.settings;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map.Entry;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.document.ConfigFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.ui.ConfigPanel;
 import org.brailleblaster.settings.ui.Page;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.PropertyFileManager;
 
 public class SettingsManager {
 	private static final String NONMETRIC_COUTNRY = "US";
+	private static final String USER_SETTINGS = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "utdmlSettings.properties";
+			
 	private boolean isMetric;
 	private final Page [] standardPages = {new Page("Letter",8.5 ,11), new Page("Legal", 8.5, 14), new Page("A3", 11.69, 16.54),
 			new Page("A4",8.27,11.69), new Page("A5", 5.83, 8.27)};
 	
 	private ConfigPanel configPanel;
 	private HashMap<String, String>outputMap;
-	private String config;
 	
 	public SettingsManager(String config){
-		this.config = config;
 		if(Locale.getDefault().getCountry().equals(NONMETRIC_COUTNRY))
 			isMetric = false;
 		else
 			isMetric = true;
 		
 		outputMap = new HashMap<String, String>();
-		openConfig(config);
+		setDefault(config);
 	}
 	
 	public void open(Manager m){
@@ -44,6 +46,15 @@ public class SettingsManager {
 	public void close(){
 		configPanel.close();
 		configPanel = null;
+	}
+	
+	
+	private void setDefault(String config){
+		File f = new File(USER_SETTINGS);
+		if(!f.exists())
+			openConfig(config);
+		else
+			openPropertiesFile();
 	}
 	
 	private void openConfig(String config){
@@ -58,6 +69,16 @@ public class SettingsManager {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	private void openPropertiesFile(){
+		PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
+		Enumeration<?> en = pfm.getKeySet();
+		while(en.hasMoreElements()){
+			String key = (String) en.nextElement();
+			String value = pfm.getProperty(key);
+			outputMap.put(key, value);
 		}
 	}
 	
@@ -139,8 +160,22 @@ public class SettingsManager {
 	public void saveConfiguration(HashMap<String, String>map){
 		outputMap.clear();
 		resetMap(map);
-		ConfigFileHandler handler = new ConfigFileHandler(config);
-		handler.saveSettings(outputMap);
+		saveSettings();
+	}
+	
+	private void saveSettings(){
+		File f = new File(USER_SETTINGS);
+		
+		if(!f.exists())
+			try {
+				f.createNewFile();
+				PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
+				for(Entry<String, String>entry : outputMap.entrySet()){
+					pfm.save(entry.getKey(), entry.getValue());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 	
 	public HashMap<String, String> getMapClone(){

@@ -1,3 +1,10 @@
+
+
+@font-face {
+    font-family: 'MyWebFont';
+    src:  url('Swell_Braille.eot') format('truetype'); /* IE */
+
+ }
 @font-face {
     font-family: 'MyWebFont';
     src:  url('Swell Braille.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */

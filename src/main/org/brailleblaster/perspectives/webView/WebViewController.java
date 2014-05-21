@@ -206,10 +206,14 @@ public class WebViewController extends Controller {
 		String sourcePath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"styles"+BBIni.getFileSep() +"brailstylesheet.css";
 		//write font file
 		String sourceFont=BBIni.getProgramDataPath() + BBIni.getFileSep()+"fonts"+BBIni.getFileSep() +"Swell Braille.ttf";
+		//Write font for IE
+		String sourceIEFont=BBIni.getProgramDataPath() + BBIni.getFileSep()+"fonts"+BBIni.getFileSep() +"Swell_Braille.eot";
 		// write braille css 
 		String sourcePathBraille=BBIni.getProgramDataPath() + BBIni.getFileSep()+"styles"+BBIni.getFileSep() +"ToBraille.css";
 		File source = new File(sourcePath);
 		File sourceFontfile = new File(sourceFont);
+		File sourceFontIEfile = new File(sourceIEFont);
+
 		File sourceBraille = new File(sourcePathBraille);
 
 		
@@ -219,6 +223,8 @@ public class WebViewController extends Controller {
 		try {
 		    FileUtils.copyFileToDirectory(source, desc);
 		    FileUtils.copyFileToDirectory(sourceFontfile, desc);
+		    FileUtils.copyFileToDirectory(sourceFontIEfile, desc);
+
 		    FileUtils.copyFileToDirectory(sourceBraille, desc);
 		} catch (IOException e) {
 		    e.printStackTrace();

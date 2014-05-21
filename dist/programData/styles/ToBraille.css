@@ -10,9 +10,17 @@
     src:  url('Swell Braille.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
 
  }
- body {
+ h1,h2,h3,h4{
+	 font-size: 200% !important;
+ 	
+ }
+ p,li {
   font-family: 'MyWebFont';
-  font-size: 150%;
+  font-size: 300% !important;
+ }
+ body{
+  font-family: 'MyWebFont';
+
  }
 
 h1 {
@@ -20,7 +28,7 @@ h1 {
 text-align: center !important;
 font-family: 'MyWebFont' !important;
 font-weight:normal !important; 
- word-spacing:2em !important;
+ word-spacing:1em !important;
   
 
 }
@@ -30,14 +38,14 @@ h2 {
 text-indent: 4em  !important;
 font-family: 'MyWebFont' !important;
 font-weight:normal !important; 
- word-spacing:2em !important;
+ word-spacing:1em !important;
 
 }
 h3 {
 text-indent: 6em  !important;
 font-family: 'MyWebFont' !important;
 font-weight:normal !important; 
- word-spacing:2em !important;
+ word-spacing:1em !important;
 
 
 }
@@ -45,7 +53,7 @@ h4{
 text-indent: 2em  !important;
 font-family: 'MyWebFont' !important;
 font-weight:normal !important; 
- word-spacing:2em !important;
+ word-spacing:1em !important;
  
 
 
@@ -65,8 +73,8 @@ p {
 	margin-bottom:0% !important;
 	font-family: 'MyWebFont' !important;
 	font-weight:normal !important;
-	 line-height: 7em !important;
-	  word-spacing:2em !important;
+	 line-height: 5em !important;
+	  word-spacing:1em !important;
 	 
  
   }
@@ -76,8 +84,8 @@ p {
 	padding-left: 1.5em !important; 
 	font-family: 'MyWebFont' !important;
   text-indent:-1.5em !important; 
-   line-height: 7em !important;
-    word-spacing:2em !important;
+   line-height: 5em !important;
+    word-spacing:1em !important;
 }
 }
 
@@ -89,8 +97,8 @@ p { font-family: sans-serif;
   margin-bottom:0% !important;
   font-family: 'MyWebFont' !important;
  font-weight:normal !important;
- line-height: 7em !important;
- word-spacing:2em !important;
+ line-height: 5em !important;
+ word-spacing:1em !important;
    }
 
 
@@ -100,8 +108,8 @@ li
     padding-left: 1.5em !important;
 	font-family: 'MyWebFont' !important; 
     text-indent:-1.5em !important; 
-	 line-height: 7em !important;
-	  word-spacing:2em !important;
+	 line-height: 5em !important;
+	  word-spacing:1em !important;
 
 }
 }

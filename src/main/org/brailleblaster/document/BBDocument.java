@@ -150,19 +150,15 @@ public class BBDocument {
 		// Use the default; we don't have a local version.
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		
-		if (configSettings == null) {
+		if (configSettings == null) 
 			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
-		} 
-		else {
+		else 
 			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
-		}
 		
-		if(dm.getWorkingPath() != null){
+		if(dm.getWorkingPath() != null)
 			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);			
-		}
-		else {
+		else 
 			configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
-		}
 		
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";

@@ -2,6 +2,7 @@ package org.brailleblaster.settings.ui;
 
 import java.util.HashMap;
 
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
@@ -44,12 +45,15 @@ public class PagePropertiesTab {
 	Button okButton, cancelButton;
 	
 	boolean listenerLocked;
+	LocaleHandler lh;
+	
 	PagePropertiesTab(TabFolder folder, final SettingsManager sm, HashMap<String, String>settingsMap){
+		lh = new LocaleHandler();
 		this.sm = sm;
 		this.settingsMap = settingsMap;
 		listenerLocked = false;
 		item = new TabItem(folder, 0);	
-		item.setText("Page Properties");
+		item.setText(lh.localValue("pageProperties"));
 		
 		group = new Composite(folder, 0);
 		group.setLayout(new FormLayout());
@@ -57,7 +61,7 @@ public class PagePropertiesTab {
 		setFormLayout(group, 0, 100, 0, 60);
 		
 		sizeGroup = new Group(group, SWT.BORDER);
-		sizeGroup.setText("Page Size");
+		sizeGroup.setText(lh.localValue("pageSize"));
 		sizeGroup.setLayout(new FillLayout());
 		setFormLayout(sizeGroup, 0, 100, 0, 60);
 		
@@ -65,7 +69,7 @@ public class PagePropertiesTab {
 		pageGroup.setLayout(new GridLayout(2, true));
 		
 		pageSizeLabel = new Label(pageGroup, 0);
-		pageSizeLabel.setText("Page Size");
+		pageSizeLabel.setText(lh.localValue("pageSize"));
 		setGridData(pageSizeLabel);
 		
 		pageTypes = new Combo(pageGroup, SWT.NONE);
@@ -74,21 +78,21 @@ public class PagePropertiesTab {
 		setGridData(pageTypes);
 		
 		widthLabel = new Label(pageGroup, 0);
-		widthLabel.setText("Width");
+		widthLabel.setText(lh.localValue("width"));
 		widthBox  = new Text(pageGroup, SWT.BORDER);
 		addDoubleListener(widthBox);
 		setGridData(widthBox);
 		setValue(widthBox, "paperWidth");
 		
 		heightLabel = new Label(pageGroup, 0);
-		heightLabel.setText("Height");
+		heightLabel.setText(lh.localValue("height"));
 		heightBox = new Text(pageGroup, SWT.BORDER);
 		addDoubleListener(heightBox);
 		setGridData(heightBox);
 		setValue(heightBox, "paperHeight");
 		
 		linesPerPageLabel = new Label(pageGroup, 0);
-		linesPerPageLabel.setText("Lines Per Page");
+		linesPerPageLabel.setText(lh.localValue("linesPerPage"));
 		
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
@@ -96,7 +100,7 @@ public class PagePropertiesTab {
 		linesBox.setEditable(false);
 		
 		cellsPerLineLabel = new Label(pageGroup, 0);
-		cellsPerLineLabel.setText("Cells Per Line");
+		cellsPerLineLabel.setText(lh.localValue("cellsPerLine"));
 		
 		cellsBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(cellsBox);
@@ -105,11 +109,11 @@ public class PagePropertiesTab {
 		
 		marginGroup = new Group(group, SWT.BORDER);
 		marginGroup.setLayout(new GridLayout(2, true));
-		marginGroup.setText("Margins");
+		marginGroup.setText(lh.localValue("margins"));
 		setFormLayout(marginGroup, 0, 100, 60, 100);
 		
 		marginTopLabel = new Label(marginGroup, 0);
-		marginTopLabel.setText("Top Margin");
+		marginTopLabel.setText(lh.localValue("topMargin"));
 		marginTopBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginTopBox);
 		setGridData(marginTopBox);
@@ -117,7 +121,7 @@ public class PagePropertiesTab {
 		addMarginListener(marginTopBox, "topMargin");
 		
 		marginBottomLabel = new Label(marginGroup, 0);
-		marginBottomLabel.setText("Bottom Margin");
+		marginBottomLabel.setText(lh.localValue("bottomMargin"));
 		marginBottomBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginBottomBox);
 		setGridData(marginBottomBox);
@@ -125,7 +129,7 @@ public class PagePropertiesTab {
 		addMarginListener(marginBottomBox, "bottomMargin");
 		
 		marginLeftLabel= new Label(marginGroup, 0);
-		marginLeftLabel.setText("Left Margin");
+		marginLeftLabel.setText(lh.localValue("leftMargin"));
 		marginLeftBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginLeftBox);
 		setGridData(marginLeftBox);
@@ -133,7 +137,7 @@ public class PagePropertiesTab {
 		addMarginListener(marginLeftBox, "leftMargin");
 		
 		marginRightLabel = new Label(marginGroup, 0);
-		marginRightLabel.setText("Right Margin");
+		marginRightLabel.setText(lh.localValue("rightMargin"));
 		marginRightBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginRightBox);
 		setGridData(marginRightBox);
@@ -169,7 +173,7 @@ public class PagePropertiesTab {
 					Double margin = getDoubleValue(t);
 	
 					if(margin >= getDoubleValue(widthBox) || (getDoubleValue(marginLeftBox) + getDoubleValue(marginRightBox) >= getDoubleValue(widthBox))){
-						new Notify("Margin cannot be greater than page width or cross opposite margin");
+						new Notify(lh.localValue("incorrectMarginWidth"));
 						t.setText(settingsMap.get(type));
 					}
 					else {
@@ -187,7 +191,7 @@ public class PagePropertiesTab {
 					Double margin =  getDoubleValue(t);
 					
 					if(margin >= Double.valueOf(heightBox.getText()) || (getDoubleValue(marginTopBox) + getDoubleValue(marginBottomBox) >= getDoubleValue(widthBox))){
-						new Notify("Margin cannot be greater than page height or cross opposite margin");
+						new Notify(lh.localValue("incorectMarginHeight"));
 						t.setText(settingsMap.get(type));
 					}
 					else {
@@ -233,7 +237,7 @@ public class PagePropertiesTab {
 			public void keyTraversed(TraverseEvent e) {
 				if(getDoubleValue(widthBox) == 0){
 					if(e.keyCode == SWT.TAB){
-						new Notify("Paper Width cannot be zero");
+						new Notify(lh.localValue("widthZero"));
 						e.doit = false;
 					}
 				}
@@ -245,7 +249,7 @@ public class PagePropertiesTab {
 			public void keyTraversed(TraverseEvent e) {
 				if(getDoubleValue(heightBox) == 0){
 					if(e.keyCode == SWT.TAB){
-						new Notify("Paper Height cannot be zero");
+						new Notify(lh.localValue("heightZero"));
 						e.doit = false;
 					}
 				}
@@ -307,7 +311,7 @@ public class PagePropertiesTab {
 					linesBox.setText(String.valueOf(calculateCellsPerLine(p.height)));
 				}
 				
-				if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals("Custom"))
+				if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
 					pageTypes.remove(pageTypes.getItemCount() - 1);
 			}
 		});
@@ -350,14 +354,14 @@ public class PagePropertiesTab {
 						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
 					}
 					
-					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals("Custom"))
+					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
 						pageTypes.remove(pageTypes.getItemCount() - 1);
 				}
 			}
 	
 			if(!found){
 				if(pageTypes.getItemCount() == sm.getStandardSizes().length){
-					pageTypes.add("Custom");
+					pageTypes.add(lh.localValue("custom"));
 					pageTypes.select(pageTypes.getItemCount() - 1);
 				}
 				else

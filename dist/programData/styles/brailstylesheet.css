@@ -2,28 +2,29 @@ h1 {
 
 text-align: center !important;
 text-transform: uppercase !important;
+font-weight:normal !important; 
 
 }
 
 h2 {
 
 text-indent: 4em  !important;
+font-weight:normal !important; 
 
 }
 h3 {
 text-indent: 6em  !important;
+font-weight:normal !important; 
 
 }
 h4{
 text-indent: 2em  !important;
+font-weight:normal !important; 
 
 
 }
 
-img {
 
-
-}
 
 
 
@@ -39,6 +40,7 @@ p {
 	text-indent: 2em  !important; 
 	margin-top:0% !important; 
 	margin-bottom:0% !important;
+	font-weight:normal !important; 
   }
  li
 {
@@ -53,7 +55,8 @@ p {
 p { font-family: sans-serif; 
   text-indent: 2em  !important;
   margin-top:0% !important; 
-  margin-bottom:0% !important; }
+  margin-bottom:0% !important;
+ font-weight:normal !important;  }
 
 
 li

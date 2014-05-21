@@ -22,7 +22,8 @@ public class WebViewMenu extends BBMenu{
 	
 	private final int MENU_INDEX = 2;
 	WebViewController currentController;
-	MenuItem openItem,closeItem;;
+	MenuItem openItem,closeItem,printItem;
+	MenuItem brailleView,textView;
 
 	/**
 	 * constructor
@@ -63,9 +64,29 @@ public class WebViewMenu extends BBMenu{
 			}		
 		});
 
+		printItem = new MenuItem(fileMenu, SWT.PUSH, 2);
+		printItem.setText(lh.localValue("&Print") + "\t" + lh.localValue("Ctrl + P"));
+		printItem.setAccelerator(SWT.MOD1 + 'P');
+		printItem.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
 
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();				
+				Controller temp = currentController;
 
-		closeItem = new MenuItem(fileMenu, SWT.PUSH, 2);
+				if(count > 0){
+					currentController.vb.printPage();
+					
+				}
+						
+			}
+		});
+
+		closeItem = new MenuItem(fileMenu, SWT.PUSH, 3);
 		closeItem.setText(lh.localValue("&Close") + "\t" + lh.localValue("Ctrl + W"));
 		closeItem.setAccelerator(SWT.MOD1 + 'W');
 		closeItem.addSelectionListener(new SelectionListener(){
@@ -88,6 +109,55 @@ public class WebViewMenu extends BBMenu{
 					setCurrent(null);	
 			}
 		});
+		// Add braille view to view menu
+		brailleView = new MenuItem(viewMenu, SWT.PUSH, 1);
+		brailleView.setText(lh.localValue("&Braille View") + "\t" + lh.localValue("Ctrl + b"));
+		brailleView.setAccelerator(SWT.MOD1 + 'b');
+		brailleView.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();
+				if(count > 0){
+					currentController.vb.lockBraille=false;
+					currentController.vb.showBraille(currentController.vb.index);
+					
+				}
+	
+			}
+		});
+		
+		
+		// Add braille view to view menu
+		textView = new MenuItem(viewMenu, SWT.PUSH, 2);
+		textView.setText(lh.localValue("&Text View") + "\t" + lh.localValue("Ctrl + t"));
+		textView.setAccelerator(SWT.MOD1 + 't');
+		textView.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();
+				if(count > 0){
+					currentController.vb.lockBraille=true;
+					currentController.vb.showContents(currentController.vb.index);
+					
+				}
+	
+			}
+		});
+		
+		
+		
+		
+		
 	}
 
 	//public WebViewMenu(WPManager wp, WebViewController controller) {

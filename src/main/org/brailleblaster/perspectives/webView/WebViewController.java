@@ -35,7 +35,7 @@ public class WebViewController extends Controller {
 
 
 	//Archiver arch ;
-	webViewBrowser vb=null;
+	public webViewBrowser vb=null;
     webViewDocument webDoc;
 	int index=0;
 	String currentPath;
@@ -56,7 +56,7 @@ public class WebViewController extends Controller {
 			arch = ArchiverFactory.getArchive(templateFile);
 		else
 			reuseTab(currentPath);
-		
+		webDoc = new webViewDocument(this);
 	}
 	/**
 	 * constructor : come to this constructor when changing between perspectives
@@ -106,6 +106,7 @@ public class WebViewController extends Controller {
 			currentPath = archFileName;
 			currentConfig = "epub.cfg";
 			// write css file in directory of the book
+			//webDoc.startDocument(archFileName, currentConfig, null);
 			writeCss(archFileName);
 		}
 
@@ -120,8 +121,40 @@ public class WebViewController extends Controller {
 		String str = null;
 		if(arch instanceof EPub3Archiver)
 			str=((EPub3Archiver)arch).getSpineFilePath(index);
+
 		return str;
 
+	}
+	
+	/**
+	 * Get Chapter of Braille
+	 */
+	public String getBraille(int index)
+	{
+		String path = null;
+		String src=null;
+		String dir=null;
+		File srcFile;
+		// get translation from document class
+		webDoc.deleteDOM();
+		webDoc.startDocument(getChapter(index), currentConfig, null);
+		// braille translation is in outFile.utd
+		src = BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
+		// create file
+		srcFile=new File(src);
+		// copy utd file to .xml file  
+		path = src.replace(".utd", ".xml");
+		File desc = new File(path);
+		// copy .xml file to directory of the epub book
+		dir=currentPath.replace("temp.xml", "");
+		File direct = new File(dir);
+		try {
+			FileUtils.copyFile(srcFile, desc);
+			FileUtils.copyFileToDirectory(desc, direct);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return dir + "outFile.xml";
 	}
 	/**
 	 * @return size of epub book
@@ -171,12 +204,22 @@ public class WebViewController extends Controller {
 	public void writeCss(String path)
 	{
 		String sourcePath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"styles"+BBIni.getFileSep() +"brailstylesheet.css";
+		//write font file
+		String sourceFont=BBIni.getProgramDataPath() + BBIni.getFileSep()+"fonts"+BBIni.getFileSep() +"Swell Braille.ttf";
+		// write braille css 
+		String sourcePathBraille=BBIni.getProgramDataPath() + BBIni.getFileSep()+"styles"+BBIni.getFileSep() +"ToBraille.css";
 		File source = new File(sourcePath);
+		File sourceFontfile = new File(sourceFont);
+		File sourceBraille = new File(sourcePathBraille);
+
+		
 		//remove temp.xml from the path and go to its directory
 		path=path.replace("temp.xml", "");
 		File desc = new File(path);
 		try {
 		    FileUtils.copyFileToDirectory(source, desc);
+		    FileUtils.copyFileToDirectory(sourceFontfile, desc);
+		    FileUtils.copyFileToDirectory(sourceBraille, desc);
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}
@@ -209,6 +252,7 @@ public class WebViewController extends Controller {
 		if(webDoc == null){
 			 this.webDoc = new webViewDocument(this);
 		     webDoc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
+		     
 		}
 		return webDoc.getDOM();
 		//return null;
@@ -248,6 +292,11 @@ public class WebViewController extends Controller {
 		}   
 
 
+	}
+	
+	public  String returnPathJQuery(){
+		return BBIni.getProgramDataPath() + BBIni.getFileSep()+"reader"+BBIni.getFileSep();
+		
 	}
 
 

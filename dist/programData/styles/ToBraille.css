@@ -1,0 +1,100 @@
+@font-face {
+    font-family: 'MyWebFont';
+    src:  url('Swell Braille.ttf') format('truetype'); /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+
+ }
+ body {
+  font-family: 'MyWebFont';
+  font-size: 150%;
+ }
+
+h1 {
+
+text-align: center !important;
+font-family: 'MyWebFont' !important;
+font-weight:normal !important; 
+ word-spacing:2em !important;
+  
+
+}
+
+h2 {
+
+text-indent: 4em  !important;
+font-family: 'MyWebFont' !important;
+font-weight:normal !important; 
+ word-spacing:2em !important;
+
+}
+h3 {
+text-indent: 6em  !important;
+font-family: 'MyWebFont' !important;
+font-weight:normal !important; 
+ word-spacing:2em !important;
+
+
+}
+h4{
+text-indent: 2em  !important;
+font-family: 'MyWebFont' !important;
+font-weight:normal !important; 
+ word-spacing:2em !important;
+ 
+
+
+}
+
+
+.-epub-media-overlay-active {
+    background-color: #abc;
+}
+
+
+@media all and (orientation:portrait) {
+p { 
+	font-family: serif;
+	text-indent: 2em  !important; 
+	margin-top:0% !important; 
+	margin-bottom:0% !important;
+	font-family: 'MyWebFont' !important;
+	font-weight:normal !important;
+	 line-height: 7em !important;
+	  word-spacing:2em !important;
+	 
+ 
+  }
+ li
+{
+
+	padding-left: 1.5em !important; 
+	font-family: 'MyWebFont' !important;
+  text-indent:-1.5em !important; 
+   line-height: 7em !important;
+    word-spacing:2em !important;
+}
+}
+
+
+@media all and (orientation:landscape) {
+p { font-family: sans-serif; 
+  text-indent: 2em  !important;
+  margin-top:0% !important; 
+  margin-bottom:0% !important;
+  font-family: 'MyWebFont' !important;
+ font-weight:normal !important;
+ line-height: 7em !important;
+ word-spacing:2em !important;
+   }
+
+
+li
+{
+
+    padding-left: 1.5em !important;
+	font-family: 'MyWebFont' !important; 
+    text-indent:-1.5em !important; 
+	 line-height: 7em !important;
+	  word-spacing:2em !important;
+
+}
+}

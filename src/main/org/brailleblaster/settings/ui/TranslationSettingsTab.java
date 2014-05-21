@@ -13,6 +13,7 @@ import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.settings.Table;
 import org.brailleblaster.settings.TranslationConfiguration;
@@ -42,11 +43,12 @@ public class TranslationSettingsTab {
 	Label langLabel, typeLabel, computerLabel, mathLabel;
 	Combo languageCombo, typeCombo, computerCombo, mathCombo;
 	Button math;
-	
+	LocaleHandler lh;
 	TranslationSettingsTab(TabFolder folder, SettingsManager ppm, final HashMap<String, String>tempSettingsMap){
+		lh = new LocaleHandler();
 		settingsMap = tempSettingsMap;
 		item = new TabItem(folder, 0);	
-		item.setText("Translation Settings");
+		item.setText(lh.localValue("translationSettings"));
 		
 		composite = new Composite(folder, SWT.BORDER);
 		composite.setLayout(new FillLayout(SWT.VERTICAL));
@@ -54,7 +56,7 @@ public class TranslationSettingsTab {
 		
 		langGroup = new Group(composite, 0);
 		langGroup.setLayout(new GridLayout(2, true));
-		langGroup.setText("Select Language");
+		langGroup.setText(lh.localValue("selectLanguage"));
 		langLabel = new Label(langGroup, 0);
 		langLabel.setText("Languages");
 		setGridData(langLabel);
@@ -63,20 +65,20 @@ public class TranslationSettingsTab {
 		
 		typeGroup = new Group(composite, 0);
 		typeGroup.setLayout(new GridLayout(2, true));
-		typeGroup.setText("Select Braille Type");
+		typeGroup.setText(lh.localValue("selectType"));
 		
 		typeLabel = new Label(typeGroup, 0);
-		typeLabel.setText("Braille Type");
+		typeLabel.setText(lh.localValue("brailleType"));
 		setGridData(typeLabel);
 		typeCombo = new Combo(typeGroup, SWT.READ_ONLY);
 		setGridData(typeCombo);
 		
 		computerGroup = new Group(composite,0);
-		computerGroup.setText("Select Computer Braille");
+		computerGroup.setText(lh.localValue("selectComputerBraille"));
 		computerGroup.setLayout(new GridLayout(2, true));
 		
 		computerLabel = new Label(computerGroup, 0);
-		computerLabel.setText("Braille Type");
+		computerLabel.setText(lh.localValue("brailleType"));
 		setGridData(computerLabel);
 		
 		computerCombo = new Combo(computerGroup, SWT.READ_ONLY);

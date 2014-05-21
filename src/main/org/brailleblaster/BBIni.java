@@ -107,7 +107,6 @@ public final class BBIni {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
 		platformName = SWT.getPlatform();
-	//	LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
 		osName = System.getProperty("os.name");

@@ -2,6 +2,7 @@ package org.brailleblaster.settings.ui;
 
 import java.util.HashMap;
 
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.Notify;
@@ -29,8 +30,9 @@ public class ConfigPanel {
 	Button okButton, cancelButton;
 	
 	public ConfigPanel(final SettingsManager sm, final Manager m){
+		LocaleHandler lh = new LocaleHandler();
 		shell = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.TITLE | SWT.MIN);
-		shell.setText("Settings");
+		shell.setText(lh.localValue("settings"));
 		shell.setLayout(new FormLayout());
 		setPanelSize();
 		
@@ -42,7 +44,7 @@ public class ConfigPanel {
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		
 		okButton = new Button(shell, SWT.PUSH);
-		okButton.setText("OK");
+		okButton.setText(lh.localValue(lh.localValue("buttonOk")));
 		setFormLayout(okButton, 50, 75, 94, 100);
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override

@@ -741,6 +741,7 @@ public class TextView extends WPView {
 		int start = 0;
 		int end = 0;
 		int totalLength = 0;
+		
 		try {
 			if(brl != null){
 				int[] indexes = getIndexArray(brl);

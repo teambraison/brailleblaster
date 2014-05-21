@@ -10,6 +10,11 @@ newentries no
 markhead head
 document book
 
+#xpath
+namespaces dsy=http://www.daisy.org/z3986/2005/dtbook/
+
+no &xpath(//dsy:li/dsy:p)
+
 # section elements
 # these are mostly here for debugging and reference
 no frontmatter

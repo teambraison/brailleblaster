@@ -71,11 +71,12 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createInsertNodeMessage(boolean split, boolean atStart, boolean atEnd){
+	public static Message createInsertNodeMessage(boolean split, boolean atStart, boolean atEnd, String elementName){
 		Message m = new Message(BBEvent.INSERT_NODE);
 		m.put("split", split);
 		m.put("atStart", atStart);
 		m.put("atEnd", atEnd);
+		m.put("elementName", elementName);
 		
 		return m;
 	}

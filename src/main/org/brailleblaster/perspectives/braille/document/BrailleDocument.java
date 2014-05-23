@@ -83,8 +83,9 @@ public class BrailleDocument extends BBDocument {
 		message.put("brailleLength", total);
 	}
 	
-	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index){
-		Element p = makeElement("p", "semantics", "style,para");
+	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
+		String type = this.semHandler.getDefault(elem);
+		Element p = makeElement(elem, "semantics", "style," + type);
 		p.appendChild(new Text(""));
 		
 		Element parent = current.parentElement();

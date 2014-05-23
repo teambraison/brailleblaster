@@ -167,12 +167,12 @@ public class TextView extends WPView {
 					}
 					
 					if(atEnd) {
-						Message m = Message.createInsertNodeMessage(false, false, true);
+						Message m = Message.createInsertNodeMessage(false, false, true,"p");
 						insertNewNode(m, currentEnd);			
 						e.doit = false;	
 					}
 					else if(atStart){
-						Message m = Message.createInsertNodeMessage(false, true, false);
+						Message m = Message.createInsertNodeMessage(false, true, false,"p");
 						insertNewNode(m, null);						
 						e.doit = false;
 					}
@@ -180,11 +180,11 @@ public class TextView extends WPView {
 						Message m;
 						int origLength =  getString(currentStart, view.getCaretOffset() - currentStart).length();
 						if(view.getCaretOffset() == currentEnd)
-							m = Message.createInsertNodeMessage(true, false, true);
+							m = Message.createInsertNodeMessage(true, false, true,"p");
 						else if(view.getCaretOffset() == currentStart)
-							m = Message.createInsertNodeMessage(true, true, false);
+							m = Message.createInsertNodeMessage(true, true, false,"p");
 						else
-							m = Message.createInsertNodeMessage(true, false, false);
+							m = Message.createInsertNodeMessage(true, false, false,"p");
 							
 						m.put("originalLength", origLength);
 						m.put("length", originalEnd - originalStart);
@@ -1507,8 +1507,8 @@ public class TextView extends WPView {
 		}
 	}
 	
-	public void insertNewNode(int pos){
-		Message m = Message.createInsertNodeMessage(false, false, true);
+	public void insertNewNode(int pos,String elementName){
+		Message m = Message.createInsertNodeMessage(false, false, true,elementName);
 		
 		if(pos > currentEnd){
 			view.setCaretOffset(pos);

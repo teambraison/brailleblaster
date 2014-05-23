@@ -670,7 +670,8 @@ public class BrailleMenu extends BBMenu{
 			// Set up insert menu
 			Menu insertMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 			insertTRItem = new MenuItem(insertMenu, SWT.PUSH);
-			insertTRItem.setText(lh.localValue("transcriberNote"));
+			insertTRItem.setText(lh.localValue("transcriberNote"  + "\tCtrl + 't'"));
+			insertTRItem.setAccelerator(SWT.MOD1 + 't');
 			insertTRItem.addSelectionListener(new SelectionAdapter(){
 				@Override
 				public void widgetSelected(SelectionEvent e) {

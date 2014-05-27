@@ -86,6 +86,12 @@ public class BrailleDocument extends BBDocument {
 	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
+		//Add new attribute
+		if (elem.equalsIgnoreCase("prodnote")){
+			p.addAttribute(new Attribute("render", "optional"));
+			p.addAttribute(new Attribute("showin", "b"));
+			p.addAttribute(new Attribute("class", "utd-trnote"));
+		}
 		p.appendChild(new Text(""));
 		
 		Element parent = current.parentElement();

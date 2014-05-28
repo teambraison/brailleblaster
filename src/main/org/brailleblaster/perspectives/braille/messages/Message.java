@@ -77,7 +77,6 @@ public class Message {
 		m.put("atStart", atStart);
 		m.put("atEnd", atEnd);
 		m.put("elementName", elementName);
-
 		
 		return m;
 	}

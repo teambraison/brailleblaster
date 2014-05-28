@@ -70,6 +70,7 @@ public class MapList extends LinkedList<TextMapElement>{
 					}
 				}
 			}
+			
 		}
 	}
 	
@@ -106,12 +107,10 @@ public class MapList extends LinkedList<TextMapElement>{
 					return mid + 1;
 				}
 				
-				if(mid == nodeIndex){
+				if(mid == nodeIndex)
 					return mid;
-				}
-				else if( mid + 1 == nodeIndex) {
+				else if( mid + 1 == nodeIndex) 
 					return mid + 1;
-				}
 			}
 			else if(location == currentElement.start && location == this.get(mid - 1).end){
 				if(checkForSpace(mid - 1)){
@@ -135,21 +134,17 @@ public class MapList extends LinkedList<TextMapElement>{
 				return mid + 1;
 			}
 			else {
-				if(mid == nodeIndex){
+				if(mid == nodeIndex)
 					return mid;
-				}
-				else if( mid + 1 == nodeIndex) {
+				else if( mid + 1 == nodeIndex) 
 					return mid + 1;
-				}
-				else {
+				else
 					return mid;
-				}
 			}
 		}
 			
-		if(low > high){
+		if(low > high)
 			return -1;
-		}
 		else if(location < this.get(mid).start)
 			return findClosest(message, low, mid - 1);
 		else
@@ -195,15 +190,12 @@ public class MapList extends LinkedList<TextMapElement>{
 					return i;
 				}
 				else {
-					if(i == nodeIndex){
+					if(i == nodeIndex)
 						return i;
-					}
-					else if( i + 1 == nodeIndex) {
+					else if( i + 1 == nodeIndex) 
 						return i + 1;
-					}
-					else {
+					else 
 						return i;
-					}
 				}
 			}
 		}
@@ -222,12 +214,10 @@ public class MapList extends LinkedList<TextMapElement>{
 		int start = index + 1;
 
 		for(int i = 0; i < arr.length; i++){
-			if(i == arr.length - 1){
+			if(i == arr.length - 1)
 				arr[i] = new UpdaterThread(this, start, this.size(), offset, total);
-			}
-			else {	
+			else 
 				arr[i] = new UpdaterThread(this, start, start + length , offset, total);
-			}
 			
 			arr[i].start();
 			start += length;
@@ -250,12 +240,10 @@ public class MapList extends LinkedList<TextMapElement>{
 		int start = index;
 
 		for(int i = 0; i < arr.length; i++){
-			if(i == arr.length - 1){
+			if(i == arr.length - 1)
 					arr[i] = new UpdaterThread(this, start, this.size(), offset, brailleOffset);
-			}
-			else {	
+			else 
 					arr[i] = new UpdaterThread(this, start, start + length , offset, brailleOffset);
-			}
 			
 			arr[i].start();
 			start += length;

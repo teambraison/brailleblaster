@@ -11,11 +11,10 @@
 
  }
  h1,h2,h3,h4{
-	 font-size: 200% !important;
+	 font-size: 250% !important;
  	
  }
  p,li {
-  font-family: 'MyWebFont';
   font-size: 300% !important;
  }
  body{
@@ -26,9 +25,6 @@
 h1 {
 
 text-align: center !important;
-font-family: 'MyWebFont' !important;
-font-weight:normal !important; 
- word-spacing:1em !important;
   
 
 }
@@ -36,26 +32,14 @@ font-weight:normal !important;
 h2 {
 
 text-indent: 4em  !important;
-font-family: 'MyWebFont' !important;
-font-weight:normal !important; 
- word-spacing:1em !important;
 
 }
 h3 {
 text-indent: 6em  !important;
-font-family: 'MyWebFont' !important;
-font-weight:normal !important; 
- word-spacing:1em !important;
-
 
 }
 h4{
 text-indent: 2em  !important;
-font-family: 'MyWebFont' !important;
-font-weight:normal !important; 
- word-spacing:1em !important;
- 
-
 
 }
 
@@ -64,17 +48,21 @@ font-weight:normal !important;
     background-color: #abc;
 }
 
+h1,h2,h3,h4,p,l{
+	font-family: 'MyWebFont' !important;
+	font-weight:normal !important;
+	line-height: 2em !important;
+	word-spacing:0.3em !important;
+	
+}
 
 @media all and (orientation:portrait) {
 p { 
-	font-family: serif;
+	
 	text-indent: 2em  !important; 
 	margin-top:0% !important; 
 	margin-bottom:0% !important;
-	font-family: 'MyWebFont' !important;
-	font-weight:normal !important;
-	 line-height: 5em !important;
-	  word-spacing:1em !important;
+
 	 
  
   }
@@ -82,34 +70,28 @@ p {
 {
 
 	padding-left: 1.5em !important; 
-	font-family: 'MyWebFont' !important;
-  text-indent:-1.5em !important; 
-   line-height: 5em !important;
-    word-spacing:1em !important;
+    text-indent:-1.5em !important; 
+
 }
 }
 
 
 @media all and (orientation:landscape) {
-p { font-family: sans-serif; 
+p {
+	 
   text-indent: 2em  !important;
   margin-top:0% !important; 
   margin-bottom:0% !important;
-  font-family: 'MyWebFont' !important;
- font-weight:normal !important;
- line-height: 5em !important;
- word-spacing:1em !important;
-   }
+ 
+  }
 
 
 li
 {
 
     padding-left: 1.5em !important;
-	font-family: 'MyWebFont' !important; 
     text-indent:-1.5em !important; 
-	 line-height: 5em !important;
-	  word-spacing:1em !important;
+
 
 }
 }

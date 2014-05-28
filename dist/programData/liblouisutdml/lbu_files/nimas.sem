@@ -50,7 +50,7 @@ generic linegroup
 line line
 line byline
 line dateline
-para prodnote
+trnote prodnote
 italicx dfn
 italicx kbd
 italicx em

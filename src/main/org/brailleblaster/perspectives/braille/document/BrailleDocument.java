@@ -86,9 +86,14 @@ public class BrailleDocument extends BBDocument {
 	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
-
+		//Add new attribute
+		if (elem.equalsIgnoreCase("prodnote")){
+			p.addAttribute(new Attribute("render", "optional"));
+			p.addAttribute(new Attribute("showin", "b"));
+			p.addAttribute(new Attribute("class", "utd-trnote"));
+		}
 		p.appendChild(new Text(""));
-		System.out.println(p.toXML().toString());
+		
 		Element parent = current.parentElement();
 		int nodeIndex = 0;
 		if(table.getSemanticTypeFromAttribute(parent).equals("style")){
@@ -362,8 +367,7 @@ public class BrailleDocument extends BBDocument {
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
 			}
 			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
-			
-			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings, 0)){
+			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
 				return outlength[0];
 			}
 			else {

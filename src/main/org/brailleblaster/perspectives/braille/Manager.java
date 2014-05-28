@@ -147,11 +147,15 @@ public class Manager extends Controller {
 			openDocument(docName);
 		else {
 			docCount++;
-			arch = ArchiverFactory.getArchive(templateFile);
+			arch = ArchiverFactory.getArchive( templateFile);
+			resetConfiguations();
 			initializeAllViews(docName, templateFile, null);
 			formatTemplateDocument();
 			setTabTitle(docName);
 		}				
+		
+		if(BBIni.getPlatformName().equals("cocoa"))
+			treeView.getTree().select(treeView.getRoot());
 	}
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
@@ -194,6 +198,9 @@ public class Manager extends Controller {
 		group.setRedraw(true);
 		if(list.size() == 0)
 			formatTemplateDocument();
+		
+		if(BBIni.getPlatformName().equals("cocoa"))
+			treeView.getTree().select(treeView.getRoot());
 	}	
 	
 
@@ -264,7 +271,14 @@ public class Manager extends Controller {
 	
 	public void openDocument(String fileName){	
 		// Create archiver and massage document if necessary.
+		String config = ""; 
+		if(arch != null)
+			config = arch.getCurrentConfig();
+		
 		arch = ArchiverFactory.getArchive(fileName);
+		
+		if(!config.equals(arch.getCurrentConfig()))
+			resetConfiguations();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
@@ -356,10 +370,12 @@ public class Manager extends Controller {
 		}
 		
 		for(int i = 0; i < current.getChildCount(); i++){
-			if(current.getChild(i) instanceof Element)
+			if(current.getChild(i) instanceof Element){
 				initializeBraille(current.getChild(i), t);
-			else 
+			}
+			else {
 				initializeBraille(current.getChild(i), t);
+			}
 		}
 	}
 	
@@ -526,12 +542,10 @@ public class Manager extends Controller {
 		int currentLine = text.view.getLineAtOffset(list.getCurrent().start);
 		int topIndex = text.view.getTopIndex();
 		
-		if(currentLine >= topIndex && currentLine <= (topIndex + totalLines - 1)){
+		if(currentLine >= topIndex && currentLine <= (topIndex + totalLines - 1))
 			return true;
-		}
-		else {
+		else 
 			return false;
-		}
 	}
 	
 	private void handleGetCurrent(Message message){
@@ -637,12 +651,14 @@ public class Manager extends Controller {
 		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
 
 		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++)
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
 				insertionString += "\n";
+			}
 		}
 		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++)
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
 				insertionString += "\n";
+			}
 		}
 		else {
 			insertionString = "\n";
@@ -726,7 +742,6 @@ public class Manager extends Controller {
 	
 	private void insertElementAtEnd(Message m){
 		int origPos = list.getCurrent().start;
-
 		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
 		if(list.size() - 1 != list.getCurrentIndex() + 1)
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
@@ -747,8 +762,7 @@ public class Manager extends Controller {
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
 			
 		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
-			
-		
+
 			
 		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
 		Styles style = styles.get("trnote");
@@ -951,11 +965,12 @@ public class Manager extends Controller {
 		PrintDialog embosser = new PrintDialog(shell);
 		PrinterData data = embosser.open();
 		
-		if (data == null || data.equals("")) 
+		if (data == null || data.equals("")) {
 			return;
+		}
 		
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
-		if(this.document.createBrlFile(filePath)){
+		if(document.createBrlFile(filePath)){
 			File translatedFile = new File(filePath);
 			PrinterDevice embosserDevice;
 			try {
@@ -970,8 +985,9 @@ public class Manager extends Controller {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0)
+		if(braille.view.getCharCount() > 0){
 			new PrintPreview(this.getDisplay(), document, this);
+		}
 	}
 	
 	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
@@ -986,8 +1002,9 @@ public class Manager extends Controller {
 				currentOffset = text.view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount())
+				if(currentOffset < text.view.getCharCount()){
 					text.view.setCaretOffset(currentOffset);
+				}
 				else
 					text.view.setCaretOffset(0);
 			
@@ -1098,11 +1115,12 @@ public class Manager extends Controller {
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
 			treeView.adjustLayout(false);
-			if(list.size() == 0)
+			if(list.size() == 0){
 				sm.displayTable(null);
-			else 
+			}
+			else {
 				sm.displayTable(list.getCurrent());
-			
+			}
 			setTabList();
 		}
 		else {
@@ -1156,16 +1174,17 @@ public class Manager extends Controller {
 	
 	public void closeUntitledTab(){
 		document.deleteDOM();
-		if(!arch.getCurrentConfig().equals(BBIni.getDefaultConfigFile())){
-			document.resetBBDocument(arch.getCurrentConfig());
-			styles.resetStyleTable(arch.getCurrentConfig());
-			sm.getStyleTable().resetTable(arch.getCurrentConfig());
-		}
 		treeView.removeListeners();
 		treeView.clearTree();
 		text.removeListeners();
 		braille.removeListeners();
 		list.clearList();	
+	}
+	
+	private void resetConfiguations(){
+		document.resetBBDocument(arch.getCurrentConfig());
+		styles.resetStyleTable(arch.getCurrentConfig());
+		sm.getStyleTable().resetTable(arch.getCurrentConfig());
 	}
 	
 	private void startProgressBar(){
@@ -1382,7 +1401,7 @@ public class Manager extends Controller {
 	public FontManager getFontManager(){
 		return fontManager;
 	}
-		
+	
 	public StyledText getTextView(){
 		return text.view;
 	}
@@ -1495,11 +1514,11 @@ public class Manager extends Controller {
 	//adds or tracks a text node for a blank document when user starts 
 	private void formatTemplateDocument(){
 		Nodes n = document.query("/*[1]/*[2]");
-		
+			
 		if(n.get(0).getChildCount() > 0){
 			if(n.get(0).getChild(0).getChildCount() == 0)
 				((Element)n.get(0).getChild(0)).appendChild(new Text(""));
-			
+				
 			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
 		}
 		else {

@@ -35,7 +35,6 @@ package org.brailleblaster.perspectives.braille;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
-
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -702,9 +700,9 @@ public class Manager extends Controller {
 	private void insertElementAtBeginning(Message m){
 		int origPos = list.getCurrent().start;
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			document.insertEmptyTextNode(list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex());
+			document.insertEmptyTextNode(list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
 		else
-			document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex());
+			document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
 			if(list.getCurrentIndex() == 0)
@@ -728,7 +726,8 @@ public class Manager extends Controller {
 	
 	private void insertElementAtEnd(Message m){
 		int origPos = list.getCurrent().start;
-		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1);
+
+		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
 		if(list.size() - 1 != list.getCurrentIndex() + 1)
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
 		
@@ -747,10 +746,9 @@ public class Manager extends Controller {
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
 			
-		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end);
+		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
 			
-		Element e = list.getCurrent().parentElement();
-		e.addAttribute(new Attribute("class", "trNote"));
+		
 			
 		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
 		Styles style = styles.get("trnote");

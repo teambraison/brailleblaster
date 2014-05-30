@@ -11,11 +11,11 @@
 
  }
  h1,h2,h3,h4{
-	 font-size: 250% !important;
+	 font-size: 180% !important;
  	
  }
  p,li {
-  font-size: 300% !important;
+  font-size: 200% !important;
  }
  body{
   font-family: 'MyWebFont';
@@ -52,7 +52,7 @@ h1,h2,h3,h4,p,l{
 	font-family: 'MyWebFont' !important;
 	font-weight:normal !important;
 	line-height: 2em !important;
-	word-spacing:0.3em !important;
+	word-spacing:0.2em !important;
 	
 }
 

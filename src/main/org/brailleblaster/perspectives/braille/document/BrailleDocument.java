@@ -89,7 +89,7 @@ public class BrailleDocument extends BBDocument {
 		//Add new attribute
 		if (elem.equalsIgnoreCase("prodnote")){
 			p.addAttribute(new Attribute("render", "optional"));
-			p.addAttribute(new Attribute("showin", "b"));
+			p.addAttribute(new Attribute("showin", "bxx"));
 			p.addAttribute(new Attribute("class", "utd-trnote"));
 		}
 		p.appendChild(new Text(""));

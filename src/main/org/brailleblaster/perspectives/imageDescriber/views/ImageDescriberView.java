@@ -49,9 +49,6 @@ public class ImageDescriberView {
 	int clientWidth = -1;
 	int clientHeight = -1;
 	
-	// True if usr hit okay. False if cancel.
-	boolean msgBxBool = false;
-	
 	ImageDescriber imgDesc;
 	ImageDescriberController idd;
 	Group group;
@@ -84,7 +81,6 @@ public class ImageDescriberView {
 	// Creates all buttons, boxes, checks, etc.
 	public void createUIelements()
 	{
-		
 		// Create previous button.
 		prevBtn = new Button(group, SWT.PUSH);
 		prevBtn.setText("Previous");
@@ -92,7 +88,7 @@ public class ImageDescriberView {
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-
+			
 			// Move to previous element.
 			idd.setImageToPrevious();
 			
@@ -177,7 +173,7 @@ public class ImageDescriberView {
        		        "}" + 
    		        "}";
 	            
-	         // Get namespace and context so we can search for "link."
+	            // Get namespace and context so we can search for "link."
 	            String nameSpace = idd.getDoc().getRootElement().getDocument().getRootElement().getNamespaceURI();
 	    		XPathContext context = new XPathContext("dtb", nameSpace);
 	    		// Search for first "link" element.
@@ -250,8 +246,12 @@ public class ImageDescriberView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
+				// Message box to let user know that things are to be changed.
+				org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+				msgB.setMessage("Image Describer will update every image like this one with the given description. CANNOT UNDO! Continue?");
+				
 				// Warn user before doing this. It could take a while.
-				if( msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
+				if( msgB.open() == SWT.OK)
 				{
 					// Apply what is in the edit box first.
 					imgDesc.setDescription(imgDescTextBox.getText(), null, null, null);
@@ -279,7 +279,7 @@ public class ImageDescriberView {
 					} // for(int curImg...
 					idd.setDocumentEdited(true);
 					
-				} // if msgBx == true
+				} // if msgBx == OK
 
 			} // widgetSelected()
 
@@ -293,8 +293,12 @@ public class ImageDescriberView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				// Clear every description for this image, and clear alt text.
-				if( msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
+				// Message box to let user know that things are to be changed.
+				org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+				msgB.setMessage("Image Describer will update every image like this one with NO DESCRIPTION. CANNOT UNDO! Continue?");
+				
+				// Warn user before doing this. It could take a while.
+				if( msgB.open() == SWT.OK)
 				{
 					// Apply what is in the edit box first.
 					imgDesc.setDescription("", null, null, null);
@@ -491,6 +495,9 @@ public class ImageDescriberView {
 				mainImage.setImage( imgHelper.createScaledImage(curElmImage, imageWidth, imageHeight) );
 			else
 				mainImage.setImage( imgHelper.createScaledImage(curElmImage, curElmImage.getBounds().width, curElmImage.getBounds().height) );
+			
+			// Release old image.
+			curElmImage.dispose();
 		}
 		else
 			mainImage.setImage( imgHelper.createScaledImage(new Image(null, BBIni.getProgramDataPath() + BBIni.getFileSep() + "images" + BBIni.getFileSep() + "imageMissing.png"), 
@@ -628,68 +635,6 @@ public class ImageDescriberView {
 		imageHeight = clientWidth / 4;
 		
 	} // public void resizeUI()
-
-
-	///////////////////////////////////////////////////////////////////////////////////////////
-	// Simple message box for alerts and messages to user.
-	public boolean msgBx(String cap, String msg)
-	{
-		// Tell user there are no image tags.
-		LocaleHandler lh = new LocaleHandler();
-		Monitor mon[] = Display.getDefault().getMonitors();
-		Rectangle screenSize = mon[0].getBounds();
-		msgBxBool = false;
-		Display dlgDisp;
-		final Shell dlgShl;
-		dlgDisp = group.getDisplay();
-		dlgShl = new Shell(group.getShell(), SWT.WRAP);
-		dlgShl.setText(lh.localValue(cap));
-		Button okBtn = new Button(dlgShl, SWT.PUSH);
-		okBtn.setText("Okay");
-		okBtn.setBounds(0,  75, 100, 25);
-		okBtn.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-				// User hit okay.
-				msgBxBool = true;
-				
-				// Close dialog.
-				dlgShl.close();
-				
-			} // widgetSelected()
-			
-		}); // okBtn.addSelectionListener...
-		Button canBtn = new Button(dlgShl, SWT.PUSH);
-		canBtn.setText("Cancel");
-		canBtn.setBounds(101, 75, 100, 25);
-		canBtn.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-				// User hit okay.
-				msgBxBool = false;
-				
-				// Close dialog.
-				dlgShl.close();
-				
-			} // widgetSelected()
-			
-		}); // canBtn.addSelectionListener...
-		Label alertText = new Label(dlgShl, SWT.WRAP);
-		alertText.setBounds(0, 0, 250, 100);
-		alertText.setText(msg);
-		dlgShl.setSize(screenSize.width / 5, screenSize.width / 12);
-		dlgShl.open();
-		while (!dlgShl.isDisposed()) {
-			if (!dlgDisp.readAndDispatch())
-				dlgDisp.sleep();
-		}
-		
-		// Return message box boolean value. What did the user press...
-		return msgBxBool;
-		
-	} // public void msgBx(String cap, string msg)
 	
 	private void setFormData(Control c, int left, int right, int top, int bottom){
 		FormData data = new FormData();
@@ -717,6 +662,7 @@ public class ImageDescriberView {
 	}
 	
 	public void disposeUI(){
+		mainImage.getImage().dispose();
 		group.dispose();
 	}
 	

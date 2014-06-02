@@ -25,7 +25,7 @@ public class ConfigFileHandler {
 			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
 		
 		String key = "style " + newStyle.getName();
-		String entry = formatEntry(newStyle);
+		String entry = formatStyleEntry(newStyle);
 		
 		String fileString = getFileContentsAsString(path);
 		
@@ -47,12 +47,12 @@ public class ConfigFileHandler {
 		if(!fu.exists(path))
 			fu.copyFile(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile, path);
 		
-		String entry = formatEntry(style);
+		String entry = formatStyleEntry(style);
 		
 		fu.appendToFile(path, entry);
 	}
 	
-	private String formatEntry(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
+	private String formatStyleEntry(org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style){
 		String entry = "style " + style.getName() + "\n"; 
 		
 		Set<StylesType> set = style.getKeySet();
@@ -62,7 +62,7 @@ public class ConfigFileHandler {
     	return entry;
 	}
 	
-	private String  getFileContentsAsString(String path){
+	private String getFileContentsAsString(String path){
 		 BufferedReader reader = null;
 
 		try {

@@ -3,7 +3,6 @@ package org.brailleblaster.perspectives.webView.WebViewMenu;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.webView.WebViewController;
-import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;

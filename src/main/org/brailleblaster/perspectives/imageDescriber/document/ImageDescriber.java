@@ -64,8 +64,6 @@ public class ImageDescriber extends BBDocument {
 	ArrayList<Element> imgElmList = null;
 	// Copies of the <img> list prodnote text.
 	ArrayList<String> prodCopyList = null;
-	// List of images associated with the <img> elements.
-	ArrayList<Image> imgFileList = null;
 	// The current element we're working on in our list of <img>'s.
 	int curElementIndex = -1;
 	// The number of img elements we have in this document.
@@ -85,10 +83,6 @@ public class ImageDescriber extends BBDocument {
 	// Description for undo.
 	String undoDesc;
 	String undoAlt;
-	// Self-promoting ID for <img>'s that don't yet have one.
-	// We assign the current value to an image that we're wrapping, 
-	// if it doesn't have an ID.
-	long imageIdRef = 1000000; 
 	
 	// Image describer context helps us handle element manipulation in a generic way.
 	ImageDescriberContext imgContext = new ImageDescriberContext();
@@ -130,7 +124,6 @@ public class ImageDescriber extends BBDocument {
 		rootElement = doc.getRootElement();
 		imgElmList = new ArrayList<Element>();
 		prodCopyList = new ArrayList<String>();
-		imgFileList = new ArrayList<Image>();
 		nameSpace = rootElement.getDocument().getRootElement().getNamespaceURI();
 		context = new XPathContext("dtb", nameSpace);
 		imgs = doc.getRootElement().query("//dtb:img[1]", context);
@@ -220,7 +213,7 @@ public class ImageDescriber extends BBDocument {
 				tempStr = tempStr.replace("/", "\\");
 			
 			// Add.
-			imgFileList.add( new Image(null, tempStr) );
+//			imgFileList.add( new Image(null, tempStr) );
 		}
 		
 		// Get children.
@@ -252,30 +245,6 @@ public class ImageDescriber extends BBDocument {
 				curImgElement = imgContext.addContainer(curImgElement);
 				imgElmList.set(curTag, curImgElement);
 			}
-			
-			// Add image file path to list.
-			
-			// Now to build a path to the current image.
-			String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
-			
-			// Remove dots and slashes at beginning.
-//			if( tempStr.startsWith(".") && dm.getArchiver() == null)
-//				tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-			
-			// Build image path.
-			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-				tempStr = tempStr.replace("/", "\\");
-			
-			// Remove %20(space).
-			tempStr = tempStr.replace("%20", " ");
-			
-			// Add.
-			if( imgElmList.get(curTag).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
-				imgFileList.add( null );
-			else	
-				imgFileList.add( new Image(null, tempStr) );
-			
 		
 		} // for(int...
 	
@@ -467,48 +436,6 @@ public class ImageDescriber extends BBDocument {
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Traverses xml tree until it finds the next <img>.
-//	public Element getNextImageElement(Element e)
-//	{
-//		// Get next image element.
-//		curDocIndex++;
-//		if( e.getClass().getName().compareTo("nu.xom.Element") == 0) {
-//			if( e.getLocalName().compareTo("img") == 0 ) {
-//				if(curDocIndex > furthestDocIndex)
-//				{
-//					// Record depth.
-//					furthestDocIndex = curDocIndex;
-//					
-//					// Return new element found.
-//					return e;
-//				
-//				} // if(curDocIndex > furthestDocIndex)
-//				
-//			} // local name == img
-//			
-//		} // if xom element
-//		
-//		// 
-//		Element newImgElement = null;
-//		
-//		// Go through every child and find the next image.
-//		for(int curC = 0; curC < e.getChildCount(); curC++)
-//		{
-//			if( e.getChild(curC).getClass().getName().compareTo("nu.xom.Element") == 0)
-//			{
-//				newImgElement = getNextImageElement( ((Element)(e.getChild(curC))) );
-//				
-//				if(newImgElement != null)
-//					break;
-//			}
-//		
-//		}
-//		
-//		return newImgElement;
-//		
-//	} // getNextImageElement(Element e)
-	
-	///////////////////////////////////////////////////////////////////////////
 	// Encapsulates given element into <imggroup>, and adds 
 	// <prodnote> in the group with it.
 	public Element wrapInImgGrp(Element e)
@@ -518,29 +445,23 @@ public class ImageDescriber extends BBDocument {
 		// Create all elements.nameSpace
 		Element imgGrpElm = new Element("imggroup", nameSpace);
 		Element prodElm = new Element("prodnote", nameSpace);
-//		Element captElm = new Element("caption", nameSpace);
+		//Element captElm = new Element("caption", nameSpace);
 		Element copyElm = (nu.xom.Element)e.copy();
 		
 		// If there was no id attribute in the <img> element, add one.
 		if(copyElm.getAttribute("id") == null)
 			copyElm.addAttribute( new Attribute("id", "TODO!") );
 		
-		// If the original didn't have an ID value, add one.
-		String idValue = copyElm.getAttributeValue("id");
-		if(idValue == null) {
-			idValue = Long.toString(imageIdRef);
-		}
-		
 		// Add <prodnote> attributes.
-//		prodElm.addAttribute( new Attribute("id", "TODO!") );
-//		prodElm.addAttribute( new Attribute("imgref", idValue) );
-//		prodElm.addAttribute( new Attribute("render", "required") );
+	//	prodElm.addAttribute( new Attribute("id", "TODO!") );
+	//	prodElm.addAttribute( new Attribute("imgref", idValue) );
+	//	prodElm.addAttribute( new Attribute("render", "required") );
 		// Add <caption> attributes.
-//		captElm.addAttribute( new Attribute("id", "TODO!") );
-//		captElm.addAttribute( new Attribute("imgref", idValue) );
+	//	captElm.addAttribute( new Attribute("id", "TODO!") );
+	//	captElm.addAttribute( new Attribute("imgref", idValue) );
 		
 		// Arrange child hierarchy.
-//		imgGrpElm.insertChild(captElm, 0);
+	//	imgGrpElm.insertChild(captElm, 0);
 		imgGrpElm.insertChild(prodElm, 0);
 		imgGrpElm.insertChild(copyElm, 0);
 		
@@ -557,8 +478,25 @@ public class ImageDescriber extends BBDocument {
 	public Image getImageFromElmIndex(int elmIndex)
 	{
 		// Return image.
-		if(imgFileList.size() > 0)
-			return imgFileList.get(elmIndex);
+		if( imgElmList.size() > 0)
+		{
+			// Path to image.
+			String tempStr = imgElmList.get(elmIndex).getAttributeValue("src");
+			
+			// Build image path.
+			tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
+			if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
+				tempStr = tempStr.replace("/", "\\");
+			
+			// Remove %20(space).
+			tempStr = tempStr.replace("%20", " ");
+			
+			// Add.
+			if( imgElmList.get(elmIndex).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
+				return new Image( null, convertSVG2JPG(tempStr) );
+			else	
+				return new Image(null, tempStr);
+		}
 		
 		// Return null if the list is empty.
 		return null;
@@ -570,33 +508,7 @@ public class ImageDescriber extends BBDocument {
 	public Image getCurElementImage()
 	{
 		// Return the image.
-		if(imgFileList.size() > 0)
-		{
-			// If this is an svg file, we'll have to do a conversion.
-			if( imgElmList.get(curElementIndex).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
-			{
-				// Now to build a path to the current image.
-				String tempStr = imgElmList.get(imgElmList.size() - 1).getAttributeValue("src");
-				
-				// Remove dots and slashes at beginning.
-				if( tempStr.startsWith(".") && dm.getArchiver() == null)
-					tempStr = tempStr.substring( BBIni.getFileSep().length() + 1, tempStr.length() );
-				
-				// Build image path.
-				tempStr = dm.getWorkingPath().substring(0, dm.getWorkingPath().lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + tempStr;
-				if(tempStr.contains("/") && BBIni.getFileSep().compareTo("/") != 0)
-					tempStr = tempStr.replace("/", "\\");
-				
-				// Return the svg image.
-				return new Image( null, convertSVG2JPG(tempStr) );
-			}
-			else
-				return imgFileList.get(curElementIndex);
-			
-		} // if svg
-		
-		// Return null if the list is empty.
-		return null;
+		return getImageFromElmIndex(curElementIndex);
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -729,17 +641,6 @@ public class ImageDescriber extends BBDocument {
 		imgContext.setAttribute(imgElmList.get(index), "alt", tagRENDER);
 		
 	} // setProdAtIndex()
-	
-	///////////////////////////////////////////////////////////////////////////
-	// Removes images from memory.
-	public void disposeImages()
-	{
-		// Loop through them all and delete.
-		for(int curImg = 0; curImg < imgFileList.size(); curImg++)
-			if(imgFileList.get(curImg) != null)
-				imgFileList.get(curImg).dispose();
-		
-	} // disposeImages()
 	
 	public void resetCurrentIndex() {
 		curElementIndex = -1;

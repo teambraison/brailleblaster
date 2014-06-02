@@ -61,7 +61,6 @@ import org.eclipse.swt.widgets.TabItem;
 public class ImageDescriberController extends Controller {	
 	// Utils
 	LocaleHandler lh = new LocaleHandler();
-	
 	// UI Elements.
 	ImageDescriberView idv;
 	Group group;
@@ -86,7 +85,7 @@ public class ImageDescriberController extends Controller {
 		this.group.setLayout(new FormLayout());
 		
 		this.imgDesc = new ImageDescriber(this);
-		
+
 		// Start the image describer and build the DOM
 		if(fileName != null){
 			if(openDocument(fileName))
@@ -139,9 +138,8 @@ public class ImageDescriberController extends Controller {
 	}
 
 	public void fileOpenDialog(){
+		
 		String tempName;
-
-//		
 		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
@@ -202,7 +200,6 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public void dispose() {
-		imgDesc.disposeImages();
 		idv.disposeUI();
 	}
 
@@ -298,8 +295,12 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void applyToAll(){
+		// Message box to let user know that things are to be changed.
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+		msgB.setMessage("Image Describer will update every image like this one with the given description. CANNOT UNDO! Continue?");
+		
 		// Warn user before doing this. It could take a while.
-		if( idv.msgBx("Warning", "Image Describer will update every image like this one with the given description. This could take a while. Continue?") == true)
+		if( msgB.open() == SWT.OK)
 		{
 			// Apply what is in the edit box first.
 			imgDesc.setDescription(idv.getTextBoxValue(), null, null, null);
@@ -330,8 +331,12 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void clearAll(){
-		// Clear every description for this image, and clear alt text.
-		if( idv.msgBx("Warning", "All images like this one will have their description cleared, and alt text removed. This could take a while. Continue?") == true)
+		// Message box to let user know that things are to be changed.
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(group.getShell(), SWT.OK | SWT.CANCEL);
+		msgB.setMessage("Image Describer will update every image like this one with NO DESCRIPTION. CANNOT UNDO! Continue?");
+		
+		// Warn user before doing this. It could take a while.
+		if( msgB.open() == SWT.OK)
 		{
 			// Apply what is in the edit box first.
 			imgDesc.setDescription("", null, null, null);
@@ -585,7 +590,7 @@ public class ImageDescriberController extends Controller {
 	public void setStatusBarText(BBStatusBar statusBar) {
 		String textToSet = "Image #" + imgDesc.getCurrentElementIndex() + " - " + imgDesc.currentImageElement().getAttributeValue("src");
 //		textToSet += ;
-		statusBar.setText( textToSet );	
+		statusBar.setText( textToSet );
 	}
 
 	@Override

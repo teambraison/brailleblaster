@@ -1,5 +1,6 @@
 package org.brailleblaster.perspectives.webView;
 
+
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.webView.WebViewMenu.WebViewMenu;
 import org.brailleblaster.wordprocessor.WPManager;

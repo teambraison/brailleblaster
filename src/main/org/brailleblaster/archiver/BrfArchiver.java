@@ -1,7 +1,6 @@
 package org.brailleblaster.archiver;
 
 import org.brailleblaster.document.BBDocument;
-import org.brailleblaster.util.Notify;
 
 //not yet fully implemented
 public class BrfArchiver extends Archiver{
@@ -16,9 +15,8 @@ public class BrfArchiver extends Archiver{
 	public void save(BBDocument doc, String path) {
 		if(path == null)
 			path = workingDocPath;
-		if(!doc.createBrlFile(path)){
-			new Notify("An error has occurred.  Please check your original document");
-		}
+		
+		saveBrf(doc, path);
 	}
 
 	@Override
@@ -26,5 +24,4 @@ public class BrfArchiver extends Archiver{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
 }

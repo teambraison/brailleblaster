@@ -74,8 +74,8 @@ public final class BBIni {
 	private static boolean multipleSubcommands = false;
 	private static Logger logger;
 	private static final String productName = "BrailleBlaster ND";
-	private static final String BBVersion = "2014.04.17";
-	private static final String releaseDate = "April 17, 2014";
+	private static final String BBVersion = "2014.05.22";
+	private static final String releaseDate = "May 22, 2014";
 	private static String brailleblasterPath; // FO
 	private static String osName;
 	private static String osVersion;
@@ -107,7 +107,6 @@ public final class BBIni {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
 		platformName = SWT.getPlatform();
-	//	LocaleHandler lh = new LocaleHandler();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
 		osName = System.getProperty("os.name");
@@ -257,11 +256,9 @@ public final class BBIni {
 			hLiblouisutdml = true;
 		} 
 		catch (UnsatisfiedLinkError e) {
-			e.printStackTrace();
 			logger.log(Level.SEVERE, "Problem with liblouisutdml library", e);
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
 			logger.log(Level.WARNING, "This shouldn't happen", e);
 		}
 	}

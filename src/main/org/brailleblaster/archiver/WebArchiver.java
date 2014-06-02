@@ -13,11 +13,15 @@ public class WebArchiver extends Archiver{
 	WebArchiver(String docToPrepare) {
 		super(docToPrepare);
 		currentConfig = getAutoCfg("epub");
+	
 		ext = docToPrepare.substring(docToPrepare.lastIndexOf(".") + 1);
 		filterNames = new String[] {ext, "BRF", "UTDML working document", };
 		filterExtensions = new String[] {"*." + ext, "*.brf", "*.utd", };
+
 		if(workingDocPath.equals(templateFile))
-				originalDocPath = null;
+
+			originalDocPath = null;
+
 	}
 
 	@Override

@@ -59,6 +59,7 @@ import nu.xom.XPathContext;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
+import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -85,6 +86,7 @@ public class BBDocument {
 	private ArrayList<String>mistranslationList;
 	private String systemId;
 	private String publicId;
+	protected SettingsManager sm;
 	protected SemanticFileHandler semHandler;
 	protected LocaleHandler lh;
 	public BBDocument(Controller dm){		
@@ -93,6 +95,7 @@ public class BBDocument {
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
+		sm = new SettingsManager(dm.getCurrentConfig());
 	}
 	
 	public BBDocument(Controller dm, Document doc){
@@ -102,6 +105,7 @@ public class BBDocument {
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
+		sm = new SettingsManager(dm.getCurrentConfig());
 	}
 	
 	public boolean createNewDocument(){
@@ -136,7 +140,7 @@ public class BBDocument {
 	}
 	
 	public boolean startDocument (String completePath, String configFile, String configSettings) throws Exception {
-			return setupFromFile (completePath, configFile, configSettings);
+		return setupFromFile (completePath, configFile, configSettings);
 	}
 	
 	private boolean setupFromFile (String completePath, String configFile, String configSettings) throws Exception {
@@ -146,19 +150,15 @@ public class BBDocument {
 		// Use the default; we don't have a local version.
 		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		
-		if (configSettings == null) {
+		if (configSettings == null) 
 			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
-		} 
-		else {
+		else 
 			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
-		}
 		
-		if(dm.getWorkingPath() != null){
+		if(dm.getWorkingPath() != null)
 			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);			
-		}
-		else {
+		else 
 			configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
-		}
 		
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -167,7 +167,7 @@ public class BBDocument {
 		if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
 			if( normalizeFile(completePath, tempPath) ){
-				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD, 0) )
+				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD + sm.getSettings(), 0) )
 				{
 					deleteFile(tempPath);
 					return buildDOM(outFile);
@@ -179,11 +179,11 @@ public class BBDocument {
 			}
 		} 
 		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.TXT).contains(ext)) {
-			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
+			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
 				return buildDOM(outFile);
 		} 
 		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.BRF).contains(ext)) {
-			if(lutdml.backTranslateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD, 0))
+			if(lutdml.backTranslateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
 				return buildDOM(outFile);
 		} 
 		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
@@ -346,7 +346,7 @@ public class BBDocument {
 			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem" + "\n";
 		}
 		
-		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n", 0);
+		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n" + sm.getSettings(), 0);
 		deleteTempFile(inFile);
 		return result;
 	}
@@ -468,6 +468,7 @@ public class BBDocument {
 	
 	public void resetBBDocument(String config){
 		deleteDOM();
+		sm = new SettingsManager(config);
 		semHandler.resetSemanticHandler(config);
 	}
 	
@@ -505,5 +506,9 @@ public class BBDocument {
 	public Nodes query(String query){
 		XPathContext context = XPathContext.makeNamespaceContext(doc.getRootElement());
 		return doc.query(query, context);
+	}
+	
+	public SettingsManager getSettingsManager(){
+		return sm;
 	}
 }

@@ -2,7 +2,6 @@ package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
-import org.brailleblaster.settings.ConfigFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -165,25 +164,6 @@ public class ImageDescriberMenu extends BBMenu{
 			} // widgetSelected()
 
 		}); // clearAllBtn.addSelectionListener
-		
-
-		
-		/////////////////
-		// BRAILLE!
-		MenuItem brailleItem = new MenuItem(menuBar, SWT.CASCADE, 4);
-		brailleItem.setText(lh.localValue("&Braille"));
-		
-		Menu brailleMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
-		
-		MenuItem transTemplateItem = new MenuItem(brailleMenu, SWT.PUSH);
-		transTemplateItem.setText(lh.localValue("&Translation Templates"));
-		transTemplateItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				new ConfigFileDialog(wp.getShell(), SWT.NONE, wordProc);
-			}
-		});
-		brailleItem.setMenu(brailleMenu);
 		
 		editItem.setMenu(editMenu);
 	}

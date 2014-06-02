@@ -54,7 +54,6 @@ abstract public class Archiver {
 	protected String currentConfig;
 	
 	protected boolean documentEdited;
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Constructor. Stores path to document to prepare.
 	Archiver(String docToPrepare)
@@ -135,7 +134,6 @@ abstract public class Archiver {
 	public boolean getDocumentEdited(){
 		return documentEdited;
 	}
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
 	public abstract void save(BBDocument doc, String path);

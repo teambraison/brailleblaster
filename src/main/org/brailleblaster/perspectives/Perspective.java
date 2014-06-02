@@ -11,10 +11,10 @@ import nu.xom.Document;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.perspectives.braille.BraillePerspective;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.falcon.FalconController;
+import org.brailleblaster.perspectives.falcon.FalconPerspective;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberPerspective;
-import org.brailleblaster.perspectives.webView.WebViewController;
-import org.brailleblaster.perspectives.webView.WebViewPerspective;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
@@ -25,7 +25,7 @@ public abstract class Perspective {
 		HashMap<Class<?>, Class<?>> temp = new HashMap<Class<?>, Class<?>>();
 		temp.put(Manager.class, BraillePerspective.class);
 		temp.put(ImageDescriberController.class, ImageDescriberPerspective.class);
-		temp.put(WebViewController.class, WebViewPerspective.class);
+		temp.put(FalconController.class, FalconPerspective.class);
 		PERSPECTIVE_MAP = Collections.unmodifiableMap(temp);
 	}
 	

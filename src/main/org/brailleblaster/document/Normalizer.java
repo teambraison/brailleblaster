@@ -35,12 +35,13 @@ public class Normalizer {
 	String originalPubId;
 	String originalSystemId;
 	DocumentType docType;
+	Resolver res;
 	
 	public Normalizer(BBDocument bbDoc, String path){
 		this.f = new File(path);
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder;
-		Resolver res = new Resolver();
+		res = new Resolver();
 		
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
@@ -131,6 +132,8 @@ public class Normalizer {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
+			if(res.dtdName != null)
+				transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, res.dtdName);
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			DOMSource source = new DOMSource(doc);

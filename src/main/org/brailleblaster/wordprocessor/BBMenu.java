@@ -45,6 +45,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.falcon.FalconController;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
+import org.brailleblaster.perspectives.webView.WebViewController;
 import org.brailleblaster.userHelp.HelpOptions;
 import org.brailleblaster.userHelp.UserHelp;
 import org.eclipse.swt.SWT;
@@ -71,6 +72,7 @@ public abstract class BBMenu {
 	MenuItem brailleEditorItem;
 	MenuItem imageDescriberItem;
 	MenuItem falconItem;
+        MenuItem webViewItem;
 	
 	MenuItem readManualItem;
 	MenuItem helpInfoItem;
@@ -211,7 +213,21 @@ public abstract class BBMenu {
 //			}		
 //		});
 		
-		viewItem.setMenu(viewMenu);
+webViewItem = new MenuItem(perspectiveMenu, SWT.CHECK);
+		webViewItem.setText(lh.localValue("Web View"));
+		webViewItem.setSelection(false);
+		webViewItem.setData(WebViewController.class);
+		webViewItem.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(webViewItem.getSelection() == true && !selectedPerspective.equals(webViewItem)){
+					selectedPerspective = webViewItem;
+					brailleEditorItem.setSelection(false);
+					wp.swapPerspectiveController((Class<?>)webViewItem.getData());
+				}
+			}		
+		});		
+         viewItem.setMenu(viewMenu);
 
 		// Set up help menu
 		Menu helpMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);

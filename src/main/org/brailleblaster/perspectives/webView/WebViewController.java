@@ -254,12 +254,14 @@ public class WebViewController extends Controller {
 
 	@Override
 	public Document getDoc() {
-		// TODO Auto-generated method stub
-		if(webDoc == null){
+		// for pass dom elements to other perspectives
+		if((webDoc.getDOM() == null )||(arch instanceof EPub3Archiver)){
 			 this.webDoc = new webViewDocument(this);
 		     webDoc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
 		     
 		}
+	
+		
 		return webDoc.getDOM();
 		//return null;
 	}

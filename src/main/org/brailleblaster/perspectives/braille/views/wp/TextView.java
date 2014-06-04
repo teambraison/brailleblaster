@@ -253,7 +253,7 @@ public class TextView extends WPView {
 				if(!getLock()){
 					if(e.length > 0)
 						handleTextEdit(e);
-					else 				
+					else 
 						handleTextDeletion(e);
 				}
 			}
@@ -474,13 +474,13 @@ public class TextView extends WPView {
 	}
 	
 	private void sendUpdate(){
-			Message updateMessage = Message.createUpdateMessage(view.getCaretOffset(), getString(currentStart, currentEnd - currentStart), originalEnd - originalStart);
-			manager.dispatch(updateMessage);
-			words += (Integer)updateMessage.getValue("diff");
-			//sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-			currentChanges = 0;
-			textChanged = false;
-			//restoreStyleState(currentStart, currentEnd);
+		Message updateMessage = Message.createUpdateMessage(view.getCaretOffset(), getString(currentStart, currentEnd - currentStart), originalEnd - originalStart);
+		manager.dispatch(updateMessage);
+		words += (Integer)updateMessage.getValue("diff");
+		//sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+		currentChanges = 0;
+		textChanged = false;
+		//restoreStyleState(currentStart, currentEnd);
 	}
 	
 	private void setCurrent(int pos){
@@ -938,6 +938,7 @@ public class TextView extends WPView {
 			else if(oldCursorPosition == currentStart && view.getCaretOffset() < previousEnd){
 				if(textChanged)
 					sendUpdate();
+
 				setCurrent(view.getCaretOffset());
 				makeTextChange(offset);
 			}

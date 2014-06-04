@@ -491,8 +491,10 @@ public class BBDocument {
 	}
 	
 	public void setOriginalDocType(Document d) {
-		if(this.doc.getDocType() == null && (publicId != null || systemId != null))
+		if((publicId != null && systemId != null))
 			d.setDocType(new DocType(this.getRootElement().getLocalName(), publicId, systemId));
+		else if(publicId == null && systemId != null)
+			d.setDocType(new DocType(this.getRootElement().getLocalName(), systemId));
 	}
 	
 	public SemanticFileHandler getSemanticFileHandler(){

@@ -133,7 +133,7 @@ public class Normalizer {
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
 			if(res.dtdName != null)
-				transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, res.dtdName);
+				transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, new File(res.dtdName).toURI().toString());
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			DOMSource source = new DOMSource(doc);

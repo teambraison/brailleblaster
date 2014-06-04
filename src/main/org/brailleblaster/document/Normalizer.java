@@ -3,6 +3,8 @@ package org.brailleblaster.document;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,7 +12,6 @@ import java.util.logging.Logger;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.w3c.dom.Document;
-
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
@@ -128,12 +129,37 @@ public class Normalizer {
 	*/
 	
 	public boolean write(String path) {
+		URL dtdURL = null;
+		if (res.dtdName != null)
+		{
+			// First see if we have a URL
+			try
+			{
+				dtdURL = new URL(res.dtdName);
+			}
+			catch (MalformedURLException e)
+			{
+				// Don't do anything here
+			}
+			// If dtdURL is not yet assigned we will assume file path, can we do better?
+			if (dtdURL == null)
+			{
+				try
+				{
+					dtdURL = new File(res.dtdName).toURI().toURL();
+				}
+				catch (MalformedURLException e)
+				{
+					// Do nothing
+				}
+			}
+		}
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer;
 			transformer = transformerFactory.newTransformer();
-			if(res.dtdName != null)
-				transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, new File(res.dtdName).toURI().toString());
+			if(dtdURL != null)
+				transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, dtdURL.toString());
 			transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 		    transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 			DOMSource source = new DOMSource(doc);

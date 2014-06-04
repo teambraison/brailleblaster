@@ -113,8 +113,10 @@ public class Normalizer {
 				String text = t.getTextContent();
 				if(text.length() > 0 && text.charAt(0) == '\n' && onlyWhitespace(text))
 					text = text.replaceAll("\\s+", "");
-				else if(text.length() > 0 && text.charAt(0) == '\n' || text.charAt(0) == '\t')
+				else if(text.length() > 0 && (text.charAt(0) == '\n' || text.charAt(0) == '\t')){
 					text = text.trim();
+					text = text.replaceAll("\\s+", " ");
+				}
 				else
 					text = text.replaceAll("\\s+", " ");
 				

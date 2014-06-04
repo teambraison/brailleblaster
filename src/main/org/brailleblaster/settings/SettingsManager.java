@@ -27,13 +27,14 @@ public class SettingsManager {
 	
 	private ConfigPanel configPanel;
 	private HashMap<String, String>outputMap;
-	
+	private boolean compress;
 	public SettingsManager(String config){
 		if(Locale.getDefault().getCountry().equals(NONMETRIC_COUTNRY))
 			isMetric = false;
 		else
 			isMetric = true;
 		
+		compress = false;
 		outputMap = new HashMap<String, String>();
 		setDefault(config);
 	}
@@ -137,20 +138,26 @@ public class SettingsManager {
 	
 	//do not include compress.cti because removing spaces should be left up to the user to remove
 	private String extractTable(String string) {
+		String table = null;
 		String[] tokens = string.split(",");
 		for(int i = 0; i < tokens.length; i++){
-			if(!tokens[i].contains("compress")){
-				return tokens[i];
-			}
+			if(!tokens[i].equals("compress.cti"))
+				table = tokens[i];
+			else if(tokens[i].equals("compress.cti"))
+				compress = true;
 		}
-		return null;
+		
+		return table;
 	}
 
 	public String getSettings(){		
 		String settingsString = "";
-		for(Entry<String, String> entry : outputMap.entrySet())
-			settingsString += entry.getKey() + " " + entry.getValue() +"\n ";
-		
+		for(Entry<String, String> entry : outputMap.entrySet()){
+			if(entry.getKey().equals("literaryTextTable") && compress)
+				settingsString += entry.getKey() + " " + "compress.cti," + entry.getValue() +"\n";
+			else
+				settingsString += entry.getKey() + " " + entry.getValue() +"\n ";
+		}
 		return settingsString;
 	}
 	

@@ -239,7 +239,6 @@ public boolean createXMLFile(Document xmlDoc, String path){
 	try {
 		FileOutputStream os = new FileOutputStream(path);
 		Serializer serializer = new Serializer(os, "UTF-8");
-		serializer.setIndent(4);
 		serializer.write(xmlDoc);
 		os.close();
 		return true;

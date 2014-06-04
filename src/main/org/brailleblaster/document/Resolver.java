@@ -8,7 +8,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
 public 	class Resolver implements EntityResolver {
-	static String dtdPath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "DTDs";
+	static String dtdPath = new File(BBIni.getProgramDataPath(), "DTDs").getAbsolutePath();
 	String dtdName;
 	String originalPublicId;
 	String originalSystemId;

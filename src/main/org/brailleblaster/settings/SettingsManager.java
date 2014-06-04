@@ -220,7 +220,6 @@ public class SettingsManager {
 		return Math.round((mm * multiplier) * 100.0) / 100.0;
 	}
 	
-	
 	public boolean isMetric(){
 		return isMetric;
 	}

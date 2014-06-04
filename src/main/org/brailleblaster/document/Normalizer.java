@@ -111,22 +111,26 @@ public class Normalizer {
 			else if(list.item(i) instanceof Text){
 				Text t = (Text)list.item(i);
 				String text = t.getTextContent();
-				text = text.replaceAll("\\s+", " ");
+				if(text.length() > 0 && text.charAt(0) == '\n' && onlyWhitespace(text))
+					text = text.replaceAll("\\s+", "");
+				else if(text.length() > 0 && text.charAt(0) == '\n' || text.charAt(0) == '\t')
+					text = text.trim();
+				else
+					text = text.replaceAll("\\s+", " ");
+				
 				t.setTextContent(text);
 			}
 		}
 	}
 	
-	/*
+	
 	private boolean onlyWhitespace(String text){
 		for(int j = 0; j < text.length(); j++){
-			if(!Character.isWhitespace(text.charAt(j))){
+			if(!Character.isWhitespace(text.charAt(j)))
 				return false;
-			}
 		}
 		return true;
 	}
-	*/
 	
 	public boolean write(String path) {
 		URL dtdURL = null;

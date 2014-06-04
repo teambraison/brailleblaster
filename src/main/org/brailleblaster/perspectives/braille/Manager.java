@@ -252,7 +252,10 @@ public class Manager extends Controller {
 		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 
-		tempName = dialog.open();
+		if(!BBIni.debugging())
+			tempName = dialog.open();
+		else
+			tempName = BBIni.getDebugFilePath();
 		
 		// Don't do any of this if the user failed to choose a file.
 		if(tempName != null)
@@ -897,7 +900,7 @@ public class Manager extends Controller {
 	
 	@Override
 	public void close() {
-		if (text.hasChanged || braille.hasChanged || arch.getDocumentEdited()) {
+		if (!BBIni.debugging() && (text.hasChanged || braille.hasChanged || arch.getDocumentEdited())) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
 			if (ync.result == SWT.YES) {
 				fileSave();
@@ -1188,7 +1191,7 @@ public class Manager extends Controller {
 	}
 	
 	private void startProgressBar(){
-    	if(arch.getOrigDocPath() != null)
+    	if(arch.getOrigDocPath() != null && !BBIni.debugging())
     		pb.start();
 	}
  

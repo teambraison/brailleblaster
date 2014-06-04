@@ -394,24 +394,26 @@ public class BBDocument {
 	}
 	
 	public void notifyUser(){
-		if(missingSemanticsList.size() > 0){
-			String text = lh.localValue("missingSem");
-			for(int i = 0; i < missingSemanticsList.size(); i++){
-				text += missingSemanticsList.get(i) + "\n";
+		if(!BBIni.debugging()){
+			if(missingSemanticsList.size() > 0){
+				String text = lh.localValue("missingSem");
+				for(int i = 0; i < missingSemanticsList.size(); i++){
+					text += missingSemanticsList.get(i) + "\n";
+				}
+				text += lh.localValue("checkConfig");
+				new Notify(text);
 			}
-			text += lh.localValue("checkConfig");
-			new Notify(text);
-			missingSemanticsList.clear();
-		}
 		
-		if(mistranslationList.size() > 0){
-			String text = lh.localValue("mistransError");
-			for(int i = 0; i < mistranslationList.size(); i++){
-				text += mistranslationList.get(i) + "\n";
+			if(mistranslationList.size() > 0){
+				String text = lh.localValue("mistransError");
+				for(int i = 0; i < mistranslationList.size(); i++){
+					text += mistranslationList.get(i) + "\n";
+				}
+				new Notify(text);
 			}
-			new Notify(text);
-			mistranslationList.clear();
 		}
+		missingSemanticsList.clear();
+		mistranslationList.clear();
 	}
 	
 	public Node findPrintPageNode(Element e){

@@ -101,12 +101,8 @@ public class BrailleMenu extends BBMenu{
 		newItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-
-				} else {
-					System.out.println("New Document Tab created");
-					wp.addDocumentManager(null);
-				}
+				System.out.println("New Document Tab created");
+				wp.addDocumentManager(null);
 			}
 		});
 		
@@ -116,20 +112,15 @@ public class BrailleMenu extends BBMenu{
 		openItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-
-				} 
+				int index= wp.getFolder().getSelectionIndex();
+				if(index == -1){
+					wp.addDocumentManager(null);
+					((Manager)wp.getList().getFirst()).fileOpenDialog();
+					if(((Manager)wp.getList().getFirst()).getWorkingPath() == null)
+						((Manager)wp.getList().getFirst()).close();					
+				}
 				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						((Manager)wp.getList().getFirst()).fileOpenDialog();
-						if(((Manager)wp.getList().getFirst()).getWorkingPath() == null)
-							((Manager)wp.getList().getFirst()).close();					
-					}
-					else {
-						currentEditor.fileOpenDialog();
-					}
+					currentEditor.fileOpenDialog();
 				}
 			}
 		});
@@ -281,11 +272,7 @@ public class BrailleMenu extends BBMenu{
 		undoItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-					//dm.setReturn(WP.SwitchDocuments);
-				} else {
-					//dm.placeholder();
-				}
+				//dm.placeholder();
 			}
 		});
 		redoItem = new MenuItem(editMenu, SWT.PUSH);
@@ -407,14 +394,9 @@ public class BrailleMenu extends BBMenu{
 		stylePanelItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-
-				} 
-				else {
-					int count = wp.getFolder().getItemCount();
-					if(count > 0)
-						currentEditor.toggleAttributeEditor();
-				}
+				int count = wp.getFolder().getItemCount();
+				if(count > 0)
+					currentEditor.toggleAttributeEditor();
 			}
 		});
 		

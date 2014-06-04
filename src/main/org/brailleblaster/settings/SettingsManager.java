@@ -139,17 +139,18 @@ public class SettingsManager {
 	private String extractTable(String string) {
 		String[] tokens = string.split(",");
 		for(int i = 0; i < tokens.length; i++){
-			if(!tokens[i].contains("compress"))
+			if(!tokens[i].contains("compress")){
 				return tokens[i];
+			}
 		}
 		return null;
 	}
 
 	public String getSettings(){		
 		String settingsString = "";
-		for(Entry<String, String> entry : outputMap.entrySet()){
+		for(Entry<String, String> entry : outputMap.entrySet())
 			settingsString += entry.getKey() + " " + entry.getValue() +"\n ";
-		}
+		
 		return settingsString;
 	}
 	

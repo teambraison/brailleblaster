@@ -70,6 +70,7 @@ public final class BBIni {
 	}
 	
 	private static boolean debug = false;
+	private static String debugFilePath;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private static Logger logger;
@@ -237,6 +238,8 @@ public final class BBIni {
 				}
 				if (args[i].equals("-debug")) {
 					debug = true;
+					i++;
+					debugFilePath = getProgramDataPath() + fileSep + "testFiles" + fileSep + args[i];
 				} else if (args[i].equals("-nogui")) {
 					gotGui = false;
 				} else if (args[i].equals("-multcom")) {
@@ -312,6 +315,10 @@ public final class BBIni {
 	
 	public static boolean debugging() {
 		return debug;
+	}
+	
+	public static String getDebugFilePath(){
+		return debugFilePath;
 	}
 
 	public static boolean haveLiblouisutdml() {

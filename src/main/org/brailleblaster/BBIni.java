@@ -75,8 +75,8 @@ public final class BBIni {
 	private static boolean multipleSubcommands = false;
 	private static Logger logger;
 	private static final String productName = "BrailleBlaster ND";
-	private static final String BBVersion = "2014.05.22";
-	private static final String releaseDate = "May 22, 2014";
+	private static final String BBVersion = "2014.06.05";
+	private static final String releaseDate = "June 5, 2014";
 	private static String brailleblasterPath; // FO
 	private static String osName;
 	private static String osVersion;

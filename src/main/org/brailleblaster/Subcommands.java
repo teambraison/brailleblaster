@@ -36,7 +36,7 @@ package org.brailleblaster;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.brailleblaster.localization.LocaleHandler;
-import org.liblouis.liblouisutdml;
+import org.liblouis.LibLouisUTDML;
 import java.io.Console;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
@@ -53,7 +53,7 @@ import java.util.Arrays;
 class Subcommands {
 	private Logger logger = BBIni.getLogger();
 	private LocaleHandler lh = new LocaleHandler();
-	private liblouisutdml louisutdml;
+	private LibLouisUTDML louisutdml;
 	private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 	private String subcommand;
 	private String[] subArgs;
@@ -66,7 +66,7 @@ class Subcommands {
 					"The Braille translation facility is absent.");
 		}
 		// ParseCommandLine.getInstance().parseCommand (args);
-		louisutdml = liblouisutdml.getInstance();
+		louisutdml = LibLouisUTDML.getInstance();
 		int i = 0;
 		while (i < args.length) {
 			if (args[i].charAt(0) != '-') {

@@ -37,7 +37,7 @@ import java.io.File;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.liblouis.liblouisutdml;
+import org.liblouis.LibLouisUTDML;
 
 /**
  * This class contains the main method. If there are no arguments it passes
@@ -58,7 +58,7 @@ public class Main {
 		}
 
 		if (BBIni.haveLiblouisutdml()) {
-			liblouisutdml louisutdml = liblouisutdml.getInstance();
+			LibLouisUTDML louisutdml = LibLouisUTDML.getInstance();
 			louisutdml.free();
 			FileUtils fu = new FileUtils();
 			fu.deleteDirectory(new File(BBIni.getTempFilesPath()));

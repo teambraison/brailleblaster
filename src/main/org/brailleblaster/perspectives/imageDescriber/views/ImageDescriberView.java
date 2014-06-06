@@ -14,7 +14,6 @@ import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
@@ -38,7 +37,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class ImageDescriberView {

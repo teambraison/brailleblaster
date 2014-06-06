@@ -35,7 +35,7 @@ package org.brailleblaster.document;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
-import org.liblouis.liblouisutdml;
+import org.liblouis.LibLouisUTDML;
 import nu.xom.Document;
 import nu.xom.Node;
 import nu.xom.Element;
@@ -61,7 +61,7 @@ public class DocumentBase {
 private FileUtils fu = new FileUtils();
 private String fileSep = BBIni.getFileSep();
 private Semantics sm = new Semantics();
-private liblouisutdml lutdml = liblouisutdml.getInstance();
+private LibLouisUTDML lutdml = LibLouisUTDML.getInstance();
 
 /**
  * Parse the document and set up the neccessary data structures. This 

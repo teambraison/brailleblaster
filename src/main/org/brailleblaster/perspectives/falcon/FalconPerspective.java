@@ -1,7 +1,6 @@
 package org.brailleblaster.perspectives.falcon;
 
 import org.brailleblaster.perspectives.Perspective;
-import org.brailleblaster.perspectives.imageDescriber.UIComponents.ImageDescriberToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 
 public class FalconPerspective extends Perspective {

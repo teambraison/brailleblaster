@@ -181,7 +181,7 @@ public class webViewBrowser  {
 			}
 
 			public void completed(ProgressEvent event) {
-				if (lockBraille==true){
+				if (lockBraille==true && webc.isEpub==true){
 					browser.execute(script);
 				}
 

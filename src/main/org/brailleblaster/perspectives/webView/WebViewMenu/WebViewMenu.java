@@ -18,9 +18,12 @@ public class WebViewMenu extends BBMenu{
 	
 	private final int MENU_INDEX = 2;
 	WebViewController currentController;
+	Menu navigationMenu;
 	MenuItem openItem,closeItem,printItem;
 	MenuItem brailleView,textView;
-
+	MenuItem navigationRight,navigationLeft;
+	MenuItem navItem;
+	
 	/**
 	 * constructor
 	 * @param wp : reference to WPManager class
@@ -30,7 +33,10 @@ public class WebViewMenu extends BBMenu{
 		super(wp);
 		setPerspectiveMenuItem(MENU_INDEX);
 		currentController = idc;
-		
+		navigationMenu=new Menu(menuBar.getShell(), SWT.DROP_DOWN);
+		navItem = new MenuItem(menuBar, SWT.CASCADE);
+		navItem.setText("Navigation");
+		navItem.setMenu(navigationMenu);
 		
 		openItem = new MenuItem(fileMenu, SWT.PUSH, 0);
 		openItem.setText(lh.localValue("&Open") + "\t" + lh.localValue("Ctrl + O"));
@@ -146,6 +152,49 @@ public class WebViewMenu extends BBMenu{
 					currentController.vb.showContents(currentController.vb.index);
 					
 				}
+	
+			}
+		});
+		//Add navigation go to next   page/chapter
+		navigationRight = new MenuItem(navigationMenu, SWT.PUSH, 0);
+		navigationRight.setText(lh.localValue("&Next") + "\t" + lh.localValue("R"));
+		navigationRight.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				currentController.vb.index=currentController.vb.index+1;
+				if (currentController.vb.lockBraille==true)
+					currentController.vb.showContents(currentController.vb.index);
+                else
+                	currentController.vb.showBraille(currentController.vb.index);
+			
+	
+			}
+		});
+		
+		
+		
+		//Add navigation go to previous page/chapter
+		navigationLeft = new MenuItem(navigationMenu, SWT.PUSH, 1);
+		navigationLeft.setText(lh.localValue("&Previous") + "\t" + lh.localValue("L"));
+		navigationLeft.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				currentController.vb.index=currentController.vb.index-1;
+				if (currentController.vb.lockBraille==true)
+					currentController.vb.showContents(currentController.vb.index);
+                else
+                	currentController.vb.showBraille(currentController.vb.index);
+			
 	
 			}
 		});

@@ -63,7 +63,7 @@ import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
-import org.liblouis.liblouisutdml;
+import org.liblouis.LibLouisUTDML;
 
 
 public class BBDocument {
@@ -79,7 +79,7 @@ public class BBDocument {
 	protected Controller dm;
 	protected Document doc;
 	private static String fileSep = BBIni.getFileSep();
-	protected liblouisutdml lutdml = liblouisutdml.getInstance();
+	protected LibLouisUTDML lutdml = LibLouisUTDML.getInstance();
 	protected FileUtils fu = new FileUtils();
 	protected static Logger logger = BBIni.getLogger();
 	private ArrayList<String>missingSemanticsList;

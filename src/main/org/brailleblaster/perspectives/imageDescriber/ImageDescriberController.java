@@ -35,7 +35,6 @@ import java.util.ArrayList;
 
 import nu.xom.Document;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;

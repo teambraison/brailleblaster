@@ -11,17 +11,11 @@ import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
-import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.perspectives.webView.WebViewDocument.webViewDocument;
-import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
 /**

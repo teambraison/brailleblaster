@@ -43,7 +43,6 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.falcon.FalconController;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.webView.WebViewController;
 import org.brailleblaster.userHelp.HelpOptions;

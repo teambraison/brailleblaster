@@ -1,15 +1,12 @@
 package org.brailleblaster.perspectives.webView.WebViewMenu;
 
 import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.webView.WebViewController;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 /**
  * child class of parent class BBMenu which The BBMenu class provides a minimal menu

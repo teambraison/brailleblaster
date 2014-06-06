@@ -1,6 +1,5 @@
 package org.brailleblaster.perspectives.braille.ui;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;

@@ -1,7 +1,6 @@
 package org.brailleblaster.perspectives.falcon;
 
 import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;

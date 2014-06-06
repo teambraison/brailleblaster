@@ -37,17 +37,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
-import org.liblouis.liblouisutdml;
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import org.liblouis.LibLouisUTDML;
 
 
 /**
@@ -254,8 +255,8 @@ public final class BBIni {
 			}
 		}
 		try {
-			liblouisutdml.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			liblouisutdml.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
+			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
+			LibLouisUTDML.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
 			hLiblouisutdml = true;
 		} 
 		catch (UnsatisfiedLinkError e) {

@@ -1,5 +1,7 @@
 package org.brailleblaster.perspectives.webView.WebViewMenu;
 
+
+
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.webView.WebViewController;
 import org.brailleblaster.wordprocessor.BBMenu;
@@ -7,7 +9,9 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+
 /**
  * child class of parent class BBMenu which The BBMenu class provides a minimal menu
  * at the top of the SWT shell,it contains several items common across all perspectives 

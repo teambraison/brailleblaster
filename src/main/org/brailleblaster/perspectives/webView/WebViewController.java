@@ -10,6 +10,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;
+import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.webView.WebViewDocument.webViewDocument;
 import org.brailleblaster.wordprocessor.BBFileDialog;
@@ -34,6 +35,7 @@ public class WebViewController extends Controller {
 	int index=0;
 	String currentPath;
 	String currentConfig;
+	public Boolean isEpub=true;
 	/**
 	 * constructor create new reference to Browser view 
 	 * Come to this constructor when the perspective is Web View for the first time
@@ -98,9 +100,9 @@ public class WebViewController extends Controller {
 		if(arch != null){
 			archFileName = arch.getWorkingFilePath();
 			currentPath = archFileName;
-			currentConfig = "epub.cfg";
+			currentConfig =arch.getCurrentConfig();
+			//currentConfig = "epub.cfg";
 			// write css file in directory of the book
-			//webDoc.startDocument(archFileName, currentConfig, null);
 			writeCss(archFileName);
 		}
 
@@ -115,9 +117,36 @@ public class WebViewController extends Controller {
 		String str = null;
 		if(arch instanceof EPub3Archiver)
 			str=((EPub3Archiver)arch).getSpineFilePath(index);
+		if(arch instanceof NimasArchiver)
+		{
+			isEpub=false;
+			str=copyFile(currentPath);
+		}
 
 		return str;
 
+	}
+	/**
+	 * Copy xml file to html file and put in nimas book directory
+	 * @param str
+	 * @return path to html file 
+	 */
+	
+	private String copyFile(String str){
+		File temp=new File(str);
+		String path=null;
+		if(temp.exists()){
+			path = str.replace(".xml", ".html");
+			File source=new File(path);
+			try {
+				FileUtils.copyFile(temp, source);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return path;
+		
 	}
 	
 	/**
@@ -171,8 +200,8 @@ public class WebViewController extends Controller {
 
 	public void fileOpenDialog() {
 		String tempName;	
-		String[] filterNames = new String[] {  "EPUB"};
-		String[] filterExtensions = new String[] {  "*.epub"};
+		String[] filterNames = new String[] { "XML ZIP", "EPUB"};
+		String[] filterExtensions = new String[] { "*.zip", "*.epub"};
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
 
 		tempName = dialog.open();
@@ -211,17 +240,20 @@ public class WebViewController extends Controller {
 		File sourceBraille = new File(sourcePathBraille);
 
 		
-		//remove temp.xml from the path and go to its directory
-		path=path.replace("temp.xml", "");
-		File desc = new File(path);
-		try {
-		    FileUtils.copyFileToDirectory(source, desc);
-		    FileUtils.copyFileToDirectory(sourceFontfile, desc);
-		    FileUtils.copyFileToDirectory(sourceFontIEfile, desc);
+		//create a temp file and go to its directory to write css style sheet in the book directory
+		
+		File temp=new File(path);
+		if(temp.exists()){
+			File desc=temp.getParentFile();
+			try {
+				FileUtils.copyFileToDirectory(source, desc);
+				FileUtils.copyFileToDirectory(sourceFontfile, desc);
+				FileUtils.copyFileToDirectory(sourceFontIEfile, desc);
 
-		    FileUtils.copyFileToDirectory(sourceBraille, desc);
-		} catch (IOException e) {
-		    e.printStackTrace();
+				FileUtils.copyFileToDirectory(sourceBraille, desc);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}

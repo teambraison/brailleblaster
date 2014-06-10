@@ -1312,39 +1312,19 @@ public class Manager extends Controller {
 	}
 	
 	public int getPrintPageStart(int offset){
-		PageMapElement p = list.findPage(offset);
-		
-		if(p != null)
-			return p.start;
-		else
-			return -1;  
+		return list.getPrintPageStart(offset); 
 	}
 	
 	public int getPrintPageEnd(int offset){
-		PageMapElement p = list.findPage(offset);
-		
-		if(p != null)
-			return p.end;
-		else
-			return -1;  
+		return list.getPrintPageEnd(offset);  
 	}
 	
 	public int getBraillePageStart(int offset){
-		PageMapElement p = list.findBraillePage(offset);
-		
-		if(p != null)
-			return p.brailleStart;
-		else
-			return -1;  
+		return list.getBraillePageStart(offset); 
 	}
 	
 	public int getBraillePageEnd(int offset){
-		PageMapElement p = list.findBraillePage(offset);
-		
-		if(p != null)
-			return p.brailleEnd;
-		else
-			return -1;  
+		return list.getBraillePageEnd(offset); 
 	}
 	
 	public PageMapElement getPageElement(int offset){

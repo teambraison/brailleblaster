@@ -560,6 +560,22 @@ public class MapList extends LinkedList<TextMapElement>{
 		currentIndex = -1;
 	}
 	
+	public int getPrintPageStart(int offset){
+		return paginator.getPrintPageStart(offset);
+	}
+	
+	public int getPrintPageEnd(int offset){
+		return paginator.getPrintPageEnd(offset);
+	}
+	
+	public int getBraillePageStart(int offset){
+		return paginator.getBraillePageStart(offset); 
+	}
+	
+	public int getBraillePageEnd(int offset){
+		return paginator.getBraillePageEnd(offset);
+	}
+	
 	public void addPrintPage(PageMapElement p){
 		paginator.add(p);
 	}

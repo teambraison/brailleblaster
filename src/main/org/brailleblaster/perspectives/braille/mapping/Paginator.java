@@ -175,6 +175,42 @@ public class Paginator {
 		}
 	}
 	
+	public int getPrintPageStart(int offset){
+		PageMapElement p = findPage(offset);
+		
+		if(p != null)
+			return p.start;
+		else
+			return -1;  
+	}
+	
+	public int getPrintPageEnd(int offset){
+		PageMapElement p = findPage(offset);
+		
+		if(p != null)
+			return p.end;
+		else
+			return -1;  
+	}
+	
+	public int getBraillePageStart(int offset){
+		PageMapElement p = findBraillePage(offset);
+		
+		if(p != null)
+			return p.brailleStart;
+		else
+			return -1;  
+	}
+	
+	public int getBraillePageEnd(int offset){
+		PageMapElement p = findBraillePage(offset);
+		
+		if(p != null)
+			return p.brailleEnd;
+		else
+			return -1;  
+	}
+	
 	public void clear(){
 		list.clear();
 	}

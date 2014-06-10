@@ -39,8 +39,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.print.PrintException;
-
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -52,6 +50,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.document.SemanticFileHandler;
+import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -81,17 +80,13 @@ import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.daisy.printing.PrinterDevice;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.printing.PrintDialog;
-import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
@@ -956,27 +951,9 @@ public class Manager extends Controller {
 	}
 	
 	public void fileEmbossNow() {		
-		Shell shell = new Shell(wp.getShell(), SWT.DIALOG_TRIM);
-		PrintDialog embosser = new PrintDialog(shell);
-		PrinterData data = embosser.open();
-		
-		if (data == null || data.equals("")) {
-			return;
-		}
-		
-		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempBRF.brf";
-		if(document.createBrlFile(filePath)){
-			File translatedFile = new File(filePath);
-			PrinterDevice embosserDevice;
-			try {
-				embosserDevice = new PrinterDevice(data.name, true);
-				embosserDevice.transmit(translatedFile);
-				translatedFile.delete();
-			} catch (PrintException e) {
-				new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
-				logger.log(Level.SEVERE, "Print Exception", e);
-			}
-		}
+		EmbossersManager embosser = new EmbossersManager();
+		embosser.emboss(document);
+		embosser.close();
 	}
 	
 	public void printPreview(){

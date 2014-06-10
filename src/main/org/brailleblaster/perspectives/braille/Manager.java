@@ -68,7 +68,6 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
@@ -131,7 +130,7 @@ public class Manager extends Controller {
 		group = new Group(wp.getFolder(),SWT.NONE);
 		group.setLayout(new FormLayout());	
 		sm = new StyleManager(this);
-		treeView = loadTree();
+		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
 		braille = new BrailleView(this, group, styles);
 		item.setControl(this.group);
@@ -170,7 +169,7 @@ public class Manager extends Controller {
 		group = new Group(wp.getFolder(),SWT.NONE);
 		group.setLayout(new FormLayout());	
 		sm = new StyleManager(this);
-		treeView = loadTree();
+		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
 		braille = new BrailleView(this, group, styles);
 		this.item.setControl(group);
@@ -765,7 +764,6 @@ public class Manager extends Controller {
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
 			
 		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
-
 			
 		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
 		Styles style = styles.get("trnote");
@@ -1271,25 +1269,6 @@ public class Manager extends Controller {
 			new Notify(lh.localValue("noText"));
 		else 
 			new SpellCheckManager(this);
-	}
-	
-	private BBTree loadTree(){
-		PropertyFileManager prop = BBIni.getPropertyFileManager();
-		String tree = prop.getProperty("tree");
-		if(tree == null){
-			prop.save("tree", BookTree.class.getCanonicalName().toString());
-			return new BookTree(this, group);
-		}
-		else {			
-			try {
-				Class<?> clss = Class.forName(tree);
-				return TreeView.createTree(clss, this, group);	
-			} catch (ClassNotFoundException e) {		
-				logger.log(Level.SEVERE, "Class Not Found Exception", e);
-			} 
-		}
-		
-		return null;
 	}
 	
 	public void swapTree(Class<?> clss){

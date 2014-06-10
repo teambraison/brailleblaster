@@ -4,9 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;
@@ -26,6 +28,25 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		group = documentWindow;
 		tree = new Tree(group, SWT.VIRTUAL | SWT.BORDER);	
 		setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+	}
+	
+	public static BBTree loadTree(Manager m, Group group){
+		PropertyFileManager prop = BBIni.getPropertyFileManager();
+		String tree = prop.getProperty("tree");
+		if(tree == null){
+			prop.save("tree", BookTree.class.getCanonicalName().toString());
+			return new BookTree(m, group);
+		}
+		else {			
+			try {
+				Class<?> clss = Class.forName(tree);
+				return TreeView.createTree(clss, m, group);	
+			} catch (ClassNotFoundException e) {		
+				logger.log(Level.SEVERE, "Class Not Found Exception", e);
+			} 
+		}
+		
+		return null;
 	}
 
 	@Override

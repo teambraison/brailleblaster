@@ -668,7 +668,6 @@ public class Manager extends Controller {
 
 		text.insertText(list.get(currentIndex).end, insertionString);
 		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
-		//braille.insertLineBreak(list.get(currentIndex).brailleList.getLast().end);
 		m.put("length", insertionString.length());
 		
 		int secondElementIndex = currentIndex + 1;
@@ -734,10 +733,7 @@ public class Manager extends Controller {
 		m.put("newBrailleLength", 1);
 		m.put("brailleLength", 0);
 
-		//if(list.getCurrentIndex()  > 0)
-		//	braille.insertLineBreak(list.get(list.getCurrentIndex() - 1).brailleList.getLast().end);
-		//else
-			braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
+		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
 			
 		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
 	}
@@ -836,7 +832,6 @@ public class Manager extends Controller {
 		
 			int start = list.indexOf(itemList.get(0));
 			int end = list.indexOf(itemList.get(itemList.size() - 1));
-	//		int currentIndex = list.getCurrentIndex();
 			int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
 			if(start > 0){
 				message.put("prev", list.get(start - 1).end);
@@ -864,7 +859,6 @@ public class Manager extends Controller {
 			if(message.contains("linesAfterOffset") && list.size() > 1 && end < list.size() - 1)
 				list.shiftOffsetsFromIndex(end + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), origPos);
 
-			//list.setCurrent(currentIndex);
 			treeView.adjustItemStyle(list.getCurrent());
 			group.setRedraw(true);
 		}

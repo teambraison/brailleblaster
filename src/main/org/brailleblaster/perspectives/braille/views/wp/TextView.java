@@ -477,10 +477,8 @@ public class TextView extends WPView {
 		Message updateMessage = Message.createUpdateMessage(view.getCaretOffset(), getString(currentStart, currentEnd - currentStart), originalEnd - originalStart);
 		manager.dispatch(updateMessage);
 		words += (Integer)updateMessage.getValue("diff");
-		//sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 		currentChanges = 0;
 		textChanged = false;
-		//restoreStyleState(currentStart, currentEnd);
 	}
 	
 	private void setCurrent(int pos){

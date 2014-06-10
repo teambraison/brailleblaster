@@ -101,7 +101,6 @@ public class Manager extends Controller {
 	Control [] tabList;
 	BBSemanticsTable styles;
 	String documentName = null;
-	private boolean metaContent = false;
 	String logFile = "Translate.log";
 	String configSettings = null;
 	static String recentFileName = null;
@@ -1387,14 +1386,6 @@ public class Manager extends Controller {
 		this.simBrailleDisplayed = simBrailleDisplayed;
 	}
 
-	public boolean isMetaContent() {
-		return metaContent;
-	}
-
-	public void setMetaContent(boolean metaContent) {
-		this.metaContent = metaContent;
-	}
-
 	@Override
 	public void restore(WPManager wp) {
 		checkTreeFocus();
@@ -1438,7 +1429,7 @@ public class Manager extends Controller {
 	}
 	
 	public void setStyleTableFocus(TraverseEvent e){
-		if(this.sm.getStyleTable().isVisible()){
+		if(sm.getStyleTable().isVisible()){
 			e.doit = false;
 			sm.getStyleTable().getTable().setFocus();
 		}

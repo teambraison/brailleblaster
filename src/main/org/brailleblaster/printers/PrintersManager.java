@@ -62,7 +62,7 @@ public class PrintersManager {
 	String textToPrint;
 	String tabs;
 	StringBuffer wordBuffer;
-	 PrintDialog dialog;
+	PrintDialog dialog;
 	 
     public PrintersManager (Shell shell, StyledText st) {
     	logger = BBIni.getLogger();

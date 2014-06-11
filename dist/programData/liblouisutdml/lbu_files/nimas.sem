@@ -14,6 +14,7 @@ document book
 namespaces dsy=http://www.daisy.org/z3986/2005/dtbook/
 
 no &xpath(//dsy:li/dsy:p)
+no &xpath(//dsy:h1/dsy:p | //dsy:h2/dsy:p | //dsy:h3/dsy:p | //dsy:h4/dsy:p | //dsy:h5/dsy:p | //dsy:h6/dsy:p)
 
 # section elements
 # these are mostly here for debugging and reference

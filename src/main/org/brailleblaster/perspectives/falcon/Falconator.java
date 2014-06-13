@@ -21,6 +21,10 @@ public class Falconator
 	public native void init();
 	// Sets the current forces on the device. XYZ.
 	public native void setForce(float x, float y, float z);
+	// Sets the image that our Falcon will use to create boundaries for itself.
+	// It will essentially bump around inside of dark pixels. Groups of dark pixels
+	// will give it more room.
+	public native void setImage(String imagePath);
 	// Shuts down the device and cleans up libraries/memory/etc.
 	public native void shutdown();
 }

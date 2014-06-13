@@ -9,7 +9,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.MenuItem;
 
 public class FalconMenu extends BBMenu{
-	private final int MENU_INDEX = 1;
+	private final int MENU_INDEX = 2;
 	FalconController currentController;
 
 	MenuItem openItem;

@@ -220,10 +220,74 @@ public class ImageDescriberView {
 			}
 		});
 
+		// Set up browser navigation buttons.
+		
+				// Next page/chapter/file button.
+				nextPage = new Button(group, SWT.PUSH);
+				nextPage.setText("Next Page >>");
+				setFormData(nextPage, 16, 26, 0, 5);
+				nextPage.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+
+						// Move to next page.
+						curBrowserFilePath = idd.nextSpineFilePath();
+						
+						// Grab image count list.
+						ArrayList<Integer> imgCntList = idd.getImgCountList();
+						
+						// Count images in each page until we get to the first one 
+						// on the current page/chapter.
+						int curImgIdx = 0;
+						for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+							curImgIdx += imgCntList.get(curP);
+							
+						// Set current image.
+						idd.setImageGoto(curImgIdx);
+
+						// Update current page if needed.
+						setBrowser();
+						
+						// Scroll to first image.
+						scrollBrowserToCurImg();
+					}
+				});
+				
+				// Previous page/chapter/file button.
+				prevPage = new Button(group, SWT.PUSH);
+				prevPage.setText("<< Previous Page"); 
+				setFormData(prevPage, 26, 38, 0, 5);
+				prevPage.addSelectionListener(new SelectionAdapter() {
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						
+						// Previous page.
+						curBrowserFilePath = idd.prevSpineFilePath();
+						
+						// Grab image count list.
+						ArrayList<Integer> imgCntList = idd.getImgCountList();
+						
+						// Count images in each page until we get to the first one 
+						// on the current page/chapter.
+						int curImgIdx = 0;
+						for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+							curImgIdx += imgCntList.get(curP);
+							
+						// Set current image.
+						idd.setImageGoto(curImgIdx);
+
+						// Update current page if needed.
+						setBrowser();
+						
+						// Scroll to first image.
+						scrollBrowserToCurImg();
+					}
+				});
+		
 		// Create undo button.
 		undoBtn = new Button(group, SWT.PUSH);
 		undoBtn.setText("Undo");
-		setFormData(undoBtn, 28, 35, 0, 5);
+		setFormData(undoBtn, 40, 47, 0, 5);
 		undoBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -239,7 +303,7 @@ public class ImageDescriberView {
 		// to what was in the notes.
 		applyToAllBtn = new Button(group, SWT.PUSH);
 		applyToAllBtn.setText("Apply To All");
-		setFormData(applyToAllBtn, 35, 42, 0, 5);
+		setFormData(applyToAllBtn, 47, 54, 0, 5);
 		applyToAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -286,7 +350,7 @@ public class ImageDescriberView {
 		// Clear all button. Clears the prodnote and alt attribute.
 		clearAllBtn = new Button(group, SWT.PUSH);
 		clearAllBtn.setText("Clear All");
-		setFormData(clearAllBtn, 42, 49, 0, 5);
+		setFormData(clearAllBtn, 54, 61, 0, 5);
 		clearAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -339,7 +403,7 @@ public class ImageDescriberView {
 		
 		// The alt box is for updating the "alt text" in an image element.
 		altBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(altBox, 0, 49, 8, 15);
+		setFormData(altBox, 0, 20, 8, 15);
 		if(imgDesc.getCurElmAttribute("alt") != null)
 			altBox.setText(imgDesc.getCurElmAttribute("alt"));
 		altBox.addModifyListener(new ModifyListener() {
@@ -358,7 +422,7 @@ public class ImageDescriberView {
 		
 		// Create image description text box.
 		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(imgDescTextBox, 0, 49, 20, 40);
+		setFormData(imgDescTextBox, 0, 20, 20, 40);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent arg0) { 
@@ -373,72 +437,8 @@ public class ImageDescriberView {
 		
 		// Setup main image.
 		mainImage = new Label(group, SWT.CENTER | SWT.BORDER);
-		setFormData(mainImage, 0, 49, 40, 100);
+		setFormData(mainImage, 0, 20, 40, 100);
 		setMainImage();
-		
-		// Set up browser navigation buttons.
-		
-		// Next page/chapter/file button.
-		nextPage = new Button(group, SWT.PUSH);
-		nextPage.setText("Next Page >>");
-		setFormData(nextPage, 75, 85, 0, 5);
-		nextPage.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-
-				// Move to next page.
-				curBrowserFilePath = idd.nextSpineFilePath();
-				
-				// Grab image count list.
-				ArrayList<Integer> imgCntList = idd.getImgCountList();
-				
-				// Count images in each page until we get to the first one 
-				// on the current page/chapter.
-				int curImgIdx = 0;
-				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
-					curImgIdx += imgCntList.get(curP);
-					
-				// Set current image.
-				idd.setImageGoto(curImgIdx);
-
-				// Update current page if needed.
-				setBrowser();
-				
-				// Scroll to first image.
-				scrollBrowserToCurImg();
-			}
-		});
-		
-		// Previous page/chapter/file button.
-		prevPage = new Button(group, SWT.PUSH);
-		prevPage.setText("<< Previous Page"); 
-		setFormData(prevPage, 65, 75, 0, 5);
-		prevPage.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
-				// Previous page.
-				curBrowserFilePath = idd.prevSpineFilePath();
-				
-				// Grab image count list.
-				ArrayList<Integer> imgCntList = idd.getImgCountList();
-				
-				// Count images in each page until we get to the first one 
-				// on the current page/chapter.
-				int curImgIdx = 0;
-				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
-					curImgIdx += imgCntList.get(curP);
-					
-				// Set current image.
-				idd.setImageGoto(curImgIdx);
-
-				// Update current page if needed.
-				setBrowser();
-				
-				// Scroll to first image.
-				scrollBrowserToCurImg();
-			}
-		});
 
 		// Setup browser window.
 		browser = new Browser(group, SWT.BORDER);
@@ -551,9 +551,18 @@ public class ImageDescriberView {
         	        	// not displaying properly in the browser 
         	        	// view.
         	        	if(refreshOnce == true) {
+        	        		
+        	        		// Don't do it again!
         	        		refreshOnce = false;
+            	        	
+            	        	// Refresh.
         	        		browser.refresh();
         	        	}
+        	        	
+        	        	// Resize images so they fit our screen.
+        	        	// We call it here instead of before the refresh above.
+        	        	// Otherwise, it doesn't take.
+        	        	script_resizeImages();
         	        	
         	        	// By putting this here, we force the page to scroll after our 
         	        	// first refresh on load.
@@ -567,12 +576,12 @@ public class ImageDescriberView {
         	browser.setUrl( curBrowserFilePath );
 
 			// Set browser bounds.
-        	setFormData(browser, 49, 100, 6, 100);
+        	setFormData(browser, 21, 100, 6, 100);
 		}
 		else {
 			// Set browser bounds.
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
-			setFormData(browser, 49, 100, 6, 100);
+			setFormData(browser, 21, 100, 6, 100);
 		}
 	}
 	
@@ -620,6 +629,23 @@ public class ImageDescriberView {
 		// Execute script.
 		browser.execute(s);
 	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Via Javascript, we traverse the DOM and resize images so they better fit in the window.
+	public void script_resizeImages()
+	{
+		// Create script.
+		String s = "var allLinks = document.getElementsByTagName('img');" + 
+				   "for (var i = 0, max = allLinks.length; i < max; i++)" + 
+				   "{" + 
+				   "	allLinks[i].style.cssText = 'max-width: 100%';" + 
+				   "	allLinks[i].style.cssText = 'max-height: 100%';" +
+				   "}";
+		
+		// Execute script.
+		browser.execute(s);
+		
+	} // script_resizeImages()
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Resizes our widgets depending on screen resolution.

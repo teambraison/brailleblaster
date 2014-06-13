@@ -11,7 +11,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-public class ImageDescriberMenu extends BBMenu{
+public class ImageDescriberMenu extends BBMenu {
 	private final int MENU_INDEX = 1;
 	ImageDescriberController currentController;
 	

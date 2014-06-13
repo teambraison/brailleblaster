@@ -15,42 +15,41 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
-public class FalconController extends Controller{
+public class FalconController extends Controller {
 
-	FalconDocument falcDoc;
-	Falconator falcon = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\imageDescriber\\Falconator.dll");
+	FalconDocument falcDoc = null;
+	Falconator falcon = new Falconator("C:\\APPS\\cygwin\\home\\cmyers\\brailleblaster\\src\\main\\org\\brailleblaster\\perspectives\\falcon\\Falconator.dll");
 	Group group;
-	
+	FalconView fv;
+
 	public FalconController(WPManager wordProcesserManager, String fileName) {
 		super(wordProcesserManager);
-		
+
 		this.item = new TabItem(wp.getFolder(), 0);
 		this.group = new Group(wp.getFolder(), SWT.NONE);
 		this.group.setLayout(new FormLayout());
-		
+
 		// Start the image describer and build the DOM
-		if(fileName != null){
-			if(openDocument(fileName))
-				item.setText(fileName.substring(fileName.lastIndexOf(File.separatorChar) + 1));
-		}
-		else {
-			if(openDocument(null)){
+		if (fileName != null) {
+			if (openDocument(fileName))
+				item.setText(fileName.substring(fileName
+						.lastIndexOf(File.separatorChar) + 1));
+		} else {
+			if (openDocument(null)) {
 				docCount++;
-				if(docCount > 1)
+				if (docCount > 1)
 					item.setText("Untitled #" + docCount);
 				else
 					item.setText("Untitled");
 			}
 		}
+
+		// Set the views in the tab area
+		fv = new FalconView(this.group, falcDoc, this);
 		
-		//Set the views in the tab area
-//		idv = new ImageDescriberView(this.group, imgDesc, this);
 		this.item.setControl(this.group);
-		
-		// Image helper class. Image helper functions, and such.
-//		imgHelper = new ImageHelper();
 	}
-	
+
 	public FalconController(WPManager wp, Document doc, TabItem tabItem, Archiver arch) {
 		super(wp);
 
@@ -58,67 +57,85 @@ public class FalconController extends Controller{
 
 		falcDoc = new FalconDocument(this, doc);
 		this.item = tabItem;
-		
-		if(falcon != null)
+
+		if (falcon != null)
 			falcon.init();
-		
-//		this.group = new Group(wp.getFolder(), SWT.NONE);
-//		this.group.setLayout(new FormLayout());
-//		idv = new ImageDescriberView(this.group, imgDesc, this);
-//		this.item.setControl(this.group);
-//		idv.setTextBox(imgDesc.getCurDescription());
+
+		this.group = new Group(wp.getFolder(), SWT.NONE);
+		this.group.setLayout(new FormLayout());
+		fv = new FalconView(this.group, falcDoc, this);
+		this.item.setControl(this.group);
 	}
 
-	public boolean openDocument(String fileName){
-		
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// Sets the forces on the Falcon Device.
+	public void setForce(float x, float y, float z) {
+		falcon.setForce(x, y, z);
+	} // setForce()
+
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// Sets the image that our Falcon will use for boundaries.
+	public void setImage(String path) {
+		falcon.setImage(path);
+	} // setImage()
+	
+	public boolean openDocument(String fileName) {
+
 		// Make sure we have a valid filename.
-		if(fileName != null) 
-			arch = ArchiverFactory.getArchive(fileName);
-		else
-			arch = ArchiverFactory.getArchive(templateFile);
-		
+		if (fileName == null)
+			return false;
+		// fileName = templateFile;
+		arch = ArchiverFactory.getArchive(fileName);
+
 		// Recent Files.
 		addRecentFileEntry(fileName);
-		
+
 		// Start the document.
-		try { return falcDoc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null); }
+		boolean result = false;
+		try {
+			result = falcDoc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
+		}
 		catch (Exception e) { e.printStackTrace(); }
-		return false;
+		
+		return result;
 	}
 
 	public void fileOpenDialog() {
-		falcon.setForce(0.0f, 7.0f, 0.0f);
 		String tempName;
-		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
-		
+		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB",
+				"XHTML", "HTML", "HTM", "UTDML working document" };
+		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub",
+				"*.xhtml", "*.html", "*.htm", "*.utd" };
+		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN,
+				filterNames, filterExtensions);
+
 		tempName = dialog.open();
-		
+
 		// Don't do any of this if the user failed to choose a file.
-		if(tempName != null) {
+		if (tempName != null) {
 			// Open it.
-			if(!canReuseTab())
+			if (!canReuseTab()) {
 				wp.addDocumentManager(tempName);
-			else 
+			}
+			else
 				reuseTab(tempName);
-			
+
 			addRecentFileEntry(tempName);
-			
+
 		} // if(tempName != null)
 
 	} // fileOpenDialog()
-	
+
 	@Override
 	public void restore(WPManager wp) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void dispose() {
 		falcon.shutdown();
-		
+		if (falcDoc != null)
+			falcDoc.cleanup();
 	}
 
 	@Override
@@ -134,13 +151,13 @@ public class FalconController extends Controller{
 
 	@Override
 	public void setStatusBarText(BBStatusBar statusBar) {
-		statusBar.setText( "Novint Falcon Perspective" );
-		
+		statusBar.setText("Novint Falcon Perspective");
+
 	}
 
 	@Override
 	public boolean canReuseTab() {
-		if(arch.getOrigDocPath() != null || arch.getDocumentEdited())
+		if (arch.getOrigDocPath() != null || arch.getDocumentEdited())
 			return false;
 		else
 			return true;
@@ -151,13 +168,25 @@ public class FalconController extends Controller{
 		closeUntitledDocument();
 		openDocument(file);
 		item.setText(file.substring(file.lastIndexOf(File.separatorChar) + 1));
-//		idv.setMainImage();
-//		idv.setBrowser();
-//		idv.setTextBox(imgDesc.getCurDescription());
-//		idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
+		
+		// Only get an image if there is a document.
+		if(falcDoc != null)
+		{
+			// Get the first image. If there isn't one, grab them all from 
+			// the document.
+			if(falcDoc.getCurImg() == null)
+				falcDoc.initImages();
+			
+			// Get the image.
+			if(falcDoc.getCurImg() != null)
+				fv.setImage(falcDoc.getCurImg());
+		}
+		
+		// idv.setTextBox(imgDesc.getCurDescription());
+		// idv.setAltBox(imgDesc.getCurElmAttribute("alt"));
 	}
 
-	private void closeUntitledDocument(){
+	private void closeUntitledDocument() {
 		falcDoc.deleteDOM();
 	}
 }

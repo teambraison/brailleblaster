@@ -222,67 +222,67 @@ public class ImageDescriberView {
 
 		// Set up browser navigation buttons.
 		
-				// Next page/chapter/file button.
-				nextPage = new Button(group, SWT.PUSH);
-				nextPage.setText("Next Page >>");
-				setFormData(nextPage, 16, 26, 0, 5);
-				nextPage.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-
-						// Move to next page.
-						curBrowserFilePath = idd.nextSpineFilePath();
-						
-						// Grab image count list.
-						ArrayList<Integer> imgCntList = idd.getImgCountList();
-						
-						// Count images in each page until we get to the first one 
-						// on the current page/chapter.
-						int curImgIdx = 0;
-						for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
-							curImgIdx += imgCntList.get(curP);
-							
-						// Set current image.
-						idd.setImageGoto(curImgIdx);
-
-						// Update current page if needed.
-						setBrowser();
-						
-						// Scroll to first image.
-						scrollBrowserToCurImg();
-					}
-				});
+		// Previous page/chapter/file button.
+		prevPage = new Button(group, SWT.PUSH);
+		prevPage.setText("<< Previous Page"); 
+		setFormData(prevPage, 16, 26, 0, 5);
+		prevPage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
 				
-				// Previous page/chapter/file button.
-				prevPage = new Button(group, SWT.PUSH);
-				prevPage.setText("<< Previous Page"); 
-				setFormData(prevPage, 26, 38, 0, 5);
-				prevPage.addSelectionListener(new SelectionAdapter() {
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						
-						// Previous page.
-						curBrowserFilePath = idd.prevSpineFilePath();
-						
-						// Grab image count list.
-						ArrayList<Integer> imgCntList = idd.getImgCountList();
-						
-						// Count images in each page until we get to the first one 
-						// on the current page/chapter.
-						int curImgIdx = 0;
-						for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
-							curImgIdx += imgCntList.get(curP);
-							
-						// Set current image.
-						idd.setImageGoto(curImgIdx);
+				// Previous page.
+				curBrowserFilePath = idd.prevSpineFilePath();
+				
+				// Grab image count list.
+				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				
+				// Count images in each page until we get to the first one 
+				// on the current page/chapter.
+				int curImgIdx = 0;
+				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+					curImgIdx += imgCntList.get(curP);
+					
+				// Set current image.
+				idd.setImageGoto(curImgIdx);
 
-						// Update current page if needed.
-						setBrowser();
-						
-						// Scroll to first image.
-						scrollBrowserToCurImg();
-					}
-				});
+				// Update current page if needed.
+				setBrowser();
+				
+				// Scroll to first image.
+				scrollBrowserToCurImg();
+			}
+		});
+		
+		// Next page/chapter/file button.
+		nextPage = new Button(group, SWT.PUSH);
+		nextPage.setText("Next Page >>");
+		setFormData(nextPage, 26, 36, 0, 5);
+		nextPage.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+
+				// Move to next page.
+				curBrowserFilePath = idd.nextSpineFilePath();
+				
+				// Grab image count list.
+				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				
+				// Count images in each page until we get to the first one 
+				// on the current page/chapter.
+				int curImgIdx = 0;
+				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+					curImgIdx += imgCntList.get(curP);
+					
+				// Set current image.
+				idd.setImageGoto(curImgIdx);
+
+				// Update current page if needed.
+				setBrowser();
+				
+				// Scroll to first image.
+				scrollBrowserToCurImg();
+			}
+		});
 		
 		// Create undo button.
 		undoBtn = new Button(group, SWT.PUSH);

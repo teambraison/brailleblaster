@@ -119,6 +119,8 @@ enum StyleStatus {
   */
 class StyleType {
   String name = "";
+  String topBoxline = "";
+  String bottomBoxline = "";
   int linesBefore = 0;
   int linesAfter = 0;
   int leftMargin = 0;

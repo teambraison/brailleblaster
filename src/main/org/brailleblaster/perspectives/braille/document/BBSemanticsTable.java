@@ -37,7 +37,9 @@ public class BBSemanticsTable {
 		keepWithNext,
 		dontSplit,
 		orphanControl,
-		newlineAfter;
+		newlineAfter,
+		topBoxline,
+		bottomBoxline;
 	}
 	
 	public class Styles{

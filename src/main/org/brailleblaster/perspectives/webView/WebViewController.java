@@ -120,6 +120,7 @@ public class WebViewController extends Controller {
 		if(arch instanceof NimasArchiver)
 		{
 			isEpub=false;
+			//((NimasArchiver)arch).manageNimas();
 			str=copyFile(currentPath);
 		}
 

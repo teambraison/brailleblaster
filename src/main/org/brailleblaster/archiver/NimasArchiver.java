@@ -30,6 +30,21 @@
 
 package org.brailleblaster.archiver;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.Node;
+import nu.xom.Nodes;
+import nu.xom.ParsingException;
+import nu.xom.ValidityException;
+import nu.xom.XPathContext;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
@@ -151,4 +166,120 @@ public class NimasArchiver extends Archiver {
 		arch.save(doc, path);
 		return arch;
 	}
+    /***
+     * Get partition nimas book
+     * @return ArrayList of Document which each entry of an array includes a nimas book
+     */
+	public ArrayList<Document> manageNimas()
+	{
+		ArrayList<Document> allDocs =new ArrayList<Document>();
+		//Read xml template
+		String sourcePath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"xmlTemplates"+BBIni.getFileSep() +"nimasTemplate.xml";
+		File temp = new File(sourcePath);
+		//get all level1 element
+		Nodes allNode=getLevel1();
+		for (int i=0;i<allNode.size();i++){
+			Node node=allNode.get(i);
+			allDocs.add(breakDocument(temp,node));
+			
+		}
+		
+		return allDocs;
+		
+	}
+	/**
+	 * Create an empty Document
+	 * @param tempfile
+	 * @return Document
+	 */
+	Document createDocument(File tempfile)
+	{
+		Document tempDoc=new Document(new Element("root"));
+		try{
+			Builder parser=new Builder();
+			tempDoc= parser.build(tempfile);
+		}
+		catch (ValidityException ex) {
+			System.err.println("xml is not valid)");
+		}
+		catch (ParsingException ex) {
+			System.err.println("couldnt parse it");
+		}
+		catch (IOException ex) {
+			System.err.println("some errors happened");
+		}
+		return tempDoc;
+	}
+	/**
+	 * Create Namespase and get context
+	 * @param doc
+	 * @return context of document
+	 */
+	nu.xom.XPathContext getConetxt(Document doc)
+	{
+		// Namespace and context.
+		String nameSpace = doc.getRootElement().getNamespaceURI();
+		nu.xom.XPathContext context = new nu.xom.XPathContext("dyb", nameSpace);
+		return context;
+
+	}
+	/***
+	 * Get Node by using xpath
+	 * @param qeuery
+	 * @param doc
+	 * @param context
+	 * @return
+	 */
+	Nodes getXpath (String qeuery, Document doc,nu.xom.XPathContext context )
+	{
+		Nodes result = doc.query(qeuery,context);
+		return result;
+
+	}
+
+	/**
+	 * Add Node to template
+	 * @param addedNode
+	 * @return small nimas document
+	 */
+	Document breakDocument(File temp,Node addedNode){
+		Document tempDoc=createDocument(temp);
+		nu.xom.XPathContext contextTemp=getConetxt(tempDoc);
+		Nodes frontmatter =getXpath ("//dyb:frontmatter", tempDoc ,contextTemp );
+		Nodes bodymatter =getXpath ("//dyb:bodymatter", tempDoc ,contextTemp );
+		Nodes rearmatter =getXpath ("//dyb:rearmatter", tempDoc ,contextTemp );
+		Element front=(Element) frontmatter.get(0);
+		Element body=(Element) bodymatter.get(0);
+		Element rear=(Element) rearmatter.get(0);
+		//get parent node
+		Element parentNode=(Element)addedNode.getParent();
+		addedNode.detach();
+		if (parentNode.getLocalName().equals("frontmatter"))
+			front.appendChild(addedNode);
+		if (parentNode.getLocalName().equals("bodymatter"))
+			body.appendChild(addedNode);
+		if (parentNode.getLocalName().equals("rearmatter"))
+			rear.appendChild(addedNode);
+		return tempDoc;
+
+	}
+	/***
+	 * Get All level1 in current nimas file
+	 * @return
+	 */
+	Nodes getLevel1(){
+		//Read current nimas file
+		File file=new File(workingDocPath);
+		//create a document
+		Document nimasDocument = createDocument(file);
+		//get context
+		nu.xom.XPathContext context= getConetxt(nimasDocument);
+		// get all level one elements		
+		Nodes levelOnes=getXpath ("//dyb:level1", nimasDocument ,context );
+		return levelOnes;
+
+	}
+
+	
+	
 } // class NimasArchiver

@@ -15,22 +15,6 @@ elementFormDefault="qualified">
 </xs:element>
 
 <xs:annotation>
-<xs:documentation>The span element. What are the allowed child elements? Right now it is only text. John B. specified a class attribute but since "class" has a conventional use in HTML and XML I chose to create an attribute "type" which is more generic.</xs:documentation>
-</xs:annotation>
-<xs:element name="span">
-<xs:complexType"
-<xs:attribute name="type">
-<xs:simpleType>
-<xs:restriction base="xs:string">
-<xs:enumeration value="brlonly"/>
-<xs:enumeration value="locked"/>
-</xs:restriction>
-</xs:simpleType>
-</xs:attribute>
-</xs:complexType>
-</xs:element>
-
-<xs:annotation>
 <xs:documentation>The newline element with attributes xPos and yPos. This seems better than using comma-delimited values in a single attribute but we can change if others disagree.</xs:documentation>
 </xs:annotation>
 <xs:element name="newline">
@@ -77,11 +61,21 @@ elementFormDefault="qualified">
         <xs:complexType>
         <xs:choice maxOccurs="1" minOccurs="unbounded">
                 <xs:element ref="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element ref="span" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element ref="newpage" minOccurs="0" maxOccurs="unbounded"/>
+                                <xs:element ref="newline" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
                 <xs:sequence>
                 <xs:attribute name="index" type="xs:string" use="required"/>
                 <xs:attribute name="changetable" type="xs:string" use="optional"/>                </xs:sequence>
+<xs:attribute name="type">
+<xs:simpleType>
+<xs:restriction base="xs:string">
+<xs:enumeration value="brlonly"/>
+<xs:enumeration value="noText"/>
+<xs:enumeration value="text"/>
+</xs:restriction>
+</xs:simpleType>
+</xs:attribute>
             </xs:complexType>
             </xs:element>
     

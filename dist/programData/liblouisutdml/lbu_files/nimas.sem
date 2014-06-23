@@ -47,7 +47,7 @@ heading4 author
 no note
 no div
 no span
-no sidebar
+boxline sidebar
 skip doctitle
 skip docauthor
 para p

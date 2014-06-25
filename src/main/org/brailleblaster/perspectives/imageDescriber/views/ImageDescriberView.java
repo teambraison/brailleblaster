@@ -362,9 +362,11 @@ public class ImageDescriberView {
 				// Warn user before doing this. It could take a while.
 				if( msgB.open() == SWT.OK)
 				{
-					// Apply what is in the edit box first.
-					imgDesc.setDescription("", null, null, null);
+					// Update edit boxes.
+					altBox.setText("");
 					imgDescTextBox.setText("");
+					// Change descriptions.
+					imgDesc.setDescription("", null, null, "");
 
 					// Current image path.
 					String curImgPath = "";

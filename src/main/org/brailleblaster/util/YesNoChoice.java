@@ -43,10 +43,14 @@ public class YesNoChoice {
 	 */
 	public int result;
 
-	public YesNoChoice(String message) {
+	public YesNoChoice(String message, boolean includeCancel) {
 		Display display = WPManager.getDisplay();
 		Shell shell = new Shell(display, SWT.DIALOG_TRIM);
-		MessageBox mb = new MessageBox(shell, SWT.YES | SWT.NO);
+		MessageBox mb;
+		if(includeCancel)
+			mb = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL);
+		else
+			mb = new MessageBox(shell, SWT.YES | SWT.NO);
 		mb.setMessage(message);
 		result = mb.open();
 		shell.dispose();

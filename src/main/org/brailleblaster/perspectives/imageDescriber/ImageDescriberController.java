@@ -43,7 +43,6 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -204,12 +203,6 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public void close() {
-		if(arch.getDocumentEdited()){
-			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
-			if (ync.result == SWT.YES) {
-				save();
-			}
-		}
 		dispose();
 		item.dispose();
 	}

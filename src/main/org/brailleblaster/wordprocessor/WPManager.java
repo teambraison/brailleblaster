@@ -191,7 +191,7 @@ public class WPManager {
         if (BBIni.haveLiblouisutdml()) {
             return;
         }
-        if (new YesNoChoice("The Braille facility is not usable." + " See the log." + " Do you wish to continue?").result == SWT.NO) {
+        if (new YesNoChoice("The Braille facility is not usable." + " See the log." + " Do you wish to continue?", false).result == SWT.NO) {
             System.exit(1);
         }
     }

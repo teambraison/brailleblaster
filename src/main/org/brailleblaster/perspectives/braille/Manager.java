@@ -75,7 +75,6 @@ import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.PropertyFileManager;
-import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
@@ -887,12 +886,6 @@ public class Manager extends Controller {
 	
 	@Override
 	public void close() {
-		if (!BBIni.debugging() && (text.hasChanged || braille.hasChanged || arch.getDocumentEdited())) {
-			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"));
-			if (ync.result == SWT.YES) {
-				fileSave();
-			}
-		}
 		dispose();
 		item.dispose();
 		fontManager.disposeFonts();
@@ -1462,5 +1455,10 @@ public class Manager extends Controller {
 			((Element)n.get(0)).appendChild(p);
 			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
 		}
+	}
+	
+	@Override
+	public boolean documentHasBeenEdited(){
+		return text.hasChanged || braille.hasChanged || arch.getDocumentEdited();
 	}
 }

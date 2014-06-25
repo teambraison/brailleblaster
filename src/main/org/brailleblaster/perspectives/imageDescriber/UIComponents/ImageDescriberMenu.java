@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
+import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -98,16 +99,28 @@ public class ImageDescriberMenu extends BBMenu {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int count = wp.getFolder().getItemCount();				
-				Controller temp = currentController;
+				boolean cancel = false;
+				if(currentController.documentHasBeenEdited()){
+					YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
+					if (ync.result == SWT.YES) {
+						currentController.save();
+					}
+					else if(ync.result == SWT.CANCEL)
+						cancel =true;
+				}
 				
-				if(count > 0)
-					currentController.close();
+				if(!cancel){
+					int count = wp.getFolder().getItemCount();				
+					Controller temp = currentController;
+				
+					if(count > 0)
+						currentController.close();
 
-				wp.removeController(temp);
+					wp.removeController(temp);
 	
-				if(wp.getList().size() == 0)
-					setCurrent(null);	
+					if(wp.getList().size() == 0)
+						setCurrent(null);
+				}
 			}
 		});
 		

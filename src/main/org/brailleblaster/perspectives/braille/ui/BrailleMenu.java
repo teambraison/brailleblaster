@@ -1,10 +1,12 @@
 package org.brailleblaster.perspectives.braille.ui;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.settings.SettingsDialog;
+import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -247,18 +249,28 @@ public class BrailleMenu extends BBMenu{
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int count = wp.getFolder().getItemCount();
-				//wp.getList().get(index).close();
-				//wp.getList().remove(index);
+				boolean cancel = false;
+				if (!BBIni.debugging() && currentEditor.documentHasBeenEdited()) {
+					YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
+					if (ync.result == SWT.YES) {
+						currentEditor.fileSave();
+					}
+					else if(ync.result == SWT.CANCEL)
+						cancel = true;
+				}
 				
-				Controller temp = currentEditor;
-				wp.removeController(temp);
+				if(!cancel){
+					int count = wp.getFolder().getItemCount();
 				
-				if(count > 0)
-					temp.close();			
+					Controller temp = currentEditor;
+					wp.removeController(temp);
+				
+					if(count > 0)
+						temp.close();			
 	
-				if(wp.getList().size() == 0)
-					setCurrent(null);
+					if(wp.getList().size() == 0)
+						setCurrent(null);
+				}
 			}
 		});
 		

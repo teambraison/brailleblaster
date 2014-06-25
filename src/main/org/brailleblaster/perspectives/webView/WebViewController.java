@@ -11,6 +11,7 @@ import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
+import org.brailleblaster.converter.Converter;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.webView.WebViewDocument.webViewDocument;
 import org.brailleblaster.wordprocessor.BBFileDialog;
@@ -121,6 +122,8 @@ public class WebViewController extends Controller {
 		{
 			isEpub=false;
 			//((NimasArchiver)arch).manageNimas();
+			
+			//Converter c= new Converter((NimasArchiver)arch);
 			str=copyFile(currentPath);
 		}
 

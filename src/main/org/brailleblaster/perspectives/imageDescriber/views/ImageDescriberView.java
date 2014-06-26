@@ -702,7 +702,8 @@ public class ImageDescriberView {
 	public void disposeHTMLFile()
 	{
     	// Delete the html file we created.
-    	new File(curBrowserFilePath).delete();
+		if(curBrowserFilePath != null)
+			new File(curBrowserFilePath).delete();
     	curBrowserFilePath = null;
 		
 	} // disposeHTMLFile()

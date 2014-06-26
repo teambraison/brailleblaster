@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import nu.xom.Element;
@@ -510,33 +512,9 @@ public class ImageDescriberView {
 		
 		// Create copy of file as html and load into browser widget.
 		if(idd.getWorkingPath() != null && imgDesc.getImageList().size() > 0) {
-			// Make copy of the file.
-		    File fin = new File(idd.getWorkingPath());
-		    File fout = new File(idd.getWorkingPath().replaceAll(".xml", ".html"));
-            try
-            {
-    		    InputStream input = null;
-    	        OutputStream output = null;
-				input = new FileInputStream(fin);
-				output = new FileOutputStream(fout);
-		        byte[] buf = new byte[1024];
-		        int bytesRead;
-				while ((bytesRead = input.read(buf)) > 0) {
-					output.write(buf, 0, bytesRead);
-				}
-				input.close();
-	            output.close();
-			}
-			catch (FileNotFoundException e1) { e1.printStackTrace(); }
-            catch (IOException e1) { e1.printStackTrace(); }
-            
-			// Get path to full file.
-            curBrowserFilePath = fout.getAbsolutePath();
-            
-            // If there are spine paths, that means there are multiple 
-            // files to load.
-        	if(idd.getCurSpineFilePath() != null)
-        		curBrowserFilePath = idd.getCurSpineFilePath();
+			
+				// Creates an HTML file from our xml file.
+				createHTMLFile();
 
         		// Progress listener. Adds javascript code that will modify our img elements with 
         	    // height information.
@@ -576,7 +554,7 @@ public class ImageDescriberView {
         	
         	// Finally, jam the file into the browser widget.
         	browser.setUrl( curBrowserFilePath );
-
+        	
 			// Set browser bounds.
         	setFormData(browser, 21, 100, 6, 100);
 		}
@@ -687,9 +665,56 @@ public class ImageDescriberView {
 		c.setFont( new Font(null, oldFontData[0]) );
 	}
 	
+	// Copy's the xml file and creates an html file from it.
+	public void createHTMLFile()
+	{
+		// Make copy of the file.
+	    File fin = new File(idd.getWorkingPath());
+	    File fout = new File(idd.getWorkingPath().replaceAll(".xml", ".html"));
+        try
+        {
+		    InputStream input = null;
+	        OutputStream output = null;
+			input = new FileInputStream(fin);
+			output = new FileOutputStream(fout);
+	        byte[] buf = new byte[1024];
+	        int bytesRead;
+			while ((bytesRead = input.read(buf)) > 0) {
+				output.write(buf, 0, bytesRead);
+			}
+			input.close();
+            output.close();
+		}
+		catch (FileNotFoundException e1) { e1.printStackTrace(); }
+        catch (IOException e1) { e1.printStackTrace(); }
+        
+		// Get path to full file.
+        curBrowserFilePath = fout.getAbsolutePath();
+        
+        // If there are spine paths, that means there are multiple 
+        // files to load.
+    	if(idd.getCurSpineFilePath() != null)
+    		curBrowserFilePath = idd.getCurSpineFilePath();
+    	
+	} //createHTMLFile()
+	
+	// Removes temporary HTML from our unzipped directory.
+	public void disposeHTMLFile()
+	{
+    	// Delete the html file we created.
+    	new File(curBrowserFilePath).delete();
+    	curBrowserFilePath = null;
+		
+	} // disposeHTMLFile()
+	
 	public void disposeUI(){
+		
+		// Dispose UI stuff.
 		mainImage.getImage().dispose();
 		group.dispose();
+		
+		// Get rid of temp HTML file.
+		disposeHTMLFile();
 	}
 	
 	private void toggleUI(){

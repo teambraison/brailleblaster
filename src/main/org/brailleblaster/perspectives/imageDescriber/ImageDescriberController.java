@@ -38,6 +38,7 @@ import nu.xom.Document;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;
+import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
@@ -127,7 +128,12 @@ public class ImageDescriberController extends Controller {
 			arch = ArchiverFactory.getArchive(fileName);
 		else
 			arch = ArchiverFactory.getArchive(templateFile);
-			
+		
+		// If we have a Nimas file, convert to epub then push along to BB.
+//		if(arch instanceof NimasArchiver) {
+//			((NimasArchiver)(arch)).convertToEPUB();
+//		} // if(arch instanceof NimasArchiver)
+		
 		////////////////
 		// Recent Files.
 		addRecentFileEntry(fileName);		
@@ -160,6 +166,10 @@ public class ImageDescriberController extends Controller {
 	}
 	
 	public void save(){
+		
+		// Before saving, delete the temp html file.
+		idv.disposeHTMLFile();
+		
 		if(arch.getOrigDocPath() == null)
 			saveAs();
 		else {
@@ -177,6 +187,9 @@ public class ImageDescriberController extends Controller {
 		
 			arch.setDocumentEdited(false);
 		}
+		
+		// Recreate the HTML file, just in case they need it again.
+		idv.createHTMLFile();
 	}
 	
 	public void saveAs(){
@@ -184,10 +197,17 @@ public class ImageDescriberController extends Controller {
 		String filePath = dialog.open();
 		
 		if(filePath != null){
+			
+			// Before saving, delete the temp html file.
+			idv.disposeHTMLFile();
+			
 			String ext = getFileExt(filePath);
 			arch.saveAs(imgDesc, filePath, ext);
 		   
 			arch.setDocumentEdited(false);
+			
+			// Recreate the HTML file, just in case they need it again.
+			idv.createHTMLFile();
 		}
 	}
 	

@@ -14,8 +14,17 @@ elementFormDefault="qualified">
 </xs:complexType>
 </xs:element>
 
+<xs:element name="brlpagenum">
 <xs:annotation>
-<xs:documentation>The newline element with attributes h-pos and v-pos. This seems better than using comma-delimited values in a single attribute but we can change if others disagree. We changed to using 'v' and 'h' rather than 'y' and 'x' to make it more clear as to which axis is being set.</xs:documentation>
+<xs:documentation>Indicates a page number for embossed braille.</xs:documentation>
+</xs:annotation>
+<xs:complexType>
+                <xs:element ref="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+</xs:complexType>
+</xs:element>
+
+<xs:annotation>
+<xs:documentation>The newline element with attributes h-pos and v-pos. </xs:documentation>
 </xs:annotation>
 <xs:element name="newline">
 <xs:complexType>
@@ -63,6 +72,7 @@ elementFormDefault="qualified">
                 <xs:element ref="xs:string" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element ref="newpage" minOccurs="0" maxOccurs="unbounded"/>
                                 <xs:element ref="newline" minOccurs="0" maxOccurs="unbounded"/>
+                                <xs:element ref="brlpagenum" minOccurs="0" maxOccurs="unbounded"/>
                 </xs:choice>
                 <xs:sequence>
                 <xs:attribute name="index" type="xs:string" use="required"/>

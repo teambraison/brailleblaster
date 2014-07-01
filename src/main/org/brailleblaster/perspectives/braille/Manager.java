@@ -330,14 +330,32 @@ public class Manager extends Controller {
 		
 		for(int i = 0; i < current.getChildCount(); i++){
 			if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
-				initializeBraille(current.getChild(i), list.getLast());
+				//Added to handle brl for side bar
+				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar"))
+				{
+					text.setBRLOnlyText(list, "\n",((Element)current.getChild(i).getParent()));
+					braille.setBRLOnlyBraille(list,current.getChild(i));
+					
+
+				}
+				else
+				{
+					initializeBraille(current.getChild(i), list.getLast());
+				}
 			}
+			
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
 				//if math is empty skip next brl element
 				if(validateMath((Element)current.getChild(i)))
 					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
 				else
 					i++;
+			}
+			//Added this part for side bar
+			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("sidebar")){
+				     initializeViews(current.getChild(i));
+				
+				
 			}
 			else {
 				if(current.getChild(i) instanceof Element){

@@ -42,11 +42,11 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.MapList;
 import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -280,7 +280,7 @@ public class BrailleView extends WPView {
 		setListenerLock(true);
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), n);
 		Styles prevStyle;
-		if(list.size() > 1)
+		if(list.size() > 1 && list.get(list.size() - 2).n!=null)
 			prevStyle = stylesTable.makeStylesElement(list.get(list.size() - 2).parentElement(),list.get(list.size() - 2).n);
 		else
 			prevStyle = null;
@@ -875,5 +875,14 @@ public class BrailleView extends WPView {
 		list.getLastPage().setBraillePage(spaceBeforeText + total, spaceBeforeText + total + text.length(), node);
 		total += spaceBeforeText + text.length();
 		spaceBeforeText = 0;
+	}
+
+	public void setBRLOnlyBraille(MapList list, Node child) {
+		String brailleSidebar="\n"+child.getValue();
+		view.append(brailleSidebar);
+		list.getLast().brailleList.add(new BrailleMapElement(total, total + brailleSidebar.length(), child));
+		total += brailleSidebar.length();
+		
+		
 	}
 }

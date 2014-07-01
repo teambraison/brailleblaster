@@ -31,11 +31,14 @@
 package org.brailleblaster.archiver;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -44,6 +47,8 @@ import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import nu.xom.XPathContext;
+import nu.xom.xslt.XSLException;
+import nu.xom.xslt.XSLTransform;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
@@ -174,7 +179,7 @@ public class NimasArchiver extends Archiver {
 	{
 		ArrayList<Document> allDocs =new ArrayList<Document>();
 		//Read xml template
-		String sourcePath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"xmlTemplates"+BBIni.getFileSep() +"nimasTemplate.xml";
+		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
 		File temp = new File(sourcePath);
 		//get all level1 element
 		Nodes allNode=getLevel1();
@@ -206,7 +211,8 @@ public class NimasArchiver extends Archiver {
 			System.err.println("couldnt parse it");
 		}
 		catch (IOException ex) {
-			System.err.println("some errors happened");
+//			System.err.println("some errors happened");
+			System.err.println( ex.toString() );
 		}
 		return tempDoc;
 	}
@@ -219,7 +225,7 @@ public class NimasArchiver extends Archiver {
 	{
 		// Namespace and context.
 		String nameSpace = doc.getRootElement().getNamespaceURI();
-		nu.xom.XPathContext context = new nu.xom.XPathContext("dyb", nameSpace);
+		nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 		return context;
 
 	}
@@ -245,20 +251,23 @@ public class NimasArchiver extends Archiver {
 	Document breakDocument(File temp,Node addedNode){
 		Document tempDoc=createDocument(temp);
 		nu.xom.XPathContext contextTemp=getConetxt(tempDoc);
-		Nodes frontmatter =getXpath ("//dyb:frontmatter", tempDoc ,contextTemp );
-		Nodes bodymatter =getXpath ("//dyb:bodymatter", tempDoc ,contextTemp );
-		Nodes rearmatter =getXpath ("//dyb:rearmatter", tempDoc ,contextTemp );
-		Element front=(Element) frontmatter.get(0);
-		Element body=(Element) bodymatter.get(0);
-		Element rear=(Element) rearmatter.get(0);
+		Nodes frontmatter =getXpath ("//dtb:frontmatter", tempDoc ,contextTemp );
+		Nodes bodymatter =getXpath ("//dtb:bodymatter", tempDoc ,contextTemp );
+		Nodes rearmatter =getXpath ("//dtb:rearmatter", tempDoc ,contextTemp );
+		Element front = null;
+		Element body = null;
+		Element rear = null;
+		if( frontmatter.size() > 0) front = (Element)frontmatter.get(0);
+		if( bodymatter.size() > 0) body = (Element)bodymatter.get(0);
+		if( rearmatter.size() > 0) rear = (Element)rearmatter.get(0);
 		//get parent node
 		Element parentNode=(Element)addedNode.getParent();
 		addedNode.detach();
-		if (parentNode.getLocalName().equals("frontmatter"))
+		if (parentNode.getLocalName().equals("frontmatter") && front != null)
 			front.appendChild(addedNode);
-		if (parentNode.getLocalName().equals("bodymatter"))
+		if (parentNode.getLocalName().equals("bodymatter") && body != null)
 			body.appendChild(addedNode);
-		if (parentNode.getLocalName().equals("rearmatter"))
+		if (parentNode.getLocalName().equals("rearmatter") && rear != null)
 			rear.appendChild(addedNode);
 		return tempDoc;
 
@@ -275,11 +284,110 @@ public class NimasArchiver extends Archiver {
 		//get context
 		nu.xom.XPathContext context= getConetxt(nimasDocument);
 		// get all level one elements		
-		Nodes levelOnes=getXpath ("//dyb:level1", nimasDocument ,context );
+		Nodes levelOnes=getXpath ("//dtb:level1", nimasDocument ,context );
 		return levelOnes;
 
 	}
 
+	/////////////////////////////////////////////////////////////////////////////
+	// Converts our nimas xml to multiple xhtml files. EPUB Conversion!
+	public String convertToEPUB()
+	{
+        // Grab list of documents after breaking them up by level1's.
+        ArrayList<Document> docs = manageNimas();
+		
+	    // Create file utility for saving our xml files.
+		FileUtils fu = new FileUtils();
+        
+		// Xml builder.
+		Builder builder = new Builder();
+		
+		// Path to xsl file. Add three slashes to avoid BS.
+    	String xslPath = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep() + "NimasToEpub.xsl";
+		
+    	// Build the xsl document.
+    	Document xslDoc = null;
+        try { xslDoc = builder.build(xslPath); }
+        catch (ValidityException e1) { e1.printStackTrace(); }
+        catch (ParsingException e1) { e1.printStackTrace(); }
+        catch (IOException e1) { e1.printStackTrace(); }
+        
+        // Create the transform.
+        XSLTransform xslt = null;
+        try { xslt = new XSLTransform(xslDoc); }
+        catch (XSLException e1) { e1.printStackTrace(); }
+    	
+        // Loop through the documents 
+        for(int curDoc = 0; curDoc < docs.size(); curDoc++)
+        {
+            // Finally transform the document.
+            Nodes newDocNodes = null;
+			try { newDocNodes = xslt.transform( docs.get(curDoc) ); }
+			catch (XSLException e) { e.printStackTrace(); }
+            Document transformedDoc = xslt.toDocument(newDocNodes);
+        	
+        	// Build string path.
+    		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curDoc) + ".xhtml";
+    		// Write file.
+    		fu.createXMLFile( transformedDoc, outPath );
+        	
+        } // for(int curDoc...
+        
+        // Create the opf file.
+        return _createOPF(docs);
+		
+	} // convertToEPUB()
 	
+	/////////////////////////////////////////////////////////////////////////////
+	// Helper: Uses list created with manageNimas() to create an OPF file for 
+	// EPUB conversion.
+	private String _createOPF(ArrayList<Document> docs)
+	{
+		// Create root package element.
+		Element root = new Element("package");
+		
+		// Create document.
+        Document document = new Document(root);
+		
+        // Create spine and manifest elements.
+        Element spineElm = new Element("spine");
+        Element manifestElm = new Element("manifest");
+        
+		// Loop through all documents and append to our OPF file.
+        for(int curDoc = 0; curDoc < docs.size(); curDoc++)
+        {
+            // Create manifest entry.
+            Element newManEntry = new Element("item");
+            // Add attributes.
+            newManEntry.addAttribute( new Attribute("id", Integer.toString(curDoc)) );
+            newManEntry.addAttribute( new Attribute("href", Integer.toString(curDoc) + ".xhtml") );
+            newManEntry.addAttribute( new Attribute("media-type", "application/xhtml+xml") );
+            // Add to manifest.
+            manifestElm.appendChild(newManEntry);
+            
+            // Create spine entry.
+            Element newSpineEntry = new Element("itemref");
+            // Add attributes.
+            newSpineEntry.addAttribute( new Attribute("idref", Integer.toString(curDoc)) );
+            // Add to spine.
+            spineElm.appendChild(newSpineEntry);
+        	
+        } // for...
+        
+        // Put the filled spine and manifest into our package.
+        root.appendChild(manifestElm);
+        root.appendChild(spineElm);
+        
+		// Create file utility for saving opf.
+		FileUtils fu = new FileUtils();
+		// Build string path.
+		String opfPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + "nimas2epub.opf";
+		// Write opf.
+		fu.createXMLFile( document, opfPath );
+		
+		// Return path to our shiny, new opf.
+		return opfPath;
+		
+	} // _createOPF()
 	
 } // class NimasArchiver

@@ -42,7 +42,7 @@ public class Converter {
 	void tansformer(Document doc){
 		String xslPath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"xsl"+BBIni.getFileSep() +"NimasToEpub.xsl";
 	
-		
+		//need to change for something to output
 		String outputpath=BBIni.getProgramDataPath() + BBIni.getFileSep()+"xsl"+BBIni.getFileSep() +"NimasTemp.xml";
 		String docStr=doc.toXML();
 		InputStream in=null;
@@ -52,26 +52,7 @@ public class Converter {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		/**Builder builder = new Builder();
-		Document xslDoc;
-		try {
-			xslDoc = builder.build(xslPath);
-			Source xsl = new StreamSource(new File(xslPath));
-			String test=xsl.toString();
-			//XSLTransform xslt = new XSLTransform(xslDoc);
-			//Nodes newDocNodes = xslt.transform(doc);
-			//Document transformedDoc = xslt.toDocument(newDocNodes);
-			
-		} catch (ValidityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParsingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}**/
+		
 		
 		StreamSource domSource = new StreamSource( in);
 		Source xsl = new StreamSource(new File(xslPath));

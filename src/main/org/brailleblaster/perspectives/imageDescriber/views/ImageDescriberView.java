@@ -23,6 +23,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.browser.ProgressListener;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -38,10 +40,28 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Text;
 
 public class ImageDescriberView {
+	
+	// Font sizes for our controls.
+	public int IDV_FONTSIZE_AUTO = -1;
+	public int IDV_FONTSIZE_12 = 12;
+	public int IDV_FONTSIZE_11 = 11;
+	public int IDV_FONTSIZE_10 = 10;
+	public int IDV_FONTSIZE_09 = 9;
+	public int IDV_FONTSIZE_08 = 8;
+	public int IDV_FONTSIZE_07 = 7;
+	public int IDV_FONTSIZE_06 = 6;
+	public int IDV_FONTSIZE_05 = 5;
+	public int IDV_FONTSIZE_04 = 4;
+	
+	// Tells setFormData to not adjust the size of the control. If any(left/right/top/bottom) have 
+	// this specified, it won't adjust it. Font will still be changed, though.
+	public int IDV_CTRL_NOCHANGE = -1;
 	
 	int imageWidth = 500;
 	int imageHeight = 500;
@@ -52,7 +72,7 @@ public class ImageDescriberView {
 	ImageDescriber imgDesc;
 	ImageDescriberController idd;
 	Group group;
-	Button prevBtn, nextBtn, useSimpleStylesCheck, applyBtn, undoBtn, applyToAllBtn, clearAllBtn;
+	Button prevBtn, nextBtn, useSimpleStylesCheck, undoBtn, applyToAllBtn, clearAllBtn;
 	Button nextPage, prevPage;
 	Label descLabel;
 	Text imgDescTextBox;
@@ -84,7 +104,7 @@ public class ImageDescriberView {
 		// Create previous button.
 		prevBtn = new Button(group, SWT.PUSH);
 		prevBtn.setText("Previous");
-		setFormData(prevBtn, 0, 7, 0, 5);
+		setFormData(prevBtn, 0, 7, 0, 5, IDV_FONTSIZE_AUTO);
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
@@ -117,7 +137,7 @@ public class ImageDescriberView {
 		// Create next button.
 		nextBtn = new Button(group, SWT.PUSH);
 		nextBtn.setText("Next");
-		setFormData(nextBtn, 7, 14, 0, 5);
+		setFormData(nextBtn, 7, 14, 0, 5, IDV_FONTSIZE_AUTO);
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -154,7 +174,7 @@ public class ImageDescriberView {
 		// overlapping text.
 		useSimpleStylesCheck = new Button(group, SWT.CHECK);
 		useSimpleStylesCheck.setText("Simple Style");
-		setFormData(useSimpleStylesCheck, 17, 28, 0, 5);
+		setFormData(useSimpleStylesCheck, 17, 28, 0, 5, IDV_FONTSIZE_AUTO);
 		useSimpleStylesCheck.setVisible(false);
 		useSimpleStylesCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -227,7 +247,7 @@ public class ImageDescriberView {
 		// Previous page/chapter/file button.
 		prevPage = new Button(group, SWT.PUSH);
 		prevPage.setText("<< Previous Page"); 
-		setFormData(prevPage, 16, 26, 0, 5);
+		setFormData(prevPage, 16, 26, 0, 5, IDV_FONTSIZE_AUTO);
 		prevPage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -258,7 +278,7 @@ public class ImageDescriberView {
 		// Next page/chapter/file button.
 		nextPage = new Button(group, SWT.PUSH);
 		nextPage.setText("Next Page >>");
-		setFormData(nextPage, 26, 36, 0, 5);
+		setFormData(nextPage, 26, 36, 0, 5, IDV_FONTSIZE_AUTO);
 		nextPage.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -289,7 +309,7 @@ public class ImageDescriberView {
 		// Create undo button.
 		undoBtn = new Button(group, SWT.PUSH);
 		undoBtn.setText("Undo");
-		setFormData(undoBtn, 40, 47, 0, 5);
+		setFormData(undoBtn, 40, 47, 0, 5, IDV_FONTSIZE_AUTO);
 		undoBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -305,7 +325,7 @@ public class ImageDescriberView {
 		// to what was in the notes.
 		applyToAllBtn = new Button(group, SWT.PUSH);
 		applyToAllBtn.setText("Apply To All");
-		setFormData(applyToAllBtn, 47, 54, 0, 5);
+		setFormData(applyToAllBtn, 47, 54, 0, 5, IDV_FONTSIZE_AUTO);
 		applyToAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -352,7 +372,7 @@ public class ImageDescriberView {
 		// Clear all button. Clears the prodnote and alt attribute.
 		clearAllBtn = new Button(group, SWT.PUSH);
 		clearAllBtn.setText("Clear All");
-		setFormData(clearAllBtn, 54, 61, 0, 5);
+		setFormData(clearAllBtn, 54, 61, 0, 5, IDV_FONTSIZE_AUTO);
 		clearAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -403,11 +423,11 @@ public class ImageDescriberView {
 		// Label for alt box.
 		altLabel = new Label(group, SWT.NONE);
 		altLabel.setText("Alt Text: ");
-		setFormData(altLabel, 0, 3, 5, 7);
+		setFormData(altLabel, 0, 3, 5, 7, IDV_FONTSIZE_AUTO);
 		
 		// The alt box is for updating the "alt text" in an image element.
 		altBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(altBox, 0, 20, 8, 15);
+		setFormData(altBox, 0, 20, 8, 15, IDV_FONTSIZE_AUTO);
 		if(imgDesc.getCurElmAttribute("alt") != null)
 			altBox.setText(imgDesc.getCurElmAttribute("alt"));
 		altBox.addModifyListener(new ModifyListener() {
@@ -418,15 +438,15 @@ public class ImageDescriberView {
 			} // modifyText()
 
 		}); // addModifyListener(new ModiftyListener() { 
-
+		
 		// Label for description box.
 		descLabel = new Label(group, SWT.NONE);
 		descLabel.setText("Description: ");
-		setFormData(descLabel, 0, 6, 17, 19);
+		setFormData(descLabel, 0, 6, 17, 19, IDV_FONTSIZE_AUTO);
 		
 		// Create image description text box.
 		imgDescTextBox = new Text(group, SWT.BORDER | SWT.MULTI | SWT.WRAP);
-		setFormData(imgDescTextBox, 0, 20, 20, 40);
+		setFormData(imgDescTextBox, 0, 20, 20, 40, IDV_FONTSIZE_AUTO);
 		imgDescTextBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent arg0) { 
@@ -441,7 +461,7 @@ public class ImageDescriberView {
 		
 		// Setup main image.
 		mainImage = new Label(group, SWT.CENTER | SWT.BORDER);
-		setFormData(mainImage, 0, 20, 40, 100);
+		setFormData(mainImage, 0, 20, 40, 100, IDV_FONTSIZE_AUTO);
 		setMainImage();
 
 		// Setup browser window.
@@ -449,6 +469,27 @@ public class ImageDescriberView {
 		setBrowser();
 		
 	} // public void createUIelements()
+	
+	// Sets the font size for all buttons in our view.
+	public void setButtonsFont(int fntSz)
+	{
+		setFormData(prevBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(nextBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(undoBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(applyToAllBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(clearAllBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(nextPage, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(prevPage, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		
+	} // setButtonsFont()
+	
+	// Sets font size for all edit boxes in the view.
+	public void setEditBoxesFont(int fntSz)
+	{
+		setFormData(imgDescTextBox, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(altBox, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		
+	} // setEditBoxesFont()
 	
 	// Enables the browser navigation buttons.
 	public void enableBrowserNavButtons() {
@@ -556,12 +597,12 @@ public class ImageDescriberView {
         	browser.setUrl( curBrowserFilePath );
         	
 			// Set browser bounds.
-        	setFormData(browser, 21, 100, 6, 100);
+        	setFormData(browser, 21, 100, 6, 100, IDV_FONTSIZE_AUTO);
 		}
 		else {
 			// Set browser bounds.
 			browser.setText("<h1>Empty Document</h1><h1>Browser View Currently Disabled</h1>");
-			setFormData(browser, 21, 100, 6, 100);
+			setFormData(browser, 21, 100, 6, 100, IDV_FONTSIZE_AUTO);
 		}
 	}
 	
@@ -640,34 +681,59 @@ public class ImageDescriberView {
 		
 	} // public void resizeUI()
 	
-	private void setFormData(Control c, int left, int right, int top, int bottom){
-		FormData data = new FormData();
-		data.left = new FormAttachment(left);
-		data.right = new FormAttachment(right);
-		data.top = new FormAttachment(top);
-		data.bottom = new FormAttachment(bottom);
-		c.setLayoutData(data);
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Sets size and font for control.
+	// Defines for this method: 
+	// IDV_CTRL_NOCHANGE - left|right|top|bottom - Won't change control size.
+	// IDV_FONTSIZE_AUTO - fontSize - Automatically adjusted. 
+	// IDV_FONTSIZE_12-4 - fontSize - Specifies a size.
+	public void setFormData(Control c, int left, int right, int top, int bottom, int fontSize){
 		
-		// Change font size depending on screen resolution.
-		Monitor mon[] = Display.getDefault().getMonitors();
-		Rectangle screenSize = mon[0].getBounds();
+		if(left != IDV_CTRL_NOCHANGE && right != IDV_CTRL_NOCHANGE && top != IDV_CTRL_NOCHANGE && bottom != IDV_CTRL_NOCHANGE) {
+			FormData data = new FormData();
+			data.left = new FormAttachment(left);
+			data.right = new FormAttachment(right);
+			data.top = new FormAttachment(top);
+			data.bottom = new FormAttachment(bottom);
+			c.setLayoutData(data);
+		}
+		
+		// If the font size needs to be auto-sized, use the screen resolution.
 		FontData[] oldFontData = c.getFont().getFontData();
-		if( screenSize.width >= 1920)
-			oldFontData[0].setHeight(10);
-		else if( screenSize.width >= 1600)
-			oldFontData[0].setHeight(9);
-		else if( screenSize.width >= 1280)
-			oldFontData[0].setHeight(7);
-		else if( screenSize.width >= 1024)
-			oldFontData[0].setHeight(5);
-		else if( screenSize.width >= 800)
-			oldFontData[0].setHeight(4);
-		c.setFont( new Font(null, oldFontData[0]) );
-	}
+		if( fontSize == IDV_FONTSIZE_AUTO) {
+			Monitor mon[] = Display.getDefault().getMonitors();
+			Rectangle screenSize = mon[0].getBounds();
+			if( screenSize.width >= 1920)
+				oldFontData[0].setHeight(10);
+			else if( screenSize.width >= 1600)
+				oldFontData[0].setHeight(9);
+			else if( screenSize.width >= 1280)
+				oldFontData[0].setHeight(7);
+			else if( screenSize.width >= 1024)
+				oldFontData[0].setHeight(5);
+			else if( screenSize.width >= 800)
+				oldFontData[0].setHeight(4);
+			c.setFont( new Font(null, oldFontData[0]) );
+			
+		} // if( fontSize == IDV_FONTSIZE_AUTO)
+		else {
+			oldFontData[0].setHeight(fontSize);
+			c.setFont( new Font(null, oldFontData[0]) );
+		}
+			
+		
+	} // setFormData()
 	
 	// Copy's the xml file and creates an html file from it.
 	public void createHTMLFile()
 	{
+        // If there are spine paths, that means there are multiple 
+        // files to load, and we don't need to create an html file(EPUB).
+    	if(idd.getCurSpineFilePath() != null) {
+    		curBrowserFilePath = idd.getCurSpineFilePath();
+    		return;
+    	}
+		
 		// Make copy of the file.
 	    File fin = new File(idd.getWorkingPath());
 	    File fout = new File(idd.getWorkingPath().replaceAll(".xml", ".html"));
@@ -690,18 +756,20 @@ public class ImageDescriberView {
         
 		// Get path to full file.
         curBrowserFilePath = fout.getAbsolutePath();
-        
-        // If there are spine paths, that means there are multiple 
-        // files to load.
-    	if(idd.getCurSpineFilePath() != null)
-    		curBrowserFilePath = idd.getCurSpineFilePath();
     	
 	} //createHTMLFile()
 	
 	// Removes temporary HTML from our unzipped directory.
 	public void disposeHTMLFile()
 	{
-    	// Delete the html file we created.
+		// If there are spine paths, then this is more than likely an EPUB document.
+		// Nothing to delete.
+    	if(idd.getCurSpineFilePath() != null) {
+    		curBrowserFilePath = idd.getCurSpineFilePath();
+    		return;
+    	}
+		
+		// Delete the html file we created.
 		if(curBrowserFilePath != null)
 			new File(curBrowserFilePath).delete();
     	curBrowserFilePath = null;

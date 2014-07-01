@@ -87,7 +87,7 @@ public abstract class Controller implements DocumentManager{
 		return arch.getWorkingFilePath();
 	}
 	
-	public Archiver getArchvier(){
+	public Archiver getArchiver(){
 		return arch;
 	}
 	

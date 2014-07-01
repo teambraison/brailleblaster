@@ -213,7 +213,7 @@ public abstract class BBMenu {
 			}
 		});
 		
-webViewItem = new MenuItem(perspectiveMenu, SWT.CHECK);
+		webViewItem = new MenuItem(perspectiveMenu, SWT.CHECK);
 		webViewItem.setText(lh.localValue("Web View"));
 		webViewItem.setSelection(false);
 		webViewItem.setData(WebViewController.class);

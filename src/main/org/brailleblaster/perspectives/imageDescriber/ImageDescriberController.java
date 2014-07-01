@@ -123,6 +123,11 @@ public class ImageDescriberController extends Controller {
 		idv.setTextBox(imgDesc.getCurDescription());
 	}
 	
+	// Returns the Image Describer's View.
+	public ImageDescriberView getImageDescriberView() {
+		return idv;
+	}
+	
 	public boolean openDocument(String fileName){
 		if(fileName != null) 
 			arch = ArchiverFactory.getArchive(fileName);

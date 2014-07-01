@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
+import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -15,6 +16,7 @@ import org.eclipse.swt.widgets.MenuItem;
 public class ImageDescriberMenu extends BBMenu {
 	private final int MENU_INDEX = 1;
 	ImageDescriberController currentController;
+	ImageDescriberView idv;
 	
 	//file menu
 	MenuItem openItem, saveItem, saveAsItem, closeItem;
@@ -22,11 +24,19 @@ public class ImageDescriberMenu extends BBMenu {
 	//editMenu
 	Menu editMenu;
 	MenuItem editItem, prevItem, nextItem, applyItem, undoItem, applyToAllItem, clearAllItem;
-			
+	
+	// Menu items for font sizing of our widgets.
+	MenuItem fontSizeItem;
+	Menu fontSizeMenu;
+	MenuItem fontButtonItem, fontEditBox, fontLabel;
+	Menu btnFntSizeMenu;
+	MenuItem fontBtnSize[] = new MenuItem[10];
+	
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
 		setPerspectiveMenuItem(MENU_INDEX);
 		currentController = idc;
+		idv = idc.getImageDescriberView();
 		
 		openItem = new MenuItem(fileMenu, SWT.PUSH, 0);
 		openItem.setText(lh.localValue("&Open") + "\t" + lh.localValue("Ctrl + O"));
@@ -179,8 +189,165 @@ public class ImageDescriberMenu extends BBMenu {
 		}); // clearAllBtn.addSelectionListener
 		
 		editItem.setMenu(editMenu);
+		
+		//////////////
+		// Font Sizes.
+		
+			// MenuItem fontSizeItem;
+			// Menu fontSizeMenu;
+			// MenuItem fontButton, fontEditBox, fontLabel;
+			
+			// Item for view menu option in BBMenu.
+			fontSizeItem = new MenuItem(this.viewMenu, SWT.CASCADE);
+			fontSizeItem.setText(lh.localValue("Font Sizes"));
+			// Attach a new dropdown menu to our font size item.
+			fontSizeMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
+			fontSizeItem.setMenu(fontSizeMenu);
+			
+				// Add button dropdown to font size dropdown menu.
+				fontButtonItem = new MenuItem(fontSizeMenu, SWT.CASCADE);
+				fontButtonItem.setText(lh.localValue("Button Font Size"));
+				btnFntSizeMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
+				fontButtonItem.setMenu(btnFntSizeMenu);
+				
+					// Check box for button size AUTO.
+					fontBtnSize[0] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[0].setText(lh.localValue("Auto"));
+					fontBtnSize[0].setData(ImageDescriberController.class);
+					fontBtnSize[0].setSelection(true);
+					fontBtnSize[0].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_AUTO);
+							_setBtnFntCheck(0, true);
+						}
+					});
+				
+					// Check box for button size 12.
+					fontBtnSize[1] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[1].setText(lh.localValue("12"));
+					fontBtnSize[1].setData(ImageDescriberController.class);
+					fontBtnSize[1].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_12);
+							_setBtnFntCheck(1, true);
+						}
+					});
+					
+					// Check box for button size 11.
+					fontBtnSize[2] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[2].setText(lh.localValue("11"));
+					fontBtnSize[2].setData(ImageDescriberController.class);
+					fontBtnSize[2].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_11);
+							_setBtnFntCheck(2, true);
+						}
+					});
+					
+					// Check box for button size 10.
+					fontBtnSize[3] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[3].setText(lh.localValue("10"));
+					fontBtnSize[3].setData(ImageDescriberController.class);
+					fontBtnSize[3].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_10);
+							_setBtnFntCheck(3, true);
+						}
+					});
+					
+					// Check box for button size 9.
+					fontBtnSize[4] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[4].setText(lh.localValue("9"));
+					fontBtnSize[4].setData(ImageDescriberController.class);
+					fontBtnSize[4].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_09);
+							_setBtnFntCheck(4, true);
+						}
+					});
+					
+					// Check box for button size 8.
+					fontBtnSize[5] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[5].setText(lh.localValue("8"));
+					fontBtnSize[5].setData(ImageDescriberController.class);
+					fontBtnSize[5].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_08);
+							_setBtnFntCheck(5, true);
+						}
+					});
+					
+					// Check box for button size 7.
+					fontBtnSize[6] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[6].setText(lh.localValue("7"));
+					fontBtnSize[6].setData(ImageDescriberController.class);
+					fontBtnSize[6].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_07);
+							_setBtnFntCheck(6, true);
+						}
+					});
+					
+					// Check box for button size 6.
+					fontBtnSize[7] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[7].setText(lh.localValue("6"));
+					fontBtnSize[7].setData(ImageDescriberController.class);
+					fontBtnSize[7].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_06);
+							_setBtnFntCheck(7, true);
+						}
+					});
+					
+					// Check box for button size 5.
+					fontBtnSize[8] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[8].setText(lh.localValue("5"));
+					fontBtnSize[8].setData(ImageDescriberController.class);
+					fontBtnSize[8].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_05);
+							_setBtnFntCheck(8, true);
+						}
+					});
+					
+					// Check box for button size 4.
+					fontBtnSize[9] = new MenuItem(btnFntSizeMenu, SWT.CHECK);
+					fontBtnSize[9].setText(lh.localValue("4"));
+					fontBtnSize[9].setData(ImageDescriberController.class);
+					fontBtnSize[9].addSelectionListener(new SelectionAdapter(){
+						@Override
+						public void widgetSelected(SelectionEvent e) {
+							idv.setButtonsFont(idv.IDV_FONTSIZE_04);
+							_setBtnFntCheck(9, true);
+						}
+					});
+			
+		// Font Sizes.
+		//////////////
 	}
 
+	// Sets all font-size checkboxes to true/false/on/off, then flips the 
+	// checkbox at given index to the given bool.
+	private void _setBtnFntCheck(int checkIndex, boolean onOrOff)
+	{
+		// Turn them all on or off.
+		for(int curBtn = 0; curBtn < fontBtnSize.length; curBtn++)
+			fontBtnSize[curBtn].setSelection(!onOrOff);
+		
+		// Flip the one we want.
+		fontBtnSize[checkIndex].setSelection(onOrOff);
+		
+	} // _setBtnFntCheck()
+	
 	@Override
 	public void setCurrent(Controller controller) {
 		this.currentController = (ImageDescriberController)controller;

@@ -35,7 +35,6 @@ public class ImageDescriberMenu extends BBMenu {
 	MenuItem fontEditBoxItem;
 	Menu editBoxSizeMenu;
 	MenuItem fontEditBoxSize[] = new MenuItem[10];
-	int curBox = 13; // For creating font checkboxes in a loop.
 	
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
@@ -197,10 +196,6 @@ public class ImageDescriberMenu extends BBMenu {
 		
 		//////////////
 		// Font Sizes.
-		
-			// MenuItem fontSizeItem;
-			// Menu fontSizeMenu;
-			// MenuItem fontButton, fontEditBox, fontLabel;
 			
 			// Item for view menu option in BBMenu.
 			fontSizeItem = new MenuItem(this.viewMenu, SWT.CASCADE);
@@ -344,10 +339,6 @@ public class ImageDescriberMenu extends BBMenu {
 					
 				///////////////////////
 				// Edit Box Font Sizes.
-					
-//					MenuItem fontEditBoxItem;
-//					Menu editBoxSizeMenu;
-//					MenuItem fontEditBoxSize[] = new MenuItem[10];
 					
 					// Add dropdown to font size dropdown menu.
 					fontEditBoxItem = new MenuItem(fontSizeMenu, SWT.CASCADE);

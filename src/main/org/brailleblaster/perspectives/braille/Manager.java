@@ -329,26 +329,6 @@ public class Manager extends Controller {
 		}
 	}
 	
-				//Added to handle brl for side bar
-				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar"))
-				{
-					text.setBRLOnlyText(list, "\n",((Element)current.getChild(i).getParent()));
-					braille.setBRLOnlyBraille(list,current.getChild(i));
-					
-
-				}
-				else
-				{
-					initializeBraille(current.getChild(i), list.getLast());
-				}
-			}
-			
-			//Added this part for side bar
-			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("sidebar")){
-				     initializeViews(current.getChild(i));
-				
-				
-			}
 	public void dispatch(Message message){
 		switch(message.type){
 			case INCREMENT:
@@ -1480,9 +1460,9 @@ public class Manager extends Controller {
 			sm.getStyleTable().getTable().setFocus();
 		}
 	}
-	}
 	
 	@Override
 	public boolean documentHasBeenEdited(){
 		return text.hasChanged || braille.hasChanged || arch.getDocumentEdited();
+	}
 }

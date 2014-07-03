@@ -324,7 +324,7 @@ public abstract class ViewInitializer {
 			list.getPage(i).listIndex = list.getPage(i).index;
 		}
 	}
-	
+	/*
 	private int findStart(MapList list){
 		if(list.getPageCount() == 0 || list.getPage(0).start > list.getFirst().start)
 			return list.getFirst().start;
@@ -332,18 +332,19 @@ public abstract class ViewInitializer {
 			return list.getPage(0).start;	
 	}
 	
-	private int findEnd(MapList list){
-		if(list.getPageCount() == 0 || list.getLastPage().end < list.getLast().end)
-			return list.getLast().end;
-		else
-			return list.getLastPage().end;	
-	}
-	
 	private int findBrailleStart(MapList list){
 		if(list.getPageCount() == 0 || list.getPage(0).brailleStart > list.getFirst().brailleList.getFirst().start)
 			return  list.getFirst().brailleList.getFirst().start;
 		else
 			return list.getPage(0).brailleStart;	
+	}
+	*/
+	
+	private int findEnd(MapList list){
+		if(list.getPageCount() == 0 || list.getLastPage().end < list.getLast().end)
+			return list.getLast().end;
+		else
+			return list.getLastPage().end;	
 	}
 	
 	private int findBrailleEnd(MapList list){

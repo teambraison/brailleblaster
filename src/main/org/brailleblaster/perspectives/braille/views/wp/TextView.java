@@ -43,9 +43,9 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.util.Notify;
@@ -582,7 +582,7 @@ public class TextView extends WPView {
 	public void setText(TextMapElement t, MapList list, int index){
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		Styles prevStyle;
-		if(list.size() > 0 && index != 0 && list.getLast().n != null)
+		if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
 			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
 		else
 			prevStyle = null;
@@ -1764,7 +1764,5 @@ public class TextView extends WPView {
 		view.append(text);
 		list.add(new BrlOnlyMapElement(total, total + text.length(), null,element));
 		total += text.length();
-		
 	}
-
 }

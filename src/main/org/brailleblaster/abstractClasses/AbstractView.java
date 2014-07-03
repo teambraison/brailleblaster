@@ -124,5 +124,9 @@ public abstract class AbstractView {
 		return cursorOffset;
 	}
 	
+	public void setTotal(int total){
+		this.total = total;
+	}
+	
 	protected abstract void setViewData(Message message);
 }

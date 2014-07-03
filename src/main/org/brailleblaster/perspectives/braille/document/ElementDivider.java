@@ -3,8 +3,8 @@ package org.brailleblaster.perspectives.braille.document;
 import java.util.ArrayList;
 
 import org.brailleblaster.document.SemanticFileHandler;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
 import nu.xom.Attribute;

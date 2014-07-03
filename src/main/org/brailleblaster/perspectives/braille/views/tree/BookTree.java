@@ -9,7 +9,8 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.Range;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
@@ -24,28 +25,29 @@ import org.eclipse.swt.widgets.TreeItem;
 public class BookTree extends TreeView {
 	private class TreeItemData {
 		public LinkedList<TextMapElement>list;
-		public int startRange, endRange;
+		public int sectionIndex, startRange, endRange;
 		public String heading;
 		
-		public TreeItemData(Element e, int startRange){
+		public TreeItemData(Element e, int sectionIndex, int startRange){
 			list = new LinkedList<TextMapElement>();
+			this.sectionIndex = sectionIndex;
 			this.startRange = startRange;
 			this.endRange = -1;
-			setDataList(this, e, startRange);
+			setDataList(this, e, sectionIndex, startRange);
 			heading = getHeading(e);
 		}		
 		
-		private void setDataList(TreeItemData data, Element e, int start){
+		private void setDataList(TreeItemData data, Element e, int section, int start){
 			LinkedList<TextMapElement>list = data.list;
 			int count = e.getChildCount();
 			for(int i = 0; i < count; i++){
 				if(e.getChild(i) instanceof Text){
-					int index = manager.findNodeIndex(e.getChild(i), start);
+					int index = manager.findNodeIndex(e.getChild(i), section, start);
 					if(index != -1)
-						list.add(manager.getTextMapElement(index));
+						list.add(manager.getTextMapElement(section, index));
 				}
 				else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl") && table.getSemanticTypeFromAttribute((Element)e.getChild(i)).equals("action"))
-					setDataList(data, (Element)e.getChild(i), start);
+					setDataList(data, (Element)e.getChild(i), section, start);
 			}
 		}
 		
@@ -85,6 +87,7 @@ public class BookTree extends TreeView {
 				if(!getLock() && tree.getSelection()[0].equals(e.item)){
 					if(!e.item.equals(root)){
 						TreeItemData data = getItemData((TreeItem)e.item);
+						manager.checkView(data.list.getFirst());
 						Message m = Message.createSetCurrentMessage(Sender.TREE, data.list.getFirst().start, false);
 						setCursorOffset(0);
 						manager.dispatch(m);
@@ -128,7 +131,7 @@ public class BookTree extends TreeView {
 		previousItem = null;
 	}
 	
-	public void setTree(Element e, TreeItem item){		
+	public void setTree(Element e, TreeItem item){	
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
 			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){			
@@ -170,12 +173,12 @@ public class BookTree extends TreeView {
 	
 	//Finds text for tree item and sets corresponding data
 	private void setNewItemData(TreeItem item, Element e){
-		int start = findIndex(item, e);
+		Range range = findIndex(item, e);
 		
-		if(start != -1){
-			item.setData(new TreeItemData(e, start));
+		if(range != null && range.start != -1){
+			item.setData(new TreeItemData(e, range.section, range.start));
 			if(previousItem != null){
-				((TreeItemData)previousItem.getData()).endRange = start - 1;
+				((TreeItemData)previousItem.getData()).endRange = range.start - 1;
 			}
 			
 			item.setText(formatItemText(getItemData(item),e));
@@ -201,24 +204,30 @@ public class BookTree extends TreeView {
 		return text.trim();
 	}
 	
-	private int findIndex(TreeItem item, Element e){
+	private Range findIndex(TreeItem item, Element e){
 		int count = e.getChildCount();
 		for(int i = 0; i < count; i++){
 			if(e.getChild(i) instanceof Text){
-				int searchIndex;
+				int sectionIndex, startIndex;
 				
-				if(previousItem == null)
-					searchIndex = 0;
-				else
-					searchIndex = getItemData(previousItem).startRange + 1;
-			
-				return manager.findNodeIndex(e.getChild(i), searchIndex);
+				if(previousItem == null){
+					sectionIndex = 0;
+					startIndex = 0;
+				}
+				else {
+					sectionIndex = getItemData(previousItem).sectionIndex;
+					startIndex = getItemData(previousItem).startRange + 1;
+				}
+				
+				//int section = manager.getSection(searchIndex, e.getChild(i));
+				return manager.getRange(sectionIndex, startIndex, e.getChild(i));
+				//return new Range(section, manager.findNodeIndex(e.getChild(i), section, 0));
 			}
 			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl") &&  !((Element)e.getChild(i)).getLocalName().equals("img") && table.getSemanticTypeFromAttribute((Element)e.getChild(i)).equals("action") && e.getChild(i).getChildCount() != 0)
 				return findIndex(item, (Element)e.getChild(i));
 		}
 		
-		return -1;
+		return null;
 	}
 	
 	@Override
@@ -235,8 +244,9 @@ public class BookTree extends TreeView {
 			else
 				temp = new TreeItem(root, SWT.None, index + offset);
 			
+			int sectionIndex = getItemData(lastParent).sectionIndex;
 			temp.setText(t.getText());
-			temp.setData(new TreeItemData(t.parentElement(), manager.indexOf(t)));
+			temp.setData(new TreeItemData(t.parentElement(), sectionIndex, manager.indexOf(t)));
 			resetIndexes();
 		}
 	}
@@ -258,7 +268,7 @@ public class BookTree extends TreeView {
 	public void removeItem(TextMapElement t, Message m) {
 		setListenerLock(true);
 		int index = manager.indexOf(t);
-		TreeItem item = findRange(manager.indexOf(t));
+		TreeItem item = findRange(manager.getSection(t), manager.indexOf(t));
 		
 		if(isHeading(t)){
 			LinkedList<TextMapElement> list = getItemData(item).list;
@@ -364,7 +374,8 @@ public class BookTree extends TreeView {
 	@Override
 	public void setSelection(TextMapElement t) {		
 		setListenerLock(true);
-		TreeItem item = findRange(manager.indexOf(t));
+		int section = manager.getSection(t);
+		TreeItem item = findRange(section, manager.indexOf(section, t));
 		if(item != null){
 			tree.setSelection(item);
 		}
@@ -403,22 +414,25 @@ public class BookTree extends TreeView {
 		return (TreeItemData)item.getData();
 	}
 	
-	private TreeItem findRange(int index){
-		return searchTree(root, index);
+	private TreeItem findRange(int section, int index){
+		return searchTree(root, section, index);
 	}
 	
-	private TreeItem searchTree(TreeItem item, int index){
+	private TreeItem searchTree(TreeItem item, int section, int index){
 		TreeItem [] items = item.getItems();
 		
 		for(int i = 0; i < items.length; i++){
-			if(checkItem(items[i], index))
+			if(checkItem(items[i], section, index))
 				return items[i];
 			else if(i < items.length - 1){
-				if(index > getEndRange(items[i]) && index < getStartRange(items[i + 1]))
-					return searchTree(items[i], index);
+				if(section == getSection(items[i]) && index > getEndRange(items[i]) && items[i].getItemCount() > 0){
+					TreeItem newItem =  searchTree(items[i], section, index);
+					if(newItem != null)
+						return newItem;
+				}
 			}
 			else if(i == items.length - 1 && index > getStartRange(items[i]) && items[i].getItemCount() > 0) {
-				return searchTree(items[i], index);
+				return searchTree(items[i], section, index);
 			}
 		}
 		
@@ -447,6 +461,10 @@ public class BookTree extends TreeView {
 		}
 	}
 	
+	private int getSection(TreeItem item){
+		return ((TreeItemData)item.getData()).sectionIndex;
+	}
+	
 	private int getStartRange(TreeItem item){
 		return ((TreeItemData)item.getData()).startRange;
 	}
@@ -455,9 +473,9 @@ public class BookTree extends TreeView {
 		return ((TreeItemData)item.getData()).endRange;
 	}
 	
-	private boolean checkItem(TreeItem item, int index){
+	private boolean checkItem(TreeItem item, int section, int index){
 		TreeItemData data = getItemData(item);
-		if((index >= data.startRange && index <= data.endRange) || (index >= data.startRange && data.endRange == -1))
+		if((data.sectionIndex == section && index >= data.startRange && index <= data.endRange) || (data.sectionIndex == section && index >= data.startRange && data.endRange == -1))
 			return true;
 		else
 			return false;
@@ -466,6 +484,12 @@ public class BookTree extends TreeView {
 	@Override
 	public void split(Message m) {
 		lastParent = tree.getSelection()[0].getParentItem();
+		int section;
+		if(lastParent != null)
+			section = getItemData(lastParent).sectionIndex;
+		else
+			section = 0;
+		
 		TreeItem item = tree.getSelection()[0];
 		int firstElementIndex = (Integer)m.getValue("firstElementIndex");
 		int secondElementIndex = (Integer)m.getValue("secondElementIndex");
@@ -477,7 +501,7 @@ public class BookTree extends TreeView {
 		if(isHeading(manager.getTextMapElement(secondElementIndex))){
 			if(!item.equals(root)){
 				item.setText(manager.getTextMapElement(secondElementIndex).getText());
-				item.setData(new TreeItemData(manager.getTextMapElement(secondElementIndex).parentElement(), manager.indexOf(manager.getTextMapElement(secondElementIndex))));
+				item.setData(new TreeItemData(manager.getTextMapElement(secondElementIndex).parentElement(), section, manager.indexOf(manager.getTextMapElement(secondElementIndex))));
 			}
 			else {
 				newTreeItem(manager.getTextMapElement(secondElementIndex), treeIndex, 1);
@@ -492,7 +516,7 @@ public class BookTree extends TreeView {
 		if(isHeading(t)){
 			tree.removeAll();
 			setRoot(manager.getDocument().getRootElement());
-			TreeItem item = findRange(manager.indexOf(t));
+			TreeItem item = findRange(manager.getSection(t), manager.indexOf(t));
 			
 			tree.setSelection(item);
 			

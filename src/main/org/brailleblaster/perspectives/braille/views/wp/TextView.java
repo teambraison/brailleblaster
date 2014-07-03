@@ -181,11 +181,11 @@ public class TextView extends WPView {
 						Message m;
 						int origLength =  getString(currentStart, view.getCaretOffset() - currentStart).length();
 						if(view.getCaretOffset() == currentEnd)
-							m = Message.createInsertNodeMessage(true, false, true,"p");
+							m = Message.createInsertNodeMessage(true, false, true, "p");
 						else if(view.getCaretOffset() == currentStart)
-							m = Message.createInsertNodeMessage(true, true, false,"p");
+							m = Message.createInsertNodeMessage(true, true, false, "p");
 						else
-							m = Message.createInsertNodeMessage(true, false, false,"p");
+							m = Message.createInsertNodeMessage(true, false, false, "p");
 							
 						m.put("originalLength", origLength);
 						m.put("length", originalEnd - originalStart);
@@ -229,8 +229,7 @@ public class TextView extends WPView {
 					e.doit = false;
 				else if((e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset())) ||  (selectionLength <= 0 && e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset() + 1)))
 					e.doit = false;
-				
-				
+			
 				if(selectionLength > 0)
 					saveStyleState(selectionStart);
 				else
@@ -346,6 +345,14 @@ public class TextView extends WPView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {		
 				checkStatusBar(Sender.TEXT);
+				
+				if(!getLock() & scrollBarPos != view.getVerticalBar().getSelection()){
+					scrollBarPos = view.getVerticalBar().getSelection();
+					if(view.getVerticalBar().getSelection() == (view.getVerticalBar().getMaximum() - view.getVerticalBar().getThumb()))
+						manager.incrementView();
+					else if(view.getVerticalBar().getSelection() == 0)
+						manager.decrementView();
+				}
 			}
 		});
 		
@@ -413,13 +420,14 @@ public class TextView extends WPView {
 				checkStatusBar(Sender.TEXT);
 			}
 		});
-		
+		view.addModifyListener(viewMod);
 		setListenerLock(false);
 	}
 	
 	@Override
 	public void removeListeners(){
 		if(selectionListener != null) {
+			view.removeModifyListener(viewMod);
 			view.removeSelectionListener(selectionListener);
 			view.removeExtendedModifyListener(modListener);
 			view.removeTraverseListener(traverseListener);
@@ -538,9 +546,8 @@ public class TextView extends WPView {
 		originalStart = currentStart;
 		originalEnd = currentEnd;
 		
-		if(currentStart < view.getCharCount()){
+		if(currentStart < view.getCharCount())
 			range = getStyleRange();
-		}
 		
 		currentElement = (TextMapElement)message.getValue("currentElement");
 		sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
@@ -571,31 +578,55 @@ public class TextView extends WPView {
 		if(offset < currentStart || offset > currentEnd)
 			setCurrent(view.getCaretOffset());
 	}
-
-	public void setText(Node n, MapList list){
-		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+	
+	public void setText(TextMapElement t, MapList list, int index){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		Styles prevStyle;
-		if(list.size() > 0 && list.getLast().n!=null )
-			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
+		if(list.size() > 0 && index != 0 && list.getLast().n != null)
+			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
 		else
 			prevStyle = null;
 		
-		String newText = appendToView(n, true);
+		String newText = appendToView(t.n, true);
 		int textLength = newText.length();
 
 		view.append(newText);
-		handleStyle(prevStyle, style, n, newText);
+		handleStyle(prevStyle, style, t.n, newText);
 		
-		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + total + textLength,n));
+		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 		total += spaceBeforeText + textLength + spaceAfterText;
 		
 		spaceAfterText = 0;
 		spaceBeforeText = 0;
 		view.setCaretOffset(0);
-		words += getWordCount(n.getValue());
+		words += getWordCount(t.getText());
 	}
 	
-	public void setMathML(MapList list, Element math){
+	public void prependText(TextMapElement t, MapList list, int index){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		Styles prevStyle;
+		if(list.size() > 0 && index != 0)
+			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
+		else
+			prevStyle = null;
+		
+		String newText = insertToView(t.n, true);
+		int textLength = newText.length();
+
+		view.insert(newText);
+		handleStyle(prevStyle, style, t.n, newText);
+		
+		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
+		total += spaceBeforeText + textLength + spaceAfterText;
+		
+		spaceAfterText = 0;
+		spaceBeforeText = 0;
+		view.setCaretOffset(total);
+		words += getWordCount(t.getText());
+	}
+	
+	public void setMathML(MapList list, TextMapElement t){
+		Element math = (Element)t.n;
 		Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
 		Styles prevStyle;
 		int length = 1;
@@ -625,6 +656,7 @@ public class TextView extends WPView {
 		
 		Image image = ImageCreator.createImage(view.getDisplay(), math, getFontHeight());
 		view.append(" ");
+
 		setImageStyleRange(image, total, length);
 		handleStyle(prevStyle, style, math, " ");
 		
@@ -638,11 +670,74 @@ public class TextView extends WPView {
 				length++;
 			}	
 		}
+
+		StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
+		setFontStyleRange(s.start, length, s);
+		
+		t.setOffsets(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText);
+		total += spaceBeforeText + length + spaceAfterText;
+		spaceAfterText = 0;
+		spaceBeforeText = 0;	
+	}	
+	
+	public void prependMathML(MapList list, TextMapElement t){
+		Element math = (Element)t.n;
+		Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
+		Styles prevStyle;
+		int length = 1;
+		
+		if(list.size() > 0)
+			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
+		else
+			prevStyle = null;
+		
+		int index = math.getParent().indexOf(math);
+		Element brl = (Element)math.getParent().getChild(index + 1);
+		
+		if(brl.getChild(0) instanceof Element){
+			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+					view.insert("\n");
+					total++;
+					view.setCaretOffset(total);
+				}
+			}
+			else {
+				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+					view.insert("\n");
+					total++;
+					view.setCaretOffset(total);
+				}
+			}
+		}
+		
+		Image image = ImageCreator.createImage(view.getDisplay(), math, getFontHeight());
+		view.insert(" ");
+		view.setCaretOffset(total + 1);
+		
+		setImageStyleRange(image, total, length);
+		handleStyle(prevStyle, style, math, " ");
+		
+		if(spaceBeforeText > 0)
+			view.setCaretOffset(view.getCaretOffset() + spaceBeforeText);
+		
+		for(int i = 1; i < brl.getChildCount(); i++){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+				view.insert("\n");
+				length++;
+				view.setCaretOffset(view.getCaretOffset() + 1);
+			}
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+				view.insert("\n");
+				length++;
+				view.setCaretOffset(view.getCaretOffset() + 1);
+			}	
+		}
 		
 		StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
 		setFontStyleRange(s.start, length, s);
 		
-		list.add(new TextMapElement(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText, math));
+		t.setOffsets(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText);
 		total += spaceBeforeText + length + spaceAfterText;
 		spaceAfterText = 0;
 		spaceBeforeText = 0;	
@@ -800,6 +895,93 @@ public class TextView extends WPView {
 					view.append("\n");
 					text.append(n.getValue());
 					spaceBeforeText++;
+				}
+				else {
+					text.append(n.getValue());
+				}
+			}
+			else {
+				text.append(n.getValue());
+			}
+		}
+		catch(StringIndexOutOfBoundsException e){
+			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
+			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			text.append(n.getValue().substring(start));
+		}
+		
+		return text.toString();
+	}
+	
+	private String insertToView(Node n, boolean append){
+		StringBuilder text = new StringBuilder();
+		Element brl = getBrlNode(n);
+		int start = 0;
+		int end = 0;
+		int totalLength = 0;
+		
+		try {
+			if(brl != null){
+				int[] indexes = getIndexArray(brl);
+				if(indexes != null){
+					for(int i = 0; i < brl.getChildCount(); i++){
+						if(isText(brl.getChild(i))){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+								String brltext = brl.getChild(i).getValue();						
+								totalLength += brltext.length();
+								end = indexes[totalLength - 1];
+								if(totalLength == indexes.length){
+									if(start == 0 && append){
+										view.insert("\n");
+										text.append(n.getValue().substring(start));
+										spaceBeforeText++;
+										view.setCaretOffset(view.getCaretOffset() + 1);
+									}
+									else if(start == 0){
+										text.append(n.getValue().substring(start));
+									}
+									else {
+										text.append("\n" + n.getValue().substring(start));
+									}
+								}
+								else{
+								    end += indexes[totalLength] - end;
+									if(start == 0 && append){
+										view.insert("\n");
+										text.append(n.getValue().substring(start, end));
+										spaceBeforeText++;
+										view.setCaretOffset(view.getCaretOffset() + 1);
+									}
+									else if(start == 0){
+										text.append(n.getValue().substring(start, end));
+									}
+									else{
+										text.append("\n" + n.getValue().substring(start, end));
+									}
+								}
+								start = end;
+							}
+							else {
+								String brltext = brl.getChild(i).getValue();
+								totalLength += brltext.length();
+								end = indexes[totalLength - 1];
+								if(totalLength == indexes.length){
+									text.append(n.getValue().substring(start));
+								}
+								else{
+									end += indexes[totalLength] - end;
+									text.append(n.getValue().substring(start, end));
+								}
+								start = end;
+							}
+						}
+					}
+				}
+				else if(append){
+					view.insert("\n");
+					text.append(n.getValue());
+					spaceBeforeText++;
+					view.setCaretOffset(view.getCaretOffset() + 1);
 				}
 				else {
 					text.append(n.getValue());
@@ -1542,13 +1724,19 @@ public class TextView extends WPView {
 	}	
 	
 	@Override
-	public void addPageNumber(MapList list, Node node){
-		String text = node.getValue();
+	public void addPageNumber(PageMapElement p, boolean insert){
+		String text = p.n.getValue();
 		
-		view.append("\n" + text);
 		spaceBeforeText++;
 		
-		list.addPrintPage(new PageMapElement(spaceBeforeText + total, spaceBeforeText + total + text.length(), node));
+		if(insert){
+			view.insert("\n" + text);
+			view.setCaretOffset(spaceBeforeText + text.length() + total);
+		}
+		else
+			view.append("\n" + text);
+		
+		p.setOffsets(spaceBeforeText + total, spaceBeforeText + total + text.length());
 		total += spaceBeforeText + text.length();
 		spaceBeforeText = 0;
 	}
@@ -1564,6 +1752,12 @@ public class TextView extends WPView {
 		currentChanges = 0;
 		textChanged = false;
 		setListenerLock(false);
+	}
+	
+	public void resetOffsets(){
+		Message m = Message.createGetCurrentMessage(Sender.TEXT, view.getCaretOffset());
+		manager.dispatch(m);
+		setViewData(m);
 	}
 
 	public void setBRLOnlyText(MapList list, String text, Element element) {

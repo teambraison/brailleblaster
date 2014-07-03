@@ -41,10 +41,10 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
@@ -191,6 +191,13 @@ public class BrailleView extends WPView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				checkStatusBar(Sender.BRAILLE);
+				if(!getLock() & scrollBarPos != view.getVerticalBar().getSelection()){
+					scrollBarPos = view.getVerticalBar().getSelection();
+					if(view.getVerticalBar().getSelection() == (view.getVerticalBar().getMaximum() - view.getVerticalBar().getThumb()))
+						manager.incrementView();
+					else if(view.getVerticalBar().getSelection() == 0)
+						manager.decrementView();
+				}
 			}
 		});
 		
@@ -200,7 +207,7 @@ public class BrailleView extends WPView {
 				checkStatusBar(Sender.BRAILLE);
 			}			
 		});
-	
+		view.addModifyListener(viewMod);
 		setListenerLock(false);
 	}
 	
@@ -239,6 +246,7 @@ public class BrailleView extends WPView {
 	
 	@Override
 	public void removeListeners(){
+		view.removeModifyListener(viewMod);
 		view.removeTraverseListener(traverseListener);
 		view.removeVerifyKeyListener(verifyListener);
 		view.removeFocusListener(focusListener);
@@ -274,6 +282,67 @@ public class BrailleView extends WPView {
 		for(int i = 0; i < list.size(); i++){
 			this.pageRanges.add(list.get(i));
 		}
+	}
+	
+	public void setBraille(TextMapElement t, MapList list, int index){
+		setListenerLock(true);
+		for(int i = 0; i < t.brailleList.size(); i++){
+			Styles style = stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
+			Styles prevStyle;
+			if(list.size() > 1 && index != 0)
+				prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
+			else
+				prevStyle = null;
+		
+			String textBefore = "";
+			String text = t.brailleList.get(i).n.getValue();
+			int textLength = text.length();
+	
+			if(insertNewLine(t.brailleList.get(i).n)){
+				textBefore = "\n";
+				spaceBeforeText++;
+			}
+		
+			view.append(textBefore + text);
+			handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
+		
+			t.brailleList.get(i).setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
+			total += spaceBeforeText + textLength + spaceAfterText;
+			spaceBeforeText = 0;
+			spaceAfterText = 0;
+		}
+		setListenerLock(false);
+	}
+	
+	public void prependBraille(TextMapElement t, MapList list, int index){
+		setListenerLock(true);
+		for(int i = 0; i < t.brailleList.size(); i++){
+			Styles style = stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
+			Styles prevStyle;
+			if(list.size() > 1 && index != 0)
+				prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
+			else
+				prevStyle = null;
+		
+			String textBefore = "";
+			String text = t.brailleList.get(i).n.getValue();
+			int textLength = text.length();
+	
+			if(insertNewLine(t.brailleList.get(i).n)){
+				textBefore = "\n";
+				spaceBeforeText++;
+			}
+		
+			view.insert(textBefore + text);
+			handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
+		
+			t.brailleList.get(i).setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
+			total += spaceBeforeText + textLength + spaceAfterText;
+			spaceBeforeText = 0;
+			spaceAfterText = 0;
+			view.setCaretOffset(total);
+		}
+		setListenerLock(false);
 	}
 	
 	public void setBraille(MapList list, Node n, TextMapElement t){
@@ -867,12 +936,18 @@ public class BrailleView extends WPView {
 	}
 
 	@Override
-	public void addPageNumber(MapList list, Node node) {
-		String text = node.getValue();
-		view.append("\n" + text);
-		spaceBeforeText++;
+	public void addPageNumber(PageMapElement p, boolean insert) {
+		String text = p.brailleNode.getValue();
 		
-		list.getLastPage().setBraillePage(spaceBeforeText + total, spaceBeforeText + total + text.length(), node);
+		spaceBeforeText++;
+		if(insert){
+			view.insert("\n" + text);
+			view.setCaretOffset(spaceBeforeText + text.length() + total);
+		}
+		else
+			view.append("\n" + text);
+		
+		p.setBrailleOffsets(spaceBeforeText + total, spaceBeforeText + total + text.length());
 		total += spaceBeforeText + text.length();
 		spaceBeforeText = 0;
 	}

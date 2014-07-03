@@ -3,7 +3,7 @@ package org.brailleblaster.perspectives.braille.views.tree;
 import nu.xom.Element;
 
 import org.brailleblaster.abstractClasses.BBView;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;

@@ -1,7 +1,9 @@
-package org.brailleblaster.perspectives.braille.mapping;
+package org.brailleblaster.perspectives.braille.mapping.maps;
 
 import java.util.LinkedList;
 
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
 
@@ -22,6 +24,10 @@ public class Paginator {
 	
 	public void add(PageMapElement p){
 		list.add(p);
+	}
+	
+	public void add(int index, PageMapElement p){
+		list.add(index, p);
 	}
 	
 	public boolean inPrintPageRange(int offset){		
@@ -217,5 +223,9 @@ public class Paginator {
 	
 	public int getSize(){
 		return list.size();
+	}
+	
+	public void removePage(PageMapElement p){
+		list.remove(p);
 	}
 }

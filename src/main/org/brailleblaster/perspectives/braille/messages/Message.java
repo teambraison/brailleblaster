@@ -33,7 +33,7 @@ package org.brailleblaster.perspectives.braille.messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 
 import nu.xom.Text;
 

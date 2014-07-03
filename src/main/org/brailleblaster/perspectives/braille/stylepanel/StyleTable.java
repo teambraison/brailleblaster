@@ -5,7 +5,7 @@ import java.util.Set;
 import nu.xom.Element;
 
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;

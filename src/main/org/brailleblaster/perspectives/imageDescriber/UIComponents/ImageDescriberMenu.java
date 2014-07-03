@@ -28,9 +28,14 @@ public class ImageDescriberMenu extends BBMenu {
 	// Menu items for font sizing of our widgets.
 	MenuItem fontSizeItem;
 	Menu fontSizeMenu;
-	MenuItem fontButtonItem, fontEditBox, fontLabel;
+	MenuItem fontButtonItem;
 	Menu btnFntSizeMenu;
 	MenuItem fontBtnSize[] = new MenuItem[10];
+	//////////////
+	MenuItem fontEditBoxItem;
+	Menu editBoxSizeMenu;
+	MenuItem fontEditBoxSize[] = new MenuItem[10];
+	int curBox = 13; // For creating font checkboxes in a loop.
 	
 	public ImageDescriberMenu(final WPManager wp, ImageDescriberController idc) {
 		super(wp);
@@ -204,6 +209,9 @@ public class ImageDescriberMenu extends BBMenu {
 			fontSizeMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
 			fontSizeItem.setMenu(fontSizeMenu);
 			
+			/////////////////////
+			// Button Font Sizes.
+			
 				// Add button dropdown to font size dropdown menu.
 				fontButtonItem = new MenuItem(fontSizeMenu, SWT.CASCADE);
 				fontButtonItem.setText(lh.localValue("Button Font Size"));
@@ -330,11 +338,142 @@ public class ImageDescriberMenu extends BBMenu {
 							_setBtnFntCheck(9, true);
 						}
 					});
-			
+
+				// Button Font Sizes.
+				/////////////////////
+					
+				///////////////////////
+				// Edit Box Font Sizes.
+					
+//					MenuItem fontEditBoxItem;
+//					Menu editBoxSizeMenu;
+//					MenuItem fontEditBoxSize[] = new MenuItem[10];
+					
+					// Add dropdown to font size dropdown menu.
+					fontEditBoxItem = new MenuItem(fontSizeMenu, SWT.CASCADE);
+					fontEditBoxItem.setText(lh.localValue("Edit Box Font Size"));
+					editBoxSizeMenu = new Menu(wordProc.getShell(), SWT.DROP_DOWN);
+					fontEditBoxItem.setMenu(editBoxSizeMenu);
+					
+						fontEditBoxSize[0] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[0].setText(lh.localValue("Auto"));
+						fontEditBoxSize[0].setSelection(true);
+						fontEditBoxSize[0].setData(ImageDescriberController.class);
+						fontEditBoxSize[0].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_AUTO);
+								_setEboxFntCheck(0, true);
+							}
+						});
+						
+						fontEditBoxSize[1] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[1].setText(lh.localValue("12"));
+						fontEditBoxSize[1].setData(ImageDescriberController.class);
+						fontEditBoxSize[1].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_12);
+								_setEboxFntCheck(1, true);
+							}
+						});
+						
+						fontEditBoxSize[2] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[2].setText(lh.localValue("11"));
+						fontEditBoxSize[2].setData(ImageDescriberController.class);
+						fontEditBoxSize[2].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_11);
+								_setEboxFntCheck(2, true);
+							}
+						});
+						
+						fontEditBoxSize[3] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[3].setText(lh.localValue("10"));
+						fontEditBoxSize[3].setData(ImageDescriberController.class);
+						fontEditBoxSize[3].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_10);
+								_setEboxFntCheck(3, true);
+							}
+						});
+						
+						fontEditBoxSize[4] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[4].setText(lh.localValue("9"));
+						fontEditBoxSize[4].setData(ImageDescriberController.class);
+						fontEditBoxSize[4].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_09);
+								_setEboxFntCheck(4, true);
+							}
+						});
+						
+						fontEditBoxSize[5] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[5].setText(lh.localValue("8"));
+						fontEditBoxSize[5].setData(ImageDescriberController.class);
+						fontEditBoxSize[5].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_08);
+								_setEboxFntCheck(5, true);
+							}
+						});
+						
+						fontEditBoxSize[6] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[6].setText(lh.localValue("7"));
+						fontEditBoxSize[6].setData(ImageDescriberController.class);
+						fontEditBoxSize[6].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_07);
+								_setEboxFntCheck(6, true);
+							}
+						});
+						
+						fontEditBoxSize[7] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[7].setText(lh.localValue("6"));
+						fontEditBoxSize[7].setData(ImageDescriberController.class);
+						fontEditBoxSize[7].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_06);
+								_setEboxFntCheck(7, true);
+							}
+						});
+						
+						fontEditBoxSize[8] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[8].setText(lh.localValue("5"));
+						fontEditBoxSize[8].setData(ImageDescriberController.class);
+						fontEditBoxSize[8].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_05);
+								_setEboxFntCheck(8, true);
+							}
+						});
+						
+						fontEditBoxSize[9] = new MenuItem(editBoxSizeMenu, SWT.CHECK);
+						fontEditBoxSize[9].setText(lh.localValue("4"));
+						fontEditBoxSize[9].setData(ImageDescriberController.class);
+						fontEditBoxSize[9].addSelectionListener(new SelectionAdapter(){
+							@Override
+							public void widgetSelected(SelectionEvent e) {
+								idv.setEditBoxesFont(idv.IDV_FONTSIZE_04);
+								_setEboxFntCheck(9, true);
+							}
+						});
+
+				// Edit Box Font Sizes.
+				///////////////////////
+					
 		// Font Sizes.
 		//////////////
 	}
 
+	// Buttons.
 	// Sets all font-size checkboxes to true/false/on/off, then flips the 
 	// checkbox at given index to the given bool.
 	private void _setBtnFntCheck(int checkIndex, boolean onOrOff)
@@ -347,6 +486,20 @@ public class ImageDescriberMenu extends BBMenu {
 		fontBtnSize[checkIndex].setSelection(onOrOff);
 		
 	} // _setBtnFntCheck()
+	
+	// Edit boxes.
+	// Sets all font-size checkboxes to true/false/on/off, then flips the 
+	// checkbox at given index to the given bool.
+	private void _setEboxFntCheck(int checkIndex, boolean onOrOff)
+	{
+		// Turn them all on or off.
+		for(int curB = 0; curB < fontEditBoxSize.length; curB++)
+			fontEditBoxSize[curB].setSelection(!onOrOff);
+		
+		// Flip the one we want.
+		fontEditBoxSize[checkIndex].setSelection(onOrOff);
+		
+	} // _setEboxFntCheck()
 	
 	@Override
 	public void setCurrent(Controller controller) {

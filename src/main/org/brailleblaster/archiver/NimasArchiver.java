@@ -303,7 +303,7 @@ public class NimasArchiver extends Archiver {
 		Builder builder = new Builder();
 		
 		// Path to xsl file. Add three slashes to avoid BS.
-    	String xslPath = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep() + "NimasToEpub.xsl";
+    	String xslPath = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep() + "dtb2005html.xsl";
 		
     	// Build the xsl document.
     	Document xslDoc = null;
@@ -330,6 +330,7 @@ public class NimasArchiver extends Archiver {
     		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curDoc) + ".xhtml";
     		// Write file.
     		fu.createXMLFile( transformedDoc, outPath );
+//    		fu.createXMLFile( docs.get(curDoc), outPath );
         	
         } // for(int curDoc...
         

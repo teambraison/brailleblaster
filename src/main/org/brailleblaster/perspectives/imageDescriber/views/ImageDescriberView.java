@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Text;
 public class ImageDescriberView {
 	
 	// Font sizes for our controls.
-	public int IDV_FONTSIZE_AUTO = -1;
+	public int IDV_FONTSIZE_AUTO = 13;
 	public int IDV_FONTSIZE_12 = 12;
 	public int IDV_FONTSIZE_11 = 11;
 	public int IDV_FONTSIZE_10 = 10;

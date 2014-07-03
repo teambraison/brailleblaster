@@ -35,7 +35,6 @@ package org.brailleblaster;
 
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.brailleblaster.localization.LocaleHandler;
 import org.liblouis.LibLouisUTDML;
 import java.io.Console;
 import org.daisy.printing.PrinterDevice;
@@ -52,14 +51,12 @@ import java.util.Arrays;
 
 class Subcommands {
 	private Logger logger = BBIni.getLogger();
-	private LocaleHandler lh = new LocaleHandler();
 	private LibLouisUTDML louisutdml;
 	private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 	private String subcommand;
 	private String[] subArgs;
 
 	Subcommands(String[] args) {
-		LocaleHandler lh = new LocaleHandler();
 		logger = BBIni.getLogger();
 		if (!BBIni.haveLiblouisutdml()) {
 			logger.log(Level.SEVERE,

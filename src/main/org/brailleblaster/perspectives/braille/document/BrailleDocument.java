@@ -19,9 +19,9 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.mapping.BrailleMapElement;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.SWT;
 
@@ -567,7 +567,6 @@ public class BrailleDocument extends BBDocument {
 	public void changeSemanticAction(Message m, Element e){
 		org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style = (org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles)m.getValue("Style");
 		String name = style.getName();
-		//Element e = (Element)t.n.getParent();
 		Attribute attr = e.getAttribute("semantics");
 		while(attr.getValue().contains("action")){
 			e = (Element)e.getParent();

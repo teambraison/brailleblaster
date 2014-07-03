@@ -1,9 +1,8 @@
-package org.brailleblaster.perspectives.braille.mapping;
+package org.brailleblaster.perspectives.braille.mapping.elements;
 
 import nu.xom.Element;
 import nu.xom.Node;
 
-import org.brailleblaster.abstractClasses.AbstractMapElement;
 
 public class BrailleMapElement extends AbstractMapElement{
 	public boolean pagenum;
@@ -11,6 +10,10 @@ public class BrailleMapElement extends AbstractMapElement{
 	public BrailleMapElement(int start, int end, Node n) {
 		super(start, end, n);
 		pagenum = isPageNum(n);
+	}
+	
+	public BrailleMapElement(Node n){
+		super(n);
 	}
 	
 	private boolean isPageNum(Node n){

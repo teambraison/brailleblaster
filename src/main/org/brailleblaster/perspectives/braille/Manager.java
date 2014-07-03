@@ -39,17 +39,14 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
-import nu.xom.Nodes;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
-import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -57,15 +54,19 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
-import org.brailleblaster.perspectives.braille.mapping.PageMapElement;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.Range;
+import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.search.*;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
@@ -96,6 +97,7 @@ public class Manager extends Controller {
 	private TextView text;
 	private BrailleView braille;
 	private BBProgressBar pb;
+	private ViewInitializer vi;
 	StyleManager sm;
 	FormLayout layout;
 	Control [] tabList;
@@ -119,7 +121,6 @@ public class Manager extends Controller {
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
-		list = new MapList(this);
 		item = new TabItem(wp.getFolder(), 0);
 		group = new Group(wp.getFolder(),SWT.NONE);
 		group.setLayout(new FormLayout());	
@@ -141,9 +142,11 @@ public class Manager extends Controller {
 		else {
 			docCount++;
 			arch = ArchiverFactory.getArchive( templateFile);
+			vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
+			//list = vi.getList(this);
 			resetConfiguations();
 			initializeAllViews(docName, templateFile, null);
-			formatTemplateDocument();
+			//formatTemplateDocument();
 			setTabTitle(docName);
 		}				
 		
@@ -158,7 +161,6 @@ public class Manager extends Controller {
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(arch.getCurrentConfig());
 		documentName = arch.getOrigDocPath();
-		list = new MapList(this);
 		this.item = item;
 		group = new Group(wp.getFolder(),SWT.NONE);
 		group.setLayout(new FormLayout());	
@@ -176,9 +178,12 @@ public class Manager extends Controller {
 		logger = BBIni.getLogger();
 		
 		document = new BrailleDocument(this, doc, this.styles);
-
+		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
+		
 		group.setRedraw(false);
-		initializeViews(document.getRootElement());
+		vi.initializeViews(this);
+		list = vi.getList(this);
+		
 		treeView.setRoot(document.getRootElement());
 		document.notifyUser();
 		text.initializeListeners();
@@ -189,8 +194,8 @@ public class Manager extends Controller {
 		text.view.setWordWrap(true);
 		braille.view.setWordWrap(true);
 		group.setRedraw(true);
-		if(list.size() == 0)
-			formatTemplateDocument();
+		//if(list.size() == 0)
+		//	formatTemplateDocument();
 		
 		if(BBIni.getPlatformName().equals("cocoa"))
 			treeView.getTree().select(treeView.getRoot());
@@ -294,7 +299,9 @@ public class Manager extends Controller {
 				startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
-				initializeViews(document.getRootElement());
+				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
+				vi.initializeViews(this);
+				list = vi.getList(this);
 				treeView.setRoot(document.getRootElement());
 				document.notifyUser();
 				text.initializeListeners();
@@ -321,86 +328,6 @@ public class Manager extends Controller {
 			e.printStackTrace();
 			logger.log(Level.SEVERE, "Unforeseen Exception", e);
 		}
-	}
-	
-	private void initializeViews(Node current){
-		if(current instanceof Text && !((Element)current.getParent()).getLocalName().equals("brl") && vaildTextElement(current, current.getValue())){
-			text.setText(current, list);
-		}
-		
-		for(int i = 0; i < current.getChildCount(); i++){
-			if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
-				initializeBraille(current.getChild(i), list.getLast());
-			}
-			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
-				//if math is empty skip next brl element
-				if(validateMath((Element)current.getChild(i)))
-					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
-				else
-					i++;
-			}
-			else {
-				if(current.getChild(i) instanceof Element){
-					if(((Element)current.getChild(i)).getLocalName().equals("pagenum")){
-						initializePrintPage((Element)current.getChild(i));
-					}
-					else {
-						Element currentChild = (Element)current.getChild(i);
-						document.checkSemantics(currentChild);
-						if(!currentChild.getLocalName().equals("meta") & !currentChild.getAttributeValue("semantics").contains("skip"))
-							initializeViews(currentChild);
-					}
-				}
-				else if(!(current.getChild(i) instanceof Element)) {
-					initializeViews(current.getChild(i));
-				}
-			}
-		}
-	}
-	
-	private void initializeBraille(Node current, TextMapElement t){
-		if(current instanceof Text && ((Element)current.getParent()).getLocalName().equals("brl")){
-			Element grandParent = (Element)current.getParent().getParent();
-			if(!(grandParent.getLocalName().equals("span") && document.checkAttributeValue(grandParent, "class", "brlonly")))
-				braille.setBraille(list, current, t);
-		}
-		
-		for(int i = 0; i < current.getChildCount(); i++){
-			if(current.getChild(i) instanceof Element){
-				initializeBraille(current.getChild(i), t);
-			}
-			else {
-				initializeBraille(current.getChild(i), t);
-			}
-		}
-	}
-	
-	private void initializePrintPage(Element page){
-		Node textNode = document.findPrintPageNode(page);
-		if(textNode != null){
-			text.addPageNumber(list, textNode);
-		
-			Node brailleText = document.findBraillePageNode(page);
-			braille.addPageNumber(list, brailleText);
-		}
-	}
-	
-	private void initializeMathML(Element math, Element brl){
-		text.setMathML(list, math);
-	}
-	
-	private boolean validateMath(Element math){
-		int count = math.getChildCount();
-		for(int i = 0; i < count; i++){
-			if(math.getChild(i) instanceof Text)
-				return true;
-			else if(math.getChild(i) instanceof Element){
-				if(validateMath((Element)math.getChild(i)))
-					return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	public void dispatch(Message message){
@@ -448,7 +375,7 @@ public class Manager extends Controller {
 				list.adjustOffsets(list.getCurrentIndex(), message);
 				break;
 			case GET_TEXT_MAP_ELEMENTS:
-				list.findTextMapElements(message);
+				findTextMapElements(message);
 				break;
 			case UPDATE_SCROLLBAR:
 				handleUpdateScrollbar(message);
@@ -459,6 +386,57 @@ public class Manager extends Controller {
 			default:
 				break;
 		}
+	}
+	
+	public void checkView(TextMapElement t){
+		if(!list.contains(t))
+			list = vi.resetViews(getSection(t));
+	}
+	
+	public void decrementView(){
+		TextMapElement t = list.getFirst();
+		int section = getSection(t);
+		if(section != 0){
+			list = vi.resetViews(section);
+			list.setCurrent(list.indexOf(t) - 1);
+			text.resetOffsets();
+		}
+	}
+	
+	public void incrementView(){
+		TextMapElement t = list.getLast();
+		int section = getSection(t);
+		if(section != vi.getSectionList().size() - 1){
+			list = vi.resetViews(section + 1);
+			list.setCurrent(list.indexOf(t) + 1);
+			text.resetOffsets();
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void findTextMapElements(Message message){
+		ArrayList<Text>textList = (ArrayList<Text>)message.getValue("nodes");
+		
+		ArrayList<SectionElement>secList = vi.getSectionList();
+		Element e = (Element)textList.get(0).getParent();
+		while(e != null && !e.getLocalName().equals("level1") && !e.getLocalName().equals("body")){
+			e = (Element)e.getParent();
+		}
+		
+		if(secList.size() > 1){
+			for(int i = 0; i < secList.size(); i++){
+				if(secList.get(i).getParent().equals(e)){
+					if(secList.get(i).isVisible())
+						list.findTextMapElements(message);
+					else {
+						list = vi.resetViews(i);
+						list.findTextMapElements(message);
+					}
+				}
+			}
+		}
+		else
+			list.findTextMapElements(message);
 	}
 	
 	private void handleIncrement(Message message){
@@ -500,6 +478,7 @@ public class Manager extends Controller {
 	
 	private void handleSetCurrent(Message message){
 		int index;
+		boolean viewReset = false;
 		list.checkList();
 		
 		if(message.getValue("isBraille").equals(true)){
@@ -524,11 +503,23 @@ public class Manager extends Controller {
 			resetCursorData();
 		}
 		
-		if(treeView.getTree().isFocusControl() && !currentElementOnScreen()){
+		if(list.getCurrentIndex() == list.size() - 1 && !vi.getSectionList().get(vi.getSectionList().size() -  1).isVisible()){
+			list = vi.bufferForward();
+			list.getCurrentNodeData(message);
+			viewReset = true;
+		}
+		else if(list.getCurrentIndex() == 0 && !vi.getSectionList().get(0).isVisible() && getSection(list.getCurrent()) != vi.getSectionList().size() - 1){
+			list = vi.bufferBackward();
+			list.getCurrentNodeData(message);
+			viewReset = true;
+		}
+		
+		if((treeView.getTree().isFocusControl() && !currentElementOnScreen()) || viewReset){
 			text.view.setTopIndex(text.view.getLineAtOffset(list.getCurrent().start));
 			handleUpdateScrollbar(Message.createUpdateScollbarMessage(Sender.TREE, list.getCurrent().start));
 		}
 	}
+	
 	
 	private boolean currentElementOnScreen(){
 		int viewHeight = text.view.getClientArea().height;
@@ -1019,6 +1010,7 @@ public class Manager extends Controller {
 			boolean textChanged = text.hasChanged;
 			boolean brailleChanged = braille.hasChanged;
 			
+			int index = getSection(list.getCurrent());
 			String path = BBIni.getTempFilesPath() + BBIni.getFileSep() + "temp.xml";
 			File f = new File(path);
 			f.createNewFile();
@@ -1051,8 +1043,10 @@ public class Manager extends Controller {
 			text.hasChanged = textChanged;
 			braille.hasChanged = brailleChanged;
 			
-			if(arch.getOrigDocPath() == null && list.size() == 0)
-				formatTemplateDocument();
+			if(index != -1)
+				vi.resetViews(index);
+			//if(arch.getOrigDocPath() == null && list.size() == 0)
+			//	formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1065,22 +1059,6 @@ public class Manager extends Controller {
 		String tempFile = document.getOutfile();
 		if(!fu.createXMLFile(document.getDOM(), tempFile))
 		    new Notify("An error occured while saving a temporary file.  Please restart brailleblaster");
-	}
-	
-	private boolean vaildTextElement(Node n , String text){
-		Element e = (Element)n.getParent();
-		int index = e.indexOf(n);
-		int length = text.length();
-		
-		if(index == e.getChildCount() - 1 || !(e.getChild(index + 1) instanceof Element && ((Element)e.getChild(index + 1)).getLocalName().equals("brl")))
-			return false;
-		
-		for(int i = 0; i < length; i++){
-			if(text.charAt(i) != '\n' && text.charAt(i) != '\t')
-				return true;
-		}
-		
-		return false;
 	}
 	
 	public void toggleAttributeEditor(){
@@ -1222,12 +1200,66 @@ public class Manager extends Controller {
 		return list.indexOf(t);
 	}
 	
+	public int indexOf(int section, TextMapElement t){
+		if(vi.getSectionList().size() > 1)
+			return vi.getSectionList().get(section).getList().indexOf(t);
+		else
+			return list.indexOf(t);
+	}
+	
+	public int getSection(TextMapElement t){
+		for(int i = 0; i < vi.getSectionList().size(); i++){
+			if(vi.getSectionList().get(i).getList().contains(t))
+				return i;
+		}
+		
+		return -1;
+	}
+	
+	public int getSection(Node n){
+		for(int i = 0; i < vi.getSectionList().size(); i++){
+			if(vi.getSectionList().get(i).getList().contains(n))
+				return i;
+		}
+		
+		return -1;
+	}
+	
+	public int getSection(int section, Node n){
+		for(int i = section; i < vi.getSectionList().size(); i++){
+			if(vi.getSectionList().get(i).getList().contains(n))
+				return i;
+		}
+		
+		return -1;
+	}
+	
+	public Range getRange(int section, int listIndex, Node n){
+		for(int i = section; i < vi.getSectionList().size(); i++){
+			int index = vi.getSectionList().get(i).getList().findNodeIndex(n, listIndex);
+			if(index != -1)
+				return new Range(i, index);
+			
+			listIndex = 0;
+		}
+		
+		return null;
+	}
+	
 	public int findNodeIndex(Node n, int startIndex){
 		return list.findNodeIndex(n, startIndex);
 	}
 	
+	public int findNodeIndex(Node n, int section, int startIndex){
+		return vi.getSectionList().get(section).getList().findNodeIndex(n, startIndex);
+	}
+	
 	public TextMapElement getTextMapElement(int index){
 		return list.get(index);
+	}
+	
+	public TextMapElement getTextMapElement(int section, int index){
+		return vi.getSectionList().get(section).getList().get(index);
 	}
 	
 	public int getListSize() {
@@ -1258,6 +1290,7 @@ public class Manager extends Controller {
 		treeView.setSelection(list.getCurrent());
 		treeView.getTree().getParent().layout();
 		treeView.initializeListeners();
+		vi.resetTree(treeView);
 		//save latest setting to user settings file
 		BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 	}
@@ -1432,26 +1465,6 @@ public class Manager extends Controller {
 		if(sm.getStyleTable().isVisible()){
 			e.doit = false;
 			sm.getStyleTable().getTable().setFocus();
-		}
-	}
-	
-	//adds or tracks a text node for a blank document when user starts 
-	private void formatTemplateDocument(){
-		Nodes n = document.query("/*[1]/*[2]");
-			
-		if(n.get(0).getChildCount() > 0){
-			if(n.get(0).getChild(0).getChildCount() == 0)
-				((Element)n.get(0).getChild(0)).appendChild(new Text(""));
-				
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
-		}
-		else {
-			Element p = new Element("p", document.getRootElement().getNamespaceURI());
-			SemanticFileHandler sfh = new SemanticFileHandler(arch.getCurrentConfig());
-			p.addAttribute(new Attribute("semantics","styles," + sfh.getDefault("p")));	
-			p.appendChild(new Text(""));
-			((Element)n.get(0)).appendChild(p);
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
 		}
 	}
 }

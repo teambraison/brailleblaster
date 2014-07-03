@@ -91,7 +91,7 @@ public class WebInitializer extends ViewInitializer{
 		}
 		else {
 			Element p = new Element("p", document.getRootElement().getNamespaceURI());
-			SemanticFileHandler sfh = new SemanticFileHandler(m.getArchvier().getCurrentConfig());
+			SemanticFileHandler sfh = new SemanticFileHandler(m.getArchiver().getCurrentConfig());
 			p.addAttribute(new Attribute("semantics","styles," + sfh.getDefault("p")));	
 			p.appendChild(new Text(""));
 			((Element)n.get(0)).appendChild(p);

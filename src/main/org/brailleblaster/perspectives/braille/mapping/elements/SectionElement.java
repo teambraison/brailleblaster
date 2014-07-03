@@ -40,7 +40,16 @@ public class SectionElement {
 				break;
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
-				initializeBraille(m, current.getChild(i), list.getLast());
+				//Added to handle brl for side bar
+				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar"))
+				{
+					//text.setBRLOnlyText(list, "\n",((Element)current.getChild(i).getParent()));
+					//braille.setBRLOnlyBraille(list,current.getChild(i));
+				}
+				else
+				{
+					initializeBraille(m, current.getChild(i), list.getLast());
+				}
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("math")){
 				//if math is empty skip next brl element
@@ -48,6 +57,10 @@ public class SectionElement {
 					initializeMathML((Element)current.getChild(i), (Element)current.getChild(i + 1));
 				else
 					i++;
+			}
+			//Added this part for side bar
+			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("sidebar")){
+				     initializeViews(current.getChild(i), m, 0);	
 			}
 			else {
 				if(current.getChild(i) instanceof Element){

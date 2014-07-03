@@ -1,5 +1,7 @@
 package org.brailleblaster.perspectives.braille.mapping;
 
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+
 import nu.xom.Element;
 import nu.xom.Node;
 

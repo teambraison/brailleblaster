@@ -42,6 +42,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
@@ -289,7 +290,7 @@ public class BrailleView extends WPView {
 		for(int i = 0; i < t.brailleList.size(); i++){
 			Styles style = stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
 			Styles prevStyle;
-			if(list.size() > 1 && index != 0)
+			if(list.size() > 1 && index != 0 &&  list.get(index - 1).n!=null)
 				prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
 			else
 				prevStyle = null;
@@ -957,7 +958,5 @@ public class BrailleView extends WPView {
 		view.append(brailleSidebar);
 		list.getLast().brailleList.add(new BrailleMapElement(total, total + brailleSidebar.length(), child));
 		total += brailleSidebar.length();
-		
-		
 	}
 }

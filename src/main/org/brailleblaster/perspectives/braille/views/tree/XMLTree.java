@@ -8,7 +8,7 @@ import nu.xom.Node;
 import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.mapping.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
@@ -233,7 +233,7 @@ public class XMLTree extends TreeView {
 		Elements els = e.getChildElements();
 	
 		for(int i = 0; i < els.size(); i++){
-			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && !els.get(i).getAttributeValue("semantics").contains("skip")){
+			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && manager.getDocument().checkAttribute(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));
@@ -247,7 +247,7 @@ public class XMLTree extends TreeView {
 					Message message = Message.createGetTextMapElementsMessage(textList, data.textMapList);
 					manager.dispatch(message);
 				}
-				
+			
 				textList.clear();
 				temp.setData(data);
 			}

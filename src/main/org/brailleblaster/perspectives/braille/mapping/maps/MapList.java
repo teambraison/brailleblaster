@@ -28,7 +28,7 @@
   * Maintained by Keith Creasy <kcreasy@aph.org>, Project Manager
 */
 
-package org.brailleblaster.perspectives.braille.mapping;
+package org.brailleblaster.perspectives.braille.mapping.maps;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -39,6 +39,9 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 
@@ -357,6 +360,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			return this.current;
 		}
 	}
+	
 	public int getCurrentIndex(){
 		if(this.current == null && size() > 0){
 			Message message = Message.createSetCurrentMessage(null, this.getFirst().start, false);
@@ -560,6 +564,31 @@ public class MapList extends LinkedList<TextMapElement>{
 		currentIndex = -1;
 	}
 	
+	public void resetList(){
+		int size = size();
+		for(int i = 0; i < size; i++){
+			get(i).setOffsets(0, 0);
+			for(int j = 0; j < get(i).brailleList.size(); j++){
+				get(i).brailleList.get(j).setOffsets(0, 0);
+			}
+		}
+		
+		int pageCount = paginator.getSize();
+		for(int i = 0; i < pageCount; i++){
+			paginator.getPageMapElement(i).setOffsets(0, 0);
+			paginator.getPageMapElement(i).setBrailleOffsets(0, 0);
+			paginator.getPageMapElement(i).listIndex = paginator.getPageMapElement(i).index;
+		}
+	}
+	
+	public void removePage(PageMapElement p){
+		paginator.removePage(p);
+	}
+	
+	public PageMapElement getPage(int index){
+		return paginator.getPageMapElement(index);
+	}
+	
 	public int getPrintPageStart(int offset){
 		return paginator.getPrintPageStart(offset);
 	}
@@ -578,6 +607,10 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public void addPrintPage(PageMapElement p){
 		paginator.add(p);
+	}
+	
+	public void addPrintPage(int index, PageMapElement p){
+		paginator.add(index, p);
 	}
 	
 	public PageMapElement getLastPage(){
@@ -610,5 +643,13 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public int getPageCount(){
 		return paginator.getSize();
+	}
+	
+	public boolean contains(Node n){
+		for(int i = 0; i < size(); i++)
+			if(get(i).n.equals(n))
+				return true;
+		
+		return false;
 	}
 }

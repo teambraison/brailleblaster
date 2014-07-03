@@ -9,7 +9,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.mapping.MapList;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
@@ -28,9 +28,10 @@ public abstract class WPView extends AbstractView implements BBView {
 	protected BBSemanticsTable stylesTable;
 	protected static int currentAlignment;
 	public static int currentLine;
-	protected static int topIndex;
+	protected static int topIndex, scrollBarPos;
 	public StyledText view;
 	protected int charWidth;
+	protected ModifyListener viewMod;
 	
 	public WPView(Manager manager, Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
 		super(manager, group);
@@ -40,18 +41,17 @@ public abstract class WPView extends AbstractView implements BBView {
 		this.stylesTable = table;
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		setLayout(view, left, right, top, bottom);
-		view.addModifyListener(viewMod);
+		// Better use a ModifyListener to set the change flag.
+		viewMod = new ModifyListener() {
+			@Override
+			public void modifyText(ModifyEvent e) {
+				hasChanged = true;
+			}
+		};
+		scrollBarPos = 0;
 	}
 	
-	// Better use a ModifyListener to set the change flag.
-	ModifyListener viewMod = new ModifyListener() {
-		@Override
-		public void modifyText(ModifyEvent e) {
-			hasChanged = true;
-		}
-	};
-	
-	public abstract void addPageNumber(MapList list, Node node);
+	public abstract void addPageNumber(PageMapElement p, boolean insert);
 	@Override
 	protected abstract void setViewData(Message message);
 	
@@ -154,6 +154,7 @@ public abstract class WPView extends AbstractView implements BBView {
 			return null;
 		}
 	}
+	
 	//saves alignment, used when updating text since alignment info is removed with previous text is deleted and new translation is inserted
 	protected void saveStyleState(int start){
 		int line = this.view.getLineAtOffset(start);
@@ -320,5 +321,9 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.addModifyListener(viewMod);
 		setLayout(view, left, right, top, bottom);
 		view.getParent().layout();
+	}
+	
+	public int getTotal(){
+		return total;
 	}
 }

@@ -7,11 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-//<<<<<<< local
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//=======
-//>>>>>>> other
+
 import java.util.ArrayList;
 
 import nu.xom.Element;

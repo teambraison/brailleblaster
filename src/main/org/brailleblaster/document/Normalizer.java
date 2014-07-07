@@ -90,6 +90,7 @@ public class Normalizer {
 	
 	public boolean createNewUTDFile(String path){
 		if(this.doc != null){
+			normalize();
 			return write(path);
 		}
 		

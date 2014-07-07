@@ -41,8 +41,9 @@ public class SectionElement {
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
 				//Added to handle brl for side bar
-				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar"))
+				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar") )
 				{
+					list.add(new BrlOnlyMapElement(current.getChild(i), (Element)current.getChild(i).getParent()));
 					//text.setBRLOnlyText(list, "\n",((Element)current.getChild(i).getParent()));
 					//braille.setBRLOnlyBraille(list,current.getChild(i));
 				}

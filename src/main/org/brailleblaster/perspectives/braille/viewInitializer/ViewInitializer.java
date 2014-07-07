@@ -6,6 +6,7 @@ import nu.xom.Element;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
@@ -47,6 +48,12 @@ public abstract class ViewInitializer {
 			if(list.get(i).isMathML()){
 				text.setMathML(list, list.get(i));
 				braille.setBraille(list.get(i), list, i);
+			}
+			else if(list.get(i) instanceof BrlOnlyMapElement ){
+				System.out.println("instance of brlOnlyMap");
+				text.setBRLOnlyText((BrlOnlyMapElement) list.get(i));
+				braille.setBRLOnlyBraille((BrlOnlyMapElement) list.get(i));
+				
 			}
 			else {
 				text.setText(list.get(i), list, i);

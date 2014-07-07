@@ -42,8 +42,8 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.mapping.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -1760,9 +1760,10 @@ public class TextView extends WPView {
 		setViewData(m);
 	}
 
-	public void setBRLOnlyText(MapList list, String text, Element element) {
-		view.append(text);
-		list.add(new BrlOnlyMapElement(total, total + text.length(), null,element));
-		total += text.length();
+	public void setBRLOnlyText(BrlOnlyMapElement b) {
+		String textSidebar="\n"+"___________________________________________________";
+		view.append(textSidebar);
+		b.setOffsets(total, total+textSidebar.length());
+		total += textSidebar.length();
 	}
 }

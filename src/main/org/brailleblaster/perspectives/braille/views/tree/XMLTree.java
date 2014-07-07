@@ -230,6 +230,7 @@ public class XMLTree extends TreeView {
 	
 	private void populateItemChildren(TreeItem item, Element e){
 		ArrayList<Text>textList = new ArrayList<Text>();
+	
 		Elements els = e.getChildElements();
 	
 		for(int i = 0; i < els.size(); i++){

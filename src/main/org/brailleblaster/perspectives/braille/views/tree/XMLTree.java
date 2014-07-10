@@ -8,6 +8,7 @@ import nu.xom.Node;
 import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
@@ -388,8 +389,13 @@ public class XMLTree extends TreeView {
 	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
 		boolean found = false;
+		if(t instanceof BrlOnlyMapElement){
+			searchTreeForElement(item, t.parentElement(), m);
+			if(m.contains("item"))
+			found = true;
+		}
 
-		if(t.n instanceof Element) {
+		else if(t.n instanceof Element) {
 			searchTreeForElement(item, (Element)t.n, m);
 			if(m.contains("item"))
 				found = true;

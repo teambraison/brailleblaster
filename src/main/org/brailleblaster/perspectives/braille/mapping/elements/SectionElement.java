@@ -44,8 +44,7 @@ public class SectionElement {
 				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar") )
 				{
 					list.add(new BrlOnlyMapElement(current.getChild(i), (Element)current.getChild(i).getParent()));
-					//text.setBRLOnlyText(list, "\n",((Element)current.getChild(i).getParent()));
-					//braille.setBRLOnlyBraille(list,current.getChild(i));
+				
 				}
 				else
 				{

@@ -418,7 +418,7 @@ public class Manager extends Controller {
 		
 		ArrayList<SectionElement>secList = vi.getSectionList();
 		Element e = (Element)textList.get(0).getParent();
-		while(e != null && !e.getLocalName().equals("level1") && !e.getLocalName().equals("body")){
+		while(e != null && !e.getLocalName().equals("level1") && !e.getLocalName().equals("body") && !((Element) e.getParent()).getLocalName().equals("sidebar")){
 			e = (Element)e.getParent();
 		}
 		

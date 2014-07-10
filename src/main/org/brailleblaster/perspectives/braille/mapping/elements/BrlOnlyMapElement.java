@@ -16,19 +16,28 @@ public class BrlOnlyMapElement extends TextMapElement {
 	public BrlOnlyMapElement(Node n,Element parent){
 		super(n);
 		this.brailleList = new LinkedList<BrailleMapElement>();
+		this.brailleList.add(new BrailleMapElement(n));
 		this.parent=parent;
 	}
 	public String getText(){
-		return "/n";
+		String str = "";
+		int num=this.n.getValue().length();
+		for (int i=0;i<num;i++)
+			str=str+'-';
+		return str;
 	}
 	
 	public int textLength(){
-		return 1;
+		return getText().length();
 	}
 	
 	@Override
 	public Element parentElement(){
 		return this.parent;
+	}
+	public void setBrailleOffsets(int start, int end){
+		this.brailleList.getFirst().start = start;
+		this.brailleList.getFirst().end = end;
 	}
 
 }

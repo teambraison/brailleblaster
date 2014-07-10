@@ -320,6 +320,7 @@ public class TextView extends WPView {
 				
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset()))
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+				
 			}
 		});
 		
@@ -1760,10 +1761,19 @@ public class TextView extends WPView {
 		setViewData(m);
 	}
 
-	public void setBRLOnlyText(BrlOnlyMapElement b) {
-		String textSidebar="\n"+"___________________________________________________";
-		view.append(textSidebar);
-		b.setOffsets(total, total+textSidebar.length());
-		total += textSidebar.length();
+	public void setBRLOnlyText(BrlOnlyMapElement b,boolean insert) {
+	
+		String textSidebar=b.getText();
+		spaceBeforeText++;
+		if(insert){
+		    view.insert("\n"+textSidebar);
+		    view.setCaretOffset(spaceBeforeText+textSidebar.length()+total);
+		}
+		else{
+			view.append("\n"+textSidebar);
+		}
+		b.setOffsets(spaceBeforeText+total, spaceBeforeText+total+textSidebar.length());
+		total += spaceBeforeText+textSidebar.length();
+		spaceBeforeText = 0;
 	}
 }

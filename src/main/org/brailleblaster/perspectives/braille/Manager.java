@@ -428,8 +428,9 @@ public class Manager extends Controller {
 					if(secList.get(i).isVisible())
 						list.findTextMapElements(message);
 					else {
-						list = vi.resetViews(i);
-						list.findTextMapElements(message);
+						secList.get(i).getList().findTextMapElements(message);
+						//list = vi.resetViews(i);
+						//list.findTextMapElements(message);
 					}
 				}
 			}

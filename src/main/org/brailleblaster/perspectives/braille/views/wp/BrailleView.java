@@ -953,11 +953,20 @@ public class BrailleView extends WPView {
 		spaceBeforeText = 0;
 	}
 
-	public void setBRLOnlyBraille(BrlOnlyMapElement b) {
-		String brailleSidebar="\n"+b.n.getValue();
-		view.append(brailleSidebar);
-		b.setOffsets(total, total+brailleSidebar.length());
-		total += brailleSidebar.length();
+	public void setBRLOnlyBraille(BrlOnlyMapElement b,boolean insert) {
+		String brailleSidebar=b.n.getValue();
+		spaceBeforeText++;
+		if(insert){
+		    view.insert("\n"+brailleSidebar);
+		    view.setCaretOffset(spaceBeforeText+brailleSidebar.length()+total);
+
+		}
+		else{
+			view.append("\n"+brailleSidebar);
+		}
+		b.setBrailleOffsets(spaceBeforeText+total, spaceBeforeText+total+brailleSidebar.length());
+		total += spaceBeforeText+brailleSidebar.length();
+		spaceBeforeText = 0;
 		
 	}
 }

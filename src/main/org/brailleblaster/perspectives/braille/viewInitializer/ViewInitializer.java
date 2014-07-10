@@ -50,9 +50,8 @@ public abstract class ViewInitializer {
 				braille.setBraille(list.get(i), list, i);
 			}
 			else if(list.get(i) instanceof BrlOnlyMapElement ){
-				System.out.println("instance of brlOnlyMap");
-				text.setBRLOnlyText((BrlOnlyMapElement) list.get(i));
-				braille.setBRLOnlyBraille((BrlOnlyMapElement) list.get(i));
+				text.setBRLOnlyText((BrlOnlyMapElement) list.get(i),false);
+				braille.setBRLOnlyBraille((BrlOnlyMapElement) list.get(i),false);
 				
 			}
 			else {
@@ -83,6 +82,11 @@ public abstract class ViewInitializer {
 			if(list.get(i).isMathML()){
 				text.prependMathML(list, list.get(i));
 				braille.prependBraille(list.get(i), list, i);
+			}
+			else if(list.get(i) instanceof BrlOnlyMapElement ){
+				text.setBRLOnlyText((BrlOnlyMapElement) list.get(i),true);
+				braille.setBRLOnlyBraille((BrlOnlyMapElement) list.get(i),true);
+				
 			}
 			else {
 				text.prependText(list.get(i), list, i);

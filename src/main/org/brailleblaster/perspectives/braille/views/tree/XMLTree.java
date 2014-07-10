@@ -94,6 +94,7 @@ public class XMLTree extends TreeView {
 					if(getTreeItemData(items[0]).textMapList.size() > 0){
 						ArrayList<TextMapElement>list = getList(items[0]);
 						TextMapElement temp = list.get(0);
+						manager.checkView(temp);
 						Message message;
 						if(items[0].getText().equals("brl")){
 							message = Message.createSetCurrentMessage(Sender.TREE, temp.brailleList.getFirst().start, true);
@@ -134,6 +135,7 @@ public class XMLTree extends TreeView {
 					
 							ArrayList<TextMapElement>list = data.textMapList;
 							TextMapElement temp = list.get(0);
+							manager.checkView(temp);
 							Message message = Message.createSetCurrentMessage(Sender.TREE, temp.start, false);
 							manager.dispatch(message);
 						}

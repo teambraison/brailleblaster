@@ -58,10 +58,10 @@ public class ImageDescriberMenu extends BBMenu {
 					wp.addDocumentManager(null);
 					currentController = (ImageDescriberController) wp.getList().getFirst(); 
 					currentController.fileOpenDialog();
-					if(currentController.getWorkingPath() == null){
+					if(currentController.getArchiver().getOrigDocPath() == null){
 						currentController.close();
-						wp.removeController(currentController);
-						currentController = null;
+						if(wp.getList().size() == 0)
+							currentController = null;
 					}
 				}
 				else {
@@ -112,29 +112,14 @@ public class ImageDescriberMenu extends BBMenu {
 			}
 
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean cancel = false;
-				if(currentController.documentHasBeenEdited()){
-					YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
-					if (ync.result == SWT.YES) {
-						currentController.save();
-					}
-					else if(ync.result == SWT.CANCEL)
-						cancel =true;
-				}
+			public void widgetSelected(SelectionEvent e) {	
+				int count = wp.getFolder().getItemCount();				
 				
-				if(!cancel){
-					int count = wp.getFolder().getItemCount();				
-					Controller temp = currentController;
-				
-					if(count > 0)
-						currentController.close();
-
-					wp.removeController(temp);
+				if(count > 0)
+					currentController.close();
 	
-					if(wp.getList().size() == 0)
-						setCurrent(null);
-				}
+				if(wp.getList().size() == 0)
+					setCurrent(null);
 			}
 		});
 		

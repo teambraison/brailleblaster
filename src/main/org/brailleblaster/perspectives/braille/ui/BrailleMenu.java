@@ -117,8 +117,11 @@ public class BrailleMenu extends BBMenu{
 				if(index == -1){
 					wp.addDocumentManager(null);
 					((Manager)wp.getList().getFirst()).fileOpenDialog();
-					if(((Manager)wp.getList().getFirst()).getWorkingPath() == null)
-						((Manager)wp.getList().getFirst()).close();					
+					if(((Manager)wp.getList().getFirst()).getArchiver().getOrigDocPath()  == null){
+						((Manager)wp.getList().getFirst()).close();
+						if(wp.getList().size() == 0)
+							setCurrent(null);
+					}
 				}
 				else {
 					currentEditor.fileOpenDialog();
@@ -248,29 +251,15 @@ public class BrailleMenu extends BBMenu{
 		closeItem.setAccelerator(SWT.MOD1 + 'W');
 		closeItem.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				boolean cancel = false;
-				if (!BBIni.debugging() && currentEditor.documentHasBeenEdited()) {
-					YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
-					if (ync.result == SWT.YES) {
-						currentEditor.fileSave();
-					}
-					else if(ync.result == SWT.CANCEL)
-						cancel = true;
-				}
-				
-				if(!cancel){
-					int count = wp.getFolder().getItemCount();
-				
-					Controller temp = currentEditor;
-					wp.removeController(temp);
-				
-					if(count > 0)
-						temp.close();			
+			public void widgetSelected(SelectionEvent e) {	
+				int count = wp.getFolder().getItemCount();			
+				Controller temp = currentEditor;
+		
+				if(count > 0)
+					temp.close();			
 	
-					if(wp.getList().size() == 0)
-						setCurrent(null);
-				}
+				if(wp.getList().size() == 0)
+					setCurrent(null);
 			}
 		});
 		

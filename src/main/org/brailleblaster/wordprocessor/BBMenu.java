@@ -146,13 +146,17 @@ public abstract class BBMenu {
 			exitItem.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					while(wp.getList().size() > 0){
-						Controller temp = wp.getList().getFirst();
-						wp.removeController(temp);
+					int i = 0;
+					while(wp.getList().size() > 0 && i < wp.getList().size()){
+						int size = wp.getList().size();
+						Controller temp = wp.getList().get(i);
 						temp.close();		
+						if(size == wp.getList().size())
+							i++;
 					}
 					
-					wp.getShell().dispose();
+					if(wp.getList().size() == 0)
+						wp.getShell().dispose();
 				}
 			});
 		}

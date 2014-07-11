@@ -44,6 +44,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.ImageHelper;
+import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -141,7 +142,8 @@ public class ImageDescriberController extends Controller {
 		
 		////////////////
 		// Recent Files.
-		addRecentFileEntry(fileName);
+		if(fileName != null)
+			addRecentFileEntry(fileName);
 		
 		return imgDesc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
 	}
@@ -228,8 +230,20 @@ public class ImageDescriberController extends Controller {
 
 	@Override
 	public void close() {
-		dispose();
-		item.dispose();
+		boolean cancel = false;
+		if(documentHasBeenEdited()){
+			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
+			if (ync.result == SWT.YES) 
+				save();
+			else if(ync.result == SWT.CANCEL)
+				cancel =true;
+		}
+		
+		if(!cancel){
+			dispose();
+			item.dispose();
+			wp.removeController(this);
+		}
 	}
 	
 	// 

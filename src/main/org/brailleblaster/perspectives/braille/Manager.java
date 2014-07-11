@@ -76,6 +76,7 @@ import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.PropertyFileManager;
+import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
@@ -877,11 +878,25 @@ public class Manager extends Controller {
 	
 	@Override
 	public void close() {
-		dispose();
-		item.dispose();
-		fontManager.disposeFonts();
-		if(arch.getOrigDocPath() == null & docCount > 0)
-			docCount--;
+		boolean cancel = false;
+		if (!BBIni.debugging() && documentHasBeenEdited()) {
+			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
+			if (ync.result == SWT.YES) {
+				fileSave();
+			}
+			else if(ync.result == SWT.CANCEL)
+				cancel = true;
+		}
+		
+		if(!cancel){
+			dispose();
+			item.dispose();
+			fontManager.disposeFonts();
+			if(arch.getOrigDocPath() == null & docCount > 0)
+				docCount--;
+			
+			wp.removeController(this);
+		}
 	}
 	
 	public void nextElement(){

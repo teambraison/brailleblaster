@@ -291,7 +291,7 @@ public class TextView extends WPView {
 							if(textChanged == true){
 								sendUpdate();
 							}
-					
+
 							setListenerLock(true);
 							if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
 								if(manager.inPrintPageRange(e.caretOffset)){
@@ -299,7 +299,7 @@ public class TextView extends WPView {
 										nextPageStart(e.caretOffset);
 									else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
 										previousPageEnd(e.caretOffset);
-								}	
+								}       
 							}
 							else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
 								if(manager.inPrintPageRange(e.caretOffset)){
@@ -310,17 +310,17 @@ public class TextView extends WPView {
 								}
 							}
 							setListenerLock(false);
-							
+
 							setCurrent(view.getCaretOffset());
 							currentChar = ' ';
 							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 						}
 					}
 				}
-				
+
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset()))
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-				
+
 			}
 		});
 		

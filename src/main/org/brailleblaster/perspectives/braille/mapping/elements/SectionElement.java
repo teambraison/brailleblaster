@@ -105,6 +105,7 @@ public class SectionElement {
 		
 			Node brailleText = m.getDocument().findBraillePageNode(page);
 			list.getLastPage().setBraillePage(brailleText);
+		
 		}
 	}
 	

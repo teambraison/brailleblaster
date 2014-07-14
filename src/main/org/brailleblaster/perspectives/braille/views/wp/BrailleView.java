@@ -305,7 +305,8 @@ public class BrailleView extends WPView {
 			}
 		
 			view.append(textBefore + text);
-			handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
+			
+			    handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
 		
 			t.brailleList.get(i).setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 			total += spaceBeforeText + textLength + spaceAfterText;

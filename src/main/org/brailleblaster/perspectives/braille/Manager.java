@@ -744,8 +744,13 @@ public class Manager extends Controller {
 		text.update(false);
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
+	    if (arch.getCurrentConfig().equals("epub.cfg")){
+	    	text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"aside");
+	    }
+	    else{
 			
-		text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
+		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
+	    }
 			
 		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
 		Styles style = styles.get("trnote");
@@ -811,6 +816,7 @@ public class Manager extends Controller {
 		if(document.getDOM() != null && text.view.getText().length() > 0){
 			group.setRedraw(false);
 			Element parent = document.getParent(list.getCurrent().n, true);
+
 			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
 			document.changeSemanticAction(message, list.getCurrent().parentElement());
 			message.put("style", styles.get(styles.getKeyFromAttribute(parent)));

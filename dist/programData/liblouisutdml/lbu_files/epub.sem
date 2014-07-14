@@ -18,7 +18,7 @@
 	line line
 	line byline
 	line dateline
-	para prodnote
+	trnote aside
 	italicx dfn
 	italicx kbd
 	boldx strong
@@ -176,7 +176,6 @@
 	no footer
 	no section
 	no article
-	no aside
 	no details
 	no dialog
 	no summary

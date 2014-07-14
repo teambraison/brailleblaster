@@ -86,13 +86,14 @@ public class BrailleDocument extends BBDocument {
 	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
-		//Add new attribute
-		if (elem.equalsIgnoreCase("prodnote")){
+		//Add new attribute for epub aside and for nimas prodnote
+		if ((elem.equalsIgnoreCase("prodnote") )||( elem.equalsIgnoreCase("aside"))){
 			p.addAttribute(new Attribute("render", "optional"));
 
 			p.addAttribute(new Attribute("showin", "bxx"));
 
 			p.addAttribute(new Attribute("class", "utd-trnote"));
+			
 		}
 		p.appendChild(new Text(""));
 		

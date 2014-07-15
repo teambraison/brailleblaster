@@ -276,7 +276,7 @@ public final class BBIni {
 		String url = System.getenv("BBLASTER_WORK");
 		
 		if (url != null) {
-			if (BBIni.getPlatformName().equals("cocoa"))
+			if (BBIni.getPlatformName().equals("cocoa") || BBIni.getPlatformName().equals("gtk"))
 				url = "file://" + url;
 			else
 				url = "file:/" + url;

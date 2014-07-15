@@ -378,7 +378,14 @@ public class EPub3Archiver extends Archiver {
 			for(int curPath = 0; curPath < epubFileList.size(); curPath++)
 			{
 				// Parse this epub document.
-				nu.xom.Document curDoc = parser.build( "File:" + BBIni.getFileSep() + epubFileList.get(curPath) );
+			
+				nu.xom.Document curDoc;
+				 //check for if it is mac or non mac
+				if(BBIni.getPlatformName().equals("cocoa"))
+				      curDoc = parser.build(  epubFileList.get(curPath) );
+				else
+					  curDoc = parser.build(  "File:" + BBIni.getFileSep()+epubFileList.get(curPath) );
+					
 				
 				// Get epub document's body.
 				nu.xom.Nodes bodyNodes = curDoc.getRootElement().query("//dtb:body[1]", context);

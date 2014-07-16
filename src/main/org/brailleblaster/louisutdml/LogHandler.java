@@ -21,8 +21,8 @@ public class LogHandler implements LogCallback {
 		LEVEL_MAPPINGS.put(LogLevel.ALL, Level.ALL);
 	}
 	private Logger logger;
-	public LogHandler(Logger logger) {
-		this.logger = logger;
+	public LogHandler() {
+		this.logger = Logger.getLogger("org.brailleblaster.louisutdml");
 	}
 	@Override
 	public void logMessage(int level, String message) {

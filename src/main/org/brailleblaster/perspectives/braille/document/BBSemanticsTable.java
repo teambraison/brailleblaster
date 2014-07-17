@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
@@ -104,7 +103,7 @@ public class BBSemanticsTable {
 		}
 		catch(Exception e){
 			new Notify("The application failed to load due to errors in " + BBIni.getDefaultConfigFile());
-			logger.log(Level.SEVERE, "Config File Error", e);
+			logger.error("Config File Error", e);
 		}
 	}
 	

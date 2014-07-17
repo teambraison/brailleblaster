@@ -36,8 +36,7 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import nu.xom.Document;
 import nu.xom.Element;
@@ -320,13 +319,13 @@ public class Manager extends Controller {
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");
-				logger.log(Level.SEVERE, "The Document Base document tree is null, the file failed to parse properly");
+				logger.error("The Document Base document tree is null, the file failed to parse properly");
 				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Unforeseen Exception", e);
+			logger.error("Unforeseen Exception", e);
 		}
 	}
 	
@@ -1066,7 +1065,7 @@ public class Manager extends Controller {
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "IO Exception", e);
+			logger.error("IO Exception", e);
 		}
 	}
 	

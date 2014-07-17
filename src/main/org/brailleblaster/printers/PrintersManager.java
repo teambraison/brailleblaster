@@ -34,7 +34,7 @@
 package org.brailleblaster.printers;
 
 import org.brailleblaster.BBIni;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;

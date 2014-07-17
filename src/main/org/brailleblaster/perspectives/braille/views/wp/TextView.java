@@ -907,7 +907,7 @@ public class TextView extends WPView {
 		}
 		catch(StringIndexOutOfBoundsException e){
 			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
-			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			logger.error("Index Error:\t" + n.getParent().toXML().toString(), e);
 			text.append(n.getValue().substring(start));
 		}
 		
@@ -994,7 +994,7 @@ public class TextView extends WPView {
 		}
 		catch(StringIndexOutOfBoundsException e){
 			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
-			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			logger.error("Index Error:\t" + n.getParent().toXML().toString(), e);
 			text.append(n.getValue().substring(start));
 		}
 		

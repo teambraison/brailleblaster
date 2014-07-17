@@ -1,7 +1,6 @@
 package org.brailleblaster.perspectives.braille.spellcheck;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -28,13 +27,13 @@ public class SpellChecker {
 		}
 		catch(UnsatisfiedLinkError e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "DLL did not load", e);
+			logger.error("DLL did not load", e);
 			active = false;
 			return;
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "DLL did not load", e);
+			logger.error("DLL did not load", e);
 			active = false;
 			return;
 		}
@@ -53,7 +52,7 @@ public class SpellChecker {
 		}
 		catch(UnsatisfiedLinkError e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "openDict Unsatisfied Link Error", e);
+			logger.error("openDict Unsatisfied Link Error", e);
 			return -1;
 		}
 	}

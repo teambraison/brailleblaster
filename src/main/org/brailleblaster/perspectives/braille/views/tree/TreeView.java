@@ -42,7 +42,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 				Class<?> clss = Class.forName(tree);
 				return TreeView.createTree(clss, m, group);	
 			} catch (ClassNotFoundException e) {		
-				logger.log(Level.SEVERE, "Class Not Found Exception", e);
+				logger.error("Class Not Found Exception", e);
 			} 
 		}
 		
@@ -75,17 +75,17 @@ public abstract class TreeView extends AbstractView implements BBTree{
 			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
 			return (BBTree)constructor.newInstance(manager, group);
 		} catch (NoSuchMethodException e) {
-			logger.log(Level.SEVERE, "No Such Method Exception", e);
+			logger.error("No Such Method Exception", e);
 		} catch (SecurityException e) {
-			logger.log(Level.SEVERE, "Security Exception", e);
+			logger.error("Security Exception", e);
 		} catch (InstantiationException e) {
-			logger.log(Level.SEVERE, "Instantiation Exception", e);
+			logger.error("Instantiation Exception", e);
 		} catch (IllegalAccessException e) {
-			logger.log(Level.SEVERE, "Illegal Access Exception", e);
+			logger.error("Illegal Access Exception", e);
 		} catch (IllegalArgumentException e) {
-			logger.log(Level.SEVERE, "Illegal Argument Exception", e);
+			logger.error("Illegal Argument Exception", e);
 		} catch (InvocationTargetException e) {
-			logger.log(Level.SEVERE, "Invocation Exception", e);
+			logger.error("Invocation Exception", e);
 		}
 		
 		return null;

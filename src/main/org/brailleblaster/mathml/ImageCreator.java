@@ -36,13 +36,13 @@ public class ImageCreator {
 			return new Image(d, imageData);
 		} 
 		catch (ParserConfigurationException e1) {
-			BBIni.getLogger().log(Level.SEVERE, "Parser Config Error", e1);
+			BBIni.getLogger().error("Parser Config Error", e1);
 		} 
 		catch (SAXException e1) {
-			BBIni.getLogger().log(Level.SEVERE, "Sax Error", e1);
+			BBIni.getLogger().error("Sax Error", e1);
 		} 
 		catch (IOException e1) {
-			BBIni.getLogger().log(Level.SEVERE, "IOException Error", e1);
+			BBIni.getLogger().error("IOException Error", e1);
 		}
 		
 		return null;

@@ -28,7 +28,7 @@ public class PageMapElement extends TextMapElement {
 	public void setBraillePage(Node n){
 	    Text t=(Text)n;
 	    t.setValue(removeWord(n.getValue()));
-	    n=(Node)t;
+	    brailleList.add(new BrailleMapElement(brailleStart, brailleEnd, n));
 	}
 	
 	public void setBraillePage(int brailleStart, int brailleEnd, Node n){
@@ -53,5 +53,10 @@ public class PageMapElement extends TextMapElement {
 		}
 		return str;
 		
+	}
+	
+	@Override
+	public Element parentElement(){
+		return parent;
 	}
 }

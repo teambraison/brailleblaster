@@ -36,7 +36,9 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Document;
 import nu.xom.Element;
@@ -106,7 +108,7 @@ public class Manager extends Controller {
 	String configSettings = null;
 	static String recentFileName = null;
 	LocaleHandler lh = new LocaleHandler();
-	static Logger logger;
+	final static Logger logger = LoggerFactory.getLogger(Manager.class);
 	public BrailleDocument document;
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
@@ -133,9 +135,6 @@ public class Manager extends Controller {
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
-		
-		logger = BBIni.getLogger();
-		
 		if(docName != null)
 			openDocument(docName);
 		else {
@@ -173,9 +172,6 @@ public class Manager extends Controller {
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
-		
-		logger = BBIni.getLogger();
-		
 		document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		

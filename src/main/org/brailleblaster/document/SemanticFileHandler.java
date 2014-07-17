@@ -6,8 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import org.slf4j.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
 
@@ -16,7 +17,7 @@ public class SemanticFileHandler {
 	private String configPath;
 	private String defaultSemanticsFiles;
 	private FileUtils fu;
-	private Logger log = BBIni.getLogger();
+	private final static Logger log = LoggerFactory.getLogger(SemanticFileHandler.class);
 	private HashMap<String, String> defaults;
 	
 	public SemanticFileHandler(String configPath){

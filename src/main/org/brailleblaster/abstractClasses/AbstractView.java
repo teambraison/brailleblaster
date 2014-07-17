@@ -31,6 +31,7 @@
 package org.brailleblaster.abstractClasses;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Element;
 import nu.xom.Node;
@@ -53,7 +54,7 @@ public abstract class AbstractView {
 	protected boolean locked;
 	protected Group group;
 	protected Manager manager;
-	protected static Logger logger = BBIni.getLogger();
+	protected static Logger logger = LoggerFactory.getLogger(AbstractView.class);
 	
 	public AbstractView() {
 	}

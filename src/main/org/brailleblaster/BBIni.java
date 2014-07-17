@@ -42,15 +42,13 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.liblouis.LibLouis;
 import org.liblouis.LibLouisUTDML;
-import org.liblouis.LogLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -76,7 +74,7 @@ public final class BBIni {
 	private static String debugFilePath;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
-	private static Logger logger = LoggerFactory.getLogger(BBIni.class);
+	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
 	private static final String productName = "BrailleBlaster ND";
 	private static final String BBVersion = "2014.06.05";
 	private static final String releaseDate = "June 5, 2014";
@@ -219,7 +217,6 @@ public final class BBIni {
 		if (!logPath.exists()) {
 			logPath.mkdirs();
 		}
-		logger = LoggerFactory.getLogger("org.brailleblaster");
 		// try {
 			// logFile = new FileHandler(logFilesPath + fileSep + "log.xml");
 		// }
@@ -403,9 +400,9 @@ public final class BBIni {
 		return recentDocs;
 	}
 
-	public static Logger getLogger() {
-		return logger;
-	}
+	// public static Logger getLogger() {
+		// return logger;
+	// }
 	
 	public static PropertyFileManager getPropertyFileManager(){
 		return propManager;

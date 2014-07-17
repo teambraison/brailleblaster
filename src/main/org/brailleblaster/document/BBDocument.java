@@ -41,7 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -80,7 +82,7 @@ public class BBDocument {
 	private static String fileSep = BBIni.getFileSep();
 	protected LibLouisUTDML lutdml = LibLouisUTDML.getInstance();
 	protected FileUtils fu = new FileUtils();
-	protected static Logger logger = BBIni.getLogger();
+	protected static Logger logger = LoggerFactory.getLogger(BBDocument.class);
 	private ArrayList<String>missingSemanticsList;
 	private ArrayList<String>mistranslationList;
 	private String systemId;

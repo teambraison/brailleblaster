@@ -1,8 +1,10 @@
 package org.brailleblaster.mathml;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.logging.Level;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +26,7 @@ import net.sourceforge.jeuclid.context.Parameter;
 import net.sourceforge.jeuclid.swt.MathRenderer;
 
 public class ImageCreator {
+	private final static Logger logger = LoggerFactory.getLogger(ImageCreator.class);
 	public static Image createImage(Display d, Element e, int fontHeight){
 		MathRenderer mr = MathRenderer.getInstance();
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -36,13 +39,13 @@ public class ImageCreator {
 			return new Image(d, imageData);
 		} 
 		catch (ParserConfigurationException e1) {
-			BBIni.getLogger().error("Parser Config Error", e1);
+			logger.error("Parser Config Error", e1);
 		} 
 		catch (SAXException e1) {
-			BBIni.getLogger().error("Sax Error", e1);
+			logger.error("Sax Error", e1);
 		} 
 		catch (IOException e1) {
-			BBIni.getLogger().error("IOException Error", e1);
+			logger.error("IOException Error", e1);
 		}
 		
 		return null;

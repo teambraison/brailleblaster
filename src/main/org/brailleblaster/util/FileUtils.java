@@ -41,7 +41,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Document;
 import nu.xom.Serializer;
@@ -54,7 +56,7 @@ import org.brailleblaster.BBIni;
  * and for searching directories.
  */
 public class FileUtils {
-	static Logger logger = BBIni.getLogger();
+	static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 	
     public FileUtils() {
     }

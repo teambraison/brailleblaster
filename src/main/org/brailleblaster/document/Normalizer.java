@@ -6,8 +6,9 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import org.slf4j.Logger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 import org.w3c.dom.Document;
@@ -31,7 +32,7 @@ import javax.xml.transform.stream.StreamResult;
 public class Normalizer {
 	File f;
 	Document doc;
-	static Logger log = BBIni.getLogger();
+	final static Logger log = LoggerFactory.getLogger(Normalizer.class);
 	String originalPubId;
 	String originalSystemId;
 	DocumentType docType;

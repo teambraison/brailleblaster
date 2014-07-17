@@ -35,7 +35,7 @@ package org.brailleblaster.printers;
 
 import org.brailleblaster.BBIni;
 import org.slf4j.Logger;
-
+import org.slf4j.LoggerFactory;
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.widgets.*;
@@ -52,7 +52,7 @@ public class PrintersManager {
 	GC gc;
 	FontData[] printerFontData;
 	RGB printerForeground, printerBackground;
-	Logger logger;
+	final static Logger logger = LoggerFactory.getLogger(PrintersManager.class);
 	
 	int lineHeight = 0;
 	int tabWidth = 0;
@@ -65,7 +65,6 @@ public class PrintersManager {
 	PrintDialog dialog;
 	 
     public PrintersManager (Shell shell, StyledText st) {
-    	logger = BBIni.getLogger();
     	this.text = st;
     	this.textToPrint = st.getText() + "\n";
     	this.dialog = new PrintDialog(shell, SWT.SHELL_TRIM);

@@ -2,12 +2,10 @@ package org.brailleblaster.logback;
 
 import java.io.File;
 
-import ch.qos.logback.core.Context;
+import org.eclipse.swt.SWT;
+
 import ch.qos.logback.core.PropertyDefinerBase;
 import ch.qos.logback.core.spi.PropertyDefiner;
-import ch.qos.logback.core.status.Status;
-
-import org.eclipse.swt.SWT;
 
 public class LogFileFinder extends PropertyDefinerBase implements PropertyDefiner {
 

@@ -30,20 +30,18 @@
 
 package org.brailleblaster.abstractClasses;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractView {
 	public boolean hasFocus = false;

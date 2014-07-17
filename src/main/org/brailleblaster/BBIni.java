@@ -217,18 +217,7 @@ public final class BBIni {
 		if (!logPath.exists()) {
 			logPath.mkdirs();
 		}
-		// try {
-			// logFile = new FileHandler(logFilesPath + fileSep + "log.xml");
-		// }
-		// catch (IOException e) {
-			// e.printStackTrace();
-			// logger.error("cannot open logfile", e);
-		// }
-		// if (logFile != null) {
-			// logger.addHandler(logFile);
-		// }
-		// disable output to console
-		// logger.setUseParentHandlers(false);
+
 		if (args.length > 0) {
 			int i = 0;
 			while (i < args.length) {

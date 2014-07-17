@@ -97,8 +97,6 @@ public class BBDocument {
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
-		org.liblouis.LibLouis.getInstance().setLogLevel(org.liblouis.LogLevel.OFF);
-		org.liblouis.LibLouisUTDML.getInstance().setLogLevel(org.liblouis.LogLevel.OFF);
 	}
 	
 	public BBDocument(Controller dm, Document doc){
@@ -109,8 +107,6 @@ public class BBDocument {
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
-		org.liblouis.LibLouis.getInstance().setLogLevel(org.liblouis.LogLevel.OFF);
-		org.liblouis.LibLouisUTDML.getInstance().setLogLevel(org.liblouis.LogLevel.OFF);
 	}
 	
 	public boolean createNewDocument(){

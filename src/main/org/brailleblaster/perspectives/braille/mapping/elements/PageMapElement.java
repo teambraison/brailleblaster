@@ -1,41 +1,45 @@
 package org.brailleblaster.perspectives.braille.mapping.elements;
 
+import java.util.LinkedList;
+
+import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
 
-public class PageMapElement extends AbstractMapElement {
+public class PageMapElement extends TextMapElement {
 
-	public int brailleStart, brailleEnd, index, listIndex;
+	public int brailleStart, brailleEnd;
 	public Node brailleNode;
+	private Element parent;
 	
-	public PageMapElement(int start, int end, Node n) {
+	public PageMapElement(int start, int end, Node n, Element parent) {
 		super(start, end, n);
+		this.parent = parent;
+		this.brailleList = new LinkedList<BrailleMapElement>();		
 	}
 	
-	public PageMapElement(Node n, int index){
+	public PageMapElement(Element parent, Node n){
 		super(n);
-		this.index = index;
-		this.listIndex = index;
+		this.parent = parent;
+		this.brailleList = new LinkedList<BrailleMapElement>();		
 	}
 	
 	public void setBraillePage(Node n){
 	    Text t=(Text)n;
 	    t.setValue(removeWord(n.getValue()));
 	    n=(Node)t;
-		brailleNode = n;
 	}
 	
 	public void setBraillePage(int brailleStart, int brailleEnd, Node n){
-		this.brailleStart = brailleStart;
-		this.brailleEnd = brailleEnd;
-		brailleNode = n;
+		brailleList.add(new BrailleMapElement(brailleStart, brailleEnd, n));
 	}
 	
 	public void setBrailleOffsets(int start, int end){
-		brailleStart = start;
-		brailleEnd = end;
+		brailleList.getFirst().start = start;
+		brailleList.getFirst().end = end;
 	}
+	
 	//Remove word page or any word between ";" and "#" character
 	private String removeWord(String str){
 		int startRemove =0;

@@ -41,6 +41,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -239,9 +240,8 @@ public class TextView extends WPView {
 				
 				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
 				if(manager.inPrintPageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1){
-					setListenerLock(true);
-					nextPageStart(view.getCaretOffset());
-					setListenerLock(false);
+					previousValidPosition();
+					e.doit = false;
 				}
 			}		
 		});
@@ -290,53 +290,43 @@ public class TextView extends WPView {
 							if(textChanged == true){
 								sendUpdate();
 							}
-
-							setListenerLock(true);
-							if((e.caretOffset > currentEnd && (e.caretOffset < nextStart || nextStart == -1)) || (e.caretOffset > currentStart && e.caretOffset > nextStart)){
-								if(manager.inPrintPageRange(e.caretOffset)){
-									if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
-										nextPageStart(e.caretOffset);
-									else if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
-										previousPageEnd(e.caretOffset);
-								}       
-							}
-							else if((e.caretOffset < currentStart && (e.caretOffset > previousEnd || previousEnd == -1)) || (e.caretOffset < currentStart && e.caretOffset < previousEnd)){
-								if(manager.inPrintPageRange(e.caretOffset)){
-									if(currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
-										previousPageEnd(e.caretOffset);
-									else if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
-										nextPageStart(e.caretOffset);
-								}
-							}
-							setListenerLock(false);
-
+							
 							setCurrent(view.getCaretOffset());
+							if(currentElement instanceof PageMapElement){
+								if(nextStart != -1 && currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
+									nextValidPosition();
+								else if(previousEnd != -1 && currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
+									previousValidPosition();
+							}
+
 							currentChar = ' ';
 							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
 						}
 					}
 				}
 
-				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine && !manager.inPrintPageRange(view.getCaretOffset()))
+				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-
 			}
 		});
 		
 		view.addMouseListener(mouseListener = new MouseAdapter(){
 			@Override
 			public void mouseDown(MouseEvent e) {
+				int start = currentStart;
+				int end = currentEnd;
+		
 				if( (view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart)){
 					if(textChanged == true)
 						sendUpdate();
-					
-					if(manager.inPrintPageRange(view.getCaretOffset())){
-						if(view.getCaretOffset() < currentStart)
-							previousPageEnd(view.getCaretOffset());
-						else if(view.getCaretOffset() > currentEnd)
-							nextPageStart(view.getCaretOffset());
-					}
+				
 					setCurrent(view.getCaretOffset());
+					if(currentElement instanceof PageMapElement){
+						if((previousEnd != -1 && view.getCaretOffset() < start) || nextStart == -1)
+							previousValidPosition();
+						else if((nextStart != -1 && view.getCaretOffset() > end) || previousEnd == -1)
+							nextValidPosition();
+					}
 				}
 			}	
 		});
@@ -441,45 +431,44 @@ public class TextView extends WPView {
 		}
 	}
 	
-	private void nextPageStart(int offset){
-		int pos = manager.getPrintPageEnd(offset);
-		//account for blank pages before more text
-		while(manager.inPrintPageRange(pos + 1)){
-			pos = manager.getPrintPageEnd(pos + 1);
+	private void nextValidPosition(){
+		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
+		int index = manager.indexOf(t);
+		while((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement){
+			index++;
+			t = manager.getTextMapElement(index);
 		}
 		
-		if(pos != -1 && pos != view.getCharCount())
-			view.setCaretOffset(pos + 1);
-		else {
-			pos = manager.getPrintPageStart(offset);
-			while(manager.inPrintPageRange(pos - 1)){
-				pos = manager.getPrintPageStart(pos - 1);
-			}
-			if(pos == -1)
-				view.setCaretOffset(oldCursorPosition);
-			else
-				view.setCaretOffset(pos - 1);
+		currentChar = SWT.ARROW_DOWN;
+		if(t instanceof PageMapElement){
+			view.setCaretOffset(t.start);
+			previousValidPosition();
 		}
+		else
+			view.setCaretOffset(t.start);
 	}
 	
-	private void previousPageEnd(int offset){
-		int pos = manager.getPrintPageStart(offset);
-		//account for blank pages before more text
-		while(manager.inPrintPageRange(pos - 1)){
-			pos = manager.getPrintPageStart(pos - 1);
+	private void previousValidPosition(){
+		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
+		int index = manager.indexOf(t);
+		while((t.start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement){
+			index--;
+			t = manager.getTextMapElement(index);
 		}
 		
-		if(pos != -1 && pos != 0)
-			view.setCaretOffset(pos - 1);
-		else 
-			view.setCaretOffset(oldCursorPosition);
+		currentChar = SWT.ARROW_UP;
+		if(t instanceof PageMapElement){
+			view.setCaretOffset(t.end);
+			nextValidPosition();
+		}
+		else
+			view.setCaretOffset(t.end);
 	}
 	
 	//public method to check if an update should be made before exiting or saving
 	public void update(boolean forceUpdate){
-		if(textChanged || forceUpdate){
+		if(textChanged || forceUpdate)
 			sendUpdate();
-		}
 	}
 	
 	private void sendUpdate(){
@@ -591,7 +580,8 @@ public class TextView extends WPView {
 		int textLength = newText.length();
 
 		view.append(newText);
-		handleStyle(prevStyle, style, t.n, newText);
+		if(!(t instanceof PageMapElement))
+			handleStyle(prevStyle, style, t.n, newText);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -1180,13 +1170,13 @@ public class TextView extends WPView {
 			int changes = 0;
 			while(selectionLength > 0){
 				if(manager.inPrintPageRange(selectionStart + 1)){
-					PageMapElement p = manager.getPageElement(selectionStart + 1);
+					PageMapElement p = (PageMapElement)manager.getElementInRange(selectionStart + 1);
 					int pos = p.end;
 					
 					setListenerLock(true);
 					String pageText = "\n"+ p.n.getValue();
 					while(manager.inPrintPageRange(pos + 1)){
-						p = manager.getPageElement(pos + 1);
+						p =  (PageMapElement)manager.getElementInRange(pos + 1);
 						pos = p.end;
 						pageText += "\n"+ p.n.getValue();
 					}
@@ -1203,10 +1193,12 @@ public class TextView extends WPView {
 					selectionStart = pos + 1;
 					view.setCaretOffset(selectionStart);
 					if(manager.inPrintPageRange(view.getCaretOffset())){
-						int start = manager.getPrintPageStart(view.getCaretOffset());
+						int start = manager.getElementInRange(view.getCaretOffset()).start;
 						view.setCaretOffset(start - 1);
 					}
 					setCurrent(view.getCaretOffset());
+					if(currentElement.equals(p))
+						incrementCurrent();
 					if(selectionLength <= 0)
 						break;
 				}
@@ -1225,7 +1217,7 @@ public class TextView extends WPView {
 				}
 				else if(selectionStart == currentEnd && selectionStart != nextStart){
 					if(nextStart != -1 && manager.inPrintPageRange((selectionStart + nextStart) / 2))
-						changes = manager.getPrintPageStart((selectionStart + nextStart) / 2) - selectionStart - 1;
+						changes = manager.getElementInRange((selectionStart + nextStart) / 2).start - selectionStart - 1;
 					else if(nextStart != -1)
 						changes = nextStart - currentEnd;
 					else
@@ -1289,8 +1281,9 @@ public class TextView extends WPView {
 			}
 		}
 		setSelection(-1, -1);
-		if(manager.inPrintPageRange(view.getCaretOffset()))
-			previousPageEnd(view.getCaretOffset());
+		
+		if(currentElement instanceof PageMapElement)
+			view.setCaretOffset(previousEnd);
 	}
 	
 	//a helper method for common series of methods that typically, but not always, follow one another
@@ -1587,27 +1580,11 @@ public class TextView extends WPView {
 	//private helper method used by adjust style
 	//finds the point from which to remove any excess spacing before applying lines before
 	private int getPrev(Message m){
-		int start = (Integer)m.getValue("start");
 		int prev = (Integer)m.getValue("prev");
-		if(-1 != prev){
-			prev++;
-			if(manager.inPrintPageRange((prev + start) / 2)){
-				prev = manager.getPrintPageEnd((prev + start) / 2);
-				while(manager.inPrintPageRange(prev)){
-					prev = manager.getPrintPageEnd(prev) + 1;
-				}
-			}						
-		}
-		else {
-			if(manager.inPrintPageRange(start / 2)){
-				prev = manager.getPrintPageEnd(start / 2);
-				while(manager.inPrintPageRange(prev)){
-					prev = manager.getPrintPageEnd(prev) + 1;
-				}
-			}
-			else
-				prev = 0;
-		}
+		if(-1 != prev)
+			prev++;				
+		else 
+			prev = 0;
 		
 		return prev;
 	}
@@ -1615,27 +1592,11 @@ public class TextView extends WPView {
 	//private helper method used by adjust style
 	//finds the point from which to remove any excess spacing before applying lines after
 	private int getNext(Message m){
-		int end = (Integer)m.getValue("end");
 		int next = (Integer)m.getValue("next");
-		if(next != -1){
+		if(next != -1)
 			next--;
-			if(manager.inPrintPageRange((end + next) / 2)){
-				next = manager.getPrintPageStart((end + next) / 2);
-				while(manager.inPrintPageRange(next)){
-					next = manager.getPrintPageStart(next) - 1;
-				}
-			}
-		}
-		else {
-			if(manager.inPrintPageRange((end + view.getCharCount()) / 2)){
-				next = manager.getPrintPageStart((end + view.getCharCount()) / 2);
-				while(manager.inPrintPageRange(next)){
-					next = manager.getPrintPageStart(next) - 1;
-				}
-			}
-			else
-				next = view.getCharCount();
-		}
+		else 
+			next = view.getCharCount();
 		
 		return next;
 	}
@@ -1774,5 +1735,6 @@ public class TextView extends WPView {
 		b.setOffsets(spaceBeforeText+total, spaceBeforeText+total+textSidebar.length());
 		total += spaceBeforeText+textSidebar.length();
 		spaceBeforeText = 0;
-	}
+         spaceBeforeText = 0;
+	 }
 }

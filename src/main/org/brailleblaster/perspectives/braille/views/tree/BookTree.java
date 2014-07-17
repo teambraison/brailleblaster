@@ -178,7 +178,10 @@ public class BookTree extends TreeView {
 		if(range != null && range.start != -1){
 			item.setData(new TreeItemData(e, range.section, range.start));
 			if(previousItem != null){
-				((TreeItemData)previousItem.getData()).endRange = range.start - 1;
+				if(getItemData(previousItem).startRange > range.start)
+					((TreeItemData)previousItem.getData()).endRange = manager.getSectionSize(getItemData(previousItem).sectionIndex) - 1;
+				else
+					((TreeItemData)previousItem.getData()).endRange = range.start - 1;
 			}
 			
 			item.setText(formatItemText(getItemData(item),e));

@@ -83,11 +83,11 @@ public class MapList extends LinkedList<TextMapElement>{
 	private TextMapElement current;
 	private int currentIndex = -1;
 	private int prevEnd, nextStart, prevBraille, nextBraille;
-	private Paginator paginator;
+	private int pageCount;
 	
 	public MapList(Manager dm){
 		this.dm = dm;
-		paginator = new Paginator();
+		pageCount = 0;
 	}
 	
 	public int findClosest(Message message, int low, int high){
@@ -181,7 +181,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			return this.indexOf(this.getLast());
 		}
 		
-		for(int i = 0; i < this.size(); i++){
+		for(int i = 0; i < this.size(); i++){	
 			if(this.get(i).brailleList.size() > 0 && location >= this.get(i).brailleList.getFirst().start  && location <= this.get(i).brailleList.getLast().end){
 				return i;
 			}
@@ -206,7 +206,6 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 		
 	public void updateOffsets(int index, Message message){
-		paginator.updateOffsets(get(index), message);
 		int offset = (Integer)message.getValue("length");
 		int total = (Integer)message.getValue("newBrailleLength") - (Integer)message.getValue("brailleLength");
 		
@@ -237,7 +236,6 @@ public class MapList extends LinkedList<TextMapElement>{
 
 	
 	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int origPos){
-		paginator.shiftOffsets(origPos, offset, brailleOffset);
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;
@@ -559,7 +557,6 @@ public class MapList extends LinkedList<TextMapElement>{
 	
 	public void clearList(){
 		this.clear();
-		paginator.clear();
 		this.current = null;
 		currentIndex = -1;
 	}
@@ -572,77 +569,94 @@ public class MapList extends LinkedList<TextMapElement>{
 				get(i).brailleList.get(j).setOffsets(0, 0);
 			}
 		}
-		
-		int pageCount = paginator.getSize();
-		for(int i = 0; i < pageCount; i++){
-			paginator.getPageMapElement(i).setOffsets(0, 0);
-			paginator.getPageMapElement(i).setBrailleOffsets(0, 0);
-			paginator.getPageMapElement(i).listIndex = paginator.getPageMapElement(i).index;
-		}
-	}
-	
-	public void removePage(PageMapElement p){
-		paginator.removePage(p);
-	}
-	
-	public PageMapElement getPage(int index){
-		return paginator.getPageMapElement(index);
-	}
-	
-	public int getPrintPageStart(int offset){
-		return paginator.getPrintPageStart(offset);
-	}
-	
-	public int getPrintPageEnd(int offset){
-		return paginator.getPrintPageEnd(offset);
-	}
-	
-	public int getBraillePageStart(int offset){
-		return paginator.getBraillePageStart(offset); 
-	}
-	
-	public int getBraillePageEnd(int offset){
-		return paginator.getBraillePageEnd(offset);
-	}
-	
-	public void addPrintPage(PageMapElement p){
-		paginator.add(p);
-	}
-	
-	public void addPrintPage(int index, PageMapElement p){
-		paginator.add(index, p);
-	}
-	
-	public PageMapElement getLastPage(){
-		return paginator.getLast();
 	}
 	
 	public boolean inPrintPageRange(int offset){
-		return paginator.inPrintPageRange(offset);
+		if(size() > 0){
+			Message m = new Message(null);
+			m.put("offset", offset);
+			int index = findClosest(m, 0, size() -1);
+			if(get(index) instanceof PageMapElement){
+				if(offset >= get(index).start && offset <= get(index).end)
+					return true;
+			}
+		}
+			
+		return false;	
 	}
 	
 	public boolean inBraillePageRange(int offset){
-		return paginator.inBraillePageRange(offset);
+		if(size() > 0){
+			Message m = new Message(null);
+			m.put("offset", offset);
+			int index = findClosestBraille(m);
+			if(get(index) instanceof PageMapElement){
+				if(offset >= get(index).brailleList.getFirst().start && offset <= get(index).brailleList.getLast().end)
+					return true;
+			}
+		}
+			
+		return false;	
 	}
-	
-	public PageMapElement findPage(int offset){
-		return paginator.findPage(offset);
-	}
-	
-	public PageMapElement findBraillePage(int offset){
-		return paginator.findBraillePage(offset);
-	}
-	
+
 	public String findCurrentPrintPageValue(int offset){
-		return paginator.findCurrentPrintPageValue(offset);
+		Message m = new Message(null);
+		m.put("offset", offset);
+		int index = findClosest(m, 0, size() - 1);
+		
+		String value = "";
+		for(int i = index; i < size(); i++){
+			if(get(i) instanceof PageMapElement){
+				value = get(i).getText();
+				return value.substring(value.lastIndexOf("-") + 1);
+			}		
+		}
+		
+		return value.substring(value.lastIndexOf("-") + 1);
 	}
 	
 	public String findCurrentBraillePageValue(int offset){
-		return paginator.findCurrentBraillePageValue(offset);
+		Message m = new Message(null);
+		m.put("offset", offset);
+		int index = findClosestBraille(m);
+		
+		String value = "";
+		for(int i = index; i < size(); i++){
+			if(get(i) instanceof PageMapElement){
+				value = get(i).getText();
+				return value.substring(value.lastIndexOf("-") + 1);
+			}		
+		}
+		
+		return value.substring(value.lastIndexOf("-") + 1);
 	}
 	
 	public int getPageCount(){
-		return paginator.getSize();
+		return pageCount;
+	}
+	
+	@Override
+	public boolean add(TextMapElement t){
+		if(t instanceof PageMapElement)
+			pageCount++;
+		
+		return super.add(t);
+	}
+	
+	
+	public boolean addAll(MapList list){
+		pageCount += list.getPageCount();
+		return super.addAll(list);	
+	}
+	
+	public boolean addAll(int index, MapList list){
+		pageCount += list.getPageCount();
+		return super.addAll(index, list);
+	}
+	
+	public boolean removeAll(MapList list){
+		pageCount -= list.getPageCount();
+		return super.removeAll(list);
 	}
 	
 	public boolean contains(Node n){

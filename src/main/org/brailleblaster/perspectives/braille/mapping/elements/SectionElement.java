@@ -101,11 +101,10 @@ public class SectionElement {
 	protected void initializePrintPage(Manager m, Element page){
 		Node textNode = m.getDocument().findPrintPageNode(page);
 		if(textNode != null){
-			list.addPrintPage(new PageMapElement(textNode, list.size()));
-		
+			PageMapElement  p = new PageMapElement(page, textNode); 
 			Node brailleText = m.getDocument().findBraillePageNode(page);
-			list.getLastPage().setBraillePage(brailleText);
-		
+			p.setBraillePage(brailleText);
+			list.add(p);
 		}
 	}
 	

@@ -109,7 +109,7 @@ public class WebViewMenu extends BBMenu{
 				if(count > 0)
 					currentController.close();
 
-				wp.removeController(temp);
+				//wp.removeController(temp);
 
 				if(wp.getList().size() == 0)
 					setCurrent(null);	

@@ -9,6 +9,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
@@ -237,7 +238,7 @@ public class XMLTree extends TreeView {
 		Elements els = e.getChildElements();
 	
 		for(int i = 0; i < els.size(); i++){
-			if(!els.get(i).getLocalName().equals("pagenum") && !els.get(i).getLocalName().equals("brl") && manager.getDocument().checkAttribute(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
+			if(!els.get(i).getLocalName().equals("brl") && manager.getDocument().checkAttribute(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));
@@ -397,6 +398,11 @@ public class XMLTree extends TreeView {
 			found = true;
 		}
 
+		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
+			searchTreeForElement(item, t.parentElement(), m);
+			if(m.contains("item"))
+				found = true;
+		}
 		else if(t.n instanceof Element) {
 			searchTreeForElement(item, (Element)t.n, m);
 			if(m.contains("item"))
@@ -426,7 +432,7 @@ public class XMLTree extends TreeView {
 		
 		for(int i = 0; i < item.getItemCount() && !found; i++){
 			Element itemElement = getTreeItemData(item.getItem(i)).element;
-		
+			
 			if(itemElement.equals(e)){
 				m.put("item", item.getItem(i));
 				m.put("itemElement",itemElement);
@@ -524,7 +530,7 @@ public class XMLTree extends TreeView {
 			}
 		}
 		else {
-			Element parent = (Element)t.n.getParent();
+			Element parent = t.parentElement();
 			buildTreeFromElement(parent);
 			searchTree(this.getRoot(), t, message);
 			this.tree.setSelection(((TreeItem)message.getValue("item")));

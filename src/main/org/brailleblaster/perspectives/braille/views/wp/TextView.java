@@ -32,7 +32,6 @@ package org.brailleblaster.perspectives.braille.views.wp;
 
 import java.util.ArrayList;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import nu.xom.Element;
 import nu.xom.Node;
@@ -42,10 +41,10 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.util.Notify;
@@ -907,7 +906,7 @@ public class TextView extends WPView {
 		}
 		catch(StringIndexOutOfBoundsException e){
 			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
-			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			logger.error("Index Error:\t" + n.getParent().toXML().toString(), e);
 			text.append(n.getValue().substring(start));
 		}
 		
@@ -994,7 +993,7 @@ public class TextView extends WPView {
 		}
 		catch(StringIndexOutOfBoundsException e){
 			new Notify("An error occured while translating.  Be aware the this may affect cursor accurarcy and other translations in the document.  The document is most likely not be suitable for editing. Check the logs for details");
-			logger.log(Level.SEVERE, "Index Error:\t" + n.getParent().toXML().toString(), e);
+			logger.error("Index Error:\t" + n.getParent().toXML().toString(), e);
 			text.append(n.getValue().substring(start));
 		}
 		

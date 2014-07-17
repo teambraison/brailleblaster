@@ -30,19 +30,18 @@
 
 package org.brailleblaster.abstractClasses;
 
-import java.util.logging.Logger;
-
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormAttachment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractView {
 	public boolean hasFocus = false;
@@ -53,7 +52,7 @@ public abstract class AbstractView {
 	protected boolean locked;
 	protected Group group;
 	protected Manager manager;
-	protected static Logger logger = BBIni.getLogger();
+	protected static Logger logger = LoggerFactory.getLogger(AbstractView.class);
 	
 	public AbstractView() {
 	}

@@ -52,15 +52,15 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WPManager {
     /**
      * This is the controller for the whole word processing operation. It is the
      * entry point for the word processor, and therefore the only public class.
      */
-    private static Logger logger = Logger.getLogger("org.brailleblaster.wordprocessor");
+    private static Logger logger = LoggerFactory.getLogger(WPManager.class);
     public static Display display;
     private Shell shell;
     private FormLayout layout;
@@ -125,7 +125,7 @@ public class WPManager {
 	    shell.addListener(SWT.Close, new Listener() { 
 	        @Override
 			public void handleEvent(Event event) { 
-	           logger.log(Level.INFO, "Main Shell handling Close event, about to dispose the main Display");
+	           logger.info("Main Shell handling Close event, about to dispose the main Display");
 	         
 	           while(managerList.size() > 0){
 	        	   Controller temp = managerList.removeFirst(); 

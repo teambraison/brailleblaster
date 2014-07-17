@@ -41,8 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.EnumMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -81,7 +82,7 @@ public class BBDocument {
 	private static String fileSep = BBIni.getFileSep();
 	protected LibLouisUTDML lutdml = LibLouisUTDML.getInstance();
 	protected FileUtils fu = new FileUtils();
-	protected static Logger logger = BBIni.getLogger();
+	protected static Logger logger = LoggerFactory.getLogger(BBDocument.class);
 	private ArrayList<String>missingSemanticsList;
 	private ArrayList<String>mistranslationList;
 	private String systemId;
@@ -218,26 +219,26 @@ public class BBDocument {
 		catch(ConnectException e){
 			new Notify(lh.localValue("connectionError"));
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Connections Error", e);
+			logger.error("Connections Error", e);
 			return false;
 		}
 		catch(UnknownHostException e){
 			new Notify(lh.localValue("connectionError"));
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Unknown Host Error", e);
+			logger.error("Unknown Host Error", e);
 			return false;
 		}
 		catch (ParsingException e) {
 			new Notify(lh.localValue("processingProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			new CheckLiblouisutdmlLog().displayLog();
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Parse Error", e);
+			logger.error("Parse Error", e);
 			return false;
 		} 
 		catch (IOException e) {
 			new Notify (lh.localValue("ioProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "IO Error", e);
+			logger.error("IO Error", e);
 			return false;
 		}
 	}
@@ -376,7 +377,7 @@ public class BBDocument {
 				return false;
 		}
 		catch(Exception ex){
-			logger.log(Level.SEVERE, "Exception", ex);
+			logger.error("Exception", ex);
 			return false;
 		}
 	}

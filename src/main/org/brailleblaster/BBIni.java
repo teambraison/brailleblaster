@@ -41,16 +41,14 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.liblouis.LibLouis;
 import org.liblouis.LibLouisUTDML;
-import org.liblouis.LogLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -76,7 +74,7 @@ public final class BBIni {
 	private static String debugFilePath;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
-	private static Logger logger;
+	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
 	private static final String productName = "BrailleBlaster ND";
 	private static final String BBVersion = "2014.06.05";
 	private static final String releaseDate = "June 5, 2014";
@@ -100,7 +98,7 @@ public final class BBIni {
 	public final static String propExtension = ".properties";
 	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
-	private static FileHandler logFile;
+	// private static FileHandler logFile;
 	private static final String BBID = "brlblst";
 	private static String instanceId;
 	private static String defaultCfg;
@@ -219,20 +217,7 @@ public final class BBIni {
 		if (!logPath.exists()) {
 			logPath.mkdirs();
 		}
-		logger = Logger.getLogger("org.brailleblaster");
-		try {
-			logFile = new FileHandler(logFilesPath + fileSep + "log.xml");
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-			logger.log(Level.SEVERE, "cannot open logfile", e);
-			e.printStackTrace();
-		}
-		if (logFile != null) {
-			logger.addHandler(logFile);
-		}
-		// disable output to console
-		logger.setUseParentHandlers(false);
+
 		if (args.length > 0) {
 			int i = 0;
 			while (i < args.length) {
@@ -267,10 +252,10 @@ public final class BBIni {
 		} 
 		catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Problem with liblouisutdml library", e);
+			logger.error("Problem with liblouisutdml library", e);
 		} 
 		catch (Exception e) {
-			logger.log(Level.WARNING, "This shouldn't happen", e);
+			logger.warn("This shouldn't happen", e);
 		}
 	}
 
@@ -402,10 +387,6 @@ public final class BBIni {
 
 	public static String getRecentDocs() {
 		return recentDocs;
-	}
-
-	public static Logger getLogger() {
-		return logger;
 	}
 	
 	public static PropertyFileManager getPropertyFileManager(){

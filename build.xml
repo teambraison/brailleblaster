@@ -35,7 +35,7 @@
 
         <manifest>
                 <attribute name="Main-Class" value="org.brailleblaster.Main"/>
-                <attribute name="Class-Path" value="${jar.classpath} programData/lang/"/>
+                <attribute name="Class-Path" value="${jar.classpath} programData/lang/ programData/settings/"/>
         </manifest>
           
             

@@ -41,8 +41,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import nu.xom.Document;
 import nu.xom.Serializer;
@@ -55,7 +56,7 @@ import org.brailleblaster.BBIni;
  * and for searching directories.
  */
 public class FileUtils {
-	static Logger logger = BBIni.getLogger();
+	static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 	
     public FileUtils() {
     }
@@ -245,17 +246,17 @@ public boolean createXMLFile(Document xmlDoc, String path){
 	} 
 	catch (FileNotFoundException e) {
 		e.printStackTrace();
-		logger.log(Level.SEVERE, "File Not Found Exception", e);
+		logger.error("File Not Found Exception", e);
 		return false;
 	}
 	catch (UnsupportedEncodingException e) {
 		e.printStackTrace();
-		logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
+		logger.error("Unsupported Encoding Exception", e);
 		return false;
 	}
 	catch (IOException e) {
 		e.printStackTrace();
-		logger.log(Level.SEVERE, "IO Exception", e);
+		logger.error("IO Exception", e);
 		return false;
 	}
 }

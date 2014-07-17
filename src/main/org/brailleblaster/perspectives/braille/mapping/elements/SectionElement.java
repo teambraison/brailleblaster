@@ -98,14 +98,13 @@ public class SectionElement {
 		}
 	}
 	
-	protected void initializePrintPage(Manager m, Element page){
+	protected void initializePrintPage(Manager m, Element page) {
 		Node textNode = m.getDocument().findPrintPageNode(page);
-		if(textNode != null){
+		if (textNode != null) {
 			list.addPrintPage(new PageMapElement(textNode, list.size()));
-		
 			Node brailleText = m.getDocument().findBraillePageNode(page);
 			list.getLastPage().setBraillePage(brailleText);
-		
+
 		}
 	}
 	

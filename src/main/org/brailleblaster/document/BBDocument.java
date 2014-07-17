@@ -422,13 +422,14 @@ public class BBDocument {
 	}
 	
 	public Node findPrintPageNode(Element e){
+		
 		Node n = findPrintPageNodeHelper(e);
-		if(n == null){
+		if (n == null) {
 			mistranslationList.add(e.toXML().toString());
 			return null;
-		}
-		else
+		} else
 			return n;
+		
 	}
 	
 	private Node findPrintPageNodeHelper(Element e){
@@ -447,12 +448,12 @@ public class BBDocument {
 	
 	public Node findBraillePageNode(Element e){
 		Node n = findBraillePageNodeHelper(e);
-		if(n == null){
+		if (n == null) {
 			mistranslationList.add(e.toXML().toString());
 			return null;
-		}
-		else
+		} else
 			return n;
+		
 	}
 	
 	private Node findBraillePageNodeHelper(Element e){

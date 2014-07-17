@@ -380,7 +380,7 @@ public class EPub3Archiver extends Archiver {
 				// Parse this epub document.
 			
 				nu.xom.Document curDoc;
-				 //check for if it is mac or non mac
+				//check for if it is mac or non mac
 				if(BBIni.getPlatformName().equals("cocoa"))
 				      curDoc = parser.build(  epubFileList.get(curPath) );
 				else

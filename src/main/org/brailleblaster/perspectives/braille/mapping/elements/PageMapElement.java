@@ -1,6 +1,7 @@
 package org.brailleblaster.perspectives.braille.mapping.elements;
 
 import nu.xom.Node;
+import nu.xom.Text;
 
 
 public class PageMapElement extends AbstractMapElement {
@@ -19,6 +20,9 @@ public class PageMapElement extends AbstractMapElement {
 	}
 	
 	public void setBraillePage(Node n){
+	    Text t=(Text)n;
+	    t.setValue(removeWord(n.getValue()));
+	    n=(Node)t;
 		brailleNode = n;
 	}
 	
@@ -31,5 +35,19 @@ public class PageMapElement extends AbstractMapElement {
 	public void setBrailleOffsets(int start, int end){
 		brailleStart = start;
 		brailleEnd = end;
+	}
+	//Remove word page or any word between ";" and "#" character
+	private String removeWord(String str){
+		int startRemove =0;
+		int endRemove=0;		
+		if((str.contains(";")) && (str.contains("#"))){
+			startRemove=str.indexOf(";");
+			endRemove=str.indexOf("#");
+			String removedString=str.substring(startRemove+1, endRemove);
+			str=str.replace(removedString, "");
+			
+		}
+		return str;
+		
 	}
 }

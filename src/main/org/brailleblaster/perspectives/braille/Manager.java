@@ -54,7 +54,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
-import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -483,6 +482,7 @@ public class Manager extends Controller {
 		list.checkList();
 		
 		if(message.getValue("isBraille").equals(true)){
+			message.put("selection", treeView.getSelection(list.getCurrent()));
 			index = list.findClosestBraille(message);
 			list.setCurrent(index);
 			list.getCurrentNodeData(message);
@@ -1192,6 +1192,7 @@ public class Manager extends Controller {
 	public TextMapElement getElementInRange(int offset){
 		Message m = new Message(null);
 		m.put("offset", offset);
+		m.put("selection", treeView.getSelection(list.getCurrent()));
 		
 		int index = list.findClosest(m, 0, list.size() - 1);
 		TextMapElement t = null;
@@ -1199,6 +1200,22 @@ public class Manager extends Controller {
 			t = list.get(index);
 		
 		if(t != null && offset >= t.start && offset <= t.end)
+			return t;
+		else
+			return null;
+	}
+	
+	public TextMapElement getElementInBrailleRange(int offset){
+		Message m = new Message(null);
+		m.put("offset", offset);
+		m.put("selection", treeView.getSelection(list.getCurrent()));
+		
+		int index = list.findClosestBraille(m);
+		TextMapElement t = null;
+		if(index != -1)
+			t = list.get(index);
+		
+		if(t != null && offset >= t.brailleList.getFirst().start && offset <= t.brailleList.getLast().end)
 			return t;
 		else
 			return null;
@@ -1220,6 +1237,10 @@ public class Manager extends Controller {
 			return vi.getSectionList().get(section).getList().indexOf(t);
 		else
 			return list.indexOf(t);
+	}
+	
+	public int getSectionSize(int index){
+		return vi.getSectionList().get(index).getList().size();
 	}
 	
 	public int getSection(TextMapElement t){
@@ -1340,44 +1361,19 @@ public class Manager extends Controller {
 	public String getCurrentPrintPage(){
 		if(list.getPageCount() > 0){
 			StyledText stView;
-			if(text.view.isFocusControl())
+			if(text.view.isFocusControl()){
 				stView = text.view;
-			else
+				return list.findCurrentPrintPageValue(stView.getCaretOffset());
+			}
+			else {
 				stView = braille.view;
-			
-			if(stView.getCaretOffset() >list.getLastPage().start)
-				return String.valueOf(list.getPageCount());
-			else{
-				if(stView.equals(text.view))
-					return list.findCurrentPrintPageValue(stView.getCaretOffset());
-				else
-					return list.findCurrentBraillePageValue(stView.getCaretOffset());
+				return list.findCurrentBraillePageValue(stView.getCaretOffset());
 			}
 		}
 		else 
 			return null;
 	}
-	
-	public int getPrintPageStart(int offset){
-		return list.getPrintPageStart(offset); 
-	}
-	
-	public int getPrintPageEnd(int offset){
-		return list.getPrintPageEnd(offset);  
-	}
-	
-	public int getBraillePageStart(int offset){
-		return list.getBraillePageStart(offset); 
-	}
-	
-	public int getBraillePageEnd(int offset){
-		return list.getBraillePageEnd(offset); 
-	}
-	
-	public PageMapElement getPageElement(int offset){
-		return list.findPage(offset);
-	}
-	
+
 	public FontManager getFontManager(){
 		return fontManager;
 	}
@@ -1463,7 +1459,7 @@ public class Manager extends Controller {
 	public boolean canReuseTab() {
 		if(text.hasChanged || braille.hasChanged || documentName != null)
 			return false;
-		else
+		else 
 			return true;
 	}
 

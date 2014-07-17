@@ -58,10 +58,6 @@ public class NimasInitializer extends ViewInitializer{
 			if(sectionList.get(i).isVisible()){
 				viewList.addAll(sectionList.get(i).getList());
 				viewList.setCurrent(viewList.indexOf(viewList.getCurrent()));
-				int pageCount = sectionList.get(i).getList().getPageCount();
-				for(int j = 0; j < pageCount; j++){
-					viewList.addPrintPage(sectionList.get(i).getList().getPage(j));
-				}
 			}
 		}
 		

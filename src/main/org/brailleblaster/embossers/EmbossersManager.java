@@ -34,8 +34,8 @@
 package org.brailleblaster.embossers;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
 
 import javax.print.PrintException;
 
@@ -80,7 +80,7 @@ public class EmbossersManager
 			} catch (PrintException e) {
 				LocaleHandler lh = new LocaleHandler();
 				new Notify(lh.localValue("cannotEmboss") + ": " + data.name + "\n" + e.getMessage());
-				logger.log(Level.SEVERE, "Print Exception", e);
+				logger.error("Print Exception", e);
 			}
 		}
 	}

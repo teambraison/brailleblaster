@@ -40,8 +40,8 @@ import java.io.Console;
 import org.daisy.printing.PrinterDevice;
 import java.io.File;
 import javax.print.PrintException;
-import java.util.logging.Logger;
-import java.util.logging.Level;
+import org.slf4j.Logger;
+
 import java.util.Arrays;
 
 /**
@@ -59,8 +59,7 @@ class Subcommands {
 	Subcommands(String[] args) {
 		logger = BBIni.getLogger();
 		if (!BBIni.haveLiblouisutdml()) {
-			logger.log(Level.SEVERE,
-					"The Braille translation facility is absent.");
+			logger.error("The Braille translation facility is absent.");
 		}
 		// ParseCommandLine.getInstance().parseCommand (args);
 		louisutdml = LibLouisUTDML.getInstance();
@@ -158,7 +157,7 @@ class Subcommands {
 			PrinterDevice embosser = new PrinterDevice(embosserName, true);
 			embosser.transmit(translatedFile);
 		} catch (PrintException e) {
-			logger.log(Level.SEVERE, "Embosser is  not working", e);
+			logger.error("Embosser is  not working", e);
 		}
 		lbuLog.showLog();
 	}

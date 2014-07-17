@@ -30,7 +30,7 @@
 
 package org.brailleblaster.abstractClasses;
 
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import nu.xom.Element;
 import nu.xom.Node;

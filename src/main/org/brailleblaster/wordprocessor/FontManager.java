@@ -33,8 +33,7 @@
 
 package org.brailleblaster.wordprocessor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -127,7 +126,7 @@ public class FontManager {
 
 		String loc = lh.getLocale().toString();
 		if (!loc.contentEquals(lh.localValue("localeResource"))) {
-			logger.log(Level.WARNING, "Locale resource for " + loc + " not found. Using default.");
+			logger.warn("Locale resource for " + loc + " not found. Using default.");
 			// new Notify("Locale resource for '" + lh.getLocale().getDisplayName() + "' not found.");
 		}	
 	}

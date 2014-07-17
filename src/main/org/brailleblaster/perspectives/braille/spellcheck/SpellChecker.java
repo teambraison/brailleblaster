@@ -1,8 +1,7 @@
 package org.brailleblaster.perspectives.braille.spellcheck;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 
@@ -14,12 +13,11 @@ public class SpellChecker {
     private static native Suggestions checkSug(String wd);
     private static native void closeDict();
 	
-    private Logger logger;
+    private final static Logger logger = LoggerFactory.getLogger(SpellChecker.class);
     public boolean active;
     private String dictPath, affPath;
     
 	public SpellChecker(String dictPath, String affPath){
-		logger = BBIni.getLogger();
 		this.dictPath = dictPath;
 		this.affPath = affPath;
 		
@@ -28,13 +26,13 @@ public class SpellChecker {
 		}
 		catch(UnsatisfiedLinkError e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "DLL did not load", e);
+			logger.error("DLL did not load", e);
 			active = false;
 			return;
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "DLL did not load", e);
+			logger.error("DLL did not load", e);
 			active = false;
 			return;
 		}
@@ -53,7 +51,7 @@ public class SpellChecker {
 		}
 		catch(UnsatisfiedLinkError e){
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "openDict Unsatisfied Link Error", e);
+			logger.error("openDict Unsatisfied Link Error", e);
 			return -1;
 		}
 	}

@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -125,9 +124,9 @@ public class BrailleDocument extends BBDocument {
 	
 	private void changeTextNode(Node n, String text){
 		Text temp = (Text)n;
-		logger.log(Level.INFO, "Original Text Node Value: " + temp.getValue());
+		logger.info("Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);
-		logger.log(Level.INFO, "New Text Node Value: " +  temp.getValue());
+		logger.info("New Text Node Value: " +  temp.getValue());
 		System.out.println("New Node Value:\t" + temp.getValue());
 	}
 	
@@ -149,7 +148,7 @@ public class BrailleDocument extends BBDocument {
 			}
 			logString += t.brailleList.get(i).n.getValue() + "\n";
 		}
-		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
+		logger.info("Original Braille Node Value:\n" + logString);
 			
 		Element parent = t.parentElement();
 		Element child = (Element)t.brailleList.getFirst().n.getParent();
@@ -173,7 +172,7 @@ public class BrailleDocument extends BBDocument {
 			}
 		}	
 			
-		logger.log(Level.INFO, "New Braille Node Value:\n" + insertionString);
+		logger.info("New Braille Node Value:\n" + insertionString);
 		message.put("newBrailleText", insertionString);
 		message.put("newBrailleLength", insertionString.length());
 		return total;
@@ -201,7 +200,7 @@ public class BrailleDocument extends BBDocument {
 				first = false;
 			}
 		}
-		logger.log(Level.INFO, "Original Braille Node Value:\n" + logString);
+		logger.info("Original Braille Node Value:\n" + logString);
 		
 		Element parent = t.parentElement();
 		if(t.brailleList.size() > 0){
@@ -217,7 +216,7 @@ public class BrailleDocument extends BBDocument {
 	
 		t.brailleList.clear();
 		t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
-		logger.log(Level.INFO, "New Braille Node Value:\n" + textNode.getValue());
+		logger.info("New Braille Node Value:\n" + textNode.getValue());
 		message.put("newBrailleText", textNode.getValue());
 		message.put("newBrailleLength", textNode.getValue().length());
 		return total;
@@ -380,7 +379,7 @@ public class BrailleDocument extends BBDocument {
 		} 
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
-			logger.log(Level.SEVERE, "Unsupported Encoding Exception", e);
+			logger.error("Unsupported Encoding Exception", e);
 			return -1;
 		}	
 	}

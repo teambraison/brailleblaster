@@ -33,9 +33,8 @@
 
 package org.brailleblaster.wordprocessor;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -56,7 +55,7 @@ public class FontManager {
 	private int daisyFontHeight = 12;
 	private int brailleFontHeight = 14;
 	static LocaleHandler lh = new LocaleHandler();
-	static Logger logger = BBIni.getLogger();
+	final static Logger logger = LoggerFactory.getLogger(FontManager.class);
 	private boolean displayBrailleFont = false;
 	
 	private Manager m;
@@ -127,7 +126,7 @@ public class FontManager {
 
 		String loc = lh.getLocale().toString();
 		if (!loc.contentEquals(lh.localValue("localeResource"))) {
-			logger.log(Level.WARNING, "Locale resource for " + loc + " not found. Using default.");
+			logger.warn("Locale resource for " + loc + " not found. Using default.");
 			// new Notify("Locale resource for '" + lh.getLocale().getDisplayName() + "' not found.");
 		}	
 	}

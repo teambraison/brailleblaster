@@ -6,20 +6,9 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.brailleblaster.BBIni;
-import org.brailleblaster.util.Notify;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Element;
-import org.w3c.dom.Text;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -29,10 +18,20 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.brailleblaster.util.Notify;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
+
 public class Normalizer {
 	File f;
 	Document doc;
-	static Logger log = BBIni.getLogger();
+	final static Logger log = LoggerFactory.getLogger(Normalizer.class);
 	String originalPubId;
 	String originalSystemId;
 	DocumentType docType;
@@ -55,27 +54,27 @@ public class Normalizer {
 		catch(ConnectException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Connections Error", e);
+			log.error("Connections Error", e);
 		}
 		catch(UnknownHostException e){
 			new Notify("Brailleblaster failed to access necessary materials from online.  Please check your internet connection and try again.");
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Unknown Host Error", e);
+			log.error("Unknown Host Error", e);
 		}
 		catch (ParserConfigurationException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Parse Error", e);
+			log.error("Parse Error", e);
 		}
 		catch (SAXException e) {
 			new Notify("An error occurred while reading the document. Please check whehther the document contains vaild XML.");
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Sax Error", e);
+			log.error("Sax Error", e);
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while reading the document.");
 			e.printStackTrace();
-			log.log(Level.SEVERE, "IO Error", e);
+			log.error("IO Error", e);
 		}
 	}
 	
@@ -175,17 +174,17 @@ public class Normalizer {
 			return true;
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Transformer Configuration Exception", e);
+			log.error("Transformer Configuration Exception", e);
 			return false;
 		}
 		catch (TransformerException e) {
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Transformer Exception", e);
+			log.error("Transformer Exception", e);
 			return false;
 		}
 		catch(Exception e){
 			e.printStackTrace();
-			log.log(Level.SEVERE, "Unforeseen Exception", e);
+			log.error("Unforeseen Exception", e);
 			return false;
 		}
     }

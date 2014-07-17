@@ -388,10 +388,6 @@ public final class BBIni {
 	public static String getRecentDocs() {
 		return recentDocs;
 	}
-
-	// public static Logger getLogger() {
-		// return logger;
-	// }
 	
 	public static PropertyFileManager getPropertyFileManager(){
 		return propManager;

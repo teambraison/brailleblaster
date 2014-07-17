@@ -1,0 +1,12 @@
+<configuration>
+  <define name="logPath" class="org.brailleblaster.logback.LogFileFinder"/>
+  <appender name="bbFileAppender" class="ch.qos.logback.core.FileAppender">
+    <file>${logPath}/bb.log</file>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="debug">
+    <appender-ref ref="bbFileAppender"/>
+  </root>
+</configuration>

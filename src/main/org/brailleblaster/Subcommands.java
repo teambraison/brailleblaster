@@ -36,11 +36,17 @@ package org.brailleblaster;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.liblouis.LibLouisUTDML;
+
 import java.io.Console;
+
 import org.daisy.printing.PrinterDevice;
+
 import java.io.File;
+
 import javax.print.PrintException;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -50,14 +56,13 @@ import java.util.Arrays;
  */
 
 class Subcommands {
-	private Logger logger = BBIni.getLogger();
+	private final static Logger logger = LoggerFactory.getLogger(Subcommands.class);
 	private LibLouisUTDML louisutdml;
 	private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 	private String subcommand;
 	private String[] subArgs;
 
 	Subcommands(String[] args) {
-		logger = BBIni.getLogger();
 		if (!BBIni.haveLiblouisutdml()) {
 			logger.error("The Braille translation facility is absent.");
 		}

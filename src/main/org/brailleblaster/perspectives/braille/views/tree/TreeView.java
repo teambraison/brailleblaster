@@ -2,7 +2,6 @@ package org.brailleblaster.perspectives.braille.views.tree;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;

@@ -36,6 +36,7 @@ package org.brailleblaster.embossers;
 import java.io.File;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.print.PrintException;
 
@@ -57,7 +58,7 @@ public class EmbossersManager
 	Logger logger;
 	
 	public EmbossersManager(){
-		logger = BBIni.getLogger();
+		logger = LoggerFactory.getLogger(EmbossersManager.class);
 		this.shell = new Shell(Display.getDefault(), SWT.DIALOG_TRIM);
 		embosser = new PrintDialog(this.shell);
 	}

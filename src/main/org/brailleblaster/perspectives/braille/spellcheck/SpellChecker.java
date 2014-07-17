@@ -1,7 +1,7 @@
 package org.brailleblaster.perspectives.braille.spellcheck;
 
 import org.slf4j.Logger;
-
+import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 
@@ -13,12 +13,11 @@ public class SpellChecker {
     private static native Suggestions checkSug(String wd);
     private static native void closeDict();
 	
-    private Logger logger;
+    private final static Logger logger = LoggerFactory.getLogger(SpellChecker.class);
     public boolean active;
     private String dictPath, affPath;
     
 	public SpellChecker(String dictPath, String affPath){
-		logger = BBIni.getLogger();
 		this.dictPath = dictPath;
 		this.affPath = affPath;
 		

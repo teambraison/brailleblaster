@@ -5,7 +5,6 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;

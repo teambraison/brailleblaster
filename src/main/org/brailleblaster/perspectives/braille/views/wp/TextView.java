@@ -293,9 +293,9 @@ public class TextView extends WPView {
 							
 							setCurrent(view.getCaretOffset());
 							if(currentElement instanceof PageMapElement|| currentElement instanceof BrlOnlyMapElement){
-								if(nextStart != -1 && currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
+								if((nextStart != -1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)) || (previousEnd == -1 && nextStart != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)))
 									nextValidPosition();
-								else if(previousEnd != -1 && currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
+								else if((previousEnd != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)) || (nextStart == -1 && previousEnd != - 1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)))
 									previousValidPosition();
 							}
 
@@ -433,36 +433,54 @@ public class TextView extends WPView {
 	
 	private void nextValidPosition(){
 		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
-		int index = manager.indexOf(t);
-		while(((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) &&t instanceof BrlOnlyMapElement)){
-			index++;
-			t = manager.getTextMapElement(index);
+		if(t == null){
+			int i = 1;
+			while(t == null && view.getCaretOffset() + i <= view.getCharCount()){
+				t = manager.getElementInRange(view.getCaretOffset() + i);
+				i++;
+			}
 		}
+		if(t != null){
+			int index = manager.indexOf(t);
+			while(((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) &&t instanceof BrlOnlyMapElement)){
+				index++;
+				t = manager.getTextMapElement(index);
+			}
 		
-		currentChar = SWT.ARROW_DOWN;
-		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-			view.setCaretOffset(t.start);
-			previousValidPosition();
+			currentChar = SWT.ARROW_DOWN;
+			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
+				view.setCaretOffset(t.start);
+				previousValidPosition();
+			}
+			else
+				view.setCaretOffset(t.start);
 		}
-		else
-			view.setCaretOffset(t.start);
 	}
 	
 	private void previousValidPosition(){
 		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
-		int index = manager.indexOf(t);
-		while(((t.start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement )|| ((t.start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
-			index--;
-			t = manager.getTextMapElement(index);
+		if(t == null){
+			int i = 1;
+			while(t == null && view.getCaretOffset() - 1 >= 0)
+			t = manager.getElementInRange(view.getCaretOffset() - i);
+			i--;
 		}
 		
-		currentChar = SWT.ARROW_UP;
-		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-			view.setCaretOffset(t.end);
-			nextValidPosition();
+		if(t != null){
+			int index = manager.indexOf(t);
+			while(((t.start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement )|| ((t.start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
+				index--;
+				t = manager.getTextMapElement(index);
+			}
+		
+			currentChar = SWT.ARROW_UP;
+			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
+				view.setCaretOffset(t.end);
+				nextValidPosition();
+			}
+			else
+				view.setCaretOffset(t.end);
 		}
-		else
-			view.setCaretOffset(t.end);
 	}
 	
 	//public method to check if an update should be made before exiting or saving

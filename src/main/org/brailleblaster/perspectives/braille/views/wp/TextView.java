@@ -292,7 +292,7 @@ public class TextView extends WPView {
 							}
 							
 							setCurrent(view.getCaretOffset());
-							if(currentElement instanceof PageMapElement){
+							if(currentElement instanceof PageMapElement|| currentElement instanceof BrlOnlyMapElement){
 								if(nextStart != -1 && currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
 									nextValidPosition();
 								else if(previousEnd != -1 && currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
@@ -321,7 +321,7 @@ public class TextView extends WPView {
 						sendUpdate();
 				
 					setCurrent(view.getCaretOffset());
-					if(currentElement instanceof PageMapElement){
+					if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
 						if((previousEnd != -1 && view.getCaretOffset() < start) || nextStart == -1)
 							previousValidPosition();
 						else if((nextStart != -1 && view.getCaretOffset() > end) || previousEnd == -1)
@@ -434,13 +434,13 @@ public class TextView extends WPView {
 	private void nextValidPosition(){
 		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
 		int index = manager.indexOf(t);
-		while((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement){
+		while(((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) &&t instanceof BrlOnlyMapElement)){
 			index++;
 			t = manager.getTextMapElement(index);
 		}
 		
 		currentChar = SWT.ARROW_DOWN;
-		if(t instanceof PageMapElement){
+		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
 			view.setCaretOffset(t.start);
 			previousValidPosition();
 		}
@@ -451,13 +451,13 @@ public class TextView extends WPView {
 	private void previousValidPosition(){
 		TextMapElement t = manager.getElementInRange(view.getCaretOffset());
 		int index = manager.indexOf(t);
-		while((t.start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement){
+		while(((t.start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement )|| ((t.start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
 			index--;
 			t = manager.getTextMapElement(index);
 		}
 		
 		currentChar = SWT.ARROW_UP;
-		if(t instanceof PageMapElement){
+		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
 			view.setCaretOffset(t.end);
 			nextValidPosition();
 		}

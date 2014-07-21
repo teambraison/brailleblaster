@@ -165,9 +165,9 @@ public class BrailleView extends WPView {
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){						
 							setCurrent();
 							if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-								if(nextStart != -1 && currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)
+								if((nextStart != -1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)) || (previousEnd == -1 && nextStart != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)))
 									nextValidPosition();
-								else if(previousEnd != -1 && currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)
+								else if((previousEnd != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)) || (nextStart == -1 && previousEnd != -1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)))
 									previousValidPosition();
 							}
 						
@@ -218,36 +218,55 @@ public class BrailleView extends WPView {
 	
 	private void previousValidPosition(){
 		TextMapElement t = manager.getElementInBrailleRange(view.getCaretOffset());
-		int index= manager.indexOf(t);
-		while(((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement) ||  ((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
-			index--;
-			t = manager.getTextMapElement(index);
+		if(t == null){
+			int i = 1;
+			while(t == null && view.getCaretOffset() - 1 >= 0)
+			t = manager.getElementInBrailleRange(view.getCaretOffset() - i);
+			i--;
 		}
 		
-		currentChar = SWT.ARROW_UP;
-		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-			view.setCaretOffset(t.brailleList.getLast().end);
-			nextValidPosition();
+		if(t != null){
+			int index= manager.indexOf(t);
+			while(((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement) ||  ((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
+				index--;
+				t = manager.getTextMapElement(index);
+			}
+		
+			currentChar = SWT.ARROW_UP;
+			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
+				view.setCaretOffset(t.brailleList.getLast().end);
+				nextValidPosition();
+			}
+			else
+				view.setCaretOffset(t.brailleList.getLast().end);
 		}
-		else
-			view.setCaretOffset(t.brailleList.getLast().end);
 	}
 
 	private void nextValidPosition(){
 		TextMapElement t = manager.getElementInBrailleRange(view.getCaretOffset());
-		int index = manager.indexOf(t);
-		while(((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof BrlOnlyMapElement)){
-			index++;
-			t = manager.getTextMapElement(index);
+		if(t == null){
+			int i = 1;
+			while(t == null && view.getCaretOffset() + i <= view.getCharCount()){
+				t = manager.getElementInBrailleRange(view.getCaretOffset() + i);
+				i++;
+			}
 		}
 		
-		currentChar = SWT.ARROW_DOWN;
-		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-			view.setCaretOffset(t.brailleList.getFirst().start);
-			previousValidPosition();
+		if(t != null){
+			int index = manager.indexOf(t);
+			while(((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof BrlOnlyMapElement)){
+				index++;
+				t = manager.getTextMapElement(index);
+			}
+		
+			currentChar = SWT.ARROW_DOWN;
+			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
+				view.setCaretOffset(t.brailleList.getFirst().start);
+				previousValidPosition();
+			}
+			else
+				view.setCaretOffset(t.brailleList.getFirst().start);
 		}
-		else
-			view.setCaretOffset(t.brailleList.getFirst().start);
 	}
 	
 	private void setCurrent(){

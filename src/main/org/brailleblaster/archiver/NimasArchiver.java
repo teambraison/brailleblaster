@@ -30,13 +30,22 @@
 
 package org.brailleblaster.archiver;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -47,6 +56,7 @@ import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
 import nu.xom.XPathContext;
+import nu.xom.converters.DOMConverter;
 import nu.xom.xslt.XSLException;
 import nu.xom.xslt.XSLTransform;
 
@@ -55,15 +65,20 @@ import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.Zipper;
+import org.w3c.dom.DOMImplementation;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
 public class NimasArchiver extends Archiver {
-
+	
 	NimasArchiver(String docToPrepare) {
 		super(docToPrepare);
 		if(docToPrepare.endsWith(".zip"))
 			unzip(docToPrepare);
+		
+		// Segment the single NIMAS file. This will make rendering 
+		// faster in certain perspectives.
+		writeNimasSegments();
 		
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};
@@ -171,27 +186,6 @@ public class NimasArchiver extends Archiver {
 		arch.save(doc, path);
 		return arch;
 	}
-    /***
-     * Get partition nimas book
-     * @return ArrayList of Document which each entry of an array includes a nimas book
-     */
-	public ArrayList<Document> manageNimas()
-	{
-		ArrayList<Document> allDocs =new ArrayList<Document>();
-		//Read xml template
-		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
-		File temp = new File(sourcePath);
-		//get all level1 element
-		Nodes allNode=getLevel1();
-		for (int i=0;i<allNode.size();i++){
-			Node node=allNode.get(i);
-			allDocs.add(breakDocument(temp,node));
-			
-		}
-		
-		return allDocs;
-		
-	}
 	/**
 	 * Create an empty Document
 	 * @param tempfile
@@ -236,13 +230,30 @@ public class NimasArchiver extends Archiver {
 	 * @param context
 	 * @return
 	 */
-	Nodes getXpath (String qeuery, Document doc,nu.xom.XPathContext context )
-	{
-		Nodes result = doc.query(qeuery,context);
-		return result;
-
+	Nodes getXpath (String qeuery, Document doc,nu.xom.XPathContext context ) {
+		return doc.query(qeuery,context);
 	}
 
+    /***
+     * Get partition nimas book
+     * @return ArrayList of Document which each entry of an array includes a nimas book
+     */
+	public ArrayList<Document> manageNimas()
+	{
+		ArrayList<Document> allDocs =new ArrayList<Document>();
+		//Read xml template
+		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
+		File temp = new File(sourcePath);
+		//get all level1 element
+		Nodes allNode = getLevel1();
+		for (int i = 0; i < allNode.size(); i++){
+			allDocs.add( breakDocument(temp, allNode.get(i)) );
+		}
+		
+		return allDocs;
+		
+	}
+	
 	/**
 	 * Add Node to template
 	 * @param addedNode
@@ -251,9 +262,9 @@ public class NimasArchiver extends Archiver {
 	Document breakDocument(File temp,Node addedNode){
 		Document tempDoc=createDocument(temp);
 		nu.xom.XPathContext contextTemp=getConetxt(tempDoc);
-		Nodes frontmatter =getXpath ("//dtb:frontmatter", tempDoc ,contextTemp );
-		Nodes bodymatter =getXpath ("//dtb:bodymatter", tempDoc ,contextTemp );
-		Nodes rearmatter =getXpath ("//dtb:rearmatter", tempDoc ,contextTemp );
+		Nodes frontmatter = getXpath ("//dtb:frontmatter", tempDoc ,contextTemp );
+		Nodes bodymatter = getXpath ("//dtb:bodymatter", tempDoc ,contextTemp );
+		Nodes rearmatter = getXpath ("//dtb:rearmatter", tempDoc ,contextTemp );
 		Element front = null;
 		Element body = null;
 		Element rear = null;
@@ -290,23 +301,22 @@ public class NimasArchiver extends Archiver {
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
-	// Converts our nimas xml to multiple xhtml files. EPUB Conversion!
-	public String convertToEPUB()
+	// Writes segmented NIMAS documents to disc and returns a list of their 
+	// paths.
+	public ArrayList<String> writeNimasSegments()
 	{
         // Grab list of documents after breaking them up by level1's.
         ArrayList<Document> docs = manageNimas();
 		
 	    // Create file utility for saving our xml files.
 		FileUtils fu = new FileUtils();
-        
-		// Xml builder.
-		Builder builder = new Builder();
 		
 		// Path to xsl file. Add three slashes to avoid BS.
     	String xslPath = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep() + "dtb2005html.xsl";
-		
-    	// Build the xsl document.
+//    	
+//    	// Build the xsl document.
     	Document xslDoc = null;
+		Builder builder = new Builder();
         try { xslDoc = builder.build(xslPath); }
         catch (ValidityException e1) { e1.printStackTrace(); }
         catch (ParsingException e1) { e1.printStackTrace(); }
@@ -317,17 +327,24 @@ public class NimasArchiver extends Archiver {
         try { xslt = new XSLTransform(xslDoc); }
         catch (XSLException e1) { e1.printStackTrace(); }
     	
-        // Loop through the documents 
+        // Loop through the documents, write to file, count images in each.
         for(int curDoc = 0; curDoc < docs.size(); curDoc++)
         {
-            // Finally transform the document.
+        	// Finally transform the document.
             Nodes newDocNodes = null;
 			try { newDocNodes = xslt.transform( docs.get(curDoc) ); }
 			catch (XSLException e) { e.printStackTrace(); }
-            Document transformedDoc = xslt.toDocument(newDocNodes);
+            Document transformedDoc = XSLTransform.toDocument(newDocNodes);
         	
         	// Build string path.
     		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curDoc) + ".xhtml";
+    		
+    		// Add path to list.
+    		epubFileList.add(outPath);
+    		
+    		// Count the images in this document.
+    		addToNumImgsList(docs.get(curDoc));
+    		
     		// Write file.
     		fu.createXMLFile( transformedDoc, outPath );
 //    		fu.createXMLFile( docs.get(curDoc), outPath );
@@ -335,14 +352,14 @@ public class NimasArchiver extends Archiver {
         } // for(int curDoc...
         
         // Create the opf file.
-        return _createOPF(docs);
+        return epubFileList;
 		
-	} // convertToEPUB()
+	} // writeNimasSegments()
 	
 	/////////////////////////////////////////////////////////////////////////////
 	// Helper: Uses list created with manageNimas() to create an OPF file for 
 	// EPUB conversion.
-	private String _createOPF(ArrayList<Document> docs)
+	private String _createOPFFromDocs(ArrayList<Document> docs)
 	{
 		// Create root package element.
 		Element root = new Element("package");
@@ -389,6 +406,6 @@ public class NimasArchiver extends Archiver {
 		// Return path to our shiny, new opf.
 		return opfPath;
 		
-	} // _createOPF()
+	} // _createOPFFromDocs()
 	
 } // class NimasArchiver

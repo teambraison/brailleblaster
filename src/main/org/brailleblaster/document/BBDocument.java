@@ -400,17 +400,20 @@ public class BBDocument {
 				String text = lh.localValue("missingSem");
 				for(int i = 0; i < missingSemanticsList.size(); i++){
 					text += missingSemanticsList.get(i) + "\n";
+					System.out.println(text);
 				}
 				text += lh.localValue("checkConfig");
-				new Notify(text);
+				System.out.println(text);
+				//new Notify(text);
 			}
 		
 			if(mistranslationList.size() > 0){
 				String text = lh.localValue("mistransError");
 				for(int i = 0; i < mistranslationList.size(); i++){
 					text += mistranslationList.get(i) + "\n";
+					System.out.println(text);
 				}
-				new Notify(text);
+				//new Notify(text);
 			}
 		}
 		missingSemanticsList.clear();

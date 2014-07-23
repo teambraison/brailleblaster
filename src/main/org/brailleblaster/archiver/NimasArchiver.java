@@ -240,9 +240,9 @@ public class NimasArchiver extends Archiver {
      */
 	public ArrayList<Document> manageNimas()
 	{
-		ArrayList<Document> allDocs =new ArrayList<Document>();
+		ArrayList<Document> allDocs = new ArrayList<Document>();
 		//Read xml template
-		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "dtbook.xml";
+		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "nimasTemplate.xml";
 		File temp = new File(sourcePath);
 		//get all level1 element
 		Nodes allNode = getLevel1();

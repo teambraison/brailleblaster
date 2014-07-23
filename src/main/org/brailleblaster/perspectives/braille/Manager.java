@@ -1199,6 +1199,16 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
+	/***
+	 * Return all elements that selected in text
+	 * @param offset
+	 * @return
+	 */
+	public ArrayList<TextMapElement> getElementSelected(int strat, int end){
+		
+		return null;
+		
+	}
 	
 	public TextMapElement getElementInBrailleRange(int offset){
 		Message m = new Message(null);

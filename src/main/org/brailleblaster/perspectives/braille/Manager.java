@@ -55,6 +55,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -742,8 +743,7 @@ public class Manager extends Controller {
 	    if (arch.getCurrentConfig().equals("epub.cfg")){
 	    	text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"aside");
 	    }
-	    else{
-			
+	    else{		
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
 	    }
 			
@@ -816,7 +816,7 @@ public class Manager extends Controller {
 			document.changeSemanticAction(message, list.getCurrent().parentElement());
 			message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
 			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		
+	
 			int start = list.indexOf(itemList.get(0));
 			int end = list.indexOf(itemList.get(itemList.size() - 1));
 			int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
@@ -838,6 +838,7 @@ public class Manager extends Controller {
 				message.put("brailleNext", -1);
 			}
 			
+			//else {
 			text.adjustStyle(message, itemList);
 			braille.adjustStyle(message, itemList);
 			
@@ -847,10 +848,52 @@ public class Manager extends Controller {
 				list.shiftOffsetsFromIndex(end + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), origPos);
 
 			treeView.adjustItemStyle(list.getCurrent());
+			//}
+			
+			if(((Styles)message.getValue("Style")).getName().equals("boxline"))
+				createBoxline(parent, message, itemList);
+			
 			group.setRedraw(true);
 		}
 		else
 			new Notify(lh.localValue("nothingToApply"));
+	}
+	
+	private void createBoxline(Element p, Message m, ArrayList<TextMapElement> itemList){
+		Element wrapper = document.wrapElement(p, "boxline");
+		if(wrapper != null){
+			//document.translateElement(wrapper);
+			int startPos = list.indexOf(itemList.get(0));
+			BrlOnlyMapElement b1 =  new BrlOnlyMapElement(p.getParent().getChild(0), (Element)p.getParent());
+			b1.setOffsets(list.get(startPos).start, list.get(startPos).start + b1.textLength());
+			b1.setBrailleOffsets(list.get(startPos).brailleList.getFirst().start, list.get(startPos).brailleList.getFirst().start + b1.getText().length());
+			list.add(startPos, b1);
+			
+			text.insertText(itemList.get(0).start, list.get(startPos).getText() + "\n");
+			braille.insertText(itemList.get(0).brailleList.getFirst().start, list.get(startPos).brailleList.getFirst().value() + "\n");
+			list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);				
+			
+			int endPos = list.indexOf(itemList.get(itemList.size() - 1)) + 1;
+			BrlOnlyMapElement b2 =  new BrlOnlyMapElement(p.getParent().getChild(p.getParent().getChildCount() - 1), (Element)p.getParent());
+			b2.setOffsets(list.get(endPos - 1).end + 1, list.get(endPos - 1).end + 1 + b2.textLength());
+			b2.setBrailleOffsets(list.get(endPos - 1).brailleList.getLast().end + 1, list.get(endPos - 1).brailleList.getLast().end + 1 + b2.getText().length());
+			list.add(endPos, b2);
+			
+			text.insertText(itemList.get(itemList.size() - 1).end, "\n" + list.get(endPos).getText());
+			braille.insertText(itemList.get(itemList.size() - 1).brailleList.getLast().end, "\n" + list.get(endPos).brailleList.getFirst().value());
+			list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
+			
+			for(int i = 0; i < itemList.size(); i++)
+				treeView.removeItem(itemList.get(i), new Message(null));		
+			
+			treeView.newTreeItem(list.get(startPos), treeView.getSelectionIndex(), 0);
+			handleSetCurrent(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
+			dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			
+			for(int i = 0; i < list.size(); i++){
+				System.out.println("Start: " + list.get(i).start + "\tEnd: " + list.get(i).end + "\t" +  list.get(i).getClass());
+			}
+		}
 	}
 	
 	public void saveAs(){

@@ -12,6 +12,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.ParentNode;
 import nu.xom.ParsingException;
 import nu.xom.Text;
 
@@ -650,6 +651,32 @@ public class BrailleDocument extends BBDocument {
 			}	
 		}
 	
+		return null;
+	}
+	
+		
+	public Element wrapElement(Element e, String type){
+		if(type.equals("boxline")){
+			Element boxline = new Element(semHandler.getElementBySemantic(type));
+			Element sb1 = new Element("brl");
+			sb1.appendChild(new Text("777777777777777"));
+				
+			Element sb2 = new Element("brl");
+			sb2.appendChild(new Text("GGGGGGGGGGGGGGG"));
+				
+			boxline.addAttribute(new Attribute("semantics","style,boxline"));
+			boxline.appendChild(sb1);
+			boxline.appendChild(sb2);
+	
+			ParentNode parent = e.getParent();
+			int index = parent.indexOf(e);
+			boxline.insertChild(parent.removeChild(e), 1);
+			//boxline.appendChild(parent.removeChild(e));
+			parent.insertChild(boxline, index);
+			addNamespace(boxline);			
+			return boxline;
+		}
+			
 		return null;
 	}
 }

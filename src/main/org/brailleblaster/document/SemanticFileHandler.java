@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,5 +185,17 @@ public class SemanticFileHandler {
 	
 	public String getDefault(String elementName){
 		return defaults.get(elementName);
+	}
+	
+	public String getElementBySemantic(String semantic){
+		return getKeyByValue(semantic);
+	}
+			
+	private String getKeyByValue(String sem) {
+		for (Entry<String, String> entry : defaults.entrySet()) {
+			if (entry.getValue().equals(sem))
+				return entry.getKey();
+		}
+			return null;
 	}
 }

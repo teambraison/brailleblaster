@@ -72,6 +72,9 @@ public class EPub3Archiver extends Archiver {
 
 	// Path to .opf file.
 	String opfPath;
+	// Manifest and spine elements.
+	NodeList manifestElements;
+	NodeList spineElements;
 
 	// The main document we'll be appending to.
 	Document mainDoc = null;
@@ -82,84 +85,74 @@ public class EPub3Archiver extends Archiver {
 	// Opf document.
 	Document opfDoc = null;
 	
+	// Every file that makes our epub doc.
+	ArrayList<String> epubFileList = null;
+	
 	// The last bookmark we were at.
 	String bkMarkStr = null;
 	
-	public EPub3Archiver(String docToPrepare) {
+	// Number of images in each file that makes up our document.
+	// For every spine element we have, we're going to count the number of images 
+	// in that file. This helps with image traversal.
+	ArrayList<Integer> numImages = null;
+	
+	EPub3Archiver(String docToPrepare) {
 		super(docToPrepare);
-		open(null);
+		open();
 		currentConfig = getAutoCfg("epub");
 		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
 	}
 	
-	// Also takes path to opf file. Assumes document is already unzipped.
-//	public EPub3Archiver(String docToPrepare, String _opfPath) {
-//		super(docToPrepare);
-//		open(_opfPath);
-//		currentConfig = getAutoCfg("epub");
-//		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
-//		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
-//	}
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	private String open(String _opath) {
+	private String open() {
 		
 		// Init variables.
 		mainDoc = null;
 		mainBodyElement = null;
 		mainHtmlElement = null;
 		opfDoc = null;
+		epubFileList = new ArrayList<String>();
 		
 		// First things first, we have to unzip the EPub doc.
 		
 		/////////
 		// Unzip.
 
-			// Get ready to unzip.
-			Zipper zpr = null;	
+			// Create unzipper.
+			Zipper zpr = new Zipper();
+			
+			// Unzip.
+			String sep = BBIni.getFileSep();
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
+			String outPath = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
+			zpr.Unzip( originalDocPath, outPath );
 		
-			// If zipped.
-			if( _opath == null ) {
-				// Create unzipper.
-				zpr = new Zipper();
-				
-				// Unzip.
-				String sep = BBIni.getFileSep();
-				String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
-				String outPath = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
-				zpr.Unzip( originalDocPath, outPath );
-			}
 		// Unzip.
 		/////////
 			
 		// Get ready to look for the opf file.
-		opfPath = _opath;
+		opfPath = null;
 			
+		// Get paths to all unzipped files.
+		ArrayList<String> unzippedPaths = zpr.getUnzippedFilePaths();
 		
-		// If zipped.
-		if( opfPath == null ) {
-			// Get paths to all unzipped files.
-			ArrayList<String> unzippedPaths = zpr.getUnzippedFilePaths();
-			
-			// Find the .opf file.
-			for(int curFile = 0; curFile < unzippedPaths.size(); curFile++)
+		// Find the .opf file.
+		for(int curFile = 0; curFile < unzippedPaths.size(); curFile++)
+		{
+			// Does this file have an .opf extension?
+			if(unzippedPaths.get(curFile).toLowerCase().endsWith(".opf") == true)
 			{
-				// Does this file have an .opf extension?
-				if(unzippedPaths.get(curFile).toLowerCase().endsWith(".opf") == true)
-				{
-					// Found it!
-					opfPath = unzippedPaths.get(curFile).toLowerCase();
-					
-					// Found it, take a break.
-					break;
-					
-				} // If ends with opf
+				// Found it!
+				opfPath = unzippedPaths.get(curFile).toLowerCase();
 				
-			} // for(int curFile...
+				// Found it, take a break.
+				break;
+				
+			} // If ends with opf
 			
-		} // if( opfPath == null )
+		} // for(int curFile...
 		
 		// If we couldn't find the opf file, no point in continuing.
 		if(opfPath == null)
@@ -333,6 +326,32 @@ public class EPub3Archiver extends Archiver {
 		return null;
 		
 	} // open()
+
+	/////////////////////////////////////////////////////////////////////////
+	// Finds the manifest element using the given id, 
+	// and returns the href attribute value.
+	String findHrefById(String id)
+	{
+		// Loop through the manifest items and find the file with this ID.
+		for(int curMan = 0; curMan < manifestElements.getLength(); curMan++)
+		{
+			// Get the attributes for this manifest item.
+			NamedNodeMap manAtts = manifestElements.item(curMan).getAttributes();
+			
+			// If this manifest item has the id we're looking for, time to open a file.
+			if( manAtts.getNamedItem("id").getNodeValue().compareTo(id) == 0 )
+			{
+				// Get value of href; this is our local file path to the file. Return it.
+				return manAtts.getNamedItem("href").getNodeValue();
+				
+			} // if manifestItem ID == fileID...
+			
+		} // for(int curMan...
+		
+		// Couldn't find it.
+		return null;
+		
+	} // findHrefById()
 	
 	@Override
 	public void save(BBDocument doc, String path)
@@ -428,7 +447,37 @@ public class EPub3Archiver extends Archiver {
 		
 	} // save()
 	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Takes in a document and adds its image count to the list.
+	public void addToNumImgsList(Document addMe)
+	{
+		// Create space big enough to hold our image integers if we haven't done so already.
+		if(numImages == null)
+			numImages = new ArrayList<Integer>();
+		
+		// Grab all <img> elements.
+		NodeList imgElements = addMe.getElementsByTagName("img");
+
+		// Add this value to the lsit.
+		numImages.add(imgElements.getLength());
+	}
 	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Returns list of image counts for documents in the spine.
+	public ArrayList<Integer> getImgCounts() {
+		return numImages;
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////	
+	// Returns the list of documents that make up this book.
+	public ArrayList<String> getSpine() {
+		return epubFileList;
+	}
+	///////////////////////////////////////////////////////////////////////////////////////////	
+	// Returns a path from a particular spine element.
+	public String getSpineFilePath(int idx) {
+		return epubFileList.get(idx);
+	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Simple message box for alerts and messages to user.

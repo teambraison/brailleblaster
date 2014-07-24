@@ -1,0 +1,5 @@
+# When switching config files, this file is referenced to find the appropriate association.
+# For example, epub documents will require the epub.cfg file.
+
+epub=epub.cfg
+nimas=nimas.cfg

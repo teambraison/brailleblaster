@@ -40,6 +40,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -70,7 +73,11 @@ import org.w3c.dom.DOMImplementation;
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
 public class NimasArchiver extends Archiver {
-	
+
+
+	Set <String> allPaths;
+
+
 	NimasArchiver(String docToPrepare) {
 		super(docToPrepare);
 		if(docToPrepare.endsWith(".zip"))
@@ -83,6 +90,7 @@ public class NimasArchiver extends Archiver {
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.xml", "*.zip", "*.brf", "*.utd"};
+		allPaths=new HashSet<String>();
 	}
 	
 	@Override
@@ -186,6 +194,54 @@ public class NimasArchiver extends Archiver {
 		arch.save(doc, path);
 		return arch;
 	}
+
+	/***
+	 * Write to the disk once at time if the file is not there already
+	 * @param index
+	 * @return
+	 */
+	public String wrtieToDisk(int index){
+		// Build string path.
+		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(index) + ".xml";
+		if(!(allPaths.contains(Integer.toString(index)))){
+
+			Document curDoc=manageNimas(index);
+			// Create file utility for saving our xml files.
+			FileUtils fu = new FileUtils();
+
+			// Write file.
+			fu.createXMLFile( curDoc, outPath );
+			allPaths.add(Integer.toString(index));
+		}
+
+		return outPath;
+
+
+	}
+
+    /***
+     * Get partition nimas book
+     * @return ArrayList of Document which each entry of an array includes a nimas book
+     */
+	public Document manageNimas(int index)
+	{
+		 Document currentDoc =null;
+		//Read xml template
+		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "nimasTemplate.xml";
+		File temp = new File(sourcePath);
+		//get all level1 element
+		Nodes allNode=getLevel1();
+		if (index<allNode.size()){
+			Node node=allNode.get(index);
+			currentDoc=breakDocument(temp,node);
+			
+		}
+		
+		return currentDoc;
+		
+	}
+
+
 	/**
 	 * Create an empty Document
 	 * @param tempfile
@@ -234,6 +290,7 @@ public class NimasArchiver extends Archiver {
 		return doc.query(qeuery,context);
 	}
 
+
     /***
      * Get partition nimas book
      * @return ArrayList of Document which each entry of an array includes a nimas book
@@ -253,6 +310,7 @@ public class NimasArchiver extends Archiver {
 		return allDocs;
 		
 	}
+
 	
 	/**
 	 * Add Node to template

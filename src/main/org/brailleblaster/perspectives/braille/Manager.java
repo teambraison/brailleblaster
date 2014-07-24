@@ -36,6 +36,8 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,7 +192,6 @@ public class Manager extends Controller {
 		group.setRedraw(true);
 		//if(list.size() == 0)
 		//	formatTemplateDocument();
-		
 		if(BBIni.getPlatformName().equals("cocoa"))
 			treeView.getTree().select(treeView.getRoot());
 	}	
@@ -806,51 +807,90 @@ public class Manager extends Controller {
 		else
 			braille.positionScrollbar(text.view.getTopIndex());
 	}
-	
-	private void handleUpdateStyle(Message message){
-		if(document.getDOM() != null && text.view.getText().length() > 0){
+    /***
+     * 
+     * @param current
+     * @param message
+     * @return
+     */
+	private Element parentStyle(TextMapElement current, Message message) {
+		Element parent = document.getParent(current.n, true);
+		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
+		document.changeSemanticAction(message, current.parentElement());
+		message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
+		return parent;
+
+	}
+	/***
+	 * Handle style if user choose 
+	 * @param message
+	 */
+	private void handleUpdateStyle(Message message) {
+		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			group.setRedraw(false);
-			Element parent = document.getParent(list.getCurrent().n, true);
-
-			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-			document.changeSemanticAction(message, list.getCurrent().parentElement());
-			message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
+			Element parent = parentStyle(list.getCurrent(), message);
 			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		
-			int start = list.indexOf(itemList.get(0));
-			int end = list.indexOf(itemList.get(itemList.size() - 1));
-			int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
-			if(start > 0){
-				message.put("prev", list.get(start - 1).end);
-				message.put("braillePrev", list.get(start - 1).brailleList.getLast().end);
-			}
-			else {
-				message.put("prev", -1);
-				message.put("braillePrev", -1);
-			}
-			
-			if(end < list.size() - 1){
-				message.put("next", list.get(end + 1).start);
-				message.put("brailleNext",  list.get(end + 1).brailleList.getFirst().start);
-			}
-			else {
-				message.put("next", -1);
-				message.put("brailleNext", -1);
-			}
-			
-			text.adjustStyle(message, itemList);
-			braille.adjustStyle(message, itemList);
-			
-			if(message.contains("linesBeforeOffset"))
-				list.shiftOffsetsFromIndex(start, (Integer)message.getValue("linesBeforeOffset"), (Integer)message.getValue("linesBeforeOffset"), origPos);	
-			if(message.contains("linesAfterOffset") && list.size() > 1 && end < list.size() - 1)
-				list.shiftOffsetsFromIndex(end + 1, (Integer)message.getValue("linesAfterOffset"),  (Integer)message.getValue("linesAfterOffset"), origPos);
+			adjustStyle(itemList, message);
 
-			treeView.adjustItemStyle(list.getCurrent());
-			group.setRedraw(true);
-		}
-		else
+		} else
 			new Notify(lh.localValue("nothingToApply"));
+	}
+	/***
+	 * 
+	 * @param start
+	 * @param end
+	 * @param message
+	 */
+	private void handleStyleSelected(int start,int end,Message message){
+		
+		
+		Set<TextMapElement> itemSet = getElementSelected(start, end);
+		adjustStyle( (ArrayList<TextMapElement>) itemSet,message);
+	}
+	/***
+	 * Adjust style of elements in the list base on previous and next element 
+	 * @param itemList : all selected items which we want style to be applied
+	 * @param message : passing information regarding styles
+	 */
+
+	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
+		int start = list.indexOf(itemList.get(0));
+		int end = list.indexOf(itemList.get(itemList.size() - 1));
+		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
+		if (start > 0) {
+			message.put("prev", list.get(start - 1).end);
+			message.put("braillePrev",
+					list.get(start - 1).brailleList.getLast().end);
+		} else {
+			message.put("prev", -1);
+			message.put("braillePrev", -1);
+		}
+
+		if (end < list.size() - 1) {
+			message.put("next", list.get(end + 1).start);
+			message.put("brailleNext",
+					list.get(end + 1).brailleList.getFirst().start);
+		} else {
+			message.put("next", -1);
+			message.put("brailleNext", -1);
+		}
+
+		text.adjustStyle(message, itemList);
+		braille.adjustStyle(message, itemList);
+
+		if (message.contains("linesBeforeOffset"))
+			list.shiftOffsetsFromIndex(start,
+					(Integer) message.getValue("linesBeforeOffset"),
+					(Integer) message.getValue("linesBeforeOffset"), origPos);
+		if (message.contains("linesAfterOffset") && list.size() > 1
+				&& end < list.size() - 1)
+			list.shiftOffsetsFromIndex(end + 1,
+					(Integer) message.getValue("linesAfterOffset"),
+					(Integer) message.getValue("linesAfterOffset"), origPos);
+
+		treeView.adjustItemStyle(list.getCurrent());
+		group.setRedraw(true);
+
 	}
 	
 	public void saveAs(){
@@ -1199,7 +1239,24 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
-	
+	/***
+	 * Return all elements that selected in text
+	 * @param start :start location of where text selected
+	 * @param end:  where selection ended
+	 * @return: Set of all element where in selection
+	 */
+	public Set<TextMapElement> getElementSelected(int start, int end) {
+		Set<TextMapElement> elementSelectedSet = new HashSet<TextMapElement>();
+		for (int j = start; j < end; j++) {
+			TextMapElement t = getElementInRange(start);
+			if (t != null) {
+				elementSelectedSet.add(t);
+				System.out.println(t.getText());
+			}
+		}
+		return elementSelectedSet;
+	}
+
 	public TextMapElement getElementInBrailleRange(int offset){
 		Message m = new Message(null);
 		m.put("offset", offset);

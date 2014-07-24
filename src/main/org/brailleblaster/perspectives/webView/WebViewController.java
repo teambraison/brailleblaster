@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.webView;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import nu.xom.Document;
 
@@ -123,8 +124,8 @@ public class WebViewController extends Controller {
 		if(arch instanceof NimasArchiver)
 		{
 			isEpub=false;
-			//((NimasArchiver)arch).manageNimas();
 			
+			currentPath=((NimasArchiver)arch).wrtieToDisk(index);
 			//Converter c= new Converter((NimasArchiver)arch);
 			str=copyFile(currentPath);
 		}

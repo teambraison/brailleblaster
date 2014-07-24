@@ -126,8 +126,9 @@ public class TextView extends WPView {
 					startSelection=selectionArray[i];
 					endSelection=selectionArray[i]+selectionArray[i+1];
 					
-			          System.out.println(startSelection+"   "+endSelection);
+					
 			     }
+				 System.out.println(startSelection+"   "+endSelection);
 				if(selectionArray[1] > 0){
 					setSelection(selectionArray[0], selectionArray[1]);
 					currentChar = ' ';

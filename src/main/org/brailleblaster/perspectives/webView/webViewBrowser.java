@@ -84,7 +84,7 @@ public class webViewBrowser  {
 	public void showBraille(int  chapter)
 	{
 	
-		
+		if(webc.isEpub==true){
 		// listen to when the page load in browser
 		browser.addProgressListener(new ProgressListener() {
 			public void changed(ProgressEvent event) {
@@ -112,6 +112,7 @@ public class webViewBrowser  {
 
 		});
 		browser.setUrl(webc.getBraille(chapter));
+		}
 
 
 	}
@@ -122,6 +123,7 @@ public class webViewBrowser  {
 	 * @param index
 	 */
 	public void showContents(int index){
+		if(webc.isEpub==true){
 		if (index> webc.getSize()-1)
 		{
 			index=0;
@@ -173,7 +175,7 @@ public class webViewBrowser  {
                 "}";
 
 
-
+		
 		// listen to when the page load in browser
 		browser.addProgressListener(new ProgressListener() {
 			public void changed(ProgressEvent event) {
@@ -189,6 +191,7 @@ public class webViewBrowser  {
 			}
 
 		});
+		}
 		browser.setUrl(webc.getChapter(index));
 	
 
@@ -213,9 +216,13 @@ public class webViewBrowser  {
 				{
 					index=index-1;
                     if (lockBraille==true)
+                    {
 					    showContents(index);
+                    }
                     else
+                    {
 					    showBraille(index);
+                    }
 
 				}
 				// go to next page, chapter
@@ -223,9 +230,13 @@ public class webViewBrowser  {
 				{
 					index=index+1;
 					if (lockBraille==true)
+					{
 					    showContents(index);
+					}
 					else
+					{
 					    showBraille(index);
+					}
 
 				}
 

@@ -111,7 +111,7 @@ public class ImageDescriberView {
 			int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 			
 			// Is it time to move to another page/chapter?
-			String newPath = idd.setSpineFileWithImgIndex(imgIndex);
+			String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
 			
 			// If the page needs to move/change, update.
 			// Otherwise, don't move the page yet.
@@ -144,7 +144,7 @@ public class ImageDescriberView {
 				int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 				
 				// Is it time to move to another page/chapter?
-				String newPath = idd.setSpineFileWithImgIndex(imgIndex);
+				String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
 				
 				// If the page needs to move/change, update.
 				// Otherwise, don't move the page yet.
@@ -248,15 +248,15 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 				
 				// Previous page.
-				curBrowserFilePath = idd.prevSpineFilePath();
+				curBrowserFilePath = idd.getArchiver().prevSpineFilePath();
 				
 				// Grab image count list.
-				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				ArrayList<Integer> imgCntList = idd.getArchiver().getImgCountList();
 				
 				// Count images in each page until we get to the first one 
 				// on the current page/chapter.
 				int curImgIdx = 0;
-				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+				for(int curP = 0; curP < idd.getArchiver().getCurSpineIdx(); curP++)
 					curImgIdx += imgCntList.get(curP);
 					
 				// Set current image.
@@ -279,15 +279,15 @@ public class ImageDescriberView {
 			public void widgetSelected(SelectionEvent e) {
 
 				// Move to next page.
-				curBrowserFilePath = idd.nextSpineFilePath();
+				curBrowserFilePath = idd.getArchiver().nextSpineFilePath();
 				
 				// Grab image count list.
-				ArrayList<Integer> imgCntList = idd.getImgCountList();
+				ArrayList<Integer> imgCntList = idd.getArchiver().getImgCountList();
 				
 				// Count images in each page until we get to the first one 
 				// on the current page/chapter.
 				int curImgIdx = 0;
-				for(int curP = 0; curP < idd.getCurSpineIdx(); curP++)
+				for(int curP = 0; curP < idd.getArchiver().getCurSpineIdx(); curP++)
 					curImgIdx += imgCntList.get(curP);
 					
 				// Set current image.
@@ -610,8 +610,8 @@ public class ImageDescriberView {
 		
 		// If we're dealing with a multi-file document, 
 		// get the index on the PAGE!!!!
-		if(idd.getNumSpineElements() > 0)
-			imgIdx = idd.getImageIndexInSpinePage(imgIdx);
+		if(idd.getArchiver().getNumSpineElements() > 0)
+			imgIdx = idd.getArchiver().getImageIndexInSpinePage(imgIdx);
 		
 		// Get the index of the current element.
 		String indexStr = Integer.toString( imgIdx );
@@ -724,8 +724,8 @@ public class ImageDescriberView {
 	{
         // If there are spine paths, that means there are multiple 
         // files to load, and we don't need to create an html file(EPUB).
-    	if(idd.getCurSpineFilePath() != null) {
-    		curBrowserFilePath = idd.getCurSpineFilePath();
+    	if(idd.getArchiver().getCurSpineFilePath() != null) {
+    		curBrowserFilePath = idd.getArchiver().getCurSpineFilePath();
     		return;
     	}
 		
@@ -759,8 +759,8 @@ public class ImageDescriberView {
 	{
 		// If there are spine paths, then this is more than likely an EPUB document.
 		// Nothing to delete.
-    	if(idd.getCurSpineFilePath() != null) {
-    		curBrowserFilePath = idd.getCurSpineFilePath();
+    	if(idd.getArchiver().getCurSpineFilePath() != null) {
+    		curBrowserFilePath = idd.getArchiver().getCurSpineFilePath();
     		return;
     	}
 		

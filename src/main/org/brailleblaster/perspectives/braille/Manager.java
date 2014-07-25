@@ -813,7 +813,9 @@ public class Manager extends Controller {
 			Element parent = document.getParent(list.getCurrent().n, true);
 
 			message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-			document.changeSemanticAction(message, list.getCurrent().parentElement());
+			if(!((Styles)message.getValue("Style")).getName().equals("boxline"))
+				document.changeSemanticAction(message, list.getCurrent().parentElement());
+			
 			message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
 			ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
 	
@@ -862,25 +864,48 @@ public class Manager extends Controller {
 	private void createBoxline(Element p, Message m, ArrayList<TextMapElement> itemList){
 		Element wrapper = document.wrapElement(p, "boxline");
 		if(wrapper != null){
-			//document.translateElement(wrapper);
+			Element boxline = document.translateElement((Element)wrapper.copy());
 			int startPos = list.indexOf(itemList.get(0));
-			BrlOnlyMapElement b1 =  new BrlOnlyMapElement(p.getParent().getChild(0), (Element)p.getParent());
-			b1.setOffsets(list.get(startPos).start, list.get(startPos).start + b1.textLength());
-			b1.setBrailleOffsets(list.get(startPos).brailleList.getFirst().start, list.get(startPos).brailleList.getFirst().start + b1.getText().length());
+			
+			int start, brailleStart;
+			if(m.contains("previousStyle") && ((Styles)m.getValue("previousStyle")).contains(StylesType.linesBefore)){
+				start = (Integer)m.getValue("prev");
+				brailleStart = (Integer)m.getValue("braillePrev");
+			}
+			else {
+				start = itemList.get(0).start;
+				brailleStart = itemList.get(0).brailleList.getFirst().start;
+			}
+			
+			wrapper.insertChild(boxline.removeChild(0), 0);
+			BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), (Element)wrapper);
+			b1.setOffsets(start, start + b1.textLength());
+			b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
 			list.add(startPos, b1);
 			
-			text.insertText(itemList.get(0).start, list.get(startPos).getText() + "\n");
-			braille.insertText(itemList.get(0).brailleList.getFirst().start, list.get(startPos).brailleList.getFirst().value() + "\n");
+			text.insertText(start, list.get(startPos).getText() + "\n");
+			braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
 			list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);				
 			
 			int endPos = list.indexOf(itemList.get(itemList.size() - 1)) + 1;
-			BrlOnlyMapElement b2 =  new BrlOnlyMapElement(p.getParent().getChild(p.getParent().getChildCount() - 1), (Element)p.getParent());
-			b2.setOffsets(list.get(endPos - 1).end + 1, list.get(endPos - 1).end + 1 + b2.textLength());
-			b2.setBrailleOffsets(list.get(endPos - 1).brailleList.getLast().end + 1, list.get(endPos - 1).brailleList.getLast().end + 1 + b2.getText().length());
-			list.add(endPos, b2);
+			int end, brailleEnd;
+			if(m.contains("previousStyle") && ((Styles)m.getValue("previousStyle")).contains(StylesType.linesAfter)){
+				end = (Integer)m.getValue("next") + b1.getText().length() + 1;
+				brailleEnd = (Integer)m.getValue("brailleNext") + b1.getText().length() + 1;
+			}
+			else {
+				end = list.get(endPos - 1).end;
+				brailleEnd = itemList.get(itemList.size() - 1).brailleList.getLast().end;
+			}
 			
-			text.insertText(itemList.get(itemList.size() - 1).end, "\n" + list.get(endPos).getText());
-			braille.insertText(itemList.get(itemList.size() - 1).brailleList.getLast().end, "\n" + list.get(endPos).brailleList.getFirst().value());
+			wrapper.appendChild(boxline.removeChild(boxline.getChildCount() - 1));
+			BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), (Element)wrapper);
+			b2.setOffsets(end + 1, end + 1 + b2.textLength());
+			b2.setBrailleOffsets(brailleEnd + 1, brailleEnd + 1 + b2.getText().length());
+			list.add(endPos, b2);
+	
+			text.insertText(end, "\n" + list.get(endPos).getText());
+			braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());
 			list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
 			
 			for(int i = 0; i < itemList.size(); i++)
@@ -889,10 +914,6 @@ public class Manager extends Controller {
 			treeView.newTreeItem(list.get(startPos), treeView.getSelectionIndex(), 0);
 			handleSetCurrent(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
 			dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-			
-			for(int i = 0; i < list.size(); i++){
-				System.out.println("Start: " + list.get(i).start + "\tEnd: " + list.get(i).end + "\t" +  list.get(i).getClass());
-			}
 		}
 	}
 	

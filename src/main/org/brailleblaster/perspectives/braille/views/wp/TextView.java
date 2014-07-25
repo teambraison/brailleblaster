@@ -307,8 +307,6 @@ public class TextView extends WPView {
 
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-				
-				System.out.println("Pos:\t" + view.getCaretOffset());
 			}
 		});
 		
@@ -503,7 +501,6 @@ public class TextView extends WPView {
 		Message message = Message.createSetCurrentMessage(Sender.TEXT, pos, false);
 		manager.dispatch(message);
 		setViewData(message);
-		System.out.println("Start:\t" + currentStart + " CurrentEnd:\t" + currentEnd);
 	}
 	
 	private void sendDeleteSpaceMessage(int start, int offset){

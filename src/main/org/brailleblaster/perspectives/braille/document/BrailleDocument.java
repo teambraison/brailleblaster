@@ -393,7 +393,9 @@ public class BrailleDocument extends BBDocument {
 		String xml = getXMLString(e.toXML().toString());
 		d = getXML(xml);
 		Element parent = d.getRootElement();
-		return (Element)parent.removeChild(0);
+		Element transElement =  (Element)parent.removeChild(0);
+		addNamespace(transElement);
+		return transElement;
 	}
 	
 	private void removeNode(TextMapElement t, Message message){
@@ -657,23 +659,13 @@ public class BrailleDocument extends BBDocument {
 		
 	public Element wrapElement(Element e, String type){
 		if(type.equals("boxline")){
-			Element boxline = new Element(semHandler.getElementBySemantic(type));
-			Element sb1 = new Element("brl");
-			sb1.appendChild(new Text("777777777777777"));
-				
-			Element sb2 = new Element("brl");
-			sb2.appendChild(new Text("GGGGGGGGGGGGGGG"));
-				
+			Element boxline = new Element(semHandler.getElementBySemantic(type));	
 			boxline.addAttribute(new Attribute("semantics","style,boxline"));
-			boxline.appendChild(sb1);
-			boxline.appendChild(sb2);
-	
 			ParentNode parent = e.getParent();
 			int index = parent.indexOf(e);
-			boxline.insertChild(parent.removeChild(e), 1);
-			//boxline.appendChild(parent.removeChild(e));
+			boxline.appendChild(parent.removeChild(e));
 			parent.insertChild(boxline, index);
-			addNamespace(boxline);			
+			addNamespace(boxline);	
 			return boxline;
 		}
 			

@@ -380,8 +380,7 @@ public class StyleTable {
     	disposeFont(editButton);
     	disposeFont(deleteButton);
     	disposeFont(applyButton);
-    	group.dispose();
-    	
+    	group.dispose();  	
     }
     
     private void disposeFont(Button b){

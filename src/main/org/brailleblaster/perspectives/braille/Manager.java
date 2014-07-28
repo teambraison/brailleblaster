@@ -881,7 +881,7 @@ public class Manager extends Controller {
 			BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), (Element)wrapper);
 			b1.setOffsets(start, start + b1.textLength());
 			b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
-			list.add(startPos, b1);
+			vi.addElementToSection(list, b1, startPos);
 			
 			text.insertText(start, list.get(startPos).getText() + "\n");
 			braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
@@ -902,7 +902,7 @@ public class Manager extends Controller {
 			BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), (Element)wrapper);
 			b2.setOffsets(end + 1, end + 1 + b2.textLength());
 			b2.setBrailleOffsets(brailleEnd + 1, brailleEnd + 1 + b2.getText().length());
-			list.add(endPos, b2);
+			vi.addElementToSection(list, b2, endPos);
 	
 			text.insertText(end, "\n" + list.get(endPos).getText());
 			braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());

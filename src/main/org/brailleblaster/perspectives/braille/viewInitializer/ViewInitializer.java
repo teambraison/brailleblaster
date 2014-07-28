@@ -278,6 +278,47 @@ public abstract class ViewInitializer {
 		
 		return position;
 	}
+	
+	/** Adds a new TextMapElement to both the list containing all element in the views and the section map list
+	 * @param list: the visible list containing map elements in the text and braille views
+	 * @param t: element to insert
+	 * @param index: index at which element is being put in visible MapList, also used to determine which section to also add element
+	 */
+	public void addElementToSection(MapList list, TextMapElement t, int index){
+		int sectionIndex;
+		//if index is list size then element is appended and not inserted
+		if(index == list.size())
+			sectionIndex = findSectionIndex(list.get(index - 1));
+		else
+			sectionIndex = findSectionIndex(list.get(index));
+		
+		if(sectionIndex != -1){
+			SectionElement section = sectionList.get(sectionIndex);
+			int listIndex;
+			if(index == list.size())
+				section.getList().indexOf(section.getList().add(t));
+			else {
+				listIndex = section.getList().indexOf(section.getList().get(index));
+				section.getList().add(listIndex, t);
+			}
+			list.add(index, t);
+		}
+	}
+	
+	/** Used to find a section element by view initializer methods
+	 * @param t: text map element used to find section
+	 * @return int with index value of section in the sectionlist
+	 */
+	private int findSectionIndex(TextMapElement t){
+		int index = findFirst();
+		for(int i = index; i < sectionList.size(); i++){
+			if(sectionList.get(i).getList().contains(t))
+				return i;
+		}
+		
+		return -1;
+	}
+	
 
 	public ArrayList<SectionElement> getSectionList() {
 		return sectionList;

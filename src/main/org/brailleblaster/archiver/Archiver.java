@@ -30,6 +30,7 @@
 
 package org.brailleblaster.archiver;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import nu.xom.converters.DOMConverter;
 
@@ -69,12 +69,15 @@ abstract public class Archiver {
 	
 	protected String opfFilePath = null;
 	protected Document opfDoc = null;
-	protected ArrayList<String> spineList = null;
 	NodeList manifestElements;
 	NodeList spineElements;
 
 	// Every file that makes our epub doc.
 	ArrayList<String> epubFileList = null;
+	
+	// This is a list of files that we've created that should 
+	// be removed deleted before zipping everything back up.
+	ArrayList<String> tempList = null;
 	
 	// Number of images in each file that makes up our document.
 	// For every spine element we have, we're going to count the number of images 
@@ -97,6 +100,7 @@ abstract public class Archiver {
 		documentEdited = false;
 		opfFilePath = null;
 		epubFileList = new ArrayList<String>();
+		tempList = new ArrayList<String>();
 		numImages = new ArrayList<Integer>();
 	}
 	
@@ -285,7 +289,9 @@ abstract public class Archiver {
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Takes in a document(W3C) and adds its image count to the list.
-	public void addToNumImgsList(Document addMe)
+	// ...because of the way we're adding temp documents, we need to know which document 
+	// we're loading to associate the right count.
+	public void addToNumImgsList(Document addMe, int docIdx)
 	{
 		// Create space big enough to hold our image integers if we haven't done so already.
 		if(numImages == null)
@@ -294,13 +300,35 @@ abstract public class Archiver {
 		// Grab all <img> elements.
 		NodeList imgElements = addMe.getElementsByTagName("img");
 		
+		// If there are no images, return.
+		if(imgElements == null)
+			return;
+		if(imgElements.getLength() == 0)
+			return;
+		
 		// Add this value to the list.
-		numImages.add(imgElements.getLength());
+		
+		// If this count value makes our list bigger, resize and copy.
+		if(docIdx >= numImages.size()) {
+			// Create a new list.
+			ArrayList<Integer> tmpStrList = new ArrayList<Integer>();
+			// Make it so big.
+			for(int curI = 0; curI < docIdx + 1; curI++)
+				tmpStrList.add(0);
+			// Copy old into new.
+			for(int curV = 0; curV < numImages.size(); curV++)
+				tmpStrList.set( curV, numImages.get(curV) );
+			// Point to new list.
+			numImages = tmpStrList;
+		}
+		
+		// Finally, add the new count.
+		numImages.set(docIdx, imgElements.getLength());
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Takes in a document(XOM) and adds its image count to the list.
-	public void addToNumImgsList(nu.xom.Document addMe)
+	public void addToNumImgsList(nu.xom.Document addMe, int docIdx)
 	{
 		// Convert to DOM.
 		Document w3cDoc = null;
@@ -312,18 +340,17 @@ abstract public class Archiver {
 		}
 		catch(Exception e) { e.printStackTrace(); }
 		
-		// Create space big enough to hold our image integers if we haven't done so already.
-		if(numImages == null)
-			numImages = new ArrayList<Integer>();
-		
-		// Grab all <img> elements.
-		NodeList imgElements = w3cDoc.getElementsByTagName("img");
-		
-		// Add this value to the list.
-		numImages.add(imgElements.getLength());
+		// Now add.
+		addToNumImgsList(w3cDoc, docIdx);
 	}
 	
-	///////////////////////////////////////////////////////////////////////////////////////////	
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// Just adds counts sequentially to the image count list.
+	public void addToNumImgsList(int value) {
+		numImages.add(value);
+	}
+	
+	///////////////////////////////////////////////////////////////////////////////////////////
 	// Returns the list of documents that make up this book.
 	public ArrayList<String> getSpine() {
 		return epubFileList;
@@ -479,5 +506,26 @@ abstract public class Archiver {
 		return getSpineFilePath(curSpineFileIdx);
 		
 	} // prevSpineFile()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Adds temp file to be deleted later.
+	public void addTempFile(String path) {
+		tempList.add(path);
+	} //addTempFile()
+	
+	//////////////////////////////////////////////////////////////////////
+	// Delete temporary files that we've created in the archiver.
+	public void deleteTempFiles()
+	{
+		// Delete them all.
+		for(int curFile = 0; curFile < tempList.size(); curFile++) {
+			// If we actually got around to creating this file, delete it.
+			if(tempList.get(curFile) != null) {
+				File f = new File(tempList.get(curFile));
+				f.delete();
+			}
+		}
+		
+	} // deleteTempFiles()
 	
 } // class Archiver

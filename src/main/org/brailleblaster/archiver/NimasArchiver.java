@@ -97,13 +97,8 @@ public class NimasArchiver extends Archiver {
 		// Segment the single NIMAS file. This will make rendering 
 		// faster in certain perspectives.
 		
-		// CHUCK: TODO: Delete timer stuff.
-		long timerStart = System.currentTimeMillis();
-		
-			// Write the first file to disk.
-			wrtieToDisk(0);
-		
-		System.out.println("wrtieToDisk() took: " + (System.currentTimeMillis() - timerStart) + " Milliseconds");
+		// Write the first file to disk.
+		wrtieToDisk(0);
 	}
 	
 	@Override
@@ -143,13 +138,7 @@ public class NimasArchiver extends Archiver {
 		// workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
 		String sp = BBIni.getFileSep();
 		String tempOutPath = BBIni.getTempFilesPath() + filePath.substring(filePath.lastIndexOf(sp), filePath.lastIndexOf(".")) + sp;
-		
-		// CHUCK: TODO: Remove timer stuff.
-		long timerStart = System.currentTimeMillis();
-		
-			workingDocPath = unzipr.Unzip(filePath, tempOutPath);
-		
-		System.out.println("Unzipping took: " + (System.currentTimeMillis() - timerStart) + " Milliseconds");
+		workingDocPath = unzipr.Unzip(filePath, tempOutPath);
 		
 		// Store paths.
 		zippedPath = filePath;

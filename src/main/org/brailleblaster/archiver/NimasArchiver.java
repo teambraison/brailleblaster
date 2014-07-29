@@ -30,26 +30,11 @@
 
 package org.brailleblaster.archiver;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -59,18 +44,12 @@ import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.ValidityException;
-import nu.xom.XPathContext;
-import nu.xom.converters.DOMConverter;
-import nu.xom.xslt.XSLException;
-import nu.xom.xslt.XSLTransform;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.Zipper;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.NodeList;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
@@ -247,24 +226,8 @@ public class NimasArchiver extends Archiver {
 			fu.createXMLFile( curDoc, outPath );
 			allPaths.add(Integer.toString(index));
 			
-			// Save path in archiver and temp list.
-			// epubFileList is for multi-file traversal and tempList 
-			// is for deleting temp files.
-			
-			// Make these lists as big as they should be.
-			if(epubFileList.size() == 0) {
-				for(int curF = 0; curF < numPotentialFiles; curF++) {
-					epubFileList.add(null);
-					tempList.add(null);
-				}
-			}
-			
-			// Add new value.
-			epubFileList.set(index, outPath);
-			tempList.set(index, outPath);
-			
-			// Count the images in this document.
-    		// addToNumImgsList(curDoc, index);
+			// Add this file to the temp list so it will be deleted later.
+			tempList.add(outPath);
 		}
 
 		return outPath;
@@ -302,6 +265,14 @@ public class NimasArchiver extends Archiver {
 				// Add the count.
 				Node nd = allNode.get(curLvl1);
 				addToNumImgsList( new Document((Element)nd.copy()), curLvl1);
+			}
+			
+			// Save paths to files that we may create.
+			// Fill list.
+			if(epubFileList.size() == 0) {
+				for(int curF = 0; curF < numPotentialFiles; curF++) {
+					epubFileList.add(workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curF) + ".xml");
+				}
 			}
 		}
 		

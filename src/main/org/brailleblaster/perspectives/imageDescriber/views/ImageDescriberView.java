@@ -113,31 +113,22 @@ public class ImageDescriberView {
 			// Grab index of current image.
 			int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 			
-			// We probably need to create another page/section.
-			// This will apply most to NIMAS files.
-			if( (idd.getArchiver() instanceof NimasArchiver) )
-			{
-				// Get current spine index and number of spine files.
-				int curSpineIdx = idd.getArchiver().getCurSpineIdx() - 1;
-				int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
-				
-				// Which spine file SHOULD we be on right now?
-				if(curSpineIdx >= numSpineFiles)
-					curSpineIdx = 0;
-				if(curSpineIdx < 0)
-					curSpineIdx = numSpineFiles - 1;
-				
-				// Write the new file.
-				((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
-				
-			} // if( (idd.getArchiver() instanceof NimasArchiver) )
+			// Hang onto old spine file path.
+			String oldPath = idd.getArchiver().getCurSpineFilePath();
 			
 			// Is it time to move to another page/chapter?
 			String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
 			
+			// If the spine paths are different, then we may need to create 
+			// the new spine file. Nimas.
+			if( (idd.getArchiver() instanceof NimasArchiver) ) {
+				if( oldPath.compareTo(newPath) != 0)
+					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+			}
+			
 			// If the page needs to move/change, update.
 			// Otherwise, don't move the page yet.
-			if(newPath != null && newPath.compareTo(curBrowserFilePath) != 0) {
+			if(newPath != null && newPath.replace(".xml", ".html").compareTo(curBrowserFilePath) != 0) {
 				// Store path.
 				curBrowserFilePath = newPath;
 				// Update browser view.
@@ -165,31 +156,21 @@ public class ImageDescriberView {
 				// Grab index of current image.
 				int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 				
-				// We probably need to create another page/section.
-				// This will apply most to NIMAS files.
-				if( (idd.getArchiver() instanceof NimasArchiver) )
-				{
-					// Get current spine index and number of spine files.
-					int curSpineIdx = idd.getArchiver().getCurSpineIdx() + 1;
-					int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
-					
-					// Which spine file SHOULD we be on right now?
-					if(curSpineIdx >= numSpineFiles)
-						curSpineIdx = 0;
-					if(curSpineIdx < 0)
-						curSpineIdx = numSpineFiles - 1;
-					
-					// Write the new file.
-					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
-					
-				} // if( (idd.getArchiver() instanceof NimasArchiver) )
+				// Hang onto old spine file path.
+				String oldPath = idd.getArchiver().getCurSpineFilePath();
 				
-				// Move to next section.
+				// Is it time to move to another page/chapter?
 				String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
+				
+				// If the spine paths are different, then we may need to create 
+				// the new spine file. Nimas.
+				if( (idd.getArchiver() instanceof NimasArchiver) )
+					if( oldPath.compareTo(newPath) != 0)
+						((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
 				
 				// If the page needs to move/change, update.
 				// Otherwise, don't move the page yet.
-				if(newPath != null && newPath.compareTo(curBrowserFilePath) != 0) {
+				if(newPath != null && newPath.replace(".xml", ".html").compareTo(curBrowserFilePath) != 0) {
 					// Store path.
 					curBrowserFilePath = newPath;
 					// Update browser view.
@@ -640,19 +621,24 @@ public class ImageDescriberView {
 	    		// properly.
 	    		if(idd.getArchiver() instanceof NimasArchiver) {
 	    			
-	    			// Write the section to disc.
-	    			((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
-	    			
-	    			// Create html version.
+	    			// File handles to xml file and html file.
 	    			File xmlFile = new File(curBrowserFilePath);
     				File htmlFile = new File(curBrowserFilePath = curBrowserFilePath.replace(".xml", ".html"));
-    				try { FileUtils.copyFile( xmlFile, htmlFile ); }
-    				catch (IOException e) { e.printStackTrace(); }
 	    			
-	    			// Add this file path to our temp list so it will get deleted later.
-	    			idd.getArchiver().addTempFile(curBrowserFilePath);
-	    		}
-	    	}
+	    			// Create html version if it doesn't already exist.
+    				if(htmlFile.exists() == false) {
+    	    			// Write the section to disc.
+    	    			((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+	    				try { FileUtils.copyFile( xmlFile, htmlFile ); }
+	    				catch (IOException e) { e.printStackTrace(); }
+		    			// Add this file path to our temp list so it will get deleted later.
+		    			idd.getArchiver().addTempFile(curBrowserFilePath);
+		    			
+    				} // if(htmlFile.exists() == false)
+    				
+	    		} // if(idd.getArchiver() instanceof NimasArchiver)
+	    		
+	    	} // if(idd.getArchiver().getCurSpineFilePath() != null)
 	    	
 
     		// Progress listener. Adds javascript code that will modify our img elements with 
@@ -663,7 +649,7 @@ public class ImageDescriberView {
     			public void changed(ProgressEvent event) { }
     	        
     	        @Override
-    			public void completed(ProgressEvent event) {
+    			public void completed(ProgressEvent event) 	{
     	        	
     	        	// Refresh the view one time. This fixes 
     	        	// an issue with certain documents 
@@ -718,9 +704,10 @@ public class ImageDescriberView {
 		
 		// Get the index of the current element.
 		String indexStr = Integer.toString( imgIdx );
-
+		
 		// Create script.
-		String s = "var allLinks = document.getElementsByTagName('img'); " +
+		String s = 
+				"var allLinks = document.getElementsByTagName('img'); " +
                 "elm = allLinks[" + indexStr + "];" +
                 "var x = elm.offsetLeft;" +
                 "var y = elm.offsetTop;" + 

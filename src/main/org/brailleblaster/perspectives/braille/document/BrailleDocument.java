@@ -656,7 +656,6 @@ public class BrailleDocument extends BBDocument {
 		return null;
 	}
 	
-		
 	public Element wrapElement(Element e, String type){
 		if(type.equals("boxline")){
 			Element boxline = new Element(semHandler.getElementBySemantic(type));	

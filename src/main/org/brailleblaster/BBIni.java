@@ -245,7 +245,6 @@ public final class BBIni {
 		try {
 			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
 			 LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
-//			LibLouisUTDML.getInstance().setLogLevel(LogLevel.OFF);
 			org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
 			LibLouisUTDML.getInstance().registerLogCallback(louisutdmlLogHandler);

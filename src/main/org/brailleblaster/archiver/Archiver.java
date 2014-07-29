@@ -303,8 +303,6 @@ abstract public class Archiver {
 		// If there are no images, return.
 		if(imgElements == null)
 			return;
-		if(imgElements.getLength() == 0)
-			return;
 		
 		// Add this value to the list.
 		

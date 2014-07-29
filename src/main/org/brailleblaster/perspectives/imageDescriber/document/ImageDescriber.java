@@ -120,7 +120,7 @@ public class ImageDescriber extends BBDocument {
 		}
 	}
 	
-	private void initializeVariables(){
+	public void initializeVariables(){
 		rootElement = doc.getRootElement();
 		imgElmList = new ArrayList<Element>();
 		prodCopyList = new ArrayList<String>();

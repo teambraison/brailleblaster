@@ -307,9 +307,9 @@
      	<p class="caption"><xsl:copy-of select="&itlatts;"/><xsl:apply-templates/></p>
    	</xsl:template>
 
-   	<xsl:template match="dtb:imggroup">
+   	<!--<xsl:template match="dtb:imggroup">
      	<figure class="imggroup"><xsl:copy-of select="&itlatts;"/><xsl:apply-templates/></figure>
-   	</xsl:template>
+   	</xsl:template>-->
 
   	<xsl:template match="dtb:div">
      	<div><xsl:copy-of select="&itlatts;"/><xsl:apply-templates/></div>
@@ -448,9 +448,9 @@
    		<span class="linenum"><xsl:copy-of select="&itlatts;"/>  <xsl:apply-templates/></span>
    	</xsl:template>
 
-  	<xsl:template match="dtb:prodnote">
+  	<!--<xsl:template match="dtb:prodnote">
      	<aside class="prodnote"><xsl:copy-of select="&itlatts;"/><xsl:apply-templates/></aside>
-   	</xsl:template>
+   	</xsl:template>-->
 
    	<!-- inlines elements -->
    	<xsl:template match="dtb:a">

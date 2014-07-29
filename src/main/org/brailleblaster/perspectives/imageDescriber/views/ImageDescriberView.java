@@ -14,7 +14,10 @@ import nu.xom.Element;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
 
+import org.apache.commons.io.FileUtils;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.archiver.Archiver;
+import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.util.ImageHelper;
@@ -110,6 +113,25 @@ public class ImageDescriberView {
 			// Grab index of current image.
 			int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 			
+			// We probably need to create another page/section.
+			// This will apply most to NIMAS files.
+			if( (idd.getArchiver() instanceof NimasArchiver) )
+			{
+				// Get current spine index and number of spine files.
+				int curSpineIdx = idd.getArchiver().getCurSpineIdx() - 1;
+				int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
+				
+				// Which spine file SHOULD we be on right now?
+				if(curSpineIdx >= numSpineFiles)
+					curSpineIdx = 0;
+				if(curSpineIdx < 0)
+					curSpineIdx = numSpineFiles - 1;
+				
+				// Write the new file.
+				((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+				
+			} // if( (idd.getArchiver() instanceof NimasArchiver) )
+			
 			// Is it time to move to another page/chapter?
 			String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
 			
@@ -143,7 +165,26 @@ public class ImageDescriberView {
 				// Grab index of current image.
 				int imgIndex = idd.getImageDescriber().getCurrentElementIndex();
 				
-				// Is it time to move to another page/chapter?
+				// We probably need to create another page/section.
+				// This will apply most to NIMAS files.
+				if( (idd.getArchiver() instanceof NimasArchiver) )
+				{
+					// Get current spine index and number of spine files.
+					int curSpineIdx = idd.getArchiver().getCurSpineIdx() + 1;
+					int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
+					
+					// Which spine file SHOULD we be on right now?
+					if(curSpineIdx >= numSpineFiles)
+						curSpineIdx = 0;
+					if(curSpineIdx < 0)
+						curSpineIdx = numSpineFiles - 1;
+					
+					// Write the new file.
+					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+					
+				} // if( (idd.getArchiver() instanceof NimasArchiver) )
+				
+				// Move to next section.
 				String newPath = idd.getArchiver().setSpineFileWithImgIndex(imgIndex);
 				
 				// If the page needs to move/change, update.
@@ -247,6 +288,25 @@ public class ImageDescriberView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
+				// We probably need to create another page/section.
+				// This will apply most to NIMAS files.
+				if( (idd.getArchiver() instanceof NimasArchiver) )
+				{
+					// Get current spine index and number of spine files.
+					int curSpineIdx = idd.getArchiver().getCurSpineIdx() - 1;
+					int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
+					
+					// Which spine file SHOULD we be on right now?
+					if(curSpineIdx >= numSpineFiles)
+						curSpineIdx = 0;
+					if(curSpineIdx < 0)
+						curSpineIdx = numSpineFiles - 1;
+					
+					// Write the new file.
+					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+					
+				} // if( (idd.getArchiver() instanceof NimasArchiver) )
+				
 				// Previous page.
 				curBrowserFilePath = idd.getArchiver().prevSpineFilePath();
 				
@@ -278,6 +338,25 @@ public class ImageDescriberView {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
+				// We probably need to create another page/section.
+				// This will apply most to NIMAS files.
+				if( (idd.getArchiver() instanceof NimasArchiver) )
+				{
+					// Get current spine index and number of spine files.
+					int curSpineIdx = idd.getArchiver().getCurSpineIdx() + 1;
+					int numSpineFiles = ((NimasArchiver)(idd.getArchiver())).getNumPotentialFiles();
+					
+					// Which spine file SHOULD we be on right now?
+					if(curSpineIdx >= numSpineFiles)
+						curSpineIdx = 0;
+					if(curSpineIdx < 0)
+						curSpineIdx = numSpineFiles - 1;
+					
+					// Write the new file.
+					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+					
+				} // if( (idd.getArchiver() instanceof NimasArchiver) )
+				
 				// Move to next page.
 				curBrowserFilePath = idd.getArchiver().nextSpineFilePath();
 				
@@ -548,45 +627,69 @@ public class ImageDescriberView {
 		
 		// Create copy of file as html and load into browser widget.
 		if(idd.getWorkingPath() != null && imgDesc.getImageList().size() > 0) {
-			
-				// Creates an HTML file from our xml file.
-				createHTMLFile();
+				
+			// If there are spine paths, that means there are multiple 
+	        // files to load.
+	    	if(idd.getArchiver().getCurSpineFilePath() != null) {
+	    		
+	    		// Point to file.
+	    		curBrowserFilePath = idd.getArchiver().getCurSpineFilePath();
+	    		
+	    		// If this is a NIMAS document, we need to create a section before loading 
+	    		// it later. We'll also have to copy/rename it to .html so it will load 
+	    		// properly.
+	    		if(idd.getArchiver() instanceof NimasArchiver) {
+	    			
+	    			// Write the section to disc.
+	    			((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+	    			
+	    			// Create html version.
+	    			File xmlFile = new File(curBrowserFilePath);
+    				File htmlFile = new File(curBrowserFilePath = curBrowserFilePath.replace(".xml", ".html"));
+    				try { FileUtils.copyFile( xmlFile, htmlFile ); }
+    				catch (IOException e) { e.printStackTrace(); }
+	    			
+	    			// Add this file path to our temp list so it will get deleted later.
+	    			idd.getArchiver().addTempFile(curBrowserFilePath);
+	    		}
+	    	}
+	    	
 
-        		// Progress listener. Adds javascript code that will modify our img elements with 
-        	    // height information.
-        	    browser.addProgressListener(new ProgressListener() 
-        	    {
-        	        @Override
-        			public void changed(ProgressEvent event) { }
-        	        
-        	        @Override
-        			public void completed(ProgressEvent event) {
+    		// Progress listener. Adds javascript code that will modify our img elements with 
+    	    // height information.
+    	    browser.addProgressListener(new ProgressListener() 
+    	    {
+    	        @Override
+    			public void changed(ProgressEvent event) { }
+    	        
+    	        @Override
+    			public void completed(ProgressEvent event) {
+    	        	
+    	        	// Refresh the view one time. This fixes 
+    	        	// an issue with certain documents 
+    	        	// not displaying properly in the browser 
+    	        	// view.
+    	        	if(refreshOnce == true) {
+    	        		
+    	        		// Don't do it again!
+    	        		refreshOnce = false;
         	        	
-        	        	// Refresh the view one time. This fixes 
-        	        	// an issue with certain documents 
-        	        	// not displaying properly in the browser 
-        	        	// view.
-        	        	if(refreshOnce == true) {
-        	        		
-        	        		// Don't do it again!
-        	        		refreshOnce = false;
-            	        	
-            	        	// Refresh.
-        	        		browser.refresh();
-        	        	}
-        	        	
-        	        	// Resize images so they fit our screen.
-        	        	// We call it here instead of before the refresh above.
-        	        	// Otherwise, it doesn't take.
-        	        	script_resizeImages();
-        	        	
-        	        	// By putting this here, we force the page to scroll after our 
-        	        	// first refresh on load.
-        	        	scrollBrowserToCurImg();
-        	        	
-        	        } // completed()
-        	        
-        	    }); // addProgressListener()
+        	        	// Refresh.
+    	        		browser.refresh();
+    	        	}
+    	        	
+    	        	// Resize images so they fit our screen.
+    	        	// We call it here instead of before the refresh above.
+    	        	// Otherwise, it doesn't take.
+    	        	script_resizeImages();
+    	        	
+    	        	// By putting this here, we force the page to scroll after our 
+    	        	// first refresh on load.
+    	        	scrollBrowserToCurImg();
+    	        	
+    	        } // completed()
+    	        
+    	    }); // addProgressListener()
         	
         	// Finally, jam the file into the browser widget.
         	browser.setUrl( curBrowserFilePath );
@@ -719,66 +822,14 @@ public class ImageDescriberView {
 		
 	} // setFormData()
 	
-	// Copy's the xml file and creates an html file from it.
-	public void createHTMLFile()
-	{
-        // If there are spine paths, that means there are multiple 
-        // files to load, and we don't need to create an html file(EPUB).
-    	if(idd.getArchiver().getCurSpineFilePath() != null) {
-    		curBrowserFilePath = idd.getArchiver().getCurSpineFilePath();
-    		return;
-    	}
-		
-		// Make copy of the file.
-	    File fin = new File(idd.getWorkingPath());
-	    File fout = new File(idd.getWorkingPath().replaceAll(".xml", ".html"));
-        try
-        {
-		    InputStream input = null;
-	        OutputStream output = null;
-			input = new FileInputStream(fin);
-			output = new FileOutputStream(fout);
-	        byte[] buf = new byte[1024];
-	        int bytesRead;
-			while ((bytesRead = input.read(buf)) > 0) {
-				output.write(buf, 0, bytesRead);
-			}
-			input.close();
-            output.close();
-		}
-		catch (FileNotFoundException e1) { e1.printStackTrace(); }
-        catch (IOException e1) { e1.printStackTrace(); }
-        
-		// Get path to full file.
-        curBrowserFilePath = fout.getAbsolutePath();
-    	
-	} //createHTMLFile()
-	
-	// Removes temporary HTML from our unzipped directory.
-	public void disposeHTMLFile()
-	{
-		// If there are spine paths, then this is more than likely an EPUB document.
-		// Nothing to delete.
-    	if(idd.getArchiver().getCurSpineFilePath() != null) {
-    		curBrowserFilePath = idd.getArchiver().getCurSpineFilePath();
-    		return;
-    	}
-		
-		// Delete the html file we created.
-		if(curBrowserFilePath != null)
-			new File(curBrowserFilePath).delete();
-    	curBrowserFilePath = null;
-		
-	} // disposeHTMLFile()
-	
 	public void disposeUI(){
 		
 		// Dispose UI stuff.
 		mainImage.getImage().dispose();
 		group.dispose();
 		
-		// Get rid of temp HTML file.
-		disposeHTMLFile();
+		// Get rid of temp files.
+		idd.getArchiver().deleteTempFiles();
 	}
 	
 	private void toggleUI(){

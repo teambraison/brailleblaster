@@ -47,6 +47,7 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.liblouis.LibLouis;
 import org.liblouis.LibLouisUTDML;
+import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,7 +244,7 @@ public final class BBIni {
 		}
 		try {
 			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			// LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
+			 LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
 			org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
 			LibLouisUTDML.getInstance().registerLogCallback(louisutdmlLogHandler);

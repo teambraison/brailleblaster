@@ -200,7 +200,7 @@ public class XMLTree extends TreeView {
 	
 	@Override
 	public void newTreeItem(TextMapElement t, int index, int offset){
-		Element parentElement = (Element)t.n.getParent();
+		Element parentElement = (Element)t.parentElement();
 		while(parentElement.getAttributeValue("semantics").contains("action")){
 			parentElement = (Element)parentElement.getParent();
 		}

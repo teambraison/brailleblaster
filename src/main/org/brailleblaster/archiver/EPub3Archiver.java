@@ -218,7 +218,7 @@ public class EPub3Archiver extends Archiver {
 					mainHtmlElement = mainDoc.getElementsByTagName("html");
 					
 					// Add image count to list.
-					addToNumImgsList(mainDoc);
+					addToNumImgsList(mainDoc, curSP);
 					
 					// We have the base document, skip to a document that we'll be adding to 
 					// this one.
@@ -233,7 +233,7 @@ public class EPub3Archiver extends Archiver {
 				NodeList newBodyElm = nextDoc.getElementsByTagName("body");
 				
 				// Add image count to list.
-				addToNumImgsList(nextDoc);
+				addToNumImgsList(nextDoc, curSP);
 				
 				//////////////
 				// Namespaces.

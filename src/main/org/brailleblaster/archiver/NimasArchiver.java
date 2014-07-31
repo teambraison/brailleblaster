@@ -85,7 +85,7 @@ public class NimasArchiver extends Archiver {
 		
 		// Segment the single NIMAS file. This will make rendering 
 		// faster in certain perspectives.
-		writeNimasSegments();
+		//writeNimasSegments();
 		
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};

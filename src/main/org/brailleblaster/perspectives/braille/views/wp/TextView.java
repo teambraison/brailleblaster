@@ -103,6 +103,7 @@ public class TextView extends WPView {
 	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
+	private boolean multiSelected;
 	
  	public TextView (Manager manager, Group documentWindow, BBSemanticsTable table) {
 		super (manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
@@ -110,6 +111,7 @@ public class TextView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.manager = manager;
+		multiSelected=false;
 	}
 
 	@Override
@@ -119,7 +121,7 @@ public class TextView extends WPView {
 			public void widgetSelected(SelectionEvent e) {
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
-					setSelection(selectionArray[0], selectionArray[1]);
+					multiSelected=true;
 					currentChar = ' ';
 					if(currentChanges > 0)
 						sendUpdate();
@@ -1755,4 +1757,19 @@ public class TextView extends WPView {
 		spaceBeforeText = 0;
          spaceBeforeText = 0;
 	 }
+	public int[] getSelectedText()
+	{
+		int [] temp=new int[2];
+		if(selectionArray!=null){
+		   temp[0]=selectionArray[0];
+		   temp[1]=selectionArray[0]+selectionArray[1];
+		}
+		return temp;
+	}
+
+	public boolean isMultiSelected() {
+		return multiSelected;
+	}
+
+
 }

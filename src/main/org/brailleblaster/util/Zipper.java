@@ -118,7 +118,7 @@ public class Zipper {
 	      		
 				 // Get output stream for writing this file out.
 				 BufferedOutputStream out = 
-				 new BufferedOutputStream( new FileOutputStream(unzipPath), 1000 );
+				 new BufferedOutputStream( new FileOutputStream(unzipPath), 1000000 );
 				 
 				 // Create input stream for this zip entry.
 				 InputStream in = zipF.getInputStream(entry);
@@ -126,10 +126,10 @@ public class Zipper {
       			 // Number of bytes read.
 				 int count;
 				 // Buffer to hold read bytes for writing.
-				 byte data[] = new byte[1000];
+				 byte data[] = new byte[1000000];
 				 
 				 // Read some data, then write some data.
-				 while ( (count = in.read(data, 0, 1000)) != -1 )
+				 while ( (count = in.read(data, 0, 1000000)) != -1 )
 				 {
 					 // Write it!
 					 out.write(data, 0, count);

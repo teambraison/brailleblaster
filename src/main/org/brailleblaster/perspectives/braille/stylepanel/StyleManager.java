@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Table;
 public class StyleManager{
 	
     private StyleTable table;
-    private EditPanel editor;
+    private StylePanel editor;
     private String configFile;
     Manager dm;
     TextMapElement t;
@@ -83,7 +83,10 @@ public class StyleManager{
     	lastSelection = table.getTable().getSelectionIndex();
     	String style = table.getTable().getSelection()[0].getText(1);
     	this.table.dispose();
-    	editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+    	if(semanticsTable.get(style).getName().equals("boxline"))
+    		editor = new EditBoxLineView(this, dm.getGroup(), semanticsTable.get(style));
+    	else
+    		editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
     	dm.setTabList();
     }
     
@@ -102,7 +105,7 @@ public class StyleManager{
     public void apply(String item){
     	Message m = new Message(BBEvent.UPDATE_STYLE);
     	Styles style = semanticsTable.get(item);
- 
+
     	if(style != null){
     		m.put("Style", style);
     	   	if(dm.getText().isMultiSelected()==true)

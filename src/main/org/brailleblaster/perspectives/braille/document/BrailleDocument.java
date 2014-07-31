@@ -12,6 +12,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.ParentNode;
 import nu.xom.ParsingException;
 import nu.xom.Text;
 
@@ -392,7 +393,9 @@ public class BrailleDocument extends BBDocument {
 		String xml = getXMLString(e.toXML().toString());
 		d = getXML(xml);
 		Element parent = d.getRootElement();
-		return (Element)parent.removeChild(0);
+		Element transElement =  (Element)parent.removeChild(0);
+		addNamespace(transElement);
+		return transElement;
 	}
 	
 	private void removeNode(TextMapElement t, Message message){
@@ -650,6 +653,21 @@ public class BrailleDocument extends BBDocument {
 			}	
 		}
 	
+		return null;
+	}
+	
+	public Element wrapElement(Element e, String type){
+		if(type.equals("boxline")){
+			Element boxline = new Element(semHandler.getElementBySemantic(type));	
+			boxline.addAttribute(new Attribute("semantics","style,boxline"));
+			ParentNode parent = e.getParent();
+			int index = parent.indexOf(e);
+			boxline.appendChild(parent.removeChild(e));
+			parent.insertChild(boxline, index);
+			addNamespace(boxline);	
+			return boxline;
+		}
+			
 		return null;
 	}
 }

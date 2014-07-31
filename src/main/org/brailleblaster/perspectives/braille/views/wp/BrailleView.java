@@ -467,22 +467,25 @@ public class BrailleView extends WPView {
 		String textBefore = "";
 		Styles style = (Styles)m.getValue("style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
+		boolean boxline = style.getName().equals("boxline");
 		
+		if(!boxline){
 		setListenerLock(true);	
-		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
-		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
+			view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
+			view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
 		
-		if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore))
-			removeLinesBefore(m);
+			if(!style.contains(StylesType.linesBefore)  && previousStyle.contains(StylesType.linesBefore))
+				removeLinesBefore(m);
 		
-		if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter))
-			removeLinesAfter(m);
-		
+			if(!style.contains(StylesType.linesAfter) &&  previousStyle.contains(StylesType.linesAfter))
+				removeLinesAfter(m);
+		}
 		start = (Integer)m.getValue("start");
 		end = (Integer)m.getValue("end");
 		int prev = (Integer)m.getValue("braillePrev");
 		int next = (Integer)m.getValue("brailleNext");
 		
+		if(!boxline){
 		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){
 				case linesBefore:
@@ -530,6 +533,7 @@ public class BrailleView extends WPView {
 			}
 		}
 		setListenerLock(false);
+		}
 	}
 	
 	private int getPrev(Message m){

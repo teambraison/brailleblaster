@@ -35,9 +35,9 @@ public class BrlOnlyMapElement extends TextMapElement {
 	public Element parentElement(){
 		return this.parent;
 	}
+	
 	public void setBrailleOffsets(int start, int end){
 		this.brailleList.getFirst().start = start;
 		this.brailleList.getFirst().end = end;
 	}
-
 }

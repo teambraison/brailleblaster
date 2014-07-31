@@ -103,7 +103,12 @@ public class TextView extends WPView {
 	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
+
+	int startSelection;
+	int endSelection;
+
 	private boolean multiSelected;
+
 	
  	public TextView (Manager manager, Group documentWindow, BBSemanticsTable table) {
 		super (manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
@@ -119,7 +124,16 @@ public class TextView extends WPView {
 		view.addSelectionListener(selectionListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
 				selectionArray = view.getSelectionRanges();
+				//Added this part for start and end of text selection
+				for (int i = 0; i < selectionArray.length-1; i++) {
+					startSelection=selectionArray[i];
+					endSelection=selectionArray[i]+selectionArray[i+1];
+					
+					
+			     }
+				 System.out.println(startSelection+"   "+endSelection);
 				if(selectionArray[1] > 0){
 					multiSelected=true;
 					currentChar = ' ';

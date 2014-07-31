@@ -126,20 +126,14 @@ public class TextView extends WPView {
 			public void widgetSelected(SelectionEvent e) {
 				
 				selectionArray = view.getSelectionRanges();
-				//Added this part for start and end of text selection
-				for (int i = 0; i < selectionArray.length-1; i++) {
-					startSelection=selectionArray[i];
-					endSelection=selectionArray[i]+selectionArray[i+1];
-					
-					
-			     }
-				 System.out.println(startSelection+"   "+endSelection);
 				if(selectionArray[1] > 0){
 					multiSelected=true;
 					currentChar = ' ';
 					if(currentChanges > 0)
 						sendUpdate();
 				}
+				else
+					multiSelected = false;
 			}			
 		});
 		

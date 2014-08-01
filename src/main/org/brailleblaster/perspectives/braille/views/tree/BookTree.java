@@ -450,10 +450,10 @@ public class BookTree extends TreeView {
 		int count = item.getItemCount();
 		for(int i = 0; i < count; i++){
 			TreeItemData data = getItemData(item.getItem(i));
-			data.startRange = manager.indexOf(data.list.getFirst());
+			data.startRange = manager.indexOf(data.sectionIndex, data.list.getFirst());
 			
 			if(previousItem != null){
-				if(previousItem != null){
+				if(previousItem != null && ((TreeItemData)previousItem.getData()).sectionIndex == data.sectionIndex){
 					((TreeItemData)previousItem.getData()).endRange = data.startRange - 1;
 				}
 			}
@@ -488,8 +488,12 @@ public class BookTree extends TreeView {
 	public void split(Message m) {
 		lastParent = tree.getSelection()[0].getParentItem();
 		int section;
-		if(lastParent != null)
+		if(lastParent != null && !lastParent.equals(root)){
 			section = getItemData(lastParent).sectionIndex;
+		}
+		else if(lastParent != null && lastParent.equals(root)){
+			section = getItemData(tree.getSelection()[0]).sectionIndex;
+		}
 		else
 			section = 0;
 		

@@ -368,12 +368,12 @@ public class BBDocument {
 	public boolean checkAttributeValue(Element e, String attribute, String value){
 		try {
 			if(e.getAttributeValue(attribute).equals(value))
-					return true;	
+				return true;	
 			else
 				return false;
 		}
 		catch(Exception ex){
-			logger.error("Exception", ex);
+			//logger.error("Exception", ex);
 			return false;
 		}
 	}

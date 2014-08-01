@@ -298,11 +298,24 @@ public abstract class ViewInitializer {
 			if(index == list.size())
 				section.getList().indexOf(section.getList().add(t));
 			else {
-				listIndex = section.getList().indexOf(section.getList().get(index));
+				listIndex = section.getList().indexOf(list.get(index));
 				section.getList().add(listIndex, t);
 			}
 			list.add(index, t);
 		}
+	}
+	
+	public void remove(MapList list, int pos){
+		int start = findFirst();
+		TextMapElement t = list.get(pos);
+		for(int i = start; i < sectionList.size(); i++){
+			if(sectionList.get(i).getList().contains(t)){
+				sectionList.get(i).getList().remove(t);
+				break;
+			}
+		}
+		
+		list.remove(pos);
 	}
 	
 	/** Used to find a section element by view initializer methods

@@ -182,6 +182,16 @@ public class Message {
 		
 		return m;
 	}
+	/***
+	 * Create a Message object base on multiple selection is true or false
+	 * @param flag
+	 * @return
+	 */
+	public static Message createUpdateStyleMessage(boolean flag){
+		Message m = new Message(BBEvent.UPDATE_STYLE);
+		m.put("multiSelect", flag);
+		return m;
+	}
 	
 	public void put(String key, Object value){
 		args.put(key, value);

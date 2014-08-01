@@ -753,7 +753,7 @@ public class Manager extends Controller {
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
 	    }
 			
-		Message styleMessage =  new Message(BBEvent.UPDATE_STYLE);
+		Message styleMessage =  Message.createUpdateStyleMessage(false);
 		Styles style = styles.get("trnote");
 		styleMessage.put("Style", style);
 		dispatch(styleMessage);
@@ -943,7 +943,6 @@ public class Manager extends Controller {
 		Element wrapper = document.wrapElement(p, "boxline");
 		if(wrapper != null){
 			Element boxline = document.translateElement((Element)wrapper.copy());
-			System.out.println(boxline.toXML().toString());
 			int startPos = list.indexOf(itemList.get(0));
 			
 			//find start position

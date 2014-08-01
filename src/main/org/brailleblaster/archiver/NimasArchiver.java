@@ -51,6 +51,7 @@ import nu.xom.ValidityException;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
+import org.brailleblaster.document.Resolver;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.Zipper;
@@ -296,14 +297,12 @@ public class NimasArchiver extends Archiver {
 	{
 		Document tempDoc=new Document(new Element("root"));
 		try{
-//			XMLReader xmlreader = XMLReaderFactory.createXMLReader();
-//			xmlreader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-			Builder parser = new Builder();
+			XMLReader xmlreader = XMLReaderFactory.createXMLReader();
+			Resolver res = new Resolver();
+			res.enableNimasPath();
+			xmlreader.setEntityResolver(res);
+			Builder parser = new Builder(xmlreader);
 			tempDoc = parser.build(tempfile);
-//			
-//			String sysID = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "DTD" + BBIni.getFileSep() + "dtbook-2005-3.dtd";
-//			DocType dt = new DocType("dtbook", "-//NISO//DTD dtbook 2005-3//EN", sysID);
-//			tempDoc.setDocType( dt );
 		}
 		catch (ValidityException ex) {
 			System.err.println("xml is not valid)");

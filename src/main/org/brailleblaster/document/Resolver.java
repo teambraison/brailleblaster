@@ -12,6 +12,7 @@ public 	class Resolver implements EntityResolver {
 	String dtdName;
 	String originalPublicId;
 	String originalSystemId;
+	boolean massageForNimas = false;
 	
 	@Override
 	public InputSource resolveEntity(String publicId, String systemId) {
@@ -20,6 +21,11 @@ public 	class Resolver implements EntityResolver {
 				originalSystemId = systemId;
 				originalPublicId = publicId;
 			}
+			
+			// Change path for our nimas files?
+			if(massageForNimas)
+				dtdName = "file:/" + dtdName.replace("\\", "/");
+			
 			return new MyReader(publicId, dtdName);
 		} 
 		else {
@@ -58,5 +64,11 @@ public 	class Resolver implements EntityResolver {
 	
 	public String getOriginalpubId(){
 		return originalPublicId;
+	}
+	
+	// When resolveentity() is called, we'll massage the 
+	// path to our local dtd.
+	public void enableNimasPath() {
+		massageForNimas = true;
 	}
 }

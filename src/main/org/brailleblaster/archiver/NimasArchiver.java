@@ -36,8 +36,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import nu.xom.Attribute;
 import nu.xom.Builder;
+import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -50,6 +54,8 @@ import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.Zipper;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares Nimas Archive for opening.
@@ -290,8 +296,14 @@ public class NimasArchiver extends Archiver {
 	{
 		Document tempDoc=new Document(new Element("root"));
 		try{
-			Builder parser=new Builder();
-			tempDoc= parser.build(tempfile);
+//			XMLReader xmlreader = XMLReaderFactory.createXMLReader();
+//			xmlreader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			Builder parser = new Builder();
+			tempDoc = parser.build(tempfile);
+//			
+//			String sysID = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "DTD" + BBIni.getFileSep() + "dtbook-2005-3.dtd";
+//			DocType dt = new DocType("dtbook", "-//NISO//DTD dtbook 2005-3//EN", sysID);
+//			tempDoc.setDocType( dt );
 		}
 		catch (ValidityException ex) {
 			System.err.println("xml is not valid)");
@@ -303,6 +315,8 @@ public class NimasArchiver extends Archiver {
 //			System.err.println("some errors happened");
 			System.err.println( ex.toString() );
 		}
+		catch(Exception e) { e.printStackTrace(); }
+		
 		return tempDoc;
 	}
 	/**
@@ -391,7 +405,7 @@ public class NimasArchiver extends Archiver {
 		Document nimasDocument = createDocument(file);
 		//get context
 		nu.xom.XPathContext context= getConetxt(nimasDocument);
-		// get all level one elements		
+		// get all level one elements
 		Nodes levelOnes=getXpath ("//dtb:level1", nimasDocument ,context );
 		return levelOnes;
 

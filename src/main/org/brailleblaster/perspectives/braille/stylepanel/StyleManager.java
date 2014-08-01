@@ -103,7 +103,7 @@ public class StyleManager{
     }
     
     public void apply(String item){
-    	Message m = new Message(BBEvent.UPDATE_STYLE);
+    	Message m = Message.createUpdateStyleMessage(false);
     	Styles style = semanticsTable.get(item);
 
     	if(style != null){

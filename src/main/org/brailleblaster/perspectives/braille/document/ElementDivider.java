@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
-import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 
 import nu.xom.Attribute;
@@ -26,7 +25,7 @@ public class ElementDivider {
 		this.handler = handler;
 	}
 	
-	public ArrayList<Element>split(MapList list, TextMapElement t, Message m){
+	public ArrayList<Element>split(TextMapElement t, Message m){
 		ArrayList<Element>els = new ArrayList<Element>();
 		Element e = t.parentElement();
 		Element parent = (Element)e.getParent();
@@ -61,7 +60,7 @@ public class ElementDivider {
 		return els;
 	}
 	
-	public ArrayList<Element>split(ArrayList<TextMapElement>elList, MapList list, Message m){
+	public ArrayList<Element>split(ArrayList<TextMapElement>elList, Message m){
 		ArrayList<Element>els = new ArrayList<Element>();
 		
 		TextMapElement t1 = elList.get(0);

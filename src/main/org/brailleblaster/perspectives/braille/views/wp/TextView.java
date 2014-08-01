@@ -48,6 +48,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -814,14 +815,15 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	
-	public void insertText(MapList list, int listIndex, int start, Node n){
+	public void insertText(ViewInitializer vi, MapList list, int listIndex, int start, Node n){
 		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
 		String reformattedText =  appendToView(n, false);
 		setListenerLock(true);
 		int originalPosition = view.getCaretOffset();
 		view.setCaretOffset(start);
 		view.insert(reformattedText);
-		list.add(listIndex, new TextMapElement(start, start + reformattedText.length(), n));
+		vi.addElementToSection(list, new TextMapElement(start, start + reformattedText.length(), n), listIndex);
+		//list.add(listIndex, new TextMapElement(start, start + reformattedText.length(), n));
 		
 		int margin = 0;
 		

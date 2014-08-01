@@ -23,6 +23,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElemen
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
 
 public class BrailleDocument extends BBDocument {
@@ -83,7 +84,7 @@ public class BrailleDocument extends BBDocument {
 		message.put("brailleLength", total);
 	}
 	
-	public void insertEmptyTextNode(MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
+	public void insertEmptyTextNode(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
 		//Add new attribute for epub aside and for nimas prodnote
@@ -114,7 +115,8 @@ public class BrailleDocument extends BBDocument {
 		
 		parent.insertChild(p, nodeIndex + 1);
 		
-		list.add(index, new TextMapElement(textOffset, textOffset, p.getChild(0)));
+		vi.addElementToSection(list, new TextMapElement(textOffset, textOffset, p.getChild(0)), index);
+		//list.add(index,  new TextMapElement(textOffset, textOffset, p.getChild(0)));
 		
 		Element brl = new Element("brl");
 		brl.appendChild(new Text(""));
@@ -278,16 +280,16 @@ public class BrailleDocument extends BBDocument {
 			ArrayList<TextMapElement>elList = new ArrayList<TextMapElement>();
 			elList.add(list.getCurrent());
 			elList.add(list.get(list.getCurrentIndex() + 1));
-			return divider.split(elList, list, m);
+			return divider.split(elList, m);
 		}
 		else if(m.getValue("atStart").equals(true)){
 			ArrayList<TextMapElement>elList = new ArrayList<TextMapElement>();
 			elList.add(list.get(list.getCurrentIndex() - 1));
 			elList.add(list.getCurrent());
-			return divider.split(elList, list, m);
+			return divider.split(elList, m);
 		}
 		else
-			return divider.split(list, t, m);
+			return divider.split(t, m);
 	}
 	
 	public Document getStringTranslation(TextMapElement t, String text){
@@ -664,7 +666,7 @@ public class BrailleDocument extends BBDocument {
 			int index = parent.indexOf(e);
 			boxline.appendChild(parent.removeChild(e));
 			parent.insertChild(boxline, index);
-			addNamespace(boxline);	
+			addNamespace(boxline);
 			return boxline;
 		}
 			

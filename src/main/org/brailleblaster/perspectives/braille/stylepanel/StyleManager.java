@@ -41,7 +41,6 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
-import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.widgets.Group;
@@ -86,7 +85,8 @@ public class StyleManager{
     	if(semanticsTable.get(style).getName().equals("boxline"))
     		editor = new EditBoxLineView(this, dm.getGroup(), semanticsTable.get(style));
     	else
-    		editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+	    	editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+   
     	dm.setTabList();
     }
     

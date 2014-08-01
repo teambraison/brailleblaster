@@ -36,8 +36,6 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -66,7 +64,6 @@ import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
-import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
@@ -622,11 +619,11 @@ public class Manager extends Controller {
 			int pos = originalElements.get(i);
 			
 			if(pos < currentIndex){
-				list.remove(pos);
+				vi.remove(list, pos);
 				currentIndex--;
 			}
 			else if(pos >= currentIndex){
-				list.remove(pos);
+				vi.remove(list, pos);
 			}
 		}
 		
@@ -674,7 +671,7 @@ public class Manager extends Controller {
 		
 		for(int i = 0; i < count; i++){
 			if(e.getChild(i) instanceof Text){
-				text.insertText(list, currentIndex, currentStart, e.getChild(i));
+				text.insertText(vi,list, currentIndex, currentStart, e.getChild(i));
 				currentStart = list.get(currentIndex).end;
 				i++;
 				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
@@ -705,9 +702,9 @@ public class Manager extends Controller {
 	private void insertElementAtBeginning(Message m){
 		int origPos = list.getCurrent().start;
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			document.insertEmptyTextNode(list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
+			document.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
 		else
-			document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
+			document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
 			if(list.getCurrentIndex() == 0)
@@ -728,7 +725,7 @@ public class Manager extends Controller {
 	
 	private void insertElementAtEnd(Message m){
 		int origPos = list.getCurrent().start;
-		document.insertEmptyTextNode(list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
+		document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
 		if(list.size() - 1 != list.getCurrentIndex() + 1)
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
 		
@@ -764,7 +761,8 @@ public class Manager extends Controller {
 		treeView.removeItem(list.get(index), message);
 		document.updateDOM(list, message);
 		list.get(index).brailleList.clear();
-		list.remove(index);
+		vi.remove(list, index);
+		//list.remove(index);
 					
 		if(list.size() == 0){
 			text.removeListeners();
@@ -781,8 +779,10 @@ public class Manager extends Controller {
 		braille.removeMathML(t);
 		text.removeMathML(m);
 		treeView.removeMathML(t);
-		list.updateOffsets(list.indexOf(t), m);
-		list.remove(t);
+		int index = list.indexOf(t);
+		list.updateOffsets(index, m);
+		vi.remove(list, index);
+		//list.remove(t);
 		
 		if(list.size() == 0){
 			text.removeListeners();

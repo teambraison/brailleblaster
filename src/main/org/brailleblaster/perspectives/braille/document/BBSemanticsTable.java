@@ -42,7 +42,7 @@ public class BBSemanticsTable {
 		bottomBoxline;
 	}
 	
-	public class Styles{
+	public class Styles implements Cloneable {
 		String elementName;
 		TreeMap<StylesType, Object> map;
 		
@@ -78,6 +78,16 @@ public class BBSemanticsTable {
 		public String getName(){
 			return elementName;
 		}
+				
+				@SuppressWarnings("unchecked")
+				@Override
+				public Styles clone() throws CloneNotSupportedException {
+				Styles clone = (Styles)super.clone();
+				clone.map = (TreeMap<StylesType, Object>)clone.map.clone();
+				clone.elementName = new String(clone.elementName);
+				return clone;
+				}
+		
 	}
 	
 	Document doc;

@@ -82,14 +82,62 @@ public class StyleManager{
     	lastSelection = table.getTable().getSelectionIndex();
     	String style = table.getTable().getSelection()[0].getText(1);
     	this.table.dispose();
+    	Styles styleForView = null;
+    	try {
+    		styleForView = indentToCell(semanticsTable.get(style).clone());
+    	} catch (CloneNotSupportedException e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    					new Notify("An error occurred");
+    				}
+    	
     	if(semanticsTable.get(style).getName().equals("boxline"))
-    		editor = new EditBoxLineView(this, dm.getGroup(), semanticsTable.get(style));
+    		editor = new EditBoxLineView(this, dm.getGroup(), styleForView);
     	else
-	    	editor = new EditStyleView(this, dm.getGroup(), semanticsTable.get(style));
+	    	editor = new EditStyleView(this, dm.getGroup(), styleForView);
    
     	dm.setTabList();
     }
     
+    
+    private Styles  indentToCell (Styles style){
+    	int cellPosition;
+    	if (style.contains(BBSemanticsTable.StylesType.leftMargin)){
+    		cellPosition = Integer.valueOf((String)style.get((BBSemanticsTable.StylesType.leftMargin))) + 1;
+    	}else{ 
+    		cellPosition =1;
+    	}
+    	int firstLineCellPosition;
+		if (style.contains(BBSemanticsTable.StylesType.firstLineIndent)){ 
+    		firstLineCellPosition = Integer.valueOf((String)style.get(BBSemanticsTable.StylesType.firstLineIndent)) + cellPosition;
+    	}else{
+    		firstLineCellPosition=1;
+    	}
+		style.put(BBSemanticsTable.StylesType.firstLineIndent, String.valueOf(firstLineCellPosition));
+        style.put(BBSemanticsTable.StylesType.leftMargin, String.valueOf(cellPosition));
+    	return style;	
+    }
+    
+    
+ private Styles  cellToIndent (Styles style){
+		 int cellPosition;
+		 if (style.contains(BBSemanticsTable.StylesType.leftMargin)){
+			 cellPosition = Integer.valueOf((String)style.get((BBSemanticsTable.StylesType.leftMargin)))-1;
+		 }else{
+			 cellPosition = 1;
+		 }
+		 		int firstLineCellPosition;
+		 		if (style.contains(BBSemanticsTable.StylesType.firstLineIndent)){
+				firstLineCellPosition = Integer.valueOf((String)style.get(BBSemanticsTable.StylesType.firstLineIndent))-cellPosition-1; 
+		 		}else{
+		 		firstLineCellPosition = 1;
+		 	}
+		 		style.put(BBSemanticsTable.StylesType.firstLineIndent, String.valueOf(firstLineCellPosition));
+		 		style.put(BBSemanticsTable.StylesType.leftMargin, String.valueOf(cellPosition));
+	return style;
+	}
+
+
     public void closeEditStyle(String styleName){
     	editor.dispose();
     	table = new StyleTable(this, dm.getGroup());
@@ -125,7 +173,8 @@ public class StyleManager{
 	//After saving to file, the style table is refreshed and the data type and value will correspond to the SWT object in the UI that applies them 
     protected void saveEditedStyle(Styles oldStyle, Styles newStyle){  	
     	ConfigFileHandler handler = new ConfigFileHandler(configFile);
-    	handler.updateStyle(newStyle);
+    	Styles newStyleForView = cellToIndent(newStyle);
+    	handler.updateStyle(newStyleForView);
     	semanticsTable.resetStyleTable(configFile);
     	dm.refresh();
     	closeEditStyle(newStyle.getName());

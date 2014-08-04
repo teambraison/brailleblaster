@@ -488,12 +488,10 @@ public class BookTree extends TreeView {
 	public void split(Message m) {
 		lastParent = tree.getSelection()[0].getParentItem();
 		int section;
-		if(lastParent != null && !lastParent.equals(root)){
+		if(lastParent != null && !lastParent.equals(root))
 			section = getItemData(lastParent).sectionIndex;
-		}
-		else if(lastParent != null && lastParent.equals(root)){
+		else if(lastParent != null && lastParent.equals(root))
 			section = getItemData(tree.getSelection()[0]).sectionIndex;
-		}
 		else
 			section = 0;
 		

@@ -196,6 +196,10 @@ public class StyleManager{
             return editor.getGroup();
     }
     
+    protected void closeTable(){
+    	dm.toggleAttributeEditor();
+    }
+    
     public void hideTable(){
     	if(table != null && !table.getGroup().isDisposed())
     		table.hideTable();

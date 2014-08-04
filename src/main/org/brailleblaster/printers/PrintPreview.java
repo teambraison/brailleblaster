@@ -12,6 +12,8 @@ import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.VerifyKeyListener;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
@@ -98,10 +100,17 @@ public class PrintPreview {
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				if(e.stateMask == SWT.MOD1 && e.keyCode == 'q'){
-					previewText.deleteTempFile();
-					shell.dispose();
+					close();
 					e.doit = false;
 				}
+			}
+		});
+		
+		shell.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.keyCode == SWT.ESC)
+					close();
 			}
 		});
 		
@@ -123,5 +132,10 @@ public class PrintPreview {
 		location.top = new FormAttachment(top);
 		location.bottom = new FormAttachment(bottom);
 		c.setLayoutData(location);
+	}
+	
+	private void close(){
+		previewText.deleteTempFile();
+		shell.dispose();
 	}
 }

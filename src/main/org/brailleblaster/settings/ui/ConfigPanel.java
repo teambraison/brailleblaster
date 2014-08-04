@@ -9,6 +9,8 @@ import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -67,6 +69,15 @@ public class ConfigPanel {
 			public void widgetSelected(SelectionEvent e) {
 				sm.close();
 			}	
+		});
+		
+		shell.addTraverseListener(new TraverseListener(){
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+				if(e.keyCode == SWT.ESC)
+					shell.close();
+			}
+			
 		});
 		
 		shell.addListener(SWT.Close, new Listener(){

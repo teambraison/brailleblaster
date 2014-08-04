@@ -137,7 +137,7 @@ public class StyleTable {
 	   	traverseFired = false;
 	}
 	
-	private void initializeListeners(){
+	private void initializeListeners(){	
 		restoreButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -219,6 +219,9 @@ public class StyleTable {
 					}
 					else if(e.stateMask == SWT.MOD3 && e.keyCode == 'y')
 						sm.apply(t.getSelection()[0].getText(1));
+					else if(e.keyCode == SWT.ESC)
+						sm.closeTable();
+					
 					
 					e.doit = false;
 					traverseFired = true;

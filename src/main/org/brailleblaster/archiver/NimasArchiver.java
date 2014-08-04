@@ -112,7 +112,6 @@ public class NimasArchiver extends Archiver {
 		// Input string.
 		String sp = BBIni.getFileSep();
 		String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-//		String inPath = zippedPath.substring(0, zippedPath.lastIndexOf(".")) + BBIni.getFileSep();
 		// Zip it!
 		zpr.Zip(inPath, zippedPath);
 	}
@@ -165,8 +164,7 @@ public class NimasArchiver extends Archiver {
 		    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName("outFile.utd") + ".sem";
 		    else
 		    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";
-		    
-		    //String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingFilePath) + ".sem"; 
+
 	    	String savedSemFile = fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";   
 	    
 	    	//Save new semantic file to correct location and temp folder for further editing
@@ -409,62 +407,6 @@ public class NimasArchiver extends Archiver {
 		return levelOnes;
 
 	}
-
-	/////////////////////////////////////////////////////////////////////////////
-	// Writes segmented NIMAS documents to disk and returns a list of their 
-	// paths.
-//	public ArrayList<String> writeNimasSegments()
-//	{
-//        // Grab list of documents after breaking them up by level1's.
-//        ArrayList<Document> docs = manageNimas();
-//		
-//	    // Create file utility for saving our xml files.
-//		FileUtils fu = new FileUtils();
-//		
-//		// Path to xsl file. Add three slashes to avoid BS.
-//    	String xslPath = "file:///" + BBIni.getProgramDataPath() + BBIni.getFileSep() + "xsl" + BBIni.getFileSep() + "dtb2005html.xsl";
-////    	
-////    	// Build the xsl document.
-//    	Document xslDoc = null;
-//		Builder builder = new Builder();
-//        try { xslDoc = builder.build(xslPath); }
-//        catch (ValidityException e1) { e1.printStackTrace(); }
-//        catch (ParsingException e1) { e1.printStackTrace(); }
-//        catch (IOException e1) { e1.printStackTrace(); }
-//        
-//        // Create the transform.
-//        XSLTransform xslt = null;
-//        try { xslt = new XSLTransform(xslDoc); }
-//        catch (XSLException e1) { e1.printStackTrace(); }
-//    	
-//        // Loop through the documents, write to file, count images in each.
-//        for(int curDoc = 0; curDoc < docs.size(); curDoc++)
-//        {
-//        	// Finally transform the document.
-//            Nodes newDocNodes = null;
-//			try { newDocNodes = xslt.transform( docs.get(curDoc) ); }
-//			catch (XSLException e) { e.printStackTrace(); }
-//            Document transformedDoc = XSLTransform.toDocument(newDocNodes);
-//        	
-//        	// Build string path.
-//    		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curDoc) + ".xhtml";
-//    		
-//    		// Add path to list.
-//    		epubFileList.add(outPath);
-//    		
-//    		// Count the images in this document.
-//    		addToNumImgsList(docs.get(curDoc));
-//    		
-//    		// Write file.
-//    		fu.createXMLFile( transformedDoc, outPath );
-////    		fu.createXMLFile( docs.get(curDoc), outPath );
-//        	
-//        } // for(int curDoc...
-//        
-//        // Create the opf file.
-//        return epubFileList;
-//		
-//	} // writeNimasSegments()
 	
 	/////////////////////////////////////////////////////////////////////////////
 	// Helper: Uses list created with manageNimas() to create an OPF file for 

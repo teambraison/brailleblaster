@@ -93,15 +93,6 @@ public class EPub3Archiver extends Archiver {
 		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
 	}
 	
-	// Also takes path to opf file. Assumes document is already unzipped.
-//	public EPub3Archiver(String docToPrepare, String _opfPath) {
-//		super(docToPrepare);
-//		open(_opfPath);
-//		currentConfig = getAutoCfg("epub");
-//		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
-//		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
-//	}
-	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
 	private String open(String _opath) {

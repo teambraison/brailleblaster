@@ -24,7 +24,7 @@ public 	class Resolver implements EntityResolver {
 			
 			// Change path for our nimas files?
 			if(massageForNimas)
-				dtdName = "file:/" + dtdName.replace("\\", "/");
+				dtdName = "file:/" + dtdName.replace("\\", "/").replace(" ", "%20");
 			
 			return new MyReader(publicId, dtdName);
 		} 
@@ -66,7 +66,7 @@ public 	class Resolver implements EntityResolver {
 		return originalPublicId;
 	}
 	
-	// When resolveentity() is called, we'll massage the 
+	// When resolveEntity() is called, we'll massage the 
 	// path to our local dtd.
 	public void enableNimasPath() {
 		massageForNimas = true;

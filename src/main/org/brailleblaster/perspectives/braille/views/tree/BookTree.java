@@ -156,19 +156,34 @@ public class BookTree extends TreeView {
 	private TreeItem findCorrectLevel(TreeItem item, Element e){
 		if(!item.equals(root)){
 			String level = table.getKeyFromAttribute(e);
-			Integer levelValue = Integer.valueOf(level.substring(level.length() - 1));
+			Integer levelValue = findLevelInString(level);
 	
-			Integer itemValue = Integer.valueOf(item.getText().substring(item.getText().length() - 2, item.getText().length() - 1));
+			Integer itemValue = findLevelInString(item.getText());
 		
 			while(itemValue >= levelValue){
 				item = item.getParentItem();
 				if(!item.equals(root))
-					itemValue = Integer.valueOf(item.getText().substring(item.getText().length() - 2, item.getText().length() - 1));
+					itemValue = findLevelInString(item.getText());
 				else
 					break;
 			}
 		}
 		return item;
+	}
+	
+	private Integer findLevelInString(String text){
+		int index = text.indexOf("heading") + "heading".length();
+		String level = "";
+		for(int i = index; i < text.length(); i++){		
+			if(Character.isDigit(text.charAt(i)))
+				level += text.charAt(i);
+			else
+				break;
+		}
+		if(level.length() > 0)
+			return Integer.valueOf(level);
+		else
+			return 0;
 	}
 	
 	//Finds text for tree item and sets corresponding data

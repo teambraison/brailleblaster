@@ -1,8 +1,8 @@
 /* BrailleBlaster Braille Transcription Application
  *
  * Copyright (C) 2014
-* American Printing House for the Blind, Inc. www.aph.org
-* and
+ * American Printing House for the Blind, Inc. www.aph.org
+ * and
  * ViewPlus Technologies, Inc. www.viewplus.com
  * and
  * Abilitiessoft, Inc. www.abilitiessoft.com
@@ -51,7 +51,6 @@ import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Determine and set initial conditions. This class takes care of most platform
  * dependencies. Its get methods should be used rather than coding platform
@@ -70,7 +69,7 @@ public final class BBIni {
 			bbini = new BBIni(args);
 		return bbini;
 	}
-	
+
 	private static boolean debug = false;
 	private static String debugFilePath;
 	private static boolean gotGui = true;
@@ -105,7 +104,7 @@ public final class BBIni {
 	private static String defaultCfg;
 	private static String autoConfigSettings;
 	private static PropertyFileManager propManager;
-	
+
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
@@ -122,16 +121,15 @@ public final class BBIni {
 		if (platformName.equals("win32")) {
 			BBHome = System.getenv("APPDATA") + fileSep + BBID;
 			nativeLibrarySuffix = ".dll";
-		} 
-		else if (platformName.equals("cocoa")) {
+		} else if (platformName.equals("cocoa")) {
 			BBHome = userHome + fileSep + "." + BBID;
 			nativeLibrarySuffix = ".dylib";
-		} 
-		else {
+		} else {
 			BBHome = userHome + fileSep + "." + BBID;
 			nativeLibrarySuffix = ".so";
 		}
-		nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep + "lib";
+		nativeLibraryPath = brailleblasterPath + fileSep + "native" + fileSep
+				+ "lib";
 		FileUtils fu = new FileUtils();
 		userProgramDataPath = BBHome + fileSep + "programData";
 		File userData = new File(userProgramDataPath);
@@ -139,78 +137,84 @@ public final class BBIni {
 			userData.mkdirs();
 		}
 		makeUserProgramData();
-		userSettings = userProgramDataPath + fileSep + "settings" + fileSep + "user_settings.properties";
+		userSettings = userProgramDataPath + fileSep + "settings" + fileSep
+				+ "user_settings.properties";
 		if (!fu.exists(userSettings)) {
-			fu.copyFile(programDataPath + fileSep + "settings" + fileSep + "user_settings.properties", userSettings);
+			fu.copyFile(programDataPath + fileSep + "settings" + fileSep
+					+ "user_settings.properties", userSettings);
 		}
 		propManager = new PropertyFileManager(userSettings);
-		
+
 		recentDocs = userProgramDataPath + fileSep + "recent_documents.txt";
 		fu.create(recentDocs);
 		stylePath = userProgramDataPath + fileSep + "styles";
 		File styleDir = new File(stylePath);
-		if (!styleDir.exists()){
+		if (!styleDir.exists()) {
 			styleDir.mkdirs();
 		}
-		
+
 		String dictPath = userProgramDataPath + fileSep + "dictionaries";
 		File dictDir = new File(dictPath);
-		if(!dictDir.exists())
+		if (!dictDir.exists())
 			dictDir.mkdir();
-		
-		// File associations and settings for when we automatically switch config files.
-		autoConfigSettings = userProgramDataPath + fileSep + "liblouisutdml" + fileSep + "lbu_files" + fileSep + "autoConfigSettings.txt";
+
+		// File associations and settings for when we automatically switch
+		// config files.
+		autoConfigSettings = userProgramDataPath + fileSep + "liblouisutdml"
+				+ fileSep + "lbu_files" + fileSep + "autoConfigSettings.txt";
 		if (!fu.exists(autoConfigSettings)) {
-			fu.copyFile(programDataPath + fileSep + "liblouisutdml" + fileSep + "lbu_files" + fileSep + "autoConfigSettings.txt", autoConfigSettings);
+			fu.copyFile(programDataPath + fileSep + "liblouisutdml" + fileSep
+					+ "lbu_files" + fileSep + "autoConfigSettings.txt",
+					autoConfigSettings);
 		}
-		
-		///////////////////////
+
+		// /////////////////////
 		// Default Config File.
-		
-			// Get default config file.
-			Properties props = new Properties();
-			try
-			{
-				// Load it!
-				props.load(new FileInputStream(BBIni.getUserSettings()));
+
+		// Get default config file.
+		Properties props = new Properties();
+		try {
+			// Load it!
+			props.load(new FileInputStream(BBIni.getUserSettings()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Store file name.
+		defaultCfg = props.getProperty("defaultConfigFile");
+
+		// If that key doesn't exist, then we need to put it there.
+		if (defaultCfg == null) {
+			// Add it, then store it.
+
+			// Add to hash.
+			props.setProperty("defaultConfigFile", "nimas.cfg");
+
+			// Record as default.
+			defaultCfg = "nimas.cfg";
+
+			// Store.
+			try {
+				// Store to file.
+				props.store(new FileOutputStream(BBIni.getUserSettings()), null);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			catch (IOException e) { e.printStackTrace(); }
-			
-			// Store file name.
-			defaultCfg = props.getProperty("defaultConfigFile");
-			
-			// If that key doesn't exist, then we need to put it there.
-			if(defaultCfg == null)
-			{
-				// Add it, then store it.
-				
-				// Add to hash.
-				props.setProperty("defaultConfigFile", "nimas.cfg");
-				
-				// Record as default.
-				defaultCfg = "nimas.cfg";
-				
-				// Store.
-				try
-				{
-					// Store to file.
-					props.store( new FileOutputStream(BBIni.getUserSettings()), null );
-				}
-				catch (IOException e) { e.printStackTrace(); }
-				
-			} // if(defaultCfgFileName == null)
+
+		} // if(defaultCfgFileName == null)
 
 		// Default Config File.
-		///////////////////////
-			
-		//Temporary fix, should be removed once log file handle issue is resolved
+		// /////////////////////
+
+		// Temporary fix, should be removed once log file handle issue is
+		// resolved
 		String tempFolder = BBHome + fileSep + "temp";
 		fu.deleteDirectory(new File(tempFolder));
-		
+
 		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		File temps = new File(tempFilesPath);
-			
-		if (!temps.exists()){
+
+		if (!temps.exists()) {
 			temps.mkdirs();
 		}
 		logFilesPath = BBHome + fileSep + "log";
@@ -218,6 +222,10 @@ public final class BBIni {
 		if (!logPath.exists()) {
 			logPath.mkdirs();
 		}
+		// an UncaughtExceptionHandler for uncaught exceptions, is this needed
+		// as there is a try block around the event loop?
+		LogUncaughtExceptionHandler bbUncaughtExceptionHandler = new LogUncaughtExceptionHandler();
+		Thread.setDefaultUncaughtExceptionHandler(bbUncaughtExceptionHandler);
 
 		if (args.length > 0) {
 			int i = 0;
@@ -228,7 +236,8 @@ public final class BBIni {
 				if (args[i].equals("-debug")) {
 					debug = true;
 					i++;
-					debugFilePath = getProgramDataPath() + fileSep + "testFiles" + fileSep + args[i];
+					debugFilePath = getProgramDataPath() + fileSep
+							+ "testFiles" + fileSep + args[i];
 				} else if (args[i].equals("-nogui")) {
 					gotGui = false;
 				} else if (args[i].equals("-multcom")) {
@@ -244,51 +253,57 @@ public final class BBIni {
 		}
 		try {
 			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			 LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
+			LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
 			org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
-			LibLouisUTDML.getInstance().registerLogCallback(louisutdmlLogHandler);
-			LibLouisUTDML.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
+			LibLouisUTDML.getInstance().registerLogCallback(
+					louisutdmlLogHandler);
+			LibLouisUTDML.initialize(programDataPath, tempFilesPath,
+					"liblouisutdml.log");
 			hLiblouisutdml = true;
-		} 
-		catch (UnsatisfiedLinkError e) {
+		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();
 			logger.error("Problem with liblouisutdml library", e);
-		} 
-		catch (Exception e) {
+		} catch (Exception e) {
 			logger.warn("This shouldn't happen", e);
 		}
 	}
 
-	private String getBrailleblasterPath(Object classToUse)  {
-		//Option to use an environment variable (mostly for testing withEclipse)
+	private String getBrailleblasterPath(Object classToUse) {
+		// Option to use an environment variable (mostly for testing
+		// withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
-		
+
 		if (url != null) {
-			if (BBIni.getPlatformName().equals("cocoa") || BBIni.getPlatformName().equals("gtk"))
+			if (BBIni.getPlatformName().equals("cocoa")
+					|| BBIni.getPlatformName().equals("gtk"))
 				url = "file://" + url;
 			else
 				url = "file:/" + url;
-		} 
-		else {
-			url = classToUse.getClass().getResource("/"+ classToUse.getClass().getName().replaceAll("\\.", "/") + ".class").toString();
-			url = url.substring(url.indexOf("file")).replaceFirst("/[^/]+\\.jar!.*$", "/");
+		} else {
+			url = classToUse
+					.getClass()
+					.getResource(
+							"/"
+									+ classToUse.getClass().getName()
+											.replaceAll("\\.", "/") + ".class")
+					.toString();
+			url = url.substring(url.indexOf("file")).replaceFirst(
+					"/[^/]+\\.jar!.*$", "/");
 		}
 
 		try {
 			File dir = new File(new URL(url).toURI());
 			url = dir.getAbsolutePath();
-		} 
-		catch (MalformedURLException mue) {
+		} catch (MalformedURLException mue) {
 			url = null;
-		} 
-		catch (URISyntaxException ue) {
+		} catch (URISyntaxException ue) {
 			url = null;
 		}
-		
+
 		return url;
 	}
-	
+
 	private void makeUserProgramData() {
 		String basePath = userProgramDataPath + fileSep;
 		helpMakeUPD(basePath + "liblouis" + fileSep + "tables");
@@ -306,12 +321,12 @@ public final class BBIni {
 			file.mkdirs();
 		}
 	}
-	
+
 	public static boolean debugging() {
 		return debug;
 	}
-	
-	public static String getDebugFilePath(){
+
+	public static String getDebugFilePath() {
 		return debugFilePath;
 	}
 
@@ -323,16 +338,13 @@ public final class BBIni {
 		return hSubcommands;
 	}
 
-	
 	public static String getProductName() {
 		return productName;
 	}
 
-
 	public static String getVersion() {
 		return BBVersion;
 	}
-
 
 	public static String getReleaseDate() {
 		return releaseDate;
@@ -389,8 +401,8 @@ public final class BBIni {
 	public static String getRecentDocs() {
 		return recentDocs;
 	}
-	
-	public static PropertyFileManager getPropertyFileManager(){
+
+	public static PropertyFileManager getPropertyFileManager() {
 		return propManager;
 	}
 
@@ -405,15 +417,15 @@ public final class BBIni {
 	public static String getInstanceID() {
 		return instanceId;
 	}
-	
+
 	public static String getDefaultConfigFile() {
 		return defaultCfg;
 	}
-	
+
 	public static void setDefaultConfigFile(String configFileName) {
 		defaultCfg = configFileName;
 	}
-	
+
 	public static String getAutoConfigSettings() {
 		return autoConfigSettings;
 	}

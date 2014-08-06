@@ -149,8 +149,8 @@ public class WPManager {
 	              display.sleep(); 
 	           } 
 	        } 
-	        catch (Exception e) { 
-	           e.printStackTrace(); 
+	        catch (Throwable e) { 
+	           logger.debug("Uncaught exception detected", e); 
 	        } 
 	    } 
         display.dispose();

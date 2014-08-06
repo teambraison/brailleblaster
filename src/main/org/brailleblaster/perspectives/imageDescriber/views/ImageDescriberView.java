@@ -71,7 +71,7 @@ public class ImageDescriberView {
 	ImageDescriberController idd;
 	Group group;
 	Button prevBtn, nextBtn, useSimpleStylesCheck, undoBtn, applyToAllBtn, clearAllBtn;
-	Button nextPage, prevPage;
+	Button nextSection, prevSection;
 	Label descLabel;
 	Text imgDescTextBox;
 	Label altLabel;
@@ -101,7 +101,7 @@ public class ImageDescriberView {
 	{
 		// Create previous button.
 		prevBtn = new Button(group, SWT.PUSH);
-		prevBtn.setText("Previous");
+		prevBtn.setText("<< Previous");
 		setFormData(prevBtn, 0, 7, 0, 5, IDV_FONTSIZE_AUTO);
 		prevBtn.addSelectionListener(new SelectionAdapter() {
 		@Override
@@ -144,7 +144,7 @@ public class ImageDescriberView {
 
 		// Create next button.
 		nextBtn = new Button(group, SWT.PUSH);
-		nextBtn.setText("Next");
+		nextBtn.setText("Next >>");
 		setFormData(nextBtn, 7, 14, 0, 5, IDV_FONTSIZE_AUTO);
 		nextBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -262,10 +262,10 @@ public class ImageDescriberView {
 		// Set up browser navigation buttons.
 		
 		// Previous page/chapter/file button.
-		prevPage = new Button(group, SWT.PUSH);
-		prevPage.setText("<< Previous Page"); 
-		setFormData(prevPage, 16, 26, 0, 5, IDV_FONTSIZE_AUTO);
-		prevPage.addSelectionListener(new SelectionAdapter() {
+		prevSection = new Button(group, SWT.PUSH);
+		prevSection.setText("<< Previous Section"); 
+		setFormData(prevSection, 16, 26, 0, 5, IDV_FONTSIZE_AUTO);
+		prevSection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				
@@ -312,10 +312,10 @@ public class ImageDescriberView {
 		});
 		
 		// Next page/chapter/file button.
-		nextPage = new Button(group, SWT.PUSH);
-		nextPage.setText("Next Page >>");
-		setFormData(nextPage, 26, 36, 0, 5, IDV_FONTSIZE_AUTO);
-		nextPage.addSelectionListener(new SelectionAdapter() {
+		nextSection = new Button(group, SWT.PUSH);
+		nextSection.setText("Next Section >>");
+		setFormData(nextSection, 26, 36, 0, 5, IDV_FONTSIZE_AUTO);
+		nextSection.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
@@ -533,8 +533,8 @@ public class ImageDescriberView {
 		setFormData(undoBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
 		setFormData(applyToAllBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
 		setFormData(clearAllBtn, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
-		setFormData(nextPage, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
-		setFormData(prevPage, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(nextSection, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
+		setFormData(prevSection, IDV_CTRL_NOCHANGE, 0, 0, 0, fntSz);
 		
 	} // setButtonsFont()
 	
@@ -548,14 +548,14 @@ public class ImageDescriberView {
 	
 	// Enables the browser navigation buttons.
 	public void enableBrowserNavButtons() {
-		nextPage.setEnabled(true);
-		prevPage.setEnabled(true);
+		nextSection.setEnabled(true);
+		prevSection.setEnabled(true);
 	} // enableBrowserNavButtons()
 	
 	// Disables the browser navigation buttons.
 	public void disableBrowserNavButtons() {
-		nextPage.setEnabled(false);
-		prevPage.setEnabled(false);
+		nextSection.setEnabled(false);
+		prevSection.setEnabled(false);
 	} // disableBrowserNavButtons()
 	
 	// Set text in image description text box UI.

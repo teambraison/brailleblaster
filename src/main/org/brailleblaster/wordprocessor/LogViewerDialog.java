@@ -18,10 +18,14 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LogViewerDialog extends Dialog {
 
+	private static Logger log = LoggerFactory.getLogger(LogViewerDialog.class);
 	boolean result = false;
 	private static String readFileToString(File inFile) throws IOException {
 		StringBuffer buf = new StringBuffer();
@@ -78,7 +82,12 @@ public class LogViewerDialog extends Dialog {
 		try {
 		logText.setText(readFileToString(new File(BBIni.getLogFilesPath(), "bb.log")));
 		} catch(IOException e) {
-			// Give some error message.
+			log.error("Problem opening the log file", e);
+			MessageBox msgBox = new MessageBox(parent, SWT.ICON_ERROR | SWT.OK);
+			msgBox.setText("Unable to open log file");
+			msgBox.setMessage("There was a problem in reading the log file, so the log viewer will not be opened.");
+			result = false;
+			return result;
 		}
 		dialogShell.setTabList(new Control[] {logText, closeButton, logText});
 		dialogShell.pack();

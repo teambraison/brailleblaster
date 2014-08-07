@@ -1,6 +1,13 @@
 package org.brailleblaster.wordprocessor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileReader;
+
+import org.brailleblaster.BBIni;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -8,6 +15,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -15,6 +23,23 @@ import org.eclipse.swt.widgets.Shell;
 public class LogViewerDialog extends Dialog {
 
 	boolean result = false;
+	private static String readFileToString(File inFile) throws IOException {
+		StringBuffer buf = new StringBuffer();
+		String line = null;
+		BufferedReader br = null;
+		try {
+			br = new BufferedReader(new FileReader(inFile));
+			while ((line = br.readLine()) != null) {
+				buf.append(line);
+				buf.append('\n');
+			}
+		} finally {
+			if (br != null) {
+				br.close();
+			}
+		}
+		return buf.toString();
+	}
 	public LogViewerDialog(Shell parent, int style) {
 		super(parent, style);
 	}
@@ -26,23 +51,36 @@ public class LogViewerDialog extends Dialog {
 		Display display = parent.getDisplay();
 		final Shell dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.CENTER);
 		dialogShell.setText(getText());
-		dialogShell.setMinimumSize(300, 150);
+		dialogShell.setMinimumSize(300, 400);
 		FormLayout dialogLayout = new FormLayout();
 		dialogShell.setLayout(dialogLayout);;
-		Button okButton = new Button(dialogShell, SWT.PUSH);
-		FormData okData = new FormData(20,30);
-		okData.bottom = new FormAttachment(100, -5);
-		okButton.setLayoutData(okData);
-		okButton.setText("OK");;
-		okButton.addSelectionListener(new SelectionAdapter() {
-
+		Button closeButton = new Button(dialogShell, SWT.PUSH);
+		FormData closeData = new FormData(30,20);
+		closeData.bottom = new FormAttachment(100, -5);
+		closeData.left = new FormAttachment(50,-15);
+		closeButton.setLayoutData(closeData);
+		closeButton.setText("Close");;
+		closeButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				result = true;
 				dialogShell.dispose();
 			}
-			
 		});
+		StyledText logText = new StyledText(dialogShell, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI | SWT.WRAP);
+		FormData logTextData = new FormData();
+		logTextData.top = new FormAttachment(0, 5);
+		logTextData.left = new FormAttachment(0, 5);
+		logTextData.right = new FormAttachment(100, -5);
+		logTextData.bottom = new FormAttachment(closeButton, -10);
+		logText.setLayoutData(logTextData);
+		logText.setEditable(false);
+		try {
+		logText.setText(readFileToString(new File(BBIni.getLogFilesPath(), "bb.log")));
+		} catch(IOException e) {
+			// Give some error message.
+		}
+		dialogShell.setTabList(new Control[] {logText, closeButton, logText});
 		dialogShell.pack();
 		dialogShell.open();
 		while(!dialogShell.isDisposed()) {

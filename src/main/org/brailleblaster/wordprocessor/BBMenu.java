@@ -277,6 +277,16 @@ public abstract class BBMenu {
 				new UserHelp(HelpOptions.CheckUpdates);
 			}
 		});
+		MenuItem viewLogItem = new MenuItem(helpMenu, SWT.PUSH);
+		viewLogItem.setText("View log");
+		viewLogItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				LogViewerDialog	logDialog = new LogViewerDialog(wp.getShell());
+				logDialog.setText("Log viewer");
+				logDialog.open();
+			}
+		});
 		helpItem.setMenu(helpMenu);
 				
 		// Activate menus when documentWindow shell is opened

@@ -1,0 +1,66 @@
+Perspectives provide a way to incorporate multiple tools into Brailleblaster.  Following a few steps, a perspective can be added by by creating a several base classes with interact with brailleblaster's controlling class, the WPManager.
+In essence, a new perspective can be created by making the following classes:
+1)Make a class which extends the Perspective class
+2)Make a class which extends the Controller class
+3)Make a class which extends the BBDocument class
+4)Make a class which extends the BBMenu class
+5)In the Perspective.java file, add an entry to this existing perspectives hashmap
+*Each item will be discussed in more detail later in the document
+
+Perspective Conventions
+Code related strictly to a perspective is placed within the perspective package, therefore the package hierarchy would read similar to org.brailleblaster.perspectives.newperspective.
+Subsequent sub-packages common to most perspectives include Document, Views, and UI.  The document package typically consists of classes related to the manipulation and management of the XML document being editied.
+The Views package typically consists of components within the area inside the tab folder.  The UI package typically contains UI components outside of the tab folder, for example, a toolbar and menu classes.  
+With the exception of placing a new perspective within the perspective package, other package naming conventions are suggestions and not required.  The next steps will show how to step up the package structure
+of a perspective and which files must be implemented.
+
+Steps
+1.In the perspectives directory, create a new folder with descriptive name related to your perspective(In Eclipse, right-click the perspectives package, select New -> Package)
+2.Within the newly created package, create a class that extends Controller
+3.Create another class that extends Perspective 
+4.Create a package in your perspective folder to contain the menu in the same way as the steps above
+5.Create a new class which extends BBMenu
+6.Create a package in your perspective folder to contain the menu in the same way as the steps above with a name something similar to Document
+7.Create a new class which extends BBDocument, make sure to implement the two constructors found in BBDOcument, for now, just include a call to super, so the project will compile
+
+*The next sections will outline in detail how to set up each class to create a skeletal framework from which to work with.
+
+The Menu 
+It is suggested that when creating a new perspective to start with the BBMenu extension since this allows for testing your skeleton framework by switching between the views.
+The BBMenu class provides a minimal menu at the top of the SWT shell, it contains several items common across all perspectives, such as switching between perspectives.  In your own class you can implement additional items to the avaible menus
+or create your own as needed.  It is suggested that a new package within your perspective be created to contain the menu.   
+1.  In BBMenu add a menu item to the global variables
+2.  Locate the BrailleEditorItem or ImageDecriberItem and implement similar code for the menu item from the previous step
+3.	Determine the index of the menu item you created in the previous step and create a private constant for that index value
+4.  In your class which extends bbmenu create a global variable of your controller class, this variable is not inherited from the super class because it should be the type of the controller within your perspective
+5.  Implement the inherited set and get current methods.  A basic set current is two line: 
+	currentController = (YourController)controller;
+	setPerspectiveMenuItem(MENU_INDEX);
+	
+	A basic get method is also one line: return currentController;
+
+Making a Perspective Class
+The perspective class implements GUI components outside of the tab folder.
+1.In your class that extends perspective, create a constructor taking WPManager and your controller class as arguments
+2.  The basic constructor will contain a minimum of three lines:
+	perspectiveType = yourController.getClass();
+	this.controller = yourController;
+	menu = new YourMenu(wp);
+3. Add code to dispose of any swt gui components to the inherited dispose method
+
+Making a BBDocument class
+The BBDcument class manages the DOM.  
+1.Implement two constructors: The first takes the superclass Controller as a parameter.  Implement the call to the parent class super(controller); .
+	The second takes the superclass Controller and the xom Document object as parameters. Implement the call to the parent class super(controller, document); . 
+
+Making a Controller class
+The controller class manages events within the tab folder.  A basic implementation consists of a your previously created BBDocument class and an swt object to function as a container within
+the tab folder, for example a Group or SashForm Widget.  
+	1.Create a tab item
+	2.Create your container widget within the tab item
+	3. Instantiate your class that extends BBDocument
+		*Note that it is a good idea to have your BBDocument also build the DOM at this point, even if it is only one of the available blank templates as other perspectives may expect to receive a DOcument when switching perspectives
+	
+At this point, it is typically a good idea to set up the inherited dispose and getDoc methods.  Dispose manages disposing of SWT components within the tab item.  
+The getDoc method returns the XOM Document object and is used when passing the DOM between perspectives.
+After implementing these methods, you should now be able to test switching between perspectives and begin working on your own perspective.	

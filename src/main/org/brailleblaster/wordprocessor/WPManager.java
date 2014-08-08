@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -63,6 +64,7 @@ public class WPManager {
 	 * entry point for the word processor, and therefore the only public class.
 	 */
 	private static Logger logger = LoggerFactory.getLogger(WPManager.class);
+	private LocaleHandler lh;
 	public static Display display;
 	private Shell shell;
 	private FormLayout layout;
@@ -80,6 +82,7 @@ public class WPManager {
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
+		lh = new LocaleHandler();
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
 		display = new Display();
@@ -161,8 +164,8 @@ public class WPManager {
 				MessageBox questionBox = new MessageBox(this.shell,
 						SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 				questionBox
-						.setMessage("An unexpected error was encountered, would you like to view the log?");
-				questionBox.setText("Unexpected error");
+						.setMessage(lh.localValue("UnexpectedErrorMessage"));
+				questionBox.setText(lh.localValue("UnexpectedErrorTitle"));
 				int viewLogResult = questionBox.open();
 				if (viewLogResult == SWT.YES) {
 					LogViewerDialog viewerDialog = new LogViewerDialog(

@@ -278,12 +278,12 @@ public abstract class BBMenu {
 			}
 		});
 		MenuItem viewLogItem = new MenuItem(helpMenu, SWT.PUSH);
-		viewLogItem.setText("View log");
+		viewLogItem.setText(lh.localValue("View&Log"));
 		viewLogItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				LogViewerDialog	logDialog = new LogViewerDialog(wp.getShell());
-				logDialog.setText("Log viewer");
+				logDialog.setText(lh.localValue("LogViewer"));
 				logDialog.open();
 			}
 		});

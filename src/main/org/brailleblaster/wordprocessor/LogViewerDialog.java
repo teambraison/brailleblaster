@@ -64,7 +64,7 @@ public class LogViewerDialog extends Dialog {
 		closeData.bottom = new FormAttachment(100, -5);
 		closeData.left = new FormAttachment(50,-15);
 		closeButton.setLayoutData(closeData);
-		closeButton.setText("Close");;
+		closeButton.setText(lh.localValue("buttonClose"));;
 		closeButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {

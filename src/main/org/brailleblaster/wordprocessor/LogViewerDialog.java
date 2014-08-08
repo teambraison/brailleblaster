@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.FileReader;
 
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class LogViewerDialog extends Dialog {
 
+	private LocaleHandler lh;
 	private static Logger log = LoggerFactory.getLogger(LogViewerDialog.class);
 	boolean result = false;
 	private static String readFileToString(File inFile) throws IOException {
@@ -47,6 +49,7 @@ public class LogViewerDialog extends Dialog {
 	}
 	public LogViewerDialog(Shell parent, int style) {
 		super(parent, style);
+		lh = new LocaleHandler();
 	}
 	public LogViewerDialog(Shell parent) {
 		this(parent, SWT.NONE);

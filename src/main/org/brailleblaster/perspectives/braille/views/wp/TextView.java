@@ -128,6 +128,7 @@ public class TextView extends WPView {
 				
 				selectionArray = view.getSelectionRanges();
 				if(selectionArray[1] > 0){
+					setSelection(selectionArray[0], selectionArray[1]);
 					multiSelected=true;
 					currentChar = ' ';
 					if(currentChanges > 0)

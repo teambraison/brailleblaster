@@ -656,6 +656,10 @@ public class MapList extends LinkedList<TextMapElement>{
 		return value.substring(value.lastIndexOf("-") + 1);
 	}
 	
+	/** Searches for either the opening or closing boxline of a pair
+	 * @param b:  Boxline from which the opening or closing boxline is found
+	 * @return: The BRLOnlyMapElement containing the opening or closing boxline of a typical pair
+	 */
 	public BrlOnlyMapElement findJoiningBoxline(BrlOnlyMapElement b){
 		int index = indexOf(b);
 		if(b.parentElement().indexOf(b.n) == 0){

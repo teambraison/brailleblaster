@@ -40,6 +40,7 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -274,6 +275,9 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 	}
 
+	/**Checks whether elements should be removed from the list and subsequently informs the Manager to remove the elements from the DOM
+	 * 
+	 */
 	public void checkList(){
 		if(this.currentIndex != -1){
 			int index = this.currentIndex;
@@ -477,6 +481,10 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 	}
 	
+	/** Returns a bollean value depnding on whether a element in the list has associated braille
+	 * @param index: index of element to be checked
+	 * @return true if element has associated braille, false if no associated braille exists
+	 */
 	public boolean hasBraille(int index){
 		if(this.size() != 0 && this.get(index).brailleList.size() > 0)
  			return true;
@@ -501,6 +509,12 @@ public class MapList extends LinkedList<TextMapElement>{
 		}
 	}
 	
+	/**
+	 * @param index: starting index
+	 * @param parent: parent to check for all subsequent children in the maplist
+	 * @param ignoreInlineElement: if true looks for block element
+	 * @return returns an arraylist of TextMapElements that comprise an element in the XML
+	 */
 	public ArrayList<TextMapElement> findTextMapElements(int index, Element parent, boolean ignoreInlineElement){
 		ArrayList<TextMapElement>list = new ArrayList<TextMapElement>();
 		BrailleDocument doc = dm.getDocument();
@@ -522,6 +536,12 @@ public class MapList extends LinkedList<TextMapElement>{
 		return list;
 	}
 	
+	/**
+	 * @param index: starting index
+	 * @param parent: parent to check for all subsequent children in the maplist
+	 * @param ignoreInlineElement: if true looks for block element
+	 * @return returns an arraylist of the indexes that comprise an element in the XML
+	 */
 	public ArrayList<Integer> findTextMapElementRange(int index, Element parent, boolean ignoreInlineElement){
 		if(ignoreInlineElement && parent.getAttributeValue("semantics").contains("action")){
 			while(parent.getAttributeValue("semantics").contains("action"))
@@ -547,6 +567,11 @@ public class MapList extends LinkedList<TextMapElement>{
 		return list;
 	}
 	
+	/** Finds the index f an element in the list using a node as the key
+	 * @param n: node to find
+	 * @param startIndex: since index is a linear search higher valus that 0 can b specified as the starting point
+	 * @return: -1 if not found, index value if found
+	 */
 	public int findNodeIndex(Node n, int startIndex){
 		for(int i = startIndex; i < this.size(); i++){
 			if(this.get(i).n.equals(n))
@@ -631,6 +656,24 @@ public class MapList extends LinkedList<TextMapElement>{
 		return value.substring(value.lastIndexOf("-") + 1);
 	}
 	
+	public BrlOnlyMapElement findJoiningBoxline(BrlOnlyMapElement b){
+		int index = indexOf(b);
+		if(b.parentElement().indexOf(b.n) == 0){
+			for(int i = index + 1; i < size(); i++){
+				if(get(i) instanceof BrlOnlyMapElement && get(i).parentElement().equals(b.parentElement()))
+					return (BrlOnlyMapElement)get(i);
+			}
+		}
+		else if(b.parentElement().indexOf(b.n) == b.parentElement().getChildCount() - 1){
+			for(int i = index - 1; i >= 0; i--){
+				if(get(i) instanceof BrlOnlyMapElement && get(i).parentElement().equals(b.parentElement()))
+					return (BrlOnlyMapElement)get(i);
+			}
+		}
+		
+		return null;
+	}
+	
 	public int getPageCount(){
 		return pageCount;
 	}
@@ -639,10 +682,9 @@ public class MapList extends LinkedList<TextMapElement>{
 	public boolean add(TextMapElement t){
 		if(t instanceof PageMapElement)
 			pageCount++;
-		
+	
 		return super.add(t);
 	}
-	
 	
 	public boolean addAll(MapList list){
 		pageCount += list.getPageCount();

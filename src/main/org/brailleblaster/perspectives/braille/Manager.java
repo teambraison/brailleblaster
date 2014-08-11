@@ -73,6 +73,7 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
+import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
@@ -750,9 +751,8 @@ public class Manager extends Controller {
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
 	    }
 			
-		Message styleMessage =  Message.createUpdateStyleMessage(false);
 		Styles style = styles.get("trnote");
-		styleMessage.put("Style", style);
+		Message styleMessage =  Message.createUpdateStyleMessage(style, false);
 		dispatch(styleMessage);
 	}
 	
@@ -812,6 +812,7 @@ public class Manager extends Controller {
 		else
 			braille.positionScrollbar(text.view.getTopIndex());
 	}
+	
 	/***
      * Get parent style of the current TextMapElement 
      * @param current
@@ -819,41 +820,49 @@ public class Manager extends Controller {
      * @return
      */
 	private Element parentStyle(TextMapElement current, Message message) {
-		Element parent = document.getParent(current.n, true);
+		Element parent;
+		if(current instanceof PageMapElement || current instanceof BrlOnlyMapElement)
+			parent = current.parentElement();
+		else
+			parent = document.getParent(current.n, true);
+		
 		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-		document.changeSemanticAction(message, current.parentElement());
-		message.put("style", styles.get(styles.getKeyFromAttribute(parent)));
 		return parent;
-
 	}
+	
 	/***
 	 * Handle style for all cases
 	 * @param message
 	 */
-	
 	private void handleUpdateStyle(Message message) {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			group.setRedraw(false);
 			if (message.getValue("multiSelect").equals(false)) {
-				handleStyleCursorSelected(message);
+				handleStyleSingleSelected(message);
 			} else {
 				handleStyleMultiSelected(message);
 			}
+			group.setRedraw(true);
 		}
 		else
 			new Notify(lh.localValue("nothingToApply"));
 	}
+	
 	/***
 	 * Handle style if user just move cursor
 	 * @param message
 	 */
-	private void handleStyleCursorSelected(Message message) {
+	private void handleStyleSingleSelected(Message message) {
 		Element parent = parentStyle(list.getCurrent(), message);
+		ArrayList<Element>parents = new ArrayList<Element>();
+		parents.add(parent);
+		if(!((Styles)message.getValue("Style")).getName().equals("boxline"))
+			document.changeSemanticAction(message, parent);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(
 				list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message,parent);
-
+		adjustStyle(itemList, message,parents);
 	}
+	
 	/***
 	 * Apply styles to selected text for multiple elements
 	 * @param start
@@ -865,32 +874,57 @@ public class Manager extends Controller {
 		int start=text.getSelectedText()[0];
 		int end=text.getSelectedText()[1];
 		
-		Set<TextMapElement> itemSet = getElementSelected(start, end);
-		
+		Set<TextMapElement> itemSet = getElementSelected(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
-		while (itr.hasNext())
-		{
-			TextMapElement tempElement= itr.next();
-	
-			if(tempElement.parentElement().getAttributeValue("semantics").contains("style") || tempElement.parentElement().getAttributeValue("semantics").contains("action"))
-			{
-				Message styleMessage = new Message(null);
-				styleMessage.put("Style", message.getValue("Style"));
-				Element parent = parentStyle(tempElement, styleMessage);
-				
-				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-				adjustStyle( itemList,styleMessage,parent);
+		ArrayList<Element>parents = new ArrayList<Element>();
+		
+		boolean  isBoxline = ((Styles)message.getValue("Style")).getName().equals("boxline");
+		
+		if(!isBoxline){
+			while (itr.hasNext()) {
+				TextMapElement tempElement= itr.next();
+				if(!isBoxline){
+					if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)) && (tempElement.parentElement().getAttributeValue("semantics").contains("style") || tempElement.parentElement().getAttributeValue("semantics").contains("action")))){
+						Message styleMessage = new Message(null);
+						styleMessage.put("Style", message.getValue("Style"));
+						Element parent = parentStyle(tempElement, styleMessage);
+						parents.add(parent);
+						document.changeSemanticAction(message, parent);
+						ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
+						adjustStyle( itemList,styleMessage,parents);
+					}
+				}
 			}
 		}
-	
+		else {
+			ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
+			boolean invalid = false;
+			while(itr.hasNext()){
+				TextMapElement tempElement= itr.next();
+				if(tempElement instanceof BrlOnlyMapElement){
+					BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
+					if(b == null || b.start > end || b.end < start){
+						invalid = true;
+						if(!BBIni.debugging())
+							new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
+						break;
+					}
+				}
+				Element parent = parentStyle(tempElement, message);
+				itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
+				parents.add(parent);
+			}
+			if(!invalid)
+				adjustStyle(itemList, message, parents);
+		}
 	}
+	
 	/***
 	 * Adjust style of elements in the list base on previous and next element 
 	 * @param itemList : all selected items which we want style to be applied
 	 * @param message : passing information regarding styles
 	 */
-
-	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message,Element parent) {
+	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message,ArrayList<Element> parents) {
 		int start = list.indexOf(itemList.get(0));
 		int end = list.indexOf(itemList.get(itemList.size() - 1));
 		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
@@ -926,75 +960,27 @@ public class Manager extends Controller {
 					(Integer) message.getValue("linesAfterOffset"), origPos);
 
 		treeView.adjustItemStyle(list.getCurrent());
+		
 		if(((Styles)message.getValue("Style")).getName().equals("boxline"))
-			createBoxline(parent, message, itemList);
-		group.setRedraw(true);
-
+			createBoxline(parents, message, itemList);
 	}
-	
-
 	
 	/** Wraps a block level element in the appropriate tag then translates and adds boxline brl top and bottom nodes
 	 * @param p: parent of text nodes, the block element to be wrapped in a boxline
 	 * @param m: message passed to views containing offset positions
 	 * @param itemList: arraylist containing text nodes of the block element
 	 */
-	private void createBoxline(Element p, Message m, ArrayList<TextMapElement> itemList){
-		Element wrapper = document.wrapElement(p, "boxline");
+	private void createBoxline(ArrayList<Element>parents, Message m, ArrayList<TextMapElement> itemList){		
+		Element wrapper = document.wrapElement(parents, "boxline");
 		if(wrapper != null){
 			Element boxline = document.translateElement((Element)wrapper.copy());
-			int startPos = list.indexOf(itemList.get(0));
-			
-			//find start position
-			int start, brailleStart;
-			if(m.contains("previousStyle") && ((Styles)m.getValue("previousStyle")).contains(StylesType.linesBefore)){
-				start = (Integer)m.getValue("prev");
-				brailleStart = (Integer)m.getValue("braillePrev");
-			}
-			else {
-				start = itemList.get(0).start;
-				brailleStart = itemList.get(0).brailleList.getFirst().start;
-			}
-			
-			//insert top boxline
-			wrapper.insertChild(boxline.removeChild(0), 0);
-			BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), (Element)wrapper);
-			b1.setOffsets(start, start + b1.textLength());
-			b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
-			vi.addElementToSection(list, b1, startPos);
-			
-			//set text
-			text.insertText(start, list.get(startPos).getText() + "\n");
-			braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
-			list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);				
-			
-			//find end position
-			int endPos = list.indexOf(itemList.get(itemList.size() - 1)) + 1;
-			int end, brailleEnd;
-			if(m.contains("previousStyle") && ((Styles)m.getValue("previousStyle")).contains(StylesType.linesAfter)){
-				end = (Integer)m.getValue("next") + b1.getText().length() + 1;
-				brailleEnd = (Integer)m.getValue("brailleNext") + b1.getText().length() + 1;
-			}
-			else {
-				end = list.get(endPos - 1).end;
-				brailleEnd = itemList.get(itemList.size() - 1).brailleList.getLast().end;
-			}
-			
-			//insert bottom boxline
-			wrapper.appendChild(boxline.removeChild(boxline.getChildCount() - 1));
-			BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), (Element)wrapper);
-			b2.setOffsets(end + 1, end + 1 + b2.textLength());
-			b2.setBrailleOffsets(brailleEnd + 1, brailleEnd + 1 + b2.getText().length());
-			vi.addElementToSection(list, b2, endPos);
-	
-			//set text
-			text.insertText(end, "\n" + list.get(endPos).getText());
-			braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());
-			list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
+			int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
+			createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 			
 			//remove items from tree
-			for(int i = 0; i < itemList.size(); i++){
-				treeView.removeItem(itemList.get(i), new Message(null));
+			if(treeView.getClass().equals(XMLTree.class)){
+				for(int i = 0; i < itemList.size(); i++)
+					treeView.removeItem(itemList.get(i), new Message(null));
 			}
 			
 			//add aside or sidebar to tree
@@ -1002,6 +988,79 @@ public class Manager extends Controller {
 			handleSetCurrent(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
 			dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
+	}
+	
+	/** Private helper method for createBoxLine, it handles specifics of the top boxline
+	 * @param wrapper: Aside or Sidebar in the DOM which the top boxline will be enclosed
+	 * @param m: The message passed containing offset info
+	 * @param itemList: the list containing the map elements to be enclosed in the boxline
+	 * @param boxline: The translation passed from createBoxline which contains the top boxline element
+	 * @param firstStyle: The style of the first element, used to determine where to place the boxline if a line before is suppposed to occur
+	 * @return integer representing the index of the top boxline in the maplist
+	 */
+	private int createTopBoxline(Element wrapper, Message m, ArrayList<TextMapElement>itemList, Element boxline, Styles firstStyle){
+		int startPos = list.indexOf(itemList.get(0));
+		
+		//find start position
+		int start, brailleStart;
+		if(firstStyle.contains(StylesType.linesBefore)){
+			start = (Integer)m.getValue("prev");
+			brailleStart = (Integer)m.getValue("braillePrev");
+		}
+		else {
+			start = itemList.get(0).start;
+			brailleStart = itemList.get(0).brailleList.getFirst().start;
+		}
+		
+		//insert top boxline
+		wrapper.insertChild(boxline.removeChild(0), 0);
+		BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), (Element)wrapper);
+		b1.setOffsets(start, start + b1.textLength());
+		b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
+		vi.addElementToSection(list, b1, startPos);
+		
+		//set text
+		text.insertText(start, list.get(startPos).getText() + "\n");
+		braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
+		list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);
+		
+		return startPos;
+	}
+	
+	/**Private helper method for createBoxLine, it handles specifics of the top boxline
+	 * @param wrapper: Aside or Sidebar in the DOM which the top boxline will be enclosed
+	 * @param m: The message passed containing offset info
+	 * @param itemList: the list containing the map elements to be enclosed in the boxline
+	 * @param boxline: The translation passed from createBoxline which contains the bottom boxline element
+	 * @param lastStyle: The style of the last element, used to determine where to place the boxline if a line after is suppposed to occur following the lst element
+	 * @return: int of the index of the boxline
+	 */
+	private int createBottomBoxline(Element wrapper, Message m, ArrayList<TextMapElement>itemList, Element boxline, int startPos, Styles lastStyle){
+		//find end position
+		int endPos = list.indexOf(itemList.get(itemList.size() - 1)) + 1;
+		int end, brailleEnd;
+		if(lastStyle.contains(StylesType.linesAfter)){
+			end = (Integer)m.getValue("next") + list.get(startPos).getText().length() + 1;
+			brailleEnd = (Integer)m.getValue("brailleNext") + list.get(startPos).getText().length() + 1;
+		}
+		else {
+			end = list.get(endPos - 1).end;
+			brailleEnd = itemList.get(itemList.size() - 1).brailleList.getLast().end;
+		}
+		
+		//insert bottom boxline
+		wrapper.appendChild(boxline.removeChild(boxline.getChildCount() - 1));
+		BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), (Element)wrapper);
+		b2.setOffsets(end + 1, end + 1 + b2.textLength());
+		b2.setBrailleOffsets(brailleEnd + 1, brailleEnd + 1 + b2.getText().length());
+		vi.addElementToSection(list, b2, endPos);
+
+		//set text
+		text.insertText(end, "\n" + list.get(endPos).getText());
+		braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());
+		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
+			
+		return endPos;
 	}
 	
 	public void saveAs(){
@@ -1364,7 +1423,7 @@ public class Manager extends Controller {
 		while( j < end) {
 			TextMapElement t = getElementInRange(j);
 			
-			if ((t != null) && (!((t instanceof BrlOnlyMapElement )||(t instanceof PageMapElement)))) {
+			if (t != null) {
 				Element currentParent = document.getParent(t.n, true);
 				if(!(parentElement.contains(currentParent))){
 					parentElement.add(currentParent);

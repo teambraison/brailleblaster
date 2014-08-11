@@ -151,20 +151,11 @@ public class StyleManager{
     }
     
     public void apply(String item){
-    	Message m = Message.createUpdateStyleMessage(false);
     	Styles style = semanticsTable.get(item);
 
     	if(style != null){
+    		Message m = Message.createUpdateStyleMessage(style, dm.getText().isMultiSelected());
     		m.put("Style", style);
-    	   	if(dm.getText().isMultiSelected()==true)
-        	{
-        		m.put("multiSelect", true);
-        	}
-        	else
-        	{
-        		m.put("multiSelect", false);
-        		
-        	}
     		dm.dispatch(m);
     	}
     }

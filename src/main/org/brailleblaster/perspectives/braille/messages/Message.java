@@ -33,6 +33,7 @@ package org.brailleblaster.perspectives.braille.messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 
 import nu.xom.Text;
@@ -187,8 +188,9 @@ public class Message {
 	 * @param flag
 	 * @return
 	 */
-	public static Message createUpdateStyleMessage(boolean flag){
+	public static Message createUpdateStyleMessage(Styles style, boolean flag){
 		Message m = new Message(BBEvent.UPDATE_STYLE);
+		m.put("Style", style);
 		m.put("multiSelect", flag);
 		return m;
 	}

@@ -19,6 +19,7 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class BoxlineHandler {
 	Manager manager;
@@ -60,8 +61,11 @@ public class BoxlineHandler {
 			}
 			
 			//add aside or sidebar to tree
-			treeView.newTreeItem(list.get(startPos), treeView.getSelectionIndex(), 0);
-			//handleSetCurrent(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
+			int treeIndex = treeView.getSelectionIndex();
+			if(treeIndex > treeView.getTree().getSelection()[0].getItemCount())
+				treeIndex = 0;
+			treeView.newTreeItem(list.get(startPos), treeIndex, 0);
+			
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}

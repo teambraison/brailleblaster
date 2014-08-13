@@ -209,7 +209,7 @@ public class XMLTree extends TreeView {
 		TreeItem newItem = newTreeItem(parentElement, parent, index + offset);
 		TreeItemData data = new TreeItemData(parentElement);
 		
-		if(parentElement.equals(t.n.getParent()))
+		if(parentElement.equals(t.parentElement()))
 			data.textMapList.add(t);
 		
 		newItem.setData(data);
@@ -392,38 +392,46 @@ public class XMLTree extends TreeView {
 	
 	private void searchTree(TreeItem item, TextMapElement t, Message m){
 		boolean found = false;
-		if(t instanceof BrlOnlyMapElement){
-			searchTreeForElement(item, t.parentElement(), m);
-			if(m.contains("item"))
-			found = true;
-		}
 
 		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
 			searchTreeForElement(item, t.parentElement(), m);
-			if(m.contains("item"))
+			if(m.contains("item")){
 				found = true;
+				item = ((TreeItem)m.getValue("item"));
+				if(getTreeItemData(item).textMapList != null){
+					ArrayList<TextMapElement>list = getList(item);
+					for(int j = 0; j < list.size(); j++){
+						if(list.get(j).equals(t)){
+							m.put("item",item);
+							m.put("treeIndex", j);
+							break;
+						}
+					}
+				}
+			}
 		}
-		else if(t.n instanceof Element) {
+		else if(t.isMathML()) {
 			searchTreeForElement(item, (Element)t.n, m);
 			if(m.contains("item"))
 				found = true;
 		}
-			
-		for(int i = 0; i < item.getItemCount() && !found; i++){
-			if(getTreeItemData(item.getItem(i)).textMapList != null){
-				ArrayList<TextMapElement>list = getList(item.getItem(i));
-				for(int j = 0; j < list.size(); j++){
-					if(list.get(j).equals(t)){
-						m.put("item",item.getItem(i));
-						m.put("treeIndex", j);
-						found = true;
-						break;
+		else {	
+			for(int i = 0; i < item.getItemCount() && !found; i++){
+				if(getTreeItemData(item.getItem(i)).textMapList != null){
+					ArrayList<TextMapElement>list = getList(item.getItem(i));
+					for(int j = 0; j < list.size(); j++){
+						if(list.get(j).equals(t)){
+							m.put("item",item.getItem(i));
+							m.put("treeIndex", j);
+							found = true;
+							break;
+						}
 					}
 				}
-			}
 			
-			if(!found)
-				searchTree(item.getItem(i), t, m);
+				if(!found)
+					searchTree(item.getItem(i), t, m);
+			}
 		}
 	}
 	

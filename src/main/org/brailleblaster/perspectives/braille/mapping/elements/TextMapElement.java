@@ -39,8 +39,9 @@ public class TextMapElement extends AbstractMapElement {
 	}
 	
 	public boolean isMathML(){
-		if(n instanceof Element &&( ((Element) n).getLocalName().equals("Math")))
+		if(n instanceof Element && ((Element) n).getLocalName().equals("math")){
 			return true;
+		}
 		else
 			return false;
 	}

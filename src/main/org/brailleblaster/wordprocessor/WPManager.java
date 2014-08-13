@@ -128,7 +128,8 @@ public class WPManager {
 	           logger.info("Main Shell handling Close event, about to dispose the main Display");
 	         
 	           while(managerList.size() > 0){
-	        	   Controller temp = managerList.removeFirst(); 
+	        	   Controller temp = managerList.removeFirst();
+	        	   temp.getArchiver().destroyAutoSave();
 	        	   temp.close();
 	           }
 	           
@@ -140,7 +141,7 @@ public class WPManager {
 		setShellScreenLocation(display, shell);
 		shell.setMaximized(true);
 		
-        new Welcome(); 
+        new Welcome();
 		shell.open();
 		
         while (!shell.isDisposed())  { 
@@ -202,6 +203,7 @@ public class WPManager {
     public void swapPerspectiveController(Class<?> controllerClass){
     	int index = folder.getSelectionIndex();
     	if(index != -1){
+    		currentPerspective.getController().getArchiver().pauseAutoSave();
     		currentPerspective.dispose();
     		currentPerspective.getController().dispose();
     		currentPerspective = Perspective.getDifferentPerspective(currentPerspective, this, controllerClass, managerList.get(index).getDoc());
@@ -209,13 +211,16 @@ public class WPManager {
     		bbMenu = currentPerspective.getMenu();
     		managerList.get(index).setStatusBarText(statusBar);
     		managerList.get(index).restore(this);
+    		currentPerspective.getController().getArchiver().resumeAutoSave(null, null);
     	}
     	else {
+    		currentPerspective.getController().getArchiver().pauseAutoSave();
     		currentPerspective.dispose();
     		currentPerspective.getController().dispose();
     		currentPerspective = Perspective.getDifferentPerspective(currentPerspective, this, controllerClass, null);
     		bbMenu = currentPerspective.getMenu();
     		bbMenu.setCurrent(null);
+    		currentPerspective.getController().getArchiver().resumeAutoSave(null, null);
     	}
     	
     	lastPerspective = controllerClass;

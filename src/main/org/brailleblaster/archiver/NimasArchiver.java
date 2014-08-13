@@ -36,12 +36,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import nu.xom.Attribute;
 import nu.xom.Builder;
-import nu.xom.DocType;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
@@ -88,7 +84,11 @@ public class NimasArchiver extends Archiver {
 	}
 	
 	@Override
-	public void save(BBDocument doc, String path) {
+	public void save(BBDocument doc, String path, boolean zip) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		FileUtils fu = new FileUtils();
 		if(path == null)
 			path = workingDocPath;
@@ -101,9 +101,14 @@ public class NimasArchiver extends Archiver {
 			new Notify("An error occured while saving your document.  Please check your original document.");
 		}
 		
-		// If the document came from a zip file, then rezip it.
-		if(zippedPath.length() > 0)
-			zipDocument();
+		// Zip the document back up?
+		if(zip == true)
+			if(zippedPath.length() > 0)
+				zipDocument();
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 	} // save()
 	
 	protected  void zipDocument(){
@@ -142,6 +147,10 @@ public class NimasArchiver extends Archiver {
 
 	@Override
 	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		if(ext.equals("xml"))
 			saveAsNimas(doc, path);
 		if(ext.equals("zip")){
@@ -153,10 +162,17 @@ public class NimasArchiver extends Archiver {
 		else if(ext.equals("utd"))
 			return saveAsUTD(doc, path);
 					
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return this;
 	}
 	
 	private NimasArchiver saveAsNimas(BBDocument doc, String path){
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		FileUtils fu = new FileUtils();
 		if(fu.createXMLFile(doc.getNewXML(), path)) {
 	    	String tempSemFile; 			    
@@ -179,12 +195,23 @@ public class NimasArchiver extends Archiver {
 	    else {
 	    	new Notify("An error occured while saving your document.  Please check your original document.");
 	    }
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return this;
 	}
 	
 	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path);
+		arch.save(doc, path, true);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return arch;
 	}
 	

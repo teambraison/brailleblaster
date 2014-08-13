@@ -86,8 +86,47 @@ abstract public class Archiver {
 	
 	// Index of current file we're looking at in the browser.
 	// Current file we're to load using the spine as a reference.
-	// Spine is in .opf file in epub.
+	// Spine is in .opf file in epub and nimas.
 	int curSpineFileIdx = 0;
+	
+	// We create this thread so we can automatically save every
+	// so often.
+	Thread autosaveThread = null;
+	
+	// Special Archiver Runnable class. So we can pause 
+	// thread execution and such.
+	public class ArchRunner implements Runnable {
+		// Timer.
+		public long tmr = System.currentTimeMillis();
+		// True if we're to save. False to not save.
+		public boolean shouldWeSave = false;
+		BBDocument _doc = null;
+		String _path = null;
+		// Constructor.
+		public ArchRunner(BBDocument __doc, String __path) { _doc = __doc; _path = __path; }
+		// Run method.
+		public void run() {
+	    	// We have to explicitly interrupt our thread with 
+	    	// stopAutoSave().
+	    	while( !Thread.interrupted() ) {
+	    		// Has enough time passed?
+		        if( System.currentTimeMillis() - tmr >= 60000 ) {
+		        	// Save!
+		        	if(shouldWeSave) {
+		        		System.out.println("SAVED!");
+		        		autosave(_doc, _path);
+		        	}
+		        	else {
+		        		System.out.println("NOT SAVING!");
+		        	}
+		        	// Restart the timer.
+		        	tmr = System.currentTimeMillis();
+		        } // if()
+	    	} // while()
+	    } // run()
+	}; // class ArchRunner
+	
+	ArchRunner archrun = null;
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Constructor. Stores path to document to prepare.
@@ -102,6 +141,35 @@ abstract public class Archiver {
 		epubFileList = new ArrayList<String>();
 		tempList = new ArrayList<String>();
 		numImages = new ArrayList<Integer>();
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Starts/resumes the autosave feature. 
+	public void resumeAutoSave(BBDocument _doc, String _path) {
+		if(autosaveThread == null && _doc != null) {
+			archrun = new ArchRunner(_doc, _path);
+			archrun.shouldWeSave = true;
+			autosaveThread = new Thread(archrun);
+			autosaveThread.start();
+		}
+		else if(autosaveThread != null)
+			archrun.shouldWeSave = true;
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Pauses the autosave feature.
+	public void pauseAutoSave() {
+		if(autosaveThread != null)
+			archrun.shouldWeSave = false;
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Stops/destroys the autosave feature. Only do this when the caller for this Archiver is 
+	// getting thrown away. This effectively stops the thread. CAN NOT RESTART THREAD 
+	// AFTER CALLING THIS.
+	public void destroyAutoSave() {
+		if(autosaveThread != null)
+			autosaveThread.interrupt();
 	}
 	
 	// Get-er for original document path.
@@ -154,7 +222,7 @@ abstract public class Archiver {
 		
 	} // getAutoCfg()
 	
-	// lic void copySemanticsFile(String
+
 	public void copySemanticsFile(String tempSemFile, String savedFilePath) {
 		FileUtils fu = new FileUtils();
 		
@@ -178,9 +246,13 @@ abstract public class Archiver {
 	}
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	public abstract void save(BBDocument doc, String path);
+	public abstract void save(BBDocument doc, String path, boolean zip);
 	
 	public abstract Archiver saveAs(BBDocument doc, String path, String ext);
+	
+	public void autosave(BBDocument _doc, String _path) { 
+		save(_doc, _path, false);
+	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Returns path to opf file if we found one with a prior call to findOPF().

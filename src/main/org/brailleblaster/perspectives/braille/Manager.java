@@ -232,9 +232,9 @@ public class Manager extends Controller {
 			checkForUpdatedViews();
 			
 			if(arch.getOrigDocPath().endsWith(".txt"))
-				arch.save(document, arch.getOrigDocPath());
+				arch.save(document, arch.getOrigDocPath(), true);
 			else
-				arch.save(document, null);
+				arch.save(document, null, true);
 			
 			text.hasChanged = false;
 			braille.hasChanged = false;
@@ -284,6 +284,9 @@ public class Manager extends Controller {
 		addRecentFileEntry(fileName);
 			
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
+		
+		// Start the auto-saver.
+		arch.resumeAutoSave( document, arch.getWorkingFilePath() );
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){

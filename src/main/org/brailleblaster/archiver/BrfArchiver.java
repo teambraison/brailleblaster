@@ -12,7 +12,7 @@ public class BrfArchiver extends Archiver{
 	}
 
 	@Override
-	public void save(BBDocument doc, String path) {
+	public void save(BBDocument doc, String path, boolean zip) {
 		if(path == null)
 			path = workingDocPath;
 		

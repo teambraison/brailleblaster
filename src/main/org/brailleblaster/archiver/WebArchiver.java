@@ -25,7 +25,11 @@ public class WebArchiver extends Archiver{
 	}
 
 	@Override
-	public void save(BBDocument doc, String path) {
+	public void save(BBDocument doc, String path, boolean zip) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		FileUtils fu = new FileUtils();
 		if(path == null)
 			path = workingDocPath;
@@ -37,23 +41,42 @@ public class WebArchiver extends Archiver{
 		else {
 			new Notify("An error occured while saving your document.  Please check your original document.");
 		}
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 	}
 
 	@Override
 	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		if(ext.equals(this.ext))
-			save(doc, path);
+			save(doc, path, true);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
 		else if(ext.equals("utd"))
 			return saveAsUTD(doc, path);
 		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return this;	
 	}
 	
 	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path);
+		arch.save(doc, path, true);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return arch;
 	}
 }

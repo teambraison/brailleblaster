@@ -70,7 +70,11 @@ public class TextArchiver extends Archiver{
 	}
 
 	@Override
-	public void save(BBDocument doc, String path) {
+	public void save(BBDocument doc, String path, boolean zip) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		PrintWriter out = null;
 		Element root = doc.getRootElement();
 		String text = getDocumentText(root, "");
@@ -86,6 +90,9 @@ public class TextArchiver extends Archiver{
 			if(out != null)
 				out.close();
 		}
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
 		
 	}
 	
@@ -167,27 +174,50 @@ public class TextArchiver extends Archiver{
 
 	@Override
 	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		if(ext.equals("html"))
 			return saveAsWeb(doc, path);
 		else if(ext.equals("utd"))
 			return saveAsUTD(doc, path);
 		else if(ext.equals("txt"))
-			save(doc, path);
+			save(doc, path, true);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
 		
 		return this;
 	}
 	
 	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path);
+		arch.save(doc, path, true);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return arch;
 	}
 	
 	public WebArchiver saveAsWeb(BBDocument doc, String path){
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		WebArchiver arch = new WebArchiver(path);
-		arch.save(doc, path);
+		arch.save(doc, path, true);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return arch;
 	}
 }

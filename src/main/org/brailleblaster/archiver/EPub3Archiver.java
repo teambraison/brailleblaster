@@ -326,8 +326,11 @@ public class EPub3Archiver extends Archiver {
 	} // open()
 	
 	@Override
-	public void save(BBDocument doc, String path)
+	public void save(BBDocument doc, String path, boolean zip)
 	{
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		try
 		{
 			// Create XOM builder.
@@ -396,30 +399,34 @@ public class EPub3Archiver extends Archiver {
 		///////
 		// Zip.
 
-			// Create unzipper.
-			Zipper zpr = new Zipper();
-			
-			// Create paths.
-			String sep = BBIni.getFileSep();
-			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
-			String inputDir = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
-			String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
-			
-			// If we are to save somewhere else... "Save As"
-			if(path != null){
-				outFilePath = path;
-				originalDocPath = outFilePath;
+			if(zip == true) {
+				
+				// Create unzipper.
+				Zipper zpr = new Zipper();
+				
+				// Create paths.
+				String sep = BBIni.getFileSep();
+				String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
+				String inputDir = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
+				String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
+				
+				// If we are to save somewhere else... "Save As"
+				if(path != null){
+					outFilePath = path;
+					originalDocPath = outFilePath;
+				}
+				
+				// Zip.
+				zpr.Zip(inputDir, outFilePath);
 			}
-			
-			// Zip.
-			zpr.Zip(inputDir, outFilePath);
 			
 		// Zip.
 		///////
-		
+			
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+			
 	} // save()
-	
-	
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Simple message box for alerts and messages to user.
@@ -459,19 +466,34 @@ public class EPub3Archiver extends Archiver {
 
 	@Override
 	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		if(ext.equals("epub"))
-			save(doc, path);
+			save(doc, path, true);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
 		else if(ext.equals("utd"))
 			return saveAsUTD(doc, path);
 		
+		// Restart autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return this;
 	}
 	
 	private UTDArchiver saveAsUTD(BBDocument doc, String path){
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path);
+		arch.save(doc, path, true);
+		
+		// Restart autosave feature.
+		resumeAutoSave(doc, path);
+		
 		return arch;
 	}
 	

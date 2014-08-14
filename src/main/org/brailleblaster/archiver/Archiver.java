@@ -35,6 +35,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -106,19 +108,14 @@ abstract public class Archiver {
 		public ArchRunner(BBDocument __doc, String __path) { _doc = __doc; _path = __path; }
 		// Run method.
 		public void run() {
-	    	// We have to explicitly interrupt our thread with 
-	    	// stopAutoSave().
+	    	// We have to explicitly interrupt/pause our thread with 
+	    	// pauseAutoSave().
 	    	while( !Thread.interrupted() ) {
 	    		// Has enough time passed?
 		        if( System.currentTimeMillis() - tmr >= 60000 ) {
 		        	// Save!
-		        	if(shouldWeSave) {
-		        		System.out.println("SAVED!");
+		        	if(shouldWeSave)
 		        		autosave(_doc, _path);
-		        	}
-		        	else {
-		        		System.out.println("NOT SAVING!");
-		        	}
 		        	// Restart the timer.
 		        	tmr = System.currentTimeMillis();
 		        } // if()

@@ -1007,6 +1007,8 @@ public class Manager extends Controller {
 		}
 		
 		if(!cancel){
+			// Shut down auto-save feature.
+			arch.destroyAutoSave();
 			dispose();
 			item.dispose();
 			fontManager.disposeFonts();

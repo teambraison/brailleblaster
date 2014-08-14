@@ -14,6 +14,8 @@ import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -88,7 +90,7 @@ public class LogViewerDialog extends Dialog {
 		
 		// Create the control objects first so we create them in the order for
 		// tabbing
-		final StyledText logText = new StyledText(dialogShell, SWT.BORDER
+		final Text logText = new Text(dialogShell, SWT.BORDER
 				| SWT.V_SCROLL | SWT.MULTI | SWT.WRAP);
 		Button saveButton = new Button(dialogShell, SWT.PUSH);
 		Button closeButton = new Button(dialogShell, SWT.PUSH);
@@ -159,8 +161,17 @@ public class LogViewerDialog extends Dialog {
 			result = false;
 			return result;
 		}
-		logText.setKeyBinding('a' | SWT.MOD1, ST.SELECT_ALL);
-
+		// logText.setKeyBinding('a' | SWT.MOD1, ST.SELECT_ALL);
+		logText.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				e.doit = true;
+				if ((e.stateMask == SWT.MOD1) && (e.keyCode == 'a')) {
+					logText.selectAll();
+					e.doit = false;
+				}
+			}
+		});
 		dialogShell.pack();
 		dialogShell.open();
 		while (!dialogShell.isDisposed()) {

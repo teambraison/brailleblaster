@@ -1,7 +1,9 @@
 package org.brailleblaster.wordprocessor;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.FileReader;
 
@@ -25,6 +27,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -54,6 +57,16 @@ public class LogViewerDialog extends Dialog {
 		}
 		return buf.toString();
 	}
+	private static void writeStringToFile(File outFile, String content) throws IOException {
+		BufferedWriter bw = null;
+		try {
+			bw = new BufferedWriter(new FileWriter(outFile));
+			bw.write(content);
+		} finally {
+			if (bw != null)
+				bw.close();
+		}
+	}
 
 	public LogViewerDialog(Shell parent, int style) {
 		super(parent, style);
@@ -72,15 +85,53 @@ public class LogViewerDialog extends Dialog {
 		dialogShell.setText(getText());
 		FormLayout dialogLayout = new FormLayout();
 		dialogShell.setLayout(dialogLayout);
-		;
-
+		
+		// Create the control objects first so we create them in the order for
+		// tabbing
+		final StyledText logText = new StyledText(dialogShell, SWT.BORDER
+				| SWT.V_SCROLL | SWT.MULTI | SWT.WRAP);
+		Button saveButton = new Button(dialogShell, SWT.PUSH);
 		Button closeButton = new Button(dialogShell, SWT.PUSH);
-		FormData closeData = new FormData(30, 20);
+
+		FormData saveData = new FormData();
+		saveData.height = 20;
+		saveData.right = new FormAttachment(50, -3);
+		saveData.bottom = new FormAttachment(100, -5);
+		saveButton.setLayoutData(saveData);
+		saveButton.setText("&Save log...");
+		saveButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				FileDialog saveDialog = new FileDialog(dialogShell, SWT.SAVE);
+				saveDialog.setFilterNames(new String[] {"Log file (*.log)"});
+				saveDialog.setFilterExtensions(new String[] {"*.log"});
+				saveDialog.setFilterPath(System.getProperty("user.home"));
+				saveDialog.setOverwrite(true);
+				String saveResult = saveDialog.open();
+				if (saveResult != null) {
+					try {
+						writeStringToFile(new File(saveResult), logText.getText());
+						MessageBox savedMsg = new MessageBox(dialogShell, SWT.ICON_INFORMATION | SWT.OK);
+						savedMsg.setText("Log saved");
+						savedMsg.setMessage("The log file has been saved successfully");
+						savedMsg.open();
+					} catch(IOException e) {
+						MessageBox saveErrorMsg = new MessageBox(dialogShell, SWT.ICON_ERROR | SWT.OK);
+						saveErrorMsg.setText("Unable to save log");
+						saveErrorMsg.setMessage("There was a problem saving the log to the specified location.");
+						saveErrorMsg.open();
+					}
+					
+				}
+			}
+		});
+
+		FormData closeData = new FormData();
+		closeData.height = 20;
 		closeData.bottom = new FormAttachment(100, -5);
-		closeData.left = new FormAttachment(50, -15);
+		closeData.left = new FormAttachment(saveButton, 5);
 		closeButton.setLayoutData(closeData);
 		closeButton.setText(lh.localValue("buttonClose"));
-		;
 		closeButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -88,13 +139,12 @@ public class LogViewerDialog extends Dialog {
 				dialogShell.dispose();
 			}
 		});
-		StyledText logText = new StyledText(dialogShell, SWT.BORDER
-				| SWT.V_SCROLL | SWT.MULTI | SWT.WRAP);
+
 		FormData logTextData = new FormData();
 		logTextData.top = new FormAttachment(0, 5);
 		logTextData.left = new FormAttachment(0, 5);
 		logTextData.right = new FormAttachment(100, -5);
-		logTextData.bottom = new FormAttachment(closeButton, -10);
+		logTextData.bottom = new FormAttachment(closeButton, -5);
 		logTextData.height = 400;
 		logText.setLayoutData(logTextData);
 		logText.setEditable(false);
@@ -110,7 +160,7 @@ public class LogViewerDialog extends Dialog {
 			return result;
 		}
 		logText.setKeyBinding('a' | SWT.MOD1, ST.SELECT_ALL);
-		
+
 		dialogShell.pack();
 		dialogShell.open();
 		while (!dialogShell.isDisposed()) {

@@ -13,7 +13,8 @@ public class BrlOnlyMapElement extends TextMapElement {
 		this.parent=parent;
 		// TODO Auto-generated constructor stub
 	}
-	public BrlOnlyMapElement(Node n,Element parent){
+	
+	public BrlOnlyMapElement(Node n, Element parent){
 		super(n);
 		this.brailleList = new LinkedList<BrailleMapElement>();
 		this.brailleList.add(new BrailleMapElement(n));

@@ -140,6 +140,7 @@ public class WPManager {
 
 				while (managerList.size() > 0) {
 					Controller temp = managerList.removeFirst();
+					temp.getArchiver().destroyAutoSave();
 					temp.close();
 				}
 
@@ -163,8 +164,7 @@ public class WPManager {
 				logger.debug("Uncaught exception detected", e);
 				MessageBox questionBox = new MessageBox(this.shell,
 						SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-				questionBox
-						.setMessage(lh.localValue("UnexpectedErrorMessage"));
+				questionBox.setMessage(lh.localValue("UnexpectedErrorMessage"));
 				questionBox.setText(lh.localValue("UnexpectedErrorTitle"));
 				int viewLogResult = questionBox.open();
 				if (viewLogResult == SWT.YES) {
@@ -226,6 +226,7 @@ public class WPManager {
 	public void swapPerspectiveController(Class<?> controllerClass) {
 		int index = folder.getSelectionIndex();
 		if (index != -1) {
+			currentPerspective.getController().getArchiver().pauseAutoSave();
 			currentPerspective.dispose();
 			currentPerspective.getController().dispose();
 			currentPerspective = Perspective.getDifferentPerspective(
@@ -235,13 +236,18 @@ public class WPManager {
 			bbMenu = currentPerspective.getMenu();
 			managerList.get(index).setStatusBarText(statusBar);
 			managerList.get(index).restore(this);
+			currentPerspective.getController().getArchiver()
+					.resumeAutoSave(null, null);
 		} else {
+			currentPerspective.getController().getArchiver().pauseAutoSave();
 			currentPerspective.dispose();
 			currentPerspective.getController().dispose();
 			currentPerspective = Perspective.getDifferentPerspective(
 					currentPerspective, this, controllerClass, null);
 			bbMenu = currentPerspective.getMenu();
 			bbMenu.setCurrent(null);
+			currentPerspective.getController().getArchiver()
+					.resumeAutoSave(null, null);
 		}
 
 		lastPerspective = controllerClass;

@@ -31,13 +31,11 @@
 package org.brailleblaster.perspectives.imageDescriber;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import nu.xom.Document;
 
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
-import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -53,11 +51,8 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////
-// Simple dialog that displays images in a document, and allows one
-// to modify the descriptions.
+// Controller for Image Describer Perspective.
 public class ImageDescriberController extends Controller {	
 	// Utils
 	LocaleHandler lh = new LocaleHandler();
@@ -136,7 +131,15 @@ public class ImageDescriberController extends Controller {
 		if(fileName != null)
 			addRecentFileEntry(fileName);
 		
-		return imgDesc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
+		// Parse document.
+		boolean result = imgDesc.startDocument(arch.getWorkingFilePath(), arch.getCurrentConfig(), null);
+		
+		// Start the auto-saver.
+		if( arch.getWorkingFilePath().contains("textFileTemplate.html") == false )
+			arch.resumeAutoSave( imgDesc, arch.getWorkingFilePath() );
+		 
+		// Return document result.
+		return result;
 	}
 
 	public void fileOpenDialog(){
@@ -172,15 +175,7 @@ public class ImageDescriberController extends Controller {
 			saveAs();
 		else {
 			if(arch != null) { // Save archiver supported file.
-				if(arch.getOrigDocPath().endsWith("epub"))
-					//imgDesc.getDOM().toXML().
-					arch.save(imgDesc, null);
-				else if(arch.getOrigDocPath().endsWith("xml") || arch.getOrigDocPath().endsWith(".zip"))
-					arch.save(imgDesc, null);
-				else if(arch.getOrigDocPath().endsWith("utd"))		
-					arch.save(imgDesc, null);
-				else if(arch.getOrigDocPath().endsWith(".brf"))
-					arch.save(imgDesc, null);
+				arch.save(imgDesc, null, true);
 			}
 		
 			arch.setDocumentEdited(false);

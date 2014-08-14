@@ -1,13 +1,7 @@
 package org.brailleblaster.perspectives.imageDescriber.views;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import java.util.ArrayList;
 
 import nu.xom.Element;
@@ -16,7 +10,6 @@ import nu.xom.XPathContext;
 
 import org.apache.commons.io.FileUtils;
 import org.brailleblaster.BBIni;
-import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;

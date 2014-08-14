@@ -465,12 +465,12 @@ public class BrailleView extends WPView {
 		m.put("offset", offset);	
 	
 		String textBefore = "";
-		Styles style = (Styles)m.getValue("style");
+		Styles style = (Styles)m.getValue("Style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		boolean boxline = style.getName().equals("boxline");
 		
 		if(!boxline){
-		setListenerLock(true);	
+			setListenerLock(true);	
 			view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
 			view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
 		
@@ -486,53 +486,53 @@ public class BrailleView extends WPView {
 		int next = (Integer)m.getValue("brailleNext");
 		
 		if(!boxline){
-		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
-			switch(entry.getKey()){
-				case linesBefore:
-					if(start != prev){
-						view.replaceTextRange(prev, (start - prev), "");
-						length = start - prev;	
-					}
+			for (Entry<StylesType, Object> entry : style.getEntrySet()) {
+				switch(entry.getKey()){
+					case linesBefore:
+						if(start != prev){
+							view.replaceTextRange(prev, (start - prev), "");
+							length = start - prev;	
+						}
 					
-					spaces = Integer.valueOf((String)entry.getValue());
-					textBefore = makeInsertionString(spaces,'\n');
-					offset = spaces - length;
+						spaces = Integer.valueOf((String)entry.getValue());
+						textBefore = makeInsertionString(spaces,'\n');
+						offset = spaces - length;
 									
-					insertBefore(start - (start - prev), textBefore);
-					start += offset;
-					end += offset;
-					if(next != -1)
-						next += offset;
-					break;
-				case linesAfter:
-					length = 0;
-					if(end != next && next != 0){
-						view.replaceTextRange(end, (next - end), "");
-						length = next - end;	
-					}
-					spaces = Integer.valueOf((String)entry.getValue());
-					textBefore = makeInsertionString(spaces,'\n');
-					insertBefore(end, textBefore);
-					offset = spaces - length;
-					break;
-				case format:
-					setAlignment(start, end, style);
-					break;
-				case firstLineIndent:
-					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
-						setFirstLineIndent(start, style);
-					break;
-				case leftMargin:
-					if(style.contains(StylesType.firstLineIndent))
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
-					else
-						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
-					break;
-				default:
-					break;
+						insertBefore(start - (start - prev), textBefore);
+						start += offset;
+						end += offset;
+						if(next != -1)
+							next += offset;
+						break;
+					case linesAfter:
+						length = 0;
+						if(end != next && next != 0){
+							view.replaceTextRange(end, (next - end), "");
+							length = next - end;	
+						}
+						spaces = Integer.valueOf((String)entry.getValue());
+						textBefore = makeInsertionString(spaces,'\n');
+						insertBefore(end, textBefore);
+						offset = spaces - length;
+						break;
+					case format:
+						setAlignment(start, end, style);
+						break;
+					case firstLineIndent:
+						if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+							setFirstLineIndent(start, style);
+						break;
+					case leftMargin:
+						if(style.contains(StylesType.firstLineIndent))
+							handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
+						else
+							handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
+						break;
+					default:
+						break;
+				}
 			}
-		}
-		setListenerLock(false);
+			setListenerLock(false);
 		}
 	}
 	

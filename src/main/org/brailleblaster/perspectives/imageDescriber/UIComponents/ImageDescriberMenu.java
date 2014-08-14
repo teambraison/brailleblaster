@@ -3,7 +3,6 @@ package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
-import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;

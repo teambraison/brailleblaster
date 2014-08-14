@@ -124,9 +124,9 @@ public class TextView extends WPView {
 	public void initializeListeners(){	
 		view.addSelectionListener(selectionListener = new SelectionAdapter(){
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				
+			public void widgetSelected(SelectionEvent e) {		
 				selectionArray = view.getSelectionRanges();
+		
 				if(selectionArray[1] > 0){
 					setSelection(selectionArray[0], selectionArray[1]);
 					multiSelected=true;
@@ -134,8 +134,9 @@ public class TextView extends WPView {
 					if(currentChanges > 0)
 						sendUpdate();
 				}
-				else
+				else{
 					multiSelected = false;
+				}
 			}			
 		});
 		
@@ -296,6 +297,9 @@ public class TextView extends WPView {
 		view.addCaretListener(caretListener = new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
+				if(view.getSelectionCount() == 0)
+					multiSelected = false;
+				
 				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
@@ -1524,7 +1528,7 @@ public class TextView extends WPView {
 		String textBefore = "";
 		
 		//Get previous style for comparison on adding or removing lines before or after
-		Styles style = (Styles)m.getValue("style");
+		Styles style = (Styles)m.getValue("Style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
 		boolean boxline = style.getName().equals("boxline");
 				

@@ -32,7 +32,11 @@ public class UTDArchiver extends Archiver{
 	}
 
 	@Override
-	public void save(BBDocument doc, String path) {
+	public void save(BBDocument doc, String path, boolean zip) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		FileUtils fu = new FileUtils();
 		if(path == null)
 			path = workingDocPath;
@@ -47,6 +51,9 @@ public class UTDArchiver extends Archiver{
 			new Notify("An error occured while saving your document.  Please check your original document.");
 		}
 		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
+		
 	}
 	
 	private void setMetaData(BBDocument doc){
@@ -60,10 +67,17 @@ public class UTDArchiver extends Archiver{
 
 	@Override
 	public Archiver saveAs(BBDocument doc, String path, String ext) {
+		
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
 		if(ext.equals("brf"))
 			saveBrf(doc, path);
 		else if(ext.equals("utd"))
-			save(doc, path);
+			save(doc, path, true);
+		
+		// Resume autosave feature.
+		resumeAutoSave(doc, path);
 		
 		return this;
 	}

@@ -193,7 +193,7 @@ public class BookTree extends TreeView {
 		if(range != null && range.start != -1){
 			item.setData(new TreeItemData(e, range.section, range.start));
 			if(previousItem != null){
-				if(getItemData(previousItem).startRange > range.start)
+				if(getItemData(previousItem).startRange >= range.start)
 					((TreeItemData)previousItem.getData()).endRange = manager.getSectionSize(getItemData(previousItem).sectionIndex) - 1;
 				else
 					((TreeItemData)previousItem.getData()).endRange = range.start - 1;
@@ -444,6 +444,11 @@ public class BookTree extends TreeView {
 				return items[i];
 			else if(i < items.length - 1){
 				if(section == getSection(items[i]) && index > getEndRange(items[i]) && items[i].getItemCount() > 0){
+					TreeItem newItem =  searchTree(items[i], section, index);
+					if(newItem != null)
+						return newItem;
+				}
+				else if(items[i].getItemCount() > 0){
 					TreeItem newItem =  searchTree(items[i], section, index);
 					if(newItem != null)
 						return newItem;

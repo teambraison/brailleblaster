@@ -229,7 +229,9 @@ public class ImageDescriberController extends Controller {
 				cancel =true;
 		}
 		
-		if(!cancel){
+		if(!cancel){			
+			// Shut down auto-save feature.
+			arch.destroyAutoSave();
 			dispose();
 			item.dispose();
 			wp.removeController(this);

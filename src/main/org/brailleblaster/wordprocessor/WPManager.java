@@ -40,10 +40,12 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -52,6 +54,7 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 
 import java.util.LinkedList;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +64,7 @@ public class WPManager {
 	 * entry point for the word processor, and therefore the only public class.
 	 */
 	private static Logger logger = LoggerFactory.getLogger(WPManager.class);
+	private LocaleHandler lh;
 	public static Display display;
 	private Shell shell;
 	private FormLayout layout;
@@ -78,6 +82,7 @@ public class WPManager {
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
+		lh = new LocaleHandler();
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
 		display = new Display();
@@ -157,6 +162,17 @@ public class WPManager {
 				}
 			} catch (Throwable e) {
 				logger.debug("Uncaught exception detected", e);
+				MessageBox questionBox = new MessageBox(this.shell,
+						SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+				questionBox.setMessage(lh.localValue("UnexpectedErrorMessage"));
+				questionBox.setText(lh.localValue("UnexpectedErrorTitle"));
+				int viewLogResult = questionBox.open();
+				if (viewLogResult == SWT.YES) {
+					LogViewerDialog viewerDialog = new LogViewerDialog(
+							this.shell);
+					viewerDialog.setText("Log viewer");
+					viewerDialog.open();
+				}
 			}
 		}
 		display.dispose();

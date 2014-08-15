@@ -37,6 +37,9 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -91,35 +94,24 @@ abstract public class Archiver {
 	// Spine is in .opf file in epub and nimas.
 	int curSpineFileIdx = 0;
 	
-	// We create this thread so we can automatically save every
-	// so often.
-	Thread autosaveThread = null;
+	// The executor helps us with running the runnable every so many seconds. Thanks Brandon.
+	public ScheduledExecutorService executor = null;
 	
 	// Special Archiver Runnable class. So we can pause 
 	// thread execution and such.
 	public class ArchRunner implements Runnable {
-		// Timer.
-		public long tmr = System.currentTimeMillis();
 		// True if we're to save. False to not save.
 		public boolean shouldWeSave = false;
+		// Document and path.
 		BBDocument _doc = null;
 		String _path = null;
 		// Constructor.
 		public ArchRunner(BBDocument __doc, String __path) { _doc = __doc; _path = __path; }
 		// Run method.
 		public void run() {
-	    	// We have to explicitly interrupt/pause our thread with 
-	    	// pauseAutoSave().
-	    	while( !Thread.interrupted() ) {
-	    		// Has enough time passed?
-		        if( System.currentTimeMillis() - tmr >= 60000 ) {
-		        	// Save!
-		        	if(shouldWeSave)
-		        		autosave(_doc, _path);
-		        	// Restart the timer.
-		        	tmr = System.currentTimeMillis();
-		        } // if()
-	    	} // while()
+	    	// Only save if we're not already doing so.
+			if(shouldWeSave)
+				autosave(_doc, _path);
 	    } // run()
 	}; // class ArchRunner
 	
@@ -143,20 +135,20 @@ abstract public class Archiver {
 	//////////////////////////////////////////////////////////////////////////////////
 	// Starts/resumes the autosave feature. 
 	public void resumeAutoSave(BBDocument _doc, String _path) {
-		if(autosaveThread == null && _doc != null) {
+		if(executor == null && _doc != null) {
 			archrun = new ArchRunner(_doc, _path);
 			archrun.shouldWeSave = true;
-			autosaveThread = new Thread(archrun);
-			autosaveThread.start();
+			executor = Executors.newSingleThreadScheduledExecutor();
+			executor.scheduleAtFixedRate(archrun, 0, 60000, TimeUnit.SECONDS);
 		}
-		else if(autosaveThread != null)
+		else if(executor != null)
 			archrun.shouldWeSave = true;
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Pauses the autosave feature.
 	public void pauseAutoSave() {
-		if(autosaveThread != null)
+		if(executor != null)
 			archrun.shouldWeSave = false;
 	}
 	
@@ -165,8 +157,8 @@ abstract public class Archiver {
 	// getting thrown away. This effectively stops the thread. CAN NOT RESTART THREAD 
 	// AFTER CALLING THIS.
 	public void destroyAutoSave() {
-		if(autosaveThread != null)
-			autosaveThread.interrupt();
+		if(executor != null)
+			executor.shutdown();
 	}
 	
 	// Get-er for original document path.

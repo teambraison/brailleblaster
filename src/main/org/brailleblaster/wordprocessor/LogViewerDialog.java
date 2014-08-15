@@ -100,7 +100,7 @@ public class LogViewerDialog extends Dialog {
 		saveData.right = new FormAttachment(50, -3);
 		saveData.bottom = new FormAttachment(100, -5);
 		saveButton.setLayoutData(saveData);
-		saveButton.setText("&Save log...");
+		saveButton.setText(lh.localValue("LogViewer.SaveLog"));
 		saveButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -114,13 +114,13 @@ public class LogViewerDialog extends Dialog {
 					try {
 						writeStringToFile(new File(saveResult), logText.getText());
 						MessageBox savedMsg = new MessageBox(dialogShell, SWT.ICON_INFORMATION | SWT.OK);
-						savedMsg.setText("Log saved");
-						savedMsg.setMessage("The log file has been saved successfully");
+						savedMsg.setText(lh.localValue("LogViewer.SavedMsgBox.Title"));
+						savedMsg.setMessage(lh.localValue("LogViewer.SavedMsgBox.Message"));
 						savedMsg.open();
 					} catch(IOException e) {
 						MessageBox saveErrorMsg = new MessageBox(dialogShell, SWT.ICON_ERROR | SWT.OK);
-						saveErrorMsg.setText("Unable to save log");
-						saveErrorMsg.setMessage("There was a problem saving the log to the specified location.");
+						saveErrorMsg.setText(lh.localValue("LogViewer.SaveErrorMsgBox.Title"));
+						saveErrorMsg.setMessage(lh.localValue("LogViewer.SaveErrorMsgBox.Message"));
 						saveErrorMsg.open();
 					}
 					

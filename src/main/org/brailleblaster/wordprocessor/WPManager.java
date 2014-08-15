@@ -164,13 +164,13 @@ public class WPManager {
 				logger.debug("Uncaught exception detected", e);
 				MessageBox questionBox = new MessageBox(this.shell,
 						SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-				questionBox.setMessage(lh.localValue("UnexpectedErrorMessage"));
-				questionBox.setText(lh.localValue("UnexpectedErrorTitle"));
+				questionBox.setMessage(lh.localValue("UnexpectedError.Message"));
+				questionBox.setText(lh.localValue("UnexpectedError.Title"));
 				int viewLogResult = questionBox.open();
 				if (viewLogResult == SWT.YES) {
 					LogViewerDialog viewerDialog = new LogViewerDialog(
 							this.shell);
-					viewerDialog.setText("Log viewer");
+					viewerDialog.setText(lh.localValue("LogViewer.Title"));
 					viewerDialog.open();
 				}
 			}

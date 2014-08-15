@@ -141,7 +141,10 @@ public class EPub3Archiver extends Archiver {
 				if(unzippedPaths.get(curFile).toLowerCase().endsWith(".opf") == true)
 				{
 					// Found it!
-					opfPath = unzippedPaths.get(curFile).toLowerCase();
+					if(BBIni.getPlatformName().equals("win32"))
+						opfPath = unzippedPaths.get(curFile).toLowerCase();
+					else
+						opfPath = unzippedPaths.get(curFile);
 					
 					// Found it, take a break.
 					break;

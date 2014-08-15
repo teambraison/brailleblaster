@@ -283,7 +283,7 @@ public abstract class BBMenu {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				LogViewerDialog	logDialog = new LogViewerDialog(wp.getShell());
-				logDialog.setText(lh.localValue("LogViewer"));
+				logDialog.setText(lh.localValue("LogViewer.Title"));
 				logDialog.open();
 			}
 		});

@@ -258,8 +258,7 @@ public final class BBIni {
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
 			LibLouisUTDML.getInstance().registerLogCallback(
 					louisutdmlLogHandler);
-			LibLouisUTDML.initialize(programDataPath, tempFilesPath,
-					"liblouisutdml.log");
+			LibLouisUTDML.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
 			hLiblouisutdml = true;
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();

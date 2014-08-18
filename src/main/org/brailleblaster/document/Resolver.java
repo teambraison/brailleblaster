@@ -23,7 +23,7 @@ public 	class Resolver implements EntityResolver {
 			}
 			
 			// Change path for our nimas files?
-			if(massageForNimas && BBIni.getPlatformName().equals("win32"));
+			if(massageForNimas && BBIni.getPlatformName().equals("win32"))
 				dtdName = "file:/" + dtdName.replace("\\", "/").replace(" ", "%20");
 			
 			return new MyReader(publicId, dtdName);

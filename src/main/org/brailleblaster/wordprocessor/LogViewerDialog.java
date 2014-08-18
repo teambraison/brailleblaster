@@ -95,10 +95,25 @@ public class LogViewerDialog extends Dialog {
 		Button saveButton = new Button(dialogShell, SWT.PUSH);
 		Button closeButton = new Button(dialogShell, SWT.PUSH);
 
+		FormData closeData = new FormData();
+		closeData.height = 20;
+		closeData.bottom = new FormAttachment(100, -10);
+		// closeData.left = new FormAttachment(saveButton, 5);
+		closeData.right = new FormAttachment(100, -15);
+		closeButton.setLayoutData(closeData);
+		closeButton.setText(lh.localValue("buttonClose"));
+		closeButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				result = true;
+				dialogShell.dispose();
+			}
+		});
+
 		FormData saveData = new FormData();
 		saveData.height = 20;
-		saveData.right = new FormAttachment(50, -3);
-		saveData.bottom = new FormAttachment(100, -5);
+		saveData.right = new FormAttachment(closeButton, -10);
+		saveData.bottom = new FormAttachment(closeButton, 0, SWT.BOTTOM);
 		saveButton.setLayoutData(saveData);
 		saveButton.setText(lh.localValue("LogViewer.SaveLog"));
 		saveButton.addSelectionListener(new SelectionAdapter() {
@@ -127,26 +142,14 @@ public class LogViewerDialog extends Dialog {
 				}
 			}
 		});
-
-		FormData closeData = new FormData();
-		closeData.height = 20;
-		closeData.bottom = new FormAttachment(100, -5);
-		closeData.left = new FormAttachment(saveButton, 5);
-		closeButton.setLayoutData(closeData);
-		closeButton.setText(lh.localValue("buttonClose"));
-		closeButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				result = true;
-				dialogShell.dispose();
-			}
-		});
-
+		saveButton.pack();
+		closeData.width = saveButton.getSize().x;
 		FormData logTextData = new FormData();
 		logTextData.top = new FormAttachment(0, 5);
 		logTextData.left = new FormAttachment(0, 5);
 		logTextData.right = new FormAttachment(100, -5);
-		logTextData.bottom = new FormAttachment(closeButton, -5);
+		logTextData.width = 400;
+		logTextData.bottom = new FormAttachment(closeButton, -15);
 		logTextData.height = 400;
 		logText.setLayoutData(logTextData);
 		logText.setEditable(false);

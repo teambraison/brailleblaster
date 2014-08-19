@@ -175,7 +175,7 @@ public class ImageDescriberController extends Controller {
 			saveAs();
 		else {
 			if(arch != null) { // Save archiver supported file.
-				arch.save(imgDesc, null, true);
+				arch.save(imgDesc, null);
 			}
 		
 			arch.setDocumentEdited(false);

@@ -48,9 +48,12 @@ import nu.xom.ValidityException;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.document.Resolver;
+import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.Zipper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
@@ -62,7 +65,8 @@ public class NimasArchiver extends Archiver {
 	Set <String> allPaths;
 	// The number of documents we COULD have if wrote them all to disk.
 	int numPotentialFiles = 0;
-
+	private String zipPath;
+	
 	NimasArchiver(String docToPrepare) {
 		
 		super(docToPrepare);
@@ -73,8 +77,14 @@ public class NimasArchiver extends Archiver {
 		allPaths = new HashSet<String>();
 		
 		// Unzip file if needed.
-		if(docToPrepare.endsWith(".zip"))
+		if(docToPrepare.endsWith(".zip")){
 			unzip(docToPrepare);
+			zip = true;
+		}
+		else { 
+			copyFileToTemp(docToPrepare);
+			zip = false;
+		}
 		
 		// Segment the single NIMAS file. This will make rendering 
 		// faster in certain perspectives.
@@ -84,28 +94,36 @@ public class NimasArchiver extends Archiver {
 	}
 	
 	@Override
-	public void save(BBDocument doc, String path, boolean zip) {
+	public void save(BBDocument doc, String path) {
 		
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
-		
+				
 		FileUtils fu = new FileUtils();
 		if(path == null)
 			path = workingDocPath;
 		
+		//save working copy to temp folder and semantic files if part of a zip file
 		if(fu.createXMLFile(doc.getNewXML(), path)){
-			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
-			copySemanticsFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+			if(zip){
+				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
+				copySemanticsFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+			}
 		}
 		else {
 			new Notify("An error occured while saving your document.  Please check your original document.");
 		}
-		
-		// Zip the document back up?
+				
+		// Zip the document back up or save to original document with semantics included?
 		if(zip == true)
-			if(zippedPath.length() > 0)
-				zipDocument();
-		
+			zipDocument();
+		else {
+			fu.copyFile(workingDocPath, originalDocPath);
+			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
+			String newSem = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
+			copySemanticsFile(tempSemFile, newSem);
+		}					
+				
 		// Resume autosave feature.
 		resumeAutoSave(doc, path);
 		
@@ -114,35 +132,27 @@ public class NimasArchiver extends Archiver {
 	protected  void zipDocument(){
 		// Create zipper.
 		Zipper zpr = new Zipper();
-		// Input string.
-		String sp = BBIni.getFileSep();
-		String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
 		// Zip it!
-		zpr.Zip(inPath, zippedPath);
+		zpr.Zip(zipPath, originalDocPath);
 	}
 
 	private void unzip(String filePath){
 		// Create unzipper.
 		Zipper unzipr = new Zipper();
 		// Unzip and update "opened" file.
-		// workingFilePath = unzipr.Unzip(fileName, fileName.substring(0, fileName.lastIndexOf(".")) + BBIni.getFileSep());
 		String sp = BBIni.getFileSep();
 		String tempOutPath = BBIni.getTempFilesPath() + filePath.substring(filePath.lastIndexOf(sp), filePath.lastIndexOf(".")) + sp;
 		workingDocPath = unzipr.Unzip(filePath, tempOutPath);
 		
 		// Store paths.
-		zippedPath = filePath;
+		zipPath = tempOutPath;
 	}
 
 	private void newZipFile(String newZipPath){
 		Zipper zpr = new Zipper();
-		
-		String sp = BBIni.getFileSep();
-		String inPath = BBIni.getTempFilesPath() + zippedPath.substring(zippedPath.lastIndexOf(sp), zippedPath.lastIndexOf(".")) + sp;
-
-		zpr.Zip(inPath, newZipPath);
-		zippedPath = newZipPath;
-		originalDocPath = zippedPath;
+		zpr.Zip(zipPath, newZipPath);
+		originalDocPath = newZipPath;
+		zip = true;
 	}
 
 	@Override
@@ -153,10 +163,8 @@ public class NimasArchiver extends Archiver {
 		
 		if(ext.equals("xml"))
 			saveAsNimas(doc, path);
-		if(ext.equals("zip")){
-			saveAsNimas(doc, workingDocPath);
-			newZipFile(path);
-		}
+		if(ext.equals("zip"))
+			saveAsZip(doc, path);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
 		else if(ext.equals("utd"))
@@ -168,33 +176,45 @@ public class NimasArchiver extends Archiver {
 		return this;
 	}
 	
-	private NimasArchiver saveAsNimas(BBDocument doc, String path){
+	private void saveAsZip(BBDocument doc, String path){
+		FileUtils fu = new FileUtils();
+		fu.createXMLFile(doc.getNewXML(), workingDocPath);
 		
+		if(zipPath != null){
+			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";
+			copySemanticsFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
+		}
+		
+		if(zipPath == null)
+			zipPath = BBIni.getTempFilesPath();
+		
+		newZipFile(path);
+		zip = true;
+	}
+	
+	private NimasArchiver saveAsNimas(BBDocument doc, String path){	
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
 		FileUtils fu = new FileUtils();
 		if(fu.createXMLFile(doc.getNewXML(), path)) {
-	    	String tempSemFile; 			    
-		    if(workingDocPath == null)
-		    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName("outFile.utd") + ".sem";
-		    else
-		    	tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";
-
-	    	String savedSemFile = fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";   
-	    
-	    	//Save new semantic file to correct location and temp folder for further editing
-	    	copySemanticsFile(tempSemFile, savedSemFile);
-	    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+	    	//update semantics files for new file
+			copySemanticsForNewFile(workingDocPath, path);
 	    	
 			//update working file path to newly saved file
-	    	workingDocPath = path;
-	    	if(originalDocPath == null || originalDocPath.endsWith(".zip"))
+	    	workingDocPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1);	
+	    	fu.copyFile(path, workingDocPath);
+	    	
+	    	//will be set by zipper
+	    	if(!originalDocPath.endsWith(".zip") || (originalDocPath.endsWith(".zip") && path.endsWith(".xml")))
 	    		originalDocPath = path;
 	    }
 	    else {
 	    	new Notify("An error occured while saving your document.  Please check your original document.");
 	    }
+		
+		if(zip == true)
+			zip = false;
 		
 		// Resume autosave feature.
 		resumeAutoSave(doc, path);
@@ -205,9 +225,8 @@ public class NimasArchiver extends Archiver {
 	private UTDArchiver saveAsUTD(BBDocument doc, String path){
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
-		
-		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path, true);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		arch.save(doc, path);
 		
 		// Resume autosave feature.
 		resumeAutoSave(doc, path);
@@ -303,7 +322,7 @@ public class NimasArchiver extends Archiver {
 			// Fill list.
 			if(epubFileList.size() == 0) {
 				for(int curF = 0; curF < numPotentialFiles; curF++) {
-					epubFileList.add(workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(curF) + ".xml");
+					epubFileList.add(workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep()  + Integer.toString(curF) + ".xml");
 				}
 			}
 		}
@@ -320,6 +339,7 @@ public class NimasArchiver extends Archiver {
 	 */
 	Document createDocument(File tempfile)
 	{
+		Logger logger = LoggerFactory.getLogger(NimasArchiver.class);
 		Document tempDoc=new Document(new Element("root"));
 		try{
 			XMLReader xmlreader = XMLReaderFactory.createXMLReader();
@@ -331,15 +351,18 @@ public class NimasArchiver extends Archiver {
 		}
 		catch (ValidityException ex) {
 			System.err.println("xml is not valid)");
+			logger.error("XML is not valid", ex);
 		}
 		catch (ParsingException ex) {
 			System.err.println("couldnt parse it");
+			logger.error("Couldn't parse it", ex);
 		}
 		catch (IOException ex) {
-//			System.err.println("some errors happened");
-			System.err.println( ex.toString() );
+			logger.error("IO Exception", ex);
 		}
-		catch(Exception e) { e.printStackTrace(); }
+		catch(Exception ex) { 
+			logger.error("Unforeseen exception", ex);
+		}
 		
 		return tempDoc;
 	}
@@ -486,5 +509,4 @@ public class NimasArchiver extends Archiver {
 		return opfPath;
 		
 	} // _createOPFFromDocs()
-	
 } // class NimasArchiver

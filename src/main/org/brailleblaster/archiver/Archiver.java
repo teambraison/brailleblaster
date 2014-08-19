@@ -35,8 +35,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -74,6 +72,7 @@ abstract public class Archiver {
 	
 	protected String opfFilePath = null;
 	protected Document opfDoc = null;
+	protected boolean zip;
 	NodeList manifestElements;
 	NodeList spineElements;
 
@@ -211,8 +210,27 @@ abstract public class Archiver {
 		
 	} // getAutoCfg()
 	
+	
+	/** A convenience method for creating semantics with new file names when saving as a new file
+	 * copies to new location specified by user and also to temp folder for backup purposes
+	 * @param oldPath
+	 * @param newPath
+	 */
+	protected void copySemanticsForNewFile(String oldPath, String newPath){
+		FileUtils fu = new FileUtils();
+		String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(oldPath) + ".sem";
+    	String savedSemFile = fu.getPath(newPath) + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem";   
+    
+    	//Save new semantic file to correct location and temp folder for further editing
+    	copySemanticsFile(tempSemFile, savedSemFile);	
+    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem");
+	}
 
-	public void copySemanticsFile(String tempSemFile, String savedFilePath) {
+	/** Copies a semantic file into a new file; used by save as methods
+	 * @param tempSemFile: path to existing file
+	 * @param savedFilePath: path to which to create file
+	 */
+	protected void copySemanticsFile(String tempSemFile, String savedFilePath) {
 		FileUtils fu = new FileUtils();
 		
 		if(fu.exists(tempSemFile)){
@@ -235,12 +253,22 @@ abstract public class Archiver {
 	}
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	public abstract void save(BBDocument doc, String path, boolean zip);
+	/** Saves a file
+	 * @param doc: BBDocument containing the DOM to use to create file
+	 * @param path: Output path of the file
+	 */
+	public abstract void save(BBDocument doc, String path);
 	
+	/** Saves document to new format
+	 * @param doc:  BBDocument containing the DOM to use to create file
+	 * @param path: Output path of the file
+	 * @param ext: The extension is used to determine the course of conversion
+	 * @return
+	 */
 	public abstract Archiver saveAs(BBDocument doc, String path, String ext);
 	
 	public void autosave(BBDocument _doc, String _path) { 
-		save(_doc, _path, false);
+		//save(_doc, _path, false);
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
@@ -586,5 +614,23 @@ abstract public class Archiver {
 		}
 		
 	} // deleteTempFiles()
+	
+	/** Copies an file not in an epub or zip file, and it's corresponding semantic file, if it exists, to the temp folder
+	 * These files are placed in the temp folder so work can saved and recovered due to an unexpected crash
+	 * without altering the original file
+	 * @param path: path of file to open
+	 */
+	protected void copyFileToTemp(String path){
+		FileUtils fu = new FileUtils();
+		workingDocPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1);
+		fu.copyFile(path, workingDocPath);
+		
+		String sem = fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
+		File f = new File(sem);
+		if(f.exists()){
+			String tempSem = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
+			fu.copyFile(sem, tempSem);
+		}
+	}
 	
 } // class Archiver

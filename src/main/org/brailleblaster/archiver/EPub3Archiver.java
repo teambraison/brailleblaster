@@ -84,6 +84,7 @@ public class EPub3Archiver extends Archiver {
 	
 	// The last bookmark we were at.
 	String bkMarkStr = null;
+	private String zipPath;
 	
 	public EPub3Archiver(String docToPrepare) {
 		super(docToPrepare);
@@ -91,6 +92,7 @@ public class EPub3Archiver extends Archiver {
 		currentConfig = getAutoCfg("epub");
 		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
+		zip = true;
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////
@@ -121,6 +123,7 @@ public class EPub3Archiver extends Archiver {
 				String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
 				String outPath = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
 				zpr.Unzip( originalDocPath, outPath );
+				zipPath = outPath;
 			}
 		// Unzip.
 		/////////
@@ -329,7 +332,7 @@ public class EPub3Archiver extends Archiver {
 	} // open()
 	
 	@Override
-	public void save(BBDocument doc, String path, boolean zip)
+	public void save(BBDocument doc, String path)
 	{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
@@ -402,26 +405,29 @@ public class EPub3Archiver extends Archiver {
 		///////
 		// Zip.
 
-			if(zip == true) {
+		if(zip == true) {
+			FileUtils fu = new FileUtils();
+			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";	
+			copySemanticsFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
 				
-				// Create unzipper.
-				Zipper zpr = new Zipper();
+			// Create unzipper.
+			Zipper zpr = new Zipper();
 				
-				// Create paths.
-				String sep = BBIni.getFileSep();
-				String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
-				String inputDir = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
-				String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
+			// Create paths.
+			String sep = BBIni.getFileSep();
+			String nameStr = originalDocPath.substring(originalDocPath.lastIndexOf(sep) + 1, originalDocPath.length());
+			//String inputDir = BBIni.getTempFilesPath() + sep + nameStr.substring( 0, nameStr.lastIndexOf(".") ) + sep;
+			String outFilePath = originalDocPath.substring( 0, originalDocPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + nameStr;
 				
-				// If we are to save somewhere else... "Save As"
-				if(path != null){
-					outFilePath = path;
-					originalDocPath = outFilePath;
-				}
-				
-				// Zip.
-				zpr.Zip(inputDir, outFilePath);
+			// If we are to save somewhere else... "Save As"
+			if(path != null){
+				outFilePath = path;
+				originalDocPath = outFilePath;
 			}
+				
+			// Zip.
+			zpr.Zip(zipPath, outFilePath);
+		}
 			
 		// Zip.
 		///////
@@ -474,7 +480,7 @@ public class EPub3Archiver extends Archiver {
 		pauseAutoSave();
 		
 		if(ext.equals("epub"))
-			save(doc, path, true);
+			save(doc, path);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
 		else if(ext.equals("utd"))
@@ -491,14 +497,12 @@ public class EPub3Archiver extends Archiver {
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path, true);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		arch.save(doc, path);
 		
 		// Restart autosave feature.
 		resumeAutoSave(doc, path);
 		
 		return arch;
 	}
-	
-	
 } // class EPubArchiver

@@ -70,10 +70,13 @@ public class TextArchiver extends Archiver{
 	}
 
 	@Override
-	public void save(BBDocument doc, String path, boolean zip) {
+	public void save(BBDocument doc, String path) {
 		
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
+		
+		if(path == null)
+			path = originalDocPath;
 		
 		PrintWriter out = null;
 		Element root = doc.getRootElement();
@@ -81,8 +84,13 @@ public class TextArchiver extends Archiver{
 		try {
 			out = new PrintWriter(path);
 			out.println(text);
-			if(!path.equals("originalDocPath"))
+			if(!path.equals(originalDocPath)){
 				originalDocPath = path;
+				String temp =  BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".xml";
+				FileUtils fu = new FileUtils();
+				fu.copyFile(workingDocPath, temp);
+				workingDocPath =  temp;
+			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -183,7 +191,7 @@ public class TextArchiver extends Archiver{
 		else if(ext.equals("utd"))
 			return saveAsUTD(doc, path);
 		else if(ext.equals("txt"))
-			save(doc, path, true);
+			save(doc, path);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
 		
@@ -198,8 +206,8 @@ public class TextArchiver extends Archiver{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		UTDArchiver arch = new UTDArchiver(path, currentConfig);
-		arch.save(doc, path, true);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		arch.save(doc, path);
 		
 		// Resume autosave feature.
 		resumeAutoSave(doc, path);
@@ -212,8 +220,8 @@ public class TextArchiver extends Archiver{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		WebArchiver arch = new WebArchiver(path);
-		arch.save(doc, path, true);
+		WebArchiver arch = new WebArchiver(workingDocPath,  path);
+		arch.save(doc, path);
 		
 		// Resume autosave feature.
 		resumeAutoSave(doc, path);

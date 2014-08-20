@@ -274,7 +274,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		statusBarText += "Line: " + String.valueOf(line + 1) + " | ";
 		
 		if(view.getLineIndent(line) > 0){
-			statusBarText += " Indent: " + ((view.getLineIndent(line) / charWidth) + 1) + " | "; 
+			statusBarText += " Indent: Cell " + ((view.getLineIndent(line) / charWidth) + 1) + " | "; 
 		}
 		
 		if(view.getLineAlignment(line) != SWT.LEFT){

@@ -32,6 +32,7 @@ public class webViewDocument extends BBDocument{
 		super(dm);
 	}
 	
+	@Override
 	public boolean startDocument(String path, String configFile, String configSettings){
 		try {
 			return super.startDocument(path, configFile, configSettings);

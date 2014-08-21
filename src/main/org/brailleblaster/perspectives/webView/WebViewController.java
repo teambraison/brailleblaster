@@ -2,8 +2,6 @@ package org.brailleblaster.perspectives.webView;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-
 import nu.xom.Document;
 
 import org.apache.commons.io.FileUtils;
@@ -12,11 +10,8 @@ import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
-import org.brailleblaster.converter.Converter;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.webView.WebViewDocument.webViewDocument;
-import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -197,6 +192,7 @@ public class WebViewController extends Controller {
 		return bookSize;
 
 	}
+	@Override
 	public Archiver getArchiver() {
 		return arch;
 	}

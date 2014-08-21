@@ -1,6 +1,5 @@
 package org.brailleblaster.converter;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,24 +10,13 @@ import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.io.IOUtils;
 import org.brailleblaster.BBIni;
-import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
-import org.w3c.dom.Node;
-
-import sun.nio.cs.StandardCharsets;
-import nu.xom.Builder;
 import nu.xom.Document;
-import nu.xom.Nodes;
-import nu.xom.ParsingException;
-import nu.xom.ValidityException;
-import nu.xom.xslt.XSLException;
-import nu.xom.xslt.XSLTransform;
 
 public class Converter {
 	NimasArchiver nimasArch;

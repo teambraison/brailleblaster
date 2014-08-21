@@ -19,7 +19,6 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.eclipse.swt.widgets.TreeItem;
 
 public class BoxlineHandler {
 	Manager manager;
@@ -95,7 +94,7 @@ public class BoxlineHandler {
 		
 		//insert top boxline
 		wrapper.insertChild(boxline.removeChild(0), 0);
-		BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), (Element)wrapper);
+		BrlOnlyMapElement b1 =  new BrlOnlyMapElement(wrapper.getChild(0), wrapper);
 		b1.setOffsets(start, start + b1.textLength());
 		b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
 		vi.addElementToSection(list, b1, startPos);
@@ -131,7 +130,7 @@ public class BoxlineHandler {
 		
 		//insert bottom boxline
 		wrapper.appendChild(boxline.removeChild(boxline.getChildCount() - 1));
-		BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), (Element)wrapper);
+		BrlOnlyMapElement b2 =  new BrlOnlyMapElement(wrapper.getChild(wrapper.getChildCount() - 1), wrapper);
 		b2.setOffsets(end + 1, end + 1 + b2.textLength());
 		b2.setBrailleOffsets(brailleEnd + 1, brailleEnd + 1 + b2.getText().length());
 		vi.addElementToSection(list, b2, endPos);

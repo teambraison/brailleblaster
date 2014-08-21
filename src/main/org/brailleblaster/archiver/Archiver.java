@@ -48,6 +48,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.Zipper;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -69,6 +70,8 @@ abstract public class Archiver {
 	protected String currentConfig;
 	
 	protected boolean documentEdited;
+	
+	boolean resumingPrevSession = false;
 	
 	protected String opfFilePath = null;
 	protected Document opfDoc = null;
@@ -106,12 +109,15 @@ abstract public class Archiver {
 		String _path = null;
 		// Constructor.
 		public ArchRunner(BBDocument __doc, String __path) { _doc = __doc; _path = __path; }
+		public ArchRunner() {  }
 		// Run method.
-		public void run() {
+		@Override
+		public void run() { 
 	    	// Only save if we're not already doing so.
-			if(shouldWeSave)
-				autosave(_doc, _path);
-	    } // run()
+			if(shouldWeSave) {
+				 autosave(_doc, _path);
+			}
+	     } // run()
 	}; // class ArchRunner
 	
 	ArchRunner archrun = null;
@@ -129,7 +135,55 @@ abstract public class Archiver {
 		epubFileList = new ArrayList<String>();
 		tempList = new ArrayList<String>();
 		numImages = new ArrayList<Integer>();
-	}
+		
+		///////////////////////
+		// Auto-save RELOAD!!!!
+		
+			// If the 'prevWorkingFile' property has a value, then we more than likely 
+			// had a previous session that didn't close properly. We should load it 
+			// for the user.
+			PropertyFileManager props = BBIni.getPropertyFileManager();
+			String prevWkFilePathStr = props.getProperty("prevWorkingFile");
+			String origDocPathStr = props.getProperty("originalDocPath");
+			String zpPathStr = props.getProperty("zippedPath");
+			String opfPathStr = props.getProperty("opfPath");
+			String curConfigStr = props.getProperty("currentConfig");
+			
+			// Grab the previous working path.
+			if( prevWkFilePathStr != null )
+				if(prevWkFilePathStr.length() > 0) {
+					workingDocPath = prevWkFilePathStr;
+					resumingPrevSession = true;
+				}
+			if( origDocPathStr != null )
+				if(origDocPathStr.length() > 0)
+					originalDocPath = origDocPathStr;
+			if( zpPathStr != null )
+				if(zpPathStr.length() > 0)
+					zippedPath = zpPathStr;
+			if( opfPathStr != null )
+				if(opfPathStr.length() > 0)
+					opfFilePath = opfPathStr;
+			if( curConfigStr != null )
+				if(curConfigStr.length() > 0)
+					currentConfig = curConfigStr;
+
+		// Auto-save RELOAD!!!!
+		///////////////////////
+			
+	} //Archiver(String docToPrepare)
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Clears the previous session from our settings. Used when we're exiting the 
+	// program gracefully.
+	public void clearPrevSession() {
+		PropertyFileManager props = BBIni.getPropertyFileManager();
+		props.save("prevWorkingFile", "");
+		props.save("originalDocPath", "");
+		props.save("zippedPath", "");
+		props.save("opfPath", "");
+		props.save("currentConfig", "");
+	} // clearPrevSession()
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Starts/resumes the autosave feature. 
@@ -138,7 +192,7 @@ abstract public class Archiver {
 			archrun = new ArchRunner(_doc, _path);
 			archrun.shouldWeSave = true;
 			executor = Executors.newSingleThreadScheduledExecutor();
-			executor.scheduleAtFixedRate(archrun, 0, 60000, TimeUnit.SECONDS);
+			executor.scheduleAtFixedRate(archrun, 0, 1000, TimeUnit.MILLISECONDS);
 		}
 		else if(executor != null)
 			archrun.shouldWeSave = true;
@@ -159,6 +213,48 @@ abstract public class Archiver {
 		if(executor != null)
 			executor.shutdown();
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// 
+	/** Saves a file
+	* @param doc: BBDocument containing the DOM to use to create file
+	* @param path: Output path of the file
+	*/
+	public abstract void save(BBDocument doc, String path);
+	
+	/** Saves document to new format
+	* @param doc:  BBDocument containing the DOM to use to create file
+	* @param path: Output path of the file
+	* @param ext: The extension is used to determine the course of conversion
+	* @return
+	*/
+	public abstract Archiver saveAs(BBDocument doc, String path, String ext);
+	
+	public void autosave(BBDocument _doc, String _path) {
+		// Save session variables to settings file.
+		PropertyFileManager props = BBIni.getPropertyFileManager();
+		props.save("prevWorkingFile", workingDocPath);
+		props.save("originalDocPath", originalDocPath);
+		props.save("zippedPath", zippedPath);
+		props.save("opfPath", opfFilePath);
+		props.save("currentConfig", currentConfig);
+		
+		// Use Archiver-specific backup() function.
+		// Varying Archivers save their content differently.
+		backup(_doc, _path);
+	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Each Archiver type opens and saves their content in a 
+	// different way. They will implement this method to 
+	// save their content to the temp folder.
+	public abstract void backup(BBDocument __doc, String __path);
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Returns path to opf file if we found one with a prior call to findOPF().
+	public String getOPFPath() {
+		return opfFilePath;
+	} // getOPF()
 	
 	// Get-er for original document path.
 	public String getOrigDocPath() { return originalDocPath; }
@@ -251,31 +347,7 @@ abstract public class Archiver {
 	public boolean getDocumentEdited(){
 		return documentEdited;
 	}
-	//////////////////////////////////////////////////////////////////////////////////
-	// 
-	/** Saves a file
-	 * @param doc: BBDocument containing the DOM to use to create file
-	 * @param path: Output path of the file
-	 */
-	public abstract void save(BBDocument doc, String path);
 	
-	/** Saves document to new format
-	 * @param doc:  BBDocument containing the DOM to use to create file
-	 * @param path: Output path of the file
-	 * @param ext: The extension is used to determine the course of conversion
-	 * @return
-	 */
-	public abstract Archiver saveAs(BBDocument doc, String path, String ext);
-	
-	public void autosave(BBDocument _doc, String _path) { 
-		//save(_doc, _path, false);
-	}
-	
-	//////////////////////////////////////////////////////////////////////////////////
-	// Returns path to opf file if we found one with a prior call to findOPF().
-	public String getOPFPath() {
-		return opfFilePath;
-	} // getOPF()
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Traverses the list of upzipped files and attempts to find an opf 
@@ -283,7 +355,7 @@ abstract public class Archiver {
 	// 
 	// Notes: zipper must have already been used to unzip an archive.
 	// String is the path to the opf file. We also store it. 
-	// Get it with getOPF().
+	// Get it with getOPFPath().
 	public String findOPF(Zipper zipper)
 	{
 		// Get paths to all unzipped files.

@@ -87,10 +87,12 @@ public class webViewBrowser  {
 		if(webc.isEpub==true){
 		// listen to when the page load in browser
 		browser.addProgressListener(new ProgressListener() {
+			@Override
 			public void changed(ProgressEvent event) {
 
 			}
 
+			@Override
 			public void completed(ProgressEvent event) {
 				try {
 					if (lockBraille==false)
@@ -178,10 +180,12 @@ public class webViewBrowser  {
 		
 		// listen to when the page load in browser
 		browser.addProgressListener(new ProgressListener() {
+			@Override
 			public void changed(ProgressEvent event) {
 
 			}
 
+			@Override
 			public void completed(ProgressEvent event) {
 				if (lockBraille==true && webc.isEpub==true){
 					browser.execute(script);
@@ -211,6 +215,7 @@ public class webViewBrowser  {
 		//Go to usual text by clicking on T or t character on keyboard
 		//Other navigation keyboard reserved for reader
 		browser.addListener(SWT.KeyDown, new Listener() {
+			@Override
 			public void handleEvent(Event event) {
 				if(event.character=='L' || event.character=='l')
 				{

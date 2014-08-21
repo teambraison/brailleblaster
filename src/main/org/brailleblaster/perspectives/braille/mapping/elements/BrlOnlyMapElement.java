@@ -20,6 +20,7 @@ public class BrlOnlyMapElement extends TextMapElement {
 		this.brailleList.add(new BrailleMapElement(n));
 		this.parent=parent;
 	}
+	@Override
 	public String getText(){
 		String str = "";
 		int num=this.n.getValue().length();
@@ -28,6 +29,7 @@ public class BrlOnlyMapElement extends TextMapElement {
 		return str;
 	}
 	
+	@Override
 	public int textLength(){
 		return getText().length();
 	}

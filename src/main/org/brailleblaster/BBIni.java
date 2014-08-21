@@ -211,20 +211,26 @@ public final class BBIni {
 		// Only delete the files if we weren't working on something.
 		// A value here means there was an abrupt shutdown.
 		String prevWkFilePathStr = props.getProperty("prevWorkingFile");
-		if( prevWkFilePathStr != null ) {
-			// Okay to delete directory.
-			if(prevWkFilePathStr.length() == 0) {
-				// Delete.
-				String tempFolder = BBHome + fileSep + "temp";
-				fu.deleteDirectory(new File(tempFolder));
-				// Give loaded files a new home.
-				tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
-			}
-			else // Point to previous session directory.
-			{
-				File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
-				tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
-			}
+		if(prevWkFilePathStr == null) {
+			props.setProperty("prevWorkingFile", "");
+			props.setProperty("originalDocPath", "");
+			props.setProperty("zippedPath", "");
+			props.setProperty("opfPath", "");
+			props.setProperty("currentConfig", "");
+			prevWkFilePathStr = props.getProperty("prevWorkingFile");
+		}
+		// Okay to delete directory?
+		if(prevWkFilePathStr.length() == 0) {
+			// Delete.
+			String tempFolder = BBHome + fileSep + "temp";
+			fu.deleteDirectory(new File(tempFolder));
+			// Give loaded files a new home.
+			tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
+		}
+		else // Point to previous session directory.
+		{
+			File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
+			tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
 		}
 		
 		

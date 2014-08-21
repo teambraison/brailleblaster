@@ -123,7 +123,7 @@ public class EPub3Archiver extends Archiver {
 		/////////
 			
 		// If zipped.
-		if( opfFilePath == null && resumingPrevSession == false) {
+		if( opfFilePath.length() == 0 && resumingPrevSession == false) {
 			// Get paths to all unzipped files.
 			ArrayList<String> unzippedPaths = zpr.getUnzippedFilePaths();
 			
@@ -149,7 +149,7 @@ public class EPub3Archiver extends Archiver {
 		} // if( opfPath == null )
 		
 		// If we couldn't find the opf file, no point in continuing.
-		if(opfFilePath == null)
+		if(opfFilePath.length() == 0)
 			return null;
 		
 		// Parse opf. Find all pages of our document.

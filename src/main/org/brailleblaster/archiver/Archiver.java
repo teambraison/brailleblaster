@@ -192,7 +192,7 @@ abstract public class Archiver {
 			archrun = new ArchRunner(_doc, _path);
 			archrun.shouldWeSave = true;
 			executor = Executors.newSingleThreadScheduledExecutor();
-			executor.scheduleAtFixedRate(archrun, 0, 1000, TimeUnit.MILLISECONDS);
+			executor.scheduleAtFixedRate(archrun, 0, 60000, TimeUnit.MILLISECONDS);
 		}
 		else if(executor != null)
 			archrun.shouldWeSave = true;

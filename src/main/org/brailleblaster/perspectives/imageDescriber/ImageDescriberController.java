@@ -125,12 +125,15 @@ public class ImageDescriberController extends Controller {
 		
 		// Restore a previous session?
 		PropertyFileManager props = BBIni.getPropertyFileManager();
+		String wkPath = props.getProperty("prevWorkingFile");
 		String origDocPathStr = props.getProperty("originalDocPath");
 		if( origDocPathStr != null )
 			if(origDocPathStr.length() > 0) {
-				File f = new File(origDocPathStr);
+				File f = new File(wkPath);
 				if(f.exists())
 					fileName = origDocPathStr;
+				else
+					arch.clearPrevSession();
 			}
 		
 		if(fileName != null) 

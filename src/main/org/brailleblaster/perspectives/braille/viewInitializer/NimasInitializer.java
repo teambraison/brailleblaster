@@ -20,6 +20,7 @@ public class NimasInitializer extends ViewInitializer{
 		sectionList = new ArrayList<SectionElement>();
 	}
 	
+	@Override
 	protected void findSections(Manager m, Element e){
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
@@ -31,6 +32,7 @@ public class NimasInitializer extends ViewInitializer{
 		}
 	}
 	
+	@Override
 	public void initializeViews(Manager m){
 		findSections(m, document.getRootElement());
 	//	if(sectionList.size() == 0)
@@ -45,6 +47,7 @@ public class NimasInitializer extends ViewInitializer{
 	//	}
 	}
 	
+	@Override
 	public MapList getList(Manager m){
 		if(sectionList.size() > 0 && sectionList.get(0).getList() != null)
 			return makeList(m);

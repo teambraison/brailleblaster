@@ -140,7 +140,6 @@ public class WPManager {
 
 				while (managerList.size() > 0) {
 					Controller temp = managerList.removeFirst();
-					temp.getArchiver().destroyAutoSave();
 					temp.close();
 				}
 

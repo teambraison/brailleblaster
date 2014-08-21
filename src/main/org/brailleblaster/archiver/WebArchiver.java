@@ -122,4 +122,11 @@ public class WebArchiver extends Archiver{
 		
 		return arch;
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Each Archiver type opens and saves their content in a 
+	// different way. They will implement this method to 
+	// save their content to the temp folder.
+	@Override
+	public void backup(BBDocument __doc, String __path) {}
 }

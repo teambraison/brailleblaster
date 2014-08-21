@@ -69,18 +69,12 @@ class Response {
 //////////////////////////////////////////////////////////////////////////////////
 // Prepares an EPub3 document for opening.
 public class EPub3Archiver extends Archiver {
-
-	// Path to .opf file.
-	String opfPath;
-
 	// The main document we'll be appending to.
 	Document mainDoc = null;
 	// Body element of main doc.
 	NodeList mainBodyElement = null;
 	// Html element of main doc.
 	NodeList mainHtmlElement = null;
-	// Opf document.
-	Document opfDoc = null;
 	
 	// The last bookmark we were at.
 	String bkMarkStr = null;
@@ -88,7 +82,7 @@ public class EPub3Archiver extends Archiver {
 	
 	public EPub3Archiver(String docToPrepare) {
 		super(docToPrepare);
-		open(null);
+		open();
 		currentConfig = getAutoCfg("epub");
 		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
 		filterExtensions = new String[] {"*.epub","*.brf", "*.utd"};
@@ -97,7 +91,7 @@ public class EPub3Archiver extends Archiver {
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// 
-	private String open(String _opath) {
+	private String open() {
 		
 		// Init variables.
 		mainDoc = null;
@@ -111,10 +105,10 @@ public class EPub3Archiver extends Archiver {
 		// Unzip.
 
 			// Get ready to unzip.
-			Zipper zpr = null;	
+			Zipper zpr = null;
 		
 			// If zipped.
-			if( _opath == null ) {
+			if( resumingPrevSession == false ) {
 				// Create unzipper.
 				zpr = new Zipper();
 				
@@ -128,12 +122,8 @@ public class EPub3Archiver extends Archiver {
 		// Unzip.
 		/////////
 			
-		// Get ready to look for the opf file.
-		opfPath = _opath;
-			
-		
 		// If zipped.
-		if( opfPath == null ) {
+		if( opfFilePath == null && resumingPrevSession == false) {
 			// Get paths to all unzipped files.
 			ArrayList<String> unzippedPaths = zpr.getUnzippedFilePaths();
 			
@@ -145,9 +135,9 @@ public class EPub3Archiver extends Archiver {
 				{
 					// Found it!
 					if(BBIni.getPlatformName().equals("win32"))
-						opfPath = unzippedPaths.get(curFile).toLowerCase();
+						opfFilePath = unzippedPaths.get(curFile).toLowerCase();
 					else
-						opfPath = unzippedPaths.get(curFile);
+						opfFilePath = unzippedPaths.get(curFile);
 					
 					// Found it, take a break.
 					break;
@@ -159,7 +149,7 @@ public class EPub3Archiver extends Archiver {
 		} // if( opfPath == null )
 		
 		// If we couldn't find the opf file, no point in continuing.
-		if(opfPath == null)
+		if(opfFilePath == null)
 			return null;
 		
 		// Parse opf. Find all pages of our document.
@@ -170,7 +160,7 @@ public class EPub3Archiver extends Archiver {
 	        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 	        factory.setNamespaceAware(true); // Needed, just in case manifest/spine are in a namespace.
 			builder = factory.newDocumentBuilder();
-			opfDoc = builder.parse(opfPath);
+			opfDoc = builder.parse(opfFilePath);
 			
 			// Grab the spine elements and manifest elements.
 			manifestElements = opfDoc.getElementsByTagNameNS("*", "item");
@@ -189,7 +179,7 @@ public class EPub3Archiver extends Archiver {
 				String fileID = spineAtts.getNamedItem("idref").getNodeValue();
 				
 				// Get the file path from the manifest.
-				curDocFilePath = opfPath.substring( 0, opfPath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep();
+				curDocFilePath = opfFilePath.substring( 0, opfFilePath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep();
 				curDocFilePath += findHrefById(fileID).replace("/", BBIni.getFileSep());
 				
 				// Add this path to the list of document paths.
@@ -300,26 +290,29 @@ public class EPub3Archiver extends Archiver {
 			
 			// Save file concatenation.
 			
-			// Output filename.
-			String outFileName = curDocFilePath.substring( 0, curDocFilePath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + "temp.xml";
+			// Only write out these files if we weren't loading a previous session. Doing so would 
+			// wipe out the user's save!
+			if( resumingPrevSession == false ) {
+				// Output filename.
+				String outFileName = curDocFilePath.substring( 0, curDocFilePath.lastIndexOf(BBIni.getFileSep()) ) + BBIni.getFileSep() + "temp.xml";
+				// Get DOM Implementation.
+				DOMImplementationLS domImplementationLS =
+			    (DOMImplementationLS) mainDoc.getImplementation().getFeature("LS","3.0");
+				
+				// Prepare output stream.
+				LSOutput lsOutput = domImplementationLS.createLSOutput();
+				FileOutputStream outputStream = new FileOutputStream( outFileName );
+				lsOutput.setByteStream( outputStream );
+				
+				// Create the serializer, serialize/output xml, then close the stream.
+				LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
+				lsSerializer.write( mainDoc, lsOutput );
+				outputStream.close();
 			
-			// Get DOM Implementation.
-			DOMImplementationLS domImplementationLS =
-		    (DOMImplementationLS) mainDoc.getImplementation().getFeature("LS","3.0");
-			
-			// Prepare output stream.
-			LSOutput lsOutput = domImplementationLS.createLSOutput();
-			FileOutputStream outputStream = new FileOutputStream( outFileName );
-			lsOutput.setByteStream( outputStream );
-			
-			// Create the serializer, serialize/output xml, then close the stream.
-			LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
-			lsSerializer.write( mainDoc, lsOutput );
-			outputStream.close();
-			
-			workingDocPath = outFileName;
+				workingDocPath = outFileName;
+			}
 			// Return path to new document.
-			return outFileName;
+			return workingDocPath;
 			
 		} // try/catch
 		catch (ParserConfigurationException pce) { pce.printStackTrace(); }
@@ -436,6 +429,84 @@ public class EPub3Archiver extends Archiver {
 		resumeAutoSave(doc, path);
 			
 	} // save()
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Each Archiver type opens and saves their content in a 
+	// different way. They will implement this method to 
+	// save their content to the temp folder.
+	@Override
+	public void backup(BBDocument __doc, String __path)
+	{
+		// Stop the autosave feature until we're done.
+		pauseAutoSave();
+		
+		try
+		{
+			// Create XOM builder.
+			nu.xom.Builder parser = new nu.xom.Builder();
+			
+			// Namespace and context.
+			String nameSpace = __doc.getDOM().getRootElement().getNamespaceURI();
+			nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
+			
+			// Get xom document.
+			nu.xom.Document mainDoc = __doc.getNewXML();
+			// Body element.
+			nu.xom.Nodes currentMainElement = mainDoc.query("//dtb:body[1]", context);
+			
+			// Get the number of children our source has.
+			int curCh = 0;
+			int numChilds = currentMainElement.get(0).getChildCount();
+			
+			// Loop through epub docs, open them, then update their body's.
+			for(int curPath = 0; curPath < epubFileList.size(); curPath++)
+			{
+				// Parse this epub document.
+			
+				nu.xom.Document curDoc;
+				//check for if it is mac or non mac
+				if(BBIni.getPlatformName().equals("cocoa"))
+				      curDoc = parser.build(  epubFileList.get(curPath) );
+				else
+					  curDoc = parser.build(  "File:" + BBIni.getFileSep()+epubFileList.get(curPath) );
+					
+				
+				// Get epub document's body.
+				nu.xom.Nodes bodyNodes = curDoc.getRootElement().query("//dtb:body[1]", context);
+				nu.xom.Element bodyElement = ( (nu.xom.Element)(bodyNodes.get(0)) );
+				
+				// Remove all children of the body element.
+				bodyElement.removeChildren();
+				
+				// For every child, append it to the destination.
+				for( ; curCh < numChilds; curCh++)
+				{
+					// If this is a bookmark, skip it and move onto next file.
+					if( currentMainElement.get(0).getChild(curCh).toString().contains("BBBOOKMARK - ") ) {
+						curCh++;
+						break;
+					}
+					
+					// Append the current child.
+					bodyElement.appendChild( currentMainElement.get(0).getChild(curCh).copy() );
+					
+				} // for(int curCh...
+				
+				// Save this xhtml document.
+				FileUtils fu = new FileUtils();
+				fu.createXMLFile(curDoc, epubFileList.get(curPath));
+				
+			} // for(int curPath...
+		
+		} // try/catch
+		catch (ValidityException ve) { ve.printStackTrace(); }
+		catch (ParsingException pe) { pe.printStackTrace(); }
+		catch (IOException ioe) { ioe.printStackTrace(); }
+		
+		// Resume autosave feature.
+		resumeAutoSave(__doc, __path);
+		
+	} // backup()
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// Simple message box for alerts and messages to user.

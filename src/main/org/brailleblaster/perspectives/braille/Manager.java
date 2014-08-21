@@ -267,6 +267,17 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
+		
+		// Restore a previous session?
+		PropertyFileManager props = BBIni.getPropertyFileManager();
+		String origDocPathStr = props.getProperty("originalDocPath");
+		if( origDocPathStr != null )
+			if(origDocPathStr.length() > 0) {
+				File f = new File(origDocPathStr);
+				if(f.exists())
+					fileName = origDocPathStr;
+			}
+		
 		// Create archiver and massage document if necessary.
 		String config = ""; 
 		if(arch != null)
@@ -284,7 +295,7 @@ public class Manager extends Controller {
 		
 		// Start the auto-saver.
 	//	if(!BBIni.debugging())
-	//		arch.resumeAutoSave( document, arch.getWorkingFilePath() );
+		arch.resumeAutoSave( document, arch.getWorkingFilePath() );
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
@@ -1007,6 +1018,9 @@ public class Manager extends Controller {
 		if(!cancel){
 			// Shut down auto-save feature.
 			arch.destroyAutoSave();
+			// Clear previous session information. Otherwise, we'll be looking 
+			// for files in the user's temp folder that aren't there.
+			arch.clearPrevSession();
 			dispose();
 			item.dispose();
 			fontManager.disposeFonts();

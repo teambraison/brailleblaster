@@ -34,6 +34,7 @@ import java.io.File;
 
 import nu.xom.Document;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.archiver.NimasArchiver;
@@ -42,6 +43,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.ImageHelper;
+import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
@@ -121,10 +123,21 @@ public class ImageDescriberController extends Controller {
 	
 	public boolean openDocument(String fileName){
 		
+		// Restore a previous session?
+		PropertyFileManager props = BBIni.getPropertyFileManager();
+		String origDocPathStr = props.getProperty("originalDocPath");
+		if( origDocPathStr != null )
+			if(origDocPathStr.length() > 0) {
+				File f = new File(origDocPathStr);
+				if(f.exists())
+					fileName = origDocPathStr;
+			}
+		
 		if(fileName != null) 
 			arch = ArchiverFactory.getArchive(fileName);
-		else
+		else {
 			arch = ArchiverFactory.getArchive(templateFile);
+		}
 		
 		////////////////
 		// Recent Files.
@@ -232,6 +245,9 @@ public class ImageDescriberController extends Controller {
 		if(!cancel){			
 			// Shut down auto-save feature.
 			arch.destroyAutoSave();
+			// Clear previous session information. Otherwise, we'll be looking 
+			// for files in the user's temp folder that aren't there.
+			arch.clearPrevSession();
 			dispose();
 			item.dispose();
 			wp.removeController(this);
@@ -395,6 +411,7 @@ public class ImageDescriberController extends Controller {
 	//////////////////////////////////////////////////////////////////////
 	// Returns Archiver. Could be null if we didn't need it 
 	// to open a file.
+	@Override
 	public Archiver getArchiver() {
 		return arch;
 	}

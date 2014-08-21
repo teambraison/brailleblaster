@@ -171,49 +171,65 @@ public final class BBIni {
 		// /////////////////////
 		// Default Config File.
 
-		// Get default config file.
-		Properties props = new Properties();
-		try {
-			// Load it!
-			props.load(new FileInputStream(BBIni.getUserSettings()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// Store file name.
-		defaultCfg = props.getProperty("defaultConfigFile");
-
-		// If that key doesn't exist, then we need to put it there.
-		if (defaultCfg == null) {
-			// Add it, then store it.
-
-			// Add to hash.
-			props.setProperty("defaultConfigFile", "nimas.cfg");
-
-			// Record as default.
-			defaultCfg = "nimas.cfg";
-
-			// Store.
+			// Get default config file.
+			Properties props = new Properties();
 			try {
-				// Store to file.
-				props.store(new FileOutputStream(BBIni.getUserSettings()), null);
+				// Load it!
+				props.load(new FileInputStream(BBIni.getUserSettings()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
-		} // if(defaultCfgFileName == null)
+	
+			// Store file name.
+			defaultCfg = props.getProperty("defaultConfigFile");
+	
+			// If that key doesn't exist, then we need to put it there.
+			if (defaultCfg == null) {
+				// Add it, then store it.
+	
+				// Add to hash.
+				props.setProperty("defaultConfigFile", "nimas.cfg");
+	
+				// Record as default.
+				defaultCfg = "nimas.cfg";
+	
+				// Store.
+				try {
+					// Store to file.
+					props.store(new FileOutputStream(BBIni.getUserSettings()), null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+	
+			} // if(defaultCfgFileName == null)
 
 		// Default Config File.
 		// /////////////////////
 
 		// Temporary fix, should be removed once log file handle issue is
 		// resolved
-		String tempFolder = BBHome + fileSep + "temp";
-		fu.deleteDirectory(new File(tempFolder));
-
-		tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
+		// Only delete the files if we weren't working on something.
+		// A value here means there was an abrupt shutdown.
+		String prevWkFilePathStr = props.getProperty("prevWorkingFile");
+		if( prevWkFilePathStr != null ) {
+			// Okay to delete directory.
+			if(prevWkFilePathStr.length() == 0) {
+				// Delete.
+				String tempFolder = BBHome + fileSep + "temp";
+				fu.deleteDirectory(new File(tempFolder));
+				// Give loaded files a new home.
+				tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
+			}
+			else // Point to previous session directory.
+			{
+				File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
+				tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
+			}
+		}
+		
+		
 		File temps = new File(tempFilesPath);
-
+		
 		if (!temps.exists()) {
 			temps.mkdirs();
 		}

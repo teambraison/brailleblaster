@@ -114,9 +114,8 @@ abstract public class Archiver {
 		@Override
 		public void run() { 
 	    	// Only save if we're not already doing so.
-			if(shouldWeSave) {
-				 autosave(_doc, _path);
-			}
+			if(shouldWeSave)
+				autosave(_doc, _path);
 	     } // run()
 	}; // class ArchRunner
 	
@@ -131,7 +130,7 @@ abstract public class Archiver {
 		workingDocPath = originalDocPath;
 		zippedPath = "";
 		documentEdited = false;
-		opfFilePath = null;
+		opfFilePath = "";
 		epubFileList = new ArrayList<String>();
 		tempList = new ArrayList<String>();
 		numImages = new ArrayList<Integer>();
@@ -238,7 +237,7 @@ abstract public class Archiver {
 		props.save("zippedPath", zippedPath);
 		props.save("opfPath", opfFilePath);
 		props.save("currentConfig", currentConfig);
-		
+
 		// Use Archiver-specific backup() function.
 		// Varying Archivers save their content differently.
 		backup(_doc, _path);

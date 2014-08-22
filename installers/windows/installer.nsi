@@ -14,7 +14,7 @@ LangString CreateDesktopShortCutMsg ${LANG_ENGLISH} "Create desktop shortcut"
 ; Some basic information
 
 Name "BrailleBlaster"
-!define APPVERSION "2014.08.07"
+!define APPVERSION "0.03 alpha"
 OutFile "bb-windows-beta_setup.exe"
 
 SetCompressor /SOLID LZMA

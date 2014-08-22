@@ -55,8 +55,8 @@ public class TextArchiver extends Archiver{
 	private final String TEMPLATEPATH = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "textFileTemplate.html";
 	private final int BODYELEMENTINDEX = 1;
 	
-	TextArchiver(String docToPrepare) {
-		super(docToPrepare);
+	TextArchiver(String docToPrepare, boolean restore) {
+		super(docToPrepare, restore);
 		fu = new FileUtils();
 		currentConfig = getAutoCfg("epub");
 		filterNames = new String[] { "HTML","TEXT", "BRF", "UTDML working document"};
@@ -206,7 +206,7 @@ public class TextArchiver extends Archiver{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig, false);
 		arch.save(doc, path);
 		
 		// Resume autosave feature.
@@ -220,7 +220,7 @@ public class TextArchiver extends Archiver{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		WebArchiver arch = new WebArchiver(workingDocPath,  path);
+		WebArchiver arch = new WebArchiver(workingDocPath,  path, false);
 		arch.save(doc, path);
 		
 		// Resume autosave feature.

@@ -85,7 +85,7 @@ public class FalconController extends Controller {
 		if (fileName == null)
 			return false;
 		// fileName = templateFile;
-		arch = ArchiverFactory.getArchive(fileName);
+		arch = ArchiverFactory.getArchive(fileName, false);
 
 		// Recent Files.
 		addRecentFileEntry(fileName);

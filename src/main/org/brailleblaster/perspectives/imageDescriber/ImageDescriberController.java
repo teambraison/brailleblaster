@@ -37,6 +37,7 @@ import nu.xom.Document;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -123,23 +124,30 @@ public class ImageDescriberController extends Controller {
 	
 	public boolean openDocument(String fileName){
 		
-		// Restore a previous session?
-		PropertyFileManager props = BBIni.getPropertyFileManager();
-		String wkPath = props.getProperty("prevWorkingFile");
-		String origDocPathStr = props.getProperty("originalDocPath");
-		if( origDocPathStr != null )
-			if(origDocPathStr.length() > 0) {
-				File f = new File(wkPath);
-				if(f.exists())
-					fileName = origDocPathStr;
-				else
-					arch.clearPrevSession();
-			}
+		// If this is the first document, load a previous session.
+		boolean restoreArchive = false;
+		if( wp.getList().size() < 1 ) {
+			// Restore a previous session?
+			PropertyFileManager props = BBIni.getPropertyFileManager();
+			String wkPath = props.getProperty("prevWorkingFile");
+			String origDocPathStr = props.getProperty("originalDocPath");
+			if( origDocPathStr != null ) {
+				if(origDocPathStr.length() > 0) {
+					File f = new File(wkPath);
+					if(f.exists()) {
+						fileName = origDocPathStr;
+						restoreArchive = true;
+					}
+					else
+						new EPub3Archiver().clearPrevSession();
+				} // if(origDocPathStr.length() > 0)
+			} // if( origDocPathStr != null )
+		} // if( wp.getList().size() < 1 )
 		
 		if(fileName != null) 
-			arch = ArchiverFactory.getArchive(fileName);
+			arch = ArchiverFactory.getArchive(fileName, restoreArchive);
 		else {
-			arch = ArchiverFactory.getArchive(templateFile);
+			arch = ArchiverFactory.getArchive(templateFile, false);
 		}
 		
 		////////////////

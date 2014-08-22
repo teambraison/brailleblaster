@@ -46,8 +46,8 @@ import org.brailleblaster.util.Notify;
 
 public class UTDArchiver extends Archiver{
 
-	UTDArchiver(String docToPrepare) {
-		super(docToPrepare);
+	UTDArchiver(String docToPrepare, boolean restore) {
+		super(docToPrepare, restore);
 		filterNames = new String[] { "BRF", "UTDML working document"};
 		filterExtensions = new String[] { "*.brf", "*.utd"};
 		currentConfig = findConfig();
@@ -60,8 +60,8 @@ public class UTDArchiver extends Archiver{
 	 * @param docToPrepare: name of document with new name
 	 * @param config: configuration file to use
 	 */
-	UTDArchiver(String oldPath, String docToPrepare, String config){
-		super(docToPrepare);
+	UTDArchiver(String oldPath, String docToPrepare, String config, boolean restore){
+		super(docToPrepare, restore);
 		currentConfig = config;
 		filterNames = new String[] { "BRF", "UTDML working document"};
 		filterExtensions = new String[] { "*.brf", "*.utd"};

@@ -48,7 +48,7 @@ public class WebViewController extends Controller {
 		vb=new webViewBrowser(this,wp.getFolder(),null);
 		// if no file opened then create an empty template
 		if(currentPath == null)
-			arch = ArchiverFactory.getArchive(templateFile);
+			arch = ArchiverFactory.getArchive(templateFile, false);
 		else
 			reuseTab(currentPath);
 		webDoc = new webViewDocument(this);
@@ -94,7 +94,7 @@ public class WebViewController extends Controller {
 	 */
 	private void openBook(String fileName){
 		String archFileName=null;
-		arch = ArchiverFactory.getArchive(fileName);
+		arch = ArchiverFactory.getArchive(fileName, false);
 		
 		if(arch != null){
 			archFileName = arch.getWorkingFilePath();

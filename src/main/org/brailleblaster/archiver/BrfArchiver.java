@@ -34,8 +34,8 @@ import org.brailleblaster.document.BBDocument;
 //not yet fully implemented
 public class BrfArchiver extends Archiver{
 
-	BrfArchiver(String docToPrepare) {
-		super(docToPrepare);
+	BrfArchiver(String docToPrepare, boolean restore) {
+		super(docToPrepare, restore);
 		currentConfig = "preferences.cfg";
 		//if implemented, set currentConfig
 	}

@@ -122,8 +122,13 @@ abstract public class Archiver {
 	ArchRunner archrun = null;
 	
 	//////////////////////////////////////////////////////////////////////////////////
-	// Constructor. Stores path to document to prepare.
-	Archiver(String docToPrepare)
+	// Constructor.
+	Archiver() {}
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Constructor. Stores path to document to prepare. Restores previous session's 
+	// variables if desired.
+	Archiver(String docToPrepare, boolean restore)
 	{
 		// Store paths.
 		originalDocPath = docToPrepare;
@@ -135,6 +140,16 @@ abstract public class Archiver {
 		tempList = new ArrayList<String>();
 		numImages = new ArrayList<Integer>();
 		
+		// Restore paths to a previous session.
+		if(restore)
+			restorePrevSession();
+			
+	} //Archiver(String docToPrepare)
+	
+	//////////////////////////////////////////////////////////////////////////////////
+	// Checks the settings file and restores our paths to a previous session.
+	public void restorePrevSession()
+	{
 		///////////////////////
 		// Auto-save RELOAD!!!!
 		
@@ -169,8 +184,8 @@ abstract public class Archiver {
 
 		// Auto-save RELOAD!!!!
 		///////////////////////
-			
-	} //Archiver(String docToPrepare)
+		
+	} // restorePrevSession()
 	
 	//////////////////////////////////////////////////////////////////////////////////
 	// Clears the previous session from our settings. Used when we're exiting the 

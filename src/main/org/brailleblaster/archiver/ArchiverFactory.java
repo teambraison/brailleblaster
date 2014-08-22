@@ -42,7 +42,7 @@ public class ArchiverFactory {
 	//////////////////////////////////////////////////////////////////////////////////
 	// Pass a filepath to a document, and getArchive() will determine the file type, 
 	// and return the appropriate Archive.
-	public static Archiver getArchive(String filePath)
+	public static Archiver getArchive(String filePath, boolean restore)
 	{
 		// If the archive is contained within a zip file, go ahead and unzip it.
 //		if( filePath.toLowerCase().endsWith(".zip") )
@@ -56,21 +56,21 @@ public class ArchiverFactory {
 		
 		// Is this EPub3?
 		if( isEPUB3(filePath) )
-			return new EPub3Archiver(filePath);
+			return new EPub3Archiver(filePath, restore);
 		// Is this EPub?
 		if( isEPUB(filePath) )
-			return new EPub3Archiver(filePath);
+			return new EPub3Archiver(filePath, restore);
 		// Is this Nimas?
 		if(isTextFile(filePath))
-			return new TextArchiver(filePath);
+			return new TextArchiver(filePath, restore);
 		if( isNIMAS(filePath) )
-			return new NimasArchiver(filePath);
+			return new NimasArchiver(filePath, restore);
 		if(isUTD(filePath))
-			return new UTDArchiver(filePath);
+			return new UTDArchiver(filePath, restore);
 		if(isHTML(filePath))
-			return new WebArchiver(filePath);
+			return new WebArchiver(filePath, restore);
 		if(isBRF(filePath))
-			return new BrfArchiver(filePath);
+			return new BrfArchiver(filePath, restore);
 		
 		// Could not determine file type.
 		return null;

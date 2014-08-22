@@ -65,9 +65,9 @@ public class NimasArchiver extends Archiver {
 	// The number of documents we COULD have if wrote them all to disk.
 	int numPotentialFiles = 0;
 	
-	NimasArchiver(String docToPrepare) {
+	NimasArchiver(String docToPrepare, boolean restore) {
 		
-		super(docToPrepare);
+		super(docToPrepare, restore);
 		
 		currentConfig = getAutoCfg("nimas"); // Nimas document.
 		filterNames = new String[] {"XML", "XML Zip", "BRF", "UTDML"};
@@ -258,7 +258,7 @@ public class NimasArchiver extends Archiver {
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 
-		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig, false);
 		arch.save(doc, path);
 		
 		// Resume autosave feature.

@@ -80,8 +80,10 @@ public class EPub3Archiver extends Archiver {
 	String bkMarkStr = null;
 	private String zipPath;
 	
-	public EPub3Archiver(String docToPrepare) {
-		super(docToPrepare);
+	public EPub3Archiver() { super(); }
+	
+	public EPub3Archiver(String docToPrepare, boolean restore) {
+		super(docToPrepare, restore);
 		open();
 		currentConfig = getAutoCfg("epub");
 		filterNames = new String[] {"EPUB", "BRF", "UTDML"};
@@ -568,7 +570,7 @@ public class EPub3Archiver extends Archiver {
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig, false);
 		arch.save(doc, path);
 		
 		// Restart autosave feature.

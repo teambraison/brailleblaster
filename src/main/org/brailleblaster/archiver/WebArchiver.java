@@ -10,8 +10,8 @@ public class WebArchiver extends Archiver{
 	
 	String ext;
 	
-	WebArchiver(String docToPrepare) {
-		super(docToPrepare);
+	WebArchiver(String docToPrepare, boolean restore) {
+		super(docToPrepare, restore);
 		currentConfig = getAutoCfg("epub");
 	
 		ext = docToPrepare.substring(docToPrepare.lastIndexOf(".") + 1);
@@ -28,8 +28,8 @@ public class WebArchiver extends Archiver{
 	 * @param oldFile: Path to previous file name used to create a new semantic file
 	 * @param newFile: name of document with new name
 	 */
-	WebArchiver(String oldFile, String newFile) {
-		super(newFile);
+	WebArchiver(String oldFile, String newFile, boolean restore) {
+		super(newFile, restore);
 		currentConfig = getAutoCfg("epub");
 	
 		ext = newFile.substring(newFile.lastIndexOf(".") + 1);
@@ -114,7 +114,7 @@ public class WebArchiver extends Archiver{
 		// Stop the autosave feature until we're done.
 		pauseAutoSave();
 		
-		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig);
+		UTDArchiver arch = new UTDArchiver(workingDocPath, path, currentConfig, false);
 		arch.save(doc, path);
 		
 		// Resume autosave feature.

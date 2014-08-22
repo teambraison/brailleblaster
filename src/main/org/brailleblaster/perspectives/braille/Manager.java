@@ -51,6 +51,7 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -143,7 +144,7 @@ public class Manager extends Controller {
 			openDocument(docName);
 		else {
 			docCount++;
-			arch = ArchiverFactory.getArchive( templateFile);
+			arch = ArchiverFactory.getArchive( templateFile, false);
 			vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 			//list = vi.getList(this);
 			resetConfiguations();
@@ -268,25 +269,32 @@ public class Manager extends Controller {
 	
 	public void openDocument(String fileName){	
 		
-		// Restore a previous session?
-		PropertyFileManager props = BBIni.getPropertyFileManager();
-		String wkPath = props.getProperty("prevWorkingFile");
-		String origDocPathStr = props.getProperty("originalDocPath");
-		if( origDocPathStr != null )
-			if(origDocPathStr.length() > 0) {
-				File f = new File(wkPath);
-				if(f.exists())
-					fileName = origDocPathStr;
-				else
-					arch.clearPrevSession();
-			}
+		// If this is the first document, load a previous session.
+		boolean restoreArchive = false;
+		if( wp.getList().size() < 1 ) {
+			// Restore a previous session?
+			PropertyFileManager props = BBIni.getPropertyFileManager();
+			String wkPath = props.getProperty("prevWorkingFile");
+			String origDocPathStr = props.getProperty("originalDocPath");
+			if( origDocPathStr != null ) {
+				if(origDocPathStr.length() > 0) {
+					File f = new File(wkPath);
+					if(f.exists()) {
+						fileName = origDocPathStr;
+						restoreArchive = true;
+					}
+					else
+						new EPub3Archiver().clearPrevSession();
+				} // if(origDocPathStr.length() > 0)
+			} // if( origDocPathStr != null )
+		} // if( wp.getList().size() < 1 )
 		
 		// Create archiver and massage document if necessary.
 		String config = ""; 
 		if(arch != null)
 			config = arch.getCurrentConfig();
 		
-		arch = ArchiverFactory.getArchive(fileName);
+		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
 		
 		if(!config.equals(arch.getCurrentConfig()))
 			resetConfiguations();

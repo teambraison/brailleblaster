@@ -9,7 +9,9 @@ import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
+import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
 
@@ -27,6 +29,33 @@ public abstract class Controller implements DocumentManager{
 	public Controller(WPManager wp){
 		this.wp = wp;
 		fu = new FileUtils();
+	}
+	
+	/////////////////////////////////////////////////////////////////////	
+	// Checks the settings file for values belonging to auto save.
+	// Determines if we should restore, and returns path to 
+	// previous file. Null if we shouldn't restore.
+	public String docRestore()
+	{
+		String returnPath = null;
+		if( wp.getList().size() < 1 ) {
+			// Restore a previous session?
+			PropertyFileManager props = BBIni.getPropertyFileManager();
+			String wkPath = props.getProperty("prevWorkingFile");
+			String origDocPathStr = props.getProperty("originalDocPath");
+			if( origDocPathStr != null ) {
+				if(origDocPathStr.length() > 0) {
+					File f = new File(wkPath);
+					if(f.exists())
+						returnPath = origDocPathStr;
+					else
+						new EPub3Archiver().clearPrevSession();
+				} // if(origDocPathStr.length() > 0)
+			} // if( origDocPathStr != null )
+		} // if( wp.getList().size() < 1 )
+		
+		// Return the path we found, if any.
+		return returnPath;
 	}
 	
 	protected void addRecentFileEntry(String fileName){

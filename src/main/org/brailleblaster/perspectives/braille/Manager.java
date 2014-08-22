@@ -143,14 +143,22 @@ public class Manager extends Controller {
 		if(docName != null)
 			openDocument(docName);
 		else {
+			
 			docCount++;
-			arch = ArchiverFactory.getArchive( templateFile, false);
-			vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-			//list = vi.getList(this);
-			resetConfiguations();
-			initializeAllViews(docName, templateFile, null);
-			//formatTemplateDocument();
-			setTabTitle(docName);
+			
+			// Restore?
+			String restorePath = docRestore();
+			if(restorePath != null)
+				openDocument(restorePath);
+			else {
+				arch = ArchiverFactory.getArchive( templateFile, false);
+				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
+				//list = vi.getList(this);
+				resetConfiguations();
+				initializeAllViews(docName, templateFile, null);
+				//formatTemplateDocument();
+				setTabTitle(docName);
+			}
 		}				
 		
 		if(BBIni.getPlatformName().equals("cocoa"))
@@ -271,23 +279,15 @@ public class Manager extends Controller {
 		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
-		if( wp.getList().size() < 1 ) {
-			// Restore a previous session?
-			PropertyFileManager props = BBIni.getPropertyFileManager();
-			String wkPath = props.getProperty("prevWorkingFile");
-			String origDocPathStr = props.getProperty("originalDocPath");
-			if( origDocPathStr != null ) {
-				if(origDocPathStr.length() > 0) {
-					File f = new File(wkPath);
-					if(f.exists()) {
-						fileName = origDocPathStr;
-						restoreArchive = true;
-					}
-					else
-						new EPub3Archiver().clearPrevSession();
-				} // if(origDocPathStr.length() > 0)
-			} // if( origDocPathStr != null )
-		} // if( wp.getList().size() < 1 )
+		String restorePath = docRestore();
+		if(restorePath != null) {
+			restoreArchive = true;
+			fileName = restorePath;
+		}
+		else if( restorePath == null && fileName != null )
+			restoreArchive = false;
+		else
+			restoreArchive = false;
 		
 		// Create archiver and massage document if necessary.
 		String config = ""; 

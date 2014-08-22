@@ -125,30 +125,13 @@ public class ImageDescriberController extends Controller {
 	public boolean openDocument(String fileName){
 		
 		// If this is the first document, load a previous session.
-		boolean restoreArchive = false;
-		if( wp.getList().size() < 1 ) {
-			// Restore a previous session?
-			PropertyFileManager props = BBIni.getPropertyFileManager();
-			String wkPath = props.getProperty("prevWorkingFile");
-			String origDocPathStr = props.getProperty("originalDocPath");
-			if( origDocPathStr != null ) {
-				if(origDocPathStr.length() > 0) {
-					File f = new File(wkPath);
-					if(f.exists()) {
-						fileName = origDocPathStr;
-						restoreArchive = true;
-					}
-					else
-						new EPub3Archiver().clearPrevSession();
-				} // if(origDocPathStr.length() > 0)
-			} // if( origDocPathStr != null )
-		} // if( wp.getList().size() < 1 )
-		
-		if(fileName != null) 
-			arch = ArchiverFactory.getArchive(fileName, restoreArchive);
-		else {
-			arch = ArchiverFactory.getArchive(templateFile, false);
-		}
+		String restorePath = docRestore();
+		if(restorePath != null)
+			arch = ArchiverFactory.getArchive( restorePath, true);
+		else if( restorePath == null && fileName != null )
+			arch = ArchiverFactory.getArchive( fileName, false);
+		else
+			arch = ArchiverFactory.getArchive( templateFile, false);
 		
 		////////////////
 		// Recent Files.

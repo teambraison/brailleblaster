@@ -104,6 +104,8 @@ public final class BBIni {
 	private static String defaultCfg;
 	private static String autoConfigSettings;
 	private static PropertyFileManager propManager;
+	
+	private static String liblouisutdmlVersion;
 
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
@@ -281,6 +283,7 @@ public final class BBIni {
 			LibLouisUTDML.getInstance().registerLogCallback(
 					louisutdmlLogHandler);
 			LibLouisUTDML.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
+			liblouisutdmlVersion = LibLouisUTDML.getInstance().version();
 			hLiblouisutdml = true;
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();
@@ -361,6 +364,10 @@ public final class BBIni {
 
 	public static String getProductName() {
 		return productName;
+	}
+	
+	public static String getLiblouisutdmlVersion() {
+		return liblouisutdmlVersion;
 	}
 
 	public static String getVersion() {

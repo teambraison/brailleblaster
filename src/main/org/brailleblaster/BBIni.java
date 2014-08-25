@@ -65,7 +65,7 @@ public final class BBIni {
 	 * Calls a private constructor, making this class a singleton.
 	 */
 	public static BBIni initialize(String[] args) {
-		if (bbini == null)
+		if (bbini == null || BBIni.debugging())
 			bbini = new BBIni(args);
 		return bbini;
 	}

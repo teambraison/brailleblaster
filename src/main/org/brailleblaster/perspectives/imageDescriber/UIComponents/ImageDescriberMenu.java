@@ -1,8 +1,10 @@
 package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
+import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -52,19 +54,16 @@ public class ImageDescriberMenu extends BBMenu {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				String filePath = fileOpenDialog();
 				int index = wp.getFolder().getSelectionIndex();
-				if(index == -1){
-					wp.addDocumentManager(null);
-					currentController = (ImageDescriberController) wp.getList().getFirst(); 
-					currentController.fileOpenDialog();
-					if(currentController.getArchiver().getOrigDocPath() == null){
-						currentController.close();
-						if(wp.getList().size() == 0)
-							currentController = null;
-					}
+				if(index == -1 && filePath != null){
+					wp.addDocumentManager(filePath);
 				}
-				else {
-					currentController.fileOpenDialog();
+				else if(filePath != null){
+					if(currentController.canReuseTab())
+						currentController.reuseTab(filePath);
+					else
+						wp.addDocumentManager(filePath);
 				}
 			}		
 		});
@@ -475,6 +474,21 @@ public class ImageDescriberMenu extends BBMenu {
 		fontEditBoxSize[checkIndex].setSelection(onOrOff);
 		
 	} // _setEboxFntCheck()
+	
+	protected String fileOpenDialog(){
+		String tempName = null;
+
+		if(!BBIni.debugging()){
+			String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
+			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
+			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
+			tempName = dialog.open();
+		}
+		else
+			tempName = BBIni.getDebugFilePath();
+		
+		return tempName;
+	}
 	
 	@Override
 	public void setCurrent(Controller controller) {

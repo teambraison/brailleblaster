@@ -1,10 +1,12 @@
 package org.brailleblaster.perspectives.braille.ui;
 
+import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.settings.SettingsDialog;
+import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -111,18 +113,19 @@ public class BrailleMenu extends BBMenu{
 		openItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				String filePath = fileOpenDialog();
 				int index= wp.getFolder().getSelectionIndex();
-				if(index == -1){
-					wp.addDocumentManager(null);
-					((Manager)wp.getList().getFirst()).fileOpenDialog();
-					if(((Manager)wp.getList().getFirst()).getArchiver().getOrigDocPath()  == null){
-						((Manager)wp.getList().getFirst()).close();
-						if(wp.getList().size() == 0)
-							setCurrent(null);
-					}
+				if(index == -1 && filePath != null){
+					wp.addDocumentManager(filePath);
 				}
-				else {
-					currentEditor.fileOpenDialog();
+				else if(filePath != null){
+					if(currentEditor.canReuseTab()){
+						currentEditor.closeUntitledTab();
+						currentEditor.openDocument(filePath);
+						currentEditor.checkTreeFocus();
+					}
+					else
+						wp.addDocumentManager(filePath);
 				}
 			}
 		});
@@ -805,5 +808,20 @@ public class BrailleMenu extends BBMenu{
 			viewBrailleItem.setSelection(currentEditor.isSimBrailleDisplayed());
 		else
 			viewBrailleItem.setSelection(true);
+	}
+	
+	protected String fileOpenDialog(){
+		String tempName = null;
+
+		if(!BBIni.debugging()){
+			String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "UTDML working document"};
+			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
+			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
+			tempName = dialog.open();
+		}
+		else
+			tempName = BBIni.getDebugFilePath();
+		
+		return tempName;
 	}
 }

@@ -221,6 +221,9 @@ public class ImageDescriberController extends Controller {
 			dispose();
 			item.dispose();
 			wp.removeController(this);
+			
+			if(wp.getList().size() == 0)
+				wp.getStatusBar().setText("");
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package org.brailleblaster.perspectives.braille.mapping.elements;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Text;
@@ -41,7 +42,7 @@ public class SectionElement {
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
 				//Added to handle brl for side bar
-				if (((Element)current.getChild(i).getParent()).getLocalName().equals("sidebar") )
+				if (checkSemanticsAttribute(((Element)current.getChild(i).getParent()), "boxline") )
 				{
 					list.add(new BrlOnlyMapElement(current.getChild(i), (Element)current.getChild(i).getParent()));
 				
@@ -59,8 +60,8 @@ public class SectionElement {
 					i++;
 			}
 			//Added this part for side bar
-			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("sidebar")){
-				     initializeViews(current.getChild(i), m, 0);	
+			else if(current.getChild(i) instanceof Element &&  checkSemanticsAttribute(((Element)current.getChild(i)), "boxline")){
+				initializeViews(current.getChild(i), m, 0);	
 			}
 			else {
 				if(current.getChild(i) instanceof Element){
@@ -70,7 +71,7 @@ public class SectionElement {
 					else {
 						Element currentChild = (Element)current.getChild(i);
 						m.getDocument().checkSemantics(currentChild);
-						if(!currentChild.getLocalName().equals("meta") & !currentChild.getAttributeValue("semantics").contains("skip"))
+						if(!currentChild.getLocalName().equals("meta") && !checkSemanticsAttribute(currentChild, "skip"))
 							initializeViews(currentChild, m, 0);
 					}
 				}
@@ -140,6 +141,15 @@ public class SectionElement {
 		}
 		
 		return false;
+	}
+	
+	private boolean checkSemanticsAttribute(Element e, String value){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr == null || !atr.getValue().contains(value))
+			return false;
+		
+		return true;
 	}
 	
 	public void setInView(boolean inView){

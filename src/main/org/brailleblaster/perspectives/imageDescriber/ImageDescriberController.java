@@ -148,30 +148,6 @@ public class ImageDescriberController extends Controller {
 		// Return document result.
 		return result;
 	}
-
-	public void fileOpenDialog(){
-		
-		String tempName;
-		String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
-		
-		tempName = dialog.open();
-		
-		// Don't do any of this if the user failed to choose a file.
-		if(tempName != null) {
-			// Open it.
-			if(!canReuseTab())
-				wp.addDocumentManager(tempName);
-			else 
-				reuseTab(tempName);
-			
-			addRecentFileEntry(tempName);
-		} // if(tempName != null)
-		
-		// Zip and Recent Files.
-		////////////////////////
-	}
 	
 	public void save(){
 		

@@ -34,6 +34,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.util.ImageHelper;
+import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -109,21 +110,19 @@ public class BBToolBar {
 		openItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-					// dm.setReturn (WP.OpenDocumentGetFile);
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						setEditor((Manager)wp.getList().getLast());
-						currentEditor.fileOpenDialog();
-						//wp.getList().getFirst().fileOpenDialog();
+				String filePath = fileOpenDialog();
+				int index= wp.getFolder().getSelectionIndex();
+				if(index == -1 && filePath != null){
+					wp.addDocumentManager(filePath);
+				}
+				else if(filePath != null){
+					if(currentEditor.canReuseTab()){
+						currentEditor.closeUntitledTab();
+						currentEditor.openDocument(filePath);
+						currentEditor.checkTreeFocus();
 					}
-					else {
-						//wp.getList().get(index).fileOpenDialog();
-						currentEditor.fileOpenDialog();
-					}
+					else
+						wp.addDocumentManager(filePath);
 				}
 			}
 		});
@@ -275,5 +274,20 @@ public class BBToolBar {
 	
 	public void dispose(){
 		toolBar.dispose();
+	}
+	
+	protected String fileOpenDialog(){
+		String tempName = null;
+
+		if(!BBIni.debugging()){
+			String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "UTDML working document"};
+			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
+			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
+			tempName = dialog.open();
+		}
+		else
+			tempName = BBIni.getDebugFilePath();
+		
+		return tempName;
 	}
 }

@@ -150,7 +150,6 @@ public abstract class BBMenu {
 					while(wp.getList().size() > 0 && i < wp.getList().size()){
 						int size = wp.getList().size();
 						Controller temp = wp.getList().get(i);
-						//wp.removeController(temp);
 						temp.close();		
 						if(size == wp.getList().size())
 							i++;

@@ -247,33 +247,6 @@ public class Manager extends Controller {
 		}
 	}
 	
-	public void fileOpenDialog() {
-		String tempName;
-
-		String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "UTDML working document"};
-		String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.OPEN, filterNames, filterExtensions);
-
-		if(!BBIni.debugging())
-			tempName = dialog.open();
-		else
-			tempName = BBIni.getDebugFilePath();
-		
-		// Don't do any of this if the user failed to choose a file.
-		if(tempName != null)
-		{
-			// Open it.
-			if(arch.getOrigDocPath() != null || text.hasChanged || braille.hasChanged || documentName != null){
-				wp.addDocumentManager(tempName);
-			}
-			else {
-				closeUntitledTab();
-				openDocument(tempName);
-				checkTreeFocus();
-			}	
-		} // if(tempName != null)
-	}
-	
 	public void openDocument(String fileName){	
 		
 		// If this is the first document, load a previous session.
@@ -303,7 +276,7 @@ public class Manager extends Controller {
 			
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
-		// Start the auto-saver.
+		// Start the auto-saver
 		if(!BBIni.debugging())
 			arch.resumeAutoSave( document, arch.getWorkingFilePath() );
 	}	

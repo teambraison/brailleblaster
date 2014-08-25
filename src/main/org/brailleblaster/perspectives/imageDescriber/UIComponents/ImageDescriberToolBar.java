@@ -34,6 +34,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.util.ImageHelper;
+import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -107,21 +108,16 @@ public class ImageDescriberToolBar {
 		openItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if (BBIni.debugging()) {
-					// dm.setReturn (WP.OpenDocumentGetFile);
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						setEditor((ImageDescriberController)wp.getList().getLast());
-						currentEditor.fileOpenDialog();
-						//wp.getList().getFirst().fileOpenDialog();
-					}
-					else {
-						//wp.getList().get(index).fileOpenDialog();
-						currentEditor.fileOpenDialog();
-					}
+				String filePath = fileOpenDialog();
+				int index = wp.getFolder().getSelectionIndex();
+				if(index == -1 && filePath != null){
+					wp.addDocumentManager(filePath);
+				}
+				else if(filePath != null){
+					if(currentEditor.canReuseTab())
+						currentEditor.openDocument(filePath);
+					else
+						wp.addDocumentManager(filePath);
 				}
 			}
 		});
@@ -184,6 +180,21 @@ public class ImageDescriberToolBar {
 	
 	public void dispose() {
 		toolBar.dispose();
+	}
+	
+	protected String fileOpenDialog(){
+		String tempName = null;
+
+		if(!BBIni.debugging()){
+			String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
+			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
+			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
+			tempName = dialog.open();
+		}
+		else
+			tempName = BBIni.getDebugFilePath();
+		
+		return tempName;
 	}
 	
 } // class ImageDescriberToolBar.

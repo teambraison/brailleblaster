@@ -1011,6 +1011,9 @@ public class Manager extends Controller {
 				docCount--;
 			
 			wp.removeController(this);
+			
+			if(wp.getList().size() == 0)
+				wp.getStatusBar().setText("");
 		}
 	}
 	

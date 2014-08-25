@@ -53,6 +53,12 @@ public class BoxlineHandler {
 			int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
 			createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 			
+			int treeIndex;
+			if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
+				treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
+			else
+				treeIndex = 0;
+			
 			//remove items from tree
 			if(treeView.getClass().equals(XMLTree.class)){
 				for(int i = 0; i < itemList.size(); i++)
@@ -60,9 +66,6 @@ public class BoxlineHandler {
 			}
 			
 			//add aside or sidebar to tree
-			int treeIndex = treeView.getSelectionIndex();
-			if(treeIndex > treeView.getTree().getSelection()[0].getItemCount())
-				treeIndex = 0;
 			treeView.newTreeItem(list.get(startPos), treeIndex, 0);
 			
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));

@@ -51,7 +51,6 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
-import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -305,8 +304,8 @@ public class Manager extends Controller {
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver.
-	//	if(!BBIni.debugging())
-		arch.resumeAutoSave( document, arch.getWorkingFilePath() );
+		if(!BBIni.debugging())
+			arch.resumeAutoSave( document, arch.getWorkingFilePath() );
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){

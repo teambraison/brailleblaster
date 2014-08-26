@@ -80,7 +80,7 @@ public class StyleManager{
     
     public void openEditStyle(){
     	lastSelection = table.getTable().getSelectionIndex();
-    	String style = table.getTable().getSelection()[0].getText(1);
+    	String style = (String) table.getTable().getSelection()[0].getData();
     	this.table.dispose();
     	Styles styleForView = null;
     	try {

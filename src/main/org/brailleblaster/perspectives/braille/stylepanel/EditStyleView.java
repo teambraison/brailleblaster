@@ -96,7 +96,11 @@ public class EditStyleView extends EditPanel {
 	}
 	
 	private void initializeFormData(Styles style){
-		styleName.setText(style.getName());
+		if(style.get(StylesType.valueOf("name"))!=null){
+			styleName.setText((String) style.get(StylesType.valueOf("name")));
+		}
+		else
+		    styleName.setText(style.getName());
 		setSpinnerData(linesBeforeSpinner, style, StylesType.linesBefore);
 		setSpinnerData(linesAfterSpinner, style, StylesType.linesAfter);
 		setSpinnerData(marginSpinner, style, StylesType.leftMargin);

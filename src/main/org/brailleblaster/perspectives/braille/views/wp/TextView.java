@@ -316,8 +316,10 @@ public class TextView extends WPView {
 							}
 
 							currentChar = ' ';
-							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+							
 						}
+						sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+						
 					}
 				}
 

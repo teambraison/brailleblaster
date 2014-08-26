@@ -271,10 +271,14 @@ public abstract class WPView extends AbstractView implements BBView {
 		
 			statusBarText += "Page: " + page + " | ";
 		}
-		statusBarText += "Line: " + String.valueOf(line + 1) + " | ";
+		//Every 25th line start counting line again
+		statusBarText += "Line: " + String.valueOf(line % 25 + 1) + " | ";
+		//Added this line for cursor position
+		statusBarText += "Cell Number: " + String.valueOf(view.getCaretOffset()-view.getOffsetAtLine(line) + ((view.getLineIndent(line) / charWidth) + 1)) + " | ";
 		
 		if(view.getLineIndent(line) > 0){
-			statusBarText += " Indent: Cell " + ((view.getLineIndent(line) / charWidth) + 1) + " | "; 
+			statusBarText += " Indent: Cell " + ((view.getLineIndent(line) / charWidth) + 1) + " | ";
+			
 		}
 		
 		if(view.getLineAlignment(line) != SWT.LEFT){

@@ -23,6 +23,7 @@ import nu.xom.Node;
 
 public class BBSemanticsTable {
 	public enum StylesType{
+	
 		emphasis,
 		linesBefore,
 		linesAfter,
@@ -39,7 +40,8 @@ public class BBSemanticsTable {
 		orphanControl,
 		newlineAfter,
 		topBoxline,
-		bottomBoxline;
+		bottomBoxline,
+		name;
 	}
 	
 	public class Styles implements Cloneable {
@@ -60,7 +62,11 @@ public class BBSemanticsTable {
 		}
 		
 		public Object get(StylesType st){
-			return map.get(st);
+			if (map.containsKey(st))
+			   return map.get(st);
+			else
+				return null;
+			
 		}
 		
 		public Set<StylesType> getKeySet(){
@@ -78,6 +84,7 @@ public class BBSemanticsTable {
 		public String getName(){
 			return elementName;
 		}
+
 				
 				@SuppressWarnings("unchecked")
 				@Override
@@ -120,24 +127,43 @@ public class BBSemanticsTable {
 	
 	private void makeHashTable(BufferedReader reader) throws IOException{
 		String currentLine;
-		String styleName;
-		
+		String preferredName=null;
+		String styleName = null;
+		String Names[]=new String[2];
+
 		while ((currentLine = reader.readLine()) != null) {
 			if(currentLine.length() > 0 && currentLine.charAt(0) != '#'){				
 				if(currentLine.length() >= 5 && currentLine.substring(0, 5).equals("style")){
-					styleName = currentLine.substring(6, currentLine.length()).trim();
+					Names = FindName(currentLine.substring(6, currentLine.length()));
+					styleName=Names[0];
 					makeStylesObject(styleName);
-					while((currentLine  = reader.readLine()) != null && currentLine.length() > 0){
-						if(currentLine.length() >= 5 && currentLine.substring(0, 5).equals("style")){
-							styleName = currentLine.substring(6, currentLine.length()).trim();
-							makeStylesObject(styleName);
-						}
-						else if(!currentLine.contains("#"))
-							insertValue(styleName, currentLine);
+					// if there was any preferredName in configuration file then insert it here
+					if(Names.length>1)
+					{
+						preferredName=Names[1];	
+						String temp="name "+preferredName;
+						//Add another entry to table with key name and value prefereedName
+						insertValue(styleName,temp); 
 					}
+
+				}
+				else if(!currentLine.contains("#") && styleName!=null){
+					insertValue(styleName, currentLine);
 				}
 			}
 		}
+	}
+	/**
+	 * Find name of style and its preferred name
+	 * @param currentLine
+	 * @return
+	 */
+	private String[] FindName(String currentLine){
+		String Names[]=new String[2];
+		Names[1]=null;
+		Names=currentLine.split("\\s+");
+		return Names;
+		
 	}
 	
 	public Styles getNewStyle(String name){
@@ -152,8 +178,10 @@ public class BBSemanticsTable {
 	private void insertValue(String styleName, String keyValuePair){
 		Styles temp = table.get(styleName);
 		String [] tokens = keyValuePair.split(" ");
-		
-		if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered"))
+		// for preferred name
+		if(tokens[0].substring(0).equals("name") )
+			temp.put(StylesType.valueOf(tokens[0].substring(0)), tokens[1]);
+		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered"))
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.CENTER));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified"))
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.RIGHT));

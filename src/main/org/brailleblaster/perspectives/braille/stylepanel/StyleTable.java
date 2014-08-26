@@ -5,8 +5,8 @@ import java.util.Set;
 import nu.xom.Element;
 
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -124,7 +124,7 @@ public class StyleTable {
 						t.setSelection(loc);
 				}
 				else if(e.keyCode == SWT.CR){
-					sm.apply(t.getSelection()[0].getText(1));
+					sm.apply((String) t.getSelection()[0].getData());
 					traverseFired = false;
 				}
 				else
@@ -180,7 +180,7 @@ public class StyleTable {
 		applyButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.apply(t.getSelection()[0].getText(1));
+				sm.apply((String) t.getSelection()[0].getData());
 			}		
 		});
 		
@@ -218,7 +218,7 @@ public class StyleTable {
 							deleteButton.setFocus();
 					}
 					else if(e.stateMask == SWT.MOD3 && e.keyCode == 'y')
-						sm.apply(t.getSelection()[0].getText(1));
+						sm.apply((String) t.getSelection()[0].getData());
 					else if(e.keyCode == SWT.ESC)
 						sm.closeTable();
 					
@@ -297,10 +297,24 @@ public class StyleTable {
 		}
 	}
 	
-    private void populateTable(Set<String> list){  	
+    private void populateTable(Set<String> list){ 
+    	StylesType perefferedStyle=StylesType.valueOf("name");
+    	String perefferedName;
+    	
     	for(String s : list){
+    
     		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex"))
-    			addTableItem(s);
+    		{
+
+    			if(sm.getSemanticsTable().get(s).contains(perefferedStyle)){
+
+    				perefferedName=(String) sm.getSemanticsTable().get(s).get(perefferedStyle);
+    				addTableItem(perefferedName,s);
+    			}
+    			else{
+    				addTableItem(s,s);
+    			}
+    		}
     	}  	
     }
     
@@ -357,9 +371,11 @@ public class StyleTable {
 		return fm.getAverageCharWidth();
 	}
     
-    private void addTableItem(String item){
+    private void addTableItem(String item,String originalName){
     	TableItem tItem = new TableItem(t, SWT.CENTER);
     	tItem.setText(new String[]{"", item});
+    	tItem.setData(originalName);
+    	
     }
     
     public boolean isVisible(){

@@ -173,9 +173,9 @@ public class BrailleView extends WPView {
 						
 							currentChar = ' ';
 						}
-						if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
+						//if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
 							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-						}
+						//}
 					}
 				}
 			}

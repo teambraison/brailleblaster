@@ -238,7 +238,7 @@ public class XMLTree extends TreeView {
 		Elements els = e.getChildElements();
 	
 		for(int i = 0; i < els.size(); i++){
-			if(!els.get(i).getLocalName().equals("brl") && manager.getDocument().checkAttribute(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
+			if(!els.get(i).getLocalName().equals("brl") && manager.getDocument().attributeExists(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
 				TreeItem temp = new TreeItem(item, 0);
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));

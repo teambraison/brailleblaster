@@ -29,16 +29,29 @@ public class BrailleDocument extends BBDocument {
 	private int idCount = 0;
 	private BBSemanticsTable table;
 	
+	/**Base constructor for initializing a new document
+	 * @param dm :Document Manager for interacting with views
+	 * @param table :Semantics table containing style information
+	 */
 	public BrailleDocument(Manager dm, BBSemanticsTable table) {
 		super(dm);
 		this.table = table;
 	}
 
+	/** Base constructor for when perspectives are switched and the XOM Document is passed to a Document specific to the view
+	 * @param dm :Document Manager for interacting with views
+	 * @param doc :XOM Document, the DOM already built for the currently open document
+	 * @param table :Semantics table containing style information
+	 */
 	public BrailleDocument(Manager dm, Document doc, BBSemanticsTable table) {
 		super(dm, doc);
 		this.table = table;
 	}
 	
+	/** Method via which update and remove procedures are handled
+	 * @param list : Maplist of be update after DOM changes
+	 * @param message : Message containing pertinent information for the given procedure
+	 */
 	public void updateDOM(MapList list, Message message){
 		switch(message.type){
 			case UPDATE:
@@ -56,6 +69,10 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Updates a node when it has been edited
+	 * @param list : Maplist of be update after DOM changes
+	 * @param message : Message containing pertinent information for the given procedure
+	 */
 	private void updateNode(MapList list, Message message){
 		int total = 0;
 		String text = (String)message.getValue("newText");
@@ -83,6 +100,15 @@ public class BrailleDocument extends BBDocument {
 		message.put("brailleLength", total);
 	}
 	
+	/** Inserts an empty text node into the DOM.  This is used for inserting trasncribes notes, paragraphs when a user hits enter, etc.
+	 * @param vi : View Intializer managing segments of a DOM 
+	 * @param list : maplist currently visible in the views
+	 * @param current : element used to determine insertion point in DOM
+	 * @param textOffset : position in text view for start and end of text element inserted
+	 * @param brailleOffset : position in braille view for start and end of braille element inserted into tet element 
+	 * @param index : insertion index in maplist
+	 * @param elem : Name of element to insert
+	 */
 	public void insertEmptyTextNode(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
@@ -124,14 +150,20 @@ public class BrailleDocument extends BBDocument {
 		list.get(index).brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
 	}
 	
+	/** Updates the text of a given text node prior to translation
+	 * @param n : Text node to update
+	 * @param text : String containing new text for the node
+	 */
 	private void changeTextNode(Node n, String text){
 		Text temp = (Text)n;
-		logger.info("Original Text Node Value: " + temp.getValue());
 		temp.setValue(text);
-		logger.info("New Text Node Value: " +  temp.getValue());
-		System.out.println("New Node Value:\t" + temp.getValue());
 	}
 	
+	/** Updates a braile node after text node has been updated
+	 * @param t : TextMapElement to have braille re-translated
+	 * @param message : message containing offset values
+	 * @return the length of the original braille text, used to update offsets of list
+	 */
 	private int changeBrailleNodes(TextMapElement t, Message message){
 		Document d = getStringTranslation(t, (String)message.getValue("newText"));
 		int total = 0;
@@ -180,6 +212,12 @@ public class BrailleDocument extends BBDocument {
 		return total;
 	}
 	
+	/** Handles special cases when a node is updated and contains no text or is all spaces.
+	 * @param t : TextMap to insert braille node.
+	 * @param offset : Next braille offset
+	 * @param message : message to contain offset information after update
+	 * @return : returns the original length prior to update
+	 */
 	private int insertEmptyBrailleNode(TextMapElement t, int offset, Message message){
 		int startOffset = -1;	
 		Element e = new Element("brl", this.doc.getRootElement().getNamespaceURI());
@@ -224,6 +262,12 @@ public class BrailleDocument extends BBDocument {
 		return total;
 	}
 	
+	/** Inserts a braille node if existing text does not have a braille node
+	 * @param m : message to contain offset info
+	 * @param t : TextMapElement to insert braille
+	 * @param startingOffset : offset position
+	 * @param text : Text to translate
+	 */
 	private void insertBrailleNode(Message m, TextMapElement t, int startingOffset, String text){
 		Document d = getStringTranslation(t, text);
 		Element brlParent = ((Element)d.getRootElement().getChild(0));
@@ -253,6 +297,10 @@ public class BrailleDocument extends BBDocument {
 		m.put("newBrailleLength", insertionString.length());
 	}
 	
+	/** Removes MathML from DOM
+	 * @param t : TextMapElemetn to remove
+	 * @param m : message to contain offset information
+	 */
 	private void removeMathML(TextMapElement t, Message m){
 		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start; 
 		
@@ -273,6 +321,12 @@ public class BrailleDocument extends BBDocument {
 		m.put("diff", 0);
 	}
 	
+	/** Splits an element in the DOM into two elements with the same tag
+	 * @param list 
+	 * @param t : TextMapElement to split
+	 * @param m :message  containing split information
+	 * @return : returns an arraylist containing both new elements
+	 */
 	public ArrayList<Element> splitElement(MapList list,TextMapElement t, Message m){
 		ElementDivider divider = new ElementDivider(this, table, semHandler);
 		if(m.getValue("atEnd").equals(true)){
@@ -291,23 +345,28 @@ public class BrailleDocument extends BBDocument {
 			return divider.split(t, m);
 	}
 	
+	/** Translates a string into braille
+	 * @param t : TextMapElement used to determine markup information
+	 * @param text : Text to translate
+	 * @return returns a XOM document since LiblouisUTDMLs translateString returns a full XML document
+	 */
 	public Document getStringTranslation(TextMapElement t, String text){
 		Element parent = t.parentElement();
 		while(!parent.getAttributeValue("semantics").contains("style")){
 			if(parent.getAttributeValue("semantics").equals("action,italicx")){
-				if(checkAttribute(parent, "id"))
+				if(attributeExists(parent, "id"))
 					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
 				else
 					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
 			}
 			else if(parent.getAttributeValue("semantics").equals("action,boldx")){
-				if(checkAttribute(parent, "id"))
+				if(attributeExists(parent, "id"))
 					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
 				else
 					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
 			}
 			else if(parent.getAttributeValue("semantics").equals("action,underlinex")){
-				if(checkAttribute(parent, "id"))
+				if(attributeExists(parent, "id"))
 					text = "<" + parent.getLocalName() + " id=\"" + parent.getAttributeValue("id")  + "\">" + text + "</" + parent.getLocalName() + ">";
 				else
 					text = "<" + parent.getLocalName() + ">" + text + "</" + parent.getLocalName() + ">";
@@ -321,6 +380,10 @@ public class BrailleDocument extends BBDocument {
 		return getXML(xml);
 	}
 	
+	/** Helper method of translatString that call liblouisutdml's translateString function and builds the document
+	 * @param xml : String in the form of fully formed xml document
+	 * @return XOM document if translation and parse was successful, null if failed
+	 */
 	private Document getXML(String xml){
 		byte [] outbuf = new byte[xml.length() * 10];
 		
@@ -345,6 +408,10 @@ public class BrailleDocument extends BBDocument {
 		return null;
 	}
 	
+	/** Helper method of translate string that encapsulates string in xml body
+	 * @param text : String for translation now in markup form
+	 * @return string now in full xml document form
+	 */
 	private String getXMLString(String text){
 		text = text.replace("\n", "");
 		if(dm.getCurrentConfig().equals("epub.cfg"))
@@ -353,6 +420,11 @@ public class BrailleDocument extends BBDocument {
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?><book>" + text + "</book>";
 	}
 	
+	/** Calls liblouisutdml translate string
+	 * @param text : String in fully formed xml to translate
+	 * @param outbuffer : LiblouisUTDML requires the size of the outbuffer before translating.  
+	 * @return size of string, liblouisutdml returns -1 if it failed to translate
+	 */
 	private int translateString(String text, byte[] outbuffer) {
 		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
 		String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
@@ -386,6 +458,10 @@ public class BrailleDocument extends BBDocument {
 		}	
 	}
 	
+	/** Translates text contents of an element and children
+	 * @param e : Element to translate
+	 * @return translated element
+	 */
 	public Element translateElement(Element e){
 		removeBraille(e);
 		removeSemantics(e);
@@ -399,6 +475,10 @@ public class BrailleDocument extends BBDocument {
 		return transElement;
 	}
 	
+	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
+	 * @param t : TextMapElement containing node to remove
+	 * @param message : message to put element information
+	 */
 	private void removeNode(TextMapElement t, Message message){
 		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
 			Element e = (Element)t.brailleList.getFirst().n.getParent();
@@ -419,6 +499,10 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Checks if an element contains other elements other than brl
+	 * @param e : Element to check
+	 * @return true if non-braille children exist, false if not
+	 */
 	private boolean hasNonBrailleChildren(Element e){
 		Elements els = e.getChildElements();
 		for(int i = 0; i <els.size(); i++){
@@ -430,6 +514,10 @@ public class BrailleDocument extends BBDocument {
 		return false;
 	}
 	
+	/** Checks whether text is entirely whitespace
+	 * @param text : text to check
+	 * @return true if all whitespace, false if not
+	 */
 	private boolean isWhitespace(String text){
 		if (text.trim().length() > 0) 
 			return false;
@@ -437,6 +525,10 @@ public class BrailleDocument extends BBDocument {
 		return true;
 	}
 	
+	/**  Checks whether a node in brl elements follows a newline element
+	 * @param n : node to check
+	 * @return true if following a newline element, false if not
+	 */
 	private boolean afterNewlineElement(Node n){
 		Element parent = (Element)n.getParent();
 		int index = parent.indexOf(n);
@@ -449,6 +541,9 @@ public class BrailleDocument extends BBDocument {
 		return false;
 	}
 	
+	/** Recursively removes braille from an element and its children
+	 * @param e : Element to remove braille
+	 */
 	private void removeBraille(Element e){
 		Elements els = e.getChildElements();
 		for(int i = 0; i < els.size(); i++){
@@ -460,6 +555,9 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Recursively removes semantic attribute from an element and its children
+	 * @param e : Element to remove braille
+	 */
 	private void removeSemantics(Element e){
 		e.removeAttribute(e.getAttribute("semantics"));
 		
@@ -469,6 +567,11 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Calculates word difference following editing
+	 * @param oldString : Previous string before changes
+	 * @param newString : String after editing
+	 * @param m : message object containing the difference for use by manager to update statusbar
+	 */
 	private void calculateDifference(String oldString, String newString, Message m){
 		String [] tokens1 = oldString.split(" ");
 		String [] tokens2 = newString.split(" ");
@@ -481,6 +584,10 @@ public class BrailleDocument extends BBDocument {
 		m.put("diff", diff);
 	}
 	
+	/** Changes the emphasis of an element
+	 * @param fontType : swt enumerationvalue representing font type
+	 * @param t : TextMapElement to change style
+	 */
 	public void changeTextStyle(int fontType, TextMapElement t){
 		Element e = (Element)t.n.getParent();
 		
@@ -498,6 +605,11 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Helper method for changeTextStyle that finds correct element to apply emphasis change to 
+	 * @param e : Element to check
+	 * @param style : Style to check if element matches
+	 * @return element containing same style or element with an action semantic
+	 */
 	private Element checkParentFontStyle(Element e, String style){
 		Element parent = (Element)e.getParent();
 		while(table.getSemanticTypeFromAttribute(parent).equals("action")) {
@@ -513,6 +625,11 @@ public class BrailleDocument extends BBDocument {
 		return e;
 	}
 	
+	/** Sets a semantic attribute on the element
+	 * @param e : element to set value on
+	 * @param fontStyle : style to ad
+	 * @param removalItems : items to remove from element style, part of an early implementation of emphasis
+	 */
 	private void createSemanticEntry(Element e, String fontStyle, String [] removalItems){
 		String elementStyle = table.getKeyFromAttribute(e);
 		String type = table.getSemanticTypeFromAttribute(e);
@@ -543,8 +660,12 @@ public class BrailleDocument extends BBDocument {
 		addSemanticEntry(e, elementStyle);
 	}
 	
+	/** Writes entry to semantic action file for document
+	 * @param e : Element for entry
+	 * @param name : Semantic name
+	 */
 	private void addSemanticEntry(Element e, String name){
-		if(checkAttribute(e, "id")){
+		if(attributeExists(e, "id")){
 			String fileName; 
 			if(dm.getWorkingPath() == null)
 				fileName = "outFile";
@@ -568,6 +689,10 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Updates an entry in a document's semantic action file if an entry exists
+	 * @param m : Message containing style
+	 * @param e : Element to update
+	 */
 	public void changeSemanticAction(Message m, Element e){
 		org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles style = (org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles)m.getValue("Style");
 		String name = style.getName();
@@ -577,7 +702,7 @@ public class BrailleDocument extends BBDocument {
 			attr = e.getAttribute("semantics");
 		}
 		attr.setValue("style," + name);
-		if(checkAttribute(e, "id")){
+		if(attributeExists(e, "id")){
 			
 			String fileName;
 			if(dm.getWorkingPath() == null)
@@ -603,10 +728,15 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	/** Find parent element of a text node
+	 * @param n : Node of which to find parent
+	 * @param ignoreInlineElement : if true, the method finds the block element
+	 * @return returns parent either inline or block element depending on boolean flag
+	 */
 	public Element getParent(Node n, boolean ignoreInlineElement){
 		Element parent = (Element)n.getParent();
 		if(ignoreInlineElement){
-			while(checkAttribute(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
+			while(attributeExists(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
 				parent = (Element)parent.getParent();
 			}
 		}
@@ -614,6 +744,11 @@ public class BrailleDocument extends BBDocument {
 		return parent;
 	}
 	
+	/** Checks if an element has emphasis, currently used because emphasis can only be toggled on/off elements in bold,em, u tags
+	 * @param t : TextMapElement to check
+	 * @param fontType : swt constant for emphasis
+	 * @return true if element is contained in a valid tag for toggling emphasis
+	 */
 	public boolean hasEmphasisElement(TextMapElement t, int fontType){
 		String semantic;
 		if(fontType == SWT.BOLD)
@@ -635,7 +770,10 @@ public class BrailleDocument extends BBDocument {
 		return false;
 	}
 	
-	//Helper methods for methods that update text in the DOM during text editing
+	/** Helper methods for methods that update text in the DOM during text editing
+	 * @param element :Element to search
+	 * @return BRL element if found, null if it does not exist
+	 */
 	private Element findAndRemoveBrailleElement(Element element){
 		Element parent = element;
 		
@@ -658,9 +796,9 @@ public class BrailleDocument extends BBDocument {
 	}
 	
 	/**
-	 * @param parents: An arraylist containing elements to be enclosed within a new element, typically an aside or sidebar
-	 * @param type: string defining the semantic attribute to apply, typically "boxline"
-	 * @return returns the element newly inserted into the DOM, that encloses elements passed in the arraylist, null if invalid list of elements is passed
+	 * @param parents :An arraylist containing elements to be enclosed within a new element, typically an aside or sidebar
+	 * @param type :string defining the semantic attribute to apply, typically "boxline"
+	 * @return The element newly inserted into the DOM, that encloses elements passed in the arraylist, null if invalid list of elements is passed
 	 */
 	public Element wrapElement(ArrayList<Element>parents, String type){
 		Element boxline = new Element(semHandler.getElementBySemantic(type));	

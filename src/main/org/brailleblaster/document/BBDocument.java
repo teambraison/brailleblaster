@@ -90,6 +90,11 @@ public class BBDocument {
 	protected SettingsManager sm;
 	protected SemanticFileHandler semHandler;
 	protected LocaleHandler lh;
+	
+	
+	/** Base constructor for initializing a new document
+	 * @param dm: Document Manager for relaying information between DOM and view
+	 */
 	public BBDocument(Controller dm){		
 		this.dm = dm;
 		lh = new LocaleHandler();
@@ -99,6 +104,10 @@ public class BBDocument {
 		sm = new SettingsManager(dm.getCurrentConfig());
 	}
 	
+	/** Base constructor for when perspectives are switched and the XOM Document is passed to a Document specific to the view
+	 * @param dm: Document Manager for relaying information between DOM and view
+	 * @param doc: XOM Document, the DOM already built for the currently open document
+	 */
 	public BBDocument(Controller dm, Document doc){
 		this.dm = dm;
 		this.doc = doc;
@@ -108,42 +117,38 @@ public class BBDocument {
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
 	}
-	
-	public boolean createNewDocument(){
-		return startNewDocument();
-	}
-	
-	private boolean startNewDocument(){
-		String template = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "document.xml";
-		String tempFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + "newDoc.xml";
-		
-		fu.copyFile(template, tempFile);
-		
-		Builder builder = new Builder();
-		try {
-			doc = builder.build(new File(tempFile));
-			return true;
-		} 
-		catch (ParsingException e) {
-			e.printStackTrace();
-			new Notify(lh.localValue("malformedFramework"));
-			return false;
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
+
+	/** Legacy code for BB's early days.  A method designed to use an input stream for translation. This method has no implementation.
+	 * @param inputStream
+	 * @param configFile
+	 * @param configSettings
+	 * @return
+	 * @throws Exception
+	 */
 	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
 		String fileName = "xxx";
 		return buildDOM(fileName);
 	}
 	
+	
+	/** Public method for beginning the translation process of a file
+	 * @param completePath: Path to input file
+	 * @param configFile: Path to configuration file to be used
+	 * @param configSettings: A string containing the document settings, can be set to null, in which case values from configuration file is used
+	 * @return: Returns a boolean value representing whether a document was successfully translated
+	 * @throws Exception
+	 */
 	public boolean startDocument (String completePath, String configFile, String configSettings) throws Exception {
 		return setupFromFile (completePath, configFile, configSettings);
 	}
 	
+	/** Private method containing translation implementation
+	 * @param completePath: Path to input file
+	 * @param configFile:  Path to configuration file to be used
+	 * @param configSettings: A string containing the document settings, can be set to null, in which case values from configuration file is used
+	 * @return Returns a boolean value representing whether a document was successfully translated
+	 * @throws Exception
+	 */
 	private boolean setupFromFile (String completePath, String configFile, String configSettings) throws Exception {
 		String configFileWithPath = "temp";
 		String configWithUTD;
@@ -189,7 +194,7 @@ public class BBDocument {
 		} 
 		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
 			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
-			normalizeUTD(completePath, tempPath);
+			normalizeFile(completePath, tempPath);
 			return buildDOM(tempPath);
 		} 
 		else {
@@ -200,6 +205,12 @@ public class BBDocument {
 		return false;
 	}
 	
+	/**
+	 * @param fileName:  File to be used to build the DOM, typically a UTD, 
+	 * called by setupfromfile method after translation is successful 
+	 * @return: a Boolean value representing whether the DOM was successfully built
+	 * @throws Exception
+	 */
 	private boolean buildDOM(String fileName) throws Exception{
 		if (this.doc != null) {
 			  throw new Exception ("Attempt to reuse instance");
@@ -239,16 +250,24 @@ public class BBDocument {
 		}
 	}
 	
+	/** Called by setup from file prior to translation.  This method removes empty text nodes containing spaces or tabs
+	 * since liblouisutdml has translation issues with nodes full of spaces.. This method essentially removes pretty print formatting
+	 * and creates a temp file for translation
+	 * @param originalFilePath: File path of document to be translated
+	 * @param tempFilePath: path to temp file created in temp folder post normalization and used by liblouisutdml
+	 * @return a Boolean value representing whether the DOM was successfully built and normalized
+	 */
 	private boolean normalizeFile(String originalFilePath, String tempFilePath){
 		Normalizer n = new Normalizer(this, originalFilePath);
 		return n.createNewNormalizedFile(tempFilePath);
 	}
 	
-	private boolean normalizeUTD(String originalFilePath, String tempFilePath){
-		Normalizer n = new Normalizer(this, originalFilePath);
-		return n.createNewUTDFile(tempFilePath);
-	}
-	
+	/** Creates an element and adds document namespace
+	 * @param name: Element name
+	 * @param attribute: attribute key: typically of type semantic, but can be others
+	 * @param value: value of attribute typically a semantic-action value
+	 * @return: Element created
+	 */
 	public Element makeElement(String name, String attribute, String value){
 		Element e = new Element(name);
 		addNamespace(e);
@@ -258,6 +277,11 @@ public class BBDocument {
 		return e;
 	}
 	
+	/**Adds the document namespace to the element being inserted into the DOM.
+	 * Elements created and inserted into the XOM document do not have an initial namespace
+	 * and may be skipped by the XOM api in certain cases.
+	 * @param e: Element to which it and all child elements will have the document uri added
+	 */
 	protected void addNamespace(Element e){
 		e.setNamespaceURI(doc.getRootElement().getNamespaceURI());
 		
@@ -267,10 +291,17 @@ public class BBDocument {
 		}
 	}
 	
+	/** Gets the root element of the DOM
+	 * @return Root element of DOM
+	 */
 	public Element getRootElement(){
 		return doc.getRootElement();
 	}
 	
+	/** Creates a DOM containing no brl nodes, used for saving an xml file 
+	 * and when views are refreshed and the document is re-translated in its entirity
+	 * @return: A XOM DOcument containing no brl nodes
+	 */
 	public Document getNewXML(){
 		Document d = new Document(this.doc);
 		setOriginalDocType(d);
@@ -278,14 +309,17 @@ public class BBDocument {
 		return d;
 	}
 	
+	/** recursive method that strips brl nodes, helper method used by getNewXML method
+	 * @param e: Element which braille will be removed
+	 */
 	private void removeAllBraille(Element e){
 		Elements els = e.getChildElements();
 		
 		if(e instanceof Element && e.getLocalName().equals("meta")){
-			if(checkAttribute(e, "name") && e.getAttributeValue("name").equals("utd"))
+			if(attributeExists(e, "name") && e.getAttributeValue("name").equals("utd"))
 				e.getParent().removeChild(e);
 			else {
-				if(checkAttribute(e, "semantics")){
+				if(attributeExists(e, "semantics")){
 					Attribute attr = e.getAttribute("semantics");
 					e.removeAttribute(attr);
 				}
@@ -305,17 +339,24 @@ public class BBDocument {
 				removeAllBraille(els.get(i));
 			}
 		}
-	}
+	}	
 	
+	/** Gets the XOM document, typically for either passing to another methods or file writers
+	 * @return XOM Document
+	 */
 	public Document getDOM(){
 		return doc;
 	}
 	
+	/** LiblouisUTDML adds a brl element that functions as a control character to the end of each document.
+	 *  This element does not follow the conventions of other brl elements and has proved problematic.  
+	 *  This method removes that character following a translation.  
+	 */
 	private void removeBraillePageNumber(){
 		Elements e = this.doc.getRootElement().getChildElements();
 		
 		for(int i = 0; i < e.size(); i++){
-			if(checkAttribute(e.get(i), "semantics") && e.get(i).getAttributeValue("semantics").equals("style,document")){
+			if(attributeExists(e.get(i), "semantics") && e.get(i).getAttributeValue("semantics").equals("style,document")){
 				Elements els = e.get(i).getChildElements();
 				for(int j = 0; j < els.size(); j++){
 					if(els.get(j).getLocalName().equals("brl")){
@@ -327,6 +368,10 @@ public class BBDocument {
 		}
 	}
 	
+	/** Method used to create and output a brf file when a user saves or for display in the braille preview
+	 * @param filePath: Path for the file to be output
+	 * @return a boolean value representing whether the file was successfully created
+	 */
 	public boolean createBrlFile(String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
@@ -348,10 +393,15 @@ public class BBDocument {
 		}
 		
 		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n" + sm.getSettings(), 0);
-		deleteTempFile(inFile);
+		deleteFile(inFile);
 		return result;
 	}
 	
+	/**
+	 * @param newDoc: Creates a temporary xml file used to create a brf.  LiblouisUTDML cannot create a brf
+	 * from a DOM containing brl nodes, so a new temp document is created without brl nodes
+	 * @return Path to temp file or empty string if it fails
+	 */
 	private String createTempFile(Document newDoc){
 		String filePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + "tempXML.xml";
 		if(fu.createXMLFile(newDoc, filePath))
@@ -360,11 +410,20 @@ public class BBDocument {
 			return "";
 	}
 	
-	private void deleteTempFile(String filePath){
+	/** Deletes a file, typically temporary files used in normalization or brf creation
+	 * @param filePath
+	 */
+	private void deleteFile(String filePath){
 		File f = new File(filePath);
 		f.delete();
 	}
 	
+	/** Checks whether an element attribute value matches a specified value
+	 * @param e:Element to check
+	 * @param attribute:attribute name
+	 * @param value: attribute value
+	 * @return true if attribute contains that value, false if attribute does not exist or value is different
+	 */
 	public boolean checkAttributeValue(Element e, String attribute, String value){
 		try {
 			if(e.getAttributeValue(attribute).equals(value))
@@ -373,18 +432,27 @@ public class BBDocument {
 				return false;
 		}
 		catch(Exception ex){
-			//logger.error("Exception", ex);
 			return false;
 		}
 	}
 	
-	public boolean checkAttribute(Element e, String attribute){
-			if(e.getAttribute(attribute) != null)
-				return true;
-			else
-				return false;
+	/** Checks whether an element contains a specified attribute
+	 * @param e: Element to check
+	 * @param attribute: String value of attribute name to check
+	 * @return: true if elements contains the attribute, false if not
+	 */
+	public boolean attributeExists(Element e, String attribute){
+		if(e.getAttribute(attribute) != null)
+			return true;
+		else
+			return false;
 	}
 	
+	/** Checks whether an element contains a semantics attribute.
+	 * If not, then a default value of para is applied and the element name is added to the missingSemantics list
+	 * to notify the developer once the initialization of the section map has occurred
+	 * @param e: Element to check
+	 */
 	public void checkSemantics(Element e){
 		if(e.getAttributeValue("semantics") == null){
 			Attribute attr = new Attribute("semantics", "style,para");
@@ -394,6 +462,9 @@ public class BBDocument {
 		}
 	}
 	
+	/** Used to notify developers via the console if missing semantics and mistranslated print page numbers which
+	 * LibLouisUTDML refuses to translate when the braille page corresponds with a print page
+	 */
 	public void notifyUser(){
 		if(!BBIni.debugging()){
 			if(missingSemanticsList.size() > 0){
@@ -420,17 +491,24 @@ public class BBDocument {
 		mistranslationList.clear();
 	}
 	
-	public Node findPrintPageNode(Element e){
-		
+	/** Searches UTDML markup to find the print page translation within a pagenum element
+	 * this is the text representation in the UTDML markup, not the braille representation 
+	 * @param e: Element to search
+	 * @return the text node containing the print page translation
+	 */
+	public Node findPrintPageNode(Element e){	
 		Node n = findPrintPageNodeHelper(e);
 		if (n == null) {
 			mistranslationList.add(e.toXML().toString());
 			return null;
 		} else
-			return n;
-		
+			return n;		
 	}
 	
+	/** private helper method used to search a pagenum element in UTDML markup
+	 * @param e :Element to search
+	 * @return the text node containing the page representation, null if not found
+	 */
 	private Node findPrintPageNodeHelper(Element e){
 		int count = e.getChildCount();
 		for(int i = 0; i < count; i++){
@@ -445,6 +523,11 @@ public class BBDocument {
 		return null;
 	}
 	
+	/**Searches UTDML markup to find the print page translation within a pagenum element
+	 * this is the braille representation in the UTDML markup, not the text representation 
+	 * @param e: Element to search
+	 * @return the text node containing the page representation, null if not found
+	 */
 	public Node findBraillePageNode(Element e){
 		Node n = findBraillePageNodeHelper(e);
 		if (n == null) {
@@ -455,6 +538,10 @@ public class BBDocument {
 		
 	}
 	
+	/** private helper method used to search a pagenum element in UTDML markup
+	 * @param e :Element to search
+	 * @return The text node containing the page representation, null if not found
+	 */
 	private Node findBraillePageNodeHelper(Element e){
 		int count = e.getChildCount();
 		for(int i = 0; i < count; i++){
@@ -469,34 +556,49 @@ public class BBDocument {
 		return null;
 	}
 	
+	/**
+	 * @return the path to outfile in the temp folder containing the UTDML translation
+	 */
 	public String getOutfile(){
 		return BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 	}
 	
+	/** Resets the object by deleting the DOM and loading a new configuration file 
+	 * into internal objects such as settings manager and semantic file handler
+	 * @param config Name of configuration file to load, not complete path, for example "nimas.cfg"
+	 */
 	public void resetBBDocument(String config){
 		deleteDOM();
 		sm = new SettingsManager(config);
 		semHandler.resetSemanticHandler(config);
 	}
 	
+	
+	/** Sets the DOM to null, used when refreshing the views an closing tabs
+	 */
 	public void deleteDOM(){
 		this.doc = null;
 		System.gc();
 	}
 	
-	private void deleteFile(String path){
-		File f = new File(path);
-		f.delete();
-	}
-	
+	/** stores original public id for use when saving a file and changing back from the local reference
+	 * @param id: original public id
+	 */
 	public void setPublicId(String id){
 		publicId = id;
 	}
 	
+	/** stores original system id for use when saving a file and changing back from the local reference
+	 * @param id: original system id
+	 */
 	public void setSystemId(String id){
 		systemId = id;
 	}
 	
+	/** The doctype containing the public and system id is changed to a local reference during normalization,
+	 * it is changed back when be saved to correspond to the original document 
+	 * @param d: XOM Document to be manipulated prior to saving
+	 */
 	public void setOriginalDocType(Document d) {
 		if((publicId != null && systemId != null))
 			d.setDocType(new DocType(this.getRootElement().getLocalName(), publicId, systemId));
@@ -508,10 +610,10 @@ public class BBDocument {
 		return semHandler;
 	}
 	
-	public String getSemantic(Element element){
-		return semHandler.getDefault(element.getLocalName());
-	}
-	
+	/** Queries the document using xpath
+	 * @param query: xpath query
+	 * @return NodeList cotaining query result
+	 */
 	public Nodes query(String query){
 		XPathContext context = XPathContext.makeNamespaceContext(doc.getRootElement());
 		return doc.query(query, context);

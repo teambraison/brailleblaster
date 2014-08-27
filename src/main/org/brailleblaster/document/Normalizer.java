@@ -87,15 +87,6 @@ public class Normalizer {
 		return false;
 	}
 	
-	public boolean createNewUTDFile(String path){
-		if(this.doc != null){
-			normalize();
-			return write(path);
-		}
-		
-		return false;
-	}
-	
 	private void normalize(){
 		doc.normalize();
 		removeEscapeChars(doc.getDocumentElement());

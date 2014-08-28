@@ -302,7 +302,7 @@ public class BrailleDocument extends BBDocument {
 	 * @param m : message to contain offset information
 	 */
 	private void removeMathML(TextMapElement t, Message m){
-		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start; 
+		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start;
 		
 		Element parent = t.parentElement();
 		int index = parent.indexOf(t.n);

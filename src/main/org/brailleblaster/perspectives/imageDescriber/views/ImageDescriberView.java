@@ -36,6 +36,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * @author cmyers
+ *
+ */
 public class ImageDescriberView {
 	
 	// Font sizes for our controls.

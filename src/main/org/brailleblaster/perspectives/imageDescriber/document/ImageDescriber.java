@@ -436,44 +436,6 @@ public class ImageDescriber extends BBDocument {
 	} // PrevImageElement()
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Encapsulates given element into <imggroup>, and adds 
-	// <prodnote> in the group with it.
-	public Element wrapInImgGrp(Element e)
-	{
-		System.out.println("Called wrapInImgGrp()");
-		
-		// Create all elements.nameSpace
-		Element imgGrpElm = new Element("imggroup", nameSpace);
-		Element prodElm = new Element("prodnote", nameSpace);
-		//Element captElm = new Element("caption", nameSpace);
-		Element copyElm = (nu.xom.Element)e.copy();
-		
-		// If there was no id attribute in the <img> element, add one.
-		if(copyElm.getAttribute("id") == null)
-			copyElm.addAttribute( new Attribute("id", "TODO!") );
-		
-		// Add <prodnote> attributes.
-	//	prodElm.addAttribute( new Attribute("id", "TODO!") );
-	//	prodElm.addAttribute( new Attribute("imgref", idValue) );
-	//	prodElm.addAttribute( new Attribute("render", "required") );
-		// Add <caption> attributes.
-	//	captElm.addAttribute( new Attribute("id", "TODO!") );
-	//	captElm.addAttribute( new Attribute("imgref", idValue) );
-		
-		// Arrange child hierarchy.
-	//	imgGrpElm.insertChild(captElm, 0);
-		imgGrpElm.insertChild(prodElm, 0);
-		imgGrpElm.insertChild(copyElm, 0);
-		
-		// Replace given element with this updated one.
-		e.getParent().replaceChild(e, imgGrpElm);
-		
-		// Return newly parented copy of element passed.
-		return copyElm;
-		
-	} // wrapInImgGrp(Element e)
-	
-	///////////////////////////////////////////////////////////////////////////
 	// Returns Image object that element at given index represents.
 	public Image getImageFromElmIndex(int elmIndex)
 	{

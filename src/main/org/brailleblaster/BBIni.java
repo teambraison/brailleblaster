@@ -45,6 +45,8 @@ import java.util.Properties;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.liblouis.LibLouis;
 import org.liblouis.LibLouisUTDML;
 import org.liblouis.LogLevel;
@@ -57,6 +59,14 @@ import org.slf4j.LoggerFactory;
  * determining code in other classes.
  */
 
+/**
+ * @author cmyers
+ *
+ */
+/**
+ * @author cmyers
+ *
+ */
 public final class BBIni {
 
 	private static BBIni bbini;
@@ -207,7 +217,7 @@ public final class BBIni {
 
 		// Default Config File.
 		// /////////////////////
-
+			
 		// Temporary fix, should be removed once log file handle issue is
 		// resolved
 		// Only delete the files if we weren't working on something.
@@ -221,20 +231,34 @@ public final class BBIni {
 			props.setProperty("currentConfig", "");
 			prevWkFilePathStr = props.getProperty("prevWorkingFile");
 		}
-		// Okay to delete directory?
-		if(prevWkFilePathStr.length() == 0) {
-			// Delete.
+		
+		// If there's a working path, we had a previous session going.
+		// Ask user to load it?
+		boolean deleteTempDir = true;
+		if( prevWkFilePathStr.length() > 0 ) {
+			if( swtMsgBox("Restore previous session?" ) == SWT.YES ) {
+				File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
+				tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
+				deleteTempDir = false;
+			}
+		}
+		
+		// Delete temp dir and reset session?
+		if( deleteTempDir == true ) {
+			// Reset session.
+			props.setProperty("prevWorkingFile", "");
+			props.setProperty("originalDocPath", "");
+			props.setProperty("zippedPath", "");
+			props.setProperty("opfPath", "");
+			props.setProperty("currentConfig", "");
+			prevWkFilePathStr = props.getProperty("prevWorkingFile");
+			
+			// Delete old temp directories.
 			String tempFolder = BBHome + fileSep + "temp";
 			fu.deleteDirectory(new File(tempFolder));
 			// Give loaded files a new home.
 			tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		}
-		else // Point to previous session directory.
-		{
-			File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
-			tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
-		}
-		
 		
 		File temps = new File(tempFilesPath);
 		
@@ -293,6 +317,18 @@ public final class BBIni {
 		}
 	}
 
+	
+	public int swtMsgBox(String messageStr)
+	{
+		Display d = new Display();
+		Shell s = new Shell(d);
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(s, SWT.APPLICATION_MODAL | SWT.YES | SWT.NO);
+		msgB.setMessage(messageStr);
+		int result = msgB.open();
+		d.dispose();
+		return result;
+	}
+	
 	private String getBrailleblasterPath(Object classToUse) {
 		// Option to use an environment variable (mostly for testing
 		// withEclipse)

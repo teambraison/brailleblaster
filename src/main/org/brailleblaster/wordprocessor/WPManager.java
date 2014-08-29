@@ -55,6 +55,7 @@ import org.brailleblaster.util.YesNoChoice;
 
 import java.util.LinkedList;
 
+import java.lang.NullPointerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,7 +161,7 @@ public class WPManager {
 					display.sleep();
 				}
 			} catch (Throwable e) {
-				logger.debug("Uncaught exception detected", e);
+/*				logger.debug("Uncaught exception detected", e);
 				MessageBox questionBox = new MessageBox(this.shell,
 						SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 				questionBox.setMessage(lh.localValue("UnexpectedError.Message"));
@@ -172,6 +173,7 @@ public class WPManager {
 					viewerDialog.setText(lh.localValue("LogViewer.Title"));
 					viewerDialog.open();
 				}
+					*/
 			}
 		}
 		display.dispose();

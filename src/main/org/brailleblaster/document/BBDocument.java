@@ -251,7 +251,7 @@ public class BBDocument {
 	}
 	
 	/** Called by setup from file prior to translation.  This method removes empty text nodes containing spaces or tabs
-	 * since liblouisutdml has translation issues with nodes full of spaces.. This method essentially removes pretty print formatting
+	 * since liblouisutdml has translation issues with nodes full of spaces. This method essentially removes pretty print formatting
 	 * and creates a temp file for translation
 	 * @param originalFilePath: File path of document to be translated
 	 * @param tempFilePath: path to temp file created in temp folder post normalization and used by liblouisutdml

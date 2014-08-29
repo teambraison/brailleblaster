@@ -75,7 +75,7 @@ public class WebArchiver extends Archiver{
 		String tempFilePath = BBIni.getTempFilesPath() + BBIni.getFileSep() + path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1);
 				
 		FileUtils fu = new FileUtils();
-		if(fu.createXMLFile(doc.getDOM(), tempFilePath)){
+		if(fu.createXMLFile(doc.getNewXML(), tempFilePath)){
 			fu.copyFile(tempFilePath, path);
 			copySemanticsForNewFile(workingDocPath, path);
 		}

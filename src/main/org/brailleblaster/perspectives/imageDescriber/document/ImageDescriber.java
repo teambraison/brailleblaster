@@ -312,39 +312,6 @@ public class ImageDescriber extends BBDocument {
 	} // elementUndo
 	
 	///////////////////////////////////////////////////////////////////////////
-	// Gets a particular image element.
-	public Element getImageElement(int idx)
-	{
-		// Move to element.
-		curElementIndex = idx;
-		
-		// Move to first if we hit the end.
-		if(curElementIndex >= numImgElms)
-			curElementIndex = 0;
-		
-		// Make sure there are images.
-		if(numImgElms == 0)
-			return null;
-		
-		// Set current element.
-		curImgElement = imgElmList.get(curElementIndex);
-		
-		// Wrap image in an appropriate container.
-		if( imgContext.hasContainer(curImgElement) == false ) {
-			curImgElement = imgContext.addContainer(curImgElement);
-			imgElmList.set(curElementIndex, curImgElement);
-		}
-		
-		// Set undo strings.
-		undoDesc = getCurDescription();
-		undoAlt = getCurElmAttribute("alt");
-		
-		// Return current <img> element.
-		return curImgElement;
-
-	} // gotoImageElement()
-	
-	///////////////////////////////////////////////////////////////////////////
 	// Moves to a particular image element using given index.
 	public Element gotoImageElement(int idx)
 	{

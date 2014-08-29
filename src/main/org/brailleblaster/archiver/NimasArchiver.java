@@ -76,9 +76,12 @@ public class NimasArchiver extends Archiver {
 		
 		// Unzip file if needed.
 		if(docToPrepare.endsWith(".zip")) {
-			if( resumingPrevSession == false )
+			if( resumingPrevSession == false ) {
 				unzip(docToPrepare);
-			zippedPath = docToPrepare;
+				String sp = BBIni.getFileSep();
+				String tempOutPath = BBIni.getTempFilesPath() + docToPrepare.substring(docToPrepare.lastIndexOf(sp), docToPrepare.lastIndexOf(".")) + sp;
+				zippedPath = tempOutPath;
+			}
 			zip = true;
 		}
 		else { 

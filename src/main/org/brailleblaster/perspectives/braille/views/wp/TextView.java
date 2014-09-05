@@ -244,9 +244,9 @@ public class TextView extends WPView {
 					e.doit = false;
 			
 				if(selectionLength > 0)
-					saveStyleState(selectionStart);
+					saveAlignment(selectionStart);
 				else
-					saveStyleState(currentStart);
+					saveAlignment(currentStart);
 				
 				if(currentElement.isMathML() && (e.keyCode != SWT.BS && e.keyCode != SWT.DEL && e.keyCode != SWT.ARROW_DOWN && e.keyCode != SWT.ARROW_LEFT && e.keyCode != SWT.ARROW_RIGHT && e.keyCode != SWT.ARROW_UP))
 					e.doit = false;
@@ -376,7 +376,7 @@ public class TextView extends WPView {
 					if (style != null) {
 						Image image = (Image)style.data;
 						if (image != null && !image.isDisposed()) {
-							saveStyleState(currentStart);
+							saveAlignment(currentStart);
 							image.dispose();
 							currentChanges--;
 							event.doit = false;
@@ -558,7 +558,7 @@ public class TextView extends WPView {
 		currentChanges = 0;
 		textChanged = false;
 		if(currentEnd <= view.getCharCount())
-			restoreStyleState(currentStart, currentEnd);
+			restoreAlignment(currentStart, currentEnd);
 	}
 	
 	@Override

@@ -1,7 +1,6 @@
 package org.brailleblaster.perspectives.braille.views.wp;
 
 import nu.xom.Element;
-import nu.xom.Node;
 
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.abstractClasses.BBView;
@@ -55,6 +54,9 @@ public abstract class WPView extends AbstractView implements BBView {
 	@Override
 	protected abstract void setViewData(Message message);
 	
+	/** finds Char width used to determine indent value
+	 * @return  width of braille cell
+	 */
 	protected int getFontWidth(){
 		GC gc = new GC(view);
 		FontMetrics fm =gc.getFontMetrics();
@@ -62,6 +64,9 @@ public abstract class WPView extends AbstractView implements BBView {
 		return fm.getAverageCharWidth();
 	}
 	
+	/**Determines line height, used when setting MathML images in views
+	 * @return value of font height, equivalent to line height
+	 */
 	protected int getFontHeight(){
 		GC gc = new GC(view);
 		FontMetrics fm =gc.getFontMetrics();
@@ -69,10 +74,15 @@ public abstract class WPView extends AbstractView implements BBView {
 		return fm.getHeight();
 	}
 	
+	/** Public method for calculating char width, used when font changes, or font size changes
+	 */
 	public void setcharWidth(){
 		charWidth = getFontWidth();
 	}
 	
+	/** Positions the scrollbar based off the top-most visible line
+	 * @param topIndex : top-most visible line in view
+	 */
 	public void positionScrollbar(int topIndex){
 		setListenerLock(true);
 		group.setRedraw(false);
@@ -81,6 +91,11 @@ public abstract class WPView extends AbstractView implements BBView {
 		group.getDisplay().update();
 		setListenerLock(false);
 	}
+	
+	/** Inserts text after a specified offset, used in setting lines after
+	 * @param position : offset in view at which point to begin insertion
+	 * @param text : text to insert
+	 */
 	protected void insertAfter(int position, String text){
 		int previousPosition = view.getCaretOffset();
 		view.setCaretOffset(position);
@@ -89,6 +104,10 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setCaretOffset(previousPosition);
 	}
 	
+	/** Inserts text before a specified offset, used in setting lines before
+	 * @param position : offset in view at which point to begin insertion
+	 * @param text : text to insert
+	 */
 	protected void insertBefore(int position, String text){
 		int previousPosition = view.getCaretOffset();
 		view.setCaretOffset(position);
@@ -97,6 +116,11 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setCaretOffset(previousPosition);
 	}
 	
+	/** Used to create a string of repeating characters, for example, multiple blank lines
+	 * @param length : length of string
+	 * @param c : repeating char
+	 * @return : String of repeated char
+	 */
 	protected String makeInsertionString(int length, char c){
 		String insertionString = "";
 		for(int i = 0; i < length; i++){
@@ -106,6 +130,10 @@ public abstract class WPView extends AbstractView implements BBView {
 		return insertionString;
 	}
 	
+	/** Disables event listeners, inserts text into view at the oint specified
+	 * @param start : start offset in view
+	 * @param text : text to insert
+	 */
 	public void insertText(int start, String text){
 		setListenerLock(true);
 		int originalPosition = view.getCaretOffset();
@@ -115,6 +143,11 @@ public abstract class WPView extends AbstractView implements BBView {
 		setListenerLock(false);
 	}
 	
+	/** Sets an image in the styledtext view.  Currently used to set MathML in text view
+	 * @param image : SWT Image widget
+	 * @param offset : starting offset in view to insert at
+	 * @param length : length of caret positions to insert image
+	 */
 	protected void setImageStyleRange(Image image, int offset, int length) {
 		StyleRange style = new StyleRange ();
 		style.start = offset;
@@ -125,20 +158,30 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setStyleRange(style);		
 	}
 
-	//sets range and applies given form of emphasis
+	/** sets range and applies given form of emphasis
+	 * @param start : position at which to insert style range
+	 * @param length : length style range covers
+	 * @param styleRange : SWT StyleRange object
+	 */
 	protected void setFontStyleRange(int start, int length, StyleRange styleRange){
 		styleRange.start = start;
 		styleRange.length = length;	
 		view.setStyleRange(styleRange);
 	}
-	
-	//reverts range to plain text
+
+	/**	reverts range to plain text
+	 * @param range : Style Range to reset
+	 */
 	protected void resetStyleRange(StyleRange range){
 		range.fontStyle = SWT.NORMAL;
 		range.underline = false;
 		view.setStyleRange(range);
 	}	
 	
+	/** Gets index attribute from brl element and converts to integer array
+	 * @param e : Brl element to retrieve indexes
+	 * @return : Integer Array containing brl indexes
+	 */
 	protected int[] getIndexArray(Element e){
 		int[] indexArray;
 		try {
@@ -155,14 +198,19 @@ public abstract class WPView extends AbstractView implements BBView {
 		}
 	}
 	
-	//saves alignment, used when updating text since alignment info is removed with previous text is deleted and new translation is inserted
-	protected void saveStyleState(int start){
+	/** saves alignment, used when updating text since alignment info is removed with previous text is deleted and new translation is inserted
+	 * @param start : offset used to find line number
+	 */
+	protected void saveAlignment(int start){
 		int line = this.view.getLineAtOffset(start);
 		currentAlignment = view.getLineAlignment(line);
 	}
 	
-	//restores previous alignment when updating text
-	protected void restoreStyleState(int start, int end){
+	/**Restores previous alignment when updating text 
+	 * @param start : offset used to find beginning line
+	 * @param end : offset used to determine last line to apply alignment
+	 */
+	protected void restoreAlignment(int start, int end){
 		int line = view.getLineAtOffset(start);
 		if(end > view.getCharCount())
 			end = view.getCharCount();
@@ -170,6 +218,12 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setLineAlignment(line, lineCount + 1, currentAlignment);
 	}
 	
+	/** Used to set LibLouisUTDML LeftMargin style attribute, in SWT API uses a line wrap function to achieve equivalent
+	 * @param pos : starting offset
+	 * @param text : text inserted in view
+	 * @param indent : amount of left margin specified in number of braille cells
+	 * @param skipFirstLine : true if first line should not have style applied
+	 */
 	protected void handleLineWrap(int pos, String text, int indent, boolean skipFirstLine){
 		int newPos;
 		int i = 0;
@@ -190,28 +244,12 @@ public abstract class WPView extends AbstractView implements BBView {
 			}
 		}
 	}
-	
-	protected void checkForLineBreak(Element parent, Node n){
-		if(parent.indexOf(n) > 0){
-			int priorIndex = parent.indexOf(n) - 1;
-			if(isElement(parent.getChild(priorIndex)) && ((Element)parent.getChild(priorIndex)).getLocalName().equals("br")){
-				insertBefore(this.spaceBeforeText + this.total, "\n");
-			}
-		}
-		else if(parent.indexOf(n) == 0 && parent.getAttributeValue("semantics").contains("action")){
-			Element child = parent;
-			Element newParent = (Element)parent.getParent();
-			if(newParent.indexOf(child) > 0){
-				int priorIndex = newParent.indexOf(child) - 1;
-				if(isElement(newParent.getChild(priorIndex)) && ((Element)newParent.getChild(priorIndex)).getLocalName().equals("br")){
-					insertBefore(this.spaceBeforeText + this.total, "\n");
-				}
-			}
-			else if(newParent.indexOf(child) == 0 && newParent.getAttributeValue("semantics").contains("action"))
-				checkForLineBreak((Element)newParent.getParent(), newParent);
-		}
-	}
-	
+
+	/** Counts total lines a string covers within a view
+	 * @param startOffset : starting position of text
+	 * @param text : text placed in view
+	 * @return lines count covered by text
+	 */
 	protected int getLineNumber(int startOffset, String text){
 		int startLine = view.getLineAtOffset(startOffset);
 		int endLine = view.getLineAtOffset(startOffset + text.length());
@@ -219,6 +257,9 @@ public abstract class WPView extends AbstractView implements BBView {
 		return (endLine - startLine) + 1;
 	}
 	
+	/** Pauses event listeners, moves cursor to a new position
+	 * @param pos : offset at which to place cursor
+	 */
 	public void resetCursor(int pos){
 		setListenerLock(true);
 		view.setFocus();
@@ -226,16 +267,28 @@ public abstract class WPView extends AbstractView implements BBView {
 		setListenerLock(false);
 	}
 	
+	/** Set lines before a block element specified by liblouisutdml config file
+	 * @param start : start position
+	 * @param style : Java object representing liblouisutdml style
+	 */
 	protected void setLinesBefore(int start, Styles style){
 		String textBefore = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesBefore)),'\n');
 		insertBefore(start, textBefore);
 	}
 	
+	/** Set lines after a block element specified by liblouisutdml style
+	 * @param start : start position
+	 * @param style : Java object representing liblouisutdml style
+	 */
 	protected void setLinesAfter(int start, Styles style){
 		String textAfter = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesAfter)), '\n');
 		insertAfter(start, textAfter);
 	}
 	
+	/** Sets the first line indent specified by liblouisutdml style
+	* @param start : start position
+	 * @param style : Java object representing liblouisutdml style
+	 */
 	protected void setFirstLineIndent(int start, Styles style){
 		int margin = 0;
 		int indentSpaces = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
@@ -248,22 +301,40 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.setLineIndent(startLine, 1, indentSpaces * charWidth);
 	}
 	
+	/** Sets alignment using a Styles object
+	 * @param start : start offset
+	 * @param end : end offset
+	 * @param style : style object
+	 */
 	protected void setAlignment(int start, int end, Styles style){
 		int startLine = view.getLineAtOffset(start);
 		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
 	}
 	
+	/** Sets alignment using the swt constant value for alignment
+	 * @param start : start offset
+	 * @param end : end offset
+	 * @param style : swt constant for left, center, right
+	 */
 	protected void setAlignment(int start, int end, int style){
 		int startLine = view.getLineAtOffset(start);
 		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  style);	
 	}
 	
+	/** Pauses event listeners and clears a range of text
+	 * @param start : starting offset
+	 * @param length : length of text
+	 */
 	public void clearTextRange(int start, int length){
 		setListenerLock(true);
 		view.replaceTextRange(start, length, "");
 		setListenerLock(false);
 	}
 	
+	/** Creates message and text to display status in the status bar.
+	 *  The message typically covers current style, line number and word count
+	 * @param line
+	 */
 	protected void sendStatusBarUpdate(int line){
 		String statusBarText = "";
 		String page = manager.getCurrentPrintPage();
@@ -302,6 +373,10 @@ public abstract class WPView extends AbstractView implements BBView {
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}
 	
+	/** Public method for moving the scrollbar by reseting the top index.  Event listeners
+	 * are paused and index is changed.
+	 * @param line
+	 */
 	public void setTopIndex(int line){
 		setListenerLock(true);
 		view.setTopIndex(line);
@@ -309,6 +384,9 @@ public abstract class WPView extends AbstractView implements BBView {
 		setListenerLock(false);
 	}
 	
+	/** Checks if status bar should be updated
+	 * @param sender : Enumeration signifiy which view, text, braille or tree, is sending the message
+	 */
 	public void checkStatusBar(Sender sender){
 		if(!getLock()){
 			if(topIndex != view.getTopIndex()){
@@ -319,6 +397,13 @@ public abstract class WPView extends AbstractView implements BBView {
 		}
 	}
 	
+	/** Redraws the views when a refresh ooccurs
+	 * @param group : group in which to place styledtext widget
+	 * @param left : left position for layout
+	 * @param right : right position for layout
+	 * @param top : top position for layout
+	 * @param bottom : bottom position for layout
+	 */
 	protected void recreateView(Group group, int left, int right, int top, int bottom){
 		view.dispose();
 		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -327,6 +412,10 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.getParent().layout();
 	}
 	
+	/** Returns total chars in view during intialization
+	 * Used when initializing views
+	 * @return
+	 */
 	public int getTotal(){
 		return total;
 	}

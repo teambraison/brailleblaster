@@ -57,11 +57,22 @@ public abstract class AbstractView {
 	public AbstractView() {
 	}
 
+	/** Base constructor for views
+	 * @param manager : manager for relaying information to models
+	 * @param group : group in which to embed view
+	 */
 	public AbstractView(Manager manager, Group group) {
 		this.manager = manager;
 		this.group = group;
 	}
 	
+	/** Convenience method for setting form data on an swt widget
+	 * @param c : swt control widget
+	 * @param left : left position
+	 * @param right : right position
+	 * @param top : top position 
+	 * @param bottom : bottom position
+	 */
 	protected void setLayout(Control c, int left, int right, int top, int bottom){
 		FormData location = new FormData();
 		location.left = new FormAttachment(left);
@@ -71,18 +82,26 @@ public abstract class AbstractView {
 		c.setLayoutData(location);
 	}
 	
+	/**Increments from currently selected element to next element
+	 */
 	public void incrementCurrent(){
 		Message message = Message.createIncrementMessage();
 		manager.dispatch(message);
 		setViewData(message);
 	}
 	
+	/** Decrements from currently selected element to previous element
+	 */
 	public void decrementCurrent(){
 		Message message = Message.createDecrementMessage();
 		manager.dispatch(message);
 		setViewData(message);
 	}
 	
+	/** Finds the corresponding braille node of a standard text node
+	 * @param n : node to check
+	 * @return braille element if markup is correct, null if braille cannot be found
+	 */
 	protected Element getBrlNode(Node n){
 		Element e = (Element)n.getParent();
 		int index = e.indexOf(n);
@@ -94,35 +113,63 @@ public abstract class AbstractView {
 		return null;
 	}
 	
+	/** Calculates word count of view
+	 * @param text : full text from view
+	 * @return int representing total words in the text
+	 */
 	public int getWordCount(String text){		
 		String [] tokens = text.split(" ");
 		return tokens.length;
 	}
 	
+	/** Sets a lock to pause event listeners
+	 * @param setting : true to lock, false to unlock
+	 */
 	protected void setListenerLock(boolean setting){
 		locked = setting;
 	}
 	
+	/** Returns state of listener lock
+	 * @return true if locked, false if unlocked
+	 */
 	protected boolean getLock(){
 		return locked;
 	}
 	
+	/** Check if node is an element
+	 * @param n : element to check
+	 * @return True is an Element, False if not an element
+	 */
 	protected boolean isElement(Node n){
 		return (n instanceof Element);
 	}
 	
+	/** Checks if a node is a text node
+	 * @param n : node to check
+	 * @return True if a text node, False if not a text node
+	 */
 	protected boolean isText(Node n){
 		return (n instanceof Text);
 	}
 	
+	/** Sets the offset of the cursor from the starting position of the element
+	 * used to keep cursors accurate when switching between views.
+	 * @param offset : number of caret position from start to place cursor when view obtains focus
+	 */
 	public void setCursorOffset(int offset){
 		cursorOffset = offset;
 	}
 	
+	/** Returns the offset from start of the cursor
+	 * @return the offset from start of the cursor
+	 */
 	public int getCursorOffset(){
 		return cursorOffset;
 	}
 	
+	/** Sets the total chars during initialization of a view
+	 * @param total : total chars 
+	 */
 	public void setTotal(int total){
 		this.total = total;
 	}

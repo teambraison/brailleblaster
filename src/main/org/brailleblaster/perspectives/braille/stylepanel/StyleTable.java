@@ -152,7 +152,7 @@ public class StyleTable {
 		removeStyle = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.apply((String) t.getSelection()[0].getData());
+				sm.remove((String) t.getSelection()[0].getData());
 				checkToggle();
 			}
 		};

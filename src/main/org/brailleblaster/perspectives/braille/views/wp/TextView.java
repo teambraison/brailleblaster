@@ -1153,81 +1153,15 @@ public class TextView extends WPView {
 			while(selectionLength > 0){
 				if(manager.getElementInRange(selectionStart) instanceof BrlOnlyMapElement || manager.getElementInRange(selectionStart) instanceof PageMapElement){
 					TextMapElement p = manager.getElementInRange(selectionStart);
-					int pos = p.end;
-					setListenerLock(true);
-					String pageText = p.getText().substring(selectionStart - p.start);
-					while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-						p =  manager.getElementInRange(pos + 1);
-						pos = p.end;
-						pageText += "\n"+ p.getText();
-					}
-					pageText += "\n";
-					view.setCaretOffset(selectionStart);
-					view.insert(pageText);
-					setSelection(selectionStart + 1, selectionLength - 1);
-					if(selectionLength - pageText.length() - 1 <= 0 && selectionStart + pageText.length() >= view.getCharCount())
-						view.replaceTextRange(view.getCharCount() -1, 1, "");
-				
-					setListenerLock(false);
-					selectionLength -= pageText.length() - 1;
-					selectionStart = pos + 1;
-					view.setCaretOffset(selectionStart);
-					if(manager.inPrintPageRange(view.getCaretOffset()) || manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-						int start = manager.getElementInRange(view.getCaretOffset()).start;
-						view.setCaretOffset(start - 1);
-					}
-					setCurrent(view.getCaretOffset());
-					if(currentElement.equals(p))
-						incrementCurrent();
-					if(selectionLength <= 0)
-						break;
-				
+					handleReadOnlySelection(p, true);
+			//		if(selectionLength <= 0)
+			//			break;
 				}
 				else if(manager.inPrintPageRange(selectionStart + 1) ||  manager.getElementInRange(selectionStart + 1) instanceof  BrlOnlyMapElement){
 					TextMapElement p = manager.getElementInRange(selectionStart + 1);
-					int pos = p.end;
-					
-					setListenerLock(true);
-					String pageText;
-					if(selectionStart + selectionLength > p.end)
-						pageText = "\n" + p.getText();
-					else
-						pageText = "\n" + p.getText().substring(0, (selectionStart + selectionLength) - (selectionStart + 1));
-					
-					while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-						p =  manager.getElementInRange(pos + 1);
-						pos = p.end;
-						if(selectionStart + selectionLength > p.end)
-							pageText += "\n"+ p.getText();
-						else
-							pageText += "\n" + p.getText().substring(0, (selectionStart + selectionLength) - p.start);
-					}
-					if(selectionStart + selectionLength > p.end)
-						pageText += "\n";
-					
-					view.setCaretOffset(selectionStart);
-					view.insert(pageText);
-					setSelection(selectionStart + 1, selectionLength - 1);
-					if(selectionLength - pageText.length() - 1 <= 0 && selectionStart + pageText.length() >= view.getCharCount())
-						view.replaceTextRange(view.getCharCount() -1, 1, "");
-					setListenerLock(false);
-					
-					if(selectionStart + selectionLength > p.end)
-						selectionLength -= pageText.length() - 1;
-					else
-						selectionLength -= pageText.length();
-					
-					selectionStart = pos + 1;
-					view.setCaretOffset(selectionStart);
-					if(manager.inPrintPageRange(view.getCaretOffset())){
-						int start = manager.getElementInRange(view.getCaretOffset()).start;
-						view.setCaretOffset(start - 1);
-					}
-					setCurrent(view.getCaretOffset());
-					if(currentElement.equals(p))
-						incrementCurrent();
-					if(selectionLength <= 0)
-						break;
+					handleReadOnlySelection(p, false);
+			//		if(selectionLength <= 0)
+			//			break;
 				}
 				else if(selectionStart  == currentEnd && nextStart == -1){
 					changes= (currentEnd + selectionLength) - currentEnd;
@@ -1311,6 +1245,62 @@ public class TextView extends WPView {
 		
 		if(currentElement instanceof PageMapElement)
 			view.setCaretOffset(previousEnd);
+	}
+	
+	private void handleReadOnlySelection(TextMapElement p, boolean partial){
+		int pos = p.end;
+		setListenerLock(true);
+		String pageText;
+		if(partial){
+			pageText = p.getText().substring(selectionStart - p.start);
+			while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
+				p =  manager.getElementInRange(pos + 1);
+				pos = p.end;
+				pageText += "\n"+ p.getText();
+			}
+			pageText += "\n";
+		}
+		else {
+			if(selectionStart + selectionLength > p.end)
+				pageText = "\n" + p.getText();
+			else
+				pageText = "\n" + p.getText().substring(0, (selectionStart + selectionLength) - (selectionStart + 1));
+			
+			while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
+				p =  manager.getElementInRange(pos + 1);
+				pos = p.end;
+				if(selectionStart + selectionLength > p.end)
+					pageText += "\n"+ p.getText();
+				else
+					pageText += "\n" + p.getText().substring(0, (selectionStart + selectionLength) - p.start);
+			}
+			if(selectionStart + selectionLength > p.end)
+				pageText += "\n";
+		}
+		
+		view.setCaretOffset(selectionStart);
+		view.insert(pageText);
+		setSelection(selectionStart + 1, selectionLength - 1);
+		if(selectionLength - pageText.length() - 1 <= 0 && selectionStart + pageText.length() >= view.getCharCount())
+			view.replaceTextRange(view.getCharCount() -1, 1, "");		
+		
+		setListenerLock(false);		
+		if(selectionStart + selectionLength > p.end)
+			selectionLength -= pageText.length() - 1;
+		else
+			selectionLength -= pageText.length();
+		
+		selectionStart = pos + 1;
+		view.setCaretOffset(selectionStart);
+		
+		if(manager.inPrintPageRange(view.getCaretOffset()) || manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
+			int start = manager.getElementInRange(view.getCaretOffset()).start;
+			view.setCaretOffset(start - 1);
+		}
+		
+		setCurrent(view.getCaretOffset());
+		if(currentElement.equals(p))
+			incrementCurrent();
 	}
 	
 	//a helper method for common series of methods that typically, but not always, follow one another

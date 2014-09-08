@@ -42,9 +42,11 @@ public class StyleTable {
 	private Table t;
 	private Font initialFont;
 	private boolean traverseFired;
+	private boolean removeStyleSet;
 	
 	private StyleManager sm;
 	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
+	private SelectionAdapter applyStyle, removeStyle;
 	
 	public StyleTable(final StyleManager sm, Group documentWindow){
 		LocaleHandler lh = new LocaleHandler();
@@ -121,7 +123,7 @@ public class StyleTable {
 				if(!traverseFired && Character.isLetter(e.character)){
 					int loc = searchTree(e.character);
 					if(loc != -1)
-						t.setSelection(loc);
+						setSelection(loc);
 				}
 				else if(e.keyCode == SWT.CR){
 					sm.apply((String) t.getSelection()[0].getData());
@@ -131,6 +133,29 @@ public class StyleTable {
 					traverseFired = false;
 			}
 		});
+		
+		t.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				checkToggle();
+			}		
+		});
+		
+		applyStyle = new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sm.apply((String) t.getSelection()[0].getData());
+				checkToggle();
+			}
+		};
+		
+		removeStyle = new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sm.apply((String) t.getSelection()[0].getData());
+				checkToggle();
+			}
+		};
 	
 	   	populateTable(sm.getKeySet());
 	   	initializeListeners();
@@ -177,12 +202,8 @@ public class StyleTable {
 			}			
 		});
 		
-		applyButton.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				sm.apply((String) t.getSelection()[0].getData());
-			}		
-		});
+		applyButton.addSelectionListener(applyStyle);
+		removeStyleSet = false;
 		
 		t.addTraverseListener(new TraverseListener(){
 			@Override
@@ -285,16 +306,21 @@ public class StyleTable {
 			parent = (Element)parent.getParent();
 		}
 		String text = sm.getSemanticsTable().getKeyFromAttribute(parent);
-		t.setSelection(searchTree(text));
+		setSelection(searchTree(text));
 	}
 	
 	public void setSelection(String style){
 		for(int i = 0; i < t.getItemCount(); i++){
 			if(t.getItem(i).getText(1).equals(style)){
-				t.setSelection(i);
+				setSelection(i);
 				break;
 			}
 		}
+	}
+	
+	private void setSelection(int index){
+		t.setSelection(index);
+		checkToggle();
 	}
 	
     private void populateTable(Set<String> list){ 
@@ -303,7 +329,7 @@ public class StyleTable {
     	
     	for(String s : list){
     
-    		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex"))
+    		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex") && !s.equals("none"))
     		{
 
     			if(sm.getSemanticsTable().get(s).contains(perefferedStyle)){
@@ -406,5 +432,43 @@ public class StyleTable {
     	Font f = (Font)b.getData();
     	if(f != null && !f.isDisposed())
     		f.dispose();
+    }
+    
+    private Element getParent(TextMapElement item){
+    	Element parent = (Element)item.n.getParent();
+		while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
+			parent = (Element)parent.getParent();
+		}
+		
+		return parent;
+    }
+    
+    private void checkToggle(){
+    	TextMapElement textElement = sm.getCurrentItem();
+    	if(textElement != null){
+    		Element parent = getParent(textElement);
+    		if(t.getSelection()[0].getText(1).equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))
+    			toggleApplyButton(true);
+    		else
+    			toggleApplyButton(false);
+    	}
+    	else
+    		toggleApplyButton(false);
+    }
+    
+    private void toggleApplyButton(boolean setRemoveButton){
+    	LocaleHandler lh = new LocaleHandler();
+    	if(setRemoveButton && !removeStyleSet){
+    		applyButton.setText(lh.localValue("remove"));
+    		applyButton.removeSelectionListener(applyStyle);
+    		applyButton.addSelectionListener(removeStyle);
+    		removeStyleSet = true;
+    	}
+    	else if(!setRemoveButton && removeStyleSet) {
+    		applyButton.setText(lh.localValue("apply"));
+    		applyButton.removeSelectionListener(removeStyle);
+    		applyButton.addSelectionListener(applyStyle);
+    		removeStyleSet = false;
+    	}
     }
 }

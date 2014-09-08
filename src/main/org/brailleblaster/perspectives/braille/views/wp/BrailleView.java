@@ -72,7 +72,7 @@ public class BrailleView extends WPView {
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;
 	
-	private int currentStart, currentEnd, nextStart, previousEnd;
+	private int currentStart, currentEnd, nextStart;
 	private int oldCursorPosition = -1;
 	private int currentChar;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
@@ -84,7 +84,6 @@ public class BrailleView extends WPView {
 	private CaretListener caretListener;
 	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
-	private TextMapElement currentElement;
 	
 	public BrailleView(Manager manager, Group documentWindow, BBSemanticsTable table) {
 		super(manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
@@ -141,17 +140,8 @@ public class BrailleView extends WPView {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if(!getLock()){
-					int start = currentStart;
-					int end = currentEnd;
-				
 					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
 						setCurrent();
-						if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-							if((previousEnd != -1 && view.getCaretOffset() < start) || nextStart == -1)
-								previousValidPosition();
-							else if((nextStart != -1 && view.getCaretOffset() > end) || previousEnd == -1)
-								nextValidPosition();
-						}
 					}
 				}
 			}	
@@ -163,14 +153,7 @@ public class BrailleView extends WPView {
 				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){						
-							setCurrent();
-							if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-								if((nextStart != -1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)) || (previousEnd == -1 && nextStart != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)))
-									nextValidPosition();
-								else if((previousEnd != -1 && (currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_UP)) || (nextStart == -1 && previousEnd != -1 && (currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_RIGHT)))
-									previousValidPosition();
-							}
-						
+							setCurrent();						
 							currentChar = ' ';
 						}
 						//if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
@@ -216,59 +199,6 @@ public class BrailleView extends WPView {
 		view.getVerticalBar().removeSelectionListener(selectionListener);
 	}
 	
-	private void previousValidPosition(){
-		TextMapElement t = manager.getElementInBrailleRange(view.getCaretOffset());
-		if(t == null){
-			int i = 1;
-			while(t == null && view.getCaretOffset() - 1 >= 0)
-			t = manager.getElementInBrailleRange(view.getCaretOffset() - i);
-			i--;
-		}
-		
-		if(t != null){
-			int index= manager.indexOf(t);
-			while(((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof PageMapElement) ||  ((t.brailleList.getFirst().start != 0  && manager.indexOf(t) != 0) && t instanceof BrlOnlyMapElement)){
-				index--;
-				t = manager.getTextMapElement(index);
-			}
-		
-			currentChar = SWT.ARROW_UP;
-			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-				view.setCaretOffset(t.brailleList.getLast().end);
-				nextValidPosition();
-			}
-			else
-				view.setCaretOffset(t.brailleList.getLast().end);
-		}
-	}
-
-	private void nextValidPosition(){
-		TextMapElement t = manager.getElementInBrailleRange(view.getCaretOffset());
-		if(t == null){
-			int i = 1;
-			while(t == null && view.getCaretOffset() + i <= view.getCharCount()){
-				t = manager.getElementInBrailleRange(view.getCaretOffset() + i);
-				i++;
-			}
-		}
-		
-		if(t != null){
-			int index = manager.indexOf(t);
-			while(((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof PageMapElement) || ((t.brailleList.getLast().end != view.getCharCount()  && manager.indexOf(t) != manager.getListSize() - 1) && t instanceof BrlOnlyMapElement)){
-				index++;
-				t = manager.getTextMapElement(index);
-			}
-		
-			currentChar = SWT.ARROW_DOWN;
-			if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement){
-				view.setCaretOffset(t.brailleList.getFirst().start);
-				previousValidPosition();
-			}
-			else
-				view.setCaretOffset(t.brailleList.getFirst().start);
-		}
-	}
-	
 	private void setCurrent(){
 		Message message = Message.createSetCurrentMessage(Sender.BRAILLE, view.getCaretOffset(), true);
 		
@@ -286,8 +216,6 @@ public class BrailleView extends WPView {
 		currentStart = (Integer)message.getValue("brailleStart");
 		currentEnd = (Integer)message.getValue("brailleEnd");
 		nextStart = (Integer)message.getValue("nextBrailleStart");
-		previousEnd = (Integer)message.getValue("previousBrailleEnd");
-		currentElement = (TextMapElement)message.getValue("currentElement"); 
 		this.pageRanges.clear();
 		setPageRange((ArrayList<BrailleMapElement>)message.getValue("pageRanges"));
 	}

@@ -112,7 +112,10 @@ public class NimasArchiver extends Archiver {
 		if(fu.createXMLFile(doc.getNewXML(), path)){
 			if(zip){
 				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
-				copySemanticsFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+				if(zip)
+					copySemanticsFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+				else if(originalDocPath != null)
+					copySemanticsFile(tempSemFile, originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + ".sem");
 			}
 		}
 		else {
@@ -198,7 +201,7 @@ public class NimasArchiver extends Archiver {
 		
 		if(ext.equals("xml"))
 			saveAsNimas(doc, path);
-		if(ext.equals("zip"))
+		else if(ext.equals("zip"))
 			saveAsZip(doc, path);
 		else if(ext.equals("brf"))
 			saveBrf(doc, path);
@@ -220,9 +223,8 @@ public class NimasArchiver extends Archiver {
 			copySemanticsFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
 		}
 		
-		if(zippedPath == null)
-			zippedPath = BBIni.getTempFilesPath();
-		
+		if(zippedPath == null || zippedPath.equals(""))
+			zippedPath = BBIni.getTempFilesPath() + BBIni.getFileSep();
 		newZipFile(path);
 		zip = true;
 	}

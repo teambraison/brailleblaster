@@ -216,7 +216,7 @@ public class XMLTree extends TreeView {
 	}
 	
 	public void newTreeItem(ArrayList<TextMapElement>list, int index, int offset){
-		Element parentElement = (Element)list.get(0).n.getParent();
+		Element parentElement = (Element)list.get(0).parentElement();
 		while(parentElement.getAttributeValue("semantics").contains("action")){
 			parentElement = (Element)parentElement.getParent();
 		}

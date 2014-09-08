@@ -52,7 +52,6 @@ public class StyleManager{
     private StylePanel editor;
     private String configFile;
     Manager dm;
-    TextMapElement t;
     private int lastSelection;
     private BBSemanticsTable semanticsTable;
     
@@ -86,10 +85,9 @@ public class StyleManager{
     	try {
     		styleForView = indentToCell(semanticsTable.get(style).clone());
     	} catch (CloneNotSupportedException e) {
-    					// TODO Auto-generated catch block
-    					e.printStackTrace();
-    					new Notify("An error occurred");
-    				}
+    		e.printStackTrace();
+    		new Notify("An error occurred");
+    	}
     	
     	if(semanticsTable.get(style).getName().equals("boxline"))
     		editor = new EditBoxLineView(this, dm.getGroup(), styleForView);
@@ -119,22 +117,24 @@ public class StyleManager{
     }
     
     
- private Styles  cellToIndent (Styles style){
+    private Styles  cellToIndent (Styles style){
 		 int cellPosition;
 		 if (style.contains(BBSemanticsTable.StylesType.leftMargin)){
 			 cellPosition = Integer.valueOf((String)style.get((BBSemanticsTable.StylesType.leftMargin)))-1;
 		 }else{
 			 cellPosition = 1;
 		 }
-		 		int firstLineCellPosition;
-		 		if (style.contains(BBSemanticsTable.StylesType.firstLineIndent)){
-				firstLineCellPosition = Integer.valueOf((String)style.get(BBSemanticsTable.StylesType.firstLineIndent))-cellPosition-1; 
-		 		}else{
-		 		firstLineCellPosition = 1;
-		 	}
-		 		style.put(BBSemanticsTable.StylesType.firstLineIndent, String.valueOf(firstLineCellPosition));
-		 		style.put(BBSemanticsTable.StylesType.leftMargin, String.valueOf(cellPosition));
-	return style;
+		 
+		 int firstLineCellPosition;
+		 if (style.contains(BBSemanticsTable.StylesType.firstLineIndent)){
+			firstLineCellPosition = Integer.valueOf((String)style.get(BBSemanticsTable.StylesType.firstLineIndent))-cellPosition-1; 
+		 }else{
+		 	firstLineCellPosition = 1;
+		 }
+		 style.put(BBSemanticsTable.StylesType.firstLineIndent, String.valueOf(firstLineCellPosition));
+		 style.put(BBSemanticsTable.StylesType.leftMargin, String.valueOf(cellPosition));
+		 
+		 return style;
 	}
 
 
@@ -152,9 +152,21 @@ public class StyleManager{
     
     public void apply(String item){
     	Styles style = semanticsTable.get(item);
+    	
+    	if(style != null){
+    		boolean isBoxLine = style.getName().equals("boxline");
+    		Message m = Message.createUpdateStyleMessage(style, dm.getText().isMultiSelected(), isBoxLine);
+    		m.put("Style", style);
+    		dm.dispatch(m);
+    	}
+    }
+    
+    public void remove(String item){
+    	Styles style = semanticsTable.get("none");
 
     	if(style != null){
-    		Message m = Message.createUpdateStyleMessage(style, dm.getText().isMultiSelected());
+    		boolean isBoxline = item.equals("boxline");
+    		Message m = Message.createUpdateStyleMessage(style, dm.getText().isMultiSelected(), isBoxline);
     		m.put("Style", style);
     		dm.dispatch(m);
     	}
@@ -249,5 +261,12 @@ public class StyleManager{
     
     public String getConfigFile(){
     	return configFile;
+    }
+    
+    protected TextMapElement getCurrentItem(){
+    	if(dm.getListSize() > 0)
+    		return dm.getCurrent();
+    	else
+    		return null;
     }
 }

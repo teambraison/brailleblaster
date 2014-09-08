@@ -20,6 +20,7 @@ public class BrlOnlyMapElement extends TextMapElement {
 		this.brailleList.add(new BrailleMapElement(n));
 		this.parent=parent;
 	}
+	
 	@Override
 	public String getText(){
 		String str = "";

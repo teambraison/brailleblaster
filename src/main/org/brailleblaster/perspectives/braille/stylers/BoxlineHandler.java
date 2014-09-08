@@ -3,6 +3,7 @@ package org.brailleblaster.perspectives.braille.stylers;
 import java.util.ArrayList;
 
 import nu.xom.Element;
+import nu.xom.Elements;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -19,6 +20,8 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class BoxlineHandler {
 	Manager manager;
@@ -144,5 +147,62 @@ public class BoxlineHandler {
 		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
 			
 		return endPos;
+	}
+	
+	/** Removes a boxline from the views and the DOM
+	 * @param boxline : Element wrapping content and representing a boxline
+	 * @param itemList : List containing opening and closing boxline
+	 */
+	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){			
+		for(int i = itemList.size() - 1; i >= 0; i--){
+			BrlOnlyMapElement b = (BrlOnlyMapElement)itemList.get(i);
+			int index = list.indexOf(b);
+			manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
+			manager.getBraille().replaceTextRange( b.brailleList.getFirst().start, (b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start, "");
+			list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start), 0);
+			list.remove(index);
+		}
+		
+		removeBoxLineElement(boxline);
+	}
+	
+	/** Removes boxline from DOM and re-inserts contents into the DOM
+	 * @param boxline : Element wrapping content and representing a boxline
+	 */
+	private void removeBoxLineElement(Element boxline){
+		int index = boxline.getParent().indexOf(boxline);
+		Elements els = boxline.getChildElements();
+		
+		for(int i = 0; i < els.size(); i++){
+			if((i == 0 || i == els.size() - 1) && els.get(i).getLocalName().equals("brl"))
+				els.get(i).getParent().removeChild(els.get(i));
+			else {
+				boxline.getParent().insertChild(boxline.removeChild(els.get(i)), index);
+				index++;
+			}
+		}
+		
+		boxline.getParent().removeChild(boxline);
+		if(treeView.getClass().equals(XMLTree.class))
+			resetTree();
+	}
+	
+	/** XMLTree needs to construct new structure after the portion of the DOM is re-built
+	 * TreeItems are re-positioned in the correct location.  Not necessry for the BookTree
+	 * since the boxline is not a headline element
+	 */
+	private void resetTree(){
+		TreeItem item = treeView.getTree().getSelection()[0];
+		int index = item.getParentItem().indexOf(item);
+		TreeItem [] children = item.getItems();
+		
+		for(int i = 0; i < children.length; i++){
+			TreeItem newItem = new TreeItem(item.getParentItem(), SWT.NONE, index);
+			newItem.setData(children[i].getData());
+			newItem.setText(children[i].getText());
+			index++;
+		}
+		
+		item.dispose();
 	}
 }

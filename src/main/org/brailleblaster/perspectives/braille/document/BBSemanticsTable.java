@@ -86,15 +86,14 @@ public class BBSemanticsTable {
 		}
 
 				
-				@SuppressWarnings("unchecked")
-				@Override
-				public Styles clone() throws CloneNotSupportedException {
-				Styles clone = (Styles)super.clone();
-				clone.map = (TreeMap<StylesType, Object>)clone.map.clone();
-				clone.elementName = new String(clone.elementName);
-				return clone;
-				}
-		
+		@SuppressWarnings("unchecked")
+		@Override
+		public Styles clone() throws CloneNotSupportedException {
+			Styles clone = (Styles)super.clone();
+			clone.map = (TreeMap<StylesType, Object>)clone.map.clone();
+			clone.elementName = new String(clone.elementName);
+			return clone;
+		}
 	}
 	
 	Document doc;

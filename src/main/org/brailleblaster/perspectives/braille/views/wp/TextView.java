@@ -1253,30 +1253,25 @@ public class TextView extends WPView {
 		String pageText;
 		if(partial){
 			pageText = p.getText().substring(selectionStart - p.start);
-			while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-				p =  manager.getElementInRange(pos + 1);
-				pos = p.end;
-				pageText += "\n"+ p.getText();
-			}
-			pageText += "\n";
 		}
 		else {
 			if(selectionStart + selectionLength > p.end)
 				pageText = "\n" + p.getText();
 			else
 				pageText = "\n" + p.getText().substring(0, (selectionStart + selectionLength) - (selectionStart + 1));
-			
-			while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-				p =  manager.getElementInRange(pos + 1);
-				pos = p.end;
-				if(selectionStart + selectionLength > p.end)
-					pageText += "\n"+ p.getText();
-				else
-					pageText += "\n" + p.getText().substring(0, (selectionStart + selectionLength) - p.start);
-			}
-			if(selectionStart + selectionLength > p.end)
-				pageText += "\n";
 		}
+		
+		while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
+			p =  manager.getElementInRange(pos + 1);
+			pos = p.end;
+			if(selectionStart + selectionLength > p.end)
+				pageText += "\n"+ p.getText();
+			else
+				pageText += "\n" + p.getText().substring(0, (selectionStart + selectionLength) - p.start);
+		}
+		
+		if(selectionStart + selectionLength > p.end)
+			pageText += "\n";
 		
 		view.setCaretOffset(selectionStart);
 		view.insert(pageText);

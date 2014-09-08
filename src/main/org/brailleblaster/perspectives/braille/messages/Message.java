@@ -116,7 +116,7 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createUPdateStatusbarMessage(String line){
+	public static Message createUpdateStatusbarMessage(String line){
 		Message m = new Message(BBEvent.UPDATE_STATUSBAR);
 		m.put("line", line);
 		
@@ -183,15 +183,19 @@ public class Message {
 		
 		return m;
 	}
-	/***
+	
+	/**
 	 * Create a Message object base on multiple selection is true or false
-	 * @param flag
+	 * @param style: Style to add, remove, or adjust 
+	 * @param multiSelect: signifies whether multiple elements have been selected
+	 * @param isBoxline: signifies whether selection is addining or removing a boxline, since boxline are handled differently than other styles
 	 * @return
 	 */
-	public static Message createUpdateStyleMessage(Styles style, boolean flag){
+	public static Message createUpdateStyleMessage(Styles style, boolean multiSelect, boolean isBoxline){
 		Message m = new Message(BBEvent.UPDATE_STYLE);
 		m.put("Style", style);
-		m.put("multiSelect", flag);
+		m.put("multiSelect", multiSelect);
+		m.put("isBoxline", isBoxline);
 		return m;
 	}
 	

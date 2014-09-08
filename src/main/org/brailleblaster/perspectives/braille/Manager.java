@@ -600,7 +600,7 @@ public class Manager extends Controller {
 		int origPos =list.getCurrent().start;
 		int treeIndex = treeView.getBlockElementIndex();
 		
-		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
+		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
 		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
 		
 		int textStart = list.get(originalElements.get(0)).start;
@@ -747,7 +747,7 @@ public class Manager extends Controller {
 	    }
 			
 		Styles style = styles.get("trnote");
-		Message styleMessage =  Message.createUpdateStyleMessage(style, false);
+		Message styleMessage =  Message.createUpdateStyleMessage(style, false, false);
 		dispatch(styleMessage);
 	}
 	
@@ -832,10 +832,17 @@ public class Manager extends Controller {
 	private void handleUpdateStyle(Message message) {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			group.setRedraw(false);
-			if (message.getValue("multiSelect").equals(false)) {
-				handleStyleSingleSelected(message);
-			} else {
-				handleStyleMultiSelected(message);
+			if(message.getValue("isBoxline").equals(true)){
+				if(message.getValue("multiSelect").equals(false)) 
+					handleSingleBoxLine(message);
+				else 
+					handleMultiBoxLine(message);
+			}
+			else{
+				if(message.getValue("multiSelect").equals(false)) 
+					handleStyleSingleSelected(message);
+				else 
+					handleStyleMultiSelected(message);
 			}
 			group.setRedraw(true);
 		}
@@ -845,24 +852,20 @@ public class Manager extends Controller {
 	
 	/***
 	 * Handle style if user just move cursor
-	 * @param message
+	 * @param message: Message object passed containing information from style table manager
 	 */
 	private void handleStyleSingleSelected(Message message) {
 		Element parent = parentStyle(list.getCurrent(), message);
-		ArrayList<Element>parents = new ArrayList<Element>();
-		parents.add(parent);
-		if(!((Styles)message.getValue("Style")).getName().equals("boxline"))
-			document.changeSemanticAction(message, parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(
-				list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message,parents);
+		document.changeSemanticAction(message, parent);
+		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
+		adjustStyle(itemList, message);
 	}
 	
 	/***
 	 * Apply styles to selected text for multiple elements
-	 * @param start
-	 * @param end
-	 * @param message
+	 * @param start: starting offset of highlighted text used to find first block element
+	 * @param end: end position of highlighted text used to find last block element
+	 * @param message: Message object passed containing information from style table manager
 	 */
 	private void handleStyleMultiSelected(Message message){
 		
@@ -873,44 +876,82 @@ public class Manager extends Controller {
 		Iterator<TextMapElement> itr = itemSet.iterator();
 		ArrayList<Element>parents = new ArrayList<Element>();
 		
-		boolean  isBoxline = ((Styles)message.getValue("Style")).getName().equals("boxline");
-		
-		if(!isBoxline){
-			while (itr.hasNext()) {
-				TextMapElement tempElement= itr.next();
-				if(!isBoxline){
-					if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)) && (tempElement.parentElement().getAttributeValue("semantics").contains("style") || tempElement.parentElement().getAttributeValue("semantics").contains("action")))){
-						Message styleMessage = new Message(null);
-						styleMessage.put("Style", message.getValue("Style"));
-						Element parent = parentStyle(tempElement, styleMessage);
-						parents.add(parent);
-						document.changeSemanticAction(message, parent);
-						ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-						adjustStyle( itemList,styleMessage,parents);
-					}
-				}
+		while (itr.hasNext()) {
+			TextMapElement tempElement= itr.next();
+			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
+				Message styleMessage = new Message(null);
+				styleMessage.put("Style", message.getValue("Style"));
+				Element parent = parentStyle(tempElement, styleMessage);
+				parents.add(parent);
+				document.changeSemanticAction(message, parent);
+				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
+				adjustStyle( itemList,styleMessage);
 			}
 		}
+	}
+	
+	
+	/** Prepares object needed by boxline handler to create boxline around a single element
+	 * @param message: Message object passed containing information from style table manager
+	 */
+	private void handleSingleBoxLine(Message message){
+		Element parent = parentStyle(list.getCurrent(), message);
+		ArrayList<Element>parents = new ArrayList<Element>();
+		parents.add(parent);
+		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
+		adjustStyle(itemList, message);
+		
+		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
+			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+			bxh.createBoxline(parents, message, itemList);	
+		}
 		else {
-			ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
-			boolean invalid = false;
-			while(itr.hasNext()){
-				TextMapElement tempElement= itr.next();
-				if(tempElement instanceof BrlOnlyMapElement){
-					BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-					if(b == null || b.start > end || b.end < start){
-						invalid = true;
-						if(!BBIni.debugging())
-							new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
-						break;
-					}
+			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
+			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
+				itemList.add(0, box);
+			else
+				itemList.add(box);
+			
+			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+			bxh.removeBoxline(parent, itemList);
+			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
+		}
+	}
+	
+	/** Prepares object needed by boxline handler to create boxline around a multiple elements
+	 * @param message: Message object passed containing information from style table manager
+	 */
+	private void handleMultiBoxLine(Message message){
+		int start=text.getSelectedText()[0];
+		int end=text.getSelectedText()[1];
+		
+		Set<TextMapElement> itemSet = getElementSelected(start, end);		
+		Iterator<TextMapElement> itr = itemSet.iterator();
+		ArrayList<Element>parents = new ArrayList<Element>();
+		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
+		
+		boolean invalid = false;
+		while(itr.hasNext()){
+			TextMapElement tempElement= itr.next();
+			if(tempElement instanceof BrlOnlyMapElement){
+				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
+				if(b == null || b.start > end || b.end < start){
+					invalid = true;
+					if(!BBIni.debugging())
+						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
+					break;
 				}
-				Element parent = parentStyle(tempElement, message);
-				itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
-				parents.add(parent);
 			}
-			if(!invalid)
-				adjustStyle(itemList, message, parents);
+			Element parent = parentStyle(tempElement, message);
+			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
+			parents.add(parent);
+		}
+		if(!invalid)
+			adjustStyle(itemList, message);
+		
+		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
+			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+			bxh.createBoxline(parents, message, itemList);	
 		}
 	}
 	
@@ -919,7 +960,7 @@ public class Manager extends Controller {
 	 * @param itemList : all selected items which we want style to be applied
 	 * @param message : passing information regarding styles
 	 */
-	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message,ArrayList<Element> parents) {
+	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
 		int start = list.indexOf(itemList.get(0));
 		int end = list.indexOf(itemList.get(itemList.size() - 1));
 		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
@@ -955,12 +996,7 @@ public class Manager extends Controller {
 					(Integer) message.getValue("linesAfterOffset"), origPos);
 
 		treeView.adjustItemStyle(list.getCurrent());
-		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.createBoxline(parents, message, itemList);	
-		}
-	}
+	}	
 	
 	public void saveAs(){
 		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
@@ -1009,7 +1045,7 @@ public class Manager extends Controller {
 			fontManager.disposeFonts();
 			if(arch.getOrigDocPath() == null & docCount > 0)
 				docCount--;
-			
+			arch.destroyAutoSave();
 			wp.removeController(this);
 			
 			if(wp.getList().size() == 0)

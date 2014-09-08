@@ -143,11 +143,15 @@ public abstract class WPView extends AbstractView implements BBView {
 		setListenerLock(false);
 	}
 	
-	/** Sets an image in the styledtext view.  Currently used to set MathML in text view
-	 * @param image : SWT Image widget
-	 * @param offset : starting offset in view to insert at
-	 * @param length : length of caret positions to insert image
-	 */
+	public void replaceTextRange(int start, int length, String text){
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.replaceTextRange(start, length, text);
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
 	protected void setImageStyleRange(Image image, int offset, int length) {
 		StyleRange style = new StyleRange ();
 		style.start = offset;
@@ -368,7 +372,7 @@ public abstract class WPView extends AbstractView implements BBView {
 			statusBarText += "Style: " + style + " | ";
 		}
 		
-		Message statusMessage = Message.createUPdateStatusbarMessage(statusBarText + " Words: " + words);
+		Message statusMessage = Message.createUpdateStatusbarMessage(statusBarText + " Words: " + words);
 		manager.dispatch(statusMessage);
 		currentLine = view.getLineAtOffset(view.getCaretOffset());
 	}

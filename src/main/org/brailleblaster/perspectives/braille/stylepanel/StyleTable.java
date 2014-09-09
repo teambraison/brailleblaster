@@ -202,8 +202,10 @@ public class StyleTable {
 			}			
 		});
 		
+
 		applyButton.addSelectionListener(applyStyle);
 		removeStyleSet = false;
+
 		
 		t.addTraverseListener(new TraverseListener(){
 			@Override
@@ -323,17 +325,15 @@ public class StyleTable {
 		checkToggle();
 	}
 	
+
     private void populateTable(Set<String> list){ 
     	StylesType perefferedStyle=StylesType.valueOf("name");
     	String perefferedName;
     	
     	for(String s : list){
-    
     		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex") && !s.equals("none"))
     		{
-
     			if(sm.getSemanticsTable().get(s).contains(perefferedStyle)){
-
     				perefferedName=(String) sm.getSemanticsTable().get(s).get(perefferedStyle);
     				addTableItem(perefferedName,s);
     			}

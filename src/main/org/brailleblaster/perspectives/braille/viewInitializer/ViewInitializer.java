@@ -52,7 +52,11 @@ public abstract class ViewInitializer {
 			else {
 				text.setText(list.get(i), list, i);
 				braille.setBraille(list.get(i), list, i);
+				
 			}
+		}
+		if(count>0 ){
+	    	braille.addIndicator();
 		}
 		
 	}

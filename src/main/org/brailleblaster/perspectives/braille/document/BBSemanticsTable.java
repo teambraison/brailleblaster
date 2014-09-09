@@ -23,7 +23,6 @@ import nu.xom.Node;
 
 public class BBSemanticsTable {
 	public enum StylesType{
-	
 		emphasis,
 		linesBefore,
 		linesAfter,
@@ -179,7 +178,7 @@ public class BBSemanticsTable {
 		String [] tokens = keyValuePair.split(" ");
 		// for preferred name
 		if(tokens[0].substring(0).equals("name") )
-			temp.put(StylesType.valueOf(tokens[0].substring(0)), tokens[1]);
+			temp.put(StylesType.valueOf(tokens[0].substring(0)), formatName(tokens[1]));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("centered"))
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.CENTER));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified"))
@@ -194,6 +193,26 @@ public class BBSemanticsTable {
 			setFontAttributes(temp, tokens[0].substring(1), SWT.UNDERLINE_SINGLE, true);
 		else
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), tokens[1]);
+	}
+	
+	private String formatName(String name){
+		String[] tokens = name.split("(?=\\p{Upper})");
+		
+		if(tokens.length > 0){
+			name = "";
+			for(int i = 0; i < tokens.length; i++){
+				String[] tokens2 = tokens[i].split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+				if(tokens2.length > 0){
+					for(int j = 0; j < tokens2.length; j++){
+						name += tokens2[j] + " ";
+					}
+				}
+				else
+					name += tokens[i] + " ";
+			}
+		}
+		
+		return name;
 	}
 	
 	//Used to set a new SWT SyleRange object to a styles map.  StyleRange controls fontstyle which is an integer and underline which is boolean

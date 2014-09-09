@@ -447,7 +447,7 @@ public class StyleTable {
     	TextMapElement textElement = sm.getCurrentItem();
     	if(textElement != null){
     		Element parent = getParent(textElement);
-    		if(t.getSelection()[0].getText(1).equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))
+    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))
     			toggleApplyButton(true);
     		else
     			toggleApplyButton(false);

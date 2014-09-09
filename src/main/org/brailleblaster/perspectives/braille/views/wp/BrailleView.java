@@ -374,6 +374,8 @@ public class BrailleView extends WPView {
 							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf((String)entry.getValue()) * charWidth));
 					}
 					break;
+				case name:
+					break;
 				default:
 					System.out.println(entry.getKey());
 			}

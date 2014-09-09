@@ -183,7 +183,7 @@ public class BBSemanticsTable {
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.CENTER));
 		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("rightJustified"))
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.RIGHT));
-		else if(tokens[0].substring(1).equals("format") && tokens[1].equals("leftJustified"))
+		else if(tokens[0].substring(1).equals("format") && (tokens[1].equals("leftJustified") || tokens[1].equals("computerCoded") || tokens[1].equals("contents")))
 			temp.put(StylesType.valueOf(tokens[0].substring(1)), String.valueOf(SWT.LEFT));
 		else if(tokens[0].substring(1).equals("emphasis") && tokens[1].equals("boldx"))
 			setFontAttributes(temp, tokens[0].substring(1), SWT.BOLD, false);

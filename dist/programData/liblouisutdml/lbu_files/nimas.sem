@@ -16,6 +16,21 @@ namespaces dsy=http://www.daisy.org/z3986/2005/dtbook/
 no &xpath(//dsy:li/dsy:p)
 no &xpath(//dsy:h1/dsy:p | //dsy:h2/dsy:p | //dsy:h3/dsy:p | //dsy:h4/dsy:p | //dsy:h5/dsy:p | //dsy:h6/dsy:p)
 
+<<<<<<< C:\Users\kcreasy\workspace\BrailleBlaster\dist\programData\liblouisutdml\lbu_files\nimas.sem
+#h3 should not be preceded by a blank line in the following instances...
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h1) >= 1]])
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h2) >= 1]])
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:sidebar) >= 1]])
+
+=======
+#h3 should not be preceded by a blank line in the following cases...
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h1) >= 1]])
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h2) >= 1]])
+heading3nb &xpath(//h3[count(ancestor::dsy:sidebar) >= 1])
+
+
+
+>>>>>>> c:\users\kcreasy\appdata\local\temp\nimas.sem~other.abzok4
 # section elements
 # these are mostly here for debugging and reference
 no frontmatter

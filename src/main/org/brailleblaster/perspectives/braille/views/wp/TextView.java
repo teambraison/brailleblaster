@@ -1001,6 +1001,8 @@ public class TextView extends WPView {
 					else
 						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
 					break;
+				case name:
+					break;
 				default:
 					System.out.println(entry.getKey());
 			}

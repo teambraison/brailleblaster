@@ -879,8 +879,7 @@ public class Manager extends Controller {
 		while (itr.hasNext()) {
 			TextMapElement tempElement= itr.next();
 			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-				Message styleMessage = new Message(null);
-				styleMessage.put("Style", message.getValue("Style"));
+				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
 				document.changeSemanticAction(message, parent);

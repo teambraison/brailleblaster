@@ -154,16 +154,25 @@ public class BoxlineHandler {
 	 * @param itemList : List containing opening and closing boxline
 	 */
 	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){			
-		for(int i = itemList.size() - 1; i >= 0; i--){
-			BrlOnlyMapElement b = (BrlOnlyMapElement)itemList.get(i);
-			int index = list.indexOf(b);
-			manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
-			manager.getBraille().replaceTextRange( b.brailleList.getFirst().start, (b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start, "");
-			list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start), 0);
-			list.remove(index);
-		}
-		
+		removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
+		removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
 		removeBoxLineElement(boxline);
+	}
+	
+	private void removeTopBoxline(BrlOnlyMapElement b){
+		int index = list.indexOf(b);
+		manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
+		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start, (b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start, "");
+		list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start), 0);
+		list.remove(index);
+	}
+	
+	private void removeBottomBoxline(BrlOnlyMapElement b){
+		int index = list.indexOf(b);
+		manager.getText().replaceTextRange(b.start - 1, b.end - (b.start - 1), "");
+		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start - 1, b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1), "");
+		list.shiftOffsetsFromIndex(index,  -(b.end - (b.start - 1)), -(b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1)), 0);
+		list.remove(index);
 	}
 	
 	/** Removes boxline from DOM and re-inserts contents into the DOM

@@ -173,7 +173,7 @@ public class WPManager {
 					viewerDialog.setText(lh.localValue("LogViewer.Title"));
 					viewerDialog.open();
 				}
-					*/
+*/
 			}
 		}
 		display.dispose();

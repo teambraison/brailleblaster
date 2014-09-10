@@ -212,7 +212,7 @@ public class BBSemanticsTable {
 			}
 		}
 		
-		return name;
+		return name.trim();
 	}
 	
 	//Used to set a new SWT SyleRange object to a styles map.  StyleRange controls fontstyle which is an integer and underline which is boolean

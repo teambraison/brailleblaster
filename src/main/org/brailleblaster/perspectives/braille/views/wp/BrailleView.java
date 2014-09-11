@@ -101,6 +101,9 @@ public class BrailleView extends WPView {
 
 	//Added this line to save previous indicator 
 	ArrayList <Bullet> indications; 
+	boolean flag=true;
+	int counter;
+	
 
 	
 	public BrailleView(Manager manager, Group documentWindow, BBSemanticsTable table) {
@@ -109,6 +112,7 @@ public class BrailleView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		indications=new ArrayList<Bullet>();
+		
 	}
 	
 	@Override
@@ -705,7 +709,7 @@ public class BrailleView extends WPView {
 		
 		    //Add new one then Remove previous indicators 
 		
-
+			flag=true;
 			addIndicator();
 			removeIndicator();
 			
@@ -936,14 +940,19 @@ public class BrailleView extends WPView {
 	public void addIndicator(){
 		int lineNumber=manager.getDocument().getIndicatorLocation()-1;
 		if (lineNumber<view.getLineCount()){
-			int counter=lineNumber;
-			while(counter<view.getLineCount()){
+			
+			if (flag==true)
+			{
+			   counter=lineNumber;
+			   flag=false;
+			}
+			while(counter<view.getLineCount()-1){
 				if (view.getLineBullet(counter)==null){
 					StyleRange indicatorStyle = new StyleRange();
-					indicatorStyle.metrics = new GlyphMetrics(0, 0, view.getLineCount()+1);
+					indicatorStyle.metrics = new GlyphMetrics(1, 0, 50);
 					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
-					bullet.text = "_____________________________________________________";
+					bullet.text = "___________________________________________________________";
 					view.setLineBullet(counter, 1, null);
 					view.setLineBullet(counter, 1, bullet);
 					indications.add(bullet);
@@ -951,6 +960,7 @@ public class BrailleView extends WPView {
 				}
 				counter=counter+lineNumber;
 			}
+	
 	   }
 		
 	}

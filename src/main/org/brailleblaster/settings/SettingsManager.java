@@ -223,4 +223,31 @@ public class SettingsManager {
 	public boolean isMetric(){
 		return isMetric;
 	}
+	/***
+	 * Calculate numbers of lines per page
+	 * @return Number of line per page
+	 */
+	public  int calculateLinesPerPage(double pHeight){
+		double cellHeight;
+		if(!isMetric()) 
+			cellHeight = 0.393701;
+		else
+			cellHeight = 10;
+		
+		if(outputMap.containsKey("topMargin"))
+			pHeight -= Double.valueOf(outputMap.get("topMargin"));
+		
+		if(outputMap.containsKey("bottomMargin"))
+			pHeight -= Double.valueOf(outputMap.get("bottomMargin"));
+		
+		return (int)(pHeight / cellHeight);
+	}
+	/**
+	 * Find indicator location
+	 */
+	public int getIndicatorLoc()
+	{
+		return calculateLinesPerPage(Double.valueOf(outputMap.get("paperHeight")));
+	}
+
 }

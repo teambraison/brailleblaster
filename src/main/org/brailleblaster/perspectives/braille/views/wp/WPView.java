@@ -156,7 +156,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		StyleRange style = new StyleRange ();
 		style.start = offset;
 		style.length = length;
-		style.data = image;
+		style.data =image;
 		Rectangle rect = image.getBounds();
 		style.metrics = new GlyphMetrics(rect.height, 0, rect.width);
 		view.setStyleRange(style);		

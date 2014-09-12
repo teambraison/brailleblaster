@@ -949,10 +949,12 @@ public class BrailleView extends WPView {
 			while(counter<view.getLineCount()-1){
 				if (view.getLineBullet(counter)==null){
 					StyleRange indicatorStyle = new StyleRange();
-					indicatorStyle.metrics = new GlyphMetrics(1, 0, 50);
+					indicatorStyle.underline=true;
+					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
 					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
-					bullet.text = "___________________________________________________________";
+					bullet.text = "                                                 ";
 					view.setLineBullet(counter, 1, null);
 					view.setLineBullet(counter, 1, bullet);
 					indications.add(bullet);

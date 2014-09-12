@@ -1,5 +1,7 @@
 package org.brailleblaster.perspectives.braille.stylepanel;
 
+import java.text.Collator;
+import java.util.Locale;
 import java.util.Set;
 
 import nu.xom.Element;
@@ -160,6 +162,28 @@ public class StyleTable {
 	   	populateTable(sm.getKeySet());
 	   	initializeListeners();
 	   	traverseFired = false;
+	    sort();
+	}
+	
+	private void sort(){
+		 TableItem[] items = t.getItems();
+         Collator collator = Collator.getInstance(Locale.getDefault());
+         for (int i = 1; i < items.length; i++) {
+           String value1 = items[i].getText(1);
+           for (int j = 0; j < i; j++) {
+             String value2 = items[j].getText(1);
+             if (collator.compare(value1, value2) < 0) {
+               String[] values = { items[i].getText(0), items[i].getText(1) };
+               String data = (String)items[i].getData();
+               items[i].dispose();
+               TableItem item = new TableItem(t, SWT.NONE, j);
+               item.setData(data);
+               item.setText(values);
+               items = t.getItems();
+               break;
+             }
+           }
+         }
 	}
 	
 	private void initializeListeners(){	
@@ -287,7 +311,7 @@ public class StyleTable {
 	
 	private int searchTree(String text){
 		for(int i = 0; i < t.getItemCount(); i++){
-			if(t.getItem(i).getText(1).equals(text)){
+			if(t.getItem(i).getData().equals(text)){
 				return i;
 			}
 		}
@@ -313,7 +337,7 @@ public class StyleTable {
 	
 	public void setSelection(String style){
 		for(int i = 0; i < t.getItemCount(); i++){
-			if(t.getItem(i).getText(1).equals(style)){
+			if(t.getItem(i).getData().equals(style)){
 				setSelection(i);
 				break;
 			}
@@ -353,7 +377,7 @@ public class StyleTable {
 		int open = mb.open();
 		
 		if(open == SWT.OK){
-			sm.deleteStyle(t.getSelection()[0].getText(1));
+			sm.deleteStyle((String)t.getSelection()[0].getData());
 			t.remove(t.getSelectionIndex());
 			return true;
 		}
@@ -364,6 +388,7 @@ public class StyleTable {
     public void resetTable(String configFile){
     	t.removeAll();
     	populateTable(sm.getKeySet());
+    	sort();
     }
     
     private void checkFontSize(Button b){
@@ -401,7 +426,6 @@ public class StyleTable {
     	TableItem tItem = new TableItem(t, SWT.CENTER);
     	tItem.setText(new String[]{"", item});
     	tItem.setData(originalName);
-    	
     }
     
     public boolean isVisible(){
@@ -456,15 +480,15 @@ public class StyleTable {
     		toggleApplyButton(false);
     }
     
-    private void toggleApplyButton(boolean setRemoveButton){
+    private void toggleApplyButton(boolean match){
     	LocaleHandler lh = new LocaleHandler();
-    	if(setRemoveButton && !removeStyleSet){
+    	if(match && !removeStyleSet){
     		applyButton.setText(lh.localValue("remove"));
     		applyButton.removeSelectionListener(applyStyle);
     		applyButton.addSelectionListener(removeStyle);
     		removeStyleSet = true;
-    	}
-    	else if(!setRemoveButton && removeStyleSet) {
+    	}	
+    	else if(!match && removeStyleSet) {
     		applyButton.setText(lh.localValue("apply"));
     		applyButton.removeSelectionListener(removeStyle);
     		applyButton.addSelectionListener(applyStyle);

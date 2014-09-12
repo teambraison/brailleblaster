@@ -879,8 +879,7 @@ public class Manager extends Controller {
 		while (itr.hasNext()) {
 			TextMapElement tempElement= itr.next();
 			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-				Message styleMessage = new Message(null);
-				styleMessage.put("Style", message.getValue("Style"));
+				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
 				document.changeSemanticAction(message, parent);
@@ -914,7 +913,11 @@ public class Manager extends Controller {
 			
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
 			bxh.removeBoxline(parent, itemList);
-			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
+			
+			if(list.getCurrentIndex() > list.size())
+				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
+			else if(list.size() > 0)
+				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
 		}
 	}
 	
@@ -946,12 +949,13 @@ public class Manager extends Controller {
 			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
 			parents.add(parent);
 		}
-		if(!invalid)
+		if(!invalid){
 			adjustStyle(itemList, message);
 		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.createBoxline(parents, message, itemList);	
+			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.createBoxline(parents, message, itemList);	
+			}
 		}
 	}
 	

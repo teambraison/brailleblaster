@@ -86,8 +86,8 @@ public final class BBIni {
 	private static boolean multipleSubcommands = false;
 	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
 	private static final String productName = "BrailleBlaster ND";
-	private static final String BBVersion = "0.03 Alpha";
-	private static final String releaseDate = "August 22, 2014";
+	private static final String BBVersion = "0.04 Alpha";
+	private static final String releaseDate = "September, 12, 2014";
 	private static String brailleblasterPath; // FO
 	private static String osName;
 	private static String osVersion;

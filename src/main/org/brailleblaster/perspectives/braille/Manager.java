@@ -1288,6 +1288,57 @@ public class Manager extends Controller {
 		}
 	}
 	
+	public void hide(){
+		if(list.size() > 0 && text.view.getCharCount() > 0){
+			if(text.isMultiSelected()){
+				int start=text.getSelectedText()[0];
+				int end=text.getSelectedText()[1];
+				
+				Set<TextMapElement> itemSet = getElementSelected(start, end);		
+				Iterator<TextMapElement> itr = itemSet.iterator();
+				
+				while (itr.hasNext()) {
+					TextMapElement tempElement= itr.next();
+					if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
+						hide(tempElement);
+					}
+				}			
+			}
+			else {
+				hide(list.getCurrent());
+			}
+		}
+	}
+	
+	private void hide(TextMapElement t){
+		Message m= new Message(null);
+		Element parent = parentStyle(t, m);
+		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.indexOf(t), parent, true);
+		m.put("element", parent);
+		m.put("type", "action");
+		m.put("action", "skip");
+	
+		int textLength = (itemList.get(itemList.size() - 1).end + 1) - itemList.get(0).start;
+		int brailleLength = (itemList.get(itemList.size() - 1).brailleList.getLast().end + 1) - itemList.get(0).brailleList.getFirst().start;
+		text.replaceTextRange(itemList.get(0).start, textLength, "");
+		braille.replaceTextRange(itemList.get(0).brailleList.getFirst().start, brailleLength, "");
+	
+		int index = list.indexOf(itemList.get(0));
+
+		for(int i = 0; i < itemList.size(); i++){
+			Message message = new Message(null);
+			message.put("element", parent);
+			treeView.removeItem(itemList.get(i), message);
+			list.remove(itemList.get(i));
+		}
+	
+		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
+	
+		document.applyAction(m);
+		dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
+		dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	}
+	
 	public void closeUntitledTab(){
 		document.deleteDOM();
 		treeView.removeListeners();

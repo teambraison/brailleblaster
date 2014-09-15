@@ -35,6 +35,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem cutItem;
 	MenuItem copyItem;
 	MenuItem pasteItem;
+	MenuItem hideItem;
 	MenuItem searchItem;
 	MenuItem replaceItem;
 	MenuItem spellCheckItem;
@@ -315,6 +316,20 @@ public class BrailleMenu extends BBMenu{
 					currentEditor.getText().paste();
 			}
 		});
+		
+		hideItem = new MenuItem(editMenu, SWT.PUSH);
+		hideItem.setAccelerator(SWT.MOD1 + 'H');
+		hideItem.setText(lh.localValue("&Hide") + "\tCtrl + H");
+		hideItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();
+				if(count > 0){
+					currentEditor.hide();
+				}
+			}
+		});
+		
 		searchItem = new MenuItem(editMenu, SWT.PUSH);
 		searchItem.setText(lh.localValue("&Search"));
 		searchItem.setEnabled(true);

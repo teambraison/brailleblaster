@@ -101,6 +101,7 @@ public class Normalizer {
 			}
 			else if(list.item(i) instanceof Text){
 				Text t = (Text)list.item(i);
+				
 				String text = t.getTextContent();
 				if(text.length() > 0 && text.charAt(0) == '\n' && onlyWhitespace(text))
 					text = text.replaceAll("\\s+", "");

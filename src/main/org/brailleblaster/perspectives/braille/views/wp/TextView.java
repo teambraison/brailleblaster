@@ -104,7 +104,8 @@ public class TextView extends WPView {
 	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
-
+	private EditMenu menu;
+	
 	int startSelection;
 	int endSelection;
 
@@ -117,6 +118,7 @@ public class TextView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.manager = manager;
+		menu = new EditMenu(this, manager);
 		multiSelected=false;
 		readOnly = false;
 	}
@@ -1724,6 +1726,7 @@ public class TextView extends WPView {
 	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
+		menu.dispose();
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		total = 0;
 		spaceBeforeText = 0;

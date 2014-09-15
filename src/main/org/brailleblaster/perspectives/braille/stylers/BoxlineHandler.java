@@ -64,8 +64,11 @@ public class BoxlineHandler {
 			
 			//remove items from tree
 			if(treeView.getClass().equals(XMLTree.class)){
-				for(int i = 0; i < itemList.size(); i++)
-					treeView.removeItem(itemList.get(i), new Message(null));
+				for(int i = 0; i < itemList.size(); i++){
+					Message treeMessage = new Message(null);
+					treeMessage.put("removeAll", true);
+					treeView.removeItem(itemList.get(i), treeMessage);
+				}
 			}
 			
 			//add aside or sidebar to tree

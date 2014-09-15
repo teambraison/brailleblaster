@@ -1113,8 +1113,8 @@ public class TextView extends WPView {
 				sendDeleteSpaceMessage(view.getCaretOffset(), offset);
 			}
 			else if(oldCursorPosition == currentEnd && view.getCaretOffset() == nextStart){
-				if(textChanged)
-					sendUpdate();
+				if(textChanged) 	
+					sendUpdate();		
 				
 				setCurrent(view.getCaretOffset() + 1);
 				makeTextChange(offset);
@@ -1123,8 +1123,8 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset);
 			else if( (oldCursorPosition == currentEnd && nextStart == -1)|| (oldCursorPosition > currentEnd && (oldCursorPosition < nextStart || nextStart == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset);
-			else 
-				makeTextChange(offset);			
+			else
+				makeTextChange(offset);
 		}
 		else {
 			offset = -1;

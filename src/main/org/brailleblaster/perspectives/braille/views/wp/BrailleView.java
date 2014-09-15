@@ -922,7 +922,6 @@ public class BrailleView extends WPView {
 		if(insert){
 		    view.insert("\n"+brailleSidebar);
 		    view.setCaretOffset(spaceBeforeText+brailleSidebar.length()+total);
-
 		}
 		else{
 			view.append("\n"+brailleSidebar);
@@ -930,7 +929,6 @@ public class BrailleView extends WPView {
 		b.setBrailleOffsets(spaceBeforeText+total, spaceBeforeText+total+brailleSidebar.length());
 		total += spaceBeforeText+brailleSidebar.length();
 		spaceBeforeText = 0;
-		
 	}
 	/**
 	 * Add indicator at input line number

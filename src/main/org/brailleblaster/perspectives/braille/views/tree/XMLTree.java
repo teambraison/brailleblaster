@@ -560,7 +560,7 @@ public class XMLTree extends TreeView {
 			ArrayList<TextMapElement> list = getList(item);
 			list.remove(index);
 			
-			if(list.size() == 0 && item.getItemCount() == 0){
+			if((list.size() == 0 && item.getItemCount() == 0) || m.contains("removeAll")){
 				previousItem = item.getParentItem();
 				item.dispose();
 				

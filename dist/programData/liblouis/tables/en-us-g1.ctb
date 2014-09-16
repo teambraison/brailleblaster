@@ -44,16 +44,17 @@ lenitalphrase 4
 firstletterital 46-3
 lastletterital 46-36
 singleletterital 46-25
-firstwordbold 456-46-46
-lastwordboldbefore 456-46
+firstwordbold 456-456
+lastwordboldbefore 456
 lenboldphrase 4
-firstwordunder 456-2356
-lastwordunderbefore 456-36
 begcomp 456-346
 endcomp 456-156
 
 # literary forms of the decimal digits
 include litdigits6Dots.uti
+
+# display/passthrough for unicode braille
+include braille-patterns.cti
 
 # Letters are defined in chardefs.cti
 
@@ -105,7 +106,7 @@ word ? 4-236
 endnum st 34
 endnum nd 1345-145
 endnum rd 1235-145
-endnum 's 3-234
+noback endnum 's 3-234
 endnum th 1456
 endnum 's 3-234
 always % 4-25-1234

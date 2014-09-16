@@ -1293,16 +1293,39 @@ public class Manager extends Controller {
 			if(text.isMultiSelected()){
 				int start=text.getSelectedText()[0];
 				int end=text.getSelectedText()[1];
+				boolean invalid = false;
 				
 				Set<TextMapElement> itemSet = getElementSelected(start, end);		
 				Iterator<TextMapElement> itr = itemSet.iterator();
 				
-				while (itr.hasNext()) {
+				ArrayList<TextMapElement> addToSet = new ArrayList<TextMapElement>();
+				while(itr.hasNext()){
 					TextMapElement tempElement= itr.next();
-					if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-						hide(tempElement);
+					if(tempElement instanceof BrlOnlyMapElement){
+						BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
+						if(b == null || b.start > end || b.end < start){
+							invalid = true;
+							if(!BBIni.debugging())
+								new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
+							break;
+						}
+						else if(!itemSet.contains(b))
+							addToSet.add(b);
 					}
-				}			
+				}
+				
+				if(addToSet.size() > 0){
+					for(int i = 0; i < addToSet.size(); i++)
+						itemSet.add(addToSet.get(i));
+				}
+				
+				if(!invalid){
+					itr = itemSet.iterator();
+					while (itr.hasNext()) {
+						TextMapElement tempElement= itr.next();	
+						hide(tempElement);
+					}			
+				}
 			}
 			else {
 				hide(list.getCurrent());

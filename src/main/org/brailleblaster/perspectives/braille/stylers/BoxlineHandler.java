@@ -54,7 +54,7 @@ public class BoxlineHandler {
 		if(wrapper != null){
 			Element boxline = document.translateElement((Element)wrapper.copy());
 			int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
-			createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+			int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 			
 			int treeIndex;
 			if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
@@ -71,8 +71,11 @@ public class BoxlineHandler {
 				}
 			}
 			
+			ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+			treeItemData.add(list.get(startPos));
+			treeItemData.add(list.get(endPos));
 			//add aside or sidebar to tree
-			treeView.newTreeItem(list.get(startPos), treeIndex, 0);
+			treeView.newTreeItem(treeItemData, treeIndex, 0);
 			
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));

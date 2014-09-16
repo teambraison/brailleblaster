@@ -1,5 +1,7 @@
 package org.brailleblaster.perspectives.braille.views.tree;
 
+import java.util.ArrayList;
+
 import nu.xom.Element;
 
 import org.brailleblaster.abstractClasses.BBView;
@@ -12,6 +14,7 @@ public interface BBTree extends BBView {
 	public void setRoot(Element e);
 	public TreeItem getRoot();
 	public void newTreeItem(TextMapElement t, int index, int offset);
+	public void newTreeItem(ArrayList<TextMapElement>list, int index, int offset);
 	public void removeCurrent();
 	public void removeItem(TextMapElement t, Message m);
 	public void removeMathML(TextMapElement t);

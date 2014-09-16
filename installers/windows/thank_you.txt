@@ -1,0 +1,5 @@
+BrailleBlaster has been installed successfully. If you wish, the installer will launch BrailleBlaster when it finishes. To run BrailleBlaster you can use the desktop shortcut (if you chose to have it installed) or choose the BrailleBlaster entry on the start menu. See the tutorial for ways to run it from the command line.
+
+BrailleBlaster will be updated frequently, so check back for updates often.
+
+Thank you for installing BrailleBlaster. We sincerely hope you enjoy and benefit from it! Suggestions and comments are always welcome.

@@ -134,6 +134,18 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("compbrlTable"))
 			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("numberBraillePages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("continuePages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPageNumberAt"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("braillePageNumberAt"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPageNumberRange"))
+			outputMap.put(tokens[0], tokens[1]);
 	}
 	
 	//do not include compress.cti because removing spaces should be left up to the user to remove

@@ -1,5 +1,6 @@
 package org.brailleblaster.perspectives.braille.views.tree;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import nu.xom.Element;
@@ -269,6 +270,14 @@ public class BookTree extends TreeView {
 		}
 	}
 
+	@Override
+	public void newTreeItem(ArrayList<TextMapElement> list, int index, int offset) {
+		int first = 0;
+		if(isHeading(list.get(first))){
+			newTreeItem(list.get(first), index, offset);
+		}
+	}
+	
 	@Override
 	public void removeCurrent() {
 		setListenerLock(true);

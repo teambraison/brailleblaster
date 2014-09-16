@@ -99,10 +99,18 @@ public class Normalizer {
 			if(list.item(i) instanceof Element){
 				removeEscapeChars((Element)list.item(i));
 			}
+		
+			
 			else if(list.item(i) instanceof Text){
 				Text t = (Text)list.item(i);
 				
 				String text = t.getTextContent();
+				if(t.getParentNode().getNodeName().equals("pagenum")){
+					// Remove word page from pagenum element
+					text=removePage(text);
+					
+					
+				}
 				if(text.length() > 0 && text.charAt(0) == '\n' && onlyWhitespace(text))
 					text = text.replaceAll("\\s+", "");
 				else if(text.length() > 0 && (text.charAt(0) == '\n' || text.charAt(0) == '\t')){
@@ -180,4 +188,20 @@ public class Normalizer {
 			return false;
 		}
     }
+	
+	
+	//Remove word page from pagenum element
+		private String removePage(String str){
+			int startRemove =0;
+			int endRemove=0;
+			if((str.toLowerCase().contains("page"))){
+				startRemove=str.toLowerCase().indexOf("p");
+				endRemove=str.toLowerCase().indexOf("e");
+				String removedString=str.substring(startRemove, endRemove+1);
+				str=str.replace(removedString, "");
+				
+			}
+			return str;
+			
+		}
 }

@@ -95,7 +95,7 @@ public class ConfigPanel {
 		Rectangle bounds = primary.getBounds();
 		int x = (bounds.width / 2) - ((bounds.width / 6) / 2);
 		int y = (bounds.height / 2) - ((bounds.height / 3) / 2);
-		shell.setSize(bounds.width / 6, bounds.height / 3);
+		shell.setSize(bounds.width / 3, (int) (bounds.height/1.5) );
 		shell.setLocation(x, y);
 	}
 	

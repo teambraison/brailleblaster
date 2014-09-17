@@ -41,8 +41,8 @@ public class HideActionHandler {
 				hideMultipleElements();
 			else if(!(list.getCurrent() instanceof BrlOnlyMapElement))
 				hide(list.getCurrent());
-			else if(!BBIni.debugging())
-				new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
+			else 
+				invalidSelection();
 		}
 	}
 	
@@ -53,16 +53,34 @@ public class HideActionHandler {
 		
 		Set<TextMapElement> itemSet = manager.getElementSelected(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
+		invalid = checkSelection(itemSet, start, end);
 		
+		if(!invalid){
+			itr = itemSet.iterator();
+			while (itr.hasNext()) {
+				TextMapElement tempElement= itr.next();	
+				hide(tempElement);
+			}			
+		}
+	}
+
+	/** Helper method for hideMultipleElemetns method to check whether selection is valid
+	 * @param itemSet : set containing elements in selection
+	 * @param start : start of selection
+	 * @param end : end of selection
+	 * @return true if valid selection, false if invalid
+	 */
+	private boolean checkSelection(Set<TextMapElement> itemSet, int start, int end){
+		boolean invalid = false;
 		ArrayList<TextMapElement> addToSet = new ArrayList<TextMapElement>();
+		Iterator<TextMapElement> itr = itemSet.iterator();
 		while(itr.hasNext()){
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
 				if(b == null || b.start > end || b.end < start){
 					invalid = true;
-					if(!BBIni.debugging())
-						new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
+					invalidSelection();
 					break;
 				}
 				else if(!itemSet.contains(b))
@@ -75,30 +93,29 @@ public class HideActionHandler {
 				itemSet.add(addToSet.get(i));
 		}
 		
-		if(!invalid){
-			itr = itemSet.iterator();
-			while (itr.hasNext()) {
-				TextMapElement tempElement= itr.next();	
-				hide(tempElement);
-			}			
-		}
+		return invalid;
 	}
-
+	
 	private void hide(TextMapElement t){
-		Message m= new Message(null);
+		Message m = new Message(null);
 		Element parent = getParent(t);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.indexOf(t), parent, true);
 		m.put("element", parent);
 		m.put("type", "action");
 		m.put("action", "skip");
-	
-		int textLength = (itemList.get(itemList.size() - 1).end + 1) - itemList.get(0).start;
-		int brailleLength = (itemList.get(itemList.size() - 1).brailleList.getLast().end + 1) - itemList.get(0).brailleList.getFirst().start;
-		text.replaceTextRange(itemList.get(0).start, textLength, "");
-		braille.replaceTextRange(itemList.get(0).brailleList.getFirst().start, brailleLength, "");
+		
+		int start = getStart(itemList.get(0));
+		int end = getEnd(itemList.get(itemList.size() - 1));
+		
+		int textLength = end - start;	
+		text.replaceTextRange(start, end - start, "");
+		
+		int brailleStart = getBrailleStart(itemList.get(0));
+		int brailleEnd = getBrailleEnd(itemList.get(itemList.size() - 1));
+		int brailleLength = brailleEnd - brailleStart;
+		braille.replaceTextRange(brailleStart, brailleLength, "");
 	
 		int index = list.indexOf(itemList.get(0));
-
 		for(int i = 0; i < itemList.size(); i++){
 			Message message = new Message(null);
 			message.put("element", parent);
@@ -109,8 +126,56 @@ public class HideActionHandler {
 		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
 	
 		manager.getDocument().applyAction(m);
-		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
+		if(index >= list.size())
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index - 1).start, false));
+		else
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
+		
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	}
+	
+	private int getStart(TextMapElement t){
+		int index = list.indexOf(t);
+		
+		if(index > 0 && list.get(index - 1).end != t.start)
+			return list.get(index - 1).end;
+		else {
+			if(t.start > 0)
+				return t.start - 1;
+			else
+				return t.start;
+		}
+	}
+	
+	private int getEnd(TextMapElement t){
+		int index = list.indexOf(t);
+		
+		if(index < (list.size() - 1) && list.get(index + 1).end  > t.start)
+			return list.get(index + 1).start - 1;
+		else	
+			return t.end;
+	}
+	
+	private int getBrailleStart(TextMapElement t){
+		int index = list.indexOf(t);
+		
+		if(index > 0 && list.get(index - 1).brailleList.getLast().end != t.brailleList.getFirst().start)
+			return list.get(index - 1).brailleList.getLast().end;
+		else{ 
+			if(t.start > 0)
+				return t.brailleList.getFirst().start - 1;
+			else
+				return  t.brailleList.getFirst().start;
+		}
+	}
+	
+	private int getBrailleEnd(TextMapElement t){
+		int index = list.indexOf(t);
+		
+		if(index < (list.size() - 1) && list.get(index + 1).brailleList.getLast().end  > t.brailleList.getFirst().start)
+			return list.get(index + 1).brailleList.getFirst().start - 1;
+		else	
+			return t.brailleList.getLast().end;
 	}
 	
 	private Element getParent(TextMapElement current) {
@@ -121,5 +186,10 @@ public class HideActionHandler {
 			parent = manager.getDocument().getParent(current.n, true);
 		
 		return parent;
+	}
+	
+	private void invalidSelection(){
+		if(!BBIni.debugging())
+			new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
 	}
 }

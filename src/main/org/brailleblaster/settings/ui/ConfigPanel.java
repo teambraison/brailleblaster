@@ -33,7 +33,7 @@ public class ConfigPanel {
 	
 	public ConfigPanel(final SettingsManager sm, final Manager m){
 		LocaleHandler lh = new LocaleHandler();
-		shell = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.CLOSE | SWT.TITLE | SWT.MIN);
+		shell = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.CLOSE | SWT.TITLE | SWT.MIN);
 		shell.setText(lh.localValue("settings"));
 		shell.setLayout(new FormLayout());
 		setPanelSize();
@@ -95,7 +95,7 @@ public class ConfigPanel {
 		Rectangle bounds = primary.getBounds();
 		int x = (bounds.width / 2) - ((bounds.width / 6) / 2);
 		int y = (bounds.height / 2) - ((bounds.height / 3) / 2);
-		shell.setSize(bounds.width / 6, bounds.height / 3);
+		shell.setSize(bounds.width / 3, (int) (bounds.height/1.5) );
 		shell.setLocation(x, y);
 	}
 	

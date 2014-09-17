@@ -303,13 +303,13 @@ public class PagePropertiesTab {
 					widthBox.setText(String.valueOf(p.mmWidth));
 					heightBox.setText(String.valueOf(p.mmHeight));
 					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.mmWidth)));
-					linesBox.setText(String.valueOf(calculateCellsPerLine(p.mmHeight )));
+					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.mmHeight )));
 				}
 				else {
 					widthBox.setText(String.valueOf(p.width));
 					heightBox.setText(String.valueOf(p.height));
 					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.width)));
-					linesBox.setText(String.valueOf(calculateCellsPerLine(p.height)));
+					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.height)));
 				}
 				
 				if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
@@ -326,7 +326,7 @@ public class PagePropertiesTab {
 						e.doit = false;
 						pageTypes.select(loc);
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(sm.getStandardSizes()[loc].width))));
-						linesBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(sm.getStandardSizes()[loc].height))));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(sm.getStandardSizes()[loc].height))));
 					}
 					else
 						e.doit = false;

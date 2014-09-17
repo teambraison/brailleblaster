@@ -69,6 +69,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -248,7 +249,6 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
-		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
 		String restorePath = docRestore();
@@ -273,7 +273,7 @@ public class Manager extends Controller {
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
-			
+	
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver
@@ -1289,77 +1289,8 @@ public class Manager extends Controller {
 	}
 	
 	public void hide(){
-		if(list.size() > 0 && text.view.getCharCount() > 0){
-			if(text.isMultiSelected()){
-				int start=text.getSelectedText()[0];
-				int end=text.getSelectedText()[1];
-				boolean invalid = false;
-				
-				Set<TextMapElement> itemSet = getElementSelected(start, end);		
-				Iterator<TextMapElement> itr = itemSet.iterator();
-				
-				ArrayList<TextMapElement> addToSet = new ArrayList<TextMapElement>();
-				while(itr.hasNext()){
-					TextMapElement tempElement= itr.next();
-					if(tempElement instanceof BrlOnlyMapElement){
-						BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-						if(b == null || b.start > end || b.end < start){
-							invalid = true;
-							if(!BBIni.debugging())
-								new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
-							break;
-						}
-						else if(!itemSet.contains(b))
-							addToSet.add(b);
-					}
-				}
-				
-				if(addToSet.size() > 0){
-					for(int i = 0; i < addToSet.size(); i++)
-						itemSet.add(addToSet.get(i));
-				}
-				
-				if(!invalid){
-					itr = itemSet.iterator();
-					while (itr.hasNext()) {
-						TextMapElement tempElement= itr.next();	
-						hide(tempElement);
-					}			
-				}
-			}
-			else {
-				hide(list.getCurrent());
-			}
-		}
-	}
-	
-	private void hide(TextMapElement t){
-		Message m= new Message(null);
-		Element parent = parentStyle(t, m);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.indexOf(t), parent, true);
-		m.put("element", parent);
-		m.put("type", "action");
-		m.put("action", "skip");
-	
-		int textLength = (itemList.get(itemList.size() - 1).end + 1) - itemList.get(0).start;
-		int brailleLength = (itemList.get(itemList.size() - 1).brailleList.getLast().end + 1) - itemList.get(0).brailleList.getFirst().start;
-		text.replaceTextRange(itemList.get(0).start, textLength, "");
-		braille.replaceTextRange(itemList.get(0).brailleList.getFirst().start, brailleLength, "");
-	
-		int index = list.indexOf(itemList.get(0));
-
-		for(int i = 0; i < itemList.size(); i++){
-			Message message = new Message(null);
-			message.put("element", parent);
-			treeView.removeItem(itemList.get(i), message);
-			list.remove(itemList.get(i));
-		}
-	
-		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
-	
-		document.applyAction(m);
-		dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
-		dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		HideActionHandler h = new HideActionHandler(this, list);
+		h.hideText();
 	}
 	
 	public void closeUntitledTab(){

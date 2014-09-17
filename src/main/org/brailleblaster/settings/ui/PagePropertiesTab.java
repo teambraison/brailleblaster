@@ -96,6 +96,7 @@ public class PagePropertiesTab {
 		
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
+		
 		linesBox.setText((String.valueOf(sm.calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
 		linesBox.setEditable(false);
 		

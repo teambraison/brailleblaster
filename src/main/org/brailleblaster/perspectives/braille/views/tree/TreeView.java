@@ -94,14 +94,16 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	}
 	
 	protected Text findPageNode(Element e){
-		if(e.getChild(1) instanceof Element && ((Element)e.getChild(1)).getLocalName().equals("brl")){
-			Element brlNode = (Element)e.getChild(1);
-			if(brlNode.getChild(0) instanceof Element && ((Element)brlNode.getChild(0)).getLocalName().equals("span")){
-				Element spanNode = (Element)brlNode.getChild(0);
-				if(spanNode.getChild(0) instanceof Text){
-					return (Text)spanNode.getChild(0);
-				}
-			}	
+		if(e.getChildCount() > 1){
+			if(e.getChild(1) instanceof Element && ((Element)e.getChild(1)).getLocalName().equals("brl")){
+				Element brlNode = (Element)e.getChild(1);
+				if(brlNode.getChild(0) instanceof Element && ((Element)brlNode.getChild(0)).getLocalName().equals("span")){
+					Element spanNode = (Element)brlNode.getChild(0);
+					if(spanNode.getChild(0) instanceof Text){
+						return (Text)spanNode.getChild(0);
+					}
+				}	
+			}
 		}
 		return null;
 	}

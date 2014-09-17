@@ -167,15 +167,7 @@ public class PageNumbersTab {
 			cpCombo.setText("No");
 		setGridData(cpCombo);
 		
-//		sizeGroup = new Group(group, 0);
-//		sizeGroup.setText(lh.localValue("pageSize"));
-//		sizeGroup.setLayout(new FillLayout(SWT.VERTICAL));
-		// setFormLayout(sizeGroup, 0, 100, 0, 60);
 		
-//		marginGroup = new Group(group, SWT.BORDER);
-//		marginGroup.setLayout(new GridLayout(2, true));
-//		marginGroup.setText(lh.localValue("margins"));
-//		setFormLayout(marginGroup, 0, 100, 60, 100);
 		addListeners();
 	}
 	
@@ -184,13 +176,56 @@ public class PageNumbersTab {
 		ppnCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-//				typeCombo.removeAll();
-//				computerCombo.removeAll();
 				int index = ppnCombo.getSelectionIndex();
-//				populateCombo(transCon[index].getTableList(), typeCombo);
-//				populateCombo(transCon[index].getCompBrailleList(), computerCombo);
-				settingsMap.put("numberBraillePages", ppnCombo.getText());
+				settingsMap.put("printPages", ppnCombo.getText().toLowerCase());
+			}
+		});
+		
+		bpnCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = bpnCombo.getSelectionIndex();
+				settingsMap.put("numberBraillePages", bpnCombo.getText().toLowerCase());
+			}
+		});
+		
+		cpCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = cpCombo.getSelectionIndex();
+				settingsMap.put("continuePages", cpCombo.getText().toLowerCase());
+			}
+		});
+		
+		intpCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = intpCombo.getSelectionIndex();
+				settingsMap.put("interpoint", intpCombo.getText().toLowerCase());
+			}
+		});
+		
+		ppnlocCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = ppnlocCombo.getSelectionIndex();
+				settingsMap.put("printPageNumberAt", ppnlocCombo.getText().toLowerCase());
+			}
+		});
+		
+		bpnlocCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = bpnlocCombo.getSelectionIndex();
+				settingsMap.put("braillePageNumberAt", bpnlocCombo.getText().toLowerCase());
+			}
+		});
+		
+		ppnRngCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = ppnRngCombo.getSelectionIndex();
+				settingsMap.put("printPageNumberRange", ppnRngCombo.getText().toLowerCase());
 			}
 		});
 	}

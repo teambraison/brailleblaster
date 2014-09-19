@@ -1031,7 +1031,6 @@ public class Manager extends Controller {
 		boolean cancel = false;
 		if (!BBIni.debugging() && documentHasBeenEdited()) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
-			saveDialogState = ync.result;
 			if (ync.result == SWT.YES) {
 				fileSave();
 			}

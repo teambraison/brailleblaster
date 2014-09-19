@@ -401,7 +401,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		}
 	}
 	
-	/** Redraws the views when a refresh ooccurs
+	/** Redraws the views when a refresh occurs
 	 * @param group : group in which to place styledtext widget
 	 * @param left : left position for layout
 	 * @param right : right position for layout
@@ -416,7 +416,7 @@ public abstract class WPView extends AbstractView implements BBView {
 		view.getParent().layout();
 	}
 	
-	/** Returns total chars in view during intialization
+	/** Returns total chars in view during initialization
 	 * Used when initializing views
 	 * @return
 	 */

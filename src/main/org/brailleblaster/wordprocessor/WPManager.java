@@ -142,7 +142,14 @@ public class WPManager {
 				while (managerList.size() > 0) {
 					Controller temp = managerList.removeFirst();
 					temp.close();
-				}
+					
+					// Don't allow application to close if user hits cancel.
+					if(temp.getSaveDlgState() == SWT.CANCEL) {
+						managerList.addFirst(temp);
+						event.doit = false;
+						return;
+					} // if()
+				} // while()
 
 				shell.dispose();
 				bbMenu.writeRecentsToFile();

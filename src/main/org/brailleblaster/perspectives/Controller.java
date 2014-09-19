@@ -30,10 +30,6 @@ public abstract class Controller implements DocumentManager{
 	protected FileUtils fu;
 	protected Archiver arch;
 	
-	// Can be SWT.YES/NO/CANCEL. Use in derived DocumentManager.close().
-	// close() should catch return value of a dialog asking user if changes should be saved.
-	protected int saveDialogState = -1; 
-	
 	public Controller(WPManager wp){
 		this.wp = wp;
 		fu = new FileUtils();
@@ -183,11 +179,5 @@ public abstract class Controller implements DocumentManager{
 			ext = fn.substring(dot + 1);
 		}
 		return ext;
-	}
-	
-	// After calling DocumentManager.close(), one should be able to call this and get 
-	// the return value of a save dialog.
-	public int getSaveDlgState() {
-		return saveDialogState;
 	}
 }

@@ -128,7 +128,7 @@ public class Manager extends Controller {
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
 		group = new Group(wp.getFolder(),SWT.NONE);
-		group.setLayout(new FormLayout());	
+		group.setLayout(new FormLayout());
 		sm = new StyleManager(this);
 		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
@@ -1031,6 +1031,7 @@ public class Manager extends Controller {
 		boolean cancel = false;
 		if (!BBIni.debugging() && documentHasBeenEdited()) {
 			YesNoChoice ync = new YesNoChoice(lh.localValue("hasChanged"), true);
+			saveDialogState = ync.result;
 			if (ync.result == SWT.YES) {
 				fileSave();
 			}

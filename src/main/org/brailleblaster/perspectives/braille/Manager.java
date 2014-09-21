@@ -950,11 +950,20 @@ public class Manager extends Controller {
 			parents.add(parent);
 		}
 		if(!invalid){
-			adjustStyle(itemList, message);
-		
 			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
+				adjustStyle(itemList, message);
 				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
 				bxh.createBoxline(parents, message, itemList);	
+			}
+			else {
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.removeMultiBoxline(itemList);
+				if(list.getCurrentIndex() > list.size())
+					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
+				else if(list.size() > 0)
+					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
+				
+				dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 			}
 		}
 	}

@@ -561,4 +561,9 @@ public class BookTree extends TreeView {
 			}
 		}
 	}
+
+	@Override
+	public void resetTreeItem(Element e) {
+		// TODO Auto-generated method stub
+	}
 }

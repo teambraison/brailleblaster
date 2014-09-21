@@ -154,7 +154,6 @@ public class XMLTree extends TreeView {
 					}
 				}
 				setListenerLock(false);
-
 				
 				if(tree.getItemCount() > 0){
 					Message cursorMessage = Message.createUpdateCursorsMessage(Sender.TREE);
@@ -660,5 +659,33 @@ public class XMLTree extends TreeView {
 	@Override
 	public void adjustItemStyle(TextMapElement t) {
 		// TODO Auto-generated method stub		
+	}
+
+	@Override
+	public void resetTreeItem(Element e) {
+		Message m = new Message(null);
+		searchTreeForElement(root, e, m);
+		
+		TreeItem item = (TreeItem)m.getValue("item");
+		int index = item.getParentItem().indexOf(item);
+		
+		TreeItem [] children = item.getItems();
+			
+		for(int i = 0; i < children.length; i++){
+			populateItemChildren(children[i], getTreeItemData(children[i]).element);
+			TreeItem newItem = new TreeItem(item.getParentItem(), SWT.NONE, index);
+			newItem.setData(children[i].getData());
+			newItem.setText(children[i].getText());
+			int childIndex = 0;
+			for(int j = 0; j < children[i].getItemCount(); j++){
+				TreeItem childItem = new TreeItem(newItem, SWT.NONE, childIndex);
+				childItem.setData(children[i].getItem(j).getData());
+				childItem.setText(children[i].getItem(j).getText());
+				childIndex++;
+			}
+			index++;
+		}
+		
+		item.dispose();
 	}
 }

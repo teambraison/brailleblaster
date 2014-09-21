@@ -242,11 +242,19 @@ public class XMLTree extends TreeView {
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));
 			
-				for(int j = 0; j < els.get(i).getChildCount(); j++){
-					if(els.get(i).getChild(j) instanceof Text){
-						textList.add((Text)els.get(i).getChild(j));
+				if(els.get(i).getLocalName().equals("pagenum")){
+					Text t = findPageNode(els.get(i));
+					if(t != null)
+						textList.add(t);
+				}
+				else {
+					for(int j = 0; j < els.get(i).getChildCount(); j++){
+						if(els.get(i).getChild(j) instanceof Text){
+							textList.add((Text)els.get(i).getChild(j));
+						}
 					}
 				}
+				
 				if(textList.size() > 0){
 					Message message = Message.createGetTextMapElementsMessage(textList, data.textMapList);
 					manager.dispatch(message);

@@ -622,6 +622,7 @@ public class BBDocument {
 	public SettingsManager getSettingsManager(){
 		return sm;
 	}
+	
 	public int getIndicatorLocation(){
 		return sm.getIndicatorLoc();
 	}

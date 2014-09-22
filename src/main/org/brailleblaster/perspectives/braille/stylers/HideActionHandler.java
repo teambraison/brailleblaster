@@ -39,8 +39,11 @@ public class HideActionHandler {
 		if(list.size() > 0 && text.view.getCharCount() > 0){
 			if(text.isMultiSelected())
 				hideMultipleElements();
-			else if(!(list.getCurrent() instanceof BrlOnlyMapElement))
+			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
+				int index = list.getCurrentIndex();
 				hide(list.getCurrent());
+				updateCurrentElement(index);
+			}
 			else 
 				invalidSelection();
 		}
@@ -54,14 +57,26 @@ public class HideActionHandler {
 		Set<TextMapElement> itemSet = manager.getElementSelected(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
 		invalid = checkSelection(itemSet, start, end);
-		
+		Integer index = null;
 		if(!invalid){
 			itr = itemSet.iterator();
 			while (itr.hasNext()) {
-				TextMapElement tempElement= itr.next();	
+				TextMapElement tempElement= itr.next();
+				if(index == null)
+					index = list.indexOf(tempElement);
 				hide(tempElement);
-			}			
+			}
+			updateCurrentElement(index);
 		}
+	}
+	
+	private void updateCurrentElement(int index){
+		if(index >= list.size())
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index - 1).start, false));
+		else
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
+		
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 
 	/** Helper method for hideMultipleElemetns method to check whether selection is valid
@@ -126,12 +141,6 @@ public class HideActionHandler {
 		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
 	
 		manager.getDocument().applyAction(m);
-		if(index >= list.size())
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index - 1).start, false));
-		else
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(index).start, false));
-		
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	private int getStart(TextMapElement t){

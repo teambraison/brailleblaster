@@ -133,7 +133,8 @@ public class HideActionHandler {
 		int index = list.indexOf(itemList.get(0));
 		for(int i = 0; i < itemList.size(); i++){
 			Message message = new Message(null);
-			message.put("element", parent);
+			//message.put("element", parent);
+			message.put("removeAll", true);
 			tree.removeItem(itemList.get(i), message);
 			list.remove(itemList.get(i));
 		}

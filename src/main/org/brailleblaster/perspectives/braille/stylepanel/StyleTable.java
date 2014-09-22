@@ -469,7 +469,7 @@ public class StyleTable {
     
     private void checkToggle(){
     	TextMapElement textElement = sm.getCurrentItem();
-    	if(textElement != null){
+    	if(textElement != null && t.getSelection().length > 0){
     		Element parent = getParent(textElement);
     	
     		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))

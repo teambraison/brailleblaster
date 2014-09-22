@@ -248,8 +248,17 @@ public class XMLTree extends TreeView {
 						textList.add(t);
 				}
 				else {
+					boolean isBoxline = (manager.getDocument().attributeExists(els.get(i), "semantics") && els.get(i).getAttributeValue("semantics").contains("boxline"));
+					
 					for(int j = 0; j < els.get(i).getChildCount(); j++){
-						if(els.get(i).getChild(j) instanceof Text){
+						if(isBoxline){
+							if(els.get(i) instanceof Element && ((Element)els.get(i).getChild(j)).getLocalName().equals("brl") && (j == 0 || j == els.get(i).getChildCount() - 1)) {
+								Text node = manager.getDocument().findBoxlineTextNode((Element)els.get(i).getChild(j));
+								if(node != null)
+									textList.add(node);
+							}
+						}
+						else if(!isBoxline && els.get(i).getChild(j) instanceof Text){
 							textList.add((Text)els.get(i).getChild(j));
 						}
 					}

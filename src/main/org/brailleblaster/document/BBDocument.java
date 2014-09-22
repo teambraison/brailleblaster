@@ -556,6 +556,15 @@ public class BBDocument {
 		return null;
 	}
 	
+	public Text findBoxlineTextNode(Element brl){
+		int count = brl.getChildCount();
+		for(int i = 0; i < count; i++){
+			if(brl.getChild(i) instanceof Text)
+				return (Text)brl.getChild(i);
+		}
+		return null;
+	}
+	
 	/**
 	 * @return the path to outfile in the temp folder containing the UTDML translation
 	 */

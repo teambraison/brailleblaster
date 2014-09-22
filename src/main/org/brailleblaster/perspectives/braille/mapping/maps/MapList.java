@@ -500,6 +500,11 @@ public class MapList extends LinkedList<TextMapElement>{
 		int pos = 0;
 		for(int i = 0; i < textList.size(); i++){
 			for(int j = pos; j < this.size(); j++){
+				if(get(j) instanceof BrlOnlyMapElement && textList.get(i).equals(dm.getDocument().findBoxlineTextNode((Element)get(j).n))){
+					itemList.add(this.get(j));
+					pos = j + 1;
+					break;
+				}
 				if(textList.get(i).equals(this.get(j).n)){
 					itemList.add(this.get(j));
 					pos = j + 1;

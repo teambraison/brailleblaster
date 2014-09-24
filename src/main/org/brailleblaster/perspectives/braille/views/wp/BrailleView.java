@@ -52,8 +52,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
-import org.eclipse.swt.custom.LineBackgroundEvent;
-import org.eclipse.swt.custom.LineBackgroundListener;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -69,14 +67,7 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.LineAttributes;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Listener;
-
 
 public class BrailleView extends WPView {
 	private final static int LEFT_MARGIN = 58;
@@ -96,8 +87,6 @@ public class BrailleView extends WPView {
 	private CaretListener caretListener;
 	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
-
-	private TextMapElement currentElement;
 
 	//Added this line to save previous indicator 
 	ArrayList <Bullet> indications; 
@@ -975,9 +964,7 @@ public class BrailleView extends WPView {
 				// Check to find bullet which are in indication array list
 				if (indications.contains(view.getLineBullet(i))) {
 					if (i%lineNumber!=0){
-						Bullet temp=view.getLineBullet(i);
 						view.setLineBullet(i, 1, null);
-				
 					}
 
 				}

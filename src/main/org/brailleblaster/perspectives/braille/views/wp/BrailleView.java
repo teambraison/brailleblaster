@@ -935,15 +935,15 @@ public class BrailleView extends WPView {
 	 * 
 	 */
 	public void addIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation()-1;
+		int lineNumber=manager.getDocument().getIndicatorLocation();
 		if (lineNumber<view.getLineCount()){
 			
 			if (flag==true)
 			{
-			   counter=lineNumber;
+			   counter=lineNumber - 1;
 			   flag=false;
 			}
-			while(counter<view.getLineCount()-1){
+			while(counter < view.getLineCount()){
 				if (view.getLineBullet(counter)==null){
 					StyleRange indicatorStyle = new StyleRange();
 					indicatorStyle.underline=true;

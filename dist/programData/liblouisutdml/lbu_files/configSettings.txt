@@ -1,0 +1,80 @@
+# This file contains all allowed config file settings.
+# Each row contains the action followed by its possible values.
+
+# Most options are limited to a range of values such as:
+# no|yes
+# bottom|top
+# utf8|utf16|utf32|ascii8
+# plain|html
+# no|yes|pre
+# textDevice|browser|utd|pef|transInXml|volumes|brf|volumesPef|volumesBrf|dsbible
+# italic|underline|bold|computer_braille|all|none
+# noContractions|compbrlAtCursor|dotsIO|comp8Dots|pass1Only|compbrlLeftCursor|otherTrans|ucBrl|doInit|htmlDoc|notUC|notSync|utdInput|convertOnly|louisDots
+# \r\n|\r|\n
+# \f
+# # - Number(int, float)
+# X - This is a header.
+# TXT - Input anything. Just a text field.
+
+outputFormat|X
+translation|X
+xml|X
+cellsPerLine|#
+linesPerPage|#
+interpoint|no|yes
+lineEnd|\r\n|\r|\n
+pageEnd|\f
+beginningPageNumber|#
+braillePages|no|yes
+paragraphs|no|yes
+fileEnd|#
+printPages|no|yes
+printPageNumberAt|bottom|top
+braillePageNumberAt|bottom|top
+hyphenate|no|yes
+outputEncoding|utf8|utf16|utf32|ascii8
+encoding|utf8|utf16|utf32|ascii8
+backFormat|plain|html
+backLineLength|#
+contractedTable|TXT
+literarytextTable|TXT
+editTable|TXT
+uncontractedTable|TXT
+compbrlTable|TXT
+mathtextTable|TXT
+mathexprTable|TXT
+topMargin|#
+xmlHeader|TXT
+entity|TXT
+internetAccess|no|yes
+semanticFiles|TXT
+newEntries|no|yes
+include|TXT
+formatFor|textDevice|browser|utd|pef|transInXml|volumes|brf|volumesPef|volumesBrf|dsbible
+inputTextEncoding|utf8|utf16|utf32|ascii8
+contents|no|yes
+linefill|TXT
+debug|no|yes
+leftMargin|#
+pass2convsem|TXT
+converterSem|TXT
+braillePageNumber|#
+mergeUnnumberedPages|no|yes
+pageNumberTopSeparateLine|no|yes
+pageNumberBottomSeparateLine|no|yes
+printPageNumberRange|no|yes
+pageSeparator|no|yes
+pageSeparatorNumber|no|yes
+ignoreEmptyPages|no|yes
+continuePages|no|yes
+emphasis|italic|underline|bold|computer_braille|all|none
+paperWidth|#
+paperHeight|#
+numberBraillePages|no|yes
+printPageNumbersInContents|no|yes
+braillePageNumbersInContents|no|yes
+rightMargin|#
+bottomMargin|#
+mode|TXT
+macro|TXT
+style|TXT

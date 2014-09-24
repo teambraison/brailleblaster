@@ -87,10 +87,12 @@ public class WPManager {
 		
 		// This little socket snippet will prevent multiple instances 
 		// of braille blaster to run.
+		
+		// Port number.
+		int PORT = 12345;
+		ServerSocket s = null;
 		try {
-			// Create server. Prevent another instance.
-			int PORT = 12345;
-			ServerSocket s = new ServerSocket(PORT, 10, InetAddress.getLocalHost());
+			s = new ServerSocket( PORT, 10, InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) );
 		}
 		catch (UnknownHostException e) { } // Local host shouldn't run into this.
 		catch (IOException e) {

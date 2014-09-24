@@ -51,11 +51,17 @@ import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.PropertyFileManager;
+import org.brailleblaster.util.SingleInstance;
 import org.brailleblaster.util.YesNoChoice;
 
 import java.util.LinkedList;
 
+import java.io.IOException;
 import java.lang.NullPointerException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +89,21 @@ public class WPManager {
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
+		
+		// This little socket snippet will prevent multiple instances 
+		// of braille blaster to run.
+		try {
+			// Create server. Prevent another instance.
+			int PORT = 12345;
+			ServerSocket s = new ServerSocket(PORT, 10, InetAddress.getLocalHost());
+		}
+		catch (UnknownHostException e) { } // Local host shouldn't run into this.
+		catch (IOException e) {
+			// Port is already being used... by another Braille Blaster!!!!
+			System.out.println("Only one instance of Braille Blaster can run at a time!");
+			System.exit(0);
+		}
+		
 		lh = new LocaleHandler();
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
@@ -154,7 +175,7 @@ public class WPManager {
 
 		new Welcome();
 		shell.open();
-
+		
 		while (!shell.isDisposed()) {
 			try {
 				if (!display.readAndDispatch()) {
@@ -177,7 +198,7 @@ public class WPManager {
 			}
 		}
 		display.dispose();
-
+		
 		if (lastPerspective != null)
 			savePerspectiveSetting();
 	}

@@ -96,7 +96,7 @@ public class PagePropertiesTab {
 		
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
-		linesBox.setText((String.valueOf(sm.calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
+		linesBox.setText((String.valueOf(calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
 		linesBox.setEditable(false);
 		
 		cellsPerLineLabel = new Label(pageGroup, 0);
@@ -179,7 +179,7 @@ public class PagePropertiesTab {
 					else {
 						settingsMap.put(type, getStringValue(t));
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 					}
 				}		
 			});
@@ -197,7 +197,7 @@ public class PagePropertiesTab {
 					else {
 						settingsMap.put(type, getStringValue(t));
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 					}
 				}		
 			});
@@ -302,13 +302,13 @@ public class PagePropertiesTab {
 					widthBox.setText(String.valueOf(p.mmWidth));
 					heightBox.setText(String.valueOf(p.mmHeight));
 					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.mmWidth)));
-					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.mmHeight )));
+					linesBox.setText(String.valueOf(calculateLinesPerPage(p.mmHeight )));
 				}
 				else {
 					widthBox.setText(String.valueOf(p.width));
 					heightBox.setText(String.valueOf(p.height));
 					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.width)));
-					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.height)));
+					linesBox.setText(String.valueOf(calculateLinesPerPage(p.height)));
 				}
 				
 				if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
@@ -325,7 +325,7 @@ public class PagePropertiesTab {
 						e.doit = false;
 						pageTypes.select(loc);
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(sm.getStandardSizes()[loc].width))));
-						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(sm.getStandardSizes()[loc].height))));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(sm.getStandardSizes()[loc].height))));
 					}
 					else
 						e.doit = false;
@@ -347,11 +347,11 @@ public class PagePropertiesTab {
 				
 					if(!sm.isMetric()){
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].width)));
-						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(sm.getStandardSizes()[i].height)));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].height)));
 					}
 					else {
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].mmWidth)));
-						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
+						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
 					}
 					
 					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
@@ -368,7 +368,7 @@ public class PagePropertiesTab {
 					pageTypes.select(pageTypes.getItemCount() - 1);
 			
 				cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-				linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+				linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 			}
 		}
 	}
@@ -423,7 +423,7 @@ public class PagePropertiesTab {
 		return (int)(pWidth / cellWidth);
 	}
 	
-	/**private int calculateLinesPerPage(double pHeight){
+	private int calculateLinesPerPage(double pHeight){
 		double cellHeight;
 		if(!sm.isMetric()) 
 			cellHeight = 0.393701;
@@ -437,7 +437,7 @@ public class PagePropertiesTab {
 			pHeight -= Double.valueOf(settingsMap.get("bottomMargin"));
 		
 		return (int)(pHeight / cellHeight);
-	}**/
+	}
 	
 	private boolean checkEqualWidth(Page p, double width){
 		if(sm.isMetric())

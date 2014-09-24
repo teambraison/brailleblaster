@@ -56,8 +56,10 @@ public class ConfigPanel {
 					sm.close();
 					m.refresh();
 				}
-				else
-					new Notify("Please check that all required translation settings fields are completed and page property values result in cells per line and lines per page values greater than zero");
+				else {
+					LocaleHandler lh = new LocaleHandler();
+					new Notify(lh.localValue("invalidSettings"));
+				}
 			}	
 		});
 		

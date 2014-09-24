@@ -51,13 +51,13 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(translationSettings.validate()){
+				if(translationSettings.validate() && pageProperties.validate()){
 					sm.saveConfiguration(settingsCopy);
 					sm.close();
 					m.refresh();
 				}
 				else
-					new Notify("Please check that all required translation settings fields are completed");
+					new Notify("Please check that all required translation settings fields are completed and page property values result in cells per line and lines per page values greater than zero");
 			}	
 		});
 		

@@ -102,7 +102,7 @@ public class SemanticFileHandler {
 			if(!file.equals(tempFile))
 				fu.copyFile(file, tempFile);
 			
-			return "semanticFiles " + defaultSemanticsFiles + "," + tempFile + "\n ";
+			return "semanticFiles \"" + defaultSemanticsFiles + "," + tempFile + "\"\n ";
 		}
 		else
 			return "";

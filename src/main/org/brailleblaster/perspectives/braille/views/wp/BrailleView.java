@@ -698,12 +698,8 @@ public class BrailleView extends WPView {
 		    //Add new one then Remove previous indicators 
 		
 			flag=true;
-			addIndicator();
 			removeIndicator();
-			
-	
-			
-
+			addIndicator();
 
 			if(style.contains(StylesType.format) && t.brailleList.size() > 0)
 				setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
@@ -918,10 +914,10 @@ public class BrailleView extends WPView {
 		total += spaceBeforeText+brailleSidebar.length();
 		spaceBeforeText = 0;
 	}
+	
 	/**
 	 * Add indicator at input line number
 	 * Indicator is a bullet and add all indicator at indication array list
-	 * 
 	 */
 	public void addIndicator(){
 		int lineNumber=manager.getDocument().getIndicatorLocation();
@@ -944,33 +940,24 @@ public class BrailleView extends WPView {
 					view.setLineBullet(counter, 1, null);
 					view.setLineBullet(counter, 1, bullet);
 					indications.add(bullet);
-				
 				}
 				counter=counter+lineNumber;
 			}
-	
 	   }
-		
 	}
+	
 	/**
 	 * Remove indicator at all lines except input given line
-	 *
 	 */
 	private void removeIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation()-1;
+		int lineNumber=view.getLineAtOffset(currentStart);
 		
-		if (lineNumber<view.getLineCount()){
-			for (int i = 0; i < view.getLineCount(); i++) {
-				// Check to find bullet which are in indication array list
-				if (indications.contains(view.getLineBullet(i))) {
-					if (i%lineNumber!=0){
-						view.setLineBullet(i, 1, null);
-					}
-
-				}
+		for (int i = lineNumber; i < view.getLineCount(); i++) {
+			// Check to find bullet which are in indication array list
+			if (indications.contains(view.getLineBullet(i))) {	
+				indications.remove(view.getLineBullet(i));
+				view.setLineBullet(i, 1, null);
 			}
 		}
-		
 	}
-	
 }

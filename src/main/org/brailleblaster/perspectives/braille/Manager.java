@@ -273,7 +273,6 @@ public class Manager extends Controller {
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
-	
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver
@@ -1012,8 +1011,14 @@ public class Manager extends Controller {
 	}	
 	
 	public void saveAs(){
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
-		String filePath = dialog.open();
+		String filePath;
+		
+		if(!BBIni.debugging()){
+			BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
+			filePath = dialog.open();
+		}
+		else
+			filePath = BBIni.getDebugSavePath();
 		
 		if(filePath != null){
 			checkForUpdatedViews();

@@ -192,7 +192,7 @@ public class SettingsManager {
 		HashMap<String, String>temp = new HashMap<String, String>();
 		
 		for(Entry<String, String>entry : outputMap.entrySet()){
-			if(isMetric && !entry.getKey().equals("linesPerPage") && !entry.getKey().equals("cellsPerLine"))
+			if(isMetric && numericEntry(entry.getKey()))
 				temp.put(entry.getKey(), String.valueOf(inchesToMM(Double.valueOf(entry.getValue()))));
 			else
 				temp.put(entry.getKey(), entry.getValue());
@@ -203,7 +203,7 @@ public class SettingsManager {
 	
 	private void resetMap(HashMap<String, String>newMap){
 		for(Entry<String, String>entry : newMap.entrySet()){
-			if(isMetric && !entry.getKey().equals("linesPerPage") && !entry.getKey().equals("cellsPerLine"))
+			if(isMetric && numericEntry(entry.getKey()))
 				outputMap.put(entry.getKey(), String.valueOf(mmToInches(Double.valueOf(entry.getValue()))));
 			else
 				outputMap.put(entry.getKey(), entry.getValue());
@@ -221,19 +221,33 @@ public class SettingsManager {
 		return Math.round((mm * multiplier) * 100.0) / 100.0;
 	}
 	
+	private boolean numericEntry(String key){
+		if(key.equals("topMargin"))
+			return true;
+		else if(key.equals("bottomMargin"))
+			return true;
+		else if(key.equals("rightMargin"))
+			return true;
+		else if(key.equals("leftMargin"))
+			return true;
+		else if(key.equals("paperWidth"))
+			return true;
+		else if(key.equals("paperHeight"))
+			return true;
+		
+		return false;
+	}
+	
 	public boolean isMetric(){
 		return isMetric;
 	}
+	
 	/***
 	 * Calculate numbers of lines per page
 	 * @return Number of line per page
 	 */
-	public  int calculateLinesPerPage(double pHeight){
-		double cellHeight;
-		if(!isMetric()) 
-			cellHeight = 0.393701;
-		else
-			cellHeight = 10;
+	private int calculateLinesPerPage(double pHeight){
+		double cellHeight = 0.393701;
 		
 		if(outputMap.containsKey("topMargin"))
 			pHeight -= Double.valueOf(outputMap.get("topMargin"));
@@ -243,6 +257,7 @@ public class SettingsManager {
 		
 		return (int)(pHeight / cellHeight);
 	}
+	
 	/**
 	 * Find indicator location
 	 */

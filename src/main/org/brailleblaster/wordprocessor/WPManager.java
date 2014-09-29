@@ -30,7 +30,21 @@
 
 package org.brailleblaster.wordprocessor;
 
-import org.eclipse.swt.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
+import java.util.LinkedList;
+
+import org.brailleblaster.BBIni;
+import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.perspectives.Controller;
+import org.brailleblaster.perspectives.Perspective;
+import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.settings.Welcome;
+import org.brailleblaster.util.PropertyFileManager;
+import org.brailleblaster.util.YesNoChoice;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Rectangle;
@@ -40,22 +54,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
-import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.Perspective;
-import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.settings.Welcome;
-import org.brailleblaster.util.PropertyFileManager;
-import org.brailleblaster.util.YesNoChoice;
-
-import java.util.LinkedList;
-
-import java.lang.NullPointerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +84,23 @@ public class WPManager {
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
+		
+		// This little socket snippet will prevent multiple instances 
+		// of braille blaster to run.
+		
+		// Port number.
+		int PORT = 12345;
+		ServerSocket s = null;
+		try {
+			s = new ServerSocket( PORT, 10, InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) );
+		}
+		catch (UnknownHostException e) { } // Local host shouldn't run into this.
+		catch (IOException e) {
+			// Port is already being used... by another Braille Blaster!!!!
+			System.out.println("Only one instance of Braille Blaster can run at a time!");
+			System.exit(0);
+		}
+		
 		lh = new LocaleHandler();
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
@@ -154,7 +172,7 @@ public class WPManager {
 
 		new Welcome();
 		shell.open();
-
+		
 		while (!shell.isDisposed()) {
 			try {
 				if (!display.readAndDispatch()) {
@@ -177,7 +195,7 @@ public class WPManager {
 			}
 		}
 		display.dispose();
-
+		
 		if (lastPerspective != null)
 			savePerspectiveSetting();
 	}

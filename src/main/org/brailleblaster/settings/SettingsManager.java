@@ -108,6 +108,7 @@ public class SettingsManager {
 	
 	private void setPageSettings(String line){
 		String [] tokens = line.trim().split(" ");
+
 		if(tokens[0].equals("paperWidth"))
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("paperHeight"))

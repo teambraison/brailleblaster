@@ -202,7 +202,7 @@ abstract public class Archiver {
 	//////////////////////////////////////////////////////////////////////////////////
 	// Starts/resumes the autosave feature. 
 	public void resumeAutoSave(BBDocument _doc, String _path) {
-		if(executor == null && _doc != null) {
+		if(executor == null && _doc != null && !BBIni.debugging()) {
 			archrun = new ArchRunner(_doc, _path);
 			archrun.shouldWeSave = true;
 			executor = Executors.newSingleThreadScheduledExecutor();

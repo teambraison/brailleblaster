@@ -82,7 +82,6 @@ public class WebViewMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();				
-				Controller temp = currentController;
 
 				if(count > 0){
 					currentController.vb.printPage();
@@ -104,7 +103,6 @@ public class WebViewMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int count = wp.getFolder().getItemCount();				
-				Controller temp = currentController;
 
 				if(count > 0)
 					currentController.close();

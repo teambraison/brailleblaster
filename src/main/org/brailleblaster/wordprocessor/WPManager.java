@@ -37,7 +37,6 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -66,7 +65,7 @@ public class WPManager {
 	 * entry point for the word processor, and therefore the only public class.
 	 */
 	private static Logger logger = LoggerFactory.getLogger(WPManager.class);
-	private LocaleHandler lh;
+
 	public static Display display;
 	private Shell shell;
 	private FormLayout layout;
@@ -101,7 +100,6 @@ public class WPManager {
 			System.exit(0);
 		}
 		
-		lh = new LocaleHandler();
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
 		display = new Display();

@@ -51,13 +51,15 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(translationSettings.validate()){
+				if(translationSettings.validate() && pageProperties.validate()){
 					sm.saveConfiguration(settingsCopy);
 					sm.close();
 					m.refresh();
 				}
-				else
-					new Notify("Please check that all required translation settings fields are completed");
+				else {
+					LocaleHandler lh = new LocaleHandler();
+					new Notify(lh.localValue("invalidSettings"));
+				}
 			}	
 		});
 		

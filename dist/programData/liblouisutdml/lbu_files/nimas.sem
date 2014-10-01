@@ -1,0 +1,132 @@
+# Semantic Action File
+# based on the dtbook-2005-2.dtd
+#
+# by Keith Creasy
+# Copyright 2013 American Printing House for the Blind
+#
+# Licensed under LGPL
+
+newentries no
+markhead head
+document book
+
+#xpath
+namespaces dsy=http://www.daisy.org/z3986/2005/dtbook/
+
+no &xpath(//dsy:li/dsy:p)
+no &xpath(//dsy:h1/dsy:p | //dsy:h2/dsy:p | //dsy:h3/dsy:p | //dsy:h4/dsy:p | //dsy:h5/dsy:p | //dsy:h6/dsy:p)
+
+#h3 should not be preceded by a blank line in the following instances...
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h1) >= 1]])
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h2) >= 1]])
+heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:sidebar) >= 1]])
+
+# Sidebar above another sidebar should have full boxline at bottom
+topBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) != 1])
+middleBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
+bottomBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) != 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
+
+# section elements
+# these are mostly here for debugging and reference
+no frontmatter
+no bodymatter
+no rearmatter
+no level1
+no level2
+no level3
+no level4
+no level5
+no level6
+no level
+
+# headings
+heading1 h1
+heading2 h2
+heading3 h3
+heading4 h4
+heading4 h5
+heading4 h6
+
+# These are generic headings. For now I've assigned them all heading4.
+heading4 hd
+heading4 bridgehead
+heading4 title
+heading4 author
+
+# General
+no note
+no div
+no span
+boxline sidebar
+skip doctitle
+skip docauthor
+para p
+stanza poem
+generic linegroup
+line line
+line byline
+line dateline
+trnote prodnote
+italicx dfn
+italicx kbd
+italicx em
+boldx strong
+compbrl code
+boldx cite
+generic address
+no abbr
+no acronym
+pagenum pagenum
+softreturn br
+
+# Quotations
+generic q
+quotation blockquote
+quotation epigraph
+caption caption
+
+#definition lists
+generic dl
+list dt
+para dd
+
+#lists
+generic list
+list li
+no lic
+
+
+# Tables
+table table
+no thead
+no tbody
+no tfoot
+list tr
+no th
+no td
+generic colgroup
+generic col
+
+# images
+skip img
+generic imggroup
+
+# Not sure what to do about these, subscript and superscript?
+generic vdo
+generic sub
+generic sup
+generic noteref
+generic annoref
+generic linenum
+
+
+# Some elements that may require no special action but placed here for debugging and documentation...
+generic a
+generic samp
+
+# sentence
+generic sent
+
+#word
+generic w
+

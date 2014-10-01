@@ -22,9 +22,9 @@ heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h2) >
 heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:sidebar) >= 1]])
 
 # Sidebar above another sidebar should have full boxline at bottom
-topBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) != 1])
-middleBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
-bottomBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) != 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
+topBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[1][name() = 'sidebar']) = 1])
+middleBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 1][count((following-sibling::*)[1][name() = 'sidebar']) = 1])
+bottomBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 1][count((following-sibling::*)[1][name() = 'sidebar']) = 0])
 
 # section elements
 # these are mostly here for debugging and reference

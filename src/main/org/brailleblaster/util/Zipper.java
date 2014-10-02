@@ -46,6 +46,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import org.brailleblaster.BBIni;
+import org.eclipse.swt.widgets.Display;
 
 public class Zipper {
 	
@@ -90,9 +91,16 @@ public class Zipper {
       		// Holds the current entry in zip file.
       		ZipEntry entry;
       		
+      		// Pop up a progress bar so we can see something is still working.
+      		ProgressDialog dlg = new ProgressDialog(Display.getDefault().getShells()[0]);
+    		dlg.open("Unzipping...");
+      		
       		// Loop through every entry, extract, then load the xml file.
       		while( entries.hasMoreElements() )
       		{
+      			// Move the progress bar.
+      			dlg.updateProgressBar();
+      			
       			// Point to the current entry.
       			entry = entries.nextElement();
       			
@@ -140,6 +148,9 @@ public class Zipper {
 				 out.close();
 				 
       		} // while(...
+    		
+    		// Close the progress dialog.
+    		dlg.close();
       		
       		// Close the zip file. We don't need it anymore.
       		zipF.close();

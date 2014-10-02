@@ -39,6 +39,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,6 +84,7 @@ import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.util.ProgressDialog;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
@@ -119,6 +123,9 @@ public class Manager extends Controller {
 	private boolean simBrailleDisplayed;
 	private MapList list;
 	SearchDialog srch = null;
+	
+	// Progress dialog.
+	ProgressDialog dlg = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -249,6 +256,7 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
+		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
 		String restorePath = docRestore();
@@ -262,22 +270,31 @@ public class Manager extends Controller {
 			restoreArchive = false;
 		
 		// Create archiver and massage document if necessary.
-		String config = ""; 
+		String config = "";
 		if(arch != null)
 			config = arch.getCurrentConfig();
 		
 		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
 		
+		dlg = new ProgressDialog(getDisplay().getShells()[0]);
+		dlg.open("Loading Document...");
+		
 		if(!config.equals(arch.getCurrentConfig()))
 			resetConfiguations();
+		
+		dlg.updateProgressBar();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
+		dlg.updateProgressBar();
+		
 		// Start the auto-saver
 		if(!BBIni.debugging())
 			arch.resumeAutoSave( document, arch.getWorkingFilePath() );
+		
+		dlg.close();
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
@@ -287,9 +304,9 @@ public class Manager extends Controller {
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
-				wp.getStatusBar().resetLocation(6,100,100);
-				wp.getStatusBar().setText("Loading...");
-				startProgressBar();
+//				wp.getStatusBar().resetLocation(6,100,100);
+//				wp.getStatusBar().setText("Loading...");
+				// startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
@@ -302,8 +319,8 @@ public class Manager extends Controller {
 				treeView.initializeListeners();
 				text.hasChanged = false;
 				braille.hasChanged = false;
-				wp.getStatusBar().resetLocation(0,100,100);
-				pb.stop();
+//				wp.getStatusBar().resetLocation(0,100,100);
+				// pb.stop();
 				wp.getStatusBar().setText("Words: " + text.words);
 				braille.setWords(text.words);
 				text.view.setWordWrap(true);

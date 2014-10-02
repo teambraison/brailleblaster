@@ -39,12 +39,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import nu.xom.Document;
 import nu.xom.Element;
@@ -73,21 +67,21 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
-import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
+import org.brailleblaster.search.SearchDialog;
 import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.ProgressDialog;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
+import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -99,6 +93,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class Manager extends Controller {
@@ -160,10 +156,8 @@ public class Manager extends Controller {
 			else {
 				arch = ArchiverFactory.getArchive( templateFile, false);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-				//list = vi.getList(this);
 				resetConfiguations();
 				initializeAllViews(docName, templateFile, null);
-				//formatTemplateDocument();
 				setTabTitle(docName);
 			}
 		}				
@@ -209,8 +203,6 @@ public class Manager extends Controller {
 		text.view.setWordWrap(true);
 		braille.view.setWordWrap(true);
 		group.setRedraw(true);
-		//if(list.size() == 0)
-		//	formatTemplateDocument();
 		
 		if(BBIni.getPlatformName().equals("cocoa"))
 			treeView.getTree().select(treeView.getRoot());
@@ -304,9 +296,6 @@ public class Manager extends Controller {
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
-//				wp.getStatusBar().resetLocation(6,100,100);
-//				wp.getStatusBar().setText("Loading...");
-				// startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
@@ -319,8 +308,6 @@ public class Manager extends Controller {
 				treeView.initializeListeners();
 				text.hasChanged = false;
 				braille.hasChanged = false;
-//				wp.getStatusBar().resetLocation(0,100,100);
-				// pb.stop();
 				wp.getStatusBar().setText("Words: " + text.words);
 				braille.setWords(text.words);
 				text.view.setWordWrap(true);
@@ -331,7 +318,6 @@ public class Manager extends Controller {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.error("The Document Base document tree is null, the file failed to parse properly");
-				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -1243,8 +1229,6 @@ public class Manager extends Controller {
 			
 			if(index != -1)
 				vi.resetViews(index);
-			//if(arch.getOrigDocPath() == null && list.size() == 0)
-			//	formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");

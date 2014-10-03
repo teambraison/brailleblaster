@@ -69,6 +69,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -248,7 +249,6 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
-		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
 		String restorePath = docRestore();
@@ -273,7 +273,6 @@ public class Manager extends Controller {
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
-			
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver
@@ -950,11 +949,20 @@ public class Manager extends Controller {
 			parents.add(parent);
 		}
 		if(!invalid){
-			adjustStyle(itemList, message);
-		
 			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
+				adjustStyle(itemList, message);
 				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
 				bxh.createBoxline(parents, message, itemList);	
+			}
+			else {
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.removeMultiBoxline(itemList);
+				if(list.getCurrentIndex() > list.size())
+					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
+				else if(list.size() > 0)
+					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
+				
+				dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 			}
 		}
 	}
@@ -1003,8 +1011,14 @@ public class Manager extends Controller {
 	}	
 	
 	public void saveAs(){
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
-		String filePath = dialog.open();
+		String filePath;
+		
+		if(!BBIni.debugging()){
+			BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
+			filePath = dialog.open();
+		}
+		else
+			filePath = BBIni.getDebugSavePath();
 		
 		if(filePath != null){
 			checkForUpdatedViews();
@@ -1286,6 +1300,11 @@ public class Manager extends Controller {
 				braille.updateCursorPosition(message);
 			}
 		}
+	}
+	
+	public void hide(){
+		HideActionHandler h = new HideActionHandler(this, list);
+		h.hideText();
 	}
 	
 	public void closeUntitledTab(){

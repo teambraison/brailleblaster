@@ -104,7 +104,8 @@ public class TextView extends WPView {
 	private PaintObjectListener paintObjListener;
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
-
+	private EditMenu menu;
+	
 	int startSelection;
 	int endSelection;
 
@@ -117,6 +118,7 @@ public class TextView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.manager = manager;
+		menu = new EditMenu(this, manager);
 		multiSelected=false;
 		readOnly = false;
 	}
@@ -157,7 +159,7 @@ public class TextView extends WPView {
 				currentChar = e.keyCode;
 
 				if(readOnly){
-					if((Character.isDigit(e.character) || Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
+					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
 						e.doit = false;
 				}
 				
@@ -1113,8 +1115,8 @@ public class TextView extends WPView {
 				sendDeleteSpaceMessage(view.getCaretOffset(), offset);
 			}
 			else if(oldCursorPosition == currentEnd && view.getCaretOffset() == nextStart){
-				if(textChanged)
-					sendUpdate();
+				if(textChanged) 	
+					sendUpdate();		
 				
 				setCurrent(view.getCaretOffset() + 1);
 				makeTextChange(offset);
@@ -1123,8 +1125,8 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset);
 			else if( (oldCursorPosition == currentEnd && nextStart == -1)|| (oldCursorPosition > currentEnd && (oldCursorPosition < nextStart || nextStart == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset);
-			else 
-				makeTextChange(offset);			
+			else
+				makeTextChange(offset);
 		}
 		else {
 			offset = -1;
@@ -1531,6 +1533,7 @@ public class TextView extends WPView {
 		end = (Integer)m.getValue("end");
 		int prev = (Integer)m.getValue("prev");
 		int next = (Integer)m.getValue("next");
+		view.setSelection(selectionStart);
 		if(!boxline){
 			for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 				switch(entry.getKey()){
@@ -1724,6 +1727,7 @@ public class TextView extends WPView {
 	@Override
 	public void resetView(Group group) {
 		setListenerLock(true);
+		menu.dispose();
 		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		total = 0;
 		spaceBeforeText = 0;
@@ -1830,7 +1834,7 @@ public class TextView extends WPView {
 	
 	private boolean validEdit(){
 		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionLength == 0)
+			if(selectionLength <= 0)
 				return false;
 			else if(selectionStart == currentStart && selectionLength == (currentEnd - currentStart))
 				return false;

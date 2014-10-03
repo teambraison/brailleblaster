@@ -20,8 +20,6 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.TreeItem;
 
 public class BoxlineHandler {
 	Manager manager;
@@ -54,7 +52,7 @@ public class BoxlineHandler {
 		if(wrapper != null){
 			Element boxline = document.translateElement((Element)wrapper.copy());
 			int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
-			createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+			int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 			
 			int treeIndex;
 			if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
@@ -64,12 +62,18 @@ public class BoxlineHandler {
 			
 			//remove items from tree
 			if(treeView.getClass().equals(XMLTree.class)){
-				for(int i = 0; i < itemList.size(); i++)
-					treeView.removeItem(itemList.get(i), new Message(null));
+				for(int i = 0; i < itemList.size(); i++){
+					Message treeMessage = new Message(null);
+					treeMessage.put("removeAll", true);
+					treeView.removeItem(itemList.get(i), treeMessage);
+				}
 			}
 			
+			ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+			treeItemData.add(list.get(startPos));
+			treeItemData.add(list.get(endPos));
 			//add aside or sidebar to tree
-			treeView.newTreeItem(list.get(startPos), treeIndex, 0);
+			treeView.newTreeItem(treeItemData, treeIndex, 0);
 			
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
@@ -159,6 +163,35 @@ public class BoxlineHandler {
 		removeBoxLineElement(boxline);
 	}
 	
+	/** Handles deleting a boxline when text selection occurs and one or more boxlines may be selected
+	 * @param itemList : ItemList containing textmapelements in selection collected via manager's getSelected method
+	 */
+	public void removeMultiBoxline(ArrayList<TextMapElement> itemList){
+		clearNonBrlElements(itemList);
+		
+		for(int i = 0,j = itemList.size(); i < itemList.size(); i++, j--){
+			BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(i));
+			if(!itemList.contains(b))
+				itemList.add(j, b);
+		}
+		
+		for(int i = 0, j = itemList.size() - 1; i < itemList.size() / 2 ;i++, j--){
+			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
+			boxline.add(itemList.get(i));
+			boxline.add(itemList.get(j));
+			removeBoxline(boxline.get(0).parentElement(), boxline);
+		}
+	}
+	
+	private void clearNonBrlElements(ArrayList<TextMapElement> itemList){
+		for(int i = 0; i < itemList.size(); i++){
+			if(!(itemList.get(i) instanceof BrlOnlyMapElement)){
+				itemList.remove(i);
+				i--;
+			}
+		}
+	}
+	
 	private void removeTopBoxline(BrlOnlyMapElement b){
 		int index = list.indexOf(b);
 		manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
@@ -190,28 +223,7 @@ public class BoxlineHandler {
 				index++;
 			}
 		}
-		
+		treeView.resetTreeItem(boxline);
 		boxline.getParent().removeChild(boxline);
-		if(treeView.getClass().equals(XMLTree.class))
-			resetTree();
-	}
-	
-	/** XMLTree needs to construct new structure after the portion of the DOM is re-built
-	 * TreeItems are re-positioned in the correct location.  Not necessry for the BookTree
-	 * since the boxline is not a headline element
-	 */
-	private void resetTree(){
-		TreeItem item = treeView.getTree().getSelection()[0];
-		int index = item.getParentItem().indexOf(item);
-		TreeItem [] children = item.getItems();
-		
-		for(int i = 0; i < children.length; i++){
-			TreeItem newItem = new TreeItem(item.getParentItem(), SWT.NONE, index);
-			newItem.setData(children[i].getData());
-			newItem.setText(children[i].getText());
-			index++;
-		}
-		
-		item.dispose();
 	}
 }

@@ -22,7 +22,7 @@ public class SettingsManager {
 	private static final String USER_SETTINGS = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "utdmlSettings.properties";
 			
 	private boolean isMetric;
-	private final Page [] standardPages = {new Page("Letter",8.5 ,11), new Page("Legal", 8.5, 14), new Page("A3", 11.69, 16.54),
+	private final Page [] standardPages = {new Page("Standard",11.5 ,11),new Page("Letter",8.5 ,11), new Page("Legal", 8.5, 14), new Page("A3", 11.69, 16.54),
 			new Page("A4",8.27,11.69), new Page("A5", 5.83, 8.27)};
 	
 	private ConfigPanel configPanel;
@@ -108,6 +108,7 @@ public class SettingsManager {
 	
 	private void setPageSettings(String line){
 		String [] tokens = line.trim().split(" ");
+
 		if(tokens[0].equals("paperWidth"))
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("paperHeight"))
@@ -205,7 +206,7 @@ public class SettingsManager {
 		HashMap<String, String>temp = new HashMap<String, String>();
 		
 		for(Entry<String, String>entry : outputMap.entrySet()){
-			if(isMetric && !entry.getKey().equals("linesPerPage") && !entry.getKey().equals("cellsPerLine"))
+			if(isMetric && numericEntry(entry.getKey()))
 				temp.put(entry.getKey(), String.valueOf(inchesToMM(Double.valueOf(entry.getValue()))));
 			else
 				temp.put(entry.getKey(), entry.getValue());
@@ -216,7 +217,7 @@ public class SettingsManager {
 	
 	private void resetMap(HashMap<String, String>newMap){
 		for(Entry<String, String>entry : newMap.entrySet()){
-			if(isMetric && !entry.getKey().equals("linesPerPage") && !entry.getKey().equals("cellsPerLine"))
+			if(isMetric && numericEntry(entry.getKey()))
 				outputMap.put(entry.getKey(), String.valueOf(mmToInches(Double.valueOf(entry.getValue()))));
 			else
 				outputMap.put(entry.getKey(), entry.getValue());
@@ -234,19 +235,33 @@ public class SettingsManager {
 		return Math.round((mm * multiplier) * 100.0) / 100.0;
 	}
 	
+	private boolean numericEntry(String key){
+		if(key.equals("topMargin"))
+			return true;
+		else if(key.equals("bottomMargin"))
+			return true;
+		else if(key.equals("rightMargin"))
+			return true;
+		else if(key.equals("leftMargin"))
+			return true;
+		else if(key.equals("paperWidth"))
+			return true;
+		else if(key.equals("paperHeight"))
+			return true;
+		
+		return false;
+	}
+	
 	public boolean isMetric(){
 		return isMetric;
 	}
+	
 	/***
 	 * Calculate numbers of lines per page
 	 * @return Number of line per page
 	 */
-	public  int calculateLinesPerPage(double pHeight){
-		double cellHeight;
-		if(!isMetric()) 
-			cellHeight = 0.393701;
-		else
-			cellHeight = 10;
+	private int calculateLinesPerPage(double pHeight){
+		double cellHeight = 0.393701;
 		
 		if(outputMap.containsKey("topMargin"))
 			pHeight -= Double.valueOf(outputMap.get("topMargin"));
@@ -256,6 +271,7 @@ public class SettingsManager {
 		
 		return (int)(pHeight / cellHeight);
 	}
+	
 	/**
 	 * Find indicator location
 	 */

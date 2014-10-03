@@ -24,7 +24,13 @@ public class EPubInitializer extends ViewInitializer{
 	protected void findSections(Manager m, Element e) {
 		int size = e.getChildCount();
 		for(int i = 0; i < size; i++){
-			if(e.getChild(i) instanceof Comment){
+			if(e.getAttribute("semantics") != null && e.getAttributeValue("semantics").contains("document") && i == 0){
+				sectionList.add(new SectionElement(m, e, e.indexOf(e.getChild(i))));
+	
+				if(sectionList.get(sectionList.size() - 1).getList().size() == 0)
+					sectionList.remove(sectionList.size() - 1);
+			}
+			else if(e.getChild(i) instanceof Comment){
 				Comment c = (Comment)e.getChild(i);
 				if(c.getValue().contains("BBBOOKMARK")){
 					sectionList.add(new SectionElement(m, e, e.indexOf(e.getChild(i + 1))));

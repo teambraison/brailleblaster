@@ -593,15 +593,15 @@ public class BrailleDocument extends BBDocument {
 		
 		if(SWT.BOLD == fontType){
 			e = checkParentFontStyle(e, "boldx");
-			createSemanticEntry(e, "boldx", new String []{"italicx", "underlinex"});
+			createSemanticEntry(e, "boldx");
 		}
 		else if(SWT.ITALIC == fontType){
 			e = checkParentFontStyle(e, "italicx");
-			createSemanticEntry(e, "italicx",  new String []{"boldx", "underlinex"});
+			createSemanticEntry(e, "italicx");
 		}
 		else if(SWT.UNDERLINE_SINGLE == fontType){
 			e =  checkParentFontStyle(e, "underlinex");
-			createSemanticEntry(e, "underlinex",  new String []{"italicx", "boldx"});
+			createSemanticEntry(e, "underlinex");
 		}
 	}
 	
@@ -630,7 +630,7 @@ public class BrailleDocument extends BBDocument {
 	 * @param fontStyle : style to ad
 	 * @param removalItems : items to remove from element style, part of an early implementation of emphasis
 	 */
-	private void createSemanticEntry(Element e, String fontStyle, String [] removalItems){
+	private void createSemanticEntry(Element e, String fontStyle){
 		String elementStyle = table.getKeyFromAttribute(e);
 		String type = table.getSemanticTypeFromAttribute(e);
 		Attribute attr = e.getAttribute("semantics");
@@ -652,12 +652,21 @@ public class BrailleDocument extends BBDocument {
 				attr.setValue("action," + elementStyle);
 			}
 			else {
-				elementStyle =  fontStyle + elementStyle.replace(removalItems[0], "").replace(removalItems[1], "");
+				//elementStyle =  fontStyle + elementStyle.replace(removalItems[0], "").replace(removalItems[1], "");
 				attr.setValue("style," + elementStyle);
 			}
 		}
 		
 		addSemanticEntry(e, elementStyle);
+	}
+	
+	public void applyAction(Message m){
+		Element e = (Element)m.getValue("element");
+		String type = (String)m.getValue("type");
+		String value = (String)m.getValue("action");
+		Attribute attr = e.getAttribute("semantics");
+		attr.setValue(type + "," + value);
+		addSemanticEntry(e, value);
 	}
 	
 	/** Writes entry to semantic action file for document

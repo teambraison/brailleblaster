@@ -52,8 +52,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
-import org.eclipse.swt.custom.LineBackgroundEvent;
-import org.eclipse.swt.custom.LineBackgroundListener;
 import org.eclipse.swt.custom.ST;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
@@ -69,14 +67,7 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.LineAttributes;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Listener;
-
 
 public class BrailleView extends WPView {
 	private final static int LEFT_MARGIN = 58;
@@ -96,8 +87,6 @@ public class BrailleView extends WPView {
 	private CaretListener caretListener;
 	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
-
-	private TextMapElement currentElement;
 
 	//Added this line to save previous indicator 
 	ArrayList <Bullet> indications; 
@@ -177,7 +166,6 @@ public class BrailleView extends WPView {
 		view.addCaretListener(caretListener = new CaretListener(){
 			@Override
 			public void caretMoved(CaretEvent e) {
-				System.out.println("caret " +view.getCaretOffset());
 				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){						
@@ -922,7 +910,6 @@ public class BrailleView extends WPView {
 		if(insert){
 		    view.insert("\n"+brailleSidebar);
 		    view.setCaretOffset(spaceBeforeText+brailleSidebar.length()+total);
-
 		}
 		else{
 			view.append("\n"+brailleSidebar);
@@ -930,7 +917,6 @@ public class BrailleView extends WPView {
 		b.setBrailleOffsets(spaceBeforeText+total, spaceBeforeText+total+brailleSidebar.length());
 		total += spaceBeforeText+brailleSidebar.length();
 		spaceBeforeText = 0;
-		
 	}
 	/**
 	 * Add indicator at input line number
@@ -938,15 +924,15 @@ public class BrailleView extends WPView {
 	 * 
 	 */
 	public void addIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation()-1;
+		int lineNumber=manager.getDocument().getIndicatorLocation();
 		if (lineNumber<view.getLineCount()){
 			
 			if (flag==true)
 			{
-			   counter=lineNumber;
+			   counter=lineNumber - 1;
 			   flag=false;
 			}
-			while(counter<view.getLineCount()-1){
+			while(counter < view.getLineCount()){
 				if (view.getLineBullet(counter)==null){
 					StyleRange indicatorStyle = new StyleRange();
 					indicatorStyle.underline=true;
@@ -978,9 +964,7 @@ public class BrailleView extends WPView {
 				// Check to find bullet which are in indication array list
 				if (indications.contains(view.getLineBullet(i))) {
 					if (i%lineNumber!=0){
-						Bullet temp=view.getLineBullet(i);
 						view.setLineBullet(i, 1, null);
-				
 					}
 
 				}

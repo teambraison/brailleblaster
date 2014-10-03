@@ -84,11 +84,11 @@ Section "BrailleBlaster" SecBBInstall
   ${IfNot} "$JVMHome" == ""
     ${If} "$JVMX64" == "64"
       ;MessageBox MB_OK "64-bit JVM detected"
-      File /r /x "README" "x64\*"
+      File /r /x "README" "x86_64\*"
       CreateShortCut "$INSTDIR\brailleblasterw.lnk" "$\"$JVMHome\bin\javaw.exe$\"" "-jar $\"$INSTDIR\brailleblaster.jar$\""
     ${Else}
       ;MessageBox MB_OK "32-bit JVM detected"
-      File /r /x "README" "x86\*"
+      File /r /x "README" "i686\*"
       CreateShortCut "$INSTDIR\brailleblasterw.lnk" "$\"$JVMHome\bin\javaw.exe$\"" "-jar $\"$INSTDIR\brailleblaster.jar$\""
     ${EndIf}
   ;${Else}

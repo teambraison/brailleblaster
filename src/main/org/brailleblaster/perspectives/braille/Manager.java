@@ -265,33 +265,32 @@ public class Manager extends Controller {
 		String config = "";
 		if(arch != null)
 			config = arch.getCurrentConfig();
-		
+
 		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
 		
 		dlg = new ProgressDialog(getDisplay().getShells()[0]);
-		dlg.open("Loading Document...");
+		dlg.open("Resetting Configurations...");
 		
 		if(!config.equals(arch.getCurrentConfig()))
 			resetConfiguations();
 		
 		dlg.updateProgressBar();
-		
+		dlg.close();
 		// Recent Files.
 		addRecentFileEntry(fileName);
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
-		
 		dlg.updateProgressBar();
 		
 		// Start the auto-saver
 		if(!BBIni.debugging())
 			arch.resumeAutoSave( document, arch.getWorkingFilePath() );
 		
-		dlg.close();
 	}	
 	
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
 			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
+				long tmr = System.currentTimeMillis();
 				checkSemanticsTable();
 				group.setRedraw(false);
 				text.view.setWordWrap(false);
@@ -314,6 +313,8 @@ public class Manager extends Controller {
 				braille.view.setWordWrap(true);
 				group.setRedraw(true);
 				checkAtributeEditor();
+				long initViewsTime = System.currentTimeMillis() - tmr;
+				System.out.println("init took - " + initViewsTime + "milliseconds.");
 			}
 			else {
 				System.out.println("The Document Base document tree is empty");

@@ -26,12 +26,17 @@
 	no acronym
 	pagenum pagenum
 	softreturn br
-	no note
+	# no note
 	no div
 	no sidebar
 	no html,lang
 	skip doctitle
 	skip docauthor
+	#xpath
+namespaces html=http://www.w3.org/1999/xhtml/
+
+no &xpath(//html:li/html:p)
+no &xpath(//html:h1/html:p | //html:h2/html:p | //html:h3/html:p | //html:h4/html:p | //html:h5/html:p | //html:h6/html:p)
 #newly added
 	skip title
 	skip video
@@ -63,9 +68,9 @@
 	heading1 h1
 	heading2 h2
 	heading3 h3
-	heading4 h4
-	heading4 h5
-	heading4 h6
+	heading3nb h4
+	heading3nb h5
+	heading3nb h6
 
 
 # Formatting	 
@@ -212,9 +217,9 @@
 
 #generic headings
 
-	heading4 hd
-	heading4 bridgehead
-	heading4 author
+	heading3nb hd
+	heading3nb bridgehead
+	para author
 
 #Pseudo-actions
 

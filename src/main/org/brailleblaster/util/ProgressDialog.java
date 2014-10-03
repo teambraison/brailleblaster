@@ -14,7 +14,7 @@ public class ProgressDialog extends Dialog {
 	Object result;
 	Shell parent = null;
     Shell shell = null;
-    ProgressBar pb = null;
+    public ProgressBar pb = null;
     Display pardisp = null;
 	int progressIndex = 0;
     long timer = System.currentTimeMillis();

@@ -34,6 +34,7 @@ public class NimasInitializer extends ViewInitializer{
 	
 	@Override
 	public void initializeViews(Manager m){
+		braille.resetIndicator();
 		findSections(m, document.getRootElement());
 	//	if(sectionList.size() == 0)
 	//		initializeViews(document.getRootElement());

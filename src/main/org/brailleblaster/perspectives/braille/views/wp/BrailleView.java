@@ -955,6 +955,7 @@ public class BrailleView extends WPView {
 //				System.out.println(counter + " - in while... " + view.getLineCount() + " - in while.");
 //			}
 //	   }
+		// Only do once.
 		int linesPerPage = manager.getDocument().getIndicatorLocation();
 		counter = linesPerPage - 1;
 		if(indications.isEmpty() == false)

@@ -915,35 +915,64 @@ public class BrailleView extends WPView {
 		spaceBeforeText = 0;
 	}
 	
+	
+	/**
+	 * Resets the braille page indicator. Helpful for when 
+	 * we're refreshing.
+	 */
+	public void resetIndicator() {
+		 flag = true;
+	}
+	
 	/**
 	 * Add indicator at input line number
 	 * Indicator is a bullet and add all indicator at indication array list
 	 */
 	public void addIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation();
-		if (lineNumber<view.getLineCount()){
+//		int lineNumber=manager.getDocument().getIndicatorLocation();
+//		if (lineNumber<view.getLineCount()){
+//			
+//			if (flag==true)
+//			{
+//			   counter=lineNumber - 1;
+//			   flag=false;
+//			}
+//			System.out.println(counter + " - out while... " + view.getLineCount() + " - out while.");
+//			while(counter < view.getLineCount()){
+//				if (view.getLineBullet(counter)==null){
+//					StyleRange indicatorStyle = new StyleRange();
+//					indicatorStyle.underline=true;
+//					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+//					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+//					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+//					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+//					bullet.text = "                                                 ";
+//					view.setLineBullet(counter, 1, null);
+//					view.setLineBullet(counter, 1, bullet);
+//					indications.add(bullet);
+//				}
+//				counter=counter+lineNumber;
+//				System.out.println(counter + " - in while... " + view.getLineCount() + " - in while.");
+//			}
+//	   }
+		int linesPerPage = manager.getDocument().getIndicatorLocation();
+		counter = linesPerPage - 1;
+		if(indications.isEmpty() == false)
+			indications.clear();
+		while( counter < view.getLineCount() ) {
+			StyleRange indicatorStyle = new StyleRange();
+			indicatorStyle.underline=true;
+			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+			indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+			bullet.text = "                                                 ";
+			view.setLineBullet(counter, 1, null);
+			view.setLineBullet(counter, 1, bullet);
+			indications.add(bullet);
 			
-			if (flag==true)
-			{
-			   counter=lineNumber - 1;
-			   flag=false;
-			}
-			while(counter < view.getLineCount()){
-				if (view.getLineBullet(counter)==null){
-					StyleRange indicatorStyle = new StyleRange();
-					indicatorStyle.underline=true;
-					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
-					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
-					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
-					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
-					bullet.text = "                                                 ";
-					view.setLineBullet(counter, 1, null);
-					view.setLineBullet(counter, 1, bullet);
-					indications.add(bullet);
-				}
-				counter=counter+lineNumber;
-			}
-	   }
+			counter = counter + linesPerPage;
+		} // while()
 	}
 	
 	/**

@@ -55,57 +55,27 @@ public class BoxlineHandler {
 		Element wrapper = document.wrapElement(parents, "boxline");
 		if(wrapper != null){
 			ArrayList<Element>sidebarList = findBoxlines(wrapper);
-			if(sidebarList.size() > 1){
+			if(sidebarList.size() > 1)
 				translateMultiple(sidebarList, wrapper, parents, itemList);
-			}
-			else {
-				Element boxline = document.translateElement((Element)wrapper.copy());
-				int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
-				int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+			else 
+				createBasicBoxline(wrapper, parents, m, itemList);
 			
-				int treeIndex;
-				if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
-					treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
-				else
-					treeIndex = 0;
-			
-				//remove items from tree
-				if(treeView.getClass().equals(XMLTree.class)){
-					for(int i = 0; i < itemList.size(); i++){
-						Message treeMessage = new Message(null);
-						treeMessage.put("removeAll", true);
-						treeView.removeItem(itemList.get(i), treeMessage);
-					}
-				}
-			
-				ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
-				treeItemData.add(list.get(startPos));
-				treeItemData.add(list.get(endPos));
-				//add aside or sidebar to tree
-				treeView.newTreeItem(treeItemData, treeIndex, 0);
-			
-				manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
-				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-			}
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 	}
 	
-	private void createTopBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
-		m.put("element", wrapper);
-		m.put("type", "style");
-		m.put("action", "topBox");
-		manager.getDocument().applyAction(m);
-		
+	private void createBasicBoxline(Element wrapper, ArrayList<Element>parents,  Message m, ArrayList<TextMapElement> itemList){
 		Element boxline = document.translateElement((Element)wrapper.copy());
 		int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
 		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
-		
+	
 		int treeIndex;
 		if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
 			treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
 		else
 			treeIndex = 0;
-		
+	
 		//remove items from tree
 		if(treeView.getClass().equals(XMLTree.class)){
 			for(int i = 0; i < itemList.size(); i++){
@@ -114,52 +84,15 @@ public class BoxlineHandler {
 				treeView.removeItem(itemList.get(i), treeMessage);
 			}
 		}
-		
+	
 		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
 		treeItemData.add(list.get(startPos));
 		treeItemData.add(list.get(endPos));
 		//add aside or sidebar to tree
 		treeView.newTreeItem(treeItemData, treeIndex, 0);
-		
-		//resetSidebar(wrapper, endPos);	
 	}
 	
-	private void createBottomBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
-		m.put("element", wrapper);
-		m.put("type", "style");
-		m.put("action", "bottomBox");
-		manager.getDocument().applyAction(m);
-		
-		Element boxline = document.translateElement((Element)wrapper.copy());
-		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, list.indexOf(itemList.get(itemList.size() - 1)), styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
-		
-		int treeIndex;
-		if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
-			treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
-		else
-			treeIndex = 0;
-		
-		//remove items from tree
-		if(treeView.getClass().equals(XMLTree.class)){
-			for(int i = 0; i < itemList.size(); i++){
-				Message treeMessage = new Message(null);
-				treeMessage.put("removeAll", true);
-				treeView.removeItem(itemList.get(i), treeMessage);
-			}
-		}
-		
-		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
-		treeItemData.add(list.get(endPos));
-		//add aside or sidebar to tree
-		treeView.newTreeItem(treeItemData, treeIndex, 0);
-	}
-	
-	private void createMiddleBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
-		m.put("element", wrapper);
-		m.put("type", "style");
-		m.put("action", "middleBox");
-		manager.getDocument().applyAction(m);
-		
+	private void createBottomBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){		
 		Element boxline = document.translateElement((Element)wrapper.copy());
 		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, list.indexOf(itemList.get(itemList.size() - 1)), styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 		
@@ -200,11 +133,11 @@ public class BoxlineHandler {
 		String style = getStyle(wrapper);
 		Message m = new Message(null);
 		if(style.equals("topBox"))
-			createTopBox(wrapper, m, itemList, parents);
+			createBasicBoxline(wrapper, parents, m, itemList);
 		else if(style.equals("bottomBox"))
 			createBottomBox(wrapper, m, itemList, parents);
 		else if(style.equals("middleBox"))
-			createMiddleBox(wrapper, m, itemList, parents);
+			createBottomBox(wrapper, m, itemList, parents);
 		
 		int index = elList.indexOf(wrapper);
 		elList.remove(index);
@@ -215,24 +148,16 @@ public class BoxlineHandler {
 	
 	private void resetSidebars(ArrayList<Element> elList, Element parent){
 		while(elList.size() > 0){
-			if(getStyle(parent.getChildElements().get(0)).equals("topBox")){
+			if(getStyle(parent.getChildElements().get(0)).equals("topBox"))
 				setTopBox(elList.get(0), parent.getChildElements().get(0));
-				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
-				parent.removeChild(0);
-				elList.remove(0);
-			}
-			else if(getStyle(parent.getChildElements().get(0)).equals("bottomBox")){
+			else if(getStyle(parent.getChildElements().get(0)).equals("bottomBox"))
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
-				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
-				parent.removeChild(0);
-				elList.remove(0);
-			}
-			else if(getStyle(parent.getChildElements().get(0)).equals("middleBox")){
+			else if(getStyle(parent.getChildElements().get(0)).equals("middleBox"))
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
-				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
-				parent.removeChild(0);
-				elList.remove(0);
-			}
+			
+			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
+			parent.removeChild(0);
+			elList.remove(0);
 		}
 	}
 	
@@ -256,7 +181,9 @@ public class BoxlineHandler {
 	private void setBottomBox(Element box, Element replacement){
 		if(box.getChild(0) instanceof Element && ((Element)box.getChild(0)).getLocalName().equals("brl")){
 			int index = list.findNodeIndex(box.getChild(0), 0);
-			removeTopBoxline((BrlOnlyMapElement)list.get(index));
+			BrlOnlyMapElement b = (BrlOnlyMapElement)list.get(index);
+			removeTopBoxline(b);
+			b.parentElement().removeChild(b.n);
 		}
 		
 		if(box.getChild(box.getChildCount() - 1) instanceof Element &&  ((Element)box.getChild(0)).getLocalName().equals("brl")){
@@ -301,6 +228,10 @@ public class BoxlineHandler {
 		t.setValue(replacement.getValue());
 		//text.replaceTextRange(list.get(index).start, list.get(index).end - list.get(index).start, t.getValue());
 		braille.replaceTextRange(list.get(index).brailleList.getFirst().start, list.get(index).brailleList.getLast().end - list.get(index).brailleList.getFirst().start, t.getValue());
+		
+		if(length > 0){
+			list.shiftOffsetsFromIndex(index + 1, length, length, 0);
+		}
 	}
 		
 	private ArrayList<Element> findBoxlines(Element e){

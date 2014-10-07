@@ -199,9 +199,8 @@ public class Normalizer {
 				endRemove=str.toLowerCase().indexOf("e");
 				String removedString=str.substring(startRemove, endRemove+1);
 				str=str.replace(removedString, "");
-				str.trim();
 							}
-			return str;
+			return str.trim();
 			
 		}
 }

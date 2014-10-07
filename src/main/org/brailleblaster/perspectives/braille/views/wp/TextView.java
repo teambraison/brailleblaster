@@ -159,7 +159,7 @@ public class TextView extends WPView {
 				currentChar = e.keyCode;
 
 				if(readOnly){
-					if((Character.isDigit(e.character) || Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
+					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
 						e.doit = false;
 				}
 				
@@ -1834,7 +1834,7 @@ public class TextView extends WPView {
 	
 	private boolean validEdit(){
 		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionLength == 0)
+			if(selectionLength <= 0)
 				return false;
 			else if(selectionStart == currentStart && selectionLength == (currentEnd - currentStart))
 				return false;

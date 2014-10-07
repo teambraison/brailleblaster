@@ -2,8 +2,12 @@ package org.brailleblaster.perspectives.braille.stylers;
 
 import java.util.ArrayList;
 
+import nu.xom.Attribute;
+import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.Node;
+import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
@@ -50,34 +54,276 @@ public class BoxlineHandler {
 	public void createBoxline(ArrayList<Element>parents, Message m, ArrayList<TextMapElement> itemList){		
 		Element wrapper = document.wrapElement(parents, "boxline");
 		if(wrapper != null){
-			Element boxline = document.translateElement((Element)wrapper.copy());
-			int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
-			int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
-			
-			int treeIndex;
-			if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
-				treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
-			else
-				treeIndex = 0;
-			
-			//remove items from tree
-			if(treeView.getClass().equals(XMLTree.class)){
-				for(int i = 0; i < itemList.size(); i++){
-					Message treeMessage = new Message(null);
-					treeMessage.put("removeAll", true);
-					treeView.removeItem(itemList.get(i), treeMessage);
-				}
+			ArrayList<Element>sidebarList = findBoxlines(wrapper);
+			if(sidebarList.size() > 1){
+				translateMultiple(sidebarList, wrapper, parents, itemList);
 			}
+			else {
+				Element boxline = document.translateElement((Element)wrapper.copy());
+				int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
+				int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
 			
-			ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
-			treeItemData.add(list.get(startPos));
-			treeItemData.add(list.get(endPos));
-			//add aside or sidebar to tree
-			treeView.newTreeItem(treeItemData, treeIndex, 0);
+				int treeIndex;
+				if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
+					treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
+				else
+					treeIndex = 0;
 			
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+				//remove items from tree
+				if(treeView.getClass().equals(XMLTree.class)){
+					for(int i = 0; i < itemList.size(); i++){
+						Message treeMessage = new Message(null);
+						treeMessage.put("removeAll", true);
+						treeView.removeItem(itemList.get(i), treeMessage);
+					}
+				}
+			
+				ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+				treeItemData.add(list.get(startPos));
+				treeItemData.add(list.get(endPos));
+				//add aside or sidebar to tree
+				treeView.newTreeItem(treeItemData, treeIndex, 0);
+			
+				manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(list.getCurrentIndex() + 1).start, false));
+				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			}
 		}
+	}
+	
+	private void createTopBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
+		m.put("element", wrapper);
+		m.put("type", "style");
+		m.put("action", "topBox");
+		manager.getDocument().applyAction(m);
+		
+		Element boxline = document.translateElement((Element)wrapper.copy());
+		int startPos = createTopBoxline(wrapper, m, itemList, boxline, styles.get(styles.getKeyFromAttribute(parents.get(0))));
+		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, startPos, styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+		
+		int treeIndex;
+		if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
+			treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
+		else
+			treeIndex = 0;
+		
+		//remove items from tree
+		if(treeView.getClass().equals(XMLTree.class)){
+			for(int i = 0; i < itemList.size(); i++){
+				Message treeMessage = new Message(null);
+				treeMessage.put("removeAll", true);
+				treeView.removeItem(itemList.get(i), treeMessage);
+			}
+		}
+		
+		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+		treeItemData.add(list.get(startPos));
+		treeItemData.add(list.get(endPos));
+		//add aside or sidebar to tree
+		treeView.newTreeItem(treeItemData, treeIndex, 0);
+		
+		//resetSidebar(wrapper, endPos);	
+	}
+	
+	private void createBottomBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
+		m.put("element", wrapper);
+		m.put("type", "style");
+		m.put("action", "bottomBox");
+		manager.getDocument().applyAction(m);
+		
+		Element boxline = document.translateElement((Element)wrapper.copy());
+		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, list.indexOf(itemList.get(itemList.size() - 1)), styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+		
+		int treeIndex;
+		if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
+			treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
+		else
+			treeIndex = 0;
+		
+		//remove items from tree
+		if(treeView.getClass().equals(XMLTree.class)){
+			for(int i = 0; i < itemList.size(); i++){
+				Message treeMessage = new Message(null);
+				treeMessage.put("removeAll", true);
+				treeView.removeItem(itemList.get(i), treeMessage);
+			}
+		}
+		
+		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+		treeItemData.add(list.get(endPos));
+		//add aside or sidebar to tree
+		treeView.newTreeItem(treeItemData, treeIndex, 0);
+	}
+	
+	private void createMiddleBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){
+		m.put("element", wrapper);
+		m.put("type", "style");
+		m.put("action", "middleBox");
+		manager.getDocument().applyAction(m);
+		
+		Element boxline = document.translateElement((Element)wrapper.copy());
+		int endPos = createBottomBoxline(wrapper, m, itemList, boxline, list.indexOf(itemList.get(itemList.size() - 1)), styles.get(styles.getKeyFromAttribute(parents.get(parents.size() - 1))));
+		
+		int treeIndex;
+		if(!treeView.getTree().getSelection()[0].equals(treeView.getRoot()))
+			treeIndex = treeView.getTree().getSelection()[0].getParentItem().indexOf(treeView.getTree().getSelection()[0]);
+		else
+			treeIndex = 0;
+		
+		//remove items from tree
+		if(treeView.getClass().equals(XMLTree.class)){
+			for(int i = 0; i < itemList.size(); i++){
+				Message treeMessage = new Message(null);
+				treeMessage.put("removeAll", true);
+				treeView.removeItem(itemList.get(i), treeMessage);
+			}
+		}
+		
+		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
+		treeItemData.add(list.get(endPos));
+		//add aside or sidebar to tree
+		treeView.newTreeItem(treeItemData, treeIndex, 0);
+	}
+		
+	private void translateMultiple(ArrayList<Element> elList, Element wrapper, ArrayList<Element>parents, ArrayList<TextMapElement> itemList){			
+		for(int i = 0; i < elList.size(); i++){
+			if(i == 0)
+				setStyle(elList.get(i), "topBox");
+			else if(i == elList.size() - 1)
+				setStyle(elList.get(i), "bottomBox");
+			else
+				setStyle(elList.get(i), "middleBox");
+		}
+			
+		Document doc = document.translateElements(elList);
+		Element parent = (Element)doc.getChild(0);
+		
+		String style = getStyle(wrapper);
+		Message m = new Message(null);
+		if(style.equals("topBox"))
+			createTopBox(wrapper, m, itemList, parents);
+		else if(style.equals("bottomBox"))
+			createBottomBox(wrapper, m, itemList, parents);
+		else if(style.equals("middleBox"))
+			createMiddleBox(wrapper, m, itemList, parents);
+		
+		int index = elList.indexOf(wrapper);
+		elList.remove(index);
+		parent.removeChild(index);
+		
+		resetSidebars(elList, parent);
+	}
+	
+	private void resetSidebars(ArrayList<Element> elList, Element parent){
+		while(elList.size() > 0){
+			if(getStyle(parent.getChildElements().get(0)).equals("topBox")){
+				setTopBox(elList.get(0), parent.getChildElements().get(0));
+				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
+				parent.removeChild(0);
+				elList.remove(0);
+			}
+			else if(getStyle(parent.getChildElements().get(0)).equals("bottomBox")){
+				setBottomBox(elList.get(0), parent.getChildElements().get(0));
+				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
+				parent.removeChild(0);
+				elList.remove(0);
+			}
+			else if(getStyle(parent.getChildElements().get(0)).equals("middleBox")){
+				setBottomBox(elList.get(0), parent.getChildElements().get(0));
+				setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
+				parent.removeChild(0);
+				elList.remove(0);
+			}
+		}
+	}
+	
+	private void setTopBox(Element box, Element replacement){
+		//set top
+		if(box.getChild(0) instanceof Element && ((Element)box.getChild(0)).getLocalName().equals("brl")){
+			replaceBoxLine((Element)box.getChild(0), (Element)replacement.getChild(0));
+		}
+		else if(box.getChild(0) instanceof Element && !((Element)box.getChild(0)).getLocalName().equals("brl")){
+			Text t = findText(box.getChild(0));
+			if(t != null)
+				insertBoxLine(list.findNodeIndex(t, 0), (Element)box.getChild(0), (Element)replacement.removeChild(0));
+		}
+		
+		//set bottom
+		if(box.getChild(box.getChildCount() - 1) instanceof Element &&  ((Element)box.getChild(0)).getLocalName().equals("brl")){
+			replaceBoxLine((Element)box.getChild(box.getChildCount() - 1), (Element)replacement.getChild(replacement.getChildCount() - 1));
+		}
+	}
+	
+	private void setBottomBox(Element box, Element replacement){
+		if(box.getChild(0) instanceof Element && ((Element)box.getChild(0)).getLocalName().equals("brl")){
+			int index = list.findNodeIndex(box.getChild(0), 0);
+			removeTopBoxline((BrlOnlyMapElement)list.get(index));
+		}
+		
+		if(box.getChild(box.getChildCount() - 1) instanceof Element &&  ((Element)box.getChild(0)).getLocalName().equals("brl")){
+			replaceBoxLine((Element)box.getChild(box.getChildCount() - 1), (Element)replacement.getChild(replacement.getChildCount() - 1));
+		}
+	}
+	
+	private void insertBoxLine(int index, Element box, Element brl){
+		String style = getStyle(list.get(index).parentElement());
+		Styles firstStyle = styles.get(style);
+		//inserted in DOM
+		box.insertChild(brl, 0);
+		
+		Message m = new Message(null);
+		//find start position
+		int start, brailleStart;
+		if(firstStyle.contains(StylesType.linesBefore)){
+			start = (Integer)m.getValue("prev");
+			brailleStart = (Integer)m.getValue("braillePrev");
+		}
+		else {
+			start = list.get(index).start;
+			brailleStart = list.get(index).brailleList.getFirst().start;
+		}
+		
+		BrlOnlyMapElement b1 =  new BrlOnlyMapElement(box.getChild(0), box);
+		b1.setOffsets(start, start + b1.textLength());
+		b1.setBrailleOffsets(brailleStart, brailleStart + b1.getText().length());
+		vi.addElementToSection(list, b1, index);
+		
+		//set text
+		text.insertText(start, list.get(index).getText() + "\n");
+		braille.insertText(brailleStart, list.get(index).brailleList.getFirst().value() + "\n");
+		list.shiftOffsetsFromIndex(index + 1, list.get(index).getText().length() + 1, list.get(index).brailleList.getFirst().value().length() + 1, list.get(index + 1).start);
+	}
+	
+	private void replaceBoxLine(Element brl, Element replacement){		
+		int index = list.findNodeIndex(brl, 0);
+		Text t = document.findBoxlineTextNode(brl);
+		Text newText = document.findBoxlineTextNode(replacement);
+		int length = t.getValue().length() - newText.getValue().length();
+		t.setValue(replacement.getValue());
+		//text.replaceTextRange(list.get(index).start, list.get(index).end - list.get(index).start, t.getValue());
+		braille.replaceTextRange(list.get(index).brailleList.getFirst().start, list.get(index).brailleList.getLast().end - list.get(index).brailleList.getFirst().start, t.getValue());
+	}
+		
+	private ArrayList<Element> findBoxlines(Element e){
+		ArrayList<Element> elList = new ArrayList<Element>();
+		Element parent = (Element)e.getParent();
+		int index = parent.indexOf(e);
+			
+		for(int i = index - 1; i >= 0; i--){
+			if(parent.getChild(i) instanceof Element && isBoxLine((Element)parent.getChild(i)))
+				elList.add((Element)parent.getChild(i));
+			else 
+				break;
+		}
+			
+		elList.add(e);
+			
+		for(int i = index + 1; i < parent.getChildCount(); i++){
+			if(parent.getChild(i) instanceof Element && isBoxLine((Element)parent.getChild(i)))
+				elList.add((Element)parent.getChild(i));
+			else 
+				break;
+		}
+		return elList; 
 	}
 	
 	/** Private helper method for createBoxLine, it handles specifics of the top boxline
@@ -122,7 +368,7 @@ public class BoxlineHandler {
 	 * @param m: The message passed containing offset info
 	 * @param itemList: the list containing the map elements to be enclosed in the boxline
 	 * @param boxline: The translation passed from createBoxline which contains the bottom boxline element
-	 * @param lastStyle: The style of the last element, used to determine where to place the boxline if a line after is suppposed to occur following the lst element
+	 * @param lastStyle: The style of the last element, used to determine where to place the boxline if a line after is supposed to occur following the lst element
 	 * @return: int of the index of the boxline
 	 */
 	private int createBottomBoxline(Element wrapper, Message m, ArrayList<TextMapElement>itemList, Element boxline, int startPos, Styles lastStyle){
@@ -225,5 +471,42 @@ public class BoxlineHandler {
 		}
 		treeView.resetTreeItem(boxline);
 		boxline.getParent().removeChild(boxline);
+	}
+	
+	private boolean isBoxLine(Element e){
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean checkSemanticsAttribute(Element e, String value){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr == null || !atr.getValue().contains(value))
+			return false;
+		
+		return true;
+	}
+	
+	private void setStyle(Element e, String style){
+		Message m = new Message(null);
+		m.put("element", e);
+		m.put("type", "style");
+		m.put("action", style);
+		manager.getDocument().applyAction(m);
+	}
+	
+	private Text findText(Node n){
+		if(n.getChild(0) instanceof Text)
+			return (Text)n.getChild(0);
+		else if(n instanceof Element)
+			return findText(n);
+		else 
+			return null;
+	}
+	
+	private String getStyle(Element box){
+		return box.getAttributeValue("semantics").split(",")[1];
 	}
 }

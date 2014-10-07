@@ -155,13 +155,7 @@ public class WPManager {
 			public void handleEvent(Event event) {
 				logger.info("Main Shell handling Close event, about to dispose the main Display");
 
-				while (managerList.size() > 0) {
-					Controller temp = managerList.removeFirst();
-					temp.close();
-				}
-
-				shell.dispose();
-				bbMenu.writeRecentsToFile();
+				event.doit = close();
 			}
 		});
 
@@ -198,6 +192,25 @@ public class WPManager {
 			savePerspectiveSetting();
 	}
 
+	// Call on close events. Returns true if the whole app should close.
+	public boolean close() {
+		int i = 0;
+		while(managerList.size() > 0 && i < managerList.size()){
+			int size = managerList.size();
+			Controller temp = managerList.get(i);
+			temp.close();		
+			if(size == managerList.size())
+				i++;
+		}
+		if(getList().size() == 0) {
+			shell.dispose();
+			bbMenu.writeRecentsToFile();
+			return true;
+		}
+			
+		return false;
+	}
+	
 	private void setShellScreenLocation(Display display, Shell shell) {
 		Monitor primary = display.getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();

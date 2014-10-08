@@ -4,10 +4,12 @@ import java.text.Collator;
 import java.util.Locale;
 import java.util.Set;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -328,10 +330,17 @@ public class StyleTable {
 	
 	public void setSelection(TextMapElement item){
 		Element parent = (Element)item.n.getParent();
-		while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
-			parent = (Element)parent.getParent();
+		String text;
+		if(item instanceof BrlOnlyMapElement && isBoxLine(item.parentElement())){
+			text = "boxline";
 		}
-		String text = sm.getSemanticsTable().getKeyFromAttribute(parent);
+		else {
+			while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
+				parent = (Element)parent.getParent();
+			}
+			text = sm.getSemanticsTable().getKeyFromAttribute(parent);
+		}
+		
 		setSelection(searchTree(text));
 	}
 	
@@ -473,7 +482,7 @@ public class StyleTable {
     	if(textElement != null && t.getSelection().length > 0){
     		Element parent = getParent(textElement);
     	
-    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))
+    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)) || (t.getSelection()[0].getText(1).equals("boxline") && isBoxLine(parent)))
     			toggleApplyButton(true);
     		else
     			toggleApplyButton(false);
@@ -497,4 +506,20 @@ public class StyleTable {
     		removeStyleSet = false;
     	}
     }
+    
+    private boolean isBoxLine(Element e){
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean checkSemanticsAttribute(Element e, String value){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr == null || !atr.getValue().contains(value))
+			return false;
+		
+		return true;
+	}
 }

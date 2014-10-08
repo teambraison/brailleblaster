@@ -77,13 +77,7 @@ public class BoxlineHandler {
 			treeIndex = 0;
 	
 		//remove items from tree
-		if(treeView.getClass().equals(XMLTree.class)){
-			for(int i = 0; i < itemList.size(); i++){
-				Message treeMessage = new Message(null);
-				treeMessage.put("removeAll", true);
-				treeView.removeItem(itemList.get(i), treeMessage);
-			}
-		}
+		removeTreeItems(itemList);
 	
 		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
 		treeItemData.add(list.get(startPos));
@@ -103,13 +97,7 @@ public class BoxlineHandler {
 			treeIndex = 0;
 		
 		//remove items from tree
-		if(treeView.getClass().equals(XMLTree.class)){
-			for(int i = 0; i < itemList.size(); i++){
-				Message treeMessage = new Message(null);
-				treeMessage.put("removeAll", true);
-				treeView.removeItem(itemList.get(i), treeMessage);
-			}
-		}
+		removeTreeItems(itemList);
 		
 		ArrayList<TextMapElement> treeItemData = new ArrayList<TextMapElement>();
 		treeItemData.add(list.get(endPos));
@@ -186,7 +174,7 @@ public class BoxlineHandler {
 			b.parentElement().removeChild(b.n);
 		}
 		
-		if(box.getChild(box.getChildCount() - 1) instanceof Element &&  ((Element)box.getChild(0)).getLocalName().equals("brl")){
+		if(box.getChild(box.getChildCount() - 1) instanceof Element &&  ((Element)box.getChild(box.getChildCount() - 1)).getLocalName().equals("brl")){
 			replaceBoxLine((Element)box.getChild(box.getChildCount() - 1), (Element)replacement.getChild(replacement.getChildCount() - 1));
 		}
 	}
@@ -229,9 +217,8 @@ public class BoxlineHandler {
 		//text.replaceTextRange(list.get(index).start, list.get(index).end - list.get(index).start, t.getValue());
 		braille.replaceTextRange(list.get(index).brailleList.getFirst().start, list.get(index).brailleList.getLast().end - list.get(index).brailleList.getFirst().start, t.getValue());
 		
-		if(length > 0){
+		if(length > 0)
 			list.shiftOffsetsFromIndex(index + 1, length, length, 0);
-		}
 	}
 		
 	private ArrayList<Element> findBoxlines(Element e){
@@ -241,7 +228,7 @@ public class BoxlineHandler {
 			
 		for(int i = index - 1; i >= 0; i--){
 			if(parent.getChild(i) instanceof Element && isBoxLine((Element)parent.getChild(i)))
-				elList.add((Element)parent.getChild(i));
+				elList.add(0, (Element)parent.getChild(i));
 			else 
 				break;
 		}
@@ -334,14 +321,14 @@ public class BoxlineHandler {
 	 * @param boxline : Element wrapping content and representing a boxline
 	 * @param itemList : List containing opening and closing boxline
 	 */
-	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){			
+	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
 		removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 		removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
 		removeBoxLineElement(boxline);
 	}
 	
 	/** Handles deleting a boxline when text selection occurs and one or more boxlines may be selected
-	 * @param itemList : ItemList containing textmapelements in selection collected via manager's getSelected method
+	 * @param itemList : ItemList containing text map elements in selection collected via manager's getSelected method
 	 */
 	public void removeMultiBoxline(ArrayList<TextMapElement> itemList){
 		clearNonBrlElements(itemList);
@@ -420,14 +407,6 @@ public class BoxlineHandler {
 		return true;
 	}
 	
-	private void setStyle(Element e, String style){
-		Message m = new Message(null);
-		m.put("element", e);
-		m.put("type", "style");
-		m.put("action", style);
-		manager.getDocument().applyAction(m);
-	}
-	
 	private Text findText(Node n){
 		if(n.getChild(0) instanceof Text)
 			return (Text)n.getChild(0);
@@ -435,6 +414,24 @@ public class BoxlineHandler {
 			return findText(n);
 		else 
 			return null;
+	}
+	
+	private void removeTreeItems(ArrayList<TextMapElement>itemList){
+		if(treeView.getClass().equals(XMLTree.class)){
+			for(int i = 0; i < itemList.size(); i++){
+				Message treeMessage = new Message(null);
+				treeMessage.put("removeAll", true);
+				treeView.removeItem(itemList.get(i), treeMessage);
+			}
+		}
+	}
+	
+	private void setStyle(Element e, String style){
+		Message m = new Message(null);
+		m.put("element", e);
+		m.put("type", "style");
+		m.put("action", style);
+		manager.getDocument().applyAction(m);
 	}
 	
 	private String getStyle(Element box){

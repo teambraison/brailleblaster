@@ -482,7 +482,7 @@ public class StyleTable {
     	if(textElement != null && t.getSelection().length > 0){
     		Element parent = getParent(textElement);
     	
-    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)) || (t.getSelection()[0].getText(1).equals("boxline") && isBoxLine(parent)))
+    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)) || (t.getSelection()[0].getData().equals("boxline") && isBoxLine(parent)))
     			toggleApplyButton(true);
     		else
     			toggleApplyButton(false);

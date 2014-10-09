@@ -905,10 +905,12 @@ public class Manager extends Controller {
 		}
 		else {
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-				itemList.add(0, box);
-			else
-				itemList.add(box);
+			if(box != null){
+				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
+					itemList.add(0, box);
+				else
+					itemList.add(box);
+			}
 			
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
 			bxh.removeBoxline(parent, itemList);
@@ -1145,9 +1147,8 @@ public class Manager extends Controller {
 				currentOffset = text.view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount()){
+				if(currentOffset < text.view.getCharCount())
 					text.view.setCaretOffset(currentOffset);
-				}
 				else
 					text.view.setCaretOffset(0);
 			

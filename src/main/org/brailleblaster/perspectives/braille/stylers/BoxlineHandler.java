@@ -142,6 +142,10 @@ public class BoxlineHandler {
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
 			else if(getStyle(parent.getChildElements().get(0)).equals("middleBox"))
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
+			else {
+				setTopBox(elList.get(0), parent.getChildElements().get(0));
+				//setBottomBox(elList.get(0), parent.getChildElements().get(0));
+			}
 			
 			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
 			parent.removeChild(0);
@@ -157,7 +161,7 @@ public class BoxlineHandler {
 		else if(box.getChild(0) instanceof Element && !((Element)box.getChild(0)).getLocalName().equals("brl")){
 			Text t = findText(box.getChild(0));
 			if(t != null)
-				insertBoxLine(list.findNodeIndex(t, 0), (Element)box.getChild(0), (Element)replacement.removeChild(0));
+				insertBoxLine(list.findNodeIndex(t, 0), (Element)box, (Element)replacement.removeChild(0));
 		}
 		
 		//set bottom
@@ -322,9 +326,73 @@ public class BoxlineHandler {
 	 * @param itemList : List containing opening and closing boxline
 	 */
 	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
-		removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
-		removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
-		removeBoxLineElement(boxline);
+		String style = getStyle(boxline);
+		ArrayList<Element>sidebarList = findBoxlines(boxline);
+		if(style.equals("boxline") || style.equals("topBox")){
+			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
+			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
+			removeBoxLineElement(boxline);
+		}
+		else if(style.equals("middleBox") || style.equals("bottomBox")){
+			removeBottomBoxline((BrlOnlyMapElement)itemList.get(0));
+			removeBoxLineElement(boxline);
+		}
+		
+		sidebarList.remove(boxline);
+		if(sidebarList.size() > 0){
+			Element parent = (Element) sidebarList.get(0).getParent();
+			parent = buildSegment(parent, parent.indexOf(sidebarList.get(0)), parent.indexOf(sidebarList.get(sidebarList.size() - 1)));
+			resetSidebars(sidebarList, parent);
+		}
+	}
+	
+	private Element buildSegment(Element parent, int start, int end){
+		ArrayList<Element>elList = new ArrayList<Element>();
+		for(int i = start; i <= end; i++){
+			if(parent.getChild(i) instanceof Element)
+				elList.add((Element)parent.getChild(i));
+		}
+		
+		for(int i = 0; i < elList.size(); i++){
+			if(i == 0 && isBoxLine(elList.get(i))){
+				if(i < elList.size() - 1){
+					if(isBoxLine(elList.get(i + 1)))
+						setStyle(elList.get(i), "topBox");
+					else
+						setStyle(elList.get(i), "boxline");
+				}
+				else
+					setStyle(elList.get(i), "boxline");
+			}
+			else if(i == elList.size() - 1 && isBoxLine(elList.get(i))){
+				if(i > 0 && isBoxLine(elList.get(i - 1)))
+					setStyle(elList.get(i), "bottomBox");
+				else
+					setStyle(elList.get(i), "boxline");
+			}
+			else {
+				if(isBoxLine(elList.get(i))){
+					if(isBoxLine(elList.get(i - 1)) && isBoxLine(elList.get(i + 1)))
+						setStyle(elList.get(i), "middleBox");
+					else if(isBoxLine(elList.get(i - 1)) && !isBoxLine(elList.get(i + 1)))
+						setStyle(elList.get(i), "bottomBox");
+					else if(!isBoxLine(elList.get(i - 1)) && isBoxLine(elList.get(i + 1)))
+						setStyle(elList.get(i), "topBox");
+					else
+						setStyle(elList.get(i), "boxline");
+				}
+			}
+		}
+		
+		Document doc = document.translateElements(elList);
+		Element root = (Element)doc.getChild(0);
+		Elements els = root.getChildElements();
+		for(int i = 0; i < els.size(); i++){
+			if(!isBoxLine(els.get(i)))
+				root.removeChild(els.get(i));
+		}
+		
+		return root;
 	}
 	
 	/** Handles deleting a boxline when text selection occurs and one or more boxlines may be selected

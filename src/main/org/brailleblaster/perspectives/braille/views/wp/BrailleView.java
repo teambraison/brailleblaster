@@ -119,12 +119,13 @@ public class BrailleView extends WPView {
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				currentChar = e.keyCode;
-				
+
 				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
 				if(manager.inBraillePageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1)
 					view.setCaretOffset(nextStart);
 				
 				oldCursorPosition = view.getCaretOffset();
+
 			}
 			
 		});

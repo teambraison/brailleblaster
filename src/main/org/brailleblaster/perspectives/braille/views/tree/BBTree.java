@@ -27,6 +27,7 @@ public interface BBTree extends BBView {
 	public Tree getTree();
 	public void split(Message m);
 	public void adjustItemStyle(TextMapElement t);
+	public void populateItem(Element e);
 	public void resetTreeItem(Element e);
 	public void dispose();
 }

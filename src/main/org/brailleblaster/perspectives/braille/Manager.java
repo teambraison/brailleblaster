@@ -913,7 +913,7 @@ public class Manager extends Controller {
 			}
 			
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.removeBoxline(parent, itemList);
+			bxh.removeSingleBoxline(parent, itemList);
 			
 			if(list.getCurrentIndex() > list.size())
 				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
@@ -939,7 +939,8 @@ public class Manager extends Controller {
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if(b == null || b.start > end || b.end < start){
+				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
+						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
 					if(!BBIni.debugging())
 						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");

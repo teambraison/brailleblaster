@@ -142,10 +142,8 @@ public class BoxlineHandler {
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
 			else if(getStyle(parent.getChildElements().get(0)).equals("middleBox"))
 				setBottomBox(elList.get(0), parent.getChildElements().get(0));
-			else {
+			else 
 				setTopBox(elList.get(0), parent.getChildElements().get(0));
-				//setBottomBox(elList.get(0), parent.getChildElements().get(0));
-			}
 			
 			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
 			parent.removeChild(0);
@@ -325,9 +323,20 @@ public class BoxlineHandler {
 	 * @param boxline : Element wrapping content and representing a boxline
 	 * @param itemList : List containing opening and closing boxline
 	 */
-	public void removeBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
-		String style = getStyle(boxline);
+	public void removeSingleBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
 		ArrayList<Element>sidebarList = findBoxlines(boxline);
+		removeBoxLine(boxline, itemList);
+		
+		sidebarList.remove(boxline);
+		if(sidebarList.size() > 0){
+			Element parent = (Element) sidebarList.get(0).getParent();
+			parent = buildSegment(parent, parent.indexOf(sidebarList.get(0)), parent.indexOf(sidebarList.get(sidebarList.size() - 1)));
+			resetSidebars(sidebarList, parent);
+		}
+	}
+	
+	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
+		String style = getStyle(boxline);
 		if(style.equals("boxline") || style.equals("topBox")){
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
@@ -336,13 +345,6 @@ public class BoxlineHandler {
 		else if(style.equals("middleBox") || style.equals("bottomBox")){
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBoxLineElement(boxline);
-		}
-		
-		sidebarList.remove(boxline);
-		if(sidebarList.size() > 0){
-			Element parent = (Element) sidebarList.get(0).getParent();
-			parent = buildSegment(parent, parent.indexOf(sidebarList.get(0)), parent.indexOf(sidebarList.get(sidebarList.size() - 1)));
-			resetSidebars(sidebarList, parent);
 		}
 	}
 	
@@ -401,18 +403,49 @@ public class BoxlineHandler {
 	public void removeMultiBoxline(ArrayList<TextMapElement> itemList){
 		clearNonBrlElements(itemList);
 		
+		int start = itemList.get(0).parentElement().getParent().indexOf(itemList.get(0).parentElement());
+		int end = itemList.get(itemList.size() - 1).parentElement().getParent().indexOf(itemList.get(itemList.size() - 1).parentElement());
+		Element parent = (Element) itemList.get(0).parentElement().getParent();
+		
 		for(int i = 0,j = itemList.size(); i < itemList.size(); i++, j--){
 			BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(i));
-			if(!itemList.contains(b))
+			if(!itemList.contains(b) && b != null){
 				itemList.add(j, b);
+				if(b.parentElement().getParent().indexOf(b.parentElement()) > end && b.parentElement().getParent().equals(parent))
+					end = b.parentElement().getParent().indexOf(b.parentElement()); 
+			}
 		}
 		
-		for(int i = 0, j = itemList.size() - 1; i < itemList.size() / 2 ;i++, j--){
+		for(int i = 0, j = itemList.size() - 1; itemList.size() > 0; j = itemList.size() - 1){
 			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
-			boxline.add(itemList.get(i));
-			boxline.add(itemList.get(j));
-			removeBoxline(boxline.get(0).parentElement(), boxline);
+			if(getStyle(itemList.get(i).parentElement()).equals("boxline") || getStyle(itemList.get(i).parentElement()).equals("topBox")){
+				int index = getMatchingParent(itemList, i);
+				boxline.add(itemList.get(i));
+				boxline.add(itemList.get(index));
+				itemList.remove(i);
+				itemList.remove(index - 1);
+			}
+			else if(getStyle(itemList.get(i).parentElement()).equals("middleBox") || getStyle(itemList.get(i).parentElement()).equals("bottomBox")){
+				boxline.add(itemList.get(i));
+				itemList.remove(i);
+			}
+			treeView.populateItem(boxline.get(0).parentElement());
+			removeBoxLine(boxline.get(0).parentElement(), boxline);
 		}
+		
+		if(start > 0 && parent.getChild(start - 1) instanceof Element && isBoxLine((Element)parent.getChild(start - 1)))
+			start--;
+		if(end < parent.getChildCount() - 1 && parent.getChild(end + 1) instanceof Element && isBoxLine((Element)parent.getChild(end + 1)))
+			end++;
+		
+		ArrayList<Element>elList = new ArrayList<Element>();
+		for(int i = start; i <= end; i++){
+			if(parent.getChild(i) instanceof Element && isBoxLine((Element)parent.getChild(i)))
+				elList.add((Element)parent.getChild(i));
+		}
+		
+		Element newDoc = buildSegment(parent, start, end);
+		resetSidebars(elList, newDoc);
 	}
 	
 	private void clearNonBrlElements(ArrayList<TextMapElement> itemList){
@@ -504,5 +537,14 @@ public class BoxlineHandler {
 	
 	private String getStyle(Element box){
 		return box.getAttributeValue("semantics").split(",")[1];
+	}
+	
+	private int getMatchingParent(ArrayList<TextMapElement>elList, int index){
+		Element parent = elList.get(index).parentElement();
+		for(int i = 0; i < elList.size(); i++)
+			if(i != index && elList.get(i).parentElement().equals(parent))
+				return i;
+		
+		return -1;
 	}
 }

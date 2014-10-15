@@ -69,7 +69,6 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
-import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -88,12 +87,14 @@ import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
@@ -119,6 +120,8 @@ public class Manager extends Controller {
 	private boolean simBrailleDisplayed;
 	private MapList list;
 	SearchDialog srch = null;
+	SashForm sashForm = null;
+	Group grp2 = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -128,13 +131,18 @@ public class Manager extends Controller {
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
-		group = new Group(wp.getFolder(),SWT.NONE);
+		sashForm = new SashForm(wp.getFolder(), SWT.HORIZONTAL);
+		group = new Group(sashForm, SWT.NONE);
+		grp2 = new Group(sashForm, SWT.NONE);
 		group.setLayout(new FormLayout());
+		grp2.setLayout(new FormLayout());
 		sm = new StyleManager(this);
+		
 		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
-		braille = new BrailleView(this, group, styles);
-		item.setControl(this.group);
+		braille = new BrailleView(this, grp2, styles);
+		
+		item.setControl(sashForm);
 		initializeDocumentTab();
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
@@ -174,7 +182,7 @@ public class Manager extends Controller {
 		documentName = arch.getOrigDocPath();
 		this.item = item;
 		group = new Group(wp.getFolder(),SWT.NONE);
-		group.setLayout(new FormLayout());	
+//		group.setLayout(new FormLayout());	
 		sm = new StyleManager(this);
 		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
@@ -222,7 +230,8 @@ public class Manager extends Controller {
 		else 
 			tabList = new Control[]{treeView.getTree(), text.view, braille.view};
 		
-		group.setTabList(tabList);
+		// TODO: Add this back!!!!!! It caused an exception to be thrown when adding the sash.
+//		group.setTabList(tabList);
 	}
 	
 	///////////////////////////////////////////////////////////////
@@ -249,6 +258,7 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
+		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
 		String restorePath = docRestore();
@@ -273,6 +283,7 @@ public class Manager extends Controller {
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
+			
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver
@@ -289,7 +300,7 @@ public class Manager extends Controller {
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
-				startProgressBar();
+				// startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
@@ -303,7 +314,7 @@ public class Manager extends Controller {
 				text.hasChanged = false;
 				braille.hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
-				pb.stop();
+				// pb.stop();
 				wp.getStatusBar().setText("Words: " + text.words);
 				braille.setWords(text.words);
 				text.view.setWordWrap(true);
@@ -1011,14 +1022,8 @@ public class Manager extends Controller {
 	}	
 	
 	public void saveAs(){
-		String filePath;
-		
-		if(!BBIni.debugging()){
-			BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
-			filePath = dialog.open();
-		}
-		else
-			filePath = BBIni.getDebugSavePath();
+		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
+		String filePath = dialog.open();
 		
 		if(filePath != null){
 			checkForUpdatedViews();
@@ -1300,11 +1305,6 @@ public class Manager extends Controller {
 				braille.updateCursorPosition(message);
 			}
 		}
-	}
-	
-	public void hide(){
-		HideActionHandler h = new HideActionHandler(this, list);
-		h.hideText();
 	}
 	
 	public void closeUntitledTab(){

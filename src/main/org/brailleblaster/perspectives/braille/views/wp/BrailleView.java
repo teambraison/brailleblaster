@@ -78,7 +78,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 
 public class BrailleView extends WPView {
-	private final static int LEFT_MARGIN = 58;
+	private final static int LEFT_MARGIN = 0;
 	private final static int RIGHT_MARGIN = 100;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;

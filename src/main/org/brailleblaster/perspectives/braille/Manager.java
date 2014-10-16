@@ -69,6 +69,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -1305,6 +1306,11 @@ public class Manager extends Controller {
 				braille.updateCursorPosition(message);
 			}
 		}
+	}
+	
+	public void hide(){
+		HideActionHandler h = new HideActionHandler(this, list);
+		h.hideText();
 	}
 	
 	public void closeUntitledTab(){

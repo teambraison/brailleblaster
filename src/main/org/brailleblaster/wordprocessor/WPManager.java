@@ -84,22 +84,6 @@ public class WPManager {
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
 		
-		// This little socket snippet will prevent multiple instances 
-		// of braille blaster to run.
-		
-		// Port number.
-		int PORT = 12345;
-		ServerSocket s = null;
-		try {
-			s = new ServerSocket( PORT, 10, InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) );
-		}
-		catch (UnknownHostException e) { } // Local host shouldn't run into this.
-		catch (IOException e) {
-			// Port is already being used... by another Braille Blaster!!!!
-			System.out.println("Only one instance of Braille Blaster can run at a time!");
-			System.exit(0);
-		}
-		
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
 		display = new Display();

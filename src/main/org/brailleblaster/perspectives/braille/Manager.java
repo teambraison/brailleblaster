@@ -297,6 +297,7 @@ public class Manager extends Controller {
 			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
 				checkSemanticsTable();
 				group.setRedraw(false);
+				grp2.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
@@ -321,6 +322,7 @@ public class Manager extends Controller {
 				text.view.setWordWrap(true);
 				braille.view.setWordWrap(true);
 				group.setRedraw(true);
+				grp2.setRedraw(true);
 				checkAtributeEditor();
 			}
 			else {
@@ -843,6 +845,7 @@ public class Manager extends Controller {
 	private void handleUpdateStyle(Message message) {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			group.setRedraw(false);
+			grp2.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
 				if(message.getValue("multiSelect").equals(false)) 
 					handleSingleBoxLine(message);
@@ -856,6 +859,7 @@ public class Manager extends Controller {
 					handleStyleMultiSelected(message);
 			}
 			group.setRedraw(true);
+			grp2.setRedraw(true);
 		}
 		else
 			new Notify(lh.localValue("nothingToApply"));
@@ -1206,7 +1210,7 @@ public class Manager extends Controller {
 			text.removeListeners();
 			text.resetView(group);
 			braille.removeListeners();
-			braille.resetView(group);
+			braille.resetView(grp2);
 			treeView.removeListeners();
 			treeView.resetView(group);
 			initializeDocumentTab();
@@ -1648,6 +1652,7 @@ public class Manager extends Controller {
 		text.update(false);
 		list.clearList();
 		group.dispose();
+		grp2.dispose();
 	}
 
 	@Override

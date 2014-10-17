@@ -1006,6 +1006,12 @@ public class BrailleView extends WPView {
 			view.setLineBullet(counter, 1, bullet);
 			indications.add(bullet);
 			
+//			StyleRange style1 = new StyleRange();
+//		    style1.start = view.getLineIndex(counter);
+//		    style1.length = manager.getBraille().;
+//		    style1.underline = true;
+//		    view.setStyleRange(style1);
+			
 			counter = counter + linesPerPage;
 		} // while()
 	}

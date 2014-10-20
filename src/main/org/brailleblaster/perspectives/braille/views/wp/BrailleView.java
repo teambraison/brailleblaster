@@ -119,12 +119,13 @@ public class BrailleView extends WPView {
 			@Override
 			public void verifyKey(VerifyEvent e) {
 				currentChar = e.keyCode;
-				
+
 				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
 				if(manager.inBraillePageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1)
 					view.setCaretOffset(nextStart);
 				
 				oldCursorPosition = view.getCaretOffset();
+
 			}
 			
 		});
@@ -698,12 +699,8 @@ public class BrailleView extends WPView {
 		    //Add new one then Remove previous indicators 
 		
 			flag=true;
-			addIndicator();
 			removeIndicator();
-			
-	
-			
-
+			addIndicator();
 
 			if(style.contains(StylesType.format) && t.brailleList.size() > 0)
 				setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
@@ -918,59 +915,80 @@ public class BrailleView extends WPView {
 		total += spaceBeforeText+brailleSidebar.length();
 		spaceBeforeText = 0;
 	}
+	
+	
+	/**
+	 * Resets the braille page indicator. Helpful for when 
+	 * we're refreshing.
+	 */
+	public void resetIndicator() {
+		 flag = true;
+	}
+	
 	/**
 	 * Add indicator at input line number
 	 * Indicator is a bullet and add all indicator at indication array list
-	 * 
 	 */
 	public void addIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation();
-		if (lineNumber<view.getLineCount()){
+//		int lineNumber=manager.getDocument().getIndicatorLocation();
+//		if (lineNumber<view.getLineCount()){
+//			
+//			if (flag==true)
+//			{
+//			   counter=lineNumber - 1;
+//			   flag=false;
+//			}
+//			System.out.println(counter + " - out while... " + view.getLineCount() + " - out while.");
+//			while(counter < view.getLineCount()){
+//				if (view.getLineBullet(counter)==null){
+//					StyleRange indicatorStyle = new StyleRange();
+//					indicatorStyle.underline=true;
+//					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+//					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+//					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+//					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+//					bullet.text = "                                                 ";
+//					view.setLineBullet(counter, 1, null);
+//					view.setLineBullet(counter, 1, bullet);
+//					indications.add(bullet);
+//				}
+//				counter=counter+lineNumber;
+//				System.out.println(counter + " - in while... " + view.getLineCount() + " - in while.");
+//			}
+//	   }
+		// Only do once.
+		int linesPerPage = manager.getDocument().getIndicatorLocation();
+		counter = linesPerPage - 1;
+		if(indications.isEmpty() == false)
+			indications.clear();
+		while( counter < view.getLineCount() ) {
+			StyleRange indicatorStyle = new StyleRange();
+			indicatorStyle.underline=true;
+			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+			indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+			bullet.text = "                                                 ";
+			view.setLineBullet(counter, 1, null);
+			view.setLineBullet(counter, 1, bullet);
+			indications.add(bullet);
 			
-			if (flag==true)
-			{
-			   counter=lineNumber - 1;
-			   flag=false;
-			}
-			while(counter < view.getLineCount()){
-				if (view.getLineBullet(counter)==null){
-					StyleRange indicatorStyle = new StyleRange();
-					indicatorStyle.underline=true;
-					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
-					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
-					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
-					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
-					bullet.text = "                                                 ";
-					view.setLineBullet(counter, 1, null);
-					view.setLineBullet(counter, 1, bullet);
-					indications.add(bullet);
-				
-				}
-				counter=counter+lineNumber;
-			}
-	
-	   }
-		
+			counter = counter + linesPerPage;
+		} // while()
 	}
+	
 	/**
 	 * Remove indicator at all lines except input given line
-	 *
 	 */
 	private void removeIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation()-1;
+		int lineNumber=view.getLineAtOffset(currentStart);
 		
-		if (lineNumber<view.getLineCount()){
-			for (int i = 0; i < view.getLineCount(); i++) {
-				// Check to find bullet which are in indication array list
-				if (indications.contains(view.getLineBullet(i))) {
-					if (i%lineNumber!=0){
-						view.setLineBullet(i, 1, null);
-					}
-
-				}
+		for (int i = lineNumber; i < view.getLineCount(); i++) {
+			// Check to find bullet which are in indication array list
+			if (indications.contains(view.getLineBullet(i))) {	
+				indications.remove(view.getLineBullet(i));
+				view.setLineBullet(i, 1, null);
 			}
 		}
-		
 	}
-	
 }

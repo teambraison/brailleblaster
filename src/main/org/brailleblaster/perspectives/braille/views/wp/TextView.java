@@ -80,7 +80,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
 public class TextView extends WPView {
-	private final static int LEFT_MARGIN = 20;
+	private final static int LEFT_MARGIN = 21;
 	private final static int RIGHT_MARGIN = 100;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 50;

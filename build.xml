@@ -47,6 +47,21 @@
         <description>Deletes class folder so that next build is clean.  Is not part of main build and is a seperate task</description>
         <delete dir="${builddir}"/>     
     </target>
+	
+	<!--***************-->
+	<!-- LAUNCH4J TASK -->
+	
+		<property name="launch4j.dir" location="C:\\APPS\\launch4j\\" />
+		
+		<taskdef name="launch4j"
+		classname="net.sf.launch4j.ant.Launch4jTask"
+		classpath="${launch4j.dir}/launch4j.jar
+			:${launch4j.dir}/lib/xstream.jar" />
+			
+		<launch4j configFile="C:\\Program Files\\brailleblaster\\bbl4j.xml" />
+	
+	<!-- LAUNCH4J TASK -->
+    <!--***************-->
     
 </project>
 

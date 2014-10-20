@@ -279,5 +279,4 @@ public class SettingsManager {
 	{
 		return calculateLinesPerPage(Double.valueOf(outputMap.get("paperHeight")));
 	}
-
 }

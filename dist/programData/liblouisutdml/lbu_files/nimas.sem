@@ -21,6 +21,10 @@ heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h1) >
 heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:h2) >= 1]])
 heading3nb &xpath(//dsy:h3[(preceding::text())[last()][count(ancestor::dsy:sidebar) >= 1]])
 
+# Sidebar above another sidebar should have full boxline at bottom
+#topBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) != 1])
+#middleBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
+#bottomBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) != 0][count((following-sibling::*)[0][name() = 'sidebar']) = 0])
 
 # section elements
 # these are mostly here for debugging and reference
@@ -39,18 +43,18 @@ no level
 heading1 h1
 heading2 h2
 heading3 h3
-heading4 h4
-heading4 h5
-heading4 h6
+heading3nb  h4
+heading3nb  h5
+heading3nb  h6
 
 # These are generic headings. For now I've assigned them all heading4.
-heading4 hd
-heading4 bridgehead
-heading4 title
-heading4 author
+heading3nb hd
+heading3nb bridgehead
+para title
+para author
 
 # General
-no note
+# no note
 no div
 no span
 boxline sidebar

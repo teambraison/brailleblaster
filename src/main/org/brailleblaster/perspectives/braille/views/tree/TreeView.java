@@ -3,6 +3,9 @@ package org.brailleblaster.perspectives.braille.views.tree;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
+import nu.xom.Element;
+import nu.xom.Text;
+
 import org.brailleblaster.BBIni;
 import org.brailleblaster.abstractClasses.AbstractView;
 import org.brailleblaster.perspectives.braille.Manager;
@@ -87,6 +90,21 @@ public abstract class TreeView extends AbstractView implements BBTree{
 			logger.error("Invocation Exception", e);
 		}
 		
+		return null;
+	}
+	
+	protected Text findPageNode(Element e){
+		if(e.getChildCount() > 1){
+			if(e.getChild(1) instanceof Element && ((Element)e.getChild(1)).getLocalName().equals("brl")){
+				Element brlNode = (Element)e.getChild(1);
+				if(brlNode.getChild(0) instanceof Element && ((Element)brlNode.getChild(0)).getLocalName().equals("span")){
+					Element spanNode = (Element)brlNode.getChild(0);
+					if(spanNode.getChild(0) instanceof Text){
+						return (Text)spanNode.getChild(0);
+					}
+				}	
+			}
+		}
 		return null;
 	}
 }

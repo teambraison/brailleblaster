@@ -69,6 +69,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -93,7 +94,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
@@ -129,7 +129,7 @@ public class Manager extends Controller {
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
 		group = new Group(wp.getFolder(),SWT.NONE);
-		group.setLayout(new FormLayout());	
+		group.setLayout(new FormLayout());
 		sm = new StyleManager(this);
 		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
@@ -249,7 +249,6 @@ public class Manager extends Controller {
 	}
 	
 	public void openDocument(String fileName){	
-		
 		// If this is the first document, load a previous session.
 		boolean restoreArchive = false;
 		String restorePath = docRestore();
@@ -274,7 +273,6 @@ public class Manager extends Controller {
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
-			
 		initializeAllViews(fileName, arch.getWorkingFilePath(), null);
 		
 		// Start the auto-saver
@@ -1013,8 +1011,14 @@ public class Manager extends Controller {
 	}	
 	
 	public void saveAs(){
-		BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
-		String filePath = dialog.open();
+		String filePath;
+		
+		if(!BBIni.debugging()){
+			BBFileDialog dialog = new BBFileDialog(wp.getShell(), SWT.SAVE, arch.getFileTypes(), arch.getFileExtensions());
+			filePath = dialog.open();
+		}
+		else
+			filePath = BBIni.getDebugSavePath();
 		
 		if(filePath != null){
 			checkForUpdatedViews();
@@ -1296,6 +1300,11 @@ public class Manager extends Controller {
 				braille.updateCursorPosition(message);
 			}
 		}
+	}
+	
+	public void hide(){
+		HideActionHandler h = new HideActionHandler(this, list);
+		h.hideText();
 	}
 	
 	public void closeUntitledTab(){

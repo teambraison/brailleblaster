@@ -103,10 +103,11 @@ public class Normalizer {
 			
 			else if(list.item(i) instanceof Text){
 				Text t = (Text)list.item(i);
+				
 				String text = t.getTextContent();
 				if(t.getParentNode().getNodeName().equals("pagenum")){
 					// Remove word page from pagenum element
-					text=removePage(text);
+					text=cleanPageNum(text);
 					
 					
 				}
@@ -190,7 +191,7 @@ public class Normalizer {
 	
 	
 	//Remove word page from pagenum element
-		private String removePage(String str){
+		private String cleanPageNum(String str){
 			int startRemove =0;
 			int endRemove=0;
 			if((str.toLowerCase().contains("page"))){
@@ -198,9 +199,8 @@ public class Normalizer {
 				endRemove=str.toLowerCase().indexOf("e");
 				String removedString=str.substring(startRemove, endRemove+1);
 				str=str.replace(removedString, "");
-				
-			}
-			return str;
+							}
+			return str.trim();
 			
 		}
 }

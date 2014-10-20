@@ -938,32 +938,76 @@ public class BrailleView extends WPView {
 	 * Indicator is a bullet and add all indicator at indication array list
 	 */
 	public void addIndicator(){
-		int lineNumber=manager.getDocument().getIndicatorLocation();
-		if (lineNumber<view.getLineCount()){
+//		int lineNumber=manager.getDocument().getIndicatorLocation();
+//		if (lineNumber<view.getLineCount()){
+//			
+//			if (flag==true)
+//			{
+//			   counter=lineNumber - 1;
+//			   flag=false;
+//			}
+//			System.out.println(counter + " - out while... " + view.getLineCount() + " - out while.");
+//			while(counter < view.getLineCount()){
+//				if (view.getLineBullet(counter)==null){
+//					StyleRange indicatorStyle = new StyleRange();
+//					indicatorStyle.underline=true;
+//					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
+//					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+//					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+//					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+//					bullet.text = "                                                 ";
+//					view.setLineBullet(counter, 1, null);
+//					view.setLineBullet(counter, 1, bullet);
+//					indications.add(bullet);
+//				}
+//				counter=counter+lineNumber;
+//				System.out.println(counter + " - in while... " + view.getLineCount() + " - in while.");
+//			}
+//	   }
+		// Only do once.
+		int linesPerPage = manager.getDocument().getIndicatorLocation();
+		counter = linesPerPage - 1;
+		if(indications.isEmpty() == false)
+			indications.clear();
+		while( counter < view.getLineCount() ) {
+				
+			// Make sure the current line isn't wrapping to the next line. This can happen 
+			// if the user's screen resolution is too small, or if the application is 
+			// not fullscreen.
 			
-			if (flag==true)
-			{
-			   counter=lineNumber - 1;
-			   flag=false;
-			}
-			System.out.println(counter + " - out while... " + view.getLineCount() + " - out while.");
-			while(counter < view.getLineCount()){
-				if (view.getLineBullet(counter)==null){
-					StyleRange indicatorStyle = new StyleRange();
-					indicatorStyle.underline=true;
-					indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
-					indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
-					indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
-					Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
-					bullet.text = "                                                 ";
-					view.setLineBullet(counter, 1, null);
-					view.setLineBullet(counter, 1, bullet);
-					indications.add(bullet);
-				}
-				counter=counter+lineNumber;
-				System.out.println(counter + " - in while... " + view.getLineCount() + " - in while.");
-			}
-	   }
+			String curLine = view.getLine(counter);
+			Rectangle viewClientArea = view.getClientArea();
+			int vertBarW = view.getVerticalBar().getSize().x;
+//			viewClientArea.width -= vertBarW;
+			int charWidth = manager.getBraille().getFontWidth();
+			int stringWidth = charWidth * curLine.length();
+			int indentAmt = 14 * 3;
+			viewClientArea.width -= indentAmt;
+//			if( viewClientArea.width < stringWidth )
+//				counter++;
+
+//		    GC gc = new GC(view);
+//			Font oldFont = gc.getFont();
+//			gc.setFont( new Font( null, "SimBraille", manager.getBraille().getFontWidth(), SWT.NONE ) );
+//		    FontMetrics fm = gc.getFontMetrics();
+//			int charWidth = fm.getAverageCharWidth();
+//		    int stringWidth = charWidth * curLine.length();
+//		    gc.setFont(oldFont);
+//		    gc.dispose();
+		    
+			StyleRange indicatorStyle = new StyleRange();
+			indicatorStyle.underline=true;
+			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;
+			indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
+			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
+			bullet.text = "                                                 ";
+			view.setLineBullet(counter, 1, null);
+			view.setLineBullet(counter, 1, bullet);
+			indications.add(bullet);
+			
+			counter = counter + linesPerPage;
+		} // while()
 	}
 	
 	/**

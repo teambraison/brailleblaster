@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Tree;
 
 public abstract class TreeView extends AbstractView implements BBTree{
 	private final static int LEFT_MARGIN = 0;
-	private final static int RIGHT_MARGIN = 15;
+	private final static int RIGHT_MARGIN = 19;
 	private final static int TOP_MARGIN = 0;
 	private final static int BOTTOM_MARGIN = 100;
 	private final static int ADJUSTED_BOTTOM_MARGIN = 49;

@@ -1,0 +1,10 @@
+#summary Glossary of terms for BrailleBlaster
+
+These terms are a listing of the terms used in !BrailleBlaster. Each term should have its own heading, and where ever possible when the term is used throughout the documentation on the wiki it should link to the definition in this document.
+
+= Business Friendly License =
+
+A business friendly license is one which will allow a closed source modules to link to the code covered by the license. Licenses such as the LGPL and apache 2.0 license do permit this and so are considered a business friendly license.
+
+
+				

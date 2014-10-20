@@ -91,7 +91,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -121,8 +124,6 @@ public class Manager extends Controller {
 	private boolean simBrailleDisplayed;
 	private MapList list;
 	SearchDialog srch = null;
-	SashForm sashForm = null;
-//	Group grp2 = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -132,18 +133,16 @@ public class Manager extends Controller {
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
-		// sashForm = new SashForm(wp.getFolder(), SWT.HORIZONTAL);
-		group = new Group(wp.getFolder(), SWT.NONE);
-//		grp2 = new Group(wp.getFolder(), SWT.NONE);
-		group.setLayout(new FormLayout());
-//		grp2.setLayout(new FormLayout());
-		sm = new StyleManager(this);
 		
+		group = new Group(wp.getFolder(), SWT.NONE);
+		group.setLayout(new FormLayout());
 		treeView = TreeView.loadTree(this, group);
 		text = new TextView(this, group, styles);
 		braille = new BrailleView(this, group, styles);
 		
-		item.setControl(sashForm);
+		sm = new StyleManager(this);
+		
+		item.setControl(group);
 		initializeDocumentTab();
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
@@ -297,7 +296,6 @@ public class Manager extends Controller {
 			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
 				checkSemanticsTable();
 				group.setRedraw(false);
-//				grp2.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
@@ -322,7 +320,6 @@ public class Manager extends Controller {
 				text.view.setWordWrap(true);
 				braille.view.setWordWrap(true);
 				group.setRedraw(true);
-//				grp2.setRedraw(true);
 				checkAtributeEditor();
 			}
 			else {
@@ -845,7 +842,6 @@ public class Manager extends Controller {
 	private void handleUpdateStyle(Message message) {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			group.setRedraw(false);
-//			grp2.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
 				if(message.getValue("multiSelect").equals(false)) 
 					handleSingleBoxLine(message);
@@ -859,7 +855,6 @@ public class Manager extends Controller {
 					handleStyleMultiSelected(message);
 			}
 			group.setRedraw(true);
-//			grp2.setRedraw(true);
 		}
 		else
 			new Notify(lh.localValue("nothingToApply"));
@@ -1211,7 +1206,6 @@ public class Manager extends Controller {
 			text.resetView(group);
 			braille.removeListeners();
 			braille.resetView(group);
-//			braille.resetView(grp2);
 			treeView.removeListeners();
 			treeView.resetView(group);
 			initializeDocumentTab();
@@ -1653,7 +1647,6 @@ public class Manager extends Controller {
 		text.update(false);
 		list.clearList();
 		group.dispose();
-//		grp2.dispose();
 	}
 
 	@Override

@@ -373,6 +373,15 @@ public class PagePropertiesTab {
 		}
 	}
 	
+	public boolean validate(){		
+		if(Integer.valueOf(cellsBox.getText()) <= 0)
+			return false;
+		else if(Integer.valueOf(linesBox.getText()) <= 0)
+			return false;
+		
+		return true;
+	}
+	
 	private void setValue(Text text, String key){
 		if(settingsMap.containsKey(key))
 			text.setText(settingsMap.get(key));

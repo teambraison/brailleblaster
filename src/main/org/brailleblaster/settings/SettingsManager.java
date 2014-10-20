@@ -108,6 +108,7 @@ public class SettingsManager {
 	
 	private void setPageSettings(String line){
 		String [] tokens = line.trim().split(" ");
+
 		if(tokens[0].equals("paperWidth"))
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("paperHeight"))
@@ -133,6 +134,20 @@ public class SettingsManager {
 		else if(tokens[0].equals("mathexprTable"))
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("compbrlTable"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("numberBraillePages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("continuePages"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPageNumberAt"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("braillePageNumberAt"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("printPageNumberRange"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("interpoint"))
 			outputMap.put(tokens[0], tokens[1]);
 	}
 	

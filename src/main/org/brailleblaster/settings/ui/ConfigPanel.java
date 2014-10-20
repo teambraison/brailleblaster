@@ -29,6 +29,7 @@ public class ConfigPanel {
 	TabFolder folder;
 	PagePropertiesTab pageProperties;
 	TranslationSettingsTab translationSettings;
+	PageNumbersTab pageNumTab;
 	Button okButton, cancelButton;
 	
 	public ConfigPanel(final SettingsManager sm, final Manager m){
@@ -44,6 +45,7 @@ public class ConfigPanel {
 		final HashMap<String, String> settingsCopy = sm.getMapClone();
 		pageProperties = new PagePropertiesTab(folder, sm, settingsCopy);
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
+		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
 		
 		okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));
@@ -51,13 +53,15 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(translationSettings.validate()){
+				if(translationSettings.validate() && pageProperties.validate()){
 					sm.saveConfiguration(settingsCopy);
 					sm.close();
 					m.refresh();
 				}
-				else
-					new Notify("Please check that all required translation settings fields are completed");
+				else {
+					LocaleHandler lh = new LocaleHandler();
+					new Notify(lh.localValue("invalidSettings"));
+				}
 			}	
 		});
 		

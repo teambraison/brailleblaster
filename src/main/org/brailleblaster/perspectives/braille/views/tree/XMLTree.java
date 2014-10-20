@@ -677,9 +677,8 @@ public class XMLTree extends TreeView {
 		
 		TreeItem item = (TreeItem)m.getValue("item");
 		int index = item.getParentItem().indexOf(item);
-		
 		TreeItem [] children = item.getItems();
-			
+		
 		for(int i = 0; i < children.length; i++){
 			populateItemChildren(children[i], getTreeItemData(children[i]).element);
 			TreeItem newItem = new TreeItem(item.getParentItem(), SWT.NONE, index);
@@ -696,5 +695,15 @@ public class XMLTree extends TreeView {
 		}
 		
 		item.dispose();
+	}
+
+	@Override
+	public void populateItem(Element e) {
+		Message m = new Message(null);
+		searchTreeForElement(root, e, m);
+		
+		TreeItem item = (TreeItem)m.getValue("item");
+		if(item.getItemCount() == 0)
+			populateItemChildren(item, getTreeItemData(item).element);
 	}
 }

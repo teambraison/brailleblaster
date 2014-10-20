@@ -33,6 +33,7 @@
 
 package org.brailleblaster.perspectives.braille.stylepanel;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.brailleblaster.document.ConfigFileHandler;
@@ -90,7 +91,7 @@ public class StyleManager{
     	}
     	
     	if(semanticsTable.get(style).getName().equals("boxline"))
-    		editor = new EditBoxLineView(this, dm.getGroup(), styleForView);
+    		editor = new EditBoxLineView(this, dm.getGroup());
     	else
 	    	editor = new EditStyleView(this, dm.getGroup(), styleForView);
    
@@ -181,6 +182,16 @@ public class StyleManager{
     	semanticsTable.resetStyleTable(configFile);
     	dm.refresh();
     	closeEditStyle(newStyle.getName());
+    }
+    
+    protected void saveBoxline(ArrayList<Styles>list){
+    	ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    	for(int i = 0; i < list.size(); i++){
+    		handler.updateStyle(list.get(i));
+    		semanticsTable.resetStyleTable(configFile);
+    	}
+    	dm.refresh();
+    	closeEditStyle("boxline");
     }
     
     protected void saveNewItem(Styles style){

@@ -42,7 +42,7 @@ public class SectionElement {
 			}
 			else if(current.getChild(i) instanceof Element &&  ((Element)current.getChild(i)).getLocalName().equals("brl")){
 				//Added to handle brl for side bar
-				if (checkSemanticsAttribute(((Element)current.getChild(i).getParent()), "boxline") )
+				if (isBoxLine(((Element)current.getChild(i).getParent())))
 				{
 					list.add(new BrlOnlyMapElement(current.getChild(i), (Element)current.getChild(i).getParent()));
 				
@@ -60,7 +60,7 @@ public class SectionElement {
 					i++;
 			}
 			//Added this part for side bar
-			else if(current.getChild(i) instanceof Element &&  checkSemanticsAttribute(((Element)current.getChild(i)), "boxline")){
+			else if(current.getChild(i) instanceof Element &&  isBoxLine(((Element)current.getChild(i)))){
 				initializeViews(current.getChild(i), m, 0);	
 			}
 			else {
@@ -150,6 +150,13 @@ public class SectionElement {
 			return false;
 		
 		return true;
+	}
+	
+	private boolean isBoxLine(Element e){
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+			return true;
+		else
+			return false;
 	}
 	
 	public void setInView(boolean inView){

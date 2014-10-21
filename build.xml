@@ -17,32 +17,34 @@
             <include name="**/*.jar"/>
         </fileset>
     </path>
-    
-    <target name="compile" depends="init">
-        <javac srcdir="${srcdir}" destdir="${builddir}"
-            debug="yes"
-            includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
-            <classpath refid="allJars.path"/>
-        </javac>
-    </target>
-    
-    <target name="dist" depends="compile">
-        <manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar">
-            <classpath refid="allJars.path"/>
-        </manifestclasspath>
-        <jar jarfile="${distdir}/brailleblaster.jar"
-            basedir="${builddir}">
+	
+	
+	<target name="compile" depends="init">
+		<javac srcdir="${srcdir}" destdir="${builddir}"
+			debug="yes"
+			includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
+			<classpath refid="allJars.path"/>
+		</javac>
+	</target>
+	
+	<target name="dist" depends="compile">
+		<manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar">
+			<classpath refid="allJars.path"/>
+		</manifestclasspath>
+		<jar jarfile="${distdir}/brailleblaster.jar"
+			basedir="${builddir}">
 
-        <manifest>
-                <attribute name="Main-Class" value="org.brailleblaster.Main"/>
-                <attribute name="Class-Path" value="${jar.classpath} programData/lang/ programData/settings/"/>
-        </manifest>
-          
-            
-        
-        </jar>
-    </target>
+		<manifest>
+				<attribute name="Main-Class" value="org.brailleblaster.Main"/>
+				<attribute name="Class-Path" value="${jar.classpath} programData/lang/ programData/settings/"/>
+		</manifest>
+		  
+			
+		
+		</jar>
+	</target>
     
+	
     <target name="clean">
         <description>Deletes class folder so that next build is clean.  Is not part of main build and is a seperate task</description>
         <delete dir="${builddir}"/>     
@@ -50,16 +52,17 @@
 	
 	<!--***************-->
 	<!-- LAUNCH4J TASK -->
-	
-		<property name="launch4j.dir" location="C:\\APPS\\launch4j\\" />
-		
+		<property name="launch4j.dir" location="${distdir}/../l4j" />
 		<taskdef name="launch4j"
-		classname="net.sf.launch4j.ant.Launch4jTask"
-		classpath="${launch4j.dir}/launch4j.jar
-			:${launch4j.dir}/lib/xstream.jar" />
-			
-		<launch4j configFile="C:\\Program Files\\brailleblaster\\bbl4j.xml" />
-	
+				classname="net.sf.launch4j.ant.Launch4jTask"
+				classpath="${launch4j.dir}/launch4j.jar
+					:${launch4j.dir}/lib/xstream.jar" />
+				
+		<target name="l4j" depends="dist">
+			<copy file="${distdir}/brailleblaster.jar" tofile="${distdir}/../l4j/brailleblaster.jar" overwrite="true" />
+			<launch4j configFile="${launch4j.dir}/bbl4j.xml" />
+			<copy file="${distdir}/../l4j/brailleblaster.exe" tofile="${distdir}/brailleblaster.exe" overwrite="true" />
+		</target>
 	<!-- LAUNCH4J TASK -->
     <!--***************-->
     

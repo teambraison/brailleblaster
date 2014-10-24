@@ -275,7 +275,7 @@ public class SettingsManager {
 	/**
 	 * Find indicator location
 	 */
-	public int getIndicatorLoc()
+	public int getLinesPerPage()
 	{
 		return calculateLinesPerPage(Double.valueOf(outputMap.get("paperHeight")));
 	}

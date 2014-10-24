@@ -957,7 +957,7 @@ public class BrailleView extends WPView {
 //			}
 //	   }
 		// Only do once.
-		int linesPerPage = manager.getDocument().getIndicatorLocation();
+		int linesPerPage = manager.getDocument().getLinesPerPage();
 		counter = linesPerPage - 1;
 		if(indications.isEmpty() == false)
 			indications.clear();
@@ -969,6 +969,15 @@ public class BrailleView extends WPView {
 			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
 			bullet.text = "                                                 ";
+			
+			
+			
+			String curLine = view.getLine(counter);
+			int lineLen = curLine.length();
+//			replaceTextRange
+			
+			
+			
 			view.setLineBullet(counter, 1, null);
 			view.setLineBullet(counter, 1, bullet);
 			indications.add(bullet);

@@ -632,7 +632,7 @@ public class BBDocument {
 		return sm;
 	}
 	
-	public int getIndicatorLocation(){
-		return sm.getIndicatorLoc();
+	public int getLinesPerPage(){
+		return sm.getLinesPerPage();
 	}
 }

@@ -961,7 +961,12 @@ public class BrailleView extends WPView {
 		counter = linesPerPage - 1;
 		if(indications.isEmpty() == false)
 			indications.clear();
-		while( counter < view.getLineCount() ) {
+		
+		int lineCount = view.getLineCount();
+		int curL = 0;
+		int curOffset = 0;
+		
+		while( counter < lineCount ) {
 			StyleRange indicatorStyle = new StyleRange();
 			indicatorStyle.underline=true;
 			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
@@ -970,17 +975,20 @@ public class BrailleView extends WPView {
 			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
 			bullet.text = "                                                 ";
 			
+			// Get character index of line.
+			for( ; curL < counter; curL++) {
+				String curLine = view.getLine(curL);
+				int lineLen = curLine.length();
+				curOffset += lineLen;
+//				replaceTextRange
+			}
 			
+			// Create a new line.
+			view.replaceTextRange(curOffset, 0, "________\n\r");
 			
-			String curLine = view.getLine(counter);
-			int lineLen = curLine.length();
-//			replaceTextRange
-			
-			
-			
-			view.setLineBullet(counter, 1, null);
-			view.setLineBullet(counter, 1, bullet);
-			indications.add(bullet);
+//			view.setLineBullet(counter, 1, null);
+//			view.setLineBullet(counter, 1, bullet);
+//			indications.add(bullet);
 			
 			counter = counter + linesPerPage;
 		} // while()

@@ -393,13 +393,16 @@ public class PagePropertiesTab {
 		}
 	}
 	
-	public boolean validate(){		
-		if(Integer.valueOf(cellsBox.getText()) <= 0)
-			return false;
-		else if(Integer.valueOf(linesBox.getText()) <= 0)
-			return false;
-		
-		return true;
+	
+	/**
+	 * @return
+	 */
+	public String validate(){		
+		if( Integer.valueOf(cellsBox.getText()) < Integer.valueOf(minCellsBox.getText()) )
+			return "invalidSettingsCells";
+		else if(Integer.valueOf(linesBox.getText()) < Integer.valueOf(minLinesBox.getText()))
+			return "invalidSettingsLines";
+		return "SUCCESS";
 	}
 	
 	private void setValue(Text text, String key){

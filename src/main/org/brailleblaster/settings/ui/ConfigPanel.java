@@ -53,14 +53,15 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(translationSettings.validate() && pageProperties.validate()){
+				String errorStr = null;
+				if(translationSettings.validate() && (errorStr = pageProperties.validate()).compareTo("SUCCESS") == 0 ){
 					sm.saveConfiguration(settingsCopy);
 					sm.close();
 					m.refresh();
 				}
 				else {
 					LocaleHandler lh = new LocaleHandler();
-					new Notify(lh.localValue("invalidSettings"));
+					new Notify(lh.localValue(errorStr));
 				}
 			}	
 		});

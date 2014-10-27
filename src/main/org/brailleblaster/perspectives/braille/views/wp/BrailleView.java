@@ -67,6 +67,7 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends WPView {
@@ -961,34 +962,42 @@ public class BrailleView extends WPView {
 		counter = linesPerPage - 1;
 		if(indications.isEmpty() == false)
 			indications.clear();
-		
-		int lineCount = view.getLineCount();
-		int curL = 0;
-		int curOffset = 0;
-		
-		while( counter < lineCount ) {
+		while( counter < view.getLineCount() ) {
+			
+			// Make sure the current line isn't wrapping to the next line. This can happen 
+			// if the user's screen resolution is too small, or if the application is 
+			// not fullscreen.
+			
+			String curLine = view.getLine(counter);
+			Rectangle viewClientArea = view.getClientArea();
+			int vertBarW = view.getVerticalBar().getSize().x;
+//			viewClientArea.width -= vertBarW;
+			int charWidth = manager.getBraille().getFontWidth();
+			int stringWidth = charWidth * curLine.length();
+			int indentAmt = 14 * 1;
+			viewClientArea.width += indentAmt;
+			if( viewClientArea.width < stringWidth )
+				counter++;
+
+//		    GC gc = new GC(view);
+//			Font oldFont = gc.getFont();
+//			gc.setFont( new Font( null, "SimBraille", manager.getBraille().getFontWidth(), SWT.NONE ) );
+//		    FontMetrics fm = gc.getFontMetrics();
+//			int charWidth = fm.getAverageCharWidth();
+//		    int stringWidth = charWidth * curLine.length();
+//		    gc.setFont(oldFont);
+//		    gc.dispose();
+		    
 			StyleRange indicatorStyle = new StyleRange();
 			indicatorStyle.underline=true;
-			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;	
-			indicatorStyle.metrics = new GlyphMetrics(5, 0, 50);
+			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;
+			indicatorStyle.metrics = new GlyphMetrics(250, 0, 0);
 			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
 			bullet.text = "                                                 ";
-			
-			// Get character index of line.
-			for( ; curL < counter; curL++) {
-				String curLine = view.getLine(curL);
-				int lineLen = curLine.length();
-				curOffset += lineLen;
-//				replaceTextRange
-			}
-			
-			// Create a new line.
-			view.replaceTextRange(curOffset, 0, "________\n\r");
-			
-//			view.setLineBullet(counter, 1, null);
-//			view.setLineBullet(counter, 1, bullet);
-//			indications.add(bullet);
+			view.setLineBullet(counter, 1, null);
+			view.setLineBullet(counter, 1, bullet);
+			indications.add(bullet);
 			
 			counter = counter + linesPerPage;
 		} // while()

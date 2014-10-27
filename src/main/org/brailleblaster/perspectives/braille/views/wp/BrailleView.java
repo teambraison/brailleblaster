@@ -970,28 +970,17 @@ public class BrailleView extends WPView {
 			
 			String curLine = view.getLine(counter);
 			Rectangle viewClientArea = view.getClientArea();
-			int vertBarW = view.getVerticalBar().getSize().x;
-//			viewClientArea.width -= vertBarW;
 			int charWidth = manager.getBraille().getFontWidth();
 			int stringWidth = charWidth * curLine.length();
-			int indentAmt = 14 * 1;
+			int indentAmt = 13;
 			viewClientArea.width += indentAmt;
 			if( viewClientArea.width < stringWidth )
 				counter++;
-
-//		    GC gc = new GC(view);
-//			Font oldFont = gc.getFont();
-//			gc.setFont( new Font( null, "SimBraille", manager.getBraille().getFontWidth(), SWT.NONE ) );
-//		    FontMetrics fm = gc.getFontMetrics();
-//			int charWidth = fm.getAverageCharWidth();
-//		    int stringWidth = charWidth * curLine.length();
-//		    gc.setFont(oldFont);
-//		    gc.dispose();
 		    
 			StyleRange indicatorStyle = new StyleRange();
 			indicatorStyle.underline=true;
 			indicatorStyle.underlineStyle=SWT.UNDERLINE_SINGLE;
-			indicatorStyle.metrics = new GlyphMetrics(250, 0, 0);
+			indicatorStyle.metrics = new GlyphMetrics(0, 0, 0);
 			indicatorStyle.foreground = view.getDisplay().getSystemColor(SWT.COLOR_BLACK);
 			Bullet bullet = new Bullet (ST.BULLET_TEXT, indicatorStyle);
 			bullet.text = "                                                 ";

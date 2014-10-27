@@ -185,17 +185,9 @@ public class PagePropertiesTab {
 			t.addModifyListener(new ModifyListener(){
 				@Override
 				public void modifyText(ModifyEvent e) {
-					Double margin = getDoubleValue(t);
-	
-					if(margin >= getDoubleValue(widthBox) || (getDoubleValue(marginLeftBox) + getDoubleValue(marginRightBox) >= getDoubleValue(widthBox))){
-						new Notify(lh.localValue("incorrectMarginWidth"));
-						t.setText(settingsMap.get(type));
-					}
-					else {
-						settingsMap.put(type, getStringValue(t));
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
-					}
+					settingsMap.put(type, getStringValue(t));
+					cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+					linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 				}		
 			});
 		}
@@ -203,17 +195,9 @@ public class PagePropertiesTab {
 			t.addModifyListener(new ModifyListener(){
 				@Override
 				public void modifyText(ModifyEvent e) {
-					Double margin =  getDoubleValue(t);
-					
-					if(margin >= Double.valueOf(heightBox.getText()) || (getDoubleValue(marginTopBox) + getDoubleValue(marginBottomBox) >= getDoubleValue(widthBox))){
-						new Notify(lh.localValue("incorectMarginHeight"));
-						t.setText(settingsMap.get(type));
-					}
-					else {
-						settingsMap.put(type, getStringValue(t));
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
-					}
+					settingsMap.put(type, getStringValue(t));
+					cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+					linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 				}		
 			});
 		}

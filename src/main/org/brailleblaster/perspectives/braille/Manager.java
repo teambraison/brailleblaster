@@ -905,13 +905,15 @@ public class Manager extends Controller {
 		}
 		else {
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-				itemList.add(0, box);
-			else
-				itemList.add(box);
+			if(box != null){
+				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
+					itemList.add(0, box);
+				else
+					itemList.add(box);
+			}
 			
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.removeBoxline(parent, itemList);
+			bxh.removeSingleBoxline(parent, itemList);
 			
 			if(list.getCurrentIndex() > list.size())
 				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
@@ -937,7 +939,8 @@ public class Manager extends Controller {
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if(b == null || b.start > end || b.end < start){
+				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
+						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
 					if(!BBIni.debugging())
 						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
@@ -1145,9 +1148,8 @@ public class Manager extends Controller {
 				currentOffset = text.view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount()){
+				if(currentOffset < text.view.getCharCount())
 					text.view.setCaretOffset(currentOffset);
-				}
 				else
 					text.view.setCaretOffset(0);
 			

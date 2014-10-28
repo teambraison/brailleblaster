@@ -378,9 +378,9 @@ public class PagePropertiesTab {
 	 * @return
 	 */
 	public String validate(){
-		if( Integer.valueOf(cellsBox.getText()) < sm.getMinCellsPerLine() )
+		if( Integer.valueOf(cellsBox.getText()) < Integer.parseInt(settingsMap.get("minCellsPerLine")) )
 			return "invalidSettingsCells";
-		else if( Integer.valueOf(linesBox.getText()) < sm.getMinLinesPerPage() )
+		else if( Integer.valueOf(linesBox.getText()) < Integer.parseInt(settingsMap.get("minLinesPerPage")) )
 			return "invalidSettingsLines";
 		return "SUCCESS";
 	}

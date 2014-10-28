@@ -56,7 +56,6 @@ public class ConfigPanel {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String errorStr = null;
-				try {
 					if( translationSettings.validate() && (errorStr = pageProperties.validate()).compareTo("SUCCESS") == 0 && advTab.validate() ){
 						sm.saveConfiguration(settingsCopy);
 						sm.close();
@@ -66,8 +65,6 @@ public class ConfigPanel {
 						LocaleHandler lh = new LocaleHandler();
 						new Notify(lh.localValue(errorStr));
 					}
-				}
-				catch(Exception ex) { ex.printStackTrace(); }
 			}	
 		});
 		

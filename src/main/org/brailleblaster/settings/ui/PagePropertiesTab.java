@@ -38,10 +38,10 @@ public class PagePropertiesTab {
 	Composite  group;
 	
 	Group sizeGroup, marginGroup, pageGroup, buttonGroup; 
-	Label pageSizeLabel, widthLabel, heightLabel, linesPerPageLabel, cellsPerLineLabel, minLinesLabel, minCellsLabel, marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
+	Label pageSizeLabel, widthLabel, heightLabel, linesPerPageLabel, cellsPerLineLabel, marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
 	
 	Combo pageTypes;
-	Text widthBox, heightBox, linesBox, cellsBox, minLinesBox, minCellsBox, marginTopBox, marginLeftBox, marginRightBox, marginBottomBox;
+	Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox, marginRightBox, marginBottomBox;
 	Button okButton, cancelButton;
 	
 	boolean listenerLocked;
@@ -106,26 +106,6 @@ public class PagePropertiesTab {
 		setGridData(cellsBox);
 		cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(settingsMap.get("paperWidth")))));
 		cellsBox.setEditable(false);
-		
-		//////////////
-		// Min Values
-		
-			minLinesLabel = new Label(pageGroup, 0);
-			minLinesLabel.setText(lh.localValue("minLinesPerPage"));
-			minLinesBox = new Text(pageGroup, SWT.BORDER);
-			setGridData(minLinesBox);
-			minLinesBox.setText( "7" );
-			
-			minCellsLabel = new Label(pageGroup, 0);
-			minCellsLabel.setText(lh.localValue("minCellsPerLine"));
-			minCellsBox = new Text(pageGroup, SWT.BORDER);
-			setGridData(minCellsBox);
-			minCellsBox.setText( "12" );
-		
-
-		// Min Values
-		//////////////
-		
 		
 		marginGroup = new Group(group, SWT.BORDER);
 		marginGroup.setLayout(new GridLayout(2, true));
@@ -397,10 +377,10 @@ public class PagePropertiesTab {
 	/**
 	 * @return
 	 */
-	public String validate(){		
-		if( Integer.valueOf(cellsBox.getText()) < Integer.valueOf(minCellsBox.getText()) )
+	public String validate(){
+		if( Integer.valueOf(cellsBox.getText()) < sm.getMinCellsPerLine() )
 			return "invalidSettingsCells";
-		else if(Integer.valueOf(linesBox.getText()) < Integer.valueOf(minLinesBox.getText()))
+		else if( Integer.valueOf(linesBox.getText()) < sm.getMinLinesPerPage() )
 			return "invalidSettingsLines";
 		return "SUCCESS";
 	}

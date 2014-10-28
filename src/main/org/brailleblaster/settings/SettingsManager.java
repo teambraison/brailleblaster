@@ -149,6 +149,10 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("interpoint"))
 			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("minLinesPerPage"))
+			outputMap.put(tokens[0], tokens[1]);
+		else if(tokens[0].equals("minCellsPerLine"))
+			outputMap.put(tokens[0], tokens[1]);
 	}
 	
 	//do not include compress.cti because removing spaces should be left up to the user to remove
@@ -284,4 +288,11 @@ public class SettingsManager {
 		return Integer.valueOf( outputMap.get("cellsPerLine") );
 	}
 
+	public int getMinCellsPerLine() {
+		return Integer.valueOf( outputMap.get("minCellsPerLine") );
+	}
+	
+	public int getMinLinesPerPage() {
+		return Integer.valueOf( outputMap.get("minLinesPerPage") );
+	}
 }

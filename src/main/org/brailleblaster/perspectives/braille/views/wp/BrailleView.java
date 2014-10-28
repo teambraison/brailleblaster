@@ -88,8 +88,6 @@ public class BrailleView extends WPView {
 	boolean flag=true;
 	int counter;
 	
-
-	
 	public BrailleView(Manager manager, SashForm sash, BBSemanticsTable table) {
 		super(manager, sash, table);
 		this.total = 0;

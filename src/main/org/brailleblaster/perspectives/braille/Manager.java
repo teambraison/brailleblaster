@@ -1540,6 +1540,7 @@ public class Manager extends Controller {
 	public void swapTree(Class<?> clss){
 		boolean focused = false;
 
+		int [] weights = miscSash.getWeights();
 		if(treeView.getTree().isFocusControl())
 			focused = true;
 			
@@ -1555,6 +1556,10 @@ public class Manager extends Controller {
 		treeView.getTree().getParent().layout();
 		treeView.initializeListeners();
 		vi.resetTree(treeView);
+		
+		sm.getGroup().moveBelow(treeView.getTree());
+		miscSash.layout();
+		miscSash.setWeights(weights);
 		//save latest setting to user settings file
 		BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 	}

@@ -32,14 +32,14 @@ public abstract class WPView extends AbstractView implements BBView {
 	protected int charWidth;
 	protected ModifyListener viewMod;
 	
-	public WPView(Manager manager, SashForm sash, int left, int right, int top, int bottom, BBSemanticsTable table){
+	public WPView(Manager manager, SashForm sash, BBSemanticsTable table){
 		super(manager, sash);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.stylesTable = table;
 		view = new StyledText(sash, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		setLayout(view, left, right, top, bottom);
+		
 		// Better use a ModifyListener to set the change flag.
 		viewMod = new ModifyListener() {
 			@Override
@@ -408,11 +408,10 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param top : top position for layout
 	 * @param bottom : bottom position for layout
 	 */
-	protected void recreateView(SashForm sashform, int left, int right, int top, int bottom){
+	protected void recreateView(SashForm sashform){
 		view.dispose();
 		view = new StyledText(sashform, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		view.addModifyListener(viewMod);
-		setLayout(view, left, right, top, bottom);
 		view.getParent().layout();
 	}
 	

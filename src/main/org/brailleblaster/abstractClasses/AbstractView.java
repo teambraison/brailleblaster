@@ -37,9 +37,6 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Control;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,22 +61,6 @@ public abstract class AbstractView {
 	public AbstractView(Manager manager, SashForm sash) {
 		this.manager = manager;
 		this.sash = sash;
-	}
-	
-	/** Convenience method for setting form data on an swt widget
-	 * @param c : swt control widget
-	 * @param left : left position
-	 * @param right : right position
-	 * @param top : top position 
-	 * @param bottom : bottom position
-	 */
-	protected void setLayout(Control c, int left, int right, int top, int bottom){
-		FormData location = new FormData();
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		c.setLayoutData(location);
 	}
 	
 	/**Increments from currently selected element to next element

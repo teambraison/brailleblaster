@@ -70,11 +70,6 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
 
 public class BrailleView extends WPView {
-	private final static int LEFT_MARGIN = 58;
-	private final static int RIGHT_MARGIN = 100;
-	private final static int TOP_MARGIN = 0;
-	private final static int BOTTOM_MARGIN = 100;
-	
 	private int currentStart, currentEnd, nextStart;
 	private int oldCursorPosition = -1;
 	private int currentChar;
@@ -96,7 +91,7 @@ public class BrailleView extends WPView {
 
 	
 	public BrailleView(Manager manager, SashForm sash, BBSemanticsTable table) {
-		super(manager, sash, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
+		super(manager, sash, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -833,7 +828,7 @@ public class BrailleView extends WPView {
 	@Override
 	public void resetView(SashForm sashform) {
 		setListenerLock(true);
-		recreateView(sashform, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		recreateView(sashform);
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;

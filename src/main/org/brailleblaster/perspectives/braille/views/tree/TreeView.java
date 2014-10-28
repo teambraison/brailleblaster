@@ -15,21 +15,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Tree;
 
-public abstract class TreeView extends AbstractView implements BBTree{
-	private final static int LEFT_MARGIN = 0;
-	private final static int RIGHT_MARGIN = 15;
-	private final static int TOP_MARGIN = 0;
-	private final static int BOTTOM_MARGIN = 100;
-	private final static int ADJUSTED_BOTTOM_MARGIN = 49;
-	
+public abstract class TreeView extends AbstractView implements BBTree{	
 	protected Tree tree;
-	private SashForm sash;
 	
 	public TreeView(final Manager manager, SashForm sash){
 		super(manager, sash);
 		this.sash = sash;
 		tree = new Tree(sash, SWT.VIRTUAL | SWT.BORDER);	
-		setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 	}
 	
 	public static BBTree loadTree(Manager m, SashForm sash){
@@ -54,16 +46,6 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	@Override
 	protected void setViewData(Message message) {
 		// TODO Auto-generated method stub	
-	}
-	
-	@Override
-	public void adjustLayout(boolean fullSize){
-		if(fullSize)
-			setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
-		else
-			setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, ADJUSTED_BOTTOM_MARGIN);
-		
-		sash.layout();
 	}
 	
 	@Override

@@ -1270,7 +1270,6 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			treeView.adjustLayout(false);
 			if(list.size() == 0){
 				sm.displayTable(null);
 			}
@@ -1281,7 +1280,6 @@ public class Manager extends Controller {
 			miscSash.setWeights(new int[]{50, 50});
 		}
 		else {
-			treeView.adjustLayout(true);
 			sm.hideTable();
 			setTabList();
 			miscSash.setWeights(new int[]{100, 0});

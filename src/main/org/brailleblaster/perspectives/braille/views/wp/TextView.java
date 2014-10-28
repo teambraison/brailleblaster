@@ -80,11 +80,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 public class TextView extends WPView {
-	private final static int LEFT_MARGIN = 16;
-	private final static int RIGHT_MARGIN = 57;
-	private final static int TOP_MARGIN = 0;
-	private final static int BOTTOM_MARGIN = 100;
-	
 	private int oldCursorPosition = -1;
 	private int currentChar;
 	private int currentStart, currentEnd, previousEnd, nextStart, selectionStart, selectionLength;
@@ -113,7 +108,7 @@ public class TextView extends WPView {
 
 	
  	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
-		super (manager, sash, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
+		super (manager, sash, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -1728,7 +1723,7 @@ public class TextView extends WPView {
 	public void resetView(SashForm sashform) {
 		setListenerLock(true);
 		menu.dispose();
-		recreateView(sashform, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		recreateView(sashform);
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;

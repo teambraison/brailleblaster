@@ -2,19 +2,19 @@ package org.brailleblaster.perspectives.braille.stylepanel;
 
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Group;
 
 public class NewStyleView extends EditPanel{
 	
 	private Button saveButton, cancelButton;
 	
-	public NewStyleView(final StyleManager sm, Group documentWindow) {
-	    super(sm, documentWindow, null);
+	public NewStyleView(final StyleManager sm, SashForm sash) {
+	    super(sm, sash, null);
 		cancelButton = new Button(group, SWT.NONE);
 		cancelButton.setText(lh.localValue("styleCancel"));
 		setLayoutData(cancelButton, 0, 50, 90, 100);

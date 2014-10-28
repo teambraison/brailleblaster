@@ -53,6 +53,7 @@ import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
 import org.eclipse.swt.custom.ST;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.FocusEvent;
@@ -67,7 +68,6 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
-import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends WPView {
 	private final static int LEFT_MARGIN = 58;
@@ -95,8 +95,8 @@ public class BrailleView extends WPView {
 	
 
 	
-	public BrailleView(Manager manager, Group documentWindow, BBSemanticsTable table) {
-		super(manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
+	public BrailleView(Manager manager, SashForm sash, BBSemanticsTable table) {
+		super(manager, sash, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -831,9 +831,9 @@ public class BrailleView extends WPView {
 	}
 
 	@Override
-	public void resetView(Group group) {
+	public void resetView(SashForm sashform) {
 		setListenerLock(true);
-		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		recreateView(sashform, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;

@@ -12,7 +12,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Tree;
 
 public abstract class TreeView extends AbstractView implements BBTree{
@@ -23,26 +23,26 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	private final static int ADJUSTED_BOTTOM_MARGIN = 49;
 	
 	protected Tree tree;
-	private Group group;
+	private SashForm sash;
 	
-	public TreeView(final Manager manager, Group documentWindow){
-		super(manager, documentWindow);
-		group = documentWindow;
-		tree = new Tree(group, SWT.VIRTUAL | SWT.BORDER);	
+	public TreeView(final Manager manager, SashForm sash){
+		super(manager, sash);
+		this.sash = sash;
+		tree = new Tree(sash, SWT.VIRTUAL | SWT.BORDER);	
 		setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 	}
 	
-	public static BBTree loadTree(Manager m, Group group){
+	public static BBTree loadTree(Manager m, SashForm sash){
 		PropertyFileManager prop = BBIni.getPropertyFileManager();
 		String tree = prop.getProperty("tree");
 		if(tree == null){
 			prop.save("tree", BookTree.class.getCanonicalName().toString());
-			return new BookTree(m, group);
+			return new BookTree(m, sash);
 		}
 		else {			
 			try {
 				Class<?> clss = Class.forName(tree);
-				return TreeView.createTree(clss, m, group);	
+				return TreeView.createTree(clss, m, sash);	
 			} catch (ClassNotFoundException e) {		
 				logger.error("Class Not Found Exception", e);
 			} 
@@ -63,7 +63,7 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		else
 			setLayout(tree, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, ADJUSTED_BOTTOM_MARGIN);
 		
-		group.layout();
+		sash.layout();
 	}
 	
 	@Override
@@ -72,10 +72,10 @@ public abstract class TreeView extends AbstractView implements BBTree{
 		tree.dispose();
 	}
 	
-	public static BBTree createTree(Class<?>clss, Manager manager, Group group){
+	public static BBTree createTree(Class<?>clss, Manager manager, SashForm sashform){
 		try {
-			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, Group.class});
-			return (BBTree)constructor.newInstance(manager, group);
+			Constructor<?> constructor = clss.getConstructor(new Class[]{Manager.class, SashForm.class});
+			return (BBTree)constructor.newInstance(manager, sashform);
 		} catch (NoSuchMethodException e) {
 			logger.error("No Such Method Exception", e);
 		} catch (SecurityException e) {

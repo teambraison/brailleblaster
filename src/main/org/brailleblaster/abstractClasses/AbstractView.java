@@ -36,10 +36,10 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +50,7 @@ public abstract class AbstractView {
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	protected boolean locked;
-	protected Group group;
+	protected SashForm sash;
 	protected Manager manager;
 	protected static Logger logger = LoggerFactory.getLogger(AbstractView.class);
 	
@@ -61,9 +61,9 @@ public abstract class AbstractView {
 	 * @param manager : manager for relaying information to models
 	 * @param group : group in which to embed view
 	 */
-	public AbstractView(Manager manager, Group group) {
+	public AbstractView(Manager manager, SashForm sash) {
 		this.manager = manager;
-		this.group = group;
+		this.sash = sash;
 	}
 	
 	/** Convenience method for setting form data on an swt widget

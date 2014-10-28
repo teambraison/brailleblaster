@@ -15,11 +15,11 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
@@ -65,14 +65,14 @@ public class BookTree extends TreeView {
 	private SelectionAdapter selectionListener;
 	private FocusListener focusListener;
 	
-	public BookTree(final Manager dm, Group documentWindow){
-		super(dm, documentWindow);
+	public BookTree(final Manager dm, SashForm sash){
+		super(dm, sash);
 		table = dm.getStyleTable();
 		tree.pack();
 	}
 	
 	@Override
-	public void resetView(Group group) {
+	public void resetView(SashForm sash) {
 		setListenerLock(true);
 		root.setExpanded(false);
 		root.dispose();

@@ -12,6 +12,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -21,7 +22,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Group;
 
 public abstract class WPView extends AbstractView implements BBView {
 	protected BBSemanticsTable stylesTable;
@@ -32,13 +32,13 @@ public abstract class WPView extends AbstractView implements BBView {
 	protected int charWidth;
 	protected ModifyListener viewMod;
 	
-	public WPView(Manager manager, Group group, int left, int right, int top, int bottom, BBSemanticsTable table){
-		super(manager, group);
+	public WPView(Manager manager, SashForm sash, int left, int right, int top, int bottom, BBSemanticsTable table){
+		super(manager, sash);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.stylesTable = table;
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		view = new StyledText(sash, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		setLayout(view, left, right, top, bottom);
 		// Better use a ModifyListener to set the change flag.
 		viewMod = new ModifyListener() {
@@ -85,10 +85,10 @@ public abstract class WPView extends AbstractView implements BBView {
 	 */
 	public void positionScrollbar(int topIndex){
 		setListenerLock(true);
-		group.setRedraw(false);
+		sash.setRedraw(false);
 		view.setTopIndex(topIndex);
-		group.setRedraw(true);
-		group.getDisplay().update();
+		sash.setRedraw(true);
+		sash.getDisplay().update();
 		setListenerLock(false);
 	}
 	
@@ -408,9 +408,9 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param top : top position for layout
 	 * @param bottom : bottom position for layout
 	 */
-	protected void recreateView(Group group, int left, int right, int top, int bottom){
+	protected void recreateView(SashForm sashform, int left, int right, int top, int bottom){
 		view.dispose();
-		view = new StyledText(group, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		view = new StyledText(sashform, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		view.addModifyListener(viewMod);
 		setLayout(view, left, right, top, bottom);
 		view.getParent().layout();

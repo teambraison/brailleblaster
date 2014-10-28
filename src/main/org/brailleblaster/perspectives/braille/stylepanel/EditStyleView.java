@@ -5,6 +5,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -14,7 +15,6 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 
 
 public class EditStyleView extends EditPanel {
@@ -24,8 +24,8 @@ public class EditStyleView extends EditPanel {
 	
 	private boolean save;
 	
-	public EditStyleView(final StyleManager sm, Group documentWindow, Styles style){
-		super(sm, documentWindow, style);
+	public EditStyleView(final StyleManager sm, SashForm sash, Styles style){
+		super(sm, sash, style);
 		save = true;
 		
 		cancelButton = new Button(group, SWT.NONE);

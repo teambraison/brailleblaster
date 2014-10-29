@@ -138,9 +138,7 @@ public class Manager extends Controller {
 		text = new TextView(this, editorSash, styles);
 		braille = new BrailleView(this, editorSash, styles);
 		
-		editorSash.setWeights(new int [] {50, 50});
-		miscSash.setWeights(new int[] {100, 0});
-		containerSash.setWeights(new int[] {10, 90});
+		setSash();
 		
 		item.setControl(this.containerSash);
 		initializeDocumentTab();
@@ -229,6 +227,28 @@ public class Manager extends Controller {
 		fontManager.setShellFonts(wp.getShell(), simBrailleDisplayed);	
 		setTabList();
 		wp.getShell().layout();
+	}
+	
+	private void setSash(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		String containerWeight = pfm.getProperty("containerWeight");
+		String editorWeight = pfm.getProperty("textWeight");
+		
+		if(containerWeight != null){
+			Integer val = Integer.valueOf(containerWeight);
+			containerSash.setWeights(new int [] {1000 - val, val});
+		}
+		else
+			containerSash.setWeights(new int [] {10, 90});
+		
+		if(editorWeight != null) {
+			Integer val = Integer.valueOf(editorWeight);
+			editorSash.setWeights(new int [] {val, 1000 - val});
+		}
+		else
+			editorSash.setWeights(new int []{50, 50});
+		
+		miscSash.setWeights(new int[] {100, 0});
 	}
 	
 	public void setTabList(){
@@ -1085,6 +1105,7 @@ public class Manager extends Controller {
 			// Clear previous session information. Otherwise, we'll be looking 
 			// for files in the user's temp folder that aren't there.
 			arch.clearPrevSession();
+			saveScreenProperties();
 			dispose();
 			item.dispose();
 			fontManager.disposeFonts();
@@ -1277,9 +1298,19 @@ public class Manager extends Controller {
 				sm.displayTable(list.getCurrent());
 			}
 			setTabList();
-			miscSash.setWeights(new int[]{50, 50});
+			PropertyFileManager pfm = BBIni.getPropertyFileManager();
+			String weight = pfm.getProperty("stylePanelWeight");
+			if(weight != null){
+				Integer val = Integer.valueOf(weight);
+				miscSash.setWeights(new int [] {1000 - val, val});
+			}
+			else
+				miscSash.setWeights(new int[]{50, 50});
 		}
 		else {
+			int [] panelWeights = miscSash.getWeights();
+			PropertyFileManager pfm = BBIni.getPropertyFileManager();
+			pfm.save("stylePanelWeight", String.valueOf(panelWeights[1]));
 			sm.hideTable();
 			setTabList();
 			miscSash.setWeights(new int[]{100, 0});
@@ -1709,6 +1740,20 @@ public class Manager extends Controller {
 		if(sm.getStyleTable().isVisible()){
 			e.doit = false;
 			sm.getStyleTable().getTable().setFocus();
+		}
+	}
+	
+	private void saveScreenProperties(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		int [] containerWeights = containerSash.getWeights();
+		int [] editorWeights = editorSash.getWeights();
+		
+		pfm.save("containerWeight", String.valueOf(containerWeights[1]));
+		pfm.save("textWeight", String.valueOf(editorWeights[0]));
+		
+		if(sm.panelIsVisible()){
+			int [] panelWeights = miscSash.getWeights();
+			pfm.save("stylePanelWeight", String.valueOf(panelWeights[1]));
 		}
 	}
 	

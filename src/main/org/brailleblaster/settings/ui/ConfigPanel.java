@@ -36,7 +36,7 @@ public class ConfigPanel {
 	public ConfigPanel(final SettingsManager sm, final Manager m){
 		LocaleHandler lh = new LocaleHandler();
 		shell = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.CLOSE | SWT.TITLE | SWT.MIN);
-		shell.setText(lh.localValue("settings"));
+		shell.setText( lh.localValue("settings") );
 		shell.setLayout(new FormLayout());
 		setPanelSize();
 		

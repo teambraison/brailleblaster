@@ -35,7 +35,7 @@ public class AdvancedTab {
 		this.sm = sm;
 		m_settingsMap = settingsMap;
 		item = new TabItem(folder, 0);	
-		item.setText(lh.localValue("advancedProperties"));
+		item.setText( lh.localValue("advancedProperties") );
 		
 		group = new Composite(folder, 0);
 		group.setLayout(new FormLayout());

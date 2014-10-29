@@ -139,7 +139,7 @@ public class Manager extends Controller {
 		braille = new BrailleView(this, editorSash, styles);
 		
 		setSash();
-		
+		setEditingView();
 		item.setControl(this.containerSash);
 		initializeDocumentTab();
 		document = new BrailleDocument(this, styles);
@@ -249,6 +249,26 @@ public class Manager extends Controller {
 			editorSash.setWeights(new int []{50, 50});
 		
 		miscSash.setWeights(new int[] {100, 0});
+	}
+	
+	private void setEditingView(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		String view = pfm.getProperty("editorView");
+		if(view != null){
+			if(view.equals("text"))
+				editorSash.setMaximizedControl(text.view);
+			else if(view.equals("braille"))
+				editorSash.setMaximizedControl(braille.view);
+		}
+	}
+	
+	public void setEditingView(String key){
+		if(key == null)
+			editorSash.setMaximizedControl(null);
+		else if(key.equals("text"))
+			editorSash.setMaximizedControl(text.view);
+		else if(key.equals("braille"))
+			editorSash.setMaximizedControl(braille.view);
 	}
 	
 	public void setTabList(){
@@ -1755,10 +1775,33 @@ public class Manager extends Controller {
 			int [] panelWeights = miscSash.getWeights();
 			pfm.save("stylePanelWeight", String.valueOf(panelWeights[1]));
 		}
+		
+		if(editorSash.getMaximizedControl() != null){
+			if(editorSash.getMaximizedControl().equals(text.view))
+				pfm.save("editorView", "text");
+			else if(editorSash.getMaximizedControl().equals(braille.view))
+				pfm.save("editorView", "braille");
+		}
+		else
+			pfm.save("editorView", "");
 	}
 	
 	@Override
 	public boolean documentHasBeenEdited(){
 		return text.hasChanged || braille.hasChanged || arch.getDocumentEdited();
+	}
+	
+	public String getCurrentEditor(){
+		Control c = editorSash.getMaximizedControl();
+		if(c != null){
+			if(c.equals(text.view))
+				return "text";
+			else if(c.equals(braille.view))
+				return "braille";
+			else
+				return null;
+		}
+		else
+			return null;
 	}
 }

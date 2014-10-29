@@ -255,9 +255,9 @@ public class Manager extends Controller {
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
-			if(view.equals("text"))
+			if(view.equals(text.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(text.view);
-			else if(view.equals("braille"))
+			else if(view.equals(braille.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(braille.view);
 		}
 	}
@@ -265,9 +265,9 @@ public class Manager extends Controller {
 	public void setEditingView(String key){
 		if(key == null)
 			editorSash.setMaximizedControl(null);
-		else if(key.equals("text"))
+		else if(key.equals(text.getClass().getCanonicalName()))
 			editorSash.setMaximizedControl(text.view);
-		else if(key.equals("braille"))
+		else if(key.equals(braille.getClass().getCanonicalName()))
 			editorSash.setMaximizedControl(braille.view);
 	}
 	
@@ -1778,9 +1778,9 @@ public class Manager extends Controller {
 		
 		if(editorSash.getMaximizedControl() != null){
 			if(editorSash.getMaximizedControl().equals(text.view))
-				pfm.save("editorView", "text");
+				pfm.save("editorView", text.getClass().getCanonicalName());
 			else if(editorSash.getMaximizedControl().equals(braille.view))
-				pfm.save("editorView", "braille");
+				pfm.save("editorView", braille.getClass().getCanonicalName());
 		}
 		else
 			pfm.save("editorView", "");
@@ -1795,9 +1795,9 @@ public class Manager extends Controller {
 		Control c = editorSash.getMaximizedControl();
 		if(c != null){
 			if(c.equals(text.view))
-				return "text";
+				return text.getClass().getCanonicalName();
 			else if(c.equals(braille.view))
-				return "braille";
+				return braille.getClass().getCanonicalName();
 			else
 				return null;
 		}

@@ -5,8 +5,9 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.settings.SettingsDialog;
-import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -530,7 +531,7 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(textItem.getSelection() && !textItem.equals(selectedViewItem)){
-					currentEditor.setEditingView("text");
+					currentEditor.setEditingView(TextView.class.getCanonicalName());
 					selectedViewItem = textItem;
 				}
 			}
@@ -542,7 +543,7 @@ public class BrailleMenu extends BBMenu{
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if(brailleItem.getSelection() && !brailleItem.equals(selectedViewItem)){
-					currentEditor.setEditingView("braille");
+					currentEditor.setEditingView(BrailleView.class.getCanonicalName());
 					selectedViewItem = brailleItem;
 				}
 			}
@@ -870,8 +871,6 @@ public class BrailleMenu extends BBMenu{
 	}
 	
 	private void setEditorView(){
-		//PropertyFileManager pfm = BBIni.getPropertyFileManager();
-		//String view = pfm.getProperty("editorView");
 		String view = currentEditor.getCurrentEditor();
 		if(view == null || view.equals("")){
 			dualViewItem.setSelection(true);
@@ -879,13 +878,13 @@ public class BrailleMenu extends BBMenu{
 			brailleItem.setSelection(false);
 			selectedViewItem = dualViewItem;
 		}
-		else if(view.equals("text")){
+		else if(view.equals(TextView.class.getCanonicalName())){
 			textItem.setSelection(true);
 			dualViewItem.setSelection(false);
 			brailleItem.setSelection(false);
 			selectedViewItem = textItem;
 		}
-		else if(view.equals("braille")) {
+		else if(view.equals(BrailleView.class.getCanonicalName())) {
 			brailleItem.setSelection(true);
 			dualViewItem.setSelection(false);
 			textItem.setSelection(false);

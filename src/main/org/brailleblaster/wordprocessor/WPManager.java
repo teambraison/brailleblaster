@@ -76,6 +76,7 @@ public class WPManager {
 	private Perspective currentPerspective;
 	private LinkedList<Controller> managerList;
 	private Class<?> lastPerspective;
+	private SelectionAdapter folderListener;
 	private static final int MAX_NUM_DOCS = 4;// the max limit of total number
 												// of docs can have at the same
 												// time
@@ -112,7 +113,7 @@ public class WPManager {
 		currentPerspective.getController().setStatusBarText(statusBar);
 		bbMenu = currentPerspective.getMenu();
 
-		folder.addSelectionListener(new SelectionAdapter() {
+		folder.addSelectionListener(folderListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
@@ -178,6 +179,7 @@ public class WPManager {
 
 	// Call on close events. Returns true if the whole app should close.
 	public boolean close() {
+		folder.removeSelectionListener(folderListener);
 		int i = 0;
 		while(managerList.size() > 0 && i < managerList.size()){
 			int size = managerList.size();
@@ -192,6 +194,7 @@ public class WPManager {
 			return true;
 		}
 			
+		folder.addSelectionListener(folderListener);
 		return false;
 	}
 	

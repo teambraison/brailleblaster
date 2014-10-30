@@ -255,16 +255,24 @@ public class Manager extends Controller {
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
-			if(view.equals(text.getClass().getCanonicalName()))
+			if(view.equals(text.getClass().getCanonicalName())){
 				editorSash.setMaximizedControl(text.view);
-			else if(view.equals(braille.getClass().getCanonicalName()))
+			}
+			else if(view.equals(braille.getClass().getCanonicalName())){
 				editorSash.setMaximizedControl(braille.view);
+			}
 		}
 	}
 	
 	public void setEditingView(String key){
-		if(key == null)
+		text.update(false);
+		
+		if(key == null){
 			editorSash.setMaximizedControl(null);
+			//reset weights using absolute value to handle obscure swt bug that results in negative weights
+			int[] weight = editorSash.getWeights();
+			editorSash.setWeights(new int [] {Math.abs(weight[0]), Math.abs(weight[1])});
+		}
 		else if(key.equals(text.getClass().getCanonicalName()))
 			editorSash.setMaximizedControl(text.view);
 		else if(key.equals(braille.getClass().getCanonicalName()))
@@ -1768,12 +1776,12 @@ public class Manager extends Controller {
 		int [] containerWeights = containerSash.getWeights();
 		int [] editorWeights = editorSash.getWeights();
 		
-		pfm.save("containerWeight", String.valueOf(containerWeights[1]));
-		pfm.save("textWeight", String.valueOf(editorWeights[0]));
+		pfm.save("containerWeight", String.valueOf(Math.abs(containerWeights[1])));
+		pfm.save("textWeight", String.valueOf(Math.abs(editorWeights[0])));
 		
 		if(sm.panelIsVisible()){
 			int [] panelWeights = miscSash.getWeights();
-			pfm.save("stylePanelWeight", String.valueOf(panelWeights[1]));
+			pfm.save("stylePanelWeight", String.valueOf(Math.abs(panelWeights[1])));
 		}
 		
 		if(editorSash.getMaximizedControl() != null){

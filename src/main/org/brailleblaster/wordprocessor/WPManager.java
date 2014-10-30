@@ -30,10 +30,6 @@
 
 package org.brailleblaster.wordprocessor;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.brailleblaster.BBIni;

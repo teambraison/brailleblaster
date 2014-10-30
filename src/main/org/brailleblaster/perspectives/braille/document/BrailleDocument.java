@@ -475,6 +475,24 @@ public class BrailleDocument extends BBDocument {
 		return transElement;
 	}
 	
+	/** Translates a group of elements
+	 * @param list: list of elements to append to a document for translation
+	 * @return : document with translation
+	 */
+	public Document translateElements(ArrayList<Element> list){
+		Document d;
+		String elString = "";
+		for(int i = 0; i < list.size(); i++){
+			Element e = (Element) list.get(i).copy();
+			removeBraille(e);
+			removeSemantics(e);
+			elString += e.toXML().toString();
+		}
+		String xml = getXMLString(elString);
+		d = getXML(xml);
+		return d;
+	}
+	
 	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
 	 * @param t : TextMapElement containing node to remove
 	 * @param message : message to put element information

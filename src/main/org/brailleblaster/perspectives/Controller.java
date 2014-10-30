@@ -15,6 +15,10 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
 
+/**
+ * @author cmyers
+ *
+ */
 public abstract class Controller implements DocumentManager{
 	protected final String templateFile = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "textFileTemplate.html";
 	

@@ -30,10 +30,6 @@
 
 package org.brailleblaster.wordprocessor;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
 
 import org.brailleblaster.BBIni;
@@ -76,6 +72,7 @@ public class WPManager {
 	private Perspective currentPerspective;
 	private LinkedList<Controller> managerList;
 	private Class<?> lastPerspective;
+	private SelectionAdapter folderListener;
 	private static final int MAX_NUM_DOCS = 4;// the max limit of total number
 												// of docs can have at the same
 												// time
@@ -83,22 +80,6 @@ public class WPManager {
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
 	public WPManager(String fileName) {
-		
-		// This little socket snippet will prevent multiple instances 
-		// of braille blaster to run.
-		
-		// Port number.
-		int PORT = 12345;
-		ServerSocket s = null;
-		try {
-			s = new ServerSocket( PORT, 10, InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) );
-		}
-		catch (UnknownHostException e) { } // Local host shouldn't run into this.
-		catch (IOException e) {
-			// Port is already being used... by another Braille Blaster!!!!
-			System.out.println("Only one instance of Braille Blaster can run at a time!");
-			System.exit(0);
-		}
 		
 		managerList = new LinkedList<Controller>();
 		checkLiblouisutdml();
@@ -128,7 +109,7 @@ public class WPManager {
 		currentPerspective.getController().setStatusBarText(statusBar);
 		bbMenu = currentPerspective.getMenu();
 
-		folder.addSelectionListener(new SelectionAdapter() {
+		folder.addSelectionListener(folderListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
@@ -155,13 +136,7 @@ public class WPManager {
 			public void handleEvent(Event event) {
 				logger.info("Main Shell handling Close event, about to dispose the main Display");
 
-				while (managerList.size() > 0) {
-					Controller temp = managerList.removeFirst();
-					temp.close();
-				}
-
-				shell.dispose();
-				bbMenu.writeRecentsToFile();
+				event.doit = close();
 			}
 		});
 
@@ -198,6 +173,27 @@ public class WPManager {
 			savePerspectiveSetting();
 	}
 
+	// Call on close events. Returns true if the whole app should close.
+	public boolean close() {
+		folder.removeSelectionListener(folderListener);
+		int i = 0;
+		while(managerList.size() > 0 && i < managerList.size()){
+			int size = managerList.size();
+			Controller temp = managerList.get(i);
+			temp.close();		
+			if(size == managerList.size())
+				i++;
+		}
+		if(getList().size() == 0) {
+			shell.dispose();
+			bbMenu.writeRecentsToFile();
+			return true;
+		}
+			
+		folder.addSelectionListener(folderListener);
+		return false;
+	}
+	
 	private void setShellScreenLocation(Display display, Shell shell) {
 		Monitor primary = display.getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();

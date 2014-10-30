@@ -14,13 +14,13 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
@@ -43,8 +43,8 @@ public class XMLTree extends TreeView {
 	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
 	
-	public XMLTree(final Manager dm, Group documentWindow){
-		super(dm, documentWindow);
+	public XMLTree(final Manager dm, SashForm sash){
+		super(dm, sash);
 		this.menu = new Menu(tree);
 		MenuItem item = new MenuItem(menu, SWT.NONE);
 		item.setText("Edit Element Style");
@@ -306,7 +306,7 @@ public class XMLTree extends TreeView {
 	}
 	
 	@Override
-	public void resetView(Group group) {
+	public void resetView(SashForm sash) {
 		setListenerLock(true);
 		this.root.setExpanded(false);
 		depopulateItemChildren(this.root);
@@ -677,9 +677,8 @@ public class XMLTree extends TreeView {
 		
 		TreeItem item = (TreeItem)m.getValue("item");
 		int index = item.getParentItem().indexOf(item);
-		
 		TreeItem [] children = item.getItems();
-			
+		
 		for(int i = 0; i < children.length; i++){
 			populateItemChildren(children[i], getTreeItemData(children[i]).element);
 			TreeItem newItem = new TreeItem(item.getParentItem(), SWT.NONE, index);
@@ -696,5 +695,15 @@ public class XMLTree extends TreeView {
 		}
 		
 		item.dispose();
+	}
+
+	@Override
+	public void populateItem(Element e) {
+		Message m = new Message(null);
+		searchTreeForElement(root, e, m);
+		
+		TreeItem item = (TreeItem)m.getValue("item");
+		if(item.getItemCount() == 0)
+			populateItemChildren(item, getTreeItemData(item).element);
 	}
 }

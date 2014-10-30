@@ -88,17 +88,17 @@ import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.TabItem;
 
 //This class manages each document in an MDI environment. It controls the braille View and the daisy View.
 public class Manager extends Controller {
-	Group group;
+	SashForm containerSash, miscSash, editorSash;
 	BBTree treeView;
 	private TextView text;
 	private BrailleView braille;
@@ -106,7 +106,7 @@ public class Manager extends Controller {
 	private ViewInitializer vi;
 	StyleManager sm;
 	FormLayout layout;
-	Control [] tabList;
+
 	BBSemanticsTable styles;
 	String documentName = null;
 	String logFile = "Translate.log";
@@ -128,13 +128,19 @@ public class Manager extends Controller {
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
-		group = new Group(wp.getFolder(),SWT.NONE);
-		group.setLayout(new FormLayout());	
-		sm = new StyleManager(this);
-		treeView = TreeView.loadTree(this, group);
-		text = new TextView(this, group, styles);
-		braille = new BrailleView(this, group, styles);
-		item.setControl(this.group);
+		containerSash = new SashForm(wp.getFolder(),SWT.HORIZONTAL);
+		
+		miscSash = new SashForm(containerSash, SWT.VERTICAL);
+		treeView = TreeView.loadTree(this, miscSash);
+		sm = new StyleManager(this, miscSash);
+		
+		editorSash = new SashForm(containerSash, SWT.HORIZONTAL);
+		text = new TextView(this, editorSash, styles);
+		braille = new BrailleView(this, editorSash, styles);
+		
+		setSash();
+		setEditingView();
+		item.setControl(this.containerSash);
 		initializeDocumentTab();
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
@@ -173,13 +179,22 @@ public class Manager extends Controller {
 		styles = new BBSemanticsTable(arch.getCurrentConfig());
 		documentName = arch.getOrigDocPath();
 		this.item = item;
-		group = new Group(wp.getFolder(),SWT.NONE);
-		group.setLayout(new FormLayout());	
-		sm = new StyleManager(this);
-		treeView = TreeView.loadTree(this, group);
-		text = new TextView(this, group, styles);
-		braille = new BrailleView(this, group, styles);
-		this.item.setControl(group);
+		containerSash = new SashForm(wp.getFolder(),SWT.NONE);
+		containerSash.setLayout(new FormLayout());	
+		
+		miscSash = new SashForm(containerSash, SWT.VERTICAL);
+		treeView = TreeView.loadTree(this, miscSash);
+		sm = new StyleManager(this, miscSash);
+		
+		editorSash = new SashForm(containerSash, SWT.HORIZONTAL);
+		text = new TextView(this, editorSash, styles);
+		braille = new BrailleView(this, editorSash, styles);
+		
+		editorSash.setWeights(new int [] {50, 50});
+		miscSash.setWeights(new int[] {100, 0});
+		containerSash.setWeights(new int[] {10, 90});
+		
+		this.item.setControl(containerSash);
 		initializeDocumentTab();
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
@@ -188,7 +203,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		
-		group.setRedraw(false);
+		containerSash.setRedraw(false);
 		vi.initializeViews(this);
 		list = vi.getList(this);
 		
@@ -201,9 +216,7 @@ public class Manager extends Controller {
 		braille.hasChanged = false;
 		text.view.setWordWrap(true);
 		braille.view.setWordWrap(true);
-		group.setRedraw(true);
-		//if(list.size() == 0)
-		//	formatTemplateDocument();
+		containerSash.setRedraw(true);
 		
 		if(BBIni.getPlatformName().equals("cocoa"))
 			treeView.getTree().select(treeView.getRoot());
@@ -216,13 +229,72 @@ public class Manager extends Controller {
 		wp.getShell().layout();
 	}
 	
-	public void setTabList(){
-		if(sm.panelIsVisible())
-			tabList = new Control[]{treeView.getTree(), sm.getGroup(), text.view, braille.view};
-		else 
-			tabList = new Control[]{treeView.getTree(), text.view, braille.view};
+	private void setSash(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		String containerWeight = pfm.getProperty("containerWeight");
+		String editorWeight = pfm.getProperty("textWeight");
 		
-		group.setTabList(tabList);
+		if(containerWeight != null){
+			Integer val = Integer.valueOf(containerWeight);
+			containerSash.setWeights(new int [] {1000 - val, val});
+		}
+		else
+			containerSash.setWeights(new int [] {10, 90});
+		
+		if(editorWeight != null) {
+			Integer val = Integer.valueOf(editorWeight);
+			editorSash.setWeights(new int [] {val, 1000 - val});
+		}
+		else
+			editorSash.setWeights(new int []{50, 50});
+		
+		miscSash.setWeights(new int[] {100, 0});
+	}
+	
+	private void setEditingView(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		String view = pfm.getProperty("editorView");
+		if(view != null){
+			if(view.equals(text.getClass().getCanonicalName())){
+				editorSash.setMaximizedControl(text.view);
+			}
+			else if(view.equals(braille.getClass().getCanonicalName())){
+				editorSash.setMaximizedControl(braille.view);
+			}
+		}
+	}
+	
+	public void setEditingView(String key){
+		text.update(false);
+		
+		if(key == null){
+			editorSash.setMaximizedControl(null);
+			//reset weights using absolute value to handle obscure swt bug that results in negative weights
+			int[] weight = editorSash.getWeights();
+			editorSash.setWeights(new int [] {Math.abs(weight[0]), Math.abs(weight[1])});
+		}
+		else if(key.equals(text.getClass().getCanonicalName()))
+			editorSash.setMaximizedControl(text.view);
+		else if(key.equals(braille.getClass().getCanonicalName()))
+			editorSash.setMaximizedControl(braille.view);
+	}
+	
+	public void setTabList(){
+		Control [] tabList, tabList2, tabList3;
+		if(sm.panelIsVisible()){
+			tabList = new Control[]{miscSash, editorSash};
+			tabList2 = new Control[]{treeView.getTree(), sm.getGroup()};
+			tabList3 = new Control[] {text.view, braille.view};
+		}
+		else { 
+			tabList = new Control[]{miscSash, editorSash};
+			tabList2 = new Control[]{treeView.getTree()};
+			tabList3 = new Control[] {text.view, braille.view};
+		}
+		
+		containerSash.setTabList(tabList);
+		miscSash.setTabList(tabList2);
+		editorSash.setTabList(tabList3);
 	}
 	
 	///////////////////////////////////////////////////////////////
@@ -284,7 +356,7 @@ public class Manager extends Controller {
 		try{
 			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
 				checkSemanticsTable();
-				group.setRedraw(false);
+				containerSash.setRedraw(false);
 				text.view.setWordWrap(false);
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
@@ -308,7 +380,7 @@ public class Manager extends Controller {
 				braille.setWords(text.words);
 				text.view.setWordWrap(true);
 				braille.view.setWordWrap(true);
-				group.setRedraw(true);
+				containerSash.setRedraw(true);
 				checkAtributeEditor();
 			}
 			else {
@@ -830,7 +902,7 @@ public class Manager extends Controller {
 	 */
 	private void handleUpdateStyle(Message message) {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
-			group.setRedraw(false);
+			containerSash.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
 				if(message.getValue("multiSelect").equals(false)) 
 					handleSingleBoxLine(message);
@@ -843,7 +915,7 @@ public class Manager extends Controller {
 				else 
 					handleStyleMultiSelected(message);
 			}
-			group.setRedraw(true);
+			containerSash.setRedraw(true);
 		}
 		else
 			new Notify(lh.localValue("nothingToApply"));
@@ -905,13 +977,15 @@ public class Manager extends Controller {
 		}
 		else {
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-				itemList.add(0, box);
-			else
-				itemList.add(box);
+			if(box != null){
+				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
+					itemList.add(0, box);
+				else
+					itemList.add(box);
+			}
 			
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.removeBoxline(parent, itemList);
+			bxh.removeSingleBoxline(parent, itemList);
 			
 			if(list.getCurrentIndex() > list.size())
 				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
@@ -937,7 +1011,8 @@ public class Manager extends Controller {
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if(b == null || b.start > end || b.end < start){
+				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
+						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
 					if(!BBIni.debugging())
 						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
@@ -1058,6 +1133,7 @@ public class Manager extends Controller {
 			// Clear previous session information. Otherwise, we'll be looking 
 			// for files in the user's temp folder that aren't there.
 			arch.clearPrevSession();
+			saveScreenProperties();
 			dispose();
 			item.dispose();
 			fontManager.disposeFonts();
@@ -1145,9 +1221,8 @@ public class Manager extends Controller {
 				currentOffset = text.view.getCaretOffset();
 				resetViews();
 				
-				if(currentOffset < text.view.getCharCount()){
+				if(currentOffset < text.view.getCharCount())
 					text.view.setCaretOffset(currentOffset);
-				}
 				else
 					text.view.setCaretOffset(0);
 			
@@ -1198,11 +1273,11 @@ public class Manager extends Controller {
 			fu.createXMLFile(document.getNewXML(), path);
 			list.clearList();
 			text.removeListeners();
-			text.resetView(group);
+			text.resetView(editorSash);
 			braille.removeListeners();
-			braille.resetView(group);
+			braille.resetView(editorSash);
 			treeView.removeListeners();
-			treeView.resetView(group);
+			treeView.resetView(miscSash);
 			initializeDocumentTab();
 			text.words = 0;
 			updateTempFile();
@@ -1244,7 +1319,6 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			treeView.adjustLayout(false);
 			if(list.size() == 0){
 				sm.displayTable(null);
 			}
@@ -1252,11 +1326,22 @@ public class Manager extends Controller {
 				sm.displayTable(list.getCurrent());
 			}
 			setTabList();
+			PropertyFileManager pfm = BBIni.getPropertyFileManager();
+			String weight = pfm.getProperty("stylePanelWeight");
+			if(weight != null){
+				Integer val = Integer.valueOf(weight);
+				miscSash.setWeights(new int [] {1000 - val, val});
+			}
+			else
+				miscSash.setWeights(new int[]{50, 50});
 		}
 		else {
-			treeView.adjustLayout(true);
+			int [] panelWeights = miscSash.getWeights();
+			PropertyFileManager pfm = BBIni.getPropertyFileManager();
+			pfm.save("stylePanelWeight", String.valueOf(panelWeights[1]));
 			sm.hideTable();
 			setTabList();
+			miscSash.setWeights(new int[]{100, 0});
 		}
 	}
 	
@@ -1514,12 +1599,13 @@ public class Manager extends Controller {
 	public void swapTree(Class<?> clss){
 		boolean focused = false;
 
+		int [] weights = miscSash.getWeights();
 		if(treeView.getTree().isFocusControl())
 			focused = true;
 			
 		treeView.removeListeners();
 		treeView.dispose();
-		treeView = TreeView.createTree(clss, this, group);
+		treeView = TreeView.createTree(clss, this, miscSash);
 		setTabList();
 		treeView.setRoot(document.getRootElement());
 		if(focused)
@@ -1529,6 +1615,10 @@ public class Manager extends Controller {
 		treeView.getTree().getParent().layout();
 		treeView.initializeListeners();
 		vi.resetTree(treeView);
+		
+		sm.getGroup().moveBelow(treeView.getTree());
+		miscSash.layout();
+		miscSash.setWeights(weights);
 		//save latest setting to user settings file
 		BBIni.getPropertyFileManager().save("tree",  treeView.getClass().getCanonicalName().toString());
 	}
@@ -1596,8 +1686,8 @@ public class Manager extends Controller {
 		return wp;
 	}
 	
-	public Group getGroup(){
-		return group;
+	public SashForm getGroup(){
+		return containerSash;
 	}
 	
 	public String getDocumentName(){
@@ -1641,7 +1731,7 @@ public class Manager extends Controller {
 	public void dispose() {
 		text.update(false);
 		list.clearList();
-		group.dispose();
+		containerSash.dispose();
 	}
 
 	@Override
@@ -1681,8 +1771,45 @@ public class Manager extends Controller {
 		}
 	}
 	
+	private void saveScreenProperties(){
+		PropertyFileManager pfm = BBIni.getPropertyFileManager();
+		int [] containerWeights = containerSash.getWeights();
+		int [] editorWeights = editorSash.getWeights();
+		
+		pfm.save("containerWeight", String.valueOf(Math.abs(containerWeights[1])));
+		pfm.save("textWeight", String.valueOf(Math.abs(editorWeights[0])));
+		
+		if(sm.panelIsVisible()){
+			int [] panelWeights = miscSash.getWeights();
+			pfm.save("stylePanelWeight", String.valueOf(Math.abs(panelWeights[1])));
+		}
+		
+		if(editorSash.getMaximizedControl() != null){
+			if(editorSash.getMaximizedControl().equals(text.view))
+				pfm.save("editorView", text.getClass().getCanonicalName());
+			else if(editorSash.getMaximizedControl().equals(braille.view))
+				pfm.save("editorView", braille.getClass().getCanonicalName());
+		}
+		else
+			pfm.save("editorView", "");
+	}
+	
 	@Override
 	public boolean documentHasBeenEdited(){
 		return text.hasChanged || braille.hasChanged || arch.getDocumentEdited();
+	}
+	
+	public String getCurrentEditor(){
+		Control c = editorSash.getMaximizedControl();
+		if(c != null){
+			if(c.equals(text.view))
+				return text.getClass().getCanonicalName();
+			else if(c.equals(braille.view))
+				return braille.getClass().getCanonicalName();
+			else
+				return null;
+		}
+		else
+			return null;
 	}
 }

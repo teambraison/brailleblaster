@@ -5,6 +5,8 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.tree.BookTree;
 import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.settings.SettingsDialog;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBMenu;
@@ -56,6 +58,12 @@ public class BrailleMenu extends BBMenu{
 	MenuItem xmlTreeItem;
 	MenuItem bookTreeItem;
 	MenuItem selectedTree;
+	Menu editorViewMenu;
+	MenuItem editorViewItem;
+	MenuItem dualViewItem;
+	MenuItem textItem;
+	MenuItem brailleItem;
+	MenuItem selectedViewItem;
 	MenuItem viewBrailleItem;
 	MenuItem prevElementItem;
 	MenuItem nextElementItem;
@@ -404,17 +412,6 @@ public class BrailleMenu extends BBMenu{
 					currentEditor.getText().selectAll();
 			}
 		});
-		stylePanelItem = new MenuItem(editMenu, SWT.CHECK);
-		stylePanelItem.setAccelerator(SWT.MOD1 + 'l');
-		stylePanelItem.setText(lh.localValue("&StylePanel") + "\t" + lh.localValue("Ctrl + L"));
-		stylePanelItem.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int count = wp.getFolder().getItemCount();
-				if(count > 0)
-					currentEditor.toggleAttributeEditor();
-			}
-		});
 		
 		assocSelectionItem = new MenuItem(editMenu, SWT.PUSH);
 		assocSelectionItem.setText(lh.localValue("&AssocSelection"));
@@ -511,6 +508,48 @@ public class BrailleMenu extends BBMenu{
 				
 		navigateItem.setMenu(navigateMenu);
 		
+		editorViewItem = new MenuItem(viewMenu, SWT.CASCADE);
+		editorViewItem.setText(lh.localValue("EditorWindows"));
+		editorViewMenu = new Menu(viewMenu.getShell(), SWT.DROP_DOWN);
+		editorViewItem.setMenu(editorViewMenu);
+		
+		dualViewItem = new MenuItem(editorViewMenu, SWT.RADIO);
+		dualViewItem.setText(lh.localValue("dualView"));
+		dualViewItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(dualViewItem.getSelection() && !dualViewItem.equals(selectedViewItem)){
+					currentEditor.setEditingView(null);
+					selectedViewItem = dualViewItem;
+				}
+			}
+		});
+		
+		textItem = new MenuItem(editorViewMenu, SWT.RADIO);
+		textItem.setText(lh.localValue("textView"));
+		textItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(textItem.getSelection() && !textItem.equals(selectedViewItem)){
+					currentEditor.setEditingView(TextView.class.getCanonicalName());
+					selectedViewItem = textItem;
+				}
+			}
+		});
+		
+		brailleItem = new MenuItem(editorViewMenu, SWT.RADIO);
+		brailleItem.setText(lh.localValue("brailleView"));
+		brailleItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if(brailleItem.getSelection() && !brailleItem.equals(selectedViewItem)){
+					currentEditor.setEditingView(BrailleView.class.getCanonicalName());
+					selectedViewItem = brailleItem;
+				}
+			}
+		});
+		setEditorView();
+		
 		treeViewItem = new MenuItem(viewMenu, SWT.CASCADE);
 		treeViewItem.setText(lh.localValue("tree"));
 		treeViewMenu = new Menu(viewMenu.getShell(), SWT.DROP_DOWN);
@@ -545,6 +584,18 @@ public class BrailleMenu extends BBMenu{
 		});
 		setTreeItem();
 		
+		stylePanelItem = new MenuItem(viewMenu, SWT.CHECK);
+		stylePanelItem.setAccelerator(SWT.MOD1 + 'l');
+		stylePanelItem.setText(lh.localValue("&StylePanel") + "\t" + lh.localValue("Ctrl + L"));
+		stylePanelItem.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int count = wp.getFolder().getItemCount();
+				if(count > 0)
+					currentEditor.toggleAttributeEditor();
+			}
+		});
+
 		viewBrailleItem = new MenuItem(viewMenu, SWT.CHECK);
 		viewBrailleItem.setText(lh.localValue("viewBraille"));
 		viewBrailleItem.addSelectionListener(new SelectionAdapter(){
@@ -782,6 +833,7 @@ public class BrailleMenu extends BBMenu{
 			if(treeViewMenu != null){
 				selectedTree.setSelection(false);
 				setTreeItem();
+				setEditorView();
 				setBrailleFont();
 			}
 		}
@@ -815,6 +867,28 @@ public class BrailleMenu extends BBMenu{
 		else {
 			selectedTree = treeViewMenu.getItem(0);
 			treeViewMenu.getItem(0).setSelection(true);
+		}
+	}
+	
+	private void setEditorView(){
+		String view = currentEditor.getCurrentEditor();
+		if(view == null || view.equals("")){
+			dualViewItem.setSelection(true);
+			textItem.setSelection(false);
+			brailleItem.setSelection(false);
+			selectedViewItem = dualViewItem;
+		}
+		else if(view.equals(TextView.class.getCanonicalName())){
+			textItem.setSelection(true);
+			dualViewItem.setSelection(false);
+			brailleItem.setSelection(false);
+			selectedViewItem = textItem;
+		}
+		else if(view.equals(BrailleView.class.getCanonicalName())) {
+			brailleItem.setSelection(true);
+			dualViewItem.setSelection(false);
+			textItem.setSelection(false);
+			selectedViewItem = brailleItem;
 		}
 	}
 	

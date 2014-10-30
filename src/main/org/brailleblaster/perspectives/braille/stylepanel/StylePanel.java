@@ -4,6 +4,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -24,9 +25,9 @@ public abstract class StylePanel {
 	protected Group group;
 	protected StyleManager sm;
 	
-	public StylePanel(StyleManager sm, Group documentWindow){
+	public StylePanel(StyleManager sm, SashForm sash){
 		this.sm = sm;
-		this.group = new Group(documentWindow, SWT.FILL | SWT.BORDER);
+		this.group = new Group(sash, SWT.FILL | SWT.BORDER);
 		this.group.setText(lh.localValue("editStyle"));
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());   	

@@ -4,12 +4,15 @@ import java.text.Collator;
 import java.util.Locale;
 import java.util.Set;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -50,10 +53,10 @@ public class StyleTable {
 	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
 	private SelectionAdapter applyStyle, removeStyle;
 	
-	public StyleTable(final StyleManager sm, Group documentWindow){
+	public StyleTable(final StyleManager sm, SashForm sash){
 		LocaleHandler lh = new LocaleHandler();
 		this.sm = sm;
-		this.group = new Group(documentWindow, SWT.FILL | SWT.BORDER);
+		this.group = new Group(sash, SWT.FILL | SWT.BORDER);
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());
 		this.group.setVisible(false);
@@ -328,10 +331,17 @@ public class StyleTable {
 	
 	public void setSelection(TextMapElement item){
 		Element parent = (Element)item.n.getParent();
-		while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
-			parent = (Element)parent.getParent();
+		String text;
+		if(item instanceof BrlOnlyMapElement && isBoxLine(item.parentElement())){
+			text = "boxline";
 		}
-		String text = sm.getSemanticsTable().getKeyFromAttribute(parent);
+		else {
+			while(sm.getSemanticsTable().getSemanticTypeFromAttribute(parent) == null || sm.getSemanticsTable().getSemanticTypeFromAttribute(parent).equals("action")){
+				parent = (Element)parent.getParent();
+			}
+			text = sm.getSemanticsTable().getKeyFromAttribute(parent);
+		}
+		
 		setSelection(searchTree(text));
 	}
 	
@@ -355,7 +365,8 @@ public class StyleTable {
     	String perefferedName;
     	
     	for(String s : list){
-    		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") && !s.equals("underlinex") && !s.equals("none"))
+    		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") &&
+    				!s.equals("topBox") && !s.equals("middleBox") & !s.equals("bottomBox") && !s.equals("underlinex") && !s.equals("none"))
     		{
     			if(sm.getSemanticsTable().get(s).contains(perefferedStyle)){
     				perefferedName=(String) sm.getSemanticsTable().get(s).get(perefferedStyle);
@@ -472,7 +483,7 @@ public class StyleTable {
     	if(textElement != null && t.getSelection().length > 0){
     		Element parent = getParent(textElement);
     	
-    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)))
+    		if(t.getSelection()[0].getData().equals(sm.getSemanticsTable().getKeyFromAttribute(parent)) || (t.getSelection()[0].getData().equals("boxline") && isBoxLine(parent)))
     			toggleApplyButton(true);
     		else
     			toggleApplyButton(false);
@@ -496,4 +507,20 @@ public class StyleTable {
     		removeStyleSet = false;
     	}
     }
+    
+    private boolean isBoxLine(Element e){
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean checkSemanticsAttribute(Element e, String value){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr == null || !atr.getValue().contains(value))
+			return false;
+		
+		return true;
+	}
 }

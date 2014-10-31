@@ -372,7 +372,7 @@ public class Manager extends Controller {
 				braille.view.setWordWrap(false);
 				wp.getStatusBar().resetLocation(6,100,100);
 				wp.getStatusBar().setText("Loading...");
-				// startProgressBar();
+				startProgressBar();
 				documentName = fileName;
 				setTabTitle(fileName);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
@@ -386,7 +386,7 @@ public class Manager extends Controller {
 				text.hasChanged = false;
 				braille.hasChanged = false;
 				wp.getStatusBar().resetLocation(0,100,100);
-				// pb.stop();
+				pb.stop();
 				wp.getStatusBar().setText("Words: " + text.words);
 				braille.setWords(text.words);
 				text.view.setWordWrap(true);

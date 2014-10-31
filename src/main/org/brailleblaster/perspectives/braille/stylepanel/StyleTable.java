@@ -12,6 +12,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -52,10 +53,10 @@ public class StyleTable {
 	private Button restoreButton, newButton, editButton, deleteButton, applyButton;
 	private SelectionAdapter applyStyle, removeStyle;
 	
-	public StyleTable(final StyleManager sm, Group documentWindow){
+	public StyleTable(final StyleManager sm, SashForm sash){
 		LocaleHandler lh = new LocaleHandler();
 		this.sm = sm;
-		this.group = new Group(documentWindow, SWT.FILL | SWT.BORDER);
+		this.group = new Group(sash, SWT.FILL | SWT.BORDER);
 		setLayoutData(this.group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
 		this.group.setLayout(new FormLayout());
 		this.group.setVisible(false);

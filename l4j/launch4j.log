@@ -1,0 +1,32 @@
+
+
+Version:	3.4
+CmdLine:	C:\APPS\cygwin\home\cmyers\brailleblaster\l4j\brailleblaster.exe --l4j-debug
+WOW64:		yes
+Working dir:	C:\APPS\cygwin\home\cmyers\brailleblaster\l4j\.
+64-bit search:	SOFTWARE\JavaSoft\Java Runtime Environment...
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.6
+Ignore:		1.6
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.6.0_32
+Check launcher:	C:\Program Files\Java\jre6\bin\javaw.exe (OK)
+Match:		1.6.0_32
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.7
+Check launcher:	C:\Program Files\Java\jre7\bin\javaw.exe (OK)
+Match:		1.7
+Check:		SOFTWARE\JavaSoft\Java Runtime Environment\1.7.0_11
+Check launcher:	C:\Program Files\Java\jre7\bin\javaw.exe (OK)
+Match:		1.7.0_11
+64-bit search:	SOFTWARE\JavaSoft\Java Development Kit...
+Check:		SOFTWARE\JavaSoft\Java Development Kit\1.6
+Ignore:		1.6
+Check:		SOFTWARE\JavaSoft\Java Development Kit\1.6.0_32
+Ignore:		1.6.0_32
+Check:		SOFTWARE\JavaSoft\Java Development Kit\1.7
+Ignore:		1.7
+Check:		SOFTWARE\JavaSoft\Java Development Kit\1.7.0_11
+Ignore:		1.7.0_11
+Runtime used:	1.7.0_11 (64-bit)
+Launcher:	C:\Program Files\Java\jre7\bin\javaw.exe
+Launcher args:	-jar "C:\APPS\cygwin\home\cmyers\brailleblaster\l4j\brailleblaster.jar"
+Args length:	71/32768 chars
+Exit code:	0

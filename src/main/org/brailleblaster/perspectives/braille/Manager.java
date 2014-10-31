@@ -77,6 +77,7 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.tree.TreeView;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.brailleblaster.perspectives.braille.views.wp.WPView;
 import org.brailleblaster.wordprocessor.BBProgressBar;
 import org.brailleblaster.printers.PrintPreview;
 import org.brailleblaster.printers.PrintersManager;
@@ -266,17 +267,27 @@ public class Manager extends Controller {
 	
 	public void setEditingView(String key){
 		text.update(false);
-		
+		PropertyFileManager pfm =BBIni.getPropertyFileManager();
 		if(key == null){
 			editorSash.setMaximizedControl(null);
 			//reset weights using absolute value to handle obscure swt bug that results in negative weights
-			int[] weight = editorSash.getWeights();
-			editorSash.setWeights(new int [] {Math.abs(weight[0]), Math.abs(weight[1])});
+			int val = Integer.valueOf(pfm.getProperty("textWeight"));
+			editorSash.setWeights(new int [] {val, 1000 - val});
 		}
-		else if(key.equals(text.getClass().getCanonicalName()))
+		else if(key.equals(text.getClass().getCanonicalName())){
+			if(editorSash.getMaximizedControl() == null){
+				int [] weight = editorSash.getWeights();
+				pfm.save("textWeight", String.valueOf(Math.abs(weight[0])));
+			}
 			editorSash.setMaximizedControl(text.view);
-		else if(key.equals(braille.getClass().getCanonicalName()))
+		}
+		else if(key.equals(braille.getClass().getCanonicalName())){
+			if(editorSash.getMaximizedControl() == null){
+				int [] weight = editorSash.getWeights();
+				pfm.save("textWeight", String.valueOf(Math.abs(weight[0])));
+			}
 			editorSash.setMaximizedControl(braille.view);
+		}
 	}
 	
 	public void setTabList(){
@@ -1216,6 +1227,16 @@ public class Manager extends Controller {
 	
 	public void refresh(){	
 		int currentOffset;
+		Control c = editorSash.getMaximizedControl();
+		
+		WPView view = null;
+		if(c != null){
+			if(c.equals(text.view))
+				view = text;
+			else if(c.equals(braille.view))
+				view = braille;
+		}
+		editorSash.setRedraw(false);
 		if(document.getDOM() != null){
 			if(text.view.isFocusControl()){
 				currentOffset = text.view.getCaretOffset();
@@ -1259,6 +1280,11 @@ public class Manager extends Controller {
 				text.setPositionFromStart();
 			}
 		}
+		
+		if(c != null){
+			editorSash.setMaximizedControl(view.view);
+		}
+		editorSash.setRedraw(true);
 	}
 	
 	private void resetViews(){
@@ -1777,7 +1803,9 @@ public class Manager extends Controller {
 		int [] editorWeights = editorSash.getWeights();
 		
 		pfm.save("containerWeight", String.valueOf(Math.abs(containerWeights[1])));
-		pfm.save("textWeight", String.valueOf(Math.abs(editorWeights[0])));
+		
+		if(editorSash.getMaximizedControl() == null)
+			pfm.save("textWeight", String.valueOf(Math.abs(editorWeights[0])));
 		
 		if(sm.panelIsVisible()){
 			int [] panelWeights = miscSash.getWeights();

@@ -36,10 +36,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.custom.SashForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +47,7 @@ public abstract class AbstractView {
 	protected int spaceBeforeText, spaceAfterText;
 	public int positionFromStart, cursorOffset, words;
 	protected boolean locked;
-	protected Group group;
+	protected SashForm sash;
 	protected Manager manager;
 	protected static Logger logger = LoggerFactory.getLogger(AbstractView.class);
 	
@@ -61,25 +58,9 @@ public abstract class AbstractView {
 	 * @param manager : manager for relaying information to models
 	 * @param group : group in which to embed view
 	 */
-	public AbstractView(Manager manager, Group group) {
+	public AbstractView(Manager manager, SashForm sash) {
 		this.manager = manager;
-		this.group = group;
-	}
-	
-	/** Convenience method for setting form data on an swt widget
-	 * @param c : swt control widget
-	 * @param left : left position
-	 * @param right : right position
-	 * @param top : top position 
-	 * @param bottom : bottom position
-	 */
-	protected void setLayout(Control c, int left, int right, int top, int bottom){
-		FormData location = new FormData();
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		c.setLayoutData(location);
+		this.sash = sash;
 	}
 	
 	/**Increments from currently selected element to next element

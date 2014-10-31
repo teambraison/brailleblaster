@@ -7,6 +7,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -15,7 +16,6 @@ import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -27,8 +27,8 @@ public class EditBoxLineView extends StylePanel {
 	private Text styleName, topBoxLine, middleBoxLine, bottomBoxLine;
 	private Button saveButton, cancelButton;
 	
-	public EditBoxLineView(StyleManager sm, Group documentWindow) {
-		super(sm, documentWindow);
+	public EditBoxLineView(StyleManager sm, SashForm sash) {
+		super(sm, sash);
 		boxline = sm.getSemanticsTable().get("boxline");
 		topBox = sm.getSemanticsTable().get("topBox");
 		middleBox = sm.getSemanticsTable().get("middleBox");

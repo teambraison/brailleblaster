@@ -57,6 +57,7 @@ import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.PaintObjectEvent;
 import org.eclipse.swt.custom.PaintObjectListener;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.dnd.Clipboard;
@@ -76,15 +77,9 @@ import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 
 public class TextView extends WPView {
-	private final static int LEFT_MARGIN = 16;
-	private final static int RIGHT_MARGIN = 57;
-	private final static int TOP_MARGIN = 0;
-	private final static int BOTTOM_MARGIN = 100;
-	
 	private int oldCursorPosition = -1;
 	private int currentChar;
 	private int currentStart, currentEnd, previousEnd, nextStart, selectionStart, selectionLength;
@@ -112,8 +107,8 @@ public class TextView extends WPView {
 	private boolean multiSelected;
 
 	
- 	public TextView (Manager manager, Group documentWindow, BBSemanticsTable table) {
-		super (manager, documentWindow, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN, table);
+ 	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
+		super (manager, sash, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -1725,10 +1720,10 @@ public class TextView extends WPView {
 	}
 	
 	@Override
-	public void resetView(Group group) {
+	public void resetView(SashForm sashform) {
 		setListenerLock(true);
 		menu.dispose();
-		recreateView(group, LEFT_MARGIN, RIGHT_MARGIN, TOP_MARGIN, BOTTOM_MARGIN);
+		recreateView(sashform);
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;

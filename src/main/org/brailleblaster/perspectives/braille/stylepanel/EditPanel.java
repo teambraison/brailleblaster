@@ -4,10 +4,10 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
@@ -32,8 +32,8 @@ public class EditPanel extends StylePanel {
 	protected Combo alignmentCombo, emphasisCombo;
 	protected Spinner linesBeforeSpinner, linesAfterSpinner, marginSpinner, indentSpinner;
 	
-	public EditPanel(StyleManager sm, Group documentWindow, Styles style){
-		super(sm, documentWindow);
+	public EditPanel(StyleManager sm, SashForm sash, Styles style){
+		super(sm, sash);
 		originalStyle = style;
 		
 		styleLabel = makeLabel(lh.localValue("styleName"), 0, 50, 0, 10);

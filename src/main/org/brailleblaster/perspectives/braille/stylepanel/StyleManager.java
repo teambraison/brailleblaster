@@ -44,6 +44,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -56,11 +57,11 @@ public class StyleManager{
     private int lastSelection;
     private BBSemanticsTable semanticsTable;
     
-    public StyleManager(Manager dm) {
+    public StyleManager(Manager dm, SashForm sash) {
     	this.dm = dm;
     	this.configFile = dm.getCurrentConfig();
     	this.semanticsTable = dm.getStyleTable();
-       	this.table = new StyleTable(this, dm.getGroup());
+       	this.table = new StyleTable(this, sash);
 	}
     
     public void displayTable(TextMapElement item){

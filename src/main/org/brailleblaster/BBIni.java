@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  */
 /**
  * @author cmyers
- *
+ * 
  */
 public final class BBIni {
 
@@ -85,9 +85,14 @@ public final class BBIni {
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
-	private static final String productName = "BrailleBlaster ND";
-	private static final String BBVersion = "0.07 Alpha";
-	private static final String releaseDate = "October, 31, 2014";
+	//private static final String productName = "BrailleBlaster ND";
+	//private static final String BBVersion = "0.07 Alpha";
+	//private static final String releaseDate = "October, 31, 2014";
+	
+	private static String productName;
+	private static String BBVersion;
+	private static String releaseDate;
+	
 	private static String brailleblasterPath; // FO
 	private static String osName;
 	private static String osVersion;
@@ -104,6 +109,7 @@ public final class BBIni {
 	private static String logFilesPath;
 	private static String platformName;
 	private static String userSettings;
+	private static String aboutProject;
 	private static String stylePath;
 	public final static String propExtension = ".properties";
 	private static boolean hSubcommands = false;
@@ -114,7 +120,7 @@ public final class BBIni {
 	private static String defaultCfg;
 	private static String autoConfigSettings;
 	private static PropertyFileManager propManager;
-	
+
 	private static String liblouisutdmlVersion;
 
 	private BBIni(String[] args) {
@@ -157,6 +163,27 @@ public final class BBIni {
 		}
 		propManager = new PropertyFileManager(userSettings);
 
+		// Receive about.properties
+		aboutProject = userProgramDataPath + fileSep + "settings" + fileSep
+				+ "about.properties";
+		if (!fu.exists(aboutProject)) {
+			fu.copyFile(programDataPath + fileSep + "settings" + fileSep
+					+ "about.properties", aboutProject);
+		}
+
+		//Load values
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileInputStream(BBIni.getAbout()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//Store data
+		productName = prop.getProperty("name");
+		BBVersion = prop.getProperty("version");
+		releaseDate = prop.getProperty("date");
+		
 		recentDocs = userProgramDataPath + fileSep + "recent_documents.txt";
 		fu.create(recentDocs);
 		stylePath = userProgramDataPath + fileSep + "styles";
@@ -183,47 +210,47 @@ public final class BBIni {
 		// /////////////////////
 		// Default Config File.
 
-			// Get default config file.
-			Properties props = new Properties();
+		// Get default config file.
+		Properties props = new Properties();
+		try {
+			// Load it!
+			props.load(new FileInputStream(BBIni.getUserSettings()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Store file name.
+		defaultCfg = props.getProperty("defaultConfigFile");
+
+		// If that key doesn't exist, then we need to put it there.
+		if (defaultCfg == null) {
+			// Add it, then store it.
+
+			// Add to hash.
+			props.setProperty("defaultConfigFile", "nimas.cfg");
+
+			// Record as default.
+			defaultCfg = "nimas.cfg";
+
+			// Store.
 			try {
-				// Load it!
-				props.load(new FileInputStream(BBIni.getUserSettings()));
+				// Store to file.
+				props.store(new FileOutputStream(BBIni.getUserSettings()), null);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-	
-			// Store file name.
-			defaultCfg = props.getProperty("defaultConfigFile");
-	
-			// If that key doesn't exist, then we need to put it there.
-			if (defaultCfg == null) {
-				// Add it, then store it.
-	
-				// Add to hash.
-				props.setProperty("defaultConfigFile", "nimas.cfg");
-	
-				// Record as default.
-				defaultCfg = "nimas.cfg";
-	
-				// Store.
-				try {
-					// Store to file.
-					props.store(new FileOutputStream(BBIni.getUserSettings()), null);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-	
-			} // if(defaultCfgFileName == null)
+
+		} // if(defaultCfgFileName == null)
 
 		// Default Config File.
 		// /////////////////////
-			
+
 		// Temporary fix, should be removed once log file handle issue is
 		// resolved
 		// Only delete the files if we weren't working on something.
 		// A value here means there was an abrupt shutdown.
 		String prevWkFilePathStr = props.getProperty("prevWorkingFile");
-		if(prevWkFilePathStr == null) {
+		if (prevWkFilePathStr == null) {
 			props.setProperty("prevWorkingFile", "");
 			props.setProperty("originalDocPath", "");
 			props.setProperty("zippedPath", "");
@@ -231,20 +258,21 @@ public final class BBIni {
 			props.setProperty("currentConfig", "");
 			prevWkFilePathStr = props.getProperty("prevWorkingFile");
 		}
-		
+
 		// If there's a working path, we had a previous session going.
 		// Ask user to load it?
 		boolean deleteTempDir = true;
-		if( prevWkFilePathStr.length() > 0 ) {
-			if( swtMsgBox("Restore previous session?" ) == SWT.YES ) {
+		if (prevWkFilePathStr.length() > 0) {
+			if (swtMsgBox("Restore previous session?") == SWT.YES) {
 				File tempDir = new File(BBHome + fileSep + "temp" + fileSep);
-				tempFilesPath = BBHome + fileSep + "temp" + fileSep + tempDir.list()[0];
+				tempFilesPath = BBHome + fileSep + "temp" + fileSep
+						+ tempDir.list()[0];
 				deleteTempDir = false;
 			}
 		}
-		
+
 		// Delete temp dir and reset session?
-		if( deleteTempDir == true ) {
+		if (deleteTempDir == true) {
 			// Reset session.
 			props.setProperty("prevWorkingFile", "");
 			props.setProperty("originalDocPath", "");
@@ -252,16 +280,16 @@ public final class BBIni {
 			props.setProperty("opfPath", "");
 			props.setProperty("currentConfig", "");
 			prevWkFilePathStr = props.getProperty("prevWorkingFile");
-			
+
 			// Delete old temp directories.
 			String tempFolder = BBHome + fileSep + "temp";
 			fu.deleteDirectory(new File(tempFolder));
 			// Give loaded files a new home.
 			tempFilesPath = BBHome + fileSep + "temp" + fileSep + instanceId;
 		}
-		
+
 		File temps = new File(tempFilesPath);
-		
+
 		if (!temps.exists()) {
 			temps.mkdirs();
 		}
@@ -284,13 +312,15 @@ public final class BBIni {
 				if (args[i].equals("-debug")) {
 					debug = true;
 					i++;
-					String [] tokens = args[i].split(",");
-					
-					debugFilePath = getProgramDataPath() + fileSep + "testFiles" + fileSep + tokens[0];
-					
-					if(tokens.length > 1)
-						debugSavePath = getProgramDataPath() + fileSep + "testFiles" + fileSep + tokens[1];
-						
+					String[] tokens = args[i].split(",");
+
+					debugFilePath = getProgramDataPath() + fileSep
+							+ "testFiles" + fileSep + tokens[0];
+
+					if (tokens.length > 1)
+						debugSavePath = getProgramDataPath() + fileSep
+								+ "testFiles" + fileSep + tokens[1];
+
 				} else if (args[i].equals("-nogui")) {
 					gotGui = false;
 				} else if (args[i].equals("-multcom")) {
@@ -311,7 +341,8 @@ public final class BBIni {
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
 			LibLouisUTDML.getInstance().registerLogCallback(
 					louisutdmlLogHandler);
-			LibLouisUTDML.initialize(programDataPath, tempFilesPath, "liblouisutdml.log");
+			LibLouisUTDML.initialize(programDataPath, tempFilesPath,
+					"liblouisutdml.log");
 			liblouisutdmlVersion = LibLouisUTDML.getInstance().version();
 			hLiblouisutdml = true;
 		} catch (UnsatisfiedLinkError e) {
@@ -322,18 +353,17 @@ public final class BBIni {
 		}
 	}
 
-	
-	public int swtMsgBox(String messageStr)
-	{
+	public int swtMsgBox(String messageStr) {
 		Display d = new Display();
 		Shell s = new Shell(d);
-		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(s, SWT.APPLICATION_MODAL | SWT.YES | SWT.NO);
+		org.eclipse.swt.widgets.MessageBox msgB = new org.eclipse.swt.widgets.MessageBox(
+				s, SWT.APPLICATION_MODAL | SWT.YES | SWT.NO);
 		msgB.setMessage(messageStr);
 		int result = msgB.open();
 		d.dispose();
 		return result;
 	}
-	
+
 	private String getBrailleblasterPath(Object classToUse) {
 		// Option to use an environment variable (mostly for testing
 		// withEclipse)
@@ -398,7 +428,7 @@ public final class BBIni {
 	public static String getDebugSavePath() {
 		return debugSavePath;
 	}
-	
+
 	public static boolean haveLiblouisutdml() {
 		return hLiblouisutdml;
 	}
@@ -410,7 +440,7 @@ public final class BBIni {
 	public static String getProductName() {
 		return productName;
 	}
-	
+
 	public static String getLiblouisutdmlVersion() {
 		return liblouisutdmlVersion;
 	}
@@ -469,6 +499,10 @@ public final class BBIni {
 
 	public static String getUserSettings() {
 		return userSettings;
+	}
+
+	public static String getAbout() {
+		return aboutProject;
 	}
 
 	public static String getRecentDocs() {

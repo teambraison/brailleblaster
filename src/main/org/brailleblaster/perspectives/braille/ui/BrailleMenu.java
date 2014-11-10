@@ -277,12 +277,12 @@ public class BrailleMenu extends BBMenu{
 		
 		Menu editMenu = new Menu(wp.getShell(), SWT.DROP_DOWN);
 		undoItem = new MenuItem(editMenu, SWT.PUSH);
-		undoItem.setText(lh.localValue("&Undo"));
-		undoItem.setEnabled(false);
+		undoItem.setAccelerator(SWT.MOD1 + 'z');
+		undoItem.setText(lh.localValue("&Undo") + "\tCtrl + Z");
 		undoItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.undo();
 			}
 		});
 		redoItem = new MenuItem(editMenu, SWT.PUSH);

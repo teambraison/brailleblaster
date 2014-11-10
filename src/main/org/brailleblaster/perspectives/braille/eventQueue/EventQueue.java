@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
+import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class EventQueue extends LinkedBlockingDeque<EventFrame> {
@@ -31,6 +32,8 @@ public class EventQueue extends LinkedBlockingDeque<EventFrame> {
 				case Insert:
 					break;
 				case Delete:
+					ElementInserter es = new ElementInserter(vi, doc, list, manager);
+					es.resetElement(event);
 					break;
 				default:
 					break;

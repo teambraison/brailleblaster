@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
+import nu.xom.Node;
 import nu.xom.ParentNode;
 import nu.xom.Text;
 
@@ -13,6 +14,7 @@ import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -48,20 +50,23 @@ public class ElementInserter {
 	
 	private ArrayList<TextMapElement> constructMapElements(Element e){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
-		
-		for(int i = 0; i < e.getChildCount(); i++){
-			if(e.getChild(i) instanceof Text){
-				elList.add(new TextMapElement(e.getChild(i)));
-			}
-			else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl")){
-				for(int j = 0; j < e.getChild(i).getChildCount(); j++){
-					if(e.getChild(i).getChild(j) instanceof Text){
-						elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
+		if(e.getAttributeValue("semantics").contains("pagenum"))
+			elList.add(this.makePageMapElement(e));
+		else {
+			for(int i = 0; i < e.getChildCount(); i++){
+				if(e.getChild(i) instanceof Text){
+					elList.add(new TextMapElement(e.getChild(i)));
+				}
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl")){
+					for(int j = 0; j < e.getChild(i).getChildCount(); j++){
+						if(e.getChild(i).getChild(j) instanceof Text){
+							elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
+						}
 					}
 				}
-			}
-			else if(e.getChild(i) instanceof Element){
-				elList.addAll(constructMapElements((Element)e.getChild(i)));
+				else if(e.getChild(i) instanceof Element){
+					elList.addAll(constructMapElements((Element)e.getChild(i)));
+				}
 			}
 		}
 		
@@ -69,7 +74,7 @@ public class ElementInserter {
 	}
 	
 	private void setViews(ArrayList<TextMapElement> elList, int index, int textOffset, int brailleOffset ){
-		if(elList.get(elList.size() - 1).parentElement().getAttributeValue("semantics").contains("style") || firstInLineElement(elList.get(0).parentElement())){
+		if(createBlankLine(elList)){
 			manager.getText().insertText(textOffset, "\n");
 			manager.getBraille().insertText(brailleOffset, "\n");
 			list.shiftOffsetsFromIndex(index, 1, 1, 0);
@@ -165,5 +170,18 @@ public class ElementInserter {
 		sfh.removeSemanticEntry(file, id);
 		String [] tokens = e.getAttributeValue("semantics").split(",");
 		sfh.writeEntry(file, tokens[1], e.getLocalName(), id);
+	}
+	
+	private PageMapElement makePageMapElement(Element e){
+		Node textNode = doc.findPrintPageNode(e);
+		Node brailleNode = doc.findBraillePageNode(e);
+		PageMapElement p = new PageMapElement(e, textNode);
+		p.setBraillePage(brailleNode);
+		return p;
+	}
+	
+	private boolean createBlankLine(ArrayList<TextMapElement>elList){
+		return elList.get(elList.size() - 1).parentElement().getAttributeValue("semantics").contains("style") 
+				|| firstInLineElement(elList.get(0).parentElement()) || elList.get(0) instanceof PageMapElement;
 	}
 }

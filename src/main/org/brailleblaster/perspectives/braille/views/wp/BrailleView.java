@@ -70,7 +70,6 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends WPView {
 	private int currentStart, currentEnd, nextStart;
@@ -873,6 +872,8 @@ public class BrailleView extends WPView {
 	
 	public void resetElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		boolean isFirst = t instanceof PageMapElement || isFirst(b.n); 
+		boolean isLast =  t instanceof PageMapElement || isLast(b.n);
 		int margin = 0;
 		int originalPosition = view.getCaretOffset();
 		int start = pos;
@@ -883,11 +884,11 @@ public class BrailleView extends WPView {
 		
 		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
 		int linesBefore = 0;
-		if(isFirst(b.n))
+		if(isFirst)
 			linesBefore = wsp.setLinesBefore(t, b, start, style);
 		
 		int linesAfter = 0;
-		if(isLast(b.n))
+		if(isLast)
 			linesAfter = wsp.setLinesAfter(t, b, start + b.n.getValue().length() + linesBefore, style);
 		
 		m.put("brailleLength", b.n.getValue().length() + linesBefore + linesAfter);
@@ -902,7 +903,7 @@ public class BrailleView extends WPView {
 			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
 		}
 					
-		if(isFirst(b.n) && style.contains(StylesType.firstLineIndent))
+		if(isFirst && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
 		if(style.contains(StylesType.format))

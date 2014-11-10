@@ -94,11 +94,6 @@ public class ElementInserter {
 			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength, 0);
 			index++;
 		}
-
-		for(int i = 0; i < list.size(); i++)
-			System.out.println(list.get(i).getText() + " " + list.get(i).start + " " + list.get(i).end + " " + list.get(i).brailleList.getFirst().start + " " + list.get(i).brailleList.getLast().end);
-		
-		System.out.println();
 	}
 	
 	private void restoreTree(ArrayList<TextMapElement>elList, int index){
@@ -159,7 +154,7 @@ public class ElementInserter {
 		SemanticFileHandler sfh = new SemanticFileHandler(manager.getCurrentConfig());
 		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getDocumentName()) + ".sem";
 		String id = e.getAttributeValue("id");
-		//sfh.removeSemanticEntry(file, id);
+		sfh.removeSemanticEntry(file, id);
 	}
 	
 	private void appendSemanticEntry(Element e){
@@ -167,7 +162,7 @@ public class ElementInserter {
 		SemanticFileHandler sfh = new SemanticFileHandler(manager.getCurrentConfig());
 		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getDocumentName()) + ".sem";
 		String id = e.getAttributeValue("id");
-	//	sfh.removeSemanticEntry(file, id);
+		sfh.removeSemanticEntry(file, id);
 		String [] tokens = e.getAttributeValue("semantics").split(",");
 		sfh.writeEntry(file, tokens[1], e.getLocalName(), id);
 	}

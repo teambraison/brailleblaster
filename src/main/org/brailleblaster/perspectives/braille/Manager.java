@@ -58,6 +58,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
@@ -119,11 +121,13 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
+	private EventQueue eventQueue;
 	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp);	
+		eventQueue = new EventQueue();
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
@@ -174,6 +178,7 @@ public class Manager extends Controller {
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
 		super(wp);	
+		eventQueue = new EventQueue();
 		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
@@ -1839,5 +1844,13 @@ public class Manager extends Controller {
 		}
 		else
 			return null;
+	}
+	
+	public void addEvent(EventFrame f){
+		eventQueue.add(f);
+	}
+	
+	public void undo(){
+		eventQueue.popEvent(vi, document, list, this);
 	}
 }

@@ -79,11 +79,11 @@ public class ElementInserter {
 		
 		for(int i = 0; i < count; i++){
 			int brailleLength = 0;
-		//	manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i));
+			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i));
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){
-		//		manager.getBraille().resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
+				manager.getBraille().resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
 				brailleOffset = elList.get(i).brailleList.get(j).end;
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}

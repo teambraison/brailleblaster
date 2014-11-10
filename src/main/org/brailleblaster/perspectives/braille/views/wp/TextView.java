@@ -49,6 +49,7 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -790,6 +791,54 @@ public class TextView extends WPView {
 		
 		if(style.contains(StylesType.format))
 			setAlignment(start, start + n.getValue().length(), style);
+		
+		if(style.contains(StylesType.emphasis))
+			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		String reformattedText =  appendToView(t.n, false);
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		view.setCaretOffset(start);
+		view.insert(reformattedText);
+		
+		vi.addElementToSection(list, t, listIndex);
+		
+		int margin = 0;
+		
+		int linesBefore = 0;
+		int linesAfter = 0;
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		if(isFirst(t.n)){
+			linesBefore = wsp.setLinesBefore(t, start, style);	
+		}
+		
+		if(isLast(t.n))
+			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		
+		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+		m.put("textLength", reformattedText.length() + linesBefore + linesAfter);
+		
+		start += linesBefore;
+		//reset margin in case it is not applied
+		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+			handleLineWrap(start, reformattedText, 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+		}
+					
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(t.n) && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start, start + t.n.getValue().length(), style);
 		
 		if(style.contains(StylesType.emphasis))
 			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));

@@ -802,6 +802,8 @@ public class TextView extends WPView {
 	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
 		String reformattedText =  appendToView(t.n, false);
+		boolean isFirst = t instanceof PageMapElement || isFirst(t.n);
+		boolean isLast = t instanceof PageMapElement || isLast(t.n);
 		setListenerLock(true);
 		int originalPosition = view.getCaretOffset();
 		view.setCaretOffset(start);
@@ -814,11 +816,11 @@ public class TextView extends WPView {
 		int linesBefore = 0;
 		int linesAfter = 0;
 		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
-		if(isFirst(t.n)){
+		if(isFirst){
 			linesBefore = wsp.setLinesBefore(t, start, style);	
 		}
 		
-		if(isLast(t.n))
+		if(isLast)
 			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
 		
 		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
@@ -834,7 +836,7 @@ public class TextView extends WPView {
 			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 		}
 					
-		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(t.n) && style.contains(StylesType.firstLineIndent))
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(start, style);
 		
 		if(style.contains(StylesType.format))

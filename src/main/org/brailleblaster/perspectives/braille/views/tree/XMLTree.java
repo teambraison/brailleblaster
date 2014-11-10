@@ -200,7 +200,7 @@ public class XMLTree extends TreeView {
 	@Override
 	public void newTreeItem(TextMapElement t, int index, int offset){
 		Element parentElement = t.parentElement();
-		while(parentElement.getAttributeValue("semantics").contains("action")){
+		while(parentElement.getAttributeValue("semantics").contains("action")  && !parentElement.getAttributeValue("semantics").contains("pagenum")){
 			parentElement = (Element)parentElement.getParent();
 		}
 		
@@ -216,7 +216,7 @@ public class XMLTree extends TreeView {
 	
 	public void newTreeItem(ArrayList<TextMapElement>list, int index, int offset){
 		Element parentElement = (Element)list.get(0).parentElement();
-		while(parentElement.getAttributeValue("semantics").contains("action")){
+		while(parentElement.getAttributeValue("semantics").contains("action") && !parentElement.getAttributeValue("semantics").contains("pagenum")){
 			parentElement = (Element)parentElement.getParent();
 		}
 		

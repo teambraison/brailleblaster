@@ -47,5 +47,4 @@ public class Event {
 	public int getTreeIndex(){
 		return treeIndex;
 	}
-
 }

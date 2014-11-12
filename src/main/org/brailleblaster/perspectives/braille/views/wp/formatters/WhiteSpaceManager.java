@@ -34,14 +34,12 @@ public class WhiteSpaceManager {
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
 				prevPos = list.get(index - 1).end;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter)){
+				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
 					prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));
-				}		
 			}
 		
-			if(linesBefore < prevLinesAfter){
+			if(linesBefore < prevLinesAfter)
 				linesBefore = prevLinesAfter;
-			}
 		
 			int diff = start- prevPos;
 			if((diff > linesBefore)){
@@ -57,7 +55,7 @@ public class WhiteSpaceManager {
 		return linesBefore;
 	}
 	
-	public int setLinesBefore(TextMapElement t, BrailleMapElement b, int start, Styles style){
+	public int setLinesBeforeBraille(TextMapElement t, BrailleMapElement b, int start, Styles style){
 		int prevPos = 0;
 		int prevLinesAfter = 0;
 		int linesBefore = 0;
@@ -69,14 +67,12 @@ public class WhiteSpaceManager {
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
 				prevPos = list.get(index - 1).brailleList.getLast().end;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter)){
-					prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));
-				}		
+				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
+					prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));	
 			}
 		
-			if(linesBefore < prevLinesAfter){
+			if(linesBefore < prevLinesAfter)
 				linesBefore = prevLinesAfter;
-			}
 		
 			int diff = start- prevPos;
 			if((diff > linesBefore)){
@@ -103,19 +99,17 @@ public class WhiteSpaceManager {
 			if(isLastInList(index)){
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
-				if(isLastInList(index)){
+				if(isLastInList(index))
 					nextPos = manager.getText().view.getCharCount();
-				}
 				else
 					nextPos = list.get(index + 1).start;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore)){
+				
+				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
-				}
 			}
 			
-			if(linesAfter < nextLinesBefore){
+			if(linesAfter < nextLinesBefore)
 				linesAfter = nextLinesBefore;
-			}
 		
 			int diff = nextPos - start;
 			if((diff > linesAfter)){
@@ -127,13 +121,13 @@ public class WhiteSpaceManager {
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);
-			linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
+			//linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 		}
 		
 		return linesAfter;
 	}
 	
-	public int setLinesAfter(TextMapElement t, BrailleMapElement b, int start, Styles style){
+	public int setLinesAfterBraille(TextMapElement t, BrailleMapElement b, int start, Styles style){
 		int linesAfter = 0;
 		int nextLinesBefore = 0;
 		int nextPos = 0;
@@ -148,14 +142,13 @@ public class WhiteSpaceManager {
 					nextPos = manager.getBraille().view.getCharCount();
 				else
 					nextPos = list.get(index + 1).brailleList.getFirst().start;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore)){
+				
+				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
-				}
 			}
 			
-			if(linesAfter < nextLinesBefore){
+			if(linesAfter < nextLinesBefore)
 				linesAfter = nextLinesBefore;
-			}
 		
 			int diff = nextPos - start;
 			if((diff > linesAfter)){
@@ -167,7 +160,7 @@ public class WhiteSpaceManager {
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);
-			linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
+			//linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 		}
 		
 		return linesAfter;

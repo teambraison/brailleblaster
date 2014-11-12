@@ -96,7 +96,6 @@ public class BrailleView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		indications=new ArrayList<Bullet>();
-		
 	}
 	
 	@Override
@@ -872,8 +871,8 @@ public class BrailleView extends WPView {
 	
 	public void resetElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
-		boolean isFirst = t instanceof PageMapElement || isFirst(b.n); 
-		boolean isLast =  t instanceof PageMapElement || isLast(b.n);
+		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
+		boolean isLast =  t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n);
 		int margin = 0;
 		int originalPosition = view.getCaretOffset();
 		int start = pos;
@@ -885,13 +884,14 @@ public class BrailleView extends WPView {
 		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
 		int linesBefore = 0;
 		if(isFirst)
-			linesBefore = wsp.setLinesBefore(t, b, start, style);
+			linesBefore = wsp.setLinesBeforeBraille(t, b, start, style);
 		
 		int linesAfter = 0;
 		if(isLast)
-			linesAfter = wsp.setLinesAfter(t, b, start + b.n.getValue().length() + linesBefore, style);
+			linesAfter = wsp.setLinesAfterBraille(t, b, start + b.n.getValue().length() + linesBefore, style);
 		
 		m.put("brailleLength", b.n.getValue().length() + linesBefore + linesAfter);
+		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter);
 		b.setOffsets(linesBefore + start, start + b.n.getValue().length() + linesBefore);
 		
 		//reset margin in case it is not applied

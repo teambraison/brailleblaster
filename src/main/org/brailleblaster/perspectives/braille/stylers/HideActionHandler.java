@@ -32,6 +32,7 @@ public class HideActionHandler {
 	BrailleView braille;
 	BBTree tree;
 	EventFrame eventFrame;
+	boolean boxlineAdded;
 	
 	public HideActionHandler(Manager manager, MapList list){
 		this.manager = manager;
@@ -48,6 +49,7 @@ public class HideActionHandler {
 			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
 				int index = list.getCurrentIndex();
 				eventFrame = new EventFrame();
+				boxlineAdded = false;
 				hide(list.getCurrent());
 				updateCurrentElement(index);
 				manager.addEvent(eventFrame);
@@ -70,6 +72,7 @@ public class HideActionHandler {
 		if(!invalid){
 			itr = itemSet.iterator();
 			eventFrame = new EventFrame();
+			boxlineAdded = false;
 			while (itr.hasNext()) {
 				TextMapElement tempElement= itr.next();
 				if(index == null)
@@ -132,14 +135,17 @@ public class HideActionHandler {
 		m.put("action", "skip");
 		int treeIndex = manager.getTreeView().getTree().getSelection()[0].getParentItem().indexOf(manager.getTreeView().getTree().getSelection()[0]);
 		
-		int start = getStart(itemList.get(0), collapseSpaceBefore(itemList.get(0)));
-		int end = getEnd(itemList.get(itemList.size() - 1), collapseSpaceAfter(itemList.get(itemList.size() - 1)));
+		boolean collapseBefore =  collapseSpaceBefore(itemList.get(0));
+		boolean collapseAfter = collapseSpaceAfter(itemList.get(itemList.size() - 1));
+		
+		int start = getStart(itemList.get(0), collapseBefore);
+		int end = getEnd(itemList.get(itemList.size() - 1), collapseAfter);
 		
 		int textLength = end - start;	
 		text.replaceTextRange(start, end - start, "");
 		
-		int brailleStart = getBrailleStart(itemList.get(0), collapseSpaceBefore(itemList.get(0)));
-		int brailleEnd = getBrailleEnd(itemList.get(itemList.size() - 1), collapseSpaceAfter(itemList.get(itemList.size() - 1)));
+		int brailleStart = getBrailleStart(itemList.get(0), collapseBefore);
+		int brailleEnd = getBrailleEnd(itemList.get(itemList.size() - 1), collapseAfter);
 		int brailleLength = brailleEnd - brailleStart;
 		braille.replaceTextRange(brailleStart, brailleEnd - brailleStart, "");
 		
@@ -162,7 +168,11 @@ public class HideActionHandler {
 			brailleStartPos = itemList.get(0).brailleList.getFirst().start;
 		}
 		
-		eventFrame.addEvent(new Event(EventTypes.Delete, parent, list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndex));
+		if(!boxlineAdded)
+			eventFrame.addEvent(new Event(EventTypes.Delete, parent, list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndex));
+		
+		if(parent.getLocalName().equals("sidebar"))
+			boxlineAdded = true;
 		
 		for(int i = 0; i < itemList.size(); i++){
 			Message message = new Message(null);
@@ -285,9 +295,8 @@ public class HideActionHandler {
 				
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
-				if(sem != null && !manager.getStyleTable().get(sem).contains(StylesType.linesAfter)){
+				if(sem != null && !manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
 					return true;
-				}
 			}
 		}
 		return false;
@@ -299,11 +308,17 @@ public class HideActionHandler {
 			return true;
 		else {
 			if(isHeading(manager.getDocument().getParent(t.n, true))){
-				Element nextParent = manager.getDocument().getParent(list.get(index + 1).n, true);
-				String sem = getSemanticAttribute(nextParent);
-				if(sem != null && !manager.getStyleTable().get(sem).contains(StylesType.linesBefore)){
+				TextMapElement nextItem =  list.get(index + 1);
+				Element nextParent;
+				
+				if(nextItem instanceof BrlOnlyMapElement)
 					return true;
-				}
+				else
+					nextParent = manager.getDocument().getParent(nextItem.n, true);
+				
+				String sem = getSemanticAttribute(nextParent);
+				if(sem.equals("skip") || sem != null && !manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
+					return true;
 			}
 		}
 		

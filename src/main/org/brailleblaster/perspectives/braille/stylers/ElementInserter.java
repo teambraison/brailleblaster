@@ -14,6 +14,7 @@ import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
@@ -51,22 +52,21 @@ public class ElementInserter {
 	private ArrayList<TextMapElement> constructMapElements(Element e){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
 		if(e.getAttributeValue("semantics").contains("pagenum"))
-			elList.add(this.makePageMapElement(e));
+			elList.add(makePageMapElement(e));
 		else {
 			for(int i = 0; i < e.getChildCount(); i++){
-				if(e.getChild(i) instanceof Text){
+				if(e.getChild(i) instanceof Text)
 					elList.add(new TextMapElement(e.getChild(i)));
-				}
-				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl")){
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxline(e)){
 					for(int j = 0; j < e.getChild(i).getChildCount(); j++){
-						if(e.getChild(i).getChild(j) instanceof Text){
+						if(e.getChild(i).getChild(j) instanceof Text)
 							elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
-						}
 					}
 				}
-				else if(e.getChild(i) instanceof Element){
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxline(e))
+					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
+				else if(e.getChild(i) instanceof Element)
 					elList.addAll(constructMapElements((Element)e.getChild(i)));
-				}
 			}
 		}
 		
@@ -74,28 +74,34 @@ public class ElementInserter {
 	}
 	
 	private void setViews(ArrayList<TextMapElement> elList, int index, int textOffset, int brailleOffset ){
-		if(createBlankLine(elList)){
-			manager.getText().insertText(textOffset, "\n");
-			manager.getBraille().insertText(brailleOffset, "\n");
-			list.shiftOffsetsFromIndex(index, 1, 1, 0);
-		}
 		Message m = new Message(null);
 		int count = elList.size();
 		
+		if(shouldInsertBlankLine(elList))
+			createBlankLine(textOffset, brailleOffset, index);
+		
 		for(int i = 0; i < count; i++){
+			if(i > 0 && isBlockElement(elList.get(i))){
+				createBlankLine(textOffset, brailleOffset, index);
+				textOffset++;
+				brailleOffset++;
+			}
+			
 			int brailleLength = 0;
+			
 			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i));
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){
 				manager.getBraille().resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
-				brailleOffset = elList.get(i).brailleList.get(j).end;
+				brailleOffset = (Integer)m.getValue("brailleOffset");
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}
 			
 			int textLength =list.get(index).end - list.get(index).start;
 			
 			textLength = (Integer)m.getValue("textLength");
+			textOffset = (Integer)m.getValue("textOffset");
 			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength, 0);
 			index++;
 		}
@@ -180,8 +186,36 @@ public class ElementInserter {
 		return p;
 	}
 	
-	private boolean createBlankLine(ArrayList<TextMapElement>elList){
+	private boolean shouldInsertBlankLine(ArrayList<TextMapElement>elList){
 		return elList.get(elList.size() - 1).parentElement().getAttributeValue("semantics").contains("style") 
-				|| firstInLineElement(elList.get(0).parentElement()) || elList.get(0) instanceof PageMapElement;
+				|| firstInLineElement(elList.get(0).parentElement()) || elList.get(0) instanceof PageMapElement || elList.get(0) instanceof BrlOnlyMapElement;
+	}
+	
+	private boolean isBlockElement(TextMapElement t){
+		if( t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
+			return true;
+		else {
+			if(t.parentElement().getAttributeValue("semantics").contains("style") && t.parentElement().indexOf(t.n) == 0)
+				return true;
+			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
+				return true;
+		}
+		return false;
+	}
+	
+	private void createBlankLine(int textOffset, int brailleOffset, int index){
+		manager.getText().insertText(textOffset, "\n");
+		manager.getBraille().insertText(brailleOffset, "\n");
+		list.shiftOffsetsFromIndex(index, 1, 1, 0);
+	}
+	
+	private boolean isBoxline(Element e){
+		Attribute attr = e.getAttribute("semantics");
+		if(attr != null){
+			if(attr.getValue().contains("boxline") || attr.getValue().contains("topBo") || attr.getValue().contains("bottomBox"))
+				return true;
+		}
+		
+		return false;
 	}
 }

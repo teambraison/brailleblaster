@@ -800,12 +800,21 @@ public class TextView extends WPView {
 	}
 	
 	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		int linesBefore = 0;
+		int linesAfter = 0;
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
-		String reformattedText =  appendToView(t.n, false);
-		boolean isFirst = t instanceof PageMapElement || isFirst(t.n);
-		boolean isLast = t instanceof PageMapElement || isLast(t.n);
+		String reformattedText;
+		if(t instanceof BrlOnlyMapElement)
+			reformattedText = t.getText();
+		else
+			reformattedText =  appendToView(t.n, false);
+		
+		boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+		boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
+		
 		setListenerLock(true);
 		int originalPosition = view.getCaretOffset();
+		
 		view.setCaretOffset(start);
 		view.insert(reformattedText);
 		
@@ -813,18 +822,17 @@ public class TextView extends WPView {
 		
 		int margin = 0;
 		
-		int linesBefore = 0;
-		int linesAfter = 0;
 		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
-		if(isFirst){
+		
+		if(isFirst)
 			linesBefore = wsp.setLinesBefore(t, start, style);	
-		}
 		
 		if(isLast)
 			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
 		
 		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
 		m.put("textLength", reformattedText.length() + linesBefore + linesAfter);
+		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
 		
 		start += linesBefore;
 		//reset margin in case it is not applied

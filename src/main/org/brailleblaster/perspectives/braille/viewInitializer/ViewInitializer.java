@@ -335,7 +335,6 @@ public abstract class ViewInitializer {
 		
 		return -1;
 	}
-	
 
 	public ArrayList<SectionElement> getSectionList() {
 		return sectionList;

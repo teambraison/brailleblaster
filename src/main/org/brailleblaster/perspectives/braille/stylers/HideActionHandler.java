@@ -177,6 +177,8 @@ public class HideActionHandler {
 		for(int i = 0; i < itemList.size(); i++){
 			Message message = new Message(null);
 			message.put("removeAll", true);
+			if(i == itemList.size() - 1 && removeParent(itemList.get(i)))
+				message.put("element", itemList.get(i).parentElement().getParent());
 			tree.removeItem(itemList.get(i), message);
 			list.remove(itemList.get(i));
 		}
@@ -349,5 +351,22 @@ public class HideActionHandler {
 		}
 		
 		return null;
+	}
+	
+	private boolean removeParent(TextMapElement t){
+		if(isInLine(t.parentElement()))
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean isInLine(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		if(atr != null){
+			String [] tokens = atr.getValue().split(",");
+			if(tokens[0].equals("action"))
+				return true;
+		}
+		return false;
 	}
 }

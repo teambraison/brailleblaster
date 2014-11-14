@@ -254,7 +254,7 @@ public class StyleManager{
     }
     
     public Group getGroup(){
-        if(table.isVisible())
+        if(table.isVisible() || (!table.isVisible() && editor == null))
             return table.getGroup();
         else
             return editor.getGroup();

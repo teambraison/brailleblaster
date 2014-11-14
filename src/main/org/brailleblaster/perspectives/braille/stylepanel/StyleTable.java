@@ -509,7 +509,8 @@ public class StyleTable {
     }
     
     private boolean isBoxLine(Element e){
-		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") 
+				|| checkSemanticsAttribute(e, "bottomBox") || checkSemanticsAttribute(e, "fullBox")) 
 			return true;
 		else
 			return false;

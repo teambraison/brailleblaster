@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.braille.views.tree;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import nu.xom.Element;
 import nu.xom.Text;
@@ -14,6 +15,7 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 public abstract class TreeView extends AbstractView implements BBTree{	
 	protected Tree tree;
@@ -88,5 +90,19 @@ public abstract class TreeView extends AbstractView implements BBTree{
 			}
 		}
 		return null;
+	}
+	
+	public ArrayList<Integer> getItemPath(){
+		ArrayList<Integer> list = new ArrayList<Integer>();
+		TreeItem item = tree.getSelection()[0];
+		int first = 0;
+		while(item.getParentItem() != null){
+			TreeItem parent = item.getParentItem();
+			int num = parent.indexOf(item);
+			list.add(first, item.getParentItem().indexOf(item));
+			item = item.getParentItem();
+		}
+		
+		return list;
 	}
 }

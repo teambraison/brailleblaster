@@ -1,15 +1,18 @@
 package org.brailleblaster.perspectives.braille.eventQueue;
 
+import java.util.ArrayList;
+
 import nu.xom.Element;
 import nu.xom.ParentNode;
 
 public class Event {
 	EventTypes eventType;
 	Element element;
-	int listIndex, parentIndex, textOffset, brailleOffset, treeIndex;
+	int listIndex, parentIndex, textOffset, brailleOffset;
+	ArrayList<Integer> treeIndexes;
 	ParentNode parent;
 	
-	public Event(EventTypes eventType, Element e, int listIndex, int textOffset, int brailleOffset, int treeIndex){
+	public Event(EventTypes eventType, Element e, int listIndex, int textOffset, int brailleOffset, ArrayList<Integer> treeIndexes){
 		this.eventType = eventType;
 		this.element = (Element)e.copy();
 		this.parent = e.getParent();
@@ -17,7 +20,7 @@ public class Event {
 		this.listIndex = listIndex;
 		this.textOffset = textOffset;
 		this.brailleOffset = brailleOffset;
-		this.treeIndex = treeIndex;
+		this.treeIndexes = treeIndexes;
 	}
 	
 	public Element getElement(){
@@ -44,7 +47,7 @@ public class Event {
 		return brailleOffset;
 	}
 	
-	public int getTreeIndex(){
-		return treeIndex;
+	public ArrayList<Integer> getTreeIndex(){
+		return treeIndexes;
 	}
 }

@@ -19,6 +19,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
@@ -31,12 +32,14 @@ public class HideActionHandler {
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
+	ViewInitializer vi;
 	EventFrame eventFrame;
 	boolean boxlineAdded;
 	
-	public HideActionHandler(Manager manager, MapList list){
+	public HideActionHandler(Manager manager, MapList list, ViewInitializer vi){
 		this.manager = manager;
 		this.list = list;
+		this.vi = vi;
 		text = manager.getText();
 		braille = manager.getBraille();
 		tree = manager.getTreeView();
@@ -133,8 +136,8 @@ public class HideActionHandler {
 		m.put("element", parent);
 		m.put("type", "action");
 		m.put("action", "skip");
-		int treeIndex = manager.getTreeView().getTree().getSelection()[0].getParentItem().indexOf(manager.getTreeView().getTree().getSelection()[0]);
-		
+		//int treeIndex = manager.getTreeView().getTree().getSelection()[0].getParentItem().indexOf(manager.getTreeView().getTree().getSelection()[0]);
+		ArrayList<Integer> treeIndexes = tree.getItemPath();
 		boolean collapseBefore =  collapseSpaceBefore(itemList.get(0));
 		boolean collapseAfter = collapseSpaceAfter(itemList.get(itemList.size() - 1));
 		
@@ -169,7 +172,7 @@ public class HideActionHandler {
 		}
 		
 		if(!boxlineAdded)
-			eventFrame.addEvent(new Event(EventTypes.Delete, parent, list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndex));
+			eventFrame.addEvent(new Event(EventTypes.Delete, parent, list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
 		
 		if(parent.getLocalName().equals("sidebar"))
 			boxlineAdded = true;
@@ -180,7 +183,8 @@ public class HideActionHandler {
 			if(i == itemList.size() - 1 && removeParent(itemList.get(i)))
 				message.put("element", itemList.get(i).parentElement().getParent());
 			tree.removeItem(itemList.get(i), message);
-			list.remove(itemList.get(i));
+			vi.remove(list, list.indexOf(itemList.get(i)));
+			//list.remove(itemList.get(i));
 		}
 	
 		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);

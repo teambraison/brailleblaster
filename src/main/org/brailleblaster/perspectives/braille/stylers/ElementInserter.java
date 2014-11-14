@@ -44,7 +44,8 @@ public class ElementInserter {
 		ArrayList<TextMapElement> elList = constructMapElements(f.getElement());
 		setViews(elList, f.getListIndex(), f.getTextOffset(), f.getBrailleOffset());
 		
-		restoreTree(elList, f.getTreeIndex());
+		//restoreTree(elList, f.getTreeIndex());
+		manager.getTreeView().rebuildTree(f.getTreeIndex());
 		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, manager.getText().view.getCaretOffset(), false));
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}

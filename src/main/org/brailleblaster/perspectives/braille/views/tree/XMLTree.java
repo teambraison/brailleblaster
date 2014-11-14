@@ -706,4 +706,27 @@ public class XMLTree extends TreeView {
 		if(item.getItemCount() == 0)
 			populateItemChildren(item, getTreeItemData(item).element);
 	}
+
+	@Override
+	public void rebuildTree(ArrayList<Integer> indexes) {
+		tree.setRedraw(false);
+		tree.setSelection(root);
+		root.setExpanded(false);
+		TreeItem item = root;
+		depopulateItemChildren(root);
+		while(indexes.size() > 0){
+			int index = indexes.remove(0);
+			if(item.getItemCount() == 0){
+				populateItemChildren(item, getTreeItemData(item).element);
+				tree.setSelection(item.getItem(index));
+				item = tree.getSelection()[0];
+			}
+			else{
+				tree.setSelection(item.getItem(index));
+				item = tree.getSelection()[0];
+			}
+				
+		}
+		tree.setRedraw(true);
+	}
 }

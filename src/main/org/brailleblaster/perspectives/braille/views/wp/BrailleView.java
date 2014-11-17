@@ -69,7 +69,6 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.Group;
 
 public class BrailleView extends WPView {
 	private int currentStart, currentEnd, nextStart;

@@ -111,6 +111,16 @@ public class BoxlineHandler {
 		treeItemData.add(list.get(endPos));
 		//add aside or sidebar to tree
 		treeView.newTreeItem(treeItemData, treeIndex, 0);
+		
+		if(checkSemanticsAttribute((Element)wrapper.getParent(), "boxline"))
+			convertFullBox((Element)wrapper.getParent());
+	}
+	
+	private void convertFullBox(Element e){
+		Element copy = document.translateElement((Element)e.copy());
+		replaceBoxLine((Element)e.getChild(0), (Element)copy.getChild(0));
+		replaceBoxLine((Element)e.getChild(e.getChildCount() - 1), (Element)copy.getChild(copy.getChildCount() - 1));
+		setStyle(e, getStyle(copy));
 	}
 	
 	private void createHalfBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){		
@@ -355,7 +365,7 @@ public class BoxlineHandler {
 		
 		while(itemList.size() > 0){
 			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
-			if(getStyle(itemList.get(0).parentElement()).equals("boxline") || getStyle(itemList.get(0).parentElement()).equals("topBox")){
+			if(getStyle(itemList.get(0).parentElement()).equals("boxline") || getStyle(itemList.get(0).parentElement()).equals("topBox") || getStyle(itemList.get(0).parentElement()).equals("fullBox")){
 				int index = getMatchingParent(itemList, 0);
 				boxline.add(itemList.get(0));
 				boxline.add(itemList.get(index));
@@ -387,7 +397,7 @@ public class BoxlineHandler {
 	
 	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
 		String style = getStyle(boxline);
-		if(style.equals("boxline") || style.equals("topBox")){
+		if(style.equals("boxline") || style.equals("topBox") ||  style.equals("fullBox")){
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
 			removeBoxLineElement(boxline);

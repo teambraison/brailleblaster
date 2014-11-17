@@ -1228,7 +1228,7 @@ public class Manager extends Controller {
 	public void refresh(){	
 		int currentOffset;
 		Control c = editorSash.getMaximizedControl();
-		
+		int [] weights = editorSash.getWeights();
 		WPView view = null;
 		if(c != null){
 			if(c.equals(text.view))
@@ -1284,6 +1284,8 @@ public class Manager extends Controller {
 		if(c != null){
 			editorSash.setMaximizedControl(view.view);
 		}
+		else
+			editorSash.setWeights(weights);
 		editorSash.setRedraw(true);
 	}
 	

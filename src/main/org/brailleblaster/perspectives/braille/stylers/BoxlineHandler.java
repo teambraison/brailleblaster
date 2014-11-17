@@ -26,6 +26,13 @@ import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 public class BoxlineHandler {
+	
+	private static final String BOXLINE = "boxline";
+	private static final String FULLBOX = "fullBox";
+	private static final String TOPBOX = "topBox";
+	private static final String MIDDLEBOX = "middleBox";
+	private static final String BOTTOMBOX = "bottomBox";
+	
 	Manager manager;
 	BrailleDocument document;
 	BBSemanticsTable styles;
@@ -52,7 +59,7 @@ public class BoxlineHandler {
 	 * @param itemList: arraylist containing text nodes of the block element
 	 */
 	public void createBoxline(ArrayList<Element>parents, Message m, ArrayList<TextMapElement> itemList){		
-		Element wrapper = document.wrapElement(parents, "boxline");
+		Element wrapper = document.wrapElement(parents, BOXLINE);
 		if(wrapper != null){
 			ArrayList<Element>sidebarList = findBoxlines(wrapper);
 			if(sidebarList.size() > 1)
@@ -68,11 +75,11 @@ public class BoxlineHandler {
 	private void createMultipleBoxlines(ArrayList<Element> elList, Element wrapper, ArrayList<Element>parents, ArrayList<TextMapElement> itemList){			
 		for(int i = 0; i < elList.size(); i++){
 			if(i == 0)
-				setStyle(elList.get(i), "topBox");
+				setStyle(elList.get(i), TOPBOX);
 			else if(i == elList.size() - 1)
-				setStyle(elList.get(i), "bottomBox");
+				setStyle(elList.get(i), BOTTOMBOX);
 			else
-				setStyle(elList.get(i), "middleBox");
+				setStyle(elList.get(i), MIDDLEBOX);
 		}
 			
 		Document doc = document.translateElements(elList);
@@ -80,9 +87,9 @@ public class BoxlineHandler {
 		
 		String style = getStyle(wrapper);
 		Message m = new Message(null);
-		if(style.equals("topBox"))
+		if(style.equals(TOPBOX))
 			createFullBoxline(wrapper, parents, m, itemList);
-		else if(style.equals("bottomBox") || style.equals("middleBox"))
+		else if(style.equals(BOTTOMBOX) || style.equals(MIDDLEBOX))
 			createHalfBox(wrapper, m, itemList, parents);
 		
 		int index = elList.indexOf(wrapper);
@@ -112,12 +119,12 @@ public class BoxlineHandler {
 		//add aside or sidebar to tree
 		treeView.newTreeItem(treeItemData, treeIndex, 0);
 		
-		if(checkSemanticsAttribute((Element)wrapper.getParent(), "boxline"))
+		if(checkSemanticsAttribute((Element)wrapper.getParent(), BOXLINE))
 			convertFullBox((Element)wrapper.getParent());
 	}
 	
 	private void convertFullBox(Element e){
-		String style = checkSemanticsAttribute(e, "boxline") ? "fullBox" : "boxline";
+		String style = checkSemanticsAttribute(e,BOXLINE) ? FULLBOX : BOXLINE;
 		setStyle(e, style);
 		Element copy = document.translateElement((Element)e.copy());
 		replaceBoxLine((Element)e.getChild(0), (Element)copy.getChild(0));
@@ -218,9 +225,9 @@ public class BoxlineHandler {
 	
 	private void resetSidebars(ArrayList<Element> elList, Element parent){
 		while(elList.size() > 0){
-			if(getStyle(parent.getChildElements().get(0)).equals("topBox") || getStyle(parent.getChildElements().get(0)).equals("boxline"))
+			if(getStyle(parent.getChildElements().get(0)).equals(TOPBOX) || getStyle(parent.getChildElements().get(0)).equals(BOXLINE))
 				changeToFullBox(elList.get(0), parent.getChildElements().get(0));
-			else if(getStyle(parent.getChildElements().get(0)).equals("bottomBox") || getStyle(parent.getChildElements().get(0)).equals("middleBox"))
+			else if(getStyle(parent.getChildElements().get(0)).equals(BOTTOMBOX) || getStyle(parent.getChildElements().get(0)).equals(MIDDLEBOX))
 				changeToHalfBox(elList.get(0), parent.getChildElements().get(0));
 			
 			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
@@ -366,14 +373,14 @@ public class BoxlineHandler {
 		
 		while(itemList.size() > 0){
 			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
-			if(getStyle(itemList.get(0).parentElement()).equals("boxline") || getStyle(itemList.get(0).parentElement()).equals("topBox") || getStyle(itemList.get(0).parentElement()).equals("fullBox")){
+			if(getStyle(itemList.get(0).parentElement()).equals(BOXLINE) || getStyle(itemList.get(0).parentElement()).equals(TOPBOX) || getStyle(itemList.get(0).parentElement()).equals(FULLBOX)){
 				int index = getMatchingParent(itemList, 0);
 				boxline.add(itemList.get(0));
 				boxline.add(itemList.get(index));
 				itemList.remove(0);
 				itemList.remove(index - 1);
 			}
-			else if(getStyle(itemList.get(0).parentElement()).equals("middleBox") || getStyle(itemList.get(0).parentElement()).equals("bottomBox")){
+			else if(getStyle(itemList.get(0).parentElement()).equals(MIDDLEBOX) || getStyle(itemList.get(0).parentElement()).equals(BOTTOMBOX)){
 				boxline.add(itemList.get(0));
 				itemList.remove(0);
 			}
@@ -398,11 +405,11 @@ public class BoxlineHandler {
 	
 	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
 		String style = getStyle(boxline);
-		if(style.equals("boxline") || style.equals("topBox") ||  style.equals("fullBox")){
+		if(style.equals(BOXLINE) || style.equals(TOPBOX) ||  style.equals(FULLBOX)){
 			Element parent = null;
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
-			if(isBoxLine((Element)boxline.getParent()) && getStyle((Element)boxline.getParent()).equals("fullBox")){
+			if(isBoxLine((Element)boxline.getParent()) && getStyle((Element)boxline.getParent()).equals(FULLBOX)){
 				if(nestedSidebarCount((Element)boxline.getParent()) == 1)
 					parent = (Element)boxline.getParent();
 			}
@@ -412,7 +419,7 @@ public class BoxlineHandler {
 				convertFullBox(parent);
 			
 		}
-		else if(style.equals("middleBox") || style.equals("bottomBox")){
+		else if(style.equals(MIDDLEBOX) || style.equals(BOTTOMBOX)){
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBoxLineElement(boxline);
 		}
@@ -428,26 +435,26 @@ public class BoxlineHandler {
 		for(int i = 0; i < elList.size(); i++){
 			if(i == 0 && isBoxLine(elList.get(i))){
 				if(i < elList.size() - 1 && isBoxLine(elList.get(i + 1)))
-					setStyle(elList.get(i), "topBox");
+					setStyle(elList.get(i), TOPBOX);
 				else
-					setStyle(elList.get(i), "boxline");
+					setStyle(elList.get(i), BOXLINE);
 			}
 			else if(i == elList.size() - 1 && isBoxLine(elList.get(i))){
 				if(i > 0 && isBoxLine(elList.get(i - 1)))
-					setStyle(elList.get(i), "bottomBox");
+					setStyle(elList.get(i), BOTTOMBOX);
 				else
-					setStyle(elList.get(i), "boxline");
+					setStyle(elList.get(i), BOXLINE);
 			}
 			else {
 				if(isBoxLine(elList.get(i))){
 					if(isBoxLine(elList.get(i - 1)) && isBoxLine(elList.get(i + 1)))
-						setStyle(elList.get(i), "middleBox");
+						setStyle(elList.get(i), MIDDLEBOX);
 					else if(isBoxLine(elList.get(i - 1)) && !isBoxLine(elList.get(i + 1)))
-						setStyle(elList.get(i), "bottomBox");
+						setStyle(elList.get(i), BOTTOMBOX);
 					else if(!isBoxLine(elList.get(i - 1)) && isBoxLine(elList.get(i + 1)))
-						setStyle(elList.get(i), "topBox");
+						setStyle(elList.get(i), TOPBOX);
 					else
-						setStyle(elList.get(i), "boxline");
+						setStyle(elList.get(i), BOXLINE);
 				}
 			}
 		}
@@ -514,7 +521,8 @@ public class BoxlineHandler {
 	}
 	
 	private boolean isBoxLine(Element e){
-		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox") || checkSemanticsAttribute(e, "fullBox"))
+		if(checkSemanticsAttribute(e, BOXLINE) || checkSemanticsAttribute(e, TOPBOX) || checkSemanticsAttribute(e, MIDDLEBOX) 
+				|| checkSemanticsAttribute(e, BOTTOMBOX) || checkSemanticsAttribute(e, FULLBOX))
 			return true;
 		else
 			return false;

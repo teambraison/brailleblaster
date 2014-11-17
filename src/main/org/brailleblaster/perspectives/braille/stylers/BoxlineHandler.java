@@ -117,10 +117,11 @@ public class BoxlineHandler {
 	}
 	
 	private void convertFullBox(Element e){
+		String style = checkSemanticsAttribute(e, "boxline") ? "fullBox" : "boxline";
+		setStyle(e, style);
 		Element copy = document.translateElement((Element)e.copy());
 		replaceBoxLine((Element)e.getChild(0), (Element)copy.getChild(0));
 		replaceBoxLine((Element)e.getChild(e.getChildCount() - 1), (Element)copy.getChild(copy.getChildCount() - 1));
-		setStyle(e, getStyle(copy));
 	}
 	
 	private void createHalfBox(Element wrapper, Message m, ArrayList<TextMapElement>itemList,ArrayList<Element>parents){		
@@ -398,9 +399,18 @@ public class BoxlineHandler {
 	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
 		String style = getStyle(boxline);
 		if(style.equals("boxline") || style.equals("topBox") ||  style.equals("fullBox")){
+			Element parent = null;
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
+			if(isBoxLine((Element)boxline.getParent()) && getStyle((Element)boxline.getParent()).equals("fullBox")){
+				if(nestedSidebarCount((Element)boxline.getParent()) == 1)
+					parent = (Element)boxline.getParent();
+			}
+				
 			removeBoxLineElement(boxline);
+			if(parent != null)
+				convertFullBox(parent);
+			
 		}
 		else if(style.equals("middleBox") || style.equals("bottomBox")){
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(0));
@@ -504,7 +514,7 @@ public class BoxlineHandler {
 	}
 	
 	private boolean isBoxLine(Element e){
-		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox") || checkSemanticsAttribute(e, "fullBox"))
 			return true;
 		else
 			return false;
@@ -557,5 +567,15 @@ public class BoxlineHandler {
 				return i;
 		
 		return -1;
+	}
+	
+	private int nestedSidebarCount(Element e){
+		int sidebarCount = 0;
+		Elements els = e.getChildElements();
+		for(int i = 0; i < els.size(); i++){
+			if(isBoxLine(els.get(i)))
+				sidebarCount++;
+		}
+		return sidebarCount;
 	}
 }

@@ -164,7 +164,7 @@ public class ElementInserter {
 	private void removeSemanticEntry(Element e){
 		FileUtils fu = new FileUtils();
 		SemanticFileHandler sfh = new SemanticFileHandler(manager.getCurrentConfig());
-		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getDocumentName()) + ".sem";
+		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getWorkingPath()) + ".sem";
 		String id = e.getAttributeValue("id");
 		sfh.removeSemanticEntry(file, id);
 	}
@@ -172,7 +172,7 @@ public class ElementInserter {
 	private void appendSemanticEntry(Element e){
 		FileUtils fu = new FileUtils();
 		SemanticFileHandler sfh = new SemanticFileHandler(manager.getCurrentConfig());
-		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getDocumentName()) + ".sem";
+		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getWorkingPath()) + ".sem";
 		String id = e.getAttributeValue("id");
 		sfh.removeSemanticEntry(file, id);
 		String [] tokens = e.getAttributeValue("semantics").split(",");

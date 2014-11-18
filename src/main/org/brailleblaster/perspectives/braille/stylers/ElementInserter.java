@@ -213,7 +213,7 @@ public class ElementInserter {
 	private boolean isBoxline(Element e){
 		Attribute attr = e.getAttribute("semantics");
 		if(attr != null){
-			if(attr.getValue().contains("boxline") || attr.getValue().contains("topBo") || attr.getValue().contains("bottomBox"))
+			if(attr.getValue().contains("boxline") || attr.getValue().contains("topBox") || attr.getValue().contains("bottomBox") || attr.getValue().contains("middlebox") || attr.getValue().contains("fullBox"))
 				return true;
 		}
 		

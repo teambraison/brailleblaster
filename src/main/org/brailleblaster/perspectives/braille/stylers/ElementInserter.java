@@ -108,17 +108,6 @@ public class ElementInserter {
 		}
 	}
 	
-	private void restoreTree(ArrayList<TextMapElement>elList, int index){
-		Element parent = elList.get(0).parentElement();
-		for(int i = 1; i < elList.size(); i++){
-			if(!elList.get(i).parentElement().equals(parent)){
-				elList.remove(elList.get(i));
-				i--;
-			}
-		}
-		manager.getTreeView().newTreeItem(elList, index, 0);
-	}
-	
 	private boolean hasId(Element e){
 		if(e.getAttribute("id") != null)
 			return true;

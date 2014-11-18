@@ -50,6 +50,7 @@ public class HideActionHandler {
 			if(text.isMultiSelected())
 				hideMultipleElements();
 			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
+				text.update(true);
 				int index = list.getCurrentIndex();
 				eventFrame = new EventFrame();
 				boxlineAdded = false;

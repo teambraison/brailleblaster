@@ -874,25 +874,35 @@ public class BrailleView extends WPView {
 		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
 		boolean isLast =  t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n);
 		int margin = 0;
+		int lineBreaks = 0;
 		int originalPosition = view.getCaretOffset();
 		int start = pos;
-		
+		Element parent = (Element)b.n.getParent();
+		int index = parent.indexOf(b.n);
 		setListenerLock(true);
 		view.setCaretOffset(pos);
-		view.insert(b.n.getValue());
+		
+		//checks for newline element before text node if not at the beginning of a block element
+		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			view.insert("\n" + b.n.getValue());
+			lineBreaks++;
+			view.setCaretOffset(pos + 1);
+		}
+		else
+			view.insert(b.n.getValue());
 		
 		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
 		int linesBefore = 0;
 		if(isFirst)
-			linesBefore = wsp.setLinesBeforeBraille(t, b, start, style);
+			linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
 		
 		int linesAfter = 0;
 		if(isLast)
-			linesAfter = wsp.setLinesAfterBraille(t, b, start + b.n.getValue().length() + linesBefore, style);
+			linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
 		
-		m.put("brailleLength", b.n.getValue().length() + linesBefore + linesAfter);
-		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter);
-		b.setOffsets(linesBefore + start, start + b.n.getValue().length() + linesBefore);
+		m.put("brailleLength", b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+		b.setOffsets(lineBreaks + linesBefore + start, lineBreaks + start + b.n.getValue().length() + linesBefore);
 		
 		//reset margin in case it is not applied
 		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))

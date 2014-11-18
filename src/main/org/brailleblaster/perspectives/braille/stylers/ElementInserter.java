@@ -82,7 +82,7 @@ public class ElementInserter {
 			createBlankLine(textOffset, brailleOffset, index);
 		
 		for(int i = 0; i < count; i++){
-			if(i > 0 && isBlockElement(elList.get(i))){
+			if(i > 0 && (isBlockElement(elList.get(i)) || afterLineBreak(elList.get(i)))){
 				createBlankLine(textOffset, brailleOffset, index);
 				textOffset++;
 				brailleOffset++;
@@ -190,6 +190,19 @@ public class ElementInserter {
 			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
 				return true;
 		}
+		return false;
+	}
+	
+	//checks for a rare case if a line break element occurs within a block element
+	private boolean afterLineBreak(TextMapElement t){
+		if(t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
+			return false;
+		else if(t.parentElement().indexOf(t.n) > 0){
+			int index = t.parentElement().indexOf(t.n);
+			if(t.parentElement().getChild(index - 1) instanceof Element && ((Element)t.parentElement().getChild(index - 1)).getLocalName().equals("br"))
+				return true;
+		}
+		
 		return false;
 	}
 	

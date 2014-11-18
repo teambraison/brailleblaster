@@ -8,6 +8,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.views.wp.WPView;
 
@@ -30,12 +32,16 @@ public class WhiteSpaceManager {
 		if(style.contains(StylesType.linesBefore)){	
 			linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore));
 			int index = list.indexOf(t);
-			if(!isFirstInList(index)){
-				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
-				String sem = getSemanticAttribute(prevParent);
-				prevPos = list.get(index - 1).end;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
-					prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));
+			if(!isFirstInList(index)){  
+				if(!(list.get(index - 1) instanceof PageMapElement) && !(list.get(index - 1) instanceof BrlOnlyMapElement)){
+					Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
+					String sem = getSemanticAttribute(prevParent);
+					prevPos = list.get(index - 1).end;
+					if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
+						prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));
+				}
+				else
+					prevPos = list.get(index - 1).end;
 			}
 		
 			if(linesBefore < prevLinesAfter)
@@ -64,11 +70,15 @@ public class WhiteSpaceManager {
 			linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore));
 			int index = list.indexOf(t);
 			if(!isFirstInList(index)){
-				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
-				String sem = getSemanticAttribute(prevParent);
-				prevPos = list.get(index - 1).brailleList.getLast().end;
-				if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
-					prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));	
+				if(!(list.get(index - 1) instanceof PageMapElement) && !(list.get(index - 1) instanceof BrlOnlyMapElement)){
+					Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
+					String sem = getSemanticAttribute(prevParent);
+					prevPos = list.get(index - 1).brailleList.getLast().end;
+					if(manager.getStyleTable().get(sem).contains(StylesType.linesAfter))
+						prevLinesAfter = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesAfter));	
+				}
+				else
+					prevPos = list.get(index - 1).brailleList.getLast().end;
 			}
 		
 			if(linesBefore < prevLinesAfter)

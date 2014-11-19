@@ -50,7 +50,7 @@ public class HideActionHandler {
 			if(text.isMultiSelected())
 				hideMultipleElements();
 			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
-				text.update(true);
+				text.update(false);
 				int index = list.getCurrentIndex();
 				eventFrame = new EventFrame();
 				boxlineAdded = false;
@@ -359,7 +359,7 @@ public class HideActionHandler {
 	}
 	
 	private boolean removeParent(TextMapElement t){
-		if(isInLine(t.parentElement()))
+		if(!(t instanceof PageMapElement) && isInLine(t.parentElement()))
 			return true;
 		else
 			return false;

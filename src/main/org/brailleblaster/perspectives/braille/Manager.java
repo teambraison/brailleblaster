@@ -929,7 +929,7 @@ public class Manager extends Controller {
 			containerSash.setRedraw(true);
 		}
 		else
-			new Notify(lh.localValue("nothingToApply"));
+			notify(lh.localValue("nothingToApply"));
 	}
 	
 	/***
@@ -980,7 +980,6 @@ public class Manager extends Controller {
 		ArrayList<Element>parents = new ArrayList<Element>();
 		parents.add(parent);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message);
 		
 		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
 			boolean invalid = false;
@@ -989,13 +988,15 @@ public class Manager extends Controller {
 					invalid = true;
 			}
 			if(!invalid){
+				adjustStyle(itemList, message);
 				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
 				bxh.createBoxline(parents, message, itemList);
 			}
 		else
-			new Notify(lh.localValue("invalidBoxline.containsPage"));
+			notify(lh.localValue("invalidBoxline.containsPage"));
 		}
 		else {
+			adjustStyle(itemList, message);
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
 			if(box != null){
 				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
@@ -1035,8 +1036,7 @@ public class Manager extends Controller {
 				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
 						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
-					if(!BBIni.debugging())
-						new Notify(lh.localValue("invalidBoxline.incorrectSelection"));
+					notify(lh.localValue("invalidBoxline.incorrectSelection"));
 					break;
 				}
 			}
@@ -1048,7 +1048,7 @@ public class Manager extends Controller {
 		for(int i = 0; i < itemList.size() && !invalid; i++){
 			if(itemList.get(i) instanceof PageMapElement){
 				invalid = true;
-				new Notify(lh.localValue("invalidBoxline.containsPage"));
+				notify(lh.localValue("invalidBoxline.containsPage"));
 			}
 		}
 		
@@ -1859,5 +1859,13 @@ public class Manager extends Controller {
 		}
 		else
 			return null;
+	}
+	
+	/** Creates a Notify class alert box if debugging is not active
+	 * @param notify : String to be used in an alert box, should already be localized
+	 */
+	private void notify(String notify){
+		if(!BBIni.debugging())
+			new Notify(notify);
 	}
 }

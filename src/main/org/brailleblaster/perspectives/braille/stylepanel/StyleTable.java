@@ -366,7 +366,7 @@ public class StyleTable {
     	
     	for(String s : list){
     		if(!s.equals("document") && !s.equals("italicx") && !s.equals("boldx") &&
-    				!s.equals("topBox") && !s.equals("middleBox") & !s.equals("bottomBox") && !s.equals("underlinex") && !s.equals("none"))
+    				!s.equals("topBox") && !s.equals("middleBox") & !s.equals("bottomBox") && !s.equals("fullBox") &&  !s.equals("underlinex") && !s.equals("none"))
     		{
     			if(sm.getSemanticsTable().get(s).contains(perefferedStyle)){
     				perefferedName=(String) sm.getSemanticsTable().get(s).get(perefferedStyle);
@@ -509,7 +509,8 @@ public class StyleTable {
     }
     
     private boolean isBoxLine(Element e){
-		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") || checkSemanticsAttribute(e, "bottomBox"))
+		if(checkSemanticsAttribute(e, "boxline") || checkSemanticsAttribute(e, "topBox") || checkSemanticsAttribute(e, "middleBox") 
+				|| checkSemanticsAttribute(e, "bottomBox") || checkSemanticsAttribute(e, "fullBox")) 
 			return true;
 		else
 			return false;

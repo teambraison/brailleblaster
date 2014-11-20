@@ -934,7 +934,7 @@ public class Manager extends Controller {
 			containerSash.setRedraw(true);
 		}
 		else
-			new Notify(lh.localValue("nothingToApply"));
+			notify(lh.localValue("nothingToApply"));
 	}
 	
 	/***
@@ -985,13 +985,23 @@ public class Manager extends Controller {
 		ArrayList<Element>parents = new ArrayList<Element>();
 		parents.add(parent);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message);
 		
 		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.createBoxline(parents, message, itemList);	
+			boolean invalid = false;
+			for(int i = 0; i < itemList.size() && !invalid; i++){
+				if(itemList.get(i) instanceof PageMapElement)
+					invalid = true;
+			}
+			if(!invalid){
+				adjustStyle(itemList, message);
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.createBoxline(parents, message, itemList);
+			}
+		else
+			notify(lh.localValue("invalidBoxline.containsPage"));
 		}
 		else {
+			adjustStyle(itemList, message);
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
 			if(box != null){
 				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
@@ -1023,15 +1033,15 @@ public class Manager extends Controller {
 		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
 		
 		boolean invalid = false;
-		while(itr.hasNext()){
+		
+		while(itr.hasNext() && !invalid){
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
 				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
 						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
-					if(!BBIni.debugging())
-						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
+					notify(lh.localValue("invalidBoxline.incorrectSelection"));
 					break;
 				}
 			}
@@ -1039,6 +1049,14 @@ public class Manager extends Controller {
 			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
 			parents.add(parent);
 		}
+		
+		for(int i = 0; i < itemList.size() && !invalid; i++){
+			if(itemList.get(i) instanceof PageMapElement){
+				invalid = true;
+				notify(lh.localValue("invalidBoxline.containsPage"));
+			}
+		}
+		
 		if(!invalid){
 			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
 				adjustStyle(itemList, message);
@@ -1233,7 +1251,7 @@ public class Manager extends Controller {
 	public void refresh(){	
 		int currentOffset;
 		Control c = editorSash.getMaximizedControl();
-		
+		int [] weights = editorSash.getWeights();
 		WPView view = null;
 		if(c != null){
 			if(c.equals(text.view))
@@ -1289,6 +1307,8 @@ public class Manager extends Controller {
 		if(c != null){
 			editorSash.setMaximizedControl(view.view);
 		}
+		else
+			editorSash.setWeights(weights);
 		editorSash.setRedraw(true);
 	}
 	
@@ -1853,4 +1873,13 @@ public class Manager extends Controller {
 	public void undo(){
 		eventQueue.popEvent(vi, document, list, this);
 	}
+
+/** Creates a Notify class alert box if debugging is not active
+	 * @param notify : String to be used in an alert box, should already be localized
+	 */
+	private void notify(String notify){
+		if(!BBIni.debugging())
+			new Notify(notify);
+	}
+	
 }

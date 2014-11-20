@@ -26,6 +26,10 @@ topBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sideb
 middleBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 1][count((following-sibling::*)[1][name() = 'sidebar']) = 1])
 bottomBox	&xpath(//dsy:sidebar[count((preceding-sibling::*)[last()][name() = 'sidebar']) = 1][count((following-sibling::*)[1][name() = 'sidebar']) = 0])
 
+# a list item component (<lic>) followed by a list is treated as a heading...
+heading4 &xpath(//dsy:lic[count(following-sibling::dsy:list) > 0]) = 0])
+
+
 # section elements
 # these are mostly here for debugging and reference
 no frontmatter

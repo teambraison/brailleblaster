@@ -983,8 +983,17 @@ public class Manager extends Controller {
 		adjustStyle(itemList, message);
 		
 		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.createBoxline(parents, message, itemList);	
+			boolean invalid = false;
+			for(int i = 0; i < itemList.size() && !invalid; i++){
+				if(itemList.get(i) instanceof PageMapElement)
+					invalid = true;
+			}
+			if(!invalid){
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.createBoxline(parents, message, itemList);
+			}
+		else
+			new Notify(lh.localValue("invalidBoxline.containsPage"));
 		}
 		else {
 			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
@@ -1018,7 +1027,8 @@ public class Manager extends Controller {
 		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
 		
 		boolean invalid = false;
-		while(itr.hasNext()){
+		
+		while(itr.hasNext() && !invalid){
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
@@ -1026,7 +1036,7 @@ public class Manager extends Controller {
 						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
 					if(!BBIni.debugging())
-						new Notify("A boxline must either wrap another boxline or appear within a boxline.  Please check the area you selected is valid");
+						new Notify(lh.localValue("invalidBoxline.incorrectSelection"));
 					break;
 				}
 			}
@@ -1034,6 +1044,14 @@ public class Manager extends Controller {
 			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
 			parents.add(parent);
 		}
+		
+		for(int i = 0; i < itemList.size() && !invalid; i++){
+			if(itemList.get(i) instanceof PageMapElement){
+				invalid = true;
+				new Notify(lh.localValue("invalidBoxline.containsPage"));
+			}
+		}
+		
 		if(!invalid){
 			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
 				adjustStyle(itemList, message);

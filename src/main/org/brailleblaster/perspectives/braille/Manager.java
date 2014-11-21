@@ -471,14 +471,14 @@ public class Manager extends Controller {
 	
 	public void checkView(TextMapElement t){
 		if(!list.contains(t))
-			list = vi.resetViews(getSection(t));
+			list = vi.bufferViews(getSection(t));
 	}
 	
 	public void decrementView(){
 		TextMapElement t = list.getFirst();
 		int section = getSection(t);
 		if(section != 0){
-			list = vi.resetViews(section);
+			list = vi.bufferViews(section);
 			list.setCurrent(list.indexOf(t) - 1);
 			text.resetOffsets();
 		}
@@ -488,7 +488,7 @@ public class Manager extends Controller {
 		TextMapElement t = list.getLast();
 		int section = getSection(t);
 		if(section != vi.getSectionList().size() - 1){
-			list = vi.resetViews(section + 1);
+			list = vi.bufferViews(section + 1);
 			list.setCurrent(list.indexOf(t) + 1);
 			text.resetOffsets();
 		}
@@ -1351,7 +1351,7 @@ public class Manager extends Controller {
 			braille.hasChanged = brailleChanged;
 			
 			if(index != -1)
-				vi.resetViews(index);
+				vi.bufferViews(index);
 			//if(arch.getOrigDocPath() == null && list.size() == 0)
 			//	formatTemplateDocument();
 		} 

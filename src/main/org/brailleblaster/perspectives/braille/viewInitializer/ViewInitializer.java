@@ -186,7 +186,6 @@ public abstract class ViewInitializer {
 			
 				int pos = endPos + 1;
 				do {
-					//int index = viewList.size();
 					text.setTotal(text.view.getCharCount());
 					braille.setTotal(braille.view.getCharCount());
 					viewList.addAll(sectionList.get(pos).getList());
@@ -202,38 +201,62 @@ public abstract class ViewInitializer {
 		return viewList;
 	}
 	
-	
-	public MapList resetViews(int firstIndex) {
+	/** Buffers views by including one section before or after the given index if greter than zero and list than 
+	 * list size, method is used when either arrowing up or down, or scrolling up or down.  Including one section 
+	 * before the desired index
+	 * @param index : index to be included in new views
+	 * @return new maplist of views
+	 */
+	public MapList bufferViews(int index) {
 		if(sectionList.size() > 1){
 			removeListeners();
-			TextMapElement t = sectionList.get(firstIndex).getList().getFirst();
-			if(firstIndex != 0)
-				firstIndex--;
+			TextMapElement t = sectionList.get(index).getList().getFirst();
+			if(index != 0)
+				index--;
 			
-			int startPos = findFirst();
-			int endPos = findLast();
-				
-			clearViewList(startPos, endPos);
-			clearViews();
-				
-			int i = firstIndex;
-			
-			int totalChars = 0;
-			while(i < sectionList.size() && (i < firstIndex + 2 || totalChars < CHAR_COUNT)){
-				viewList.addAll(sectionList.get(i).getList());
-				totalChars += sectionList.get(i).getCharCount();
-				sectionList.get(i).setInView(true);
-				i++;
-			}
-			appendToViews(viewList, 0);
-			if(!viewList.getFirst().equals(t)){
-				text.positionScrollbar(text.view.getLineAtOffset(t.start));
-				braille.positionScrollbar(braille.view.getLineAtOffset(t.brailleList.getFirst().start));
-			}
-			initializeListeners();
+			setViews(t, index);
 		}
 		
 		return viewList;
+	}
+	
+	/** Resets the views from the starting index, used to recreate a view when undoing events
+	 * @param index: index of section to start from to recreate views
+	 * @return a new maplist
+	 */
+	public MapList resetViews(int index) {
+		if(sectionList.size() > 1){
+			removeListeners();
+			TextMapElement t = sectionList.get(index).getList().getFirst();
+			setViews(t, index);
+		}
+		
+		return viewList;
+	}
+	
+	private void setViews(TextMapElement t, int index){
+		int startPos = findFirst();
+		int endPos = findLast();
+			
+		clearViewList(startPos, endPos);
+		clearViews();
+			
+		int i = index;
+		
+		int totalChars = 0;
+		while(i < sectionList.size() && (i < index + 2 || totalChars < CHAR_COUNT)){
+			viewList.addAll(sectionList.get(i).getList());
+			totalChars += sectionList.get(i).getCharCount();
+			sectionList.get(i).setInView(true);
+			i++;
+		}
+		appendToViews(viewList, 0);
+		
+		if(!viewList.getFirst().equals(t)){
+			text.positionScrollbar(text.view.getLineAtOffset(t.start));
+			braille.positionScrollbar(braille.view.getLineAtOffset(t.brailleList.getFirst().start));
+		}
+		initializeListeners();
 	}
 	
 	private void clearViewList(int startPos, int endPos){

@@ -39,7 +39,7 @@ public class ElementInserter {
 	
 	public void resetElement(Event f){
 		if(vi.getStartIndex() != f.getFirstSectionIndex())
-			vi.resetViews(f.getFirstSectionIndex());
+			list = vi.resetViews(f.getFirstSectionIndex());
 		
 		Element replacedElement = replaceElement(f);
 		updateSemanticEntry(replacedElement, f.getElement());
@@ -47,10 +47,12 @@ public class ElementInserter {
 		ArrayList<TextMapElement> elList = constructMapElements(f.getElement());
 		setViews(elList, f.getListIndex(), f.getTextOffset(), f.getBrailleOffset());
 		
-		//restoreTree(elList, f.getTreeIndex());
 		manager.getTreeView().rebuildTree(f.getTreeIndex());
-		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, manager.getText().view.getCaretOffset(), false));
+		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(f.getListIndex()).start, false));
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		
+		if(!onScreen(f.getTextOffset()))
+			setTopIndex(f.getTextOffset());
 	}
 	
 	private ArrayList<TextMapElement> constructMapElements(Element e){
@@ -223,5 +225,19 @@ public class ElementInserter {
 		}
 		
 		return false;
+	}
+	
+	private boolean onScreen(int pos){
+		int textPos = manager.getText().view.getLineAtOffset(pos) * manager.getText().view.getLineHeight();
+		int viewHeight = manager.getText().view.getClientArea().height;
+		if(textPos > viewHeight)
+			return false;
+		
+		return true;
+	}
+	
+	private void setTopIndex(int pos){
+		int line = manager.getTextView().getLineAtOffset(pos);
+		manager.getTextView().setTopIndex(line);
 	}
 }

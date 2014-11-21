@@ -173,7 +173,7 @@ public class HideActionHandler {
 		}
 		
 		if(!boxlineAdded)
-			eventFrame.addEvent(new Event(EventTypes.Delete, parent, list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
+			eventFrame.addEvent(new Event(EventTypes.Delete, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
 		
 		if(parent.getLocalName().equals("sidebar"))
 			boxlineAdded = true;
@@ -185,7 +185,6 @@ public class HideActionHandler {
 				message.put("element", itemList.get(i).parentElement().getParent());
 			tree.removeItem(itemList.get(i), message);
 			vi.remove(list, list.indexOf(itemList.get(i)));
-			//list.remove(itemList.get(i));
 		}
 	
 		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);

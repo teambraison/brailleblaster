@@ -23,6 +23,7 @@ public abstract class ViewInitializer {
 	BrailleView braille;
 	BBTree tree;
 	MapList viewList;
+
 	protected ArrayList<SectionElement>sectionList;
 	
 	public ViewInitializer(BrailleDocument doc, TextView text, BrailleView braille, BBTree tree){
@@ -30,6 +31,18 @@ public abstract class ViewInitializer {
 		this.text = text;
 		this.braille = braille;
 		this.tree = tree;
+	}
+	
+	protected MapList makeList(Manager m){
+		viewList = new MapList(m);
+		for(int i = 0; i < sectionList.size(); i++){
+			if(sectionList.get(i).isVisible()){
+				viewList.addAll(sectionList.get(i).getList());
+				viewList.setCurrent(viewList.indexOf(viewList.getCurrent()));
+			}
+		}
+		
+		return viewList;
 	}
 	
 	protected void appendToViews(MapList list, int index){
@@ -52,7 +65,6 @@ public abstract class ViewInitializer {
 			else {
 				text.setText(list.get(i), list, i);
 				braille.setBraille(list.get(i), list, i);
-				
 			}
 		}
 		if(count>0 ){
@@ -200,15 +212,9 @@ public abstract class ViewInitializer {
 			
 			int startPos = findFirst();
 			int endPos = findLast();
-			//if(startPos != endPos && endPos != sectionList.size() - 1){			
-			for(int i = startPos; i <= endPos; i++){
-				viewList.removeAll(sectionList.get(i).getList());
-				sectionList.get(i).resetList();
-			}
-			
-			replaceTextRange(0, text.view.getCharCount(), 0, braille.view.getCharCount());
-			text.setTotal(0);
-			braille.setTotal(0);
+				
+			clearViewList(startPos, endPos);
+			clearViews();
 				
 			int i = firstIndex;
 			
@@ -226,9 +232,21 @@ public abstract class ViewInitializer {
 			}
 			initializeListeners();
 		}
-		//}
 		
 		return viewList;
+	}
+	
+	private void clearViewList(int startPos, int endPos){
+		for(int i = startPos; i <= endPos; i++){
+			viewList.removeAll(sectionList.get(i).getList());
+			sectionList.get(i).resetList();
+		}
+	}
+	
+	private void clearViews(){
+		replaceTextRange(0, text.view.getCharCount(), 0, braille.view.getCharCount());
+		text.setTotal(0);
+		braille.setTotal(0);
 	}
 	
 	private void replaceTextRange(int textStart, int textLength, int brailleStart, int brailleLength){
@@ -262,6 +280,10 @@ public abstract class ViewInitializer {
 		text.initializeListeners();
 		braille.initializeListeners();
 		tree.initializeListeners();
+	}
+	
+	public int getStartIndex(){
+		return findFirst();
 	}
 	
 	private int findFirst(){

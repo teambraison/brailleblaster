@@ -55,16 +55,4 @@ public class NimasInitializer extends ViewInitializer{
 		else
 			return 	new MapList(m);
 	}
-	
-	private MapList makeList(Manager m){
-		viewList = new MapList(m);
-		for(int i = 0; i < sectionList.size(); i++){
-			if(sectionList.get(i).isVisible()){
-				viewList.addAll(sectionList.get(i).getList());
-				viewList.setCurrent(viewList.indexOf(viewList.getCurrent()));
-			}
-		}
-		
-		return viewList;
-	}
 }

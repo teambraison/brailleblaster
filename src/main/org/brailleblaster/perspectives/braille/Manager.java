@@ -1874,7 +1874,7 @@ public class Manager extends Controller {
 		eventQueue.popEvent(vi, document, list, this);
 	}
 
-/** Creates a Notify class alert box if debugging is not active
+	/** Creates a Notify class alert box if debugging is not active
 	 * @param notify : String to be used in an alert box, should already be localized
 	 */
 	private void notify(String notify){

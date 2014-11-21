@@ -394,6 +394,9 @@ public class BrailleView extends WPView {
 					break;
 				case name:
 					break;
+				case topBoxline:
+				case bottomBoxline:
+					break;
 				default:
 					System.out.println(entry.getKey());
 			}

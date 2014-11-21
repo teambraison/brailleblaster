@@ -8,15 +8,16 @@ import nu.xom.ParentNode;
 public class Event {
 	EventTypes eventType;
 	Element element;
-	int listIndex, parentIndex, textOffset, brailleOffset;
+	int firstSectionIndex, listIndex, parentIndex, textOffset, brailleOffset;
 	ArrayList<Integer> treeIndexes;
 	ParentNode parent;
 	
-	public Event(EventTypes eventType, Element e, int listIndex, int textOffset, int brailleOffset, ArrayList<Integer> treeIndexes){
+	public Event(EventTypes eventType, Element e, int firstSectionIndex, int listIndex, int textOffset, int brailleOffset, ArrayList<Integer> treeIndexes){
 		this.eventType = eventType;
 		this.element = (Element)e.copy();
 		this.parent = e.getParent();
 		this.parentIndex = parent.indexOf(e);
+		this.firstSectionIndex = firstSectionIndex;
 		this.listIndex = listIndex;
 		this.textOffset = textOffset;
 		this.brailleOffset = brailleOffset;
@@ -49,5 +50,9 @@ public class Event {
 	
 	public ArrayList<Integer> getTreeIndex(){
 		return treeIndexes;
+	}
+	
+	public int getFirstSectionIndex(){
+		return firstSectionIndex;
 	}
 }

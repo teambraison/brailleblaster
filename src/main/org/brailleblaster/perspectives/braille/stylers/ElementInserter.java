@@ -38,6 +38,9 @@ public class ElementInserter {
 	}
 	
 	public void resetElement(Event f){
+		if(vi.getStartIndex() != f.getFirstSectionIndex())
+			vi.resetViews(f.getFirstSectionIndex());
+		
 		Element replacedElement = replaceElement(f);
 		updateSemanticEntry(replacedElement, f.getElement());
 		

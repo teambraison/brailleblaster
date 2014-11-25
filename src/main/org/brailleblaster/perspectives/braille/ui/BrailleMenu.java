@@ -286,12 +286,12 @@ public class BrailleMenu extends BBMenu{
 			}
 		});
 		redoItem = new MenuItem(editMenu, SWT.PUSH);
-		redoItem.setText(lh.localValue("&Redo"));
-		redoItem.setEnabled(false);
+		redoItem.setAccelerator(SWT.MOD1 + 'y');
+		redoItem.setText(lh.localValue("&Redo") + "\tCtrl + Y");
 		redoItem.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//dm.placeholder();
+				currentEditor.redo();
 			}
 		});
 		cutItem = new MenuItem(editMenu, SWT.PUSH);

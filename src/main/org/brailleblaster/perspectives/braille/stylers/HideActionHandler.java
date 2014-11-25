@@ -25,8 +25,7 @@ import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.util.Notify;
 
-public class HideActionHandler {
-
+public class HideActionHandler {	
 	Manager manager;
 	MapList list;
 	TextView text;
@@ -50,18 +49,36 @@ public class HideActionHandler {
 			if(text.isMultiSelected())
 				hideMultipleElements();
 			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
-				text.update(false);
-				int index = list.getCurrentIndex();
-				eventFrame = new EventFrame();
-				boxlineAdded = false;
-				hide(list.getCurrent());
-				updateCurrentElement(index);
-				manager.addEvent(eventFrame);
+				hideSingleElement();
 			}
 			else {
 				invalidSelection();
 			}
 		}
+	}
+	
+	public void hideText(Event ev){
+		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
+		
+		//resets selection to recreate hide event by user
+		if(list.getCurrent() instanceof BrlOnlyMapElement){
+			BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)list.getCurrent());
+			int start =list.getCurrent().start;
+			int end = b.end;
+			text.setCurrentSelection(start, end);
+		}
+		
+		hideText();
+	}
+	
+	private void hideSingleElement(){
+		text.update(false);
+		int index = list.getCurrentIndex();
+		eventFrame = new EventFrame();
+		boxlineAdded = false;
+		hide(list.getCurrent());
+		updateCurrentElement(index);
+		manager.addUndoEvent(eventFrame);
 	}
 	
 	private void hideMultipleElements(){
@@ -85,7 +102,7 @@ public class HideActionHandler {
 				hide(tempElement);
 			}
 			updateCurrentElement(index);
-			manager.addEvent(eventFrame);
+			manager.addUndoEvent(eventFrame);
 		}
 	}
 	
@@ -173,7 +190,7 @@ public class HideActionHandler {
 		}
 		
 		if(!boxlineAdded)
-			eventFrame.addEvent(new Event(EventTypes.Delete, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
+			eventFrame.addEvent(new Event(EventTypes.Hide, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
 		
 		if(parent.getLocalName().equals("sidebar"))
 			boxlineAdded = true;

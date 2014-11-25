@@ -60,6 +60,8 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
@@ -121,13 +123,14 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
-	private EventQueue eventQueue;
+	private EventQueue undoQueue, redoQueue;
 	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp);	
-		eventQueue = new EventQueue();
+		undoQueue = new UndoQueue();
+		redoQueue = new RedoQueue();
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
@@ -178,7 +181,8 @@ public class Manager extends Controller {
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
 		super(wp);	
-		eventQueue = new EventQueue();
+		undoQueue = new UndoQueue();
+		redoQueue = new RedoQueue();
 		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
@@ -1866,12 +1870,18 @@ public class Manager extends Controller {
 			return null;
 	}
 	
-	public void addEvent(EventFrame f){
-		eventQueue.add(f);
+	public void addUndoEvent(EventFrame f){
+		undoQueue.add(f);
 	}
 	
 	public void undo(){
-		eventQueue.popEvent(vi, document, list, this);
+		EventFrame f = undoQueue.popEvent(vi, document, list, this);
+		if(f != null)
+			redoQueue.add(f);
+	}
+	
+	public void redo(){
+		redoQueue.popEvent(vi, document, list, this);
 	}
 
 	/** Creates a Notify class alert box if debugging is not active

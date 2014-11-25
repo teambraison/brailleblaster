@@ -124,18 +124,7 @@ public class TextView extends WPView {
 		view.addSelectionListener(selectionListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {		
-				selectionArray = view.getSelectionRanges();
-		
-				if(selectionArray[1] > 0){
-					setSelection(selectionArray[0], selectionArray[1]);
-					multiSelected=true;
-					currentChar = ' ';
-					if(currentChanges > 0)
-						sendUpdate();
-				}
-				else{
-					multiSelected = false;
-				}
+				setSelection();
 			}			
 		});
 		
@@ -1902,5 +1891,25 @@ public class TextView extends WPView {
 		}
 		
 		return true;
+	}
+	
+	public void setCurrentSelection(int start, int end){
+		view.setSelection(start, end);
+		setSelection();
+	}
+	
+	private void setSelection(){
+		selectionArray = view.getSelectionRanges();
+		
+		if(selectionArray[1] > 0){
+			setSelection(selectionArray[0], selectionArray[1]);
+			multiSelected=true;
+			currentChar = ' ';
+			if(currentChanges > 0)
+				sendUpdate();
+		}
+		else{
+			multiSelected = false;
+		}
 	}
 }

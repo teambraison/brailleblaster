@@ -24,9 +24,10 @@ public class UndoQueue extends EventQueue {
 				case Insert:
 					break;
 				case Hide:
-				case Delete:
 					ElementInserter es = new ElementInserter(vi, doc, list, manager);
 					es.resetElement(event);
+					break;
+				case Delete:
 					break;
 				default:
 					break;

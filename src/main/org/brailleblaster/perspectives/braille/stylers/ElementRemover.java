@@ -40,9 +40,9 @@ public class ElementRemover {
 		int index = (Integer)message.getValue("index");
 		tree.removeItem(list.get(index), message);
 		manager.getDocument().updateDOM(list, message);
-		list.get(index).brailleList.clear();
-		vi.remove(list, index);
-					
+		list.get(index).brailleList.clear();		
+		vi.remove(list, index);		
+		
 		if(list.size() == 0){
 			text.removeListeners();
 			braille.removeListeners();

@@ -117,6 +117,12 @@ public class SemanticFileHandler {
 		}
 	}
 	
+	public void removeSemanticEntry(String path, String id){
+		if(fu.exists(path)){
+			removeEntry(path, id);
+		}
+	}
+	
 	private void appendEntry(String path, String style, String element, String id){
 		String text = style + " " + element + ",id," + id + "\n";
 		writeSemanticEntry(path, id, text);
@@ -126,6 +132,40 @@ public class SemanticFileHandler {
 		String text = style + " " + element + ",id," + id + "\n";
 		fu.create(path);
 		fu.writeToFile(path, text);
+	}
+	
+	private void removeEntry(String path, String id){
+		String currentLine;
+    	String [] tokens;
+    	StringBuilder sb= new StringBuilder();
+    	boolean found = false;
+    	
+    	try {
+    		FileReader file = new FileReader(path);
+			BufferedReader reader = new BufferedReader(file);
+			while((currentLine = reader.readLine()) != null){
+				tokens = currentLine.split(",");
+				for(int i = 0; i < tokens.length && !found; i++){
+					if(tokens[i].equals(id))
+						found = true;
+				}
+				
+				if(!found){
+					sb.append(currentLine + "\n");
+				}			
+			}
+			
+			reader.close();
+			fu.writeToFile(path, sb);
+    	}
+    	catch(FileNotFoundException e){
+    		e.printStackTrace();
+    		log.error("File Not Found Exception", e);
+    	}
+    	catch(IOException e){
+    		e.printStackTrace();
+    		log.error("IO Exception", e);
+    	}
 	}
 	
 	private void writeSemanticEntry(String fullPath, String id, String entry){
@@ -141,9 +181,8 @@ public class SemanticFileHandler {
 			while((currentLine = reader.readLine()) != null){
 				tokens = currentLine.split(",");
 				for(int i = 0; i < tokens.length && !found; i++){
-					if(tokens[i].equals(id)){
+					if(tokens[i].equals(id))
 						found = true;
-					}
 				}
 				
 				if(found && !entered){
@@ -152,8 +191,7 @@ public class SemanticFileHandler {
 				}
 				else {
 					sb.append(currentLine + "\n");
-				}
-				
+				}				
 			}
 			
 			if(!found){

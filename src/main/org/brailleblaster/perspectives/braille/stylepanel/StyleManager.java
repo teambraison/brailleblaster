@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
 public class StyleManager{
-	
+	private SashForm container;
     private StyleTable table;
     private StylePanel editor;
     private String configFile;
@@ -57,11 +57,12 @@ public class StyleManager{
     private int lastSelection;
     private BBSemanticsTable semanticsTable;
     
-    public StyleManager(Manager dm, SashForm sash) {
+    public StyleManager(Manager dm, SashForm container) {
+    	this.container = container;
     	this.dm = dm;
     	this.configFile = dm.getCurrentConfig();
     	this.semanticsTable = dm.getStyleTable();
-       	this.table = new StyleTable(this, sash);
+       	this.table = new StyleTable(this, container);
 	}
     
     public void displayTable(TextMapElement item){
@@ -73,13 +74,16 @@ public class StyleManager{
     }
     
     public void openNewStyleTable(){
+    	int [] weights = container.getWeights();
     	lastSelection = table.getTable().getSelectionIndex();
     	this.table.dispose();
-    	editor = new NewStyleView(this, dm.getGroup());
+    	editor = new NewStyleView(this, container);
+    	container.setWeights(weights);
     	dm.setTabList();
     }
     
     public void openEditStyle(){
+    	int [] weights = container.getWeights();
     	lastSelection = table.getTable().getSelectionIndex();
     	String style = (String) table.getTable().getSelection()[0].getData();
     	this.table.dispose();
@@ -92,10 +96,11 @@ public class StyleManager{
     	}
     	
     	if(semanticsTable.get(style).getName().equals("boxline"))
-    		editor = new EditBoxLineView(this, dm.getGroup());
+    		editor = new EditBoxLineView(this, container);
     	else
-	    	editor = new EditStyleView(this, dm.getGroup(), styleForView);
+	    	editor = new EditStyleView(this, container, styleForView);
    
+    	container.setWeights(weights);
     	dm.setTabList();
     }
     
@@ -141,8 +146,9 @@ public class StyleManager{
 
 
     public void closeEditStyle(String styleName){
+    	int [] weights = container.getWeights();
     	editor.dispose();
-    	table = new StyleTable(this, dm.getGroup());
+    	table = new StyleTable(this, container);
     	displayTable(dm.getCurrent());
     	dm.getGroup().layout();
     	table.getTable().setSelection(lastSelection);
@@ -150,6 +156,9 @@ public class StyleManager{
     	
     	if(styleName != null)
     		table.setSelection(styleName);
+    	
+    	container.setWeights(weights);
+    	container.layout();
     }
     
     public void apply(String item){
@@ -254,7 +263,7 @@ public class StyleManager{
     }
     
     public Group getGroup(){
-        if(table.isVisible())
+        if(table.isVisible() || (!table.isVisible() && editor == null))
             return table.getGroup();
         else
             return editor.getGroup();

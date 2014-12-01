@@ -20,7 +20,7 @@ import org.brailleblaster.util.PropertyFileManager;
 public class SettingsManager {
 	private static final String NONMETRIC_COUTNRY = "US";
 	private static final String USER_SETTINGS = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "utdmlSettings.properties";
-			
+	
 	private boolean isMetric;
 	private final Page [] standardPages = {new Page("Standard",11.5 ,11),new Page("Letter",8.5 ,11), new Page("Legal", 8.5, 14), new Page("A3", 11.69, 16.54),
 			new Page("A4",8.27,11.69), new Page("A5", 5.83, 8.27)};

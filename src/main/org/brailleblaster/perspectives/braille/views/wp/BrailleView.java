@@ -48,6 +48,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.Bullet;
 import org.eclipse.swt.custom.CaretEvent;
@@ -95,7 +96,6 @@ public class BrailleView extends WPView {
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		indications=new ArrayList<Bullet>();
-		
 	}
 	
 	@Override
@@ -393,6 +393,9 @@ public class BrailleView extends WPView {
 					}
 					break;
 				case name:
+					break;
+				case topBoxline:
+				case bottomBoxline:
 					break;
 				default:
 					System.out.println(entry.getKey());
@@ -864,6 +867,60 @@ public class BrailleView extends WPView {
 		
 		if(style.contains(StylesType.format))
 			setAlignment(start,start + n.getValue().length(),style);
+		
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void resetElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
+		boolean isLast =  t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n);
+		int margin = 0;
+		int lineBreaks = 0;
+		int originalPosition = view.getCaretOffset();
+		int start = pos;
+		Element parent = (Element)b.n.getParent();
+		int index = parent.indexOf(b.n);
+		setListenerLock(true);
+		view.setCaretOffset(pos);
+		
+		//checks for newline element before text node if not at the beginning of a block element
+		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			view.insert("\n" + b.n.getValue());
+			lineBreaks++;
+			view.setCaretOffset(pos + 1);
+		}
+		else
+			view.insert(b.n.getValue());
+		
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		int linesBefore = 0;
+		if(isFirst)
+			linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
+		
+		int linesAfter = 0;
+		if(isLast)
+			linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
+		
+		m.put("brailleLength", b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+		b.setOffsets(lineBreaks + linesBefore + start, lineBreaks + start + b.n.getValue().length() + linesBefore);
+		
+		//reset margin in case it is not applied
+		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
+		}
+					
+		if(isFirst && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(t.brailleList.getFirst().start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
 		
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);

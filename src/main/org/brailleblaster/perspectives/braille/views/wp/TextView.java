@@ -49,6 +49,7 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -123,18 +124,7 @@ public class TextView extends WPView {
 		view.addSelectionListener(selectionListener = new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {		
-				selectionArray = view.getSelectionRanges();
-		
-				if(selectionArray[1] > 0){
-					setSelection(selectionArray[0], selectionArray[1]);
-					multiSelected=true;
-					currentChar = ' ';
-					if(currentChanges > 0)
-						sendUpdate();
-				}
-				else{
-					multiSelected = false;
-				}
+				setSelection();
 			}			
 		});
 		
@@ -797,6 +787,64 @@ public class TextView extends WPView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
+	
+	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		int linesBefore = 0;
+		int linesAfter = 0;
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		String reformattedText;
+		if(t instanceof BrlOnlyMapElement)
+			reformattedText = t.getText();
+		else
+			reformattedText =  appendToView(t.n, false);
+		
+		boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+		boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
+		
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		
+		view.setCaretOffset(start);
+		view.insert(reformattedText);
+		
+		vi.addElementToSection(list, t, listIndex);
+		
+		int margin = 0;
+		
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		
+		if(isFirst)
+			linesBefore = wsp.setLinesBefore(t, start, style);	
+		
+		if(isLast)
+			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		
+		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+		m.put("textLength", reformattedText.length() + linesBefore + linesAfter);
+		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+		
+		start += linesBefore;
+		//reset margin in case it is not applied
+		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+			handleLineWrap(start, reformattedText, 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+		}
+					
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start, start + t.n.getValue().length(), style);
+		
+		if(style.contains(StylesType.emphasis))
+			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
 		
 	private String appendToView(Node n, boolean append){
 		StringBuilder text = new StringBuilder();
@@ -999,6 +1047,9 @@ public class TextView extends WPView {
 						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
 					break;
 				case name:
+					break;
+				case topBoxline:
+				case bottomBoxline:
 					break;
 				default:
 					System.out.println(entry.getKey());
@@ -1840,5 +1891,25 @@ public class TextView extends WPView {
 		}
 		
 		return true;
+	}
+	
+	public void setCurrentSelection(int start, int end){
+		view.setSelection(start, end);
+		setSelection();
+	}
+	
+	private void setSelection(){
+		selectionArray = view.getSelectionRanges();
+		
+		if(selectionArray[1] > 0){
+			setSelection(selectionArray[0], selectionArray[1]);
+			multiSelected=true;
+			currentChar = ' ';
+			if(currentChanges > 0)
+				sendUpdate();
+		}
+		else{
+			multiSelected = false;
+		}
 	}
 }

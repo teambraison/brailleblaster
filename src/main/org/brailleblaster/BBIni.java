@@ -166,9 +166,6 @@ public final class BBIni {
 		// Receive about.properties
 		aboutProject = System.getenv("ProgramFiles") + fileSep + "brailleblaster" + fileSep + 
 				"programData" + fileSep + "settings" + fileSep + "about.properties" ;
-				//"C:\Program Files\brailleblaster\programData\settings\about.properties";
-				//userProgramDataPath + fileSep + "settings" + fileSep
-				//+ "about.properties";
 		if (!fu.exists(aboutProject)) {
 			fu.copyFile(programDataPath + fileSep + "settings" + fileSep
 					+ "about.properties", aboutProject);

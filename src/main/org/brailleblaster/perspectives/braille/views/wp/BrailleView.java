@@ -1046,7 +1046,11 @@ public class BrailleView extends WPView {
 	 * Remove indicator at all lines except input given line
 	 */
 	private void removeIndicator(){
-		int lineNumber=view.getLineAtOffset(currentStart);
+		int lineNumber;
+		if(currentStart > view.getCharCount())
+			lineNumber = view.getLineAtOffset(view.getCharCount());
+		else
+			lineNumber = view.getLineAtOffset(currentStart);
 		
 		for (int i = lineNumber; i < view.getLineCount(); i++) {
 			// Check to find bullet which are in indication array list

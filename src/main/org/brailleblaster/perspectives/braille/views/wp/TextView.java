@@ -88,6 +88,7 @@ public class TextView extends WPView {
 	private boolean textChanged, readOnly;
 	private StyleRange range;
 	private int[] selectionArray;
+	
 	private SelectionAdapter selectionListener;
 	private TraverseListener traverseListener;
 	private SelectionAdapter scrollbarListener;
@@ -98,16 +99,13 @@ public class TextView extends WPView {
 	private CaretListener caretListener;
 	private MouseAdapter mouseListener;
 	private PaintObjectListener paintObjListener;
+	
 	private int originalStart, originalEnd;
 	private TextMapElement currentElement;
 	private EditMenu menu;
-	
-	int startSelection;
-	int endSelection;
 
 	private boolean multiSelected;
 
-	
  	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
 		super (manager, sash, table);
 		this.total = 0;
@@ -480,7 +478,7 @@ public class TextView extends WPView {
 	}
 	
 	private void sendRemoveMathML(TextMapElement t){
-		Message removeMessage = Message.createRemoveMathMLMessage(t.start, -(t.end - t.start), t);
+		Message removeMessage = Message.createRemoveNodeMessage(manager.indexOf(t), -(t.end - t.start));
 		removeMessage.put("offset", currentChanges);
 		manager.dispatch(removeMessage);
 		currentChanges = 0;

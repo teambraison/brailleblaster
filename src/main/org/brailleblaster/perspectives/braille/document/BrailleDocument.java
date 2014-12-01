@@ -58,10 +58,7 @@ public class BrailleDocument extends BBDocument {
 				updateNode(list, message);
 				break;
 			case REMOVE_NODE:
-				removeNode(list.get((Integer)message.getValue("index")), message);
-				break;
-			case REMOVE_MATHML:
-				removeMathML((TextMapElement)message.getValue("TextMapElement"), message);
+				removeNode(list, message);
 				break;
 			default:
 				System.out.println("No available operations for this message type");
@@ -141,7 +138,6 @@ public class BrailleDocument extends BBDocument {
 		parent.insertChild(p, nodeIndex + 1);
 		
 		vi.addElementToSection(list, new TextMapElement(textOffset, textOffset, p.getChild(0)), index);
-		//list.add(index,  new TextMapElement(textOffset, textOffset, p.getChild(0)));
 		
 		Element brl = new Element("brl");
 		brl.appendChild(new Text(""));
@@ -297,6 +293,38 @@ public class BrailleDocument extends BBDocument {
 		m.put("newBrailleLength", insertionString.length());
 	}
 	
+	private void removeNode(MapList list, Message message){
+		int index = (Integer)message.getValue("index");
+		if(list.get(index).isMathML())
+			removeMathML(list.get(index), message);
+		else
+			removeNode(list.get((Integer)message.getValue("index")), message);
+	}
+	
+	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
+	 * @param t : TextMapElement containing node to remove
+	 * @param message : message to put element information
+	 */
+	private void removeNode(TextMapElement t, Message message){
+		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
+			Element e = (Element)t.brailleList.getFirst().n.getParent();
+			t.parentElement().removeChild(e);
+			t.parentElement().removeChild(t.n);
+		}
+		else {
+			Element parent = t.parentElement();
+			while(!parent.getAttributeValue("semantics").contains("style")){
+				if(((Element)parent.getParent()).getChildElements().size() <= 1)
+					parent = (Element)parent.getParent();
+				else
+					break;
+			}
+			
+			message.put("element", parent);
+			parent.getParent().removeChild(parent);
+		}
+	}
+	
 	/** Removes MathML from DOM
 	 * @param t : TextMapElemetn to remove
 	 * @param m : message to contain offset information
@@ -308,9 +336,8 @@ public class BrailleDocument extends BBDocument {
 		int index = parent.indexOf(t.n);
 		
 		parent.removeChild(index);
-		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl")){
+		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl"))
 			parent.removeChild(index);
-		}
 		
 		if(parent.getChildElements().size() == 0)
 			parent.getParent().removeChild(parent);
@@ -491,30 +518,6 @@ public class BrailleDocument extends BBDocument {
 		String xml = getXMLString(elString);
 		d = getXML(xml);
 		return d;
-	}
-	
-	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
-	 * @param t : TextMapElement containing node to remove
-	 * @param message : message to put element information
-	 */
-	private void removeNode(TextMapElement t, Message message){
-		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
-			Element e = (Element)t.brailleList.getFirst().n.getParent();
-			t.parentElement().removeChild(e);
-			t.parentElement().removeChild(t.n);
-		}
-		else {
-			Element parent = t.parentElement();
-			while(!parent.getAttributeValue("semantics").contains("style")){
-				if(((Element)parent.getParent()).getChildElements().size() <= 1)
-					parent = (Element)parent.getParent();
-				else
-					break;
-			}
-			
-			message.put("element", parent);
-			parent.getParent().removeChild(parent);
-		}
 	}
 	
 	/** Checks if an element contains other elements other than brl
@@ -837,17 +840,14 @@ public class BrailleDocument extends BBDocument {
 			boxline.addAttribute(new Attribute("semantics","style,boxline"));
 			for(int i = 0; i < parents.size(); i++){	
 				Element parent = (Element)parents.get(i).getParent();
-			//	int index = parent.indexOf(parents.get(i));
 				
 				if(!parents.contains(parent))
 					boxline.appendChild(parent.removeChild(parents.get(i)));
 			}
 			
-			//if(parent != null){
 			grandparent.insertChild(boxline, grandParentIndex);
 			addNamespace(boxline);
 			return boxline;
-			//}
 		}
 		
 		return null;

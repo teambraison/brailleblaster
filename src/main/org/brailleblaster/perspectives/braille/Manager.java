@@ -73,6 +73,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
@@ -265,12 +266,10 @@ public class Manager extends Controller {
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
-			if(view.equals(text.getClass().getCanonicalName())){
+			if(view.equals(text.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(text.view);
-			}
-			else if(view.equals(braille.getClass().getCanonicalName())){
+			else if(view.equals(braille.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(braille.view);
-			}
 		}
 	}
 	
@@ -444,9 +443,6 @@ public class Manager extends Controller {
 			case REMOVE_NODE:
 				handleRemoveNode(message);
 				break;
-			case REMOVE_MATHML:
-				handleRemoveMathML(message);
-				break;
 			case UPDATE_STATUSBAR:
 				handleUpdateStatusBar(message);
 				break;
@@ -513,11 +509,8 @@ public class Manager extends Controller {
 				if(secList.get(i).getParent().equals(e)){
 					if(secList.get(i).isVisible())
 						list.findTextMapElements(message);
-					else {
+					else 
 						secList.get(i).getList().findTextMapElements(message);
-						//list = vi.resetViews(i);
-						//list.findTextMapElements(message);
-					}
 				}
 			}
 		}
@@ -662,7 +655,7 @@ public class Manager extends Controller {
 	private void handleUpdate(Message message){
 		message.put("selection", treeView.getSelection(list.getCurrent()));
 		if(list.getCurrent().isMathML()){
-			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), list.getCurrent().end - list.getCurrent().start, list.getCurrent()));
+			handleRemoveNode(Message.createRemoveNodeMessage(list.getCurrentIndex(), list.getCurrent().end - list.getCurrent().start));
 			message.put("diff", 0);
 		}
 		else {
@@ -725,14 +718,12 @@ public class Manager extends Controller {
 		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
 
 		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++)
 				insertionString += "\n";
-			}
 		}
 		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
+			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++)
 				insertionString += "\n";
-			}
 		}
 		else {
 			insertionString = "\n";
@@ -843,40 +834,8 @@ public class Manager extends Controller {
 	}
 	
 	private void handleRemoveNode(Message message){
-		int index = (Integer)message.getValue("index");
-		treeView.removeItem(list.get(index), message);
-		document.updateDOM(list, message);
-		list.get(index).brailleList.clear();
-		vi.remove(list, index);
-		//list.remove(index);
-					
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
-	}
-	
-	private void handleRemoveMathML(Message m){
-		TextMapElement t = (TextMapElement)m.getValue("TextMapElement");
-		document.updateDOM(list, m);
-		braille.removeMathML(t);
-		text.removeMathML(m);
-		treeView.removeMathML(t);
-		int index = list.indexOf(t);
-		list.updateOffsets(index, m);
-		vi.remove(list, index);
-		//list.remove(t);
-		
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
+		ElementRemover er = new ElementRemover(this, list, vi);
+		er.removeNode(message);
 	}
 	
 	private void handleUpdateStatusBar(Message message){
@@ -979,7 +938,6 @@ public class Manager extends Controller {
 			}
 		}
 	}
-	
 	
 	/** Prepares object needed by boxline handler to create boxline around a single element
 	 * @param message: Message object passed containing information from style table manager
@@ -1242,9 +1200,8 @@ public class Manager extends Controller {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0){
+		if(braille.view.getCharCount() > 0)
 			new PrintPreview(this.getDisplay(), document, this);
-		}
 	}
 	
 	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
@@ -1356,8 +1313,6 @@ public class Manager extends Controller {
 			
 			if(index != -1)
 				vi.bufferViews(index);
-			//if(arch.getOrigDocPath() == null && list.size() == 0)
-			//	formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1539,8 +1494,7 @@ public class Manager extends Controller {
 				j=t.end+1;
 				
 			}
-			else
-			{
+			else {
 			    j=j+1;	
 			}
 		}
@@ -1891,5 +1845,4 @@ public class Manager extends Controller {
 		if(!BBIni.debugging())
 			new Notify(notify);
 	}
-	
 }

@@ -571,4 +571,13 @@ public class BookTree extends TreeView {
 	public void populateItem(Element e) {
 		// TODO Auto-generated method stub
 	}
+
+	@Override
+	public void rebuildTree(ArrayList<Integer> indexes) {
+		tree.setRedraw(false);
+		tree.removeAll();
+		setRoot(manager.getDocument().getRootElement());
+		tree.setRedraw(true);
+		
+	}
 }

@@ -58,6 +58,10 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
@@ -119,11 +123,14 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
+	private EventQueue undoQueue, redoQueue;
 	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp);	
+		undoQueue = new UndoQueue();
+		redoQueue = new RedoQueue();
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
@@ -174,6 +181,8 @@ public class Manager extends Controller {
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
 		super(wp);	
+		undoQueue = new UndoQueue();
+		redoQueue = new RedoQueue();
 		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
@@ -466,14 +475,14 @@ public class Manager extends Controller {
 	
 	public void checkView(TextMapElement t){
 		if(!list.contains(t))
-			list = vi.resetViews(getSection(t));
+			list = vi.bufferViews(getSection(t));
 	}
 	
 	public void decrementView(){
 		TextMapElement t = list.getFirst();
 		int section = getSection(t);
 		if(section != 0){
-			list = vi.resetViews(section);
+			list = vi.bufferViews(section);
 			list.setCurrent(list.indexOf(t) - 1);
 			text.resetOffsets();
 		}
@@ -483,7 +492,7 @@ public class Manager extends Controller {
 		TextMapElement t = list.getLast();
 		int section = getSection(t);
 		if(section != vi.getSectionList().size() - 1){
-			list = vi.resetViews(section + 1);
+			list = vi.bufferViews(section + 1);
 			list.setCurrent(list.indexOf(t) + 1);
 			text.resetOffsets();
 		}
@@ -1346,7 +1355,7 @@ public class Manager extends Controller {
 			braille.hasChanged = brailleChanged;
 			
 			if(index != -1)
-				vi.resetViews(index);
+				vi.bufferViews(index);
 			//if(arch.getOrigDocPath() == null && list.size() == 0)
 			//	formatTemplateDocument();
 		} 
@@ -1434,7 +1443,7 @@ public class Manager extends Controller {
 	}
 	
 	public void hide(){
-		HideActionHandler h = new HideActionHandler(this, list);
+		HideActionHandler h = new HideActionHandler(this, list, vi);
 		h.hideText();
 	}
 	
@@ -1861,6 +1870,20 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public void addUndoEvent(EventFrame f){
+		undoQueue.add(f);
+	}
+	
+	public void undo(){
+		EventFrame f = undoQueue.popEvent(vi, document, list, this);
+		if(f != null)
+			redoQueue.add(f);
+	}
+	
+	public void redo(){
+		redoQueue.popEvent(vi, document, list, this);
+	}
+
 	/** Creates a Notify class alert box if debugging is not active
 	 * @param notify : String to be used in an alert box, should already be localized
 	 */
@@ -1868,4 +1891,5 @@ public class Manager extends Controller {
 		if(!BBIni.debugging())
 			new Notify(notify);
 	}
+	
 }

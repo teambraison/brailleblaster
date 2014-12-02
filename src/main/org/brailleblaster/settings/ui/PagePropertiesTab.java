@@ -449,6 +449,23 @@ public class PagePropertiesTab {
 			pHeight -= Double.valueOf(settingsMap.get("bottomMargin"));
 		
 		return (int)(pHeight / cellHeight);
+		
+	}
+	
+	/*
+	 * This method calculates the width of the page from the number of cells.
+	 * It receives the number of cells and returns a double of the page width.
+	 */
+	public double calcWidthFromCells(int numberOfCells){
+		double cellWidth;
+		if (!sm.isMetric())
+			cellWidth=0.246063;
+		else
+			cellWidth=6.25;
+		
+		return cellWidth*numberOfCells;
+		
+				
 	}
 	
 	private boolean checkEqualWidth(Page p, double width){

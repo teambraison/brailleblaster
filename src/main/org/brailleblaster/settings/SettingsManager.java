@@ -267,7 +267,7 @@ public class SettingsManager {
 	private int calculateLinesPerPage(double pHeight){
 		double cellHeight = 0.393701;
 		
-		if(outputMap.containsKey("topMargin"))
+ 		if(outputMap.containsKey("topMargin"))
 			pHeight -= Double.valueOf(outputMap.get("topMargin"));
 		
 		if(outputMap.containsKey("bottomMargin"))
@@ -276,6 +276,19 @@ public class SettingsManager {
 		return (int)(pHeight / cellHeight);
 	}
 	
+	/*
+	 * Calculate the height of the page from the lines it contains.
+	 * This method will receive the number of lines per page and return
+	 * a double measurement of height for the whole page.
+	 */
+	public double calculateHeightFromLength(int linesPerPage){
+		double cellHeight;
+		if (isMetric())
+			cellHeight = 0.393701;
+		else
+			cellHeight = 10;
+		return cellHeight*linesPerPage;
+	}
 	/**
 	 * Find indicator location
 	 */

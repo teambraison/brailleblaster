@@ -56,7 +56,6 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
@@ -74,6 +73,7 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
+import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
@@ -168,10 +168,8 @@ public class Manager extends Controller {
 			else {
 				arch = ArchiverFactory.getArchive( templateFile, false);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-				//list = vi.getList(this);
 				resetConfiguations();
 				initializeAllViews(docName, templateFile, null);
-				//formatTemplateDocument();
 				setTabTitle(docName);
 			}
 		}				
@@ -405,7 +403,6 @@ public class Manager extends Controller {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.error("The Document Base document tree is null, the file failed to parse properly");
-				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -670,7 +667,8 @@ public class Manager extends Controller {
 	
 	private void handleInsertNode(Message m){
 		if(m.getValue("split").equals(true)){
-			splitElement(m);
+			ElementSplitter splitter = new ElementSplitter(this, list, vi);
+			splitter.splitElement(m);
 		}
 		else {
 			if(m.getValue("atStart").equals(true))
@@ -678,91 +676,6 @@ public class Manager extends Controller {
 			else
 				insertElementAtEnd(m);
 		}
-	}
-	
-	private void splitElement(Message m){
-		int treeIndex = treeView.getBlockElementIndex();
-		
-		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
-		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
-		
-		int textStart = list.get(originalElements.get(0)).start;
-		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
-		int brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start;	
-			
-		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
-				
-		int currentIndex = list.getCurrentIndex();
-		
-		for(int i = originalElements.size() - 1; i >= 0; i--){
-			int pos = originalElements.get(i);
-			
-			if(pos < currentIndex){
-				vi.remove(list, pos);
-				currentIndex--;
-			}
-			else if(pos >= currentIndex){
-				vi.remove(list, pos);
-			}
-		}
-		
-		text.clearTextRange(textStart, textEnd - textStart);
-		braille.clearTextRange(brailleStart, brailleEnd - brailleStart);
-		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart));	
-		
-		int firstElementIndex = currentIndex;
-		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
-		
-		String insertionString = "";
-		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
-
-		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++)
-				insertionString += "\n";
-		}
-		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++)
-				insertionString += "\n";
-		}
-		else {
-			insertionString = "\n";
-		}
-
-		text.insertText(list.get(currentIndex).end, insertionString);
-		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
-		m.put("length", insertionString.length());
-		
-		int secondElementIndex = currentIndex + 1;
-		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
-
-		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
-		
-		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
-	}
-	
-	private int insertElement(Element e, int index, int start, int brailleStart){
-		int count = e.getChildCount();
-		int currentIndex = index;
-		int currentStart = start;
-		int currentBrailleStart = brailleStart;
-		
-		for(int i = 0; i < count; i++){
-			if(e.getChild(i) instanceof Text){
-				text.insertText(vi,list, currentIndex, currentStart, e.getChild(i));
-				currentStart = list.get(currentIndex).end;
-				i++;
-				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
-				currentBrailleStart = list.get(currentIndex).brailleList.getLast().end;
-				currentIndex++;
-			}
-			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl")){
-				currentIndex = insertElement((Element)e.getChild(i), currentIndex, currentStart, currentBrailleStart);
-				currentStart = list.get(currentIndex - 1).end;
-				currentBrailleStart = list.get(currentIndex - 1).brailleList.getLast().end;
-			}
-		}
-		
-		return currentIndex;
 	}
 	
 	public void insertBraille(Element e, int index, int brailleStart){

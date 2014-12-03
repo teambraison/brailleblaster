@@ -236,7 +236,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 
 	
-	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int origPos){
+	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset){
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;

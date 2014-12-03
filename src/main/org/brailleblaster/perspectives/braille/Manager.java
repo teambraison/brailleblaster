@@ -644,9 +644,9 @@ public class Manager extends Controller {
 			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
 		
 			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
-				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
+				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 			else if(index != list.size() -1 || (index == list.size() - 1 && start < t.start))
-				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
+				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
 		}
 		else
 			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
@@ -681,7 +681,6 @@ public class Manager extends Controller {
 	}
 	
 	private void splitElement(Message m){
-		int origPos =list.getCurrent().start;
 		int treeIndex = treeView.getBlockElementIndex();
 		
 		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
@@ -709,7 +708,7 @@ public class Manager extends Controller {
 		
 		text.clearTextRange(textStart, textEnd - textStart);
 		braille.clearTextRange(brailleStart, brailleEnd - brailleStart);
-		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart), origPos);	
+		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart));	
 		
 		int firstElementIndex = currentIndex;
 		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
@@ -736,7 +735,7 @@ public class Manager extends Controller {
 		int secondElementIndex = currentIndex + 1;
 		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
 
-		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart, origPos);
+		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
 		
 		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
@@ -778,7 +777,6 @@ public class Manager extends Controller {
 	}
 	
 	private void insertElementAtBeginning(Message m){
-		int origPos = list.getCurrent().start;
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
 			document.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
 		else
@@ -786,9 +784,9 @@ public class Manager extends Controller {
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
 			if(list.getCurrentIndex() == 0)
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1, origPos);
+				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
 			else
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1, origPos);
+				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1);
 		}
 		int index = treeView.getSelectionIndex();
 		
@@ -802,10 +800,9 @@ public class Manager extends Controller {
 	}
 	
 	private void insertElementAtEnd(Message m){
-		int origPos = list.getCurrent().start;
 		document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
 		if(list.size() - 1 != list.getCurrentIndex() + 1)
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
 		
 		int index = treeView.getSelectionIndex();
 		
@@ -1046,7 +1043,7 @@ public class Manager extends Controller {
 	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
 		int start = list.indexOf(itemList.get(0));
 		int end = list.indexOf(itemList.get(itemList.size() - 1));
-		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
+	
 		if (start > 0) {
 			message.put("prev", list.get(start - 1).end);
 			message.put("braillePrev",
@@ -1071,12 +1068,12 @@ public class Manager extends Controller {
 		if (message.contains("linesBeforeOffset"))
 			list.shiftOffsetsFromIndex(start,
 					(Integer) message.getValue("linesBeforeOffset"),
-					(Integer) message.getValue("linesBeforeOffset"), origPos);
+					(Integer) message.getValue("linesBeforeOffset"));
 		if (message.contains("linesAfterOffset") && list.size() > 1
 				&& end < list.size() - 1)
 			list.shiftOffsetsFromIndex(end + 1,
 					(Integer) message.getValue("linesAfterOffset"),
-					(Integer) message.getValue("linesAfterOffset"), origPos);
+					(Integer) message.getValue("linesAfterOffset"));
 
 		treeView.adjustItemStyle(list.getCurrent());
 	}	

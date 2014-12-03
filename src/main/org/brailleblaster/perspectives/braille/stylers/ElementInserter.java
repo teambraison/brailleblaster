@@ -108,7 +108,7 @@ public class ElementInserter {
 			
 			textLength = (Integer)m.getValue("textLength");
 			textOffset = (Integer)m.getValue("textOffset");
-			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength, 0);
+			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength);
 			index++;
 		}
 	}
@@ -214,7 +214,7 @@ public class ElementInserter {
 	private void createBlankLine(int textOffset, int brailleOffset, int index){
 		manager.getText().insertText(textOffset, "\n");
 		manager.getBraille().insertText(brailleOffset, "\n");
-		list.shiftOffsetsFromIndex(index, 1, 1, 0);
+		list.shiftOffsetsFromIndex(index, 1, 1);
 	}
 	
 	private boolean isBoxline(Element e){

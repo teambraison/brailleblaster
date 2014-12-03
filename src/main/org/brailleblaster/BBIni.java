@@ -94,8 +94,6 @@ public final class BBIni {
 	private static String releaseDate;
 	
 	private static String brailleblasterPath; // FO
-	private static String osName;
-	private static String osVersion;
 	private static String fileSep;
 	private static String nativeCommandPath;
 	private static String nativeLibraryPath;
@@ -129,9 +127,6 @@ public final class BBIni {
 		platformName = SWT.getPlatform();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
-		osName = System.getProperty("os.name");
-		osVersion = System.getProperty("os.version");
-		fileSep = System.getProperty("file.separator");
 		String userHome = System.getProperty("user.home");
 		String BBHome;
 		programDataPath = brailleblasterPath + fileSep + "programData";

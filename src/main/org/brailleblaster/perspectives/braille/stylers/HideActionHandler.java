@@ -204,7 +204,7 @@ public class HideActionHandler {
 			vi.remove(list, list.indexOf(itemList.get(i)));
 		}
 	
-		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
+		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength);
 	
 		manager.getDocument().applyAction(m);
 	}

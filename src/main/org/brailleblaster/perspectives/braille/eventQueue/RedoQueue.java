@@ -3,8 +3,6 @@ package org.brailleblaster.perspectives.braille.eventQueue;
 import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
-import org.brailleblaster.perspectives.braille.messages.Message;
-import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 

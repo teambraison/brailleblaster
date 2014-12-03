@@ -55,9 +55,9 @@ public class ElementInserter {
 	
 	private void insertElementAtBeginning(Message m){
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			doc.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
+			doc.insertElement(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
 		else
-			doc.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
+			doc.insertElement(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
 			
 		if(list.size() - 1 != list.getCurrentIndex() - 1){
 			if(list.getCurrentIndex() == 0)
@@ -77,7 +77,7 @@ public class ElementInserter {
 	}
 	
 	private void insertElementAtEnd(Message m){
-		doc.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
+		doc.insertElement(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
 		if(list.size() - 1 != list.getCurrentIndex() + 1)
 			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
 		

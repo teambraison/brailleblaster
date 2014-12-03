@@ -164,17 +164,18 @@ public final class BBIni {
 		propManager = new PropertyFileManager(userSettings);
 
 		// Receive about.properties
-		aboutProject = System.getenv("ProgramFiles") + fileSep + "brailleblaster" + fileSep + 
-				"programData" + fileSep + "settings" + fileSep + "about.properties" ;
+		
+		aboutProject = programDataPath + fileSep + "settings" + fileSep + "about.properties" ;
+		
 		if (!fu.exists(aboutProject)) {
-			fu.copyFile(programDataPath + fileSep + "settings" + fileSep
-					+ "about.properties", aboutProject);
+			fu.copyFile(programDataPath + "settings" + fileSep + "about.properties", aboutProject);
 		}
 
 		//Load values
 		Properties prop = new Properties();
-		try {
+		try {			
 			prop.load(new FileInputStream(BBIni.getAbout()));
+			//new FileInputStream(BBIni.getAbout()).;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

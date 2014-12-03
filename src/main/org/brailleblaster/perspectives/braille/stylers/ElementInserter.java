@@ -9,9 +9,9 @@ import nu.xom.ParentNode;
 import nu.xom.Text;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
@@ -21,20 +21,74 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.tree.BBTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.util.FileUtils;
 
 public class ElementInserter {
 
-	BBDocument doc;
+	BrailleDocument doc;
 	MapList list;
 	Manager manager;
 	ViewInitializer vi;
+	TextView text;
+	BrailleView braille;
+	BBTree tree;
 	
-	public ElementInserter(ViewInitializer vi, BBDocument doc, MapList list, Manager manager){
+	public ElementInserter(ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
 		this.vi = vi;
 		this.doc = doc;
 		this.list = list;
 		this.manager = manager;
+		this.text = manager.getText();
+		this.braille = manager.getBraille();
+		this.tree = manager.getTreeView();
+	}
+	
+	public void insertElement(Message m){
+		if(m.getValue("atStart").equals(true))
+			insertElementAtBeginning(m);
+		else
+			insertElementAtEnd(m);
+	}
+	
+	private void insertElementAtBeginning(Message m){
+		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
+			doc.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
+		else
+			doc.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
+			
+		if(list.size() - 1 != list.getCurrentIndex() - 1){
+			if(list.getCurrentIndex() == 0)
+				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
+			else
+				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1);
+		}
+		int index = tree.getSelectionIndex();
+		
+		m.put("length", 1);
+		m.put("newBrailleLength", 1);
+		m.put("brailleLength", 0);
+
+		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
+			
+		tree.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
+	}
+	
+	private void insertElementAtEnd(Message m){
+		doc.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
+		if(list.size() - 1 != list.getCurrentIndex() + 1)
+			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
+		
+		int index = tree.getSelectionIndex();
+		
+		m.put("length", 1);
+		m.put("newBrailleLength", 1);
+		m.put("brailleLength", 0);
+
+		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
+		tree.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
 	}
 	
 	public void resetElement(Event f){

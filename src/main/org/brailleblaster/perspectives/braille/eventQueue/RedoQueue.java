@@ -1,7 +1,7 @@
 package org.brailleblaster.perspectives.braille.eventQueue;
 
-import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -15,7 +15,7 @@ public class RedoQueue extends EventQueue{
 	}
 	
 	@Override
-	protected void handleEvent(EventFrame f, ViewInitializer vi, BBDocument doc, MapList list, Manager manager) {
+	protected void handleEvent(EventFrame f, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager) {
 		for(int i = 0; i < f.size(); i++){
 			Event event = f.get(i);
 			switch(event.eventType){

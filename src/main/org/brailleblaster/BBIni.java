@@ -127,6 +127,7 @@ public final class BBIni {
 		platformName = SWT.getPlatform();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
+		fileSep = System.getProperty("file.separator");
 		String userHome = System.getProperty("user.home");
 		String BBHome;
 		programDataPath = brailleblasterPath + fileSep + "programData";

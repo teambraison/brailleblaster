@@ -72,6 +72,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
@@ -671,10 +672,8 @@ public class Manager extends Controller {
 			splitter.splitElement(m);
 		}
 		else {
-			if(m.getValue("atStart").equals(true))
-				insertElementAtBeginning(m);
-			else
-				insertElementAtEnd(m);
+			ElementInserter inserter = new ElementInserter(vi, document, list, this);
+			inserter.insertElement(m);
 		}
 	}
 	
@@ -687,44 +686,6 @@ public class Manager extends Controller {
 				brailleStart = list.get(index).brailleList.getLast().end;
 			}
 		}
-	}
-	
-	private void insertElementAtBeginning(Message m){
-		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			document.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
-		else
-			document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
-			
-		if(list.size() - 1 != list.getCurrentIndex() - 1){
-			if(list.getCurrentIndex() == 0)
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1);
-			else
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1);
-		}
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
-			
-		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
-	}
-	
-	private void insertElementAtEnd(Message m){
-		document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
-		if(list.size() - 1 != list.getCurrentIndex() + 1)
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1);
-		
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
-		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
 	}
 	
 	public void insertTranscriberNote(){

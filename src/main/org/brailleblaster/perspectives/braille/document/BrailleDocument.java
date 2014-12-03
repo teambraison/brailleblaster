@@ -97,7 +97,7 @@ public class BrailleDocument extends BBDocument {
 		message.put("brailleLength", total);
 	}
 	
-	/** Inserts an empty text node into the DOM.  This is used for inserting trasncribes notes, paragraphs when a user hits enter, etc.
+	/** Inserts an Element into the DOM.  This is used for inserting transcribers notes, paragraphs when a user hits enter, etc.
 	 * @param vi : View Intializer managing segments of a DOM 
 	 * @param list : maplist currently visible in the views
 	 * @param current : element used to determine insertion point in DOM
@@ -106,18 +106,16 @@ public class BrailleDocument extends BBDocument {
 	 * @param index : insertion index in maplist
 	 * @param elem : Name of element to insert
 	 */
-	public void insertEmptyTextNode(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
+	public void insertElement(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
 		//Add new attribute for epub aside and for nimas prodnote
 		if ((elem.equalsIgnoreCase("prodnote") )||( elem.equalsIgnoreCase("aside"))){
 			p.addAttribute(new Attribute("render", "optional"));
-
 			p.addAttribute(new Attribute("showin", "bxx"));
-
 			p.addAttribute(new Attribute("class", "utd-trnote"));
-			
 		}
+	
 		p.appendChild(new Text(""));
 		
 		Element parent = current.parentElement();
@@ -137,13 +135,19 @@ public class BrailleDocument extends BBDocument {
 		
 		parent.insertChild(p, nodeIndex + 1);
 		
-		vi.addElementToSection(list, new TextMapElement(textOffset, textOffset, p.getChild(0)), index);
-		
+		Element brl = appendBRLNode(p);
+		TextMapElement t = new TextMapElement(textOffset, textOffset, p.getChild(0));
+		t.brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
+		vi.addElementToSection(list, t, index);
+	}
+	
+	private Element appendBRLNode(Element e){
 		Element brl = new Element("brl");
 		brl.appendChild(new Text(""));
-		p.appendChild(brl);
+		e.appendChild(brl);
 		addNamespace(brl);
-		list.get(index).brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
+		
+		return brl;
 	}
 	
 	/** Updates the text of a given text node prior to translation
@@ -184,7 +188,7 @@ public class BrailleDocument extends BBDocument {
 		Element child = (Element)t.brailleList.getFirst().n.getParent();
 		while(!child.getParent().equals(parent)){
 			child = (Element)child.getParent();
-		};
+		}
 		parent.replaceChild(child, e);	
 		t.brailleList.clear();
 		
@@ -463,12 +467,11 @@ public class BrailleDocument extends BBDocument {
 			outlength[0] = text.length() * 10;
 			
 			String semPath;
-			if(dm.getWorkingPath() == null){
+			if(dm.getWorkingPath() == null)
 				semPath =  BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
-			}
-			else {
+			else 
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
-			}
+			
 			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
 			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
 				return outlength[0];

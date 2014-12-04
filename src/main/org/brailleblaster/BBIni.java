@@ -164,12 +164,7 @@ public final class BBIni {
 		propManager = new PropertyFileManager(userSettings);
 
 		// Receive about.properties
-		
 		aboutProject = programDataPath + fileSep + "settings" + fileSep + "about.properties" ;
-		
-		if (!fu.exists(aboutProject)) {
-			fu.copyFile(programDataPath + "settings" + fileSep + "about.properties", aboutProject);
-		}
 
 		//Load values
 		Properties prop = new Properties();

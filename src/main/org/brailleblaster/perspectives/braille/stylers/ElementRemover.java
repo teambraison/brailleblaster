@@ -1,7 +1,14 @@
 package org.brailleblaster.perspectives.braille.stylers;
 
+import java.util.ArrayList;
+
+import nu.xom.Element;
+import nu.xom.Node;
+
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -32,8 +39,10 @@ public class ElementRemover {
 		int index = (Integer)m.getValue("index");
 		if(list.get(index).isMathML() )
 			removeMathMLElement(m);
-		else
+		else {
+			addEvent(m);
 			removeElement(m);
+		}
 	}
 	
 	private void removeElement(Message message){
@@ -43,13 +52,8 @@ public class ElementRemover {
 		list.get(index).brailleList.clear();		
 		vi.remove(list, index);		
 		
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			tree.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
+		if(emptyList())
+			disableViews();
 	}
 	
 	private void removeMathMLElement(Message m){
@@ -64,12 +68,49 @@ public class ElementRemover {
 		list.updateOffsets(index, m);
 		vi.remove(list, index);
 		
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			tree.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
+		if(emptyList())
+			disableViews();
+	}
+	
+	private void addEvent(Message message){
+		int index = (Integer)message.getValue("index");
+		ArrayList<Integer>treeIndex = tree.getItemPath();
+		EventFrame f = new EventFrame();
+		Node node = findElement(list.get(index));
+		
+		if(node instanceof Element)
+			message.put("element", node);
+		
+		f.addEvent(new Event(EventTypes.Delete, node, vi.getStartIndex(), index, list.get(index).start, list.get(index).brailleList.getFirst().start, treeIndex));
+		manager.addUndoEvent(f);
+	}
+	
+	private Node findElement(TextMapElement t){		
+		if(manager.getDocument().hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
+			return t.n;
 		}
+		else {
+			Element e = t.parentElement();
+			while(!e.getAttributeValue("semantics").contains("style")){
+				if(((Element)e.getParent()).getChildElements().size() <= 1)
+					e = (Element)e.getParent();
+				else
+					break;
+			}
+
+			return e;
+		}
+	}
+	
+	private void disableViews(){
+		text.removeListeners();
+		braille.removeListeners();
+		tree.removeListeners();
+		list.clearList();
+		text.view.setEditable(false);
+	}
+	
+	private boolean emptyList(){
+		return list.size() == 0;
 	}
 }

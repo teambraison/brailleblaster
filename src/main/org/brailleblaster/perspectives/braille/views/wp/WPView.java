@@ -422,4 +422,13 @@ public abstract class WPView extends AbstractView implements BBView {
 	public int getTotal(){
 		return total;
 	}
+	
+	public void insertLineBreak(int insertPosition){
+		setListenerLock(true);
+		int pos = view.getCaretOffset();
+		view.setCaretOffset(insertPosition);
+		view.insert("\n");
+		view.setCaretOffset(pos);
+		setListenerLock(false);
+	}
 }

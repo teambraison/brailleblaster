@@ -925,15 +925,6 @@ public class BrailleView extends WPView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
-	
-	public void insertLineBreak(int insertPosition){
-		setListenerLock(true);
-		int pos = view.getCaretOffset();
-		view.setCaretOffset(insertPosition);
-		view.insert("\n");
-		view.setCaretOffset(pos);
-		setListenerLock(false);
-	}
 
 	@Override
 	public void addPageNumber(PageMapElement p, boolean insert) {

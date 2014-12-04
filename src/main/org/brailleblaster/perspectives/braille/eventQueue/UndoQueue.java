@@ -28,6 +28,8 @@ public class UndoQueue extends EventQueue {
 					es.resetElement(event);
 					break;
 				case Delete:
+					ElementInserter inserter = new ElementInserter(vi, doc, list, manager);
+					inserter.insertElement(event);
 					break;
 				default:
 					break;

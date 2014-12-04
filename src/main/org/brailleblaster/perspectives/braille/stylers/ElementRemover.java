@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import nu.xom.Element;
 import nu.xom.Node;
+import nu.xom.Nodes;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
@@ -36,13 +37,12 @@ public class ElementRemover {
 	}
 
 	public void removeNode(Message m){
+		addEvent(m);
 		int index = (Integer)m.getValue("index");
 		if(list.get(index).isMathML() )
 			removeMathMLElement(m);
-		else {
-			addEvent(m);
+		else 
 			removeElement(m);
-		}
 	}
 	
 	private void removeElement(Message message){
@@ -76,7 +76,11 @@ public class ElementRemover {
 		int index = (Integer)message.getValue("index");
 		ArrayList<Integer>treeIndex = tree.getItemPath();
 		EventFrame f = new EventFrame();
-		Node node = findElement(list.get(index));
+		Node node;
+		if(list.get(index).isMathML())
+			node = findMathElement(list.get(index), message);
+		else
+			node = findElement(list.get(index));
 		
 		if(node instanceof Element)
 			message.put("element", node);
@@ -100,6 +104,26 @@ public class ElementRemover {
 
 			return e;
 		}
+	}
+	
+	private Node findMathElement(TextMapElement t, Message m){
+		Nodes nodes = new Nodes();
+		Element parent = t.parentElement();
+		int index = parent.indexOf(t.n) + 1;
+		int count = parent.getChildCount() - 1;
+		
+		nodes.append(t.n);
+		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl")){
+			nodes.append(parent.getChild(index));
+			index++;
+			count--;
+		}
+		
+		m.put("nodes", nodes);
+		if(count == 0)
+			return parent;
+				
+		return t.n;
 	}
 	
 	private void disableViews(){

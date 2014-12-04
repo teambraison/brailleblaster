@@ -12,6 +12,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
+import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.Text;
 
@@ -328,13 +329,11 @@ public class BrailleDocument extends BBDocument {
 	 */
 	private void removeMathML(TextMapElement t, Message m){
 		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start;
+		Nodes nodes = (Nodes)m.getValue("nodes");
+		Element parent = (Element)t.parentElement();
 		
-		Element parent = t.parentElement();
-		int index = parent.indexOf(t.n);
-		
-		parent.removeChild(index);
-		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl"))
-			parent.removeChild(index);
+		while(nodes.size() > 0)
+			parent.removeChild(nodes.remove(0));
 		
 		if(parent.getChildElements().size() == 0)
 			parent.getParent().removeChild(parent);

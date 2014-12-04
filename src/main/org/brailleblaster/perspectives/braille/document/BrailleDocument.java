@@ -301,36 +301,29 @@ public class BrailleDocument extends BBDocument {
 		int index = (Integer)message.getValue("index");
 		if(list.get(index).isMathML())
 			removeMathML(list.get(index), message);
+		else if(message.contains("element"))
+			removeElement(message);
 		else
-			removeNode(list.get((Integer)message.getValue("index")), message);
+			removeNode(list.get((Integer)message.getValue("index")));
+	}
+	
+	private void removeElement(Message m){
+		Element e = (Element)m.getValue("element");
+		e.getParent().removeChild(e);
 	}
 	
 	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
 	 * @param t : TextMapElement containing node to remove
 	 * @param message : message to put element information
 	 */
-	private void removeNode(TextMapElement t, Message message){
-		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
-			Element e = (Element)t.brailleList.getFirst().n.getParent();
-			t.parentElement().removeChild(e);
-			t.parentElement().removeChild(t.n);
-		}
-		else {
-			Element parent = t.parentElement();
-			while(!parent.getAttributeValue("semantics").contains("style")){
-				if(((Element)parent.getParent()).getChildElements().size() <= 1)
-					parent = (Element)parent.getParent();
-				else
-					break;
-			}
-			
-			message.put("element", parent);
-			parent.getParent().removeChild(parent);
-		}
+	private void removeNode(TextMapElement t){
+		Element e = (Element)t.brailleList.getFirst().n.getParent();
+		t.parentElement().removeChild(e);
+		t.parentElement().removeChild(t.n);
 	}
 	
 	/** Removes MathML from DOM
-	 * @param t : TextMapElemetn to remove
+	 * @param t : TextMapElement to remove
 	 * @param m : message to contain offset information
 	 */
 	private void removeMathML(TextMapElement t, Message m){
@@ -527,7 +520,7 @@ public class BrailleDocument extends BBDocument {
 	 * @param e : Element to check
 	 * @return true if non-braille children exist, false if not
 	 */
-	private boolean hasNonBrailleChildren(Element e){
+	public boolean hasNonBrailleChildren(Element e){
 		Elements els = e.getChildElements();
 		for(int i = 0; i <els.size(); i++){
 			if(!els.get(i).getLocalName().equals("brl")){

@@ -63,10 +63,6 @@ import org.slf4j.LoggerFactory;
  * @author cmyers
  *
  */
-/**
- * @author cmyers
- * 
- */
 public final class BBIni {
 
 	private static BBIni bbini;
@@ -112,7 +108,6 @@ public final class BBIni {
 	public final static String propExtension = ".properties";
 	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
-	// private static FileHandler logFile;
 	private static final String BBID = "brlblst";
 	private static String instanceId;
 	private static String defaultCfg;

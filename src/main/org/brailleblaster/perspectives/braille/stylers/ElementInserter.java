@@ -53,6 +53,57 @@ public class ElementInserter {
 			insertElementAtEnd(m);
 	}
 	
+	public void insertElement(Event ev){
+		ParentNode p = ev.getParent();
+		if(ev.getNode() instanceof Text){
+			p.insertChild(ev.getNode(), ev.getParentIndex());
+			Element brl = new Element("brl");
+			brl.appendChild(new Text(""));
+			p.insertChild(brl, ev.getParentIndex() + 1);
+			((Element)p.getChild(ev.getParentIndex() + 1)).setNamespaceURI(doc.getRootElement().getNamespaceURI());
+		}
+		else
+			p.insertChild(ev.getNode(), ev.getParentIndex());
+		
+		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
+			ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
+			
+			for(int i = 0, index = ev.getListIndex(); i < elList.size(); i++, index++){
+				list.add(index, elList.get(i));
+				list.get(index).setOffsets(ev.getTextOffset() + 1, ev.getTextOffset() + 1);
+				for(int j = 0; j < list.get(index).brailleList.size(); j++){
+					list.get(index).brailleList.get(j).setOffsets(ev.getBrailleOffset() + 1, ev.getBrailleOffset() + 1);
+				}
+			}
+			
+			if(list.size() - 1 != ev.getListIndex() + 1)
+				list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
+			
+			text.insertLineBreak(ev.getTextOffset());
+			braille.insertLineBreak(ev.getBrailleOffset());
+			tree.rebuildTree(ev.getTreeIndex());
+		}
+		else {
+			ArrayList<TextMapElement>elList;
+			if(ev.getNode() instanceof Element)
+				elList = constructMapElements((Element)ev.getNode(), 0);
+			else
+				elList = constructMapElements((Element)ev.getParent(), ev.getParentIndex());
+			
+			for(int i = 0, index = ev.getListIndex(); i < elList.size(); i++, index++){
+				list.add(index, elList.get(i));
+				list.get(index).setOffsets(ev.getTextOffset(), ev.getTextOffset());
+				for(int j = 0; j < list.get(index).brailleList.size(); j++){
+					list.get(index).brailleList.get(j).setOffsets(ev.getBrailleOffset(), ev.getBrailleOffset());
+				}
+			}
+			tree.rebuildTree(ev.getTreeIndex());
+		}
+		
+		list.setCurrent(ev.getListIndex());
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	}
+	
 	private void insertElementAtBeginning(Message m){
 		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
 			doc.insertElement(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
@@ -96,9 +147,9 @@ public class ElementInserter {
 			list = vi.resetViews(f.getFirstSectionIndex());
 		
 		Element replacedElement = replaceElement(f);
-		updateSemanticEntry(replacedElement, f.getElement());
+		updateSemanticEntry(replacedElement, (Element)f.getNode());
 		
-		ArrayList<TextMapElement> elList = constructMapElements(f.getElement());
+		ArrayList<TextMapElement> elList = constructMapElements((Element)f.getNode(), 0);
 		setViews(elList, f.getListIndex(), f.getTextOffset(), f.getBrailleOffset());
 		
 		manager.getTreeView().rebuildTree(f.getTreeIndex());
@@ -109,12 +160,12 @@ public class ElementInserter {
 			setTopIndex(f.getTextOffset());
 	}
 	
-	private ArrayList<TextMapElement> constructMapElements(Element e){
+	private ArrayList<TextMapElement> constructMapElements(Element e, int index){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
 		if(e.getAttributeValue("semantics").contains("pagenum"))
 			elList.add(makePageMapElement(e));
 		else {
-			for(int i = 0; i < e.getChildCount(); i++){
+			for(int i = index; i < e.getChildCount(); i++){
 				if(e.getChild(i) instanceof Text)
 					elList.add(new TextMapElement(e.getChild(i)));
 				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxline(e)){
@@ -126,7 +177,7 @@ public class ElementInserter {
 				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxline(e))
 					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
 				else if(e.getChild(i) instanceof Element)
-					elList.addAll(constructMapElements((Element)e.getChild(i)));
+					elList.addAll(constructMapElements((Element)e.getChild(i), 0));
 			}
 		}
 		
@@ -197,7 +248,7 @@ public class ElementInserter {
 	private Element replaceElement(Event f){
 		ParentNode parent = f.getParent();
 		Element replacedElement = (Element)parent.getChild(f.getParentIndex());
-		parent.replaceChild(replacedElement, f.getElement());
+		parent.replaceChild(replacedElement, f.getNode());
 		
 		return replacedElement;
 	}

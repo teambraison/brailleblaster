@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;

@@ -34,17 +34,14 @@ import java.io.File;
 
 import nu.xom.Document;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
-import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.archiver.NimasArchiver;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.imageDescriber.document.ImageDescriber;
 import org.brailleblaster.perspectives.imageDescriber.views.ImageDescriberView;
 import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;

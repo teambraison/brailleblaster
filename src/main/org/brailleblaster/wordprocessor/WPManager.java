@@ -152,7 +152,7 @@ public class WPManager {
 					display.sleep();
 				}
 			} catch (Throwable e) {
-				logger.debug("Uncaught exception detected", e);
+				logger.error("UNcaught exception detected", e);
 				/*
 				MessageBox questionBox = new MessageBox(this.shell,
 						SWT.ICON_QUESTION | SWT.YES | SWT.NO);

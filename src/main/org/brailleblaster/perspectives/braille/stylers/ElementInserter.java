@@ -68,13 +68,7 @@ public class ElementInserter {
 		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
 			ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
 			
-			for(int i = 0, index = ev.getListIndex(); i < elList.size(); i++, index++){
-				list.add(index, elList.get(i));
-				list.get(index).setOffsets(ev.getTextOffset() + 1, ev.getTextOffset() + 1);
-				for(int j = 0; j < list.get(index).brailleList.size(); j++){
-					list.get(index).brailleList.get(j).setOffsets(ev.getBrailleOffset() + 1, ev.getBrailleOffset() + 1);
-				}
-			}
+			insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
 			
 			if(list.size() - 1 != ev.getListIndex() + 1)
 				list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
@@ -88,20 +82,24 @@ public class ElementInserter {
 			if(ev.getNode() instanceof Element)
 				elList = constructMapElements((Element)ev.getNode(), 0);
 			else
-				elList = constructMapElements((Element)ev.getParent(), ev.getParentIndex());
+				elList = constructMapElement((Element)ev.getParent(), ev.getParentIndex());
 			
-			for(int i = 0, index = ev.getListIndex(); i < elList.size(); i++, index++){
-				list.add(index, elList.get(i));
-				list.get(index).setOffsets(ev.getTextOffset(), ev.getTextOffset());
-				for(int j = 0; j < list.get(index).brailleList.size(); j++){
-					list.get(index).brailleList.get(j).setOffsets(ev.getBrailleOffset(), ev.getBrailleOffset());
-				}
-			}
+			insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
+			
 			tree.rebuildTree(ev.getTreeIndex());
 		}
 		
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	}
+	
+	public void insertInList(ArrayList<TextMapElement>elList, int index, int textOffset, int brailleOffset){
+		for(int i = 0; i < elList.size(); i++, index++){
+			list.add(index, elList.get(i));
+			list.get(index).setOffsets(textOffset, textOffset);
+			for(int j = 0; j < list.get(index).brailleList.size(); j++)
+				list.get(index).brailleList.get(j).setOffsets(brailleOffset, brailleOffset);
+		}
 	}
 	
 	private void insertElementAtBeginning(Message m){
@@ -178,6 +176,28 @@ public class ElementInserter {
 					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
 				else if(e.getChild(i) instanceof Element)
 					elList.addAll(constructMapElements((Element)e.getChild(i), 0));
+			}
+		}
+		
+		return elList;
+	}
+	
+	private ArrayList<TextMapElement> constructMapElement(Element e, int index){
+		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
+		if(e.getAttributeValue("semantics").contains("pagenum"))
+			elList.add(makePageMapElement(e));
+		else {
+			for(int i = index; i < index + 2; i++){
+				if(e.getChild(i) instanceof Text)
+					elList.add(new TextMapElement(e.getChild(i)));
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxline(e)){
+					for(int j = 0; j < e.getChild(i).getChildCount(); j++){
+						if(e.getChild(i).getChild(j) instanceof Text)
+							elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
+					}
+				}
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxline(e))
+					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
 			}
 		}
 		

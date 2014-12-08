@@ -10,9 +10,12 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
@@ -43,6 +46,20 @@ public class ElementRemover {
 			removeMathMLElement(m);
 		else 
 			removeElement(m);
+	}
+	
+	public void removeNode(Event ev){
+		int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 
+		Message m = Message.createRemoveNodeMessage(ev.getListIndex(), length);
+		removeNode(m);
+		
+		if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
+			text.replaceTextRange(ev.getTextOffset(), 1, "");
+			braille.replaceTextRange(ev.getBrailleOffset(), 1, "");
+			list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);
+		}
+	
+		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, ev.getTextOffset(), false));
 	}
 	
 	private void removeElement(Message message){
@@ -136,5 +153,27 @@ public class ElementRemover {
 	
 	private boolean emptyList(){
 		return list.size() == 0;
+	}
+	
+	private boolean isBlockElement(TextMapElement t){
+		if( t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
+			return true;
+		else {
+			if(t.parentElement().getAttributeValue("semantics").contains("style") && t.parentElement().indexOf(t.n) == 0)
+				return true;
+			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean firstInLineElement(Element e){
+		Element parent = (Element)e.getParent();
+		if(parent.getAttribute("semantics") != null && parent.getAttributeValue("semantics").contains("style")){
+			if(parent.indexOf(e) == 0)
+				return true;
+		}
+		
+		return false;
 	}
 }

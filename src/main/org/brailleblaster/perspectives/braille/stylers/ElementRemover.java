@@ -59,7 +59,10 @@ public class ElementRemover {
 			list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);
 		}
 	
-		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, ev.getTextOffset(), false));
+		if(!list.empty())
+			list.setCurrent(ev.getListIndex());
+		
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	private void removeElement(Message message){

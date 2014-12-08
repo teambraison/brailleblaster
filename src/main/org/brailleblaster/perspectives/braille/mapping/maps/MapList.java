@@ -717,4 +717,8 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 		return false;
 	}
+	
+	public boolean empty(){
+		return size() == 0;
+	}
 }

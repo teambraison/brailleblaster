@@ -68,7 +68,7 @@ public class ElementInserter {
 		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
 			ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
 			
-			if(list.size() > 0 && ev.getListIndex() > 0 && list.get(ev.getListIndex() - 1).end == ev.getTextOffset())
+			if(!list.empty() && ev.getListIndex() > 0 && list.get(ev.getListIndex() - 1).end == ev.getTextOffset())
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
 			else
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());

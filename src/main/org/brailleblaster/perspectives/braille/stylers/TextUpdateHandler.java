@@ -23,7 +23,7 @@ public class TextUpdateHandler {
 	BrailleDocument document;
 	MapList list;
 	ViewInitializer vi;
-	
+
 	public TextUpdateHandler(Manager manager, ViewInitializer vi, MapList list){
 		this.manager = manager;
 		text = manager.getText();
@@ -41,7 +41,8 @@ public class TextUpdateHandler {
 			message.put("diff", 0);
 		}
 		else {
-			addEvent(message);
+			if(!message.contains("redoEvent"))
+				addEvent();
 			document.updateDOM(list, message);
 			braille.updateBraille(list.getCurrent(), message);
 			text.reformatText(list.getCurrent().n, message, manager);
@@ -54,19 +55,24 @@ public class TextUpdateHandler {
 	public void updateText(Event ev){
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
+		m.put("redoEvent", true);
+		updateText(m);
 		
+		/*
 		int start = list.getCurrent().start;
 		int end  = list.getCurrent().end;
 	
 		text.setCurrentSelection(start, end);
+		
 		text.view.replaceTextRange(start, end - start, ev.getNode().getValue());
 		text.update(true);
+	*/
 	}
 	
-	private void addEvent(Message m){
+	private void addEvent(){
 		EventFrame f = new EventFrame();
 		TextMapElement t = list.getCurrent();
-		
 		Event e = new Event(EventTypes.Update, t.n, vi.getStartIndex(), list.getCurrentIndex(), t.start, 
 				t.brailleList.getFirst().start, treeView.getItemPath());
 		f.addEvent(e);

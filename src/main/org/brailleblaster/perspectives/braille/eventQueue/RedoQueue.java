@@ -5,6 +5,7 @@ import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class RedoQueue extends EventQueue{

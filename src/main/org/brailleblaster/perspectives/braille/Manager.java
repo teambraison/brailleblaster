@@ -76,6 +76,7 @@ import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -651,19 +652,8 @@ public class Manager extends Controller {
 	}
 	
 	private void handleUpdate(Message message){
-		message.put("selection", treeView.getSelection(list.getCurrent()));
-		if(list.getCurrent().isMathML()){
-			handleRemoveNode(Message.createRemoveNodeMessage(list.getCurrentIndex(), list.getCurrent().end - list.getCurrent().start));
-			message.put("diff", 0);
-		}
-		else {
-			document.updateDOM(list, message);
-			braille.updateBraille(list.getCurrent(), message);
-			text.reformatText(list.getCurrent().n, message, this);
-			list.updateOffsets(list.getCurrentIndex(), message);
-			list.checkList();
-		}
-		arch.setDocumentEdited(true);
+		TextUpdateHandler tuh = new TextUpdateHandler(this, vi, list);
+		tuh.updateText(message);
 	}
 	
 	private void handleInsertNode(Message m){
@@ -1200,7 +1190,7 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			if(list.size() == 0){
+			if(list.empty()){
 				sm.displayTable(null);
 			}
 			else {
@@ -1320,7 +1310,7 @@ public class Manager extends Controller {
 	}
 	
 	public TextMapElement getNext(){
-		if(list.size() > 0 && list.getCurrentIndex() <= list.size() - 1)
+		if(!list.empty() && list.getCurrentIndex() <= list.size() - 1)
 			return list.get(list.getCurrentIndex() + 1);
 		else
 			return null;
@@ -1341,6 +1331,7 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
+	
 	/***
 	 * Return all elements that selected in text
 	 * @param start :start location of where text selected

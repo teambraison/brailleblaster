@@ -4,6 +4,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
+import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class UndoQueue extends EventQueue {
@@ -20,6 +21,8 @@ public class UndoQueue extends EventQueue {
 			Event event = f.get(i);
 			switch(event.eventType){
 				case Update:
+					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
+					tuh.updateText(event);
 					break;
 				case Insert:
 					break;

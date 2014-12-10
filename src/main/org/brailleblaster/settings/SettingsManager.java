@@ -276,6 +276,21 @@ public class SettingsManager {
 		return (int)(pHeight / cellHeight);
 	}
 	
+	/* rl
+	 * Calculate the height of the page from the lines it contains.
+	 * This method will receive the number of lines per page and return
+	 * a double measurement of height for the whole page.
+	 */
+	public double calculateHeightFromLength(int linesPerPage){
+		double cellHeight;
+		if (isMetric())
+			cellHeight = 0.393701;
+		else
+			cellHeight = 10;
+		return cellHeight*linesPerPage;
+	}
+
+	
 	/**
 	 * Find indicator location
 	 */

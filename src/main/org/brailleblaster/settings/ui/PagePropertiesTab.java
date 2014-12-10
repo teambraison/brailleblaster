@@ -6,7 +6,6 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
@@ -21,28 +20,31 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Display;//rl
 
 public class PagePropertiesTab {
 	HashMap<String, String>settingsMap;
 	SettingsManager sm;
 	TabItem item;
 	Composite  group;
-	
-	Group sizeGroup, marginGroup, pageGroup, buttonGroup; 
+														
+	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup;//rl 
 	Label pageSizeLabel, widthLabel, heightLabel, linesPerPageLabel, cellsPerLineLabel, marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
 	
 	Combo pageTypes;
 	Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox, marginRightBox, marginBottomBox;
-	Button okButton, cancelButton;
+	Button okButton, cancelButton, inchesButton, millimetersButton, cellsLinesButton;//rl
 	
 	boolean listenerLocked;
 	LocaleHandler lh;
@@ -60,10 +62,29 @@ public class PagePropertiesTab {
 		item.setControl(group);
 		setFormLayout(group, 0, 100, 0, 60);
 		
+		//rl
+		unitsGroup = new Group(group, SWT.BORDER);
+		unitsGroup.setText(lh.localValue("measurementUnits"));
+		unitsGroup.setLayout(new FillLayout());
+		setFormLayout(unitsGroup, 0, 100, 0, 20);
+
+		inchesButton = new Button(unitsGroup, SWT.RADIO);
+		inchesButton.setText(lh.localValue("inches"));
+		inchesButton.setSelection(true); // default
+
+		millimetersButton = new Button(unitsGroup, SWT.RADIO);
+		millimetersButton.setText(lh.localValue("millimeters"));
+
+
+		cellsLinesButton = new Button(unitsGroup, SWT.RADIO);
+		cellsLinesButton.setText(lh.localValue("cellsLines"));		
+		
+		//rl
+		
 		sizeGroup = new Group(group, SWT.BORDER);
 		sizeGroup.setText(lh.localValue("pageSize"));
 		sizeGroup.setLayout(new FillLayout());
-		setFormLayout(sizeGroup, 0, 100, 0, 60);
+		setFormLayout(sizeGroup, 0, 100, 20, 65);
 		
 		pageGroup = new Group(sizeGroup, 0);
 		pageGroup.setLayout(new GridLayout(2, true));
@@ -77,6 +98,7 @@ public class PagePropertiesTab {
 		setDefault();
 		setGridData(pageTypes);
 		
+		//add a method to allow editing of widthBox from the linesBox or cellsBox
 		widthLabel = new Label(pageGroup, 0);
 		widthLabel.setText(lh.localValue("width"));
 		widthBox  = new Text(pageGroup, SWT.BORDER);
@@ -84,6 +106,7 @@ public class PagePropertiesTab {
 		setGridData(widthBox);
 		setValue(widthBox, "paperWidth");
 		
+		//add a method to allow editing of heightBox from the linesBox or cellsBox
 		heightLabel = new Label(pageGroup, 0);
 		heightLabel.setText(lh.localValue("height"));
 		heightBox = new Text(pageGroup, SWT.BORDER);
@@ -94,6 +117,8 @@ public class PagePropertiesTab {
 		linesPerPageLabel = new Label(pageGroup, 0);
 		linesPerPageLabel.setText(lh.localValue("linesPerPage"));
 		
+		//change the linesBox text to be editable. Add addDoubleListener, setGridData, and setValue methods to 
+		//be similar to heightBox and widthBox 
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
 		linesBox.setText((String.valueOf(calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
@@ -102,6 +127,8 @@ public class PagePropertiesTab {
 		cellsPerLineLabel = new Label(pageGroup, 0);
 		cellsPerLineLabel.setText(lh.localValue("cellsPerLine"));
 		
+		//change the cellsBox text to be editable. Add addDoubleListener, setGridData, and setValue methods to 
+		//be similar to heightBox and widthBox
 		cellsBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(cellsBox);
 		cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(settingsMap.get("paperWidth")))));
@@ -110,7 +137,7 @@ public class PagePropertiesTab {
 		marginGroup = new Group(group, SWT.BORDER);
 		marginGroup.setLayout(new GridLayout(2, true));
 		marginGroup.setText(lh.localValue("margins"));
-		setFormLayout(marginGroup, 0, 100, 60, 100);
+		setFormLayout(marginGroup, 0, 100, 65, 100);
 		
 		marginTopLabel = new Label(marginGroup, 0);
 		marginTopLabel.setText(lh.localValue("topMargin"));
@@ -198,6 +225,7 @@ public class PagePropertiesTab {
 						settingsMap.put(type, getStringValue(t));
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
 						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+						//need something similar for widthBox and heightBox
 					}
 				}		
 			});
@@ -230,8 +258,28 @@ public class PagePropertiesTab {
          gridData.grabExcessHorizontalSpace = true;
          c.setLayoutData(gridData);
 	}
-	
+	//rl
 	private void addListeners(){
+		
+		 inchesButton.addSelectionListener(new SelectionAdapter() {
+		      public void widgetSelected(SelectionEvent e) {
+		        ;
+		      }
+		    });
+		 millimetersButton.addSelectionListener(new SelectionAdapter(){
+			 public void widgetSelected(SelectionEvent e){
+				 System.out.println("millimeters");
+			 }
+		 });
+		 cellsLinesButton.addSelectionListener(new SelectionAdapter(){
+			 public void widgetSelected(SelectionEvent e){
+			System.out.println("cells/lines");
+			 }
+		 });
+	
+		 
+		 
+		//rl
 		widthBox.addTraverseListener(new TraverseListener(){
 			@Override
 			public void keyTraversed(TraverseEvent e) {
@@ -333,7 +381,7 @@ public class PagePropertiesTab {
 			}
 		});
 	}
-	
+	//need to add checkStandard Sizes for cellsBox and linesBox?
 	private void checkStandardSizes(){
 		Double width = getDoubleValue(widthBox);
 		Double height = getDoubleValue(heightBox);
@@ -356,7 +404,7 @@ public class PagePropertiesTab {
 					
 					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
 						pageTypes.remove(pageTypes.getItemCount() - 1);
-				}
+				} 
 			}
 	
 			if(!found){
@@ -451,6 +499,21 @@ public class PagePropertiesTab {
 		return (int)(pHeight / cellHeight);
 	}
 	
+	/* rl
+	 * This method calculates the width of the page from the number of cells.
+	 * It receives the number of cells and returns a double of the page width.
+	 */
+	private double calcWidthFromCells(int numberOfCells){
+		double cellWidth;
+		if (!sm.isMetric())
+			cellWidth=0.246063;
+		else
+			cellWidth=6.25;
+		
+		return cellWidth*numberOfCells;
+			
+	}
+
 	private boolean checkEqualWidth(Page p, double width){
 		if(sm.isMetric())
 			return p.mmWidth == width;

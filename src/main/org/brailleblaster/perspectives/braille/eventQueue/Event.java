@@ -55,4 +55,8 @@ public class Event {
 	public int getFirstSectionIndex(){
 		return firstSectionIndex;
 	}
+	
+	public EventTypes getEventType(){
+		return eventType;
+	}
 }

@@ -41,13 +41,8 @@ public class TextUpdateHandler {
 			message.put("diff", 0);
 		}
 		else {
-			if(!message.contains("redoEvent"))
-				addEvent();
-			document.updateDOM(list, message);
-			braille.updateBraille(list.getCurrent(), message);
-			text.reformatText(list.getCurrent().n, message, manager);
-			list.updateOffsets(list.getCurrentIndex(), message);
-			list.checkList();
+			addUndoEvent();
+			resetText(message);
 		}
 		manager.getArchiver().setDocumentEdited(true);
 	}
@@ -55,27 +50,34 @@ public class TextUpdateHandler {
 	public void updateText(Event ev){
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		addRedoEvent();
 		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-		m.put("redoEvent", true);
-		updateText(m);
-		
-		/*
-		int start = list.getCurrent().start;
-		int end  = list.getCurrent().end;
-	
-		text.setCurrentSelection(start, end);
-		
-		text.view.replaceTextRange(start, end - start, ev.getNode().getValue());
-		text.update(true);
-	*/
+		resetText(m);
 	}
 	
-	private void addEvent(){
+	private void resetText(Message message){
+		document.updateDOM(list, message);
+		braille.updateBraille(list.getCurrent(), message);
+		text.reformatText(list.getCurrent().n, message, manager);
+		list.updateOffsets(list.getCurrentIndex(), message);
+		list.checkList();
+	}
+	
+	private void addUndoEvent(){
+		manager.addUndoEvent(addEvent());
+	}
+	
+	private void addRedoEvent(){
+		manager.addRedoEvent(addEvent());
+	}
+	
+	private EventFrame addEvent(){
 		EventFrame f = new EventFrame();
 		TextMapElement t = list.getCurrent();
 		Event e = new Event(EventTypes.Update, t.n, vi.getStartIndex(), list.getCurrentIndex(), t.start, 
 				t.brailleList.getFirst().start, treeView.getItemPath());
 		f.addEvent(e);
-		manager.addUndoEvent(f);
+		
+		return f;
 	}
 }

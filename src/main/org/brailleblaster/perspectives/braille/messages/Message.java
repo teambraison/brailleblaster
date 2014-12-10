@@ -157,7 +157,7 @@ public class Message {
 	}
 	
 	public static Message createTextDeletionMessage(int offset, int length, boolean update){
-		Message m = new Message(BBEvent.TEXT_DELETION);
+		Message m = new Message(BBEvent.WHITESPACE_DELETION);
 		m.put("offset", offset);
 		m.put("length", length);
 		m.put("update", update);

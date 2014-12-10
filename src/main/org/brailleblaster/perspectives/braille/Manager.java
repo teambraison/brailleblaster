@@ -78,6 +78,7 @@ import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
+import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -431,7 +432,7 @@ public class Manager extends Controller {
 			case GET_CURRENT:
 				handleGetCurrent(message);
 				break;
-			case TEXT_DELETION:
+			case WHITESPACE_DELETION:
 				handleTextDeletion(message);
 				break;
 			case UPDATE:
@@ -623,33 +624,8 @@ public class Manager extends Controller {
 	}
 	
 	private void handleTextDeletion(Message message){
-		int brailleStart = 0;
-		list.checkList();
-		if(list.size() > 0){		
-			int start = (Integer)message.getValue("offset");
-			int index = list.findClosest(message, 0, list.size() - 1);
-			TextMapElement t = list.get(index);
-			if(start < t.start){
-				if(index > 0){
-					if(t.brailleList.size() > 0)
-						brailleStart = t.brailleList.getFirst().start + (Integer)message.getValue("length");
-				}
-				else{
-					brailleStart = 0;
-				}
-			}
-			else if(t.brailleList.size() > 0)
-				brailleStart = t.brailleList.getLast().end;
-		
-			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
-		
-			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
-				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
-			else if(index != list.size() -1 || (index == list.size() - 1 && start < t.start))
-				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"));
-		}
-		else
-			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
+		WhiteSpaceHandler wsp = new WhiteSpaceHandler(this, list);
+		wsp.removeWhitespace(message);
 	}
 	
 	private void handleUpdate(Message message){
@@ -683,12 +659,10 @@ public class Manager extends Controller {
 		text.update(false);
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
-	    if (arch.getCurrentConfig().equals("epub.cfg")){
+	    if (arch.getCurrentConfig().equals("epub.cfg"))
 	    	text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"aside");
-	    }
-	    else{		
+	    else
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
-	    }
 			
 		Styles style = styles.get("trnote");
 		Message styleMessage =  Message.createUpdateStyleMessage(style, false, false);

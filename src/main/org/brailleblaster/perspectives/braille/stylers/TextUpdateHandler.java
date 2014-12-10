@@ -53,6 +53,7 @@ public class TextUpdateHandler {
 		addRedoEvent();
 		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
 		resetText(m);
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	public void redoText(Event ev){
@@ -61,6 +62,7 @@ public class TextUpdateHandler {
 		addUndoEvent();
 		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
 		resetText(m);
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 
 	private void resetText(Message message){

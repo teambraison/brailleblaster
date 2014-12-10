@@ -59,6 +59,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
@@ -1690,9 +1691,13 @@ public class Manager extends Controller {
 		undoQueue.add(f);
 	}
 	
+	public void addRedoEvent(EventFrame f){
+		redoQueue.add(f);
+	}
+	
 	public void undo(){
 		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null)
+		if(f != null && !f.get(0).getEventType().equals(EventTypes.Update))
 			redoQueue.add(f);
 	}
 	

@@ -22,7 +22,7 @@ public class UndoQueue extends EventQueue {
 			switch(event.eventType){
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
-					tuh.updateText(event);
+					tuh.undoText(event);
 					break;
 				case Insert:
 					break;

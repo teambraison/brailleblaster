@@ -47,7 +47,7 @@ public class TextUpdateHandler {
 		manager.getArchiver().setDocumentEdited(true);
 	}
 	
-	public void updateText(Event ev){
+	public void undoText(Event ev){
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		addRedoEvent();
@@ -55,6 +55,14 @@ public class TextUpdateHandler {
 		resetText(m);
 	}
 	
+	public void redoText(Event ev){
+		list.setCurrent(ev.getListIndex());
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		addUndoEvent();
+		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
+		resetText(m);
+	}
+
 	private void resetText(Message message){
 		document.updateDOM(list, message);
 		braille.updateBraille(list.getCurrent(), message);

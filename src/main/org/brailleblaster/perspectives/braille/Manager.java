@@ -77,6 +77,7 @@ import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
@@ -725,53 +726,13 @@ public class Manager extends Controller {
 					handleMultiBoxLine(message);
 			}
 			else{
-				if(message.getValue("multiSelect").equals(false)) 
-					handleStyleSingleSelected(message);
-				else 
-					handleStyleMultiSelected(message);
+				StyleHandler sh = new StyleHandler(this, list);
+				sh.updateStyle(message);
 			}
 			containerSash.setRedraw(true);
 		}
 		else
 			notify(lh.localValue("nothingToApply"));
-	}
-	
-	/***
-	 * Handle style if user just move cursor
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleStyleSingleSelected(Message message) {
-		Element parent = parentStyle(list.getCurrent(), message);
-		document.changeSemanticAction(message, parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message);
-	}
-	
-	/***
-	 * Apply styles to selected text for multiple elements
-	 * @param start: starting offset of highlighted text used to find first block element
-	 * @param end: end position of highlighted text used to find last block element
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleStyleMultiSelected(Message message){
-		int start=text.getSelectedText()[0];
-		int end=text.getSelectedText()[1];
-		
-		Set<TextMapElement> itemSet = getElementSelected(start, end);		
-		Iterator<TextMapElement> itr = itemSet.iterator();
-		ArrayList<Element>parents = new ArrayList<Element>();
-		
-		while (itr.hasNext()) {
-			TextMapElement tempElement= itr.next();
-			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
-				Element parent = parentStyle(tempElement, styleMessage);
-				parents.add(parent);
-				document.changeSemanticAction(message, parent);
-				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-				adjustStyle( itemList,styleMessage);
-			}
-		}
 	}
 	
 	/** Prepares object needed by boxline handler to create boxline around a single element
@@ -795,6 +756,7 @@ public class Manager extends Controller {
 			if(itemList.get(i) instanceof PageMapElement)
 				invalid = true;
 		}
+		
 		if(!invalid){
 			adjustStyle(itemList, message);
 			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
@@ -830,7 +792,7 @@ public class Manager extends Controller {
 		int start=text.getSelectedText()[0];
 		int end=text.getSelectedText()[1];
 		
-		Set<TextMapElement> itemSet = getElementSelected(start, end);		
+		Set<TextMapElement> itemSet = getElementInSelectedRange(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
 		ArrayList<Element>parents = new ArrayList<Element>();
 		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
@@ -1325,7 +1287,7 @@ public class Manager extends Controller {
 	 * @param end:  where selection ended
 	 * @return: Set of all element where in selection
 	 */
-	public Set<TextMapElement> getElementSelected(int start, int end) {
+	public Set<TextMapElement> getElementInSelectedRange(int start, int end) {
 		
 		Set<TextMapElement> elementSelectedSet = new LinkedHashSet<TextMapElement>();
 		Set<Element> parentElement = new LinkedHashSet<Element>();

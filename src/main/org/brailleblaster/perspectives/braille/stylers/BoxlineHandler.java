@@ -182,7 +182,7 @@ public class BoxlineHandler {
 		//set text
 		text.insertText(start, list.get(startPos).getText() + "\n");
 		braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
-		list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);
+		list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1);
 		
 		return startPos;
 	}
@@ -218,7 +218,7 @@ public class BoxlineHandler {
 		//set text
 		text.insertText(end, "\n" + list.get(endPos).getText());
 		braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());
-		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
+		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1);
 			
 		return endPos;
 	}
@@ -298,7 +298,7 @@ public class BoxlineHandler {
 		//set text
 		text.insertText(start, list.get(index).getText() + "\n");
 		braille.insertText(brailleStart, list.get(index).brailleList.getFirst().value() + "\n");
-		list.shiftOffsetsFromIndex(index + 1, list.get(index).getText().length() + 1, list.get(index).brailleList.getFirst().value().length() + 1, list.get(index + 1).start);
+		list.shiftOffsetsFromIndex(index + 1, list.get(index).getText().length() + 1, list.get(index).brailleList.getFirst().value().length() + 1);
 	}
 	
 	private void replaceBoxLine(Element brl, Element replacement){		
@@ -310,7 +310,7 @@ public class BoxlineHandler {
 		braille.replaceTextRange(list.get(index).brailleList.getFirst().start, list.get(index).brailleList.getLast().end - list.get(index).brailleList.getFirst().start, t.getValue());
 		
 		if(length > 0)
-			list.shiftOffsetsFromIndex(index + 1, length, length, 0);
+			list.shiftOffsetsFromIndex(index + 1, length, length);
 	}
 		
 	private ArrayList<Element> findBoxlines(Element e){
@@ -486,7 +486,7 @@ public class BoxlineHandler {
 		int index = list.indexOf(b);
 		manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
 		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start, (b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start, "");
-		list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start), 0);
+		list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start));
 		list.remove(index);
 	}
 	
@@ -497,7 +497,7 @@ public class BoxlineHandler {
 		int index = list.indexOf(b);
 		manager.getText().replaceTextRange(b.start - 1, b.end - (b.start - 1), "");
 		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start - 1, b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1), "");
-		list.shiftOffsetsFromIndex(index,  -(b.end - (b.start - 1)), -(b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1)), 0);
+		list.shiftOffsetsFromIndex(index,  -(b.end - (b.start - 1)), -(b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1)));
 		list.remove(index);
 	}
 	

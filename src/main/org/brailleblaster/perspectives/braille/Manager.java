@@ -56,10 +56,10 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
@@ -73,7 +73,12 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
+import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
+import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
+import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -167,10 +172,8 @@ public class Manager extends Controller {
 			else {
 				arch = ArchiverFactory.getArchive( templateFile, false);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-				//list = vi.getList(this);
 				resetConfiguations();
 				initializeAllViews(docName, templateFile, null);
-				//formatTemplateDocument();
 				setTabTitle(docName);
 			}
 		}				
@@ -265,12 +268,10 @@ public class Manager extends Controller {
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
-			if(view.equals(text.getClass().getCanonicalName())){
+			if(view.equals(text.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(text.view);
-			}
-			else if(view.equals(braille.getClass().getCanonicalName())){
+			else if(view.equals(braille.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(braille.view);
-			}
 		}
 	}
 	
@@ -406,7 +407,6 @@ public class Manager extends Controller {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.error("The Document Base document tree is null, the file failed to parse properly");
-				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -432,7 +432,7 @@ public class Manager extends Controller {
 			case GET_CURRENT:
 				handleGetCurrent(message);
 				break;
-			case TEXT_DELETION:
+			case WHITESPACE_DELETION:
 				handleTextDeletion(message);
 				break;
 			case UPDATE:
@@ -443,9 +443,6 @@ public class Manager extends Controller {
 				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
-				break;
-			case REMOVE_MATHML:
-				handleRemoveMathML(message);
 				break;
 			case UPDATE_STATUSBAR:
 				handleUpdateStatusBar(message);
@@ -513,11 +510,8 @@ public class Manager extends Controller {
 				if(secList.get(i).getParent().equals(e)){
 					if(secList.get(i).isVisible())
 						list.findTextMapElements(message);
-					else {
+					else 
 						secList.get(i).getList().findTextMapElements(message);
-						//list = vi.resetViews(i);
-						//list.findTextMapElements(message);
-					}
 				}
 			}
 		}
@@ -630,149 +624,24 @@ public class Manager extends Controller {
 	}
 	
 	private void handleTextDeletion(Message message){
-		int brailleStart = 0;
-		list.checkList();
-		if(list.size() > 0){		
-			int start = (Integer)message.getValue("offset");
-			int index = list.findClosest(message, 0, list.size() - 1);
-			TextMapElement t = list.get(index);
-			if(start < t.start){
-				if(index > 0){
-					if(t.brailleList.size() > 0)
-						brailleStart = t.brailleList.getFirst().start + (Integer)message.getValue("length");
-				}
-				else{
-					brailleStart = 0;
-				}
-			}
-			else if(t.brailleList.size() > 0)
-				brailleStart = t.brailleList.getLast().end;
-		
-			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
-		
-			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
-				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
-			else if(index != list.size() -1 || (index == list.size() - 1 && start < t.start))
-				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
-		}
-		else
-			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
+		WhiteSpaceHandler wsp = new WhiteSpaceHandler(this, list);
+		wsp.removeWhitespace(message);
 	}
 	
 	private void handleUpdate(Message message){
-		message.put("selection", treeView.getSelection(list.getCurrent()));
-		if(list.getCurrent().isMathML()){
-			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), list.getCurrent().end - list.getCurrent().start, list.getCurrent()));
-			message.put("diff", 0);
-		}
-		else {
-			document.updateDOM(list, message);
-			braille.updateBraille(list.getCurrent(), message);
-			text.reformatText(list.getCurrent().n, message, this);
-			list.updateOffsets(list.getCurrentIndex(), message);
-			list.checkList();
-		}
-		arch.setDocumentEdited(true);
+		TextUpdateHandler tuh = new TextUpdateHandler(this, vi, list);
+		tuh.updateText(message);
 	}
 	
 	private void handleInsertNode(Message m){
 		if(m.getValue("split").equals(true)){
-			splitElement(m);
+			ElementSplitter splitter = new ElementSplitter(this, list, vi);
+			splitter.splitElement(m);
 		}
 		else {
-			if(m.getValue("atStart").equals(true))
-				insertElementAtBeginning(m);
-			else
-				insertElementAtEnd(m);
+			ElementInserter inserter = new ElementInserter(vi, document, list, this);
+			inserter.insertElement(m);
 		}
-	}
-	
-	private void splitElement(Message m){
-		int origPos =list.getCurrent().start;
-		int treeIndex = treeView.getBlockElementIndex();
-		
-		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
-		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
-		
-		int textStart = list.get(originalElements.get(0)).start;
-		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
-		int brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start;	
-			
-		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
-				
-		int currentIndex = list.getCurrentIndex();
-		
-		for(int i = originalElements.size() - 1; i >= 0; i--){
-			int pos = originalElements.get(i);
-			
-			if(pos < currentIndex){
-				vi.remove(list, pos);
-				currentIndex--;
-			}
-			else if(pos >= currentIndex){
-				vi.remove(list, pos);
-			}
-		}
-		
-		text.clearTextRange(textStart, textEnd - textStart);
-		braille.clearTextRange(brailleStart, brailleEnd - brailleStart);
-		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart), origPos);	
-		
-		int firstElementIndex = currentIndex;
-		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
-		
-		String insertionString = "";
-		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
-
-		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
-				insertionString += "\n";
-			}
-		}
-		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
-				insertionString += "\n";
-			}
-		}
-		else {
-			insertionString = "\n";
-		}
-
-		text.insertText(list.get(currentIndex).end, insertionString);
-		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
-		m.put("length", insertionString.length());
-		
-		int secondElementIndex = currentIndex + 1;
-		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
-
-		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart, origPos);
-		
-		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
-	}
-	
-	private int insertElement(Element e, int index, int start, int brailleStart){
-		int count = e.getChildCount();
-		int currentIndex = index;
-		int currentStart = start;
-		int currentBrailleStart = brailleStart;
-		
-		for(int i = 0; i < count; i++){
-			if(e.getChild(i) instanceof Text){
-				text.insertText(vi,list, currentIndex, currentStart, e.getChild(i));
-				currentStart = list.get(currentIndex).end;
-				i++;
-				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
-				currentBrailleStart = list.get(currentIndex).brailleList.getLast().end;
-				currentIndex++;
-			}
-			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl")){
-				currentIndex = insertElement((Element)e.getChild(i), currentIndex, currentStart, currentBrailleStart);
-				currentStart = list.get(currentIndex - 1).end;
-				currentBrailleStart = list.get(currentIndex - 1).brailleList.getLast().end;
-			}
-		}
-		
-		return currentIndex;
 	}
 	
 	public void insertBraille(Element e, int index, int brailleStart){
@@ -786,56 +655,14 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void insertElementAtBeginning(Message m){
-		int origPos = list.getCurrent().start;
-		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			document.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
-		else
-			document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
-			
-		if(list.size() - 1 != list.getCurrentIndex() - 1){
-			if(list.getCurrentIndex() == 0)
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1, origPos);
-			else
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1, origPos);
-		}
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
-			
-		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
-	}
-	
-	private void insertElementAtEnd(Message m){
-		int origPos = list.getCurrent().start;
-		document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
-		if(list.size() - 1 != list.getCurrentIndex() + 1)
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
-		
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
-		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
-	}
-	
 	public void insertTranscriberNote(){
 		text.update(false);
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
-	    if (arch.getCurrentConfig().equals("epub.cfg")){
+	    if (arch.getCurrentConfig().equals("epub.cfg"))
 	    	text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"aside");
-	    }
-	    else{		
+	    else
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
-	    }
 			
 		Styles style = styles.get("trnote");
 		Message styleMessage =  Message.createUpdateStyleMessage(style, false, false);
@@ -843,40 +670,8 @@ public class Manager extends Controller {
 	}
 	
 	private void handleRemoveNode(Message message){
-		int index = (Integer)message.getValue("index");
-		treeView.removeItem(list.get(index), message);
-		document.updateDOM(list, message);
-		list.get(index).brailleList.clear();
-		vi.remove(list, index);
-		//list.remove(index);
-					
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
-	}
-	
-	private void handleRemoveMathML(Message m){
-		TextMapElement t = (TextMapElement)m.getValue("TextMapElement");
-		document.updateDOM(list, m);
-		braille.removeMathML(t);
-		text.removeMathML(m);
-		treeView.removeMathML(t);
-		int index = list.indexOf(t);
-		list.updateOffsets(index, m);
-		vi.remove(list, index);
-		//list.remove(t);
-		
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
+		ElementRemover er = new ElementRemover(this, list, vi);
+		er.removeNode(message);
 	}
 	
 	private void handleUpdateStatusBar(Message message){
@@ -979,7 +774,6 @@ public class Manager extends Controller {
 			}
 		}
 	}
-	
 	
 	/** Prepares object needed by boxline handler to create boxline around a single element
 	 * @param message: Message object passed containing information from style table manager
@@ -1088,7 +882,7 @@ public class Manager extends Controller {
 	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
 		int start = list.indexOf(itemList.get(0));
 		int end = list.indexOf(itemList.get(itemList.size() - 1));
-		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
+	
 		if (start > 0) {
 			message.put("prev", list.get(start - 1).end);
 			message.put("braillePrev",
@@ -1113,12 +907,12 @@ public class Manager extends Controller {
 		if (message.contains("linesBeforeOffset"))
 			list.shiftOffsetsFromIndex(start,
 					(Integer) message.getValue("linesBeforeOffset"),
-					(Integer) message.getValue("linesBeforeOffset"), origPos);
+					(Integer) message.getValue("linesBeforeOffset"));
 		if (message.contains("linesAfterOffset") && list.size() > 1
 				&& end < list.size() - 1)
 			list.shiftOffsetsFromIndex(end + 1,
 					(Integer) message.getValue("linesAfterOffset"),
-					(Integer) message.getValue("linesAfterOffset"), origPos);
+					(Integer) message.getValue("linesAfterOffset"));
 
 		treeView.adjustItemStyle(list.getCurrent());
 	}	
@@ -1242,9 +1036,8 @@ public class Manager extends Controller {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0){
+		if(braille.view.getCharCount() > 0)
 			new PrintPreview(this.getDisplay(), document, this);
-		}
 	}
 	
 	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
@@ -1356,8 +1149,6 @@ public class Manager extends Controller {
 			
 			if(index != -1)
 				vi.bufferViews(index);
-			//if(arch.getOrigDocPath() == null && list.size() == 0)
-			//	formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1374,7 +1165,7 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			if(list.size() == 0){
+			if(list.empty()){
 				sm.displayTable(null);
 			}
 			else {
@@ -1494,7 +1285,7 @@ public class Manager extends Controller {
 	}
 	
 	public TextMapElement getNext(){
-		if(list.size() > 0 && list.getCurrentIndex() <= list.size() - 1)
+		if(!list.empty() && list.getCurrentIndex() <= list.size() - 1)
 			return list.get(list.getCurrentIndex() + 1);
 		else
 			return null;
@@ -1515,6 +1306,7 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
+	
 	/***
 	 * Return all elements that selected in text
 	 * @param start :start location of where text selected
@@ -1539,8 +1331,7 @@ public class Manager extends Controller {
 				j=t.end+1;
 				
 			}
-			else
-			{
+			else {
 			    j=j+1;	
 			}
 		}
@@ -1874,9 +1665,13 @@ public class Manager extends Controller {
 		undoQueue.add(f);
 	}
 	
+	public void addRedoEvent(EventFrame f){
+		redoQueue.add(f);
+	}
+	
 	public void undo(){
 		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null)
+		if(f != null && !f.get(0).getEventType().equals(EventTypes.Update))
 			redoQueue.add(f);
 	}
 	
@@ -1891,5 +1686,4 @@ public class Manager extends Controller {
 		if(!BBIni.debugging())
 			new Notify(notify);
 	}
-	
 }

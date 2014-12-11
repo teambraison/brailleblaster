@@ -36,7 +36,6 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -62,8 +61,6 @@ import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
-import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -696,23 +693,6 @@ public class Manager extends Controller {
 	}
 	
 	/***
-     * Get parent style of the current TextMapElement 
-     * @param current
-     * @param message
-     * @return
-     */
-	private Element parentStyle(TextMapElement current, Message message) {
-		Element parent;
-		if(current instanceof PageMapElement || current instanceof BrlOnlyMapElement)
-			parent = current.parentElement();
-		else
-			parent = document.getParent(current.n, true);
-		
-		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-		return parent;
-	}
-	
-	/***
 	 * Handle style for all cases
 	 * @param message
 	 */
@@ -720,10 +700,8 @@ public class Manager extends Controller {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			containerSash.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
-				if(message.getValue("multiSelect").equals(false)) 
-					handleSingleBoxLine(message);
-				else 
-					handleMultiBoxLine(message);
+				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				bxh.handleBoxline(message);
 			}
 			else{
 				StyleHandler sh = new StyleHandler(this, list);
@@ -734,162 +712,6 @@ public class Manager extends Controller {
 		else
 			notify(lh.localValue("nothingToApply"));
 	}
-	
-	/** Prepares object needed by boxline handler to create boxline around a single element
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleSingleBoxLine(Message message){
-		Element parent = parentStyle(list.getCurrent(), message);
-		ArrayList<Element>parents = new ArrayList<Element>();
-		parents.add(parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline"))
-			createSingleBoxLine(itemList, parents, message);
-		else 
-			removeSingleBoxLine(itemList, parent, message);
-	}
-	
-	private void createSingleBoxLine(ArrayList<TextMapElement> itemList, ArrayList<Element>parents, Message message){
-		boolean invalid = false;
-		for(int i = 0; i < itemList.size() && !invalid; i++){
-			if(itemList.get(i) instanceof PageMapElement)
-				invalid = true;
-		}
-		
-		if(!invalid){
-			adjustStyle(itemList, message);
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.createBoxline(parents, message, itemList);
-		}
-		else
-			notify(lh.localValue("invalidBoxline.containsPage"));
-	}
-	
-	private void removeSingleBoxLine(ArrayList<TextMapElement> itemList, Element parent, Message message){
-		adjustStyle(itemList, message);
-		TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-		if(box != null){
-			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-				itemList.add(0, box);
-			else
-				itemList.add(box);
-		}
-		
-		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-		bxh.removeSingleBoxline(parent, itemList);
-		
-		if(list.getCurrentIndex() > list.size())
-			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-		else if(list.size() > 0)
-			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-	}
-	
-	/** Prepares object needed by boxline handler to create boxline around a multiple elements
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleMultiBoxLine(Message message){
-		int start=text.getSelectedText()[0];
-		int end=text.getSelectedText()[1];
-		
-		Set<TextMapElement> itemSet = getElementInSelectedRange(start, end);		
-		Iterator<TextMapElement> itr = itemSet.iterator();
-		ArrayList<Element>parents = new ArrayList<Element>();
-		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
-		
-		boolean invalid = false;
-		
-		while(itr.hasNext() && !invalid){
-			TextMapElement tempElement= itr.next();
-			if(tempElement instanceof BrlOnlyMapElement){
-				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
-						|| (b != null && (b.start > end || b.end < start))){
-					invalid = true;
-					notify(lh.localValue("invalidBoxline.incorrectSelection"));
-					break;
-				}
-			}
-			Element parent = parentStyle(tempElement, message);
-			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
-			parents.add(parent);
-		}
-		
-		for(int i = 0; i < itemList.size() && !invalid; i++){
-			if(itemList.get(i) instanceof PageMapElement){
-				invalid = true;
-				notify(lh.localValue("invalidBoxline.containsPage"));
-			}
-		}
-		
-		if(!invalid){
-			if(((Styles)message.getValue("Style")).getName().equals("boxline"))
-				createMultipleBoxline(itemList, parents,message);
-			else 
-				removeMultipleBoxlines(itemList);
-		}
-	}
-	
-	private void createMultipleBoxline(ArrayList<TextMapElement> itemList, ArrayList<Element> parents, Message message){
-		adjustStyle(itemList, message);
-		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-		bxh.createBoxline(parents, message, itemList);	
-	}
-	
-	private void removeMultipleBoxlines(ArrayList<TextMapElement> itemList){
-		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-		bxh.removeMultiBoxline(itemList);
-		
-		if(list.getCurrentIndex() > list.size())
-			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-		else if(list.size() > 0)
-			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-		
-		dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-	}
-	
-	/***
-	 * Adjust style of elements in the list base on previous and next element 
-	 * @param itemList : all selected items which we want style to be applied
-	 * @param message : passing information regarding styles
-	 */
-	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
-		int start = list.indexOf(itemList.get(0));
-		int end = list.indexOf(itemList.get(itemList.size() - 1));
-	
-		if (start > 0) {
-			message.put("prev", list.get(start - 1).end);
-			message.put("braillePrev",
-					list.get(start - 1).brailleList.getLast().end);
-		} else {
-			message.put("prev", -1);
-			message.put("braillePrev", -1);
-		}
-
-		if (end < list.size() - 1) {
-			message.put("next", list.get(end + 1).start);
-			message.put("brailleNext",
-					list.get(end + 1).brailleList.getFirst().start);
-		} else {
-			message.put("next", -1);
-			message.put("brailleNext", -1);
-		}
-
-		text.adjustStyle(message, itemList);
-		braille.adjustStyle(message, itemList);
-
-		if (message.contains("linesBeforeOffset"))
-			list.shiftOffsetsFromIndex(start,
-					(Integer) message.getValue("linesBeforeOffset"),
-					(Integer) message.getValue("linesBeforeOffset"));
-		if (message.contains("linesAfterOffset") && list.size() > 1
-				&& end < list.size() - 1)
-			list.shiftOffsetsFromIndex(end + 1,
-					(Integer) message.getValue("linesAfterOffset"),
-					(Integer) message.getValue("linesAfterOffset"));
-
-		treeView.adjustItemStyle(list.getCurrent());
-	}	
 	
 	public void saveAs(){
 		String filePath;
@@ -1656,7 +1478,7 @@ public class Manager extends Controller {
 	/** Creates a Notify class alert box if debugging is not active
 	 * @param notify : String to be used in an alert box, should already be localized
 	 */
-	private void notify(String notify){
+	public void notify(String notify){
 		if(!BBIni.debugging())
 			new Notify(notify);
 	}

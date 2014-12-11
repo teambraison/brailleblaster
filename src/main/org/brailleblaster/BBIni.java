@@ -435,6 +435,10 @@ public final class BBIni {
 	public static String getVersion() {
 		return BBVersion;
 	}
+	
+	public static boolean gotGUI(){
+		return gotGui;
+	}
 
 	public static String getReleaseDate() {
 		return releaseDate;

@@ -2,7 +2,6 @@ package org.brailleblaster.perspectives.braille.eventQueue;
 
 import java.util.ArrayList;
 
-
 public class EventFrame {
 	ArrayList<Event>eventList;
 	

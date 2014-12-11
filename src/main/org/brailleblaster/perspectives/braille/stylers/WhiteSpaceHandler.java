@@ -24,7 +24,7 @@ public class WhiteSpaceHandler {
 	public void removeWhitespace(Message message){
 		int brailleStart = 0;
 		list.checkList();
-		if(list.size() > 0){		
+		if(!list.empty()){		
 			int start = (Integer)message.getValue("offset");
 			int index = list.findClosest(message, 0, list.size() - 1);
 			TextMapElement t = list.get(index);

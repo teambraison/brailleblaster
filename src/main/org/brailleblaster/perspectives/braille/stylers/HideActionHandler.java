@@ -86,7 +86,7 @@ public class HideActionHandler {
 		int end=text.getSelectedText()[1];
 		boolean invalid = false;
 		
-		Set<TextMapElement> itemSet = manager.getElementSelected(start, end);		
+		Set<TextMapElement> itemSet = manager.getElementInSelectedRange(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
 		invalid = checkSelection(itemSet, start, end);
 		Integer index = null;

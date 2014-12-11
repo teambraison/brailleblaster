@@ -1578,6 +1578,7 @@ public class TextView extends WPView {
 		int prev = (Integer)m.getValue("prev");
 		int next = (Integer)m.getValue("next");
 		view.setSelection(selectionStart);
+		
 		if(!boxline){
 			for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 				switch(entry.getKey()){

@@ -754,7 +754,6 @@ public class Manager extends Controller {
 	 * @param message: Message object passed containing information from style table manager
 	 */
 	private void handleStyleMultiSelected(Message message){
-		
 		int start=text.getSelectedText()[0];
 		int end=text.getSelectedText()[1];
 		
@@ -784,38 +783,44 @@ public class Manager extends Controller {
 		parents.add(parent);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
 		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			boolean invalid = false;
-			for(int i = 0; i < itemList.size() && !invalid; i++){
-				if(itemList.get(i) instanceof PageMapElement)
-					invalid = true;
-			}
-			if(!invalid){
-				adjustStyle(itemList, message);
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.createBoxline(parents, message, itemList);
-			}
+		if(((Styles)message.getValue("Style")).getName().equals("boxline"))
+			createSingleBoxLine(itemList, parents, message);
+		else 
+			removeSingleBoxLine(itemList, parent, message);
+	}
+	
+	private void createSingleBoxLine(ArrayList<TextMapElement> itemList, ArrayList<Element>parents, Message message){
+		boolean invalid = false;
+		for(int i = 0; i < itemList.size() && !invalid; i++){
+			if(itemList.get(i) instanceof PageMapElement)
+				invalid = true;
+		}
+		if(!invalid){
+			adjustStyle(itemList, message);
+			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+			bxh.createBoxline(parents, message, itemList);
+		}
 		else
 			notify(lh.localValue("invalidBoxline.containsPage"));
+	}
+	
+	private void removeSingleBoxLine(ArrayList<TextMapElement> itemList, Element parent, Message message){
+		adjustStyle(itemList, message);
+		TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
+		if(box != null){
+			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
+				itemList.add(0, box);
+			else
+				itemList.add(box);
 		}
-		else {
-			adjustStyle(itemList, message);
-			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-			if(box != null){
-				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-					itemList.add(0, box);
-				else
-					itemList.add(box);
-			}
-			
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.removeSingleBoxline(parent, itemList);
-			
-			if(list.getCurrentIndex() > list.size())
-				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-			else if(list.size() > 0)
-				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-		}
+		
+		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+		bxh.removeSingleBoxline(parent, itemList);
+		
+		if(list.getCurrentIndex() > list.size())
+			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
+		else if(list.size() > 0)
+			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
 	}
 	
 	/** Prepares object needed by boxline handler to create boxline around a multiple elements
@@ -856,22 +861,29 @@ public class Manager extends Controller {
 		}
 		
 		if(!invalid){
-			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-				adjustStyle(itemList, message);
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.createBoxline(parents, message, itemList);	
-			}
-			else {
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.removeMultiBoxline(itemList);
-				if(list.getCurrentIndex() > list.size())
-					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-				else if(list.size() > 0)
-					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-				
-				dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-			}
+			if(((Styles)message.getValue("Style")).getName().equals("boxline"))
+				createMultipleBoxline(itemList, parents,message);
+			else 
+				removeMultipleBoxlines(itemList);
 		}
+	}
+	
+	private void createMultipleBoxline(ArrayList<TextMapElement> itemList, ArrayList<Element> parents, Message message){
+		adjustStyle(itemList, message);
+		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+		bxh.createBoxline(parents, message, itemList);	
+	}
+	
+	private void removeMultipleBoxlines(ArrayList<TextMapElement> itemList){
+		BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+		bxh.removeMultiBoxline(itemList);
+		
+		if(list.getCurrentIndex() > list.size())
+			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
+		else if(list.size() > 0)
+			dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
+		
+		dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	/***

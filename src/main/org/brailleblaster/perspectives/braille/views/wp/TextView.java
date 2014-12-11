@@ -1844,7 +1844,6 @@ public class TextView extends WPView {
 	}
 	
 	private boolean validDelete(){
-		//(e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset())) ||  (selectionLength <= 0 && e.keyCode == SWT.DEL && manager.inPrintPageRange(view.getCaretOffset() + 1))
 		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
 			if((selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd) || selectionLength == 0)
 				return false;
@@ -1860,11 +1859,9 @@ public class TextView extends WPView {
 	}
 	
 	private boolean validBackspace(){
-		//(e.keyCode == SWT.BS && manager.inPrintPageRange(view.getCaretOffset())) || (selectionLength <= 0 && e.keyCode == SWT.BS && manager.inPrintPageRange(view.getCaretOffset() - 1)))
 		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
 			if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd)
 				return false;
-			//else if(selectionLength <= 0 && view.getCaretOffset() == currentStart)
 			else if(selectionLength <= 0)
 				return false;
 			else if(selectionStart == currentEnd && (selectionStart + selectionLength) == nextStart && selectionLength == 1)

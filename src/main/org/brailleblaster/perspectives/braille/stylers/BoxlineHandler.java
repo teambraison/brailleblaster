@@ -88,7 +88,7 @@ public class BoxlineHandler {
 		}
 		
 		if(!invalid){
-			adjustStyle(itemList, message);
+			getBounds(itemList, message);
 			createBoxline(parents, message, itemList);
 		}
 		else{
@@ -98,7 +98,7 @@ public class BoxlineHandler {
 	}
 	
 	private void removeSingleBoxLine(ArrayList<TextMapElement> itemList, Element parent, Message message){
-		adjustStyle(itemList, message);
+		getBounds(itemList, message);
 		TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
 		if(box != null){
 			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
@@ -163,7 +163,7 @@ public class BoxlineHandler {
 	}
 	
 	private void createMultipleBoxline(ArrayList<TextMapElement> itemList, ArrayList<Element> parents, Message message){
-		adjustStyle(itemList, message);
+		getBounds(itemList, message);
 		createBoxline(parents, message, itemList);	
 	}
 	
@@ -730,11 +730,11 @@ public class BoxlineHandler {
 	}
 	
 	/***
-	 * Adjust style of elements in the list base on previous and next element 
+	 * get bounds of elements in the list based on previous and next element 
 	 * @param itemList : all selected items which we want style to be applied
 	 * @param message : passing information regarding styles
 	 */
-	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
+	private void getBounds(ArrayList<TextMapElement> itemList, Message message) {
 		int start = list.indexOf(itemList.get(0));
 		int end = list.indexOf(itemList.get(itemList.size() - 1));
 	
@@ -756,19 +756,7 @@ public class BoxlineHandler {
 			message.put("brailleNext", -1);
 		}
 
-		text.adjustStyle(message, itemList);
-		braille.adjustStyle(message, itemList);
-
-		if (message.contains("linesBeforeOffset"))
-			list.shiftOffsetsFromIndex(start,
-					(Integer) message.getValue("linesBeforeOffset"),
-					(Integer) message.getValue("linesBeforeOffset"));
-		if (message.contains("linesAfterOffset") && list.size() > 1
-				&& end < list.size() - 1)
-			list.shiftOffsetsFromIndex(end + 1,
-					(Integer) message.getValue("linesAfterOffset"),
-					(Integer) message.getValue("linesAfterOffset"));
-
-		treeView.adjustItemStyle(list.getCurrent());
+		text.getBounds(message, itemList);
+		braille.getBounds(message, itemList);
 	}	
 }

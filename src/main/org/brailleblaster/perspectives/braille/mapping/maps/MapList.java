@@ -253,7 +253,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			
 		for (int i = 0; i < arr.length; i++) {
 		    try {
-		    		arr[i].join();
+		    	arr[i].join();
 		    } catch (InterruptedException e) {
 			   	e.printStackTrace();
 			}

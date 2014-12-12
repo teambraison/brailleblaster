@@ -26,5 +26,13 @@ public abstract class EventQueue extends LinkedBlockingDeque<EventFrame> {
 		return null;
 	}
 	
+	@Override
+	public boolean add(EventFrame f) {
+		if(size() == SIZE)
+			removeLast();
+		
+		return super.add(f);
+	}
+	
 	protected abstract void handleEvent(EventFrame f, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager);
 }

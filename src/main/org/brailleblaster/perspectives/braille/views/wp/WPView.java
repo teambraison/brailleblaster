@@ -1,5 +1,7 @@
 package org.brailleblaster.perspectives.braille.views.wp;
 
+import java.util.ArrayList;
+
 import nu.xom.Element;
 
 import org.brailleblaster.abstractClasses.AbstractView;
@@ -9,6 +11,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.eclipse.swt.SWT;
@@ -51,8 +54,11 @@ public abstract class WPView extends AbstractView implements BBView {
 	}
 	
 	public abstract void addPageNumber(PageMapElement p, boolean insert);
+	public abstract void getBounds(Message m, ArrayList<TextMapElement>list);
+	
 	@Override
 	protected abstract void setViewData(Message message);
+	
 	
 	/** finds Char width used to determine indent value
 	 * @return  width of braille cell

@@ -1547,31 +1547,24 @@ public class TextView extends WPView {
 		int end = list.get(list.size() - 1).end;
 		int length = 0;
 		int spaces = 0;
-		m.put("start", list.get(0).start);
-		m.put("end", list.get(list.size() - 1).end);
-		m.put("prev", getPrev(m));
-		m.put("next", getNext(m));
-		m.put("offset", 0);
+		getBounds(m, list);
 		String textBefore = "";
 		
 		//Get previous style for comparison on adding or removing lines before or after
 		Styles style = (Styles)m.getValue("Style");
 		Styles previousStyle = (Styles)m.getValue("previousStyle");
-		boolean boxline = (Boolean)m.getValue("isBoxline");
 				
 		setListenerLock(true);
 		//Reset indent, alignment, and emphasis
-		if(!boxline){
-			view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
-			view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
-			setFontStyleRange(start, end - start, new StyleRange());
+		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
+		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
+		setFontStyleRange(start, end - start, new StyleRange());
 		
-			if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore))
-				removeLinesBefore(m);
+		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore))
+			removeLinesBefore(m);
 			
-			if(!style.contains(StylesType.linesAfter) && previousStyle.contains(StylesType.linesAfter))
-				removeLinesAfter(m);
-		}
+		if(!style.contains(StylesType.linesAfter) && previousStyle.contains(StylesType.linesAfter))
+			removeLinesAfter(m);
 		
 		start = (Integer)m.getValue("start");
 		end = (Integer)m.getValue("end");
@@ -1579,69 +1572,75 @@ public class TextView extends WPView {
 		int next = (Integer)m.getValue("next");
 		view.setSelection(selectionStart);
 		
-		if(!boxline){
-			for (Entry<StylesType, Object> entry : style.getEntrySet()) {
-				switch(entry.getKey()){
-					case linesBefore:
-						int linesBeforeOffset;
-						if(start != prev){
-							view.replaceTextRange(prev, (start - prev), "");
-							length = start - prev;	
-						}
-						spaces = Integer.valueOf((String)entry.getValue());
+		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
+			switch(entry.getKey()){
+				case linesBefore:
+					int linesBeforeOffset;
+					if(start != prev){
+						view.replaceTextRange(prev, (start - prev), "");
+						length = start - prev;	
+					}
+					spaces = Integer.valueOf((String)entry.getValue());
 						
-						textBefore = makeInsertionString(spaces,'\n');
-						linesBeforeOffset = spaces - length;
+					textBefore = makeInsertionString(spaces,'\n');
+					linesBeforeOffset = spaces - length;
 				
-						insertBefore(start - (start - prev), textBefore);
-						m.put("linesBeforeOffset", linesBeforeOffset);
-						start += linesBeforeOffset;
-						end += linesBeforeOffset;
-						if(next != -1)
-							next += linesBeforeOffset;
-						break;
-					case linesAfter:
-						length = 0;
-						int linesAfterOffset;
-						if(end != next && next != 0){
-							view.replaceTextRange(end, (next - end), "");
-							length = next - end;	
-						}
+					insertBefore(start - (start - prev), textBefore);
+					m.put("linesBeforeOffset", linesBeforeOffset);
+					start += linesBeforeOffset;
+					end += linesBeforeOffset;
+					if(next != -1)
+						next += linesBeforeOffset;
+					break;
+				case linesAfter:
+					length = 0;
+					int linesAfterOffset;
+					if(end != next && next != 0){
+						view.replaceTextRange(end, (next - end), "");
+						length = next - end;	
+					}
 						
-						spaces = Integer.valueOf((String)entry.getValue());
-						textBefore = makeInsertionString(spaces,'\n');
-						insertBefore(end, textBefore);
-						linesAfterOffset = spaces - length;
-						m.put("linesAfterOffset", linesAfterOffset);
-						break;
-					case format:
-						setAlignment(start, end, style);	
-						break;
-					case firstLineIndent:
-						if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
-							setFirstLineIndent(start, style);
-						break;
-					case leftMargin:
-						if(style.contains(StylesType.firstLineIndent))
-							handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
-						else
-							handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
-						break;
-					default:
-						break;
-				}
+					spaces = Integer.valueOf((String)entry.getValue());
+					textBefore = makeInsertionString(spaces,'\n');
+					insertBefore(end, textBefore);
+					linesAfterOffset = spaces - length;
+					m.put("linesAfterOffset", linesAfterOffset);
+					break;
+				case format:
+					setAlignment(start, end, style);	
+					break;
+				case firstLineIndent:
+					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+						setFirstLineIndent(start, style);
+					break;
+				case leftMargin:
+					if(style.contains(StylesType.firstLineIndent))
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
+					else
+						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), false);
+					break;
+				default:
+					break;
+			}
 				
-				int offset = (Integer)m.getValue("offset");
+			int offset = (Integer)m.getValue("offset");
 			
-				//inline elements may have different emphasis, so all must be check seperately 
-				for(int i = 0; i < list.size(); i++){
-					Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
-					if(nodeStyle.contains(StylesType.emphasis))
-						setFontStyleRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), (StyleRange)nodeStyle.get(StylesType.emphasis));
-				}
+			//inline elements may have different emphasis, so all must be check seperately 
+			for(int i = 0; i < list.size(); i++){
+				Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
+				if(nodeStyle.contains(StylesType.emphasis))
+					setFontStyleRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), (StyleRange)nodeStyle.get(StylesType.emphasis));
 			}
 		}
 		setListenerLock(false);
+	}
+	
+	public void getBounds(Message m, ArrayList<TextMapElement>list){
+		m.put("start", list.get(0).start);
+		m.put("end", list.get(list.size() - 1).end);
+		m.put("prev", getPrev(m));
+		m.put("next", getNext(m));
+		m.put("offset", 0);
 	}
 	
 	//private helper method used by adjust style

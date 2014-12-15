@@ -20,4 +20,11 @@ public class EventFrame {
 	public Event get(int index){
 		return eventList.get(index);
 	}
+	
+	public Event pop(){
+		if(eventList.size() > 0)
+			return eventList.remove(eventList.size() - 1);
+		else
+			return null;
+	}
 }

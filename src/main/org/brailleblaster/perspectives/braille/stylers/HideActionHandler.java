@@ -48,12 +48,10 @@ public class HideActionHandler {
 		if(list.size() > 0 && text.view.getCharCount() > 0){
 			if(text.isMultiSelected())
 				hideMultipleElements();
-			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
+			else if(!(list.getCurrent() instanceof BrlOnlyMapElement))
 				hideSingleElement();
-			}
-			else {
+			else 
 				invalidSelection();
-			}
 		}
 	}
 	

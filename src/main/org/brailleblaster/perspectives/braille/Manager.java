@@ -704,7 +704,7 @@ public class Manager extends Controller {
 				bxh.handleBoxline(message);
 			}
 			else{
-				StyleHandler sh = new StyleHandler(this, list);
+				StyleHandler sh = new StyleHandler(this, vi, list);
 				sh.updateStyle(message);
 			}
 			containerSash.setRedraw(true);
@@ -1467,7 +1467,7 @@ public class Manager extends Controller {
 	
 	public void undo(){
 		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null && !f.get(0).getEventType().equals(EventTypes.Update))
+		if(f != null && f.size() > 0 && !f.get(0).getEventType().equals(EventTypes.Update) && !f.get(0).getEventType().equals(EventTypes.Style_Change))
 			redoQueue.add(f);
 	}
 	

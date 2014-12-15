@@ -56,27 +56,19 @@ public class StyleHandler {
 	}
 	
 	public void undoStyle(EventFrame f){
-		int index = f.size() - 1;
 		frame = new EventFrame();
-		while(f.size() > 0 && f.get(index).getEventType().equals(EventTypes.Style_Change)){
-			Event event = f.pop();
-			list.setCurrent(event.getListIndex());
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-		
-			Element e = (Element)event.getNode();
-			String semantic = e.getAttributeValue("semantics").split(",")[1];
-			Styles style = manager.getStyleTable().get(semantic);
-			Message message = Message.createUpdateStyleMessage(style, false, false);
-			handleStyleSingleSelected(message);
-			index--;
-		}
+		updateStyle(f);
 		manager.addRedoEvent(frame);
 	}
 	
 	public void redoStyle(EventFrame f){
-		int index = f.size() - 1;
 		frame = new EventFrame();
-		while(f.size() > 0 && f.get(index).getEventType().equals(EventTypes.Style_Change)){
+		updateStyle(f);
+		manager.addUndoEvent(frame);
+	}
+	
+	private void updateStyle(EventFrame f){
+		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Style_Change)){
 			Event event = f.pop();
 			list.setCurrent(event.getListIndex());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
@@ -86,9 +78,7 @@ public class StyleHandler {
 			Styles style = manager.getStyleTable().get(semantic);
 			Message message = Message.createUpdateStyleMessage(style, false, false);
 			handleStyleSingleSelected(message);
-			index--;
 		}
-		manager.addUndoEvent(frame);
 	}
 	
 	/***

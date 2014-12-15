@@ -10,11 +10,16 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
+import org.brailleblaster.perspectives.braille.eventQueue.Event;
+import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
@@ -27,32 +32,77 @@ public class StyleHandler {
 	TextView text;
 	BrailleView braille;
 	BBTree treeView;
+	ViewInitializer vi;
+	EventFrame frame;
 	
-	public StyleHandler(Manager manager, MapList list){
+	public StyleHandler(Manager manager, ViewInitializer vi, MapList list){
 		this.manager = manager;
 		this.document = manager.getDocument();
 		this.list = list;
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
 		this.treeView = manager.getTreeView();
+		this.vi = vi;
 	}
 	
 	public void updateStyle(Message message){
+		frame = new EventFrame();
 		if(message.getValue("multiSelect").equals(false)) 
 			handleStyleSingleSelected(message);
 		else 
 			handleStyleMultiSelected(message);
+		
+		manager.addUndoEvent(frame);
+	}
+	
+	public void undoStyle(EventFrame f){
+		int index = f.size() - 1;
+		frame = new EventFrame();
+		while(f.size() > 0 && f.get(index).getEventType().equals(EventTypes.Style_Change)){
+			Event event = f.pop();
+			list.setCurrent(event.getListIndex());
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		
+			Element e = (Element)event.getNode();
+			String semantic = e.getAttributeValue("semantics").split(",")[1];
+			Styles style = manager.getStyleTable().get(semantic);
+			Message message = Message.createUpdateStyleMessage(style, false, false);
+			handleStyleSingleSelected(message);
+			index--;
+		}
+		manager.addRedoEvent(frame);
+	}
+	
+	public void redoStyle(EventFrame f){
+		int index = f.size() - 1;
+		frame = new EventFrame();
+		while(f.size() > 0 && f.get(index).getEventType().equals(EventTypes.Style_Change)){
+			Event event = f.pop();
+			list.setCurrent(event.getListIndex());
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		
+			Element e = (Element)event.getNode();
+			String semantic = e.getAttributeValue("semantics").split(",")[1];
+			Styles style = manager.getStyleTable().get(semantic);
+			Message message = Message.createUpdateStyleMessage(style, false, false);
+			handleStyleSingleSelected(message);
+			index--;
+		}
+		manager.addUndoEvent(frame);
 	}
 	
 	/***
 	 * Handle style if user just move cursor
 	 * @param message: Message object passed containing information from style table manager
 	 */
-	private void handleStyleSingleSelected(Message message) {
+	private void handleStyleSingleSelected(Message message) {	
 		Element parent = parentStyle(list.getCurrent(), message);
-		document.changeSemanticAction(message, parent);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
+		Event e = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, treeView.getItemPath());	
+		document.changeSemanticAction(message, parent);
 		adjustStyle(itemList, message);
+		
+		frame.addEvent(e);
 	}
 
 	/***
@@ -75,9 +125,11 @@ public class StyleHandler {
 				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
-				document.changeSemanticAction(message, parent);
 				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
+				Event event = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, treeView.getItemPath());	
+				document.changeSemanticAction(message, parent);
 				adjustStyle( itemList,styleMessage);
+				frame.addEvent(event);
 			}
 		}
 	}

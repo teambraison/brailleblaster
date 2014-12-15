@@ -5,6 +5,7 @@ import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
@@ -26,6 +27,10 @@ public class RedoQueue extends EventQueue{
 					tuh.redoText(event);
 					break;
 				case Insert:
+					break;
+				case Style_Change:
+					StyleHandler s = new StyleHandler(manager, vi, list);
+					s.redoStyle(f);
 					break;
 				case Delete:
 					ElementRemover remover = new ElementRemover(manager, list, vi);

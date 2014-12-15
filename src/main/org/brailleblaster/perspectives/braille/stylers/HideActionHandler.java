@@ -45,6 +45,42 @@ public class HideActionHandler {
 	}
 	
 	public void hideText(){
+		eventFrame = new EventFrame();
+		if(list.size() > 0 && text.view.getCharCount() > 0){
+			if(text.isMultiSelected()){
+				boolean valid = hideMultipleElements();
+				if(valid)
+					manager.addUndoEvent(eventFrame);
+			}
+			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
+				hideSingleElement();
+				manager.addUndoEvent(eventFrame);
+			}
+			else 
+				invalidSelection();
+		}
+	}
+	
+	public void hideText(EventFrame f){
+		eventFrame = new EventFrame();
+		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Hide)){
+			Event ev = f.pop();
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
+		
+			//resets selection to recreate hide event by user
+			if(list.getCurrent() instanceof BrlOnlyMapElement){
+				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)list.getCurrent());
+				int start =list.getCurrent().start;
+				int end = b.end;
+				text.setCurrentSelection(start, end);
+			}
+		
+			redoHide();
+		}
+		manager.addUndoEvent(eventFrame);
+	}
+	
+	private void redoHide(){
 		if(list.size() > 0 && text.view.getCharCount() > 0){
 			if(text.isMultiSelected())
 				hideMultipleElements();
@@ -55,31 +91,15 @@ public class HideActionHandler {
 		}
 	}
 	
-	public void hideText(Event ev){
-		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
-		
-		//resets selection to recreate hide event by user
-		if(list.getCurrent() instanceof BrlOnlyMapElement){
-			BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)list.getCurrent());
-			int start =list.getCurrent().start;
-			int end = b.end;
-			text.setCurrentSelection(start, end);
-		}
-		
-		hideText();
-	}
-	
 	private void hideSingleElement(){
 		text.update(false);
 		int index = list.getCurrentIndex();
-		eventFrame = new EventFrame();
 		boxlineAdded = false;
 		hide(list.getCurrent());
 		updateCurrentElement(index);
-		manager.addUndoEvent(eventFrame);
 	}
 	
-	private void hideMultipleElements(){
+	private boolean hideMultipleElements(){
 		int start=text.getSelectedText()[0];
 		int end=text.getSelectedText()[1];
 		boolean invalid = false;
@@ -90,7 +110,6 @@ public class HideActionHandler {
 		Integer index = null;
 		if(!invalid){
 			itr = itemSet.iterator();
-			eventFrame = new EventFrame();
 			boxlineAdded = false;
 			while (itr.hasNext()) {
 				TextMapElement tempElement= itr.next();
@@ -100,8 +119,10 @@ public class HideActionHandler {
 				hide(tempElement);
 			}
 			updateCurrentElement(index);
-			manager.addUndoEvent(eventFrame);
+			return true;
 		}
+		
+		return invalid;
 	}
 	
 	private void updateCurrentElement(int index){

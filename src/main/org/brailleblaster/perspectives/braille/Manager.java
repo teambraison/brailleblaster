@@ -1467,7 +1467,7 @@ public class Manager extends Controller {
 	
 	public void undo(){
 		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null && f.size() > 0 && !f.get(0).getEventType().equals(EventTypes.Update) && !f.get(0).getEventType().equals(EventTypes.Style_Change))
+		if(f != null && f.size() > 0 && !f.get(0).getEventType().equals(EventTypes.Update) && !f.get(0).getEventType().equals(EventTypes.Style_Change) & !f.get(0).getEventType().equals(EventTypes.Hide))
 			redoQueue.add(f);
 	}
 	

@@ -38,7 +38,7 @@ public class RedoQueue extends EventQueue{
 					break;
 				case Hide:
 					HideActionHandler h = new HideActionHandler(manager, list, vi);
-					h.hideText(event);
+					h.hideText(f);
 					break;
 				default:
 					break;

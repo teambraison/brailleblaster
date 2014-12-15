@@ -29,7 +29,7 @@ public class UndoQueue extends EventQueue {
 					break;
 				case Hide:
 					ElementInserter es = new ElementInserter(vi, doc, list, manager);
-					es.resetElement(event);
+					es.resetElement(f);
 					break;
 				case Style_Change:
 					StyleHandler s = new StyleHandler(manager, vi, list);

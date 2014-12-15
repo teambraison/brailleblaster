@@ -13,6 +13,8 @@ import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
+import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
@@ -35,6 +37,7 @@ public class ElementInserter {
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
+	EventFrame frame;
 	
 	public ElementInserter(ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
 		this.vi = vi;
@@ -143,22 +146,29 @@ public class ElementInserter {
 		tree.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
 	}
 	
-	public void resetElement(Event f){
-		if(vi.getStartIndex() != f.getFirstSectionIndex())
-			list = vi.resetViews(f.getFirstSectionIndex());
+	public void resetElement(EventFrame f){
+		frame = new EventFrame();
+		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Hide)){
+			Event event = f.pop();
+			if(vi.getStartIndex() != event.getFirstSectionIndex())
+				list = vi.resetViews(event.getFirstSectionIndex());
 		
-		Element replacedElement = replaceElement(f);
-		updateSemanticEntry(replacedElement, (Element)f.getNode());
+			Element replacedElement = replaceElement(event);
+			updateSemanticEntry(replacedElement, (Element)event.getNode());
 		
-		ArrayList<TextMapElement> elList = constructMapElements((Element)f.getNode(), 0);
-		setViews(elList, f.getListIndex(), f.getTextOffset(), f.getBrailleOffset());
+			ArrayList<TextMapElement> elList = constructMapElements((Element)event.getNode(), 0);
+			setViews(elList, event.getListIndex(), event.getTextOffset(), event.getBrailleOffset());
 		
-		manager.getTreeView().rebuildTree(f.getTreeIndex());
-		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(f.getListIndex()).start, false));
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			manager.getTreeView().rebuildTree(event.getTreeIndex());
+			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(event.getListIndex()).start, false));
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		
-		if(!onScreen(f.getTextOffset()))
-			setTopIndex(f.getTextOffset());
+			if(!onScreen(event.getTextOffset()))
+				setTopIndex(event.getTextOffset());
+			
+			frame.addEvent(new Event(EventTypes.Hide, event.getNode(), vi.getStartIndex(), event.getListIndex(), list.get(event.getListIndex()).start, list.get(event.getListIndex()).brailleList.getFirst().start, tree.getItemPath()));
+		}
+		manager.addRedoEvent(frame);
 	}
 	
 	private ArrayList<TextMapElement> constructMapElements(Element e, int index){

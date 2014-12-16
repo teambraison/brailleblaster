@@ -3,9 +3,11 @@ package org.brailleblaster.settings.ui;
 import java.util.HashMap;
 
 
+
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.Notify;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -32,25 +34,29 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Display;//rl
+import org.eclipse.swt.widgets.Display;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PagePropertiesTab {
 	HashMap<String, String>settingsMap;
 	SettingsManager sm;
 	TabItem item;
 	Composite  group;
+	
+	private static Logger logger = LoggerFactory.getLogger(PagePropertiesTab.class);
 														
-	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup;//rl 
+	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup; 
 	Label pageSizeLabel, widthLabel, heightLabel, linesPerPageLabel, cellsPerLineLabel, marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
 	
 	Combo pageTypes;
 	Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox, marginRightBox, marginBottomBox;
-	Button okButton, cancelButton, regionalButton, cellsLinesButton;//rl
+	Button okButton, cancelButton, regionalButton, cellsLinesButton;
 	
 	boolean listenerLocked;
 	LocaleHandler lh;
-	public static int units = 0;//rl
-	public static Boolean defaultUnits = true;//rl
+	public static int units = 0;
+	public static Boolean defaultUnits = true;
 	
 	PagePropertiesTab(TabFolder folder, final SettingsManager sm, HashMap<String, String>settingsMap){
 		lh = new LocaleHandler();
@@ -116,16 +122,16 @@ public class PagePropertiesTab {
 		
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
-		linesBox.setText((String.valueOf(calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
-		linesBox.setEditable(true);
+		linesBox.setText((String.valueOf(sm.calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
+		linesBox.setEditable(false);
 		
 		cellsPerLineLabel = new Label(pageGroup, 0);
 		cellsPerLineLabel.setText(lh.localValue("cellsPerLine"));
 		
 		cellsBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(cellsBox);
-		cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(settingsMap.get("paperWidth")))));
-		cellsBox.setEditable(true);
+		cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(Double.valueOf(settingsMap.get("paperWidth")))));
+		cellsBox.setEditable(false);
 		
 		marginGroup = new Group(group, SWT.BORDER);
 		marginGroup.setLayout(new GridLayout(2, true));
@@ -200,8 +206,8 @@ public class PagePropertiesTab {
 					}
 					else {
 						settingsMap.put(type, getStringValue(t));
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+						cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 					}
 				}
 			});
@@ -220,8 +226,8 @@ public class PagePropertiesTab {
 					}
 					else {
 						settingsMap.put(type, getStringValue(t));
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+						cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 					}
 				}		
 			});
@@ -277,7 +283,7 @@ public class PagePropertiesTab {
 			 }
 		 });
 
-		 //rl
+		 //
 		 
 		widthBox.addTraverseListener(new TraverseListener(){
 			@Override
@@ -349,14 +355,14 @@ public class PagePropertiesTab {
 				if(sm.isMetric()){
 					widthBox.setText(String.valueOf(p.mmWidth));
 					heightBox.setText(String.valueOf(p.mmHeight));
-					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.mmWidth)));
-					linesBox.setText(String.valueOf(calculateLinesPerPage(p.mmHeight )));
+					cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(p.mmWidth)));
+					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.mmHeight )));
 				}
 				else {
 					widthBox.setText(String.valueOf(p.width));
 					heightBox.setText(String.valueOf(p.height));
-					cellsBox.setText(String.valueOf(calculateCellsPerLine(p.width)));
-					linesBox.setText(String.valueOf(calculateLinesPerPage(p.height)));
+					cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(p.width)));
+					linesBox.setText(String.valueOf(sm.calculateLinesPerPage(p.height)));
 				}
 				
 				if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
@@ -372,8 +378,8 @@ public class PagePropertiesTab {
 					if(loc != -1){
 						e.doit = false;
 						pageTypes.select(loc);
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(sm.getStandardSizes()[loc].width))));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(sm.getStandardSizes()[loc].height))));
+						cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(Double.valueOf(sm.getStandardSizes()[loc].width))));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(sm.getStandardSizes()[loc].height))));
 					}
 					else
 						e.doit = false;
@@ -389,40 +395,53 @@ public class PagePropertiesTab {
 			
 			regionalButton.setSelection(true);
 			cellsLinesButton.setSelection(false);
-			
+//			
+//			String leftMargin = settingsMap.get("leftMargin");
+//			marginLeftBox.setText(leftMargin);
+//			
+//			String rightMargin = settingsMap.get("rightMargin");
+//			marginRightBox.setText(rightMargin);
+//			
+//			String topMargin = settingsMap.get("topMargin");
+//			marginTopBox.setText(topMargin);
+//			
+//			String bottomMargin = settingsMap.get("bottomMargin");
+//			marginBottomBox.setText(bottomMargin);
+//			
+			marginLeftBox.setText(String.valueOf(1.0));
 			marginRightBox.setText(String.valueOf(0.5));
-			setValue(marginRightBox,"rightMargin");
-			
-			marginLeftBox.setText(String.valueOf(1));
-			setValue(marginLeftBox,"leftMargin");
-			
-			marginBottomBox.setText(String.valueOf(0.5));
-			setValue(marginBottomBox,"bottomMargin");
-
 			marginTopBox.setText(String.valueOf(0.5));
-			setValue(marginTopBox,"topMargin");
-
-			
+			marginBottomBox.setText(String.valueOf(0.5));
+			linesBox.setText(String.valueOf(25));
+			cellsBox.setText(String.valueOf(40));
 		}
 	
 		else{
 			
 			cellsLinesButton.setSelection(true);
 			regionalButton.setSelection(false);
-			
-			marginRightBox.setText(String.valueOf(calcWidthFromCells(Integer.valueOf(String.valueOf(cellsBox)))));
-			setValue(marginRightBox,"rightMargin");
-			
-			marginLeftBox.setText(String.valueOf(calcWidthFromCells(Integer.valueOf(String.valueOf(cellsBox)))));
-			setValue(marginLeftBox,"leftMargin");
 
-			marginBottomBox.setText(String.valueOf(calcHeightFromLines(Integer.valueOf(String.valueOf(linesBox)))));
-			setValue(marginBottomBox,"bottomMargin");
-	
-			marginTopBox.setText(String.valueOf(calcHeightFromLines(Integer.valueOf(String.valueOf(linesBox)))));
-			setValue(marginTopBox,"topMargin");
+			String leftMargin = settingsMap.get("leftMargin");
+			String convertedLeftMargin = String.valueOf(sm.calculateCellsPerLine(Double.valueOf(leftMargin)));
+			marginLeftBox.setText(convertedLeftMargin);
 
+			String rightMargin = settingsMap.get("rightMargin");
+			String convertedRightMargin =String.valueOf(sm.calculateCellsPerLine(Double.valueOf(rightMargin)));
+			marginRightBox.setText(convertedRightMargin);
 			
+			String topMargin = settingsMap.get("topMargin");
+			String convertedTopMargin = String.valueOf(sm.calculateLinesPerPage(Double.valueOf(topMargin)));
+			marginTopBox.setText(convertedTopMargin);
+			
+			String bottomMargin = settingsMap.get("bottomMargin");
+			String convertedBottomMargin = String.valueOf(sm.calculateLinesPerPage(Double.valueOf(bottomMargin)));
+			marginBottomBox.setText(convertedBottomMargin);
+			String bottomBox = marginBottomBox.getText();
+			String conversionBottomBox = String.valueOf(sm.calcHeightFromLines(Integer.valueOf(bottomBox)));
+			marginBottomBox.setText(conversionBottomBox);
+			
+			logger.debug("test");
+
 			}
 
 	}
@@ -439,12 +458,12 @@ public class PagePropertiesTab {
 					found = true;
 				
 					if(!sm.isMetric()){
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].width)));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].height)));
+						cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(sm.getStandardSizes()[i].width)));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(sm.getStandardSizes()[i].height)));
 					}
 					else {
-						cellsBox.setText(String.valueOf(calculateCellsPerLine(sm.getStandardSizes()[i].mmWidth)));
-						linesBox.setText(String.valueOf(calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
+						cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(sm.getStandardSizes()[i].mmWidth)));
+						linesBox.setText(String.valueOf(sm.calculateLinesPerPage(sm.getStandardSizes()[i].mmHeight)));
 					}
 					
 					if(pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
@@ -460,8 +479,8 @@ public class PagePropertiesTab {
 				else
 					pageTypes.select(pageTypes.getItemCount() - 1);
 			
-				cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-				linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+				cellsBox.setText(String.valueOf(sm.calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+				linesBox.setText(String.valueOf(sm.calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 			}
 		}
 	}
@@ -511,74 +530,7 @@ public class PagePropertiesTab {
 		else
 			return t.getText();
 	}
-	
-	private int calculateCellsPerLine(double pWidth){
-		double cellWidth;
-		if(!sm.isMetric())
-			cellWidth = 0.246063;
-		else
-			cellWidth = 6.25;
-		
-		if(settingsMap.containsKey("leftMargin"))
-			pWidth -= Double.valueOf(settingsMap.get("leftMargin"));
-		
-		if(settingsMap.containsKey("rightMargin"))
-			pWidth -= Double.valueOf(settingsMap.get("rightMargin"));
-		
-		return (int)(pWidth / cellWidth);
-	}
-	
-	private int calculateLinesPerPage(double pHeight){
-		double cellHeight;
-		if(!sm.isMetric()) 
-			cellHeight = 0.393701;
-		else
-			cellHeight = 10;
-		
-		if(settingsMap.containsKey("topMargin"))
-			pHeight -= Double.valueOf(settingsMap.get("topMargin"));
-		
-		if(settingsMap.containsKey("bottomMargin"))
-			pHeight -= Double.valueOf(settingsMap.get("bottomMargin"));
-		
-		return (int)(pHeight / cellHeight);
-	}
-	
-	/* rl
-	 * This method calculates the width of the page from the number of cells.
-	 * It receives the number of cells and returns a double of the page width.
-	 */
-	private double calcWidthFromCells(int numberOfCells){
-		double cellWidth;
-		if (!sm.isMetric())
-			cellWidth=0.246063;
-		else
-			cellWidth=6.25;
-		
-		return cellWidth*numberOfCells;
-			
-	}
-	
-	//This method calculates the height of the page from a number of lines.  It receives an int number of lines and 
-	//returns a double page height
-	private double calcHeightFromLines(int numberOfLines){
-		Double cellHeight;
-		if (!sm.isMetric())
-			cellHeight = 0.393701;
-		else
-			cellHeight = 10.0;
-		return cellHeight*numberOfLines;
-	}
-	
-	//This method calculates the number of cells per inch.  It receives a double inches and returns an int of cells
-	private int toCellsFromInches(double inches){
-		return (int)(inches/.2875);
-	}
-	
-	//This method calculates the number of lines per inch.  It receives a double inches and returns an int of lines
-	private int toLinesFromInches(double inches){
-		return (int)(inches/.44);
-	}
+
 
 	private boolean checkEqualWidth(Page p, double width){
 		if(sm.isMetric())

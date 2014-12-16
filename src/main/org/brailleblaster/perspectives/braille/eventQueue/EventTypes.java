@@ -4,5 +4,6 @@ public enum EventTypes {
 	Update,
 	Delete,
 	Hide,
+	Style_Change,
 	Insert;
 }

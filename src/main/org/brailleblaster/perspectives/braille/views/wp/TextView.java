@@ -1709,7 +1709,7 @@ public class TextView extends WPView {
 			view.replaceTextRange(end, removedSpaces, "");
 		}
 		
-		if(next != -1){
+		if(next != -1 && end != next){
 			m.put("linesAfterOffset", offset);
 			next += offset;
 			m.put("next", next + offset);

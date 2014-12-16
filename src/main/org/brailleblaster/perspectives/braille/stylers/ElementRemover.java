@@ -40,29 +40,45 @@ public class ElementRemover {
 	}
 
 	public void removeNode(Message m){
-		addEvent(m);
+		eventFrame = new EventFrame();
+		eventFrame.addEvent(addEvent(m));
+		
+		findRemovalMethod(m);
+		
+		manager.addUndoEvent(eventFrame);
+	}
+	
+	public void removeNode(EventFrame frame){
+		eventFrame = new EventFrame();
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Delete)){
+			Event ev = frame.pop();
+		
+			int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 
+			Message m = Message.createRemoveNodeMessage(ev.getListIndex(), length);
+			eventFrame.addEvent(addEvent(m));
+			
+			findRemovalMethod(m);
+		
+			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
+				text.replaceTextRange(ev.getTextOffset(), 1, "");
+				braille.replaceTextRange(ev.getBrailleOffset(), 1, "");
+				list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);
+			}
+	
+			if(!list.empty())
+				list.setCurrent(ev.getListIndex());
+		
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		}
+		manager.addUndoEvent(eventFrame);
+	}
+	
+	private void findRemovalMethod(Message m){
 		int index = (Integer)m.getValue("index");
 		if(list.get(index).isMathML() )
 			removeMathMLElement(m);
 		else 
 			removeElement(m);
-	}
-	
-	public void removeNode(Event ev){
-		int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 
-		Message m = Message.createRemoveNodeMessage(ev.getListIndex(), length);
-		removeNode(m);
-		
-		if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
-			text.replaceTextRange(ev.getTextOffset(), 1, "");
-			braille.replaceTextRange(ev.getBrailleOffset(), 1, "");
-			list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);
-		}
-	
-		if(!list.empty())
-			list.setCurrent(ev.getListIndex());
-		
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	private void removeElement(Message message){
@@ -92,10 +108,10 @@ public class ElementRemover {
 			disableViews();
 	}
 	
-	private void addEvent(Message message){
+	private Event addEvent(Message message){
 		int index = (Integer)message.getValue("index");
 		ArrayList<Integer>treeIndex = tree.getItemPath();
-		EventFrame f = new EventFrame();
+		//EventFrame f = new EventFrame();
 		Node node;
 		if(list.get(index).isMathML())
 			node = findMathElement(list.get(index), message);
@@ -105,8 +121,8 @@ public class ElementRemover {
 		if(node instanceof Element)
 			message.put("element", node);
 		
-		f.addEvent(new Event(EventTypes.Delete, node, vi.getStartIndex(), index, list.get(index).start, list.get(index).brailleList.getFirst().start, treeIndex));
-		manager.addUndoEvent(f);
+		return new Event(EventTypes.Delete, node, vi.getStartIndex(), index, list.get(index).start, list.get(index).brailleList.getFirst().start, treeIndex);
+		//return f;
 	}
 	
 	private Node findElement(TextMapElement t){		

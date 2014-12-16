@@ -53,7 +53,7 @@ public class ElementRemover {
 	
 	public void removeNode(EventFrame frame){
 		eventFrame = new EventFrame();
-		while(frame.size() > 0 && frame.get(frame.size() - 1).getEventType().equals(EventTypes.Delete)){
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Delete)){
 			Event ev = frame.pop();
 		
 			int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 

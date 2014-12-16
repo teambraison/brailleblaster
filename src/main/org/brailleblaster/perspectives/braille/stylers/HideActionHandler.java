@@ -63,7 +63,7 @@ public class HideActionHandler {
 	
 	public void hideText(EventFrame f){
 		eventFrame = new EventFrame();
-		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Hide)){
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Hide)){
 			Event ev = f.pop();
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
 		

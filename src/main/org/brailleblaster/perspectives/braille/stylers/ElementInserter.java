@@ -154,7 +154,7 @@ public class ElementInserter {
 	
 	public void resetElement(EventFrame f){
 		frame = new EventFrame();
-		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Hide)){
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Hide)){
 			Event event = f.pop();
 			if(vi.getStartIndex() != event.getFirstSectionIndex())
 				list = vi.resetViews(event.getFirstSectionIndex());

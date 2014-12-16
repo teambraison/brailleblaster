@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.brailleblaster.util.PropertyFileManager;
 
 public class PagePropertiesTab {
 	HashMap<String, String>settingsMap;
@@ -59,6 +60,8 @@ public class PagePropertiesTab {
 	public static Boolean defaultUnits = true;
 	
 	PagePropertiesTab(TabFolder folder, final SettingsManager sm, HashMap<String, String>settingsMap){
+		
+//		PropertyFileManager pfm = new PropertyFileManager();
 		lh = new LocaleHandler();
 		this.sm = sm;
 		this.settingsMap = settingsMap;
@@ -71,7 +74,6 @@ public class PagePropertiesTab {
 		item.setControl(group);
 		setFormLayout(group, 0, 100, 0, 60);
 		
-		//rl
 		unitsGroup = new Group(group, SWT.BORDER);
 		unitsGroup.setText(lh.localValue("measurementUnits"));
 		unitsGroup.setLayout(new FillLayout());
@@ -83,8 +85,6 @@ public class PagePropertiesTab {
 
 		cellsLinesButton = new Button(unitsGroup, SWT.RADIO);
 		cellsLinesButton.setText(lh.localValue("cellsLines"));		
-		
-		//rl
 		
 		sizeGroup = new Group(group, SWT.BORDER);
 		sizeGroup.setText(lh.localValue("pageSize"));
@@ -395,25 +395,19 @@ public class PagePropertiesTab {
 			
 			regionalButton.setSelection(true);
 			cellsLinesButton.setSelection(false);
-//			
-//			String leftMargin = settingsMap.get("leftMargin");
-//			marginLeftBox.setText(leftMargin);
-//			
-//			String rightMargin = settingsMap.get("rightMargin");
-//			marginRightBox.setText(rightMargin);
-//			
-//			String topMargin = settingsMap.get("topMargin");
-//			marginTopBox.setText(topMargin);
-//			
-//			String bottomMargin = settingsMap.get("bottomMargin");
-//			marginBottomBox.setText(bottomMargin);
-//			
-			marginLeftBox.setText(String.valueOf(1.0));
-			marginRightBox.setText(String.valueOf(0.5));
-			marginTopBox.setText(String.valueOf(0.5));
-			marginBottomBox.setText(String.valueOf(0.5));
-			linesBox.setText(String.valueOf(25));
-			cellsBox.setText(String.valueOf(40));
+			
+			String leftMargin = settingsMap.get("leftMargin");
+			marginLeftBox.setText(leftMargin);
+			
+			String rightMargin = settingsMap.get("rightMargin");
+			marginRightBox.setText(rightMargin);
+			
+			String topMargin = settingsMap.get("topMargin");
+			marginTopBox.setText(topMargin);
+			
+			String bottomMargin = settingsMap.get("bottomMargin");
+			marginBottomBox.setText(bottomMargin);
+			
 		}
 	
 		else{
@@ -440,7 +434,7 @@ public class PagePropertiesTab {
 			String conversionBottomBox = String.valueOf(sm.calcHeightFromLines(Integer.valueOf(bottomBox)));
 			marginBottomBox.setText(conversionBottomBox);
 			
-			logger.debug("test");
+			logger.debug(bottomMargin);
 
 			}
 

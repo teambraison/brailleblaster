@@ -79,6 +79,7 @@ public class StyleHandler {
 			Styles style = manager.getStyleTable().get(semantic);
 			Message message = Message.createUpdateStyleMessage(style, false, false);
 			handleStyleSingleSelected(message);
+			treeView.rebuildTree(event.getTreeIndex());
 		}
 	}
 	

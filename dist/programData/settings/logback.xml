@@ -13,7 +13,7 @@
       <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  <root level="debug">
+  <root level="error">
     <appender-ref ref="bbFileAppender"/>
   </root>
 </configuration>

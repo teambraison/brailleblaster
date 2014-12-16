@@ -58,7 +58,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
-import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
@@ -704,7 +703,7 @@ public class Manager extends Controller {
 				bxh.handleBoxline(message);
 			}
 			else{
-				StyleHandler sh = new StyleHandler(this, list);
+				StyleHandler sh = new StyleHandler(this, vi, list);
 				sh.updateStyle(message);
 			}
 			containerSash.setRedraw(true);
@@ -1466,9 +1465,7 @@ public class Manager extends Controller {
 	}
 	
 	public void undo(){
-		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null && !f.get(0).getEventType().equals(EventTypes.Update))
-			redoQueue.add(f);
+		undoQueue.popEvent(vi, document, list, this);
 	}
 	
 	public void redo(){

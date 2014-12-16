@@ -42,11 +42,8 @@ public class ElementRemover {
 	public void removeNode(Message m){
 		eventFrame = new EventFrame();
 		eventFrame.addEvent(addEvent(m));
-		int index = (Integer)m.getValue("index");
-		if(list.get(index).isMathML() )
-			removeMathMLElement(m);
-		else 
-			removeElement(m);
+		
+		findRemovalMethod(m);
 		
 		manager.addUndoEvent(eventFrame);
 	}
@@ -59,11 +56,8 @@ public class ElementRemover {
 			int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 
 			Message m = Message.createRemoveNodeMessage(ev.getListIndex(), length);
 			eventFrame.addEvent(addEvent(m));
-			int index = (Integer)m.getValue("index");
-			if(list.get(index).isMathML() )
-				removeMathMLElement(m);
-			else 
-				removeElement(m);
+			
+			findRemovalMethod(m);
 		
 			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
 				text.replaceTextRange(ev.getTextOffset(), 1, "");
@@ -77,6 +71,14 @@ public class ElementRemover {
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 		manager.addUndoEvent(eventFrame);
+	}
+	
+	private void findRemovalMethod(Message m){
+		int index = (Integer)m.getValue("index");
+		if(list.get(index).isMathML() )
+			removeMathMLElement(m);
+		else 
+			removeElement(m);
 	}
 	
 	private void removeElement(Message message){

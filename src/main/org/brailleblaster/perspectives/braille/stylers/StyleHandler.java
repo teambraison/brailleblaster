@@ -47,6 +47,7 @@ public class StyleHandler {
 	
 	public void updateStyle(Message message){
 		frame = new EventFrame();
+		
 		if(message.getValue("multiSelect").equals(false)) 
 			handleStyleSingleSelected(message);
 		else 

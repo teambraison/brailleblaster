@@ -28,10 +28,6 @@ public class RedoQueue extends EventQueue{
 					break;
 				case Insert:
 					break;
-				case Style_Change:
-					StyleHandler s = new StyleHandler(manager, vi, list);
-					s.redoStyle(frame);
-					break;
 				case Delete:
 					ElementRemover remover = new ElementRemover(manager, list, vi);
 					remover.removeNode(frame);
@@ -39,6 +35,10 @@ public class RedoQueue extends EventQueue{
 				case Hide:
 					HideActionHandler h = new HideActionHandler(manager, list, vi);
 					h.hideText(frame);
+					break;
+				case Style_Change:
+					StyleHandler s = new StyleHandler(manager, vi, list);
+					s.redoStyle(frame);
 					break;
 				default:
 					break;

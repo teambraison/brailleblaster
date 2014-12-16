@@ -56,47 +56,53 @@ public class ElementInserter {
 			insertElementAtEnd(m);
 	}
 	
-	public void insertElement(Event ev){
-		ParentNode p = ev.getParent();
-		if(ev.getNode() instanceof Text){
-			p.insertChild(ev.getNode(), ev.getParentIndex());
-			Element brl = new Element("brl");
-			brl.appendChild(new Text(""));
-			p.insertChild(brl, ev.getParentIndex() + 1);
-			((Element)p.getChild(ev.getParentIndex() + 1)).setNamespaceURI(doc.getRootElement().getNamespaceURI());
-		}
-		else
-			p.insertChild(ev.getNode(), ev.getParentIndex());
-		
-		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
-			ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
-			
-			if(!list.empty() && ev.getListIndex() > 0 && list.get(ev.getListIndex() - 1).end == ev.getTextOffset())
-				insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
+	public void insertElement(EventFrame f){
+		frame = new EventFrame();
+		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Delete)){
+			Event ev = f.pop();
+			ParentNode p = ev.getParent();
+			if(ev.getNode() instanceof Text){
+				p.insertChild(ev.getNode(), ev.getParentIndex());
+				Element brl = new Element("brl");
+				brl.appendChild(new Text(""));
+				p.insertChild(brl, ev.getParentIndex() + 1);
+				((Element)p.getChild(ev.getParentIndex() + 1)).setNamespaceURI(doc.getRootElement().getNamespaceURI());
+			}
 			else
+				p.insertChild(ev.getNode(), ev.getParentIndex());
+		
+			if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
+				ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
+			
+				if(!list.empty() && ev.getListIndex() > 0 && list.get(ev.getListIndex() - 1).end == ev.getTextOffset())
+					insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
+				else
+					insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
+				
+				if(list.size() - 1 != ev.getListIndex() + 1)
+					list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
+			
+				text.insertLineBreak(ev.getTextOffset());
+				braille.insertLineBreak(ev.getBrailleOffset());
+				tree.rebuildTree(ev.getTreeIndex());
+			}
+			else {
+				ArrayList<TextMapElement>elList;
+				if(ev.getNode() instanceof Element)
+					elList = constructMapElements((Element)ev.getNode(), 0);
+				else
+					elList = constructMapElement((Element)ev.getParent(), ev.getParentIndex());
+			
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
 			
-			if(list.size() - 1 != ev.getListIndex() + 1)
-				list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
-			
-			text.insertLineBreak(ev.getTextOffset());
-			braille.insertLineBreak(ev.getBrailleOffset());
-			tree.rebuildTree(ev.getTreeIndex());
-		}
-		else {
-			ArrayList<TextMapElement>elList;
-			if(ev.getNode() instanceof Element)
-				elList = constructMapElements((Element)ev.getNode(), 0);
-			else
-				elList = constructMapElement((Element)ev.getParent(), ev.getParentIndex());
-			
-			insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-			
-			tree.rebuildTree(ev.getTreeIndex());
-		}
+				tree.rebuildTree(ev.getTreeIndex());
+			}
 		
-		list.setCurrent(ev.getListIndex());
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			list.setCurrent(ev.getListIndex());
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			frame.addEvent(new Event(EventTypes.Delete, ev.getNode(), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
+		}
+		manager.addRedoEvent(frame);
 	}
 	
 	public void insertInList(ArrayList<TextMapElement>elList, int index, int textOffset, int brailleOffset){

@@ -18,9 +18,9 @@ public class RedoQueue extends EventQueue{
 	}
 	
 	@Override
-	protected void handleEvent(EventFrame f, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager) {
-		for(int i = 0; i < f.size(); i++){
-			Event event = f.get(i);
+	protected void handleEvent(EventFrame frame, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager) {
+		for(int i = 0; i < frame.size(); i++){
+			Event event = frame.get(i);
 			switch(event.eventType){
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
@@ -30,7 +30,7 @@ public class RedoQueue extends EventQueue{
 					break;
 				case Style_Change:
 					StyleHandler s = new StyleHandler(manager, vi, list);
-					s.redoStyle(f);
+					s.redoStyle(frame);
 					break;
 				case Delete:
 					ElementRemover remover = new ElementRemover(manager, list, vi);
@@ -38,7 +38,7 @@ public class RedoQueue extends EventQueue{
 					break;
 				case Hide:
 					HideActionHandler h = new HideActionHandler(manager, list, vi);
-					h.hideText(f);
+					h.hideText(frame);
 					break;
 				default:
 					break;

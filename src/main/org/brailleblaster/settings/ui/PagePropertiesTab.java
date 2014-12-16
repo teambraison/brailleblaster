@@ -2,6 +2,7 @@ package org.brailleblaster.settings.ui;
 
 import java.util.HashMap;
 
+
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.Notify;
@@ -48,7 +49,8 @@ public class PagePropertiesTab {
 	
 	boolean listenerLocked;
 	LocaleHandler lh;
-	public static int units =0;//rl
+	public static int units = 0;//rl
+	public static Boolean defaultUnits = true;//rl
 	
 	PagePropertiesTab(TabFolder folder, final SettingsManager sm, HashMap<String, String>settingsMap){
 		lh = new LocaleHandler();
@@ -115,7 +117,7 @@ public class PagePropertiesTab {
 		linesBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(linesBox);
 		linesBox.setText((String.valueOf(calculateLinesPerPage(Double.valueOf(settingsMap.get("paperHeight"))))));
-		linesBox.setEditable(false);
+		linesBox.setEditable(true);
 		
 		cellsPerLineLabel = new Label(pageGroup, 0);
 		cellsPerLineLabel.setText(lh.localValue("cellsPerLine"));
@@ -123,7 +125,7 @@ public class PagePropertiesTab {
 		cellsBox = new Text(pageGroup, SWT.BORDER);
 		setGridData(cellsBox);
 		cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(settingsMap.get("paperWidth")))));
-		cellsBox.setEditable(false);
+		cellsBox.setEditable(true);
 		
 		marginGroup = new Group(group, SWT.BORDER);
 		marginGroup.setLayout(new GridLayout(2, true));
@@ -162,13 +164,14 @@ public class PagePropertiesTab {
 		setValue(marginRightBox, "rightMargin");
 		addMarginListener(marginRightBox, "rightMargin");
 		
-		Control [] tabList = {sizeGroup, marginGroup};
+		Control [] tabList = {sizeGroup, marginGroup, unitsGroup};
 		group.setTabList(tabList);
 		
 		if(widthBox.getText().length() > 0 || heightBox.getText().length() > 0)
 			checkStandardSizes();
 			
 		addListeners();
+
 	}
 	
 	private void addDoubleListener(final Text t){
@@ -183,13 +186,14 @@ public class PagePropertiesTab {
 		});
 	}
 
+
 	private void addMarginListener(final Text t, final String type){
 		if(type.equals("leftMargin") || type.equals("rightMargin")){
 			t.addModifyListener(new ModifyListener(){
 				@Override
 				public void modifyText(ModifyEvent e) {
 					Double margin = getDoubleValue(t);
-	  
+					
 					if(margin >= getDoubleValue(widthBox) || (getDoubleValue(marginLeftBox) + getDoubleValue(marginRightBox) >= getDoubleValue(widthBox))){
 						new Notify(lh.localValue("incorrectMarginWidth"));
 						t.setText(settingsMap.get(type));
@@ -199,9 +203,11 @@ public class PagePropertiesTab {
 						cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
 						linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
 					}
-				}		
+				}
 			});
 		}
+					
+
 		else {
 			t.addModifyListener(new ModifyListener(){
 				@Override
@@ -221,6 +227,7 @@ public class PagePropertiesTab {
 			});
 		}
 	}
+
 	
 	private void setStandardPages(){
 		Page [] temp = sm.getStandardSizes();
@@ -249,19 +256,27 @@ public class PagePropertiesTab {
          c.setLayoutData(gridData);
 	}
 	
-	//rl This method adds listeners for the radio buttons that let the user choose between regional and cells/lines
+	
 	private void addListeners(){
 		
+		//adds listeners for the radio buttons that check regional or cells/lines
 		regionalButton.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent e){
-				System.out.println("regional");
+				regionalButton.setSelection(true);
+				 defaultUnits=true;
+				 modifyMargins(defaultUnits);
+
 			}
 		 });
+		
 		 cellsLinesButton.addSelectionListener(new SelectionAdapter(){
 			 public void widgetSelected(SelectionEvent e){
-			System.out.println("cells/lines");
+				 cellsLinesButton.setSelection(true);
+				 defaultUnits=false;
+				 modifyMargins(defaultUnits);
 			 }
 		 });
+
 		 //rl
 		 
 		widthBox.addTraverseListener(new TraverseListener(){
@@ -325,6 +340,7 @@ public class PagePropertiesTab {
 				}
 			}	
 		});
+
 		
 		pageTypes.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -365,6 +381,52 @@ public class PagePropertiesTab {
 			}
 		});
 	}
+	
+	//This will modify the margins value and the margins text box. It will receive a boolean default units from the listeners 
+	//to the radio buttons
+	public void modifyMargins(Boolean defaultUnits){
+		if (defaultUnits){
+			
+			regionalButton.setSelection(true);
+			cellsLinesButton.setSelection(false);
+			
+			marginRightBox.setText(String.valueOf(0.5));
+			setValue(marginRightBox,"rightMargin");
+			
+			marginLeftBox.setText(String.valueOf(1));
+			setValue(marginLeftBox,"leftMargin");
+			
+			marginBottomBox.setText(String.valueOf(0.5));
+			setValue(marginBottomBox,"bottomMargin");
+
+			marginTopBox.setText(String.valueOf(0.5));
+			setValue(marginTopBox,"topMargin");
+
+			
+		}
+	
+		else{
+			
+			cellsLinesButton.setSelection(true);
+			regionalButton.setSelection(false);
+			
+			marginRightBox.setText(String.valueOf(calcWidthFromCells(Integer.valueOf(String.valueOf(cellsBox)))));
+			setValue(marginRightBox,"rightMargin");
+			
+			marginLeftBox.setText(String.valueOf(calcWidthFromCells(Integer.valueOf(String.valueOf(cellsBox)))));
+			setValue(marginLeftBox,"leftMargin");
+
+			marginBottomBox.setText(String.valueOf(calcHeightFromLines(Integer.valueOf(String.valueOf(linesBox)))));
+			setValue(marginBottomBox,"bottomMargin");
+	
+			marginTopBox.setText(String.valueOf(calcHeightFromLines(Integer.valueOf(String.valueOf(linesBox)))));
+			setValue(marginTopBox,"topMargin");
+
+			
+			}
+
+	}
+	
 	private void checkStandardSizes(){
 		Double width = getDoubleValue(widthBox);
 		Double height = getDoubleValue(heightBox);
@@ -495,6 +557,27 @@ public class PagePropertiesTab {
 		
 		return cellWidth*numberOfCells;
 			
+	}
+	
+	//This method calculates the height of the page from a number of lines.  It receives an int number of lines and 
+	//returns a double page height
+	private double calcHeightFromLines(int numberOfLines){
+		Double cellHeight;
+		if (!sm.isMetric())
+			cellHeight = 0.393701;
+		else
+			cellHeight = 10.0;
+		return cellHeight*numberOfLines;
+	}
+	
+	//This method calculates the number of cells per inch.  It receives a double inches and returns an int of cells
+	private int toCellsFromInches(double inches){
+		return (int)(inches/.2875);
+	}
+	
+	//This method calculates the number of lines per inch.  It receives a double inches and returns an int of lines
+	private int toLinesFromInches(double inches){
+		return (int)(inches/.44);
 	}
 
 	private boolean checkEqualWidth(Page p, double width){

@@ -100,7 +100,7 @@ public class ElementInserter {
 		
 			list.setCurrent(ev.getListIndex());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-			frame.addEvent(new Event(EventTypes.Delete, ev.getNode(), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
+			frame.addEvent(new Event(EventTypes.Delete, p.getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 		}
 		manager.addRedoEvent(frame);
 	}

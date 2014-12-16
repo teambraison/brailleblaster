@@ -34,7 +34,7 @@ public class RedoQueue extends EventQueue{
 					break;
 				case Delete:
 					ElementRemover remover = new ElementRemover(manager, list, vi);
-					remover.removeNode(event);
+					remover.removeNode(frame);
 					break;
 				case Hide:
 					HideActionHandler h = new HideActionHandler(manager, list, vi);

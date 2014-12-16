@@ -18,7 +18,7 @@ public class UndoQueue extends EventQueue {
 	
 	@Override
 	protected void handleEvent(EventFrame frame, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
-		for(int i = frame.size() - 1; frame.size() > 0 && i >= 0; i--){
+		for(int i = frame.size() - 1; !frame.empty() && i >= 0; i--){
 			Event event = frame.get(i);
 			switch(event.eventType){
 				case Update:

@@ -68,7 +68,7 @@ public class StyleHandler {
 	}
 	
 	private void updateStyle(EventFrame f){
-		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Style_Change)){
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Style_Change)){
 			Event event = f.pop();
 			list.setCurrent(event.getListIndex());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));

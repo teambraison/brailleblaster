@@ -27,17 +27,17 @@ public class UndoQueue extends EventQueue {
 					break;
 				case Insert:
 					break;
-				case Hide:
-					ElementInserter es = new ElementInserter(vi, doc, list, manager);
-					es.resetElement(frame);
-					break;
-				case Style_Change:
-					StyleHandler s = new StyleHandler(manager, vi, list);
-					s.undoStyle(frame);
-					break;
 				case Delete:
 					ElementInserter inserter = new ElementInserter(vi, doc, list, manager);
 					inserter.insertElement(frame);
+					break;
+				case Hide:
+					ElementInserter ei = new ElementInserter(vi, doc, list, manager);
+					ei.resetElement(frame);
+					break;
+				case Style_Change:
+					StyleHandler sh = new StyleHandler(manager, vi, list);
+					sh.undoStyle(frame);
 					break;
 				default:
 					break;

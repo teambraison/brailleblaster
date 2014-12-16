@@ -17,9 +17,9 @@ public class UndoQueue extends EventQueue {
 	}
 	
 	@Override
-	protected void handleEvent(EventFrame f, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
-		for(int i = f.size() - 1; f.size() > 0 && i >= 0; i--){
-			Event event = f.get(i);
+	protected void handleEvent(EventFrame frame, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
+		for(int i = frame.size() - 1; frame.size() > 0 && i >= 0; i--){
+			Event event = frame.get(i);
 			switch(event.eventType){
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
@@ -29,15 +29,15 @@ public class UndoQueue extends EventQueue {
 					break;
 				case Hide:
 					ElementInserter es = new ElementInserter(vi, doc, list, manager);
-					es.resetElement(f);
+					es.resetElement(frame);
 					break;
 				case Style_Change:
 					StyleHandler s = new StyleHandler(manager, vi, list);
-					s.undoStyle(f);
+					s.undoStyle(frame);
 					break;
 				case Delete:
 					ElementInserter inserter = new ElementInserter(vi, doc, list, manager);
-					inserter.insertElement(event);
+					inserter.insertElement(frame);
 					break;
 				default:
 					break;

@@ -58,7 +58,6 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
-import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
@@ -95,6 +94,7 @@ import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -1466,9 +1466,7 @@ public class Manager extends Controller {
 	}
 	
 	public void undo(){
-		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null && f.size() > 0 && !f.get(0).getEventType().equals(EventTypes.Update) && !f.get(0).getEventType().equals(EventTypes.Style_Change) & !f.get(0).getEventType().equals(EventTypes.Hide))
-			redoQueue.add(f);
+		undoQueue.popEvent(vi, document, list, this);
 	}
 	
 	public void redo(){

@@ -153,6 +153,8 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("minCellsPerLine"))
 			outputMap.put(tokens[0], tokens[1]);
+		else if (tokens[0].equals("unitsMeasurement"))
+			outputMap.put(tokens[0],tokens[1]);
 	}
 	
 	//do not include compress.cti because removing spaces should be left up to the user to remove
@@ -278,7 +280,7 @@ public class SettingsManager {
 	
 	public int calculateCellsPerLine(double pWidth){
 		double cellWidth;
-		if(isMetric())
+		if(!isMetric())
 			cellWidth = 0.246063;
 		else
 			cellWidth = 6.25;
@@ -298,7 +300,7 @@ public class SettingsManager {
 	 */
 	public double calcWidthFromCells(int numberOfCells){
 		double cellWidth;
-		if (isMetric())
+		if (!isMetric())
 			cellWidth=0.246063;
 		else
 			cellWidth=6.25;
@@ -311,7 +313,7 @@ public class SettingsManager {
 	//returns a double page height
 	public double calcHeightFromLines(int numberOfLines){
 		Double cellHeight;
-		if (isMetric())
+		if (!isMetric())
 			cellHeight = 0.393701;
 		else
 			cellHeight = 10.0;

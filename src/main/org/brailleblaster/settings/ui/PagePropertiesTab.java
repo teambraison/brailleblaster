@@ -1,6 +1,10 @@
 package org.brailleblaster.settings.ui;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
@@ -40,6 +44,8 @@ public class PagePropertiesTab {
 	SettingsManager sm;
 	TabItem item;
 	Composite  group;
+	PropertyFileManager pfm;
+	//ttss
 	private static final String USER_SETTINGS = BBIni.getUserProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "utdmlSettings.properties";
 														
 	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup;// 
@@ -75,17 +81,17 @@ public class PagePropertiesTab {
 
 		regionalButton = new Button(unitsGroup, SWT.RADIO);
 		regionalButton.setText(lh.localValue("regional"));
-		regionalButton.setSelection(true); // default
+//		regionalButton.setSelection(true); // default
 
 		cellsLinesButton = new Button(unitsGroup, SWT.RADIO);
-		cellsLinesButton.setText(lh.localValue("cellsLines"));	
+		cellsLinesButton.setText(lh.localValue("cellsLines"));
 		
-		String unitsMeasurement = settingsMap.get("unitsMeasurement");
-		if (unitsMeasurement =="regional")
+		PropertyFileManager = new PropertyFileManager(USER_SETTINGS);
+		if (pfm.getProperty(units)=="regional")
 			regionalButton.setSelection(true);
 		else
 			cellsLinesButton.setSelection(true);
-		
+
 		//rl
 		
 		sizeGroup = new Group(group, SWT.BORDER);
@@ -484,9 +490,10 @@ public class PagePropertiesTab {
 			
 			String bottomMargin = settingsMap.get("bottomMargin");
 			marginBottomBox.setText(bottomMargin);
-
-			PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
-			pfm.save("unitsGroup",units);
+			//ttss
+//			PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
+//			pfm.save("unitsGroup",units);
+			saveSettings(units);
 			
 			
 			}
@@ -513,12 +520,26 @@ public class PagePropertiesTab {
 			String bottomMargin = settingsMap.get("bottomMargin");
 			String convertedBottomMargin = String.valueOf(calculateLinesPerInch(Double.valueOf(bottomMargin)));
 			marginBottomBox.setText(convertedBottomMargin);
-			
-			PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
-			pfm.save("unitsGroup",units);
-
+			//ttss
+//			PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
+//			pfm.save("unitsGroup",units);
+			saveSettings(units);
 			}
 
+	}
+
+	private void saveSettings(String units){
+		File f = new File(USER_SETTINGS);
+		
+			try {
+				if(!f.exists())
+					f.createNewFile();
+				
+				PropertyFileManager pfm = new PropertyFileManager(USER_SETTINGS);
+				pfm.save("unitsGroup", units);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 	private int calculateCellsPerLine(double pWidth){

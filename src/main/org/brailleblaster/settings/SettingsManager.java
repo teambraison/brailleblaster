@@ -153,8 +153,6 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("minCellsPerLine"))
 			outputMap.put(tokens[0], tokens[1]);
-		else if (tokens[0].equals("unitsMeasurement"))
-			outputMap.put(tokens[0],tokens[1]);
 	}
 	
 	//do not include compress.cti because removing spaces should be left up to the user to remove

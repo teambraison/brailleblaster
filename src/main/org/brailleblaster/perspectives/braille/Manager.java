@@ -71,7 +71,7 @@ import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
-import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
+import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
@@ -632,7 +632,7 @@ public class Manager extends Controller {
 	
 	private void handleInsertNode(Message m){
 		if(m.getValue("split").equals(true)){
-			ElementSplitter splitter = new ElementSplitter(this, list, vi);
+			SplitElementHandler splitter = new SplitElementHandler(this, vi, list);
 			splitter.splitElement(m);
 		}
 		else {

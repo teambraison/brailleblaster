@@ -6,6 +6,9 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.tree.BBTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
@@ -20,11 +23,17 @@ public abstract class Handler {
 	protected Manager manager;
 	protected MapList list;
 	protected ViewInitializer vi;
-	
+	protected TextView text;
+	protected BrailleView braille;
+	protected BBTree tree;
+
 	public Handler(Manager manager, ViewInitializer vi, MapList list){
 		this.manager = manager;
 		this.vi = vi;
 		this.list = list;
+		text = manager.getText();
+		braille = manager.getBraille();
+		tree = manager.getTreeView();
 	}
 
 	protected boolean onScreen(int pos){

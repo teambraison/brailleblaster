@@ -11,22 +11,11 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
-import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
-import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 public class SplitElementHandler extends Handler{
 	
-	TextView text;
-	BrailleView braille;
-	BBTree tree;
-	
 	public SplitElementHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);
-		
-		text = manager.getText();
-		braille = manager.getBraille();
-		tree = manager.getTreeView();
 	}
 	
 	public void splitElement(Message m){

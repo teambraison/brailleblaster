@@ -10,28 +10,19 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
-import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
-import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 public class TextUpdateHandler extends Handler {
 
-	TextView text;
-	BrailleView braille;
-	BBTree treeView;
 	BrailleDocument document;
 
 	public TextUpdateHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);
 	
-		text = manager.getText();
-		braille = manager.getBraille();
-		treeView = manager.getTreeView();
 		document = manager.getDocument();
 	}
 	
 	public void updateText(Message message){
-		message.put("selection", treeView.getSelection(list.getCurrent()));
+		message.put("selection", tree.getSelection(list.getCurrent()));
 		if(list.getCurrent().isMathML()){
 			manager.dispatch(Message.createRemoveNodeMessage(list.getCurrentIndex(), list.getCurrent().end - list.getCurrent().start));
 			message.put("diff", 0);
@@ -81,7 +72,7 @@ public class TextUpdateHandler extends Handler {
 		EventFrame f = new EventFrame();
 		TextMapElement t = list.getCurrent();
 		Event e = new Event(EventTypes.Update, t.n, vi.getStartIndex(), list.getCurrentIndex(), t.start, 
-				t.brailleList.getFirst().start, treeView.getItemPath());
+				t.brailleList.getFirst().start, tree.getItemPath());
 		f.addEvent(e);
 		
 		return f;

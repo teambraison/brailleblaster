@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
-import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
@@ -29,32 +28,22 @@ import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class BoxlineHandler {
+public class BoxlineHandler extends Handler{
 	
-	private static final String BOXLINE = "boxline";
-	private static final String FULLBOX = "fullBox";
-	private static final String TOPBOX = "topBox";
-	private static final String MIDDLEBOX = "middleBox";
-	private static final String BOTTOMBOX = "bottomBox";
-	
-	Manager manager;
 	BrailleDocument document;
 	BBSemanticsTable styles;
 	BBTree treeView;
 	TextView text;
 	BrailleView braille;
-	MapList list;
-	ViewInitializer vi;
 	
-	public BoxlineHandler(Manager manager, MapList list, ViewInitializer vi){
-		this.manager = manager;
+	public BoxlineHandler(Manager manager, ViewInitializer vi,  MapList list){
+		super(manager, vi, list);
+
 		this.document = manager.getDocument();
 		this.styles = manager.getStyleTable();
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
 		this.treeView = manager.getTreeView();
-		this.list = list;
-		this.vi = vi;
 	}
 	
 	public void handleBoxline(Message message){
@@ -80,7 +69,6 @@ public class BoxlineHandler {
 	}
 	
 	private void createSingleBoxLine(ArrayList<TextMapElement> itemList, ArrayList<Element>parents, Message message){
-		
 		boolean invalid = false;
 		for(int i = 0; i < itemList.size() && !invalid; i++){
 			if(itemList.get(i) instanceof PageMapElement)
@@ -645,23 +633,6 @@ public class BoxlineHandler {
 		boxline.getParent().removeChild(boxline);
 	}
 	
-	private boolean isBoxLine(Element e){
-		if(checkSemanticsAttribute(e, BOXLINE) || checkSemanticsAttribute(e, TOPBOX) || checkSemanticsAttribute(e, MIDDLEBOX) 
-				|| checkSemanticsAttribute(e, BOTTOMBOX) || checkSemanticsAttribute(e, FULLBOX))
-			return true;
-		else
-			return false;
-	}
-	
-	private boolean checkSemanticsAttribute(Element e, String value){
-		Attribute atr = e.getAttribute("semantics");
-		
-		if(atr == null || !atr.getValue().contains(value))
-			return false;
-		
-		return true;
-	}
-	
 	private Text findText(Node n){
 		if(n.getChild(0) instanceof Text)
 			return (Text)n.getChild(0);
@@ -687,10 +658,6 @@ public class BoxlineHandler {
 		m.put("type", "style");
 		m.put("action", style);
 		manager.getDocument().applyAction(m);
-	}
-	
-	private String getStyle(Element box){
-		return box.getAttributeValue("semantics").split(",")[1];
 	}
 	
 	private int getMatchingParent(ArrayList<TextMapElement>elList, int index){

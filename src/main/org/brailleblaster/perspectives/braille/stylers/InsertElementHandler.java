@@ -28,22 +28,19 @@ import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.util.FileUtils;
 
-public class ElementInserter {
+public class InsertElementHandler extends Handler{
 
 	BrailleDocument doc;
 	MapList list;
-	Manager manager;
-	ViewInitializer vi;
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
 	EventFrame frame;
 	
-	public ElementInserter(ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
-		this.vi = vi;
-		this.doc = doc;
-		this.list = list;
-		this.manager = manager;
+	public InsertElementHandler(Manager manager, ViewInitializer vi, MapList list){
+		super(manager, vi, list);
+		
+		this.doc = manager.getDocument();
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
 		this.tree = manager.getTreeView();
@@ -191,13 +188,13 @@ public class ElementInserter {
 			for(int i = index; i < e.getChildCount(); i++){
 				if(e.getChild(i) instanceof Text)
 					elList.add(new TextMapElement(e.getChild(i)));
-				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxline(e)){
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxLine(e)){
 					for(int j = 0; j < e.getChild(i).getChildCount(); j++){
 						if(e.getChild(i).getChild(j) instanceof Text)
 							elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
 					}
 				}
-				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxline(e))
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxLine(e))
 					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
 				else if(e.getChild(i) instanceof Element)
 					elList.addAll(constructMapElements((Element)e.getChild(i), 0));
@@ -215,13 +212,13 @@ public class ElementInserter {
 			for(int i = index; i < index + 2; i++){
 				if(e.getChild(i) instanceof Text)
 					elList.add(new TextMapElement(e.getChild(i)));
-				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxline(e)){
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && !isBoxLine(e)){
 					for(int j = 0; j < e.getChild(i).getChildCount(); j++){
 						if(e.getChild(i).getChild(j) instanceof Text)
 							elList.get(elList.size() - 1).brailleList.add(new BrailleMapElement(e.getChild(i).getChild(j)));
 					}
 				}
-				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxline(e))
+				else if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl") && isBoxLine(e))
 					elList.add(new BrlOnlyMapElement(e.getChild(i), e));
 			}
 		}
@@ -365,25 +362,6 @@ public class ElementInserter {
 		manager.getText().insertText(textOffset, "\n");
 		manager.getBraille().insertText(brailleOffset, "\n");
 		list.shiftOffsetsFromIndex(index, 1, 1);
-	}
-	
-	private boolean isBoxline(Element e){
-		Attribute attr = e.getAttribute("semantics");
-		if(attr != null){
-			if(attr.getValue().contains("boxline") || attr.getValue().contains("topBox") || attr.getValue().contains("bottomBox") || attr.getValue().contains("middlebox") || attr.getValue().contains("fullBox"))
-				return true;
-		}
-		
-		return false;
-	}
-	
-	private boolean onScreen(int pos){
-		int textPos = manager.getText().view.getLineAtOffset(pos) * manager.getText().view.getLineHeight();
-		int viewHeight = manager.getText().view.getClientArea().height;
-		if(textPos > viewHeight)
-			return false;
-		
-		return true;
 	}
 	
 	private void setTopIndex(int pos){

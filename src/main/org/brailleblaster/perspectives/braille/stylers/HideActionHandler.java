@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
-import nu.xom.Attribute;
 import nu.xom.Element;
 
 import org.brailleblaster.BBIni;
@@ -23,22 +22,19 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.brailleblaster.util.Notify;
 
-public class HideActionHandler {	
-	Manager manager;
-	MapList list;
+public class HideActionHandler extends Handler{	
+	
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
-	ViewInitializer vi;
+
 	EventFrame eventFrame;
 	boolean boxlineAdded;
 	
-	public HideActionHandler(Manager manager, MapList list, ViewInitializer vi){
-		this.manager = manager;
-		this.list = list;
-		this.vi = vi;
+	public HideActionHandler(Manager manager, ViewInitializer vi, MapList list){
+		super(manager, vi, list);
+		
 		text = manager.getText();
 		braille = manager.getBraille();
 		tree = manager.getTreeView();
@@ -312,18 +308,7 @@ public class HideActionHandler {
 	
 	private void invalidSelection(){
 		if(!BBIni.debugging())
-			new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
-	}
-	
-	private boolean isHeading(Element e){
-		Attribute atr = e.getAttribute("semantics");
-		
-		if(atr != null){
-			if(atr.getValue().contains("heading"))
-				return true;
-		}
-		
-		return false;
+			manager.notify("In order to hide a boxline both opening and closing boxlines must be selected");
 	}
 	
 	private boolean collapseSpaceBefore(TextMapElement t){
@@ -367,46 +352,10 @@ public class HideActionHandler {
 		return false;
 	}
 	
-	private boolean isFirstInList(int index){
-		if(index == 0)
-			return true;
-		else
-			return false;
-	}
-	
-	private boolean isLastInList(int index){
-		if(index == list.size() - 1)
-			return true;
-		else
-			return false;
-	}
-	
-	private String getSemanticAttribute(Element e){
-		Attribute atr = e.getAttribute("semantics");
-		if(atr != null){
-			String val = atr.getValue();
-			String[] tokens = val.split(",");
-			if(tokens.length > 1)
-				return tokens[1];
-		}
-		
-		return null;
-	}
-	
 	private boolean removeParent(TextMapElement t){
 		if(!(t instanceof PageMapElement) && isInLine(t.parentElement()))
 			return true;
 		else
 			return false;
-	}
-	
-	private boolean isInLine(Element e){
-		Attribute atr = e.getAttribute("semantics");
-		if(atr != null){
-			String [] tokens = atr.getValue().split(",");
-			if(tokens[0].equals("action"))
-				return true;
-		}
-		return false;
 	}
 }

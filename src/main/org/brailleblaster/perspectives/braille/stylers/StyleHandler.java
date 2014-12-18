@@ -24,25 +24,22 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class StyleHandler {
+public class StyleHandler extends Handler{
 
-	Manager manager;
 	BrailleDocument document;
-	MapList list;
 	TextView text;
 	BrailleView braille;
 	BBTree treeView;
-	ViewInitializer vi;
+	
 	EventFrame frame;
 	
 	public StyleHandler(Manager manager, ViewInitializer vi, MapList list){
-		this.manager = manager;
+		super(manager, vi, list);
+		
 		this.document = manager.getDocument();
-		this.list = list;
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
 		this.treeView = manager.getTreeView();
-		this.vi = vi;
 	}
 	
 	public void updateStyle(Message message){

@@ -69,7 +69,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
-import org.brailleblaster.perspectives.braille.stylers.ElementInserter;
+import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
 import org.brailleblaster.perspectives.braille.stylers.ElementSplitter;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
@@ -636,7 +636,7 @@ public class Manager extends Controller {
 			splitter.splitElement(m);
 		}
 		else {
-			ElementInserter inserter = new ElementInserter(vi, document, list, this);
+			InsertElementHandler inserter = new InsertElementHandler(this, vi, list);
 			inserter.insertElement(m);
 		}
 	}
@@ -699,7 +699,7 @@ public class Manager extends Controller {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			containerSash.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
+				BoxlineHandler bxh = new BoxlineHandler(this, vi ,list);
 				bxh.handleBoxline(message);
 			}
 			else{

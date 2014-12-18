@@ -66,6 +66,27 @@ public abstract class Handler {
 			return false;
 	}
 	
+	protected boolean isHeading(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr != null){
+			if(atr.getValue().contains("heading"))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	protected boolean isInLine(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		if(atr != null){
+			String [] tokens = atr.getValue().split(",");
+			if(tokens[0].equals("action"))
+				return true;
+		}
+		return false;
+	}
+	
 	protected boolean checkSemanticsAttribute(Element e, String value){
 		Attribute atr = e.getAttribute("semantics");
 		
@@ -75,7 +96,30 @@ public abstract class Handler {
 		return true;
 	}
 	
-	protected String getStyle(Element e){
-		return e.getAttributeValue("semantics").split(",")[1];
+	protected String getSemanticAttribute(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		if(atr != null){
+			String val = atr.getValue();
+			String[] tokens = val.split(",");
+			if(tokens.length > 1)
+				return tokens[1];
+		}
+		
+		return null;
 	}
+	
+	protected boolean isFirstInList(int index){
+		if(index == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	protected boolean isLastInList(int index){
+		if(index == list.size() - 1)
+			return true;
+		else
+			return false;
+	}
+	
 }

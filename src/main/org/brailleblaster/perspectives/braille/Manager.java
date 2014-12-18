@@ -1029,7 +1029,7 @@ public class Manager extends Controller {
 	}
 	
 	public void hide(){
-		HideActionHandler h = new HideActionHandler(this, list, vi);
+		HideActionHandler h = new HideActionHandler(this, vi, list);
 		h.hideText();
 	}
 	

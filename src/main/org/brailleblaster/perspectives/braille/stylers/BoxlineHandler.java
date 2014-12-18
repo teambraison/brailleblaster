@@ -198,7 +198,7 @@ public class BoxlineHandler extends Handler{
 		Document doc = document.translateElements(elList);
 		Element parent = (Element)doc.getChild(0);
 		
-		String style = getStyle(wrapper);
+		String style = getSemanticAttribute(wrapper);
 		Message m = new Message(null);
 		if(style.equals(TOPBOX))
 			createFullBoxline(wrapper, parents, m, itemList);
@@ -338,12 +338,12 @@ public class BoxlineHandler extends Handler{
 	
 	private void resetSidebars(ArrayList<Element> elList, Element parent){
 		while(elList.size() > 0){
-			if(getStyle(parent.getChildElements().get(0)).equals(TOPBOX) || getStyle(parent.getChildElements().get(0)).equals(BOXLINE))
+			if(getSemanticAttribute(parent.getChildElements().get(0)).equals(TOPBOX) || getSemanticAttribute(parent.getChildElements().get(0)).equals(BOXLINE))
 				changeToFullBox(elList.get(0), parent.getChildElements().get(0));
-			else if(getStyle(parent.getChildElements().get(0)).equals(BOTTOMBOX) || getStyle(parent.getChildElements().get(0)).equals(MIDDLEBOX))
+			else if(getSemanticAttribute(parent.getChildElements().get(0)).equals(BOTTOMBOX) || getSemanticAttribute(parent.getChildElements().get(0)).equals(MIDDLEBOX))
 				changeToHalfBox(elList.get(0), parent.getChildElements().get(0));
 			
-			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
+			setStyle(elList.get(0), getSemanticAttribute(parent.getChildElements().get(0)));
 			parent.removeChild(0);
 			elList.remove(0);
 		}
@@ -386,7 +386,7 @@ public class BoxlineHandler extends Handler{
 	}
 	
 	private void insertBoxLine(int index, Element box, Element brl){
-		String style = getStyle(list.get(index).parentElement());
+		String style = getSemanticAttribute(list.get(index).parentElement());
 		Styles firstStyle = styles.get(style);
 		//inserted in DOM
 		box.insertChild(brl, 0);
@@ -486,14 +486,14 @@ public class BoxlineHandler extends Handler{
 		
 		while(itemList.size() > 0){
 			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
-			if(getStyle(itemList.get(0).parentElement()).equals(BOXLINE) || getStyle(itemList.get(0).parentElement()).equals(TOPBOX) || getStyle(itemList.get(0).parentElement()).equals(FULLBOX)){
+			if(getSemanticAttribute(itemList.get(0).parentElement()).equals(BOXLINE) || getSemanticAttribute(itemList.get(0).parentElement()).equals(TOPBOX) || getSemanticAttribute(itemList.get(0).parentElement()).equals(FULLBOX)){
 				int index = getMatchingParent(itemList, 0);
 				boxline.add(itemList.get(0));
 				boxline.add(itemList.get(index));
 				itemList.remove(0);
 				itemList.remove(index - 1);
 			}
-			else if(getStyle(itemList.get(0).parentElement()).equals(MIDDLEBOX) || getStyle(itemList.get(0).parentElement()).equals(BOTTOMBOX)){
+			else if(getSemanticAttribute(itemList.get(0).parentElement()).equals(MIDDLEBOX) || getSemanticAttribute(itemList.get(0).parentElement()).equals(BOTTOMBOX)){
 				boxline.add(itemList.get(0));
 				itemList.remove(0);
 			}
@@ -517,12 +517,12 @@ public class BoxlineHandler extends Handler{
 	}
 	
 	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
-		String style = getStyle(boxline);
+		String style = getSemanticAttribute(boxline);
 		if(style.equals(BOXLINE) || style.equals(TOPBOX) ||  style.equals(FULLBOX)){
 			Element parent = null;
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
-			if(isBoxLine((Element)boxline.getParent()) && getStyle((Element)boxline.getParent()).equals(FULLBOX)){
+			if(isBoxLine((Element)boxline.getParent()) && getSemanticAttribute((Element)boxline.getParent()).equals(FULLBOX)){
 				if(nestedSidebarCount((Element)boxline.getParent()) == 1)
 					parent = (Element)boxline.getParent();
 			}

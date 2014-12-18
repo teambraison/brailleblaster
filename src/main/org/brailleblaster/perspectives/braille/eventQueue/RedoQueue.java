@@ -33,7 +33,7 @@ public class RedoQueue extends EventQueue{
 					remover.removeNode(frame);
 					break;
 				case Hide:
-					HideActionHandler h = new HideActionHandler(manager, list, vi);
+					HideActionHandler h = new HideActionHandler(manager, vi, list);
 					h.hideText(frame);
 					break;
 				case Style_Change:

@@ -14,24 +14,20 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class TextUpdateHandler {
+public class TextUpdateHandler extends Handler {
 
-	Manager manager;
 	TextView text;
 	BrailleView braille;
 	BBTree treeView;
 	BrailleDocument document;
-	MapList list;
-	ViewInitializer vi;
 
 	public TextUpdateHandler(Manager manager, ViewInitializer vi, MapList list){
-		this.manager = manager;
+		super(manager, vi, list);
+	
 		text = manager.getText();
 		braille = manager.getBraille();
 		treeView = manager.getTreeView();
 		document = manager.getDocument();
-		this.list = list;
-		this.vi = vi;
 	}
 	
 	public void updateText(Message message){

@@ -15,18 +15,15 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class ElementSplitter {
-	Manager manager;
-	MapList list;
+public class SplitElementHandler extends Handler{
+	
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
-	ViewInitializer vi;
 	
-	public ElementSplitter(Manager manager, MapList list, ViewInitializer vi){
-		this.manager = manager;
-		this.list = list;
-		this.vi = vi;
+	public SplitElementHandler(Manager manager, ViewInitializer vi, MapList list){
+		super(manager, vi, list);
+		
 		text = manager.getText();
 		braille = manager.getBraille();
 		tree = manager.getTreeView();

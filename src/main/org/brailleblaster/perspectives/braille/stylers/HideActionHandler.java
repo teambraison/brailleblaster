@@ -19,25 +19,14 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
-import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
-import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 public class HideActionHandler extends Handler{	
 	
-	TextView text;
-	BrailleView braille;
-	BBTree tree;
-
 	EventFrame eventFrame;
 	boolean boxlineAdded;
 	
 	public HideActionHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);
-		
-		text = manager.getText();
-		braille = manager.getBraille();
-		tree = manager.getTreeView();
 	}
 	
 	public void hideText(){

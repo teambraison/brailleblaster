@@ -20,16 +20,10 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
-import org.brailleblaster.perspectives.braille.views.tree.BBTree;
-import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
-import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
 public class StyleHandler extends Handler{
 
 	BrailleDocument document;
-	TextView text;
-	BrailleView braille;
-	BBTree treeView;
 	
 	EventFrame frame;
 	
@@ -37,9 +31,6 @@ public class StyleHandler extends Handler{
 		super(manager, vi, list);
 		
 		this.document = manager.getDocument();
-		this.text = manager.getText();
-		this.braille = manager.getBraille();
-		this.treeView = manager.getTreeView();
 	}
 	
 	public void updateStyle(Message message){
@@ -76,7 +67,7 @@ public class StyleHandler extends Handler{
 			Styles style = manager.getStyleTable().get(semantic);
 			Message message = Message.createUpdateStyleMessage(style, false, false);
 			handleStyleSingleSelected(message);
-			treeView.rebuildTree(event.getTreeIndex());
+			tree.rebuildTree(event.getTreeIndex());
 		}
 	}
 	
@@ -87,7 +78,7 @@ public class StyleHandler extends Handler{
 	private void handleStyleSingleSelected(Message message) {	
 		Element parent = parentStyle(list.getCurrent(), message);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		Event e = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, treeView.getItemPath());	
+		Event e = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
 		document.changeSemanticAction(message, parent);
 		adjustStyle(itemList, message);
 		
@@ -115,7 +106,7 @@ public class StyleHandler extends Handler{
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
 				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-				Event event = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, treeView.getItemPath());	
+				Event event = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
 				document.changeSemanticAction(message, parent);
 				adjustStyle( itemList,styleMessage);
 				frame.addEvent(event);
@@ -175,6 +166,6 @@ public class StyleHandler extends Handler{
 					(Integer) message.getValue("linesAfterOffset"),
 					(Integer) message.getValue("linesAfterOffset"));
 
-		treeView.adjustItemStyle(list.getCurrent());
+		tree.adjustItemStyle(list.getCurrent());
 	}	
 }

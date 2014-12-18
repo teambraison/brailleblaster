@@ -57,7 +57,7 @@ public class ConfigPanel {
 			public void widgetSelected(SelectionEvent e) {
 				String errorStr = null;
 					if( translationSettings.validate() && (errorStr = pageProperties.validate()).compareTo("SUCCESS") == 0 && advTab.validate() ){
-						sm.saveConfiguration(settingsCopy);
+						sm.saveConfiguration(settingsCopy);//essential to save
 						sm.close();
 						m.refresh();
 					}

@@ -70,7 +70,7 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
-import org.brailleblaster.perspectives.braille.stylers.ElementRemover;
+import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
@@ -667,7 +667,7 @@ public class Manager extends Controller {
 	}
 	
 	private void handleRemoveNode(Message message){
-		ElementRemover er = new ElementRemover(this, list, vi);
+		RemoveElementHandler er = new RemoveElementHandler(this, vi, list);
 		er.removeNode(message);
 	}
 	

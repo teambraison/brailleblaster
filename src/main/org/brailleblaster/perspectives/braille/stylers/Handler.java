@@ -1,6 +1,9 @@
 package org.brailleblaster.perspectives.braille.stylers;
 
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
+import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
@@ -31,6 +34,28 @@ public abstract class Handler {
 			return false;
 		
 		return true;
+	}
+	
+	protected boolean isBlockElement(TextMapElement t){
+		if( t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
+			return true;
+		else {
+			if(t.parentElement().getAttributeValue("semantics").contains("style") && t.parentElement().indexOf(t.n) == 0)
+				return true;
+			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
+				return true;
+		}
+		return false;
+	}
+	
+	protected boolean firstInLineElement(Element e){
+		Element parent = (Element)e.getParent();
+		if(parent.getAttribute("semantics") != null && parent.getAttributeValue("semantics").contains("style")){
+			if(parent.indexOf(e) == 0)
+				return true;
+		}
+		
+		return false;
 	}
 	
 	protected boolean isBoxLine(Element e){

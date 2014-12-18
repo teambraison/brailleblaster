@@ -10,8 +10,6 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
-import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -21,19 +19,16 @@ import org.brailleblaster.perspectives.braille.views.tree.BBTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class ElementRemover {
-	Manager manager;
-	MapList list;
+public class RemoveElementHandler extends Handler{
+
 	TextView text;
 	BrailleView braille;
 	BBTree tree;
-	ViewInitializer vi;
 	EventFrame eventFrame;
 	
-	public ElementRemover(Manager manager, MapList list, ViewInitializer vi){
-		this.manager = manager;
-		this.list = list;
-		this.vi = vi;
+	public RemoveElementHandler(Manager manager, ViewInitializer vi, MapList list){
+		super(manager, vi, list);
+		
 		text = manager.getText();
 		braille = manager.getBraille();
 		tree = manager.getTreeView();
@@ -88,7 +83,7 @@ public class ElementRemover {
 		list.get(index).brailleList.clear();		
 		vi.remove(list, index);		
 		
-		if(emptyList())
+		if(list.empty())
 			disableViews();
 	}
 	
@@ -104,7 +99,7 @@ public class ElementRemover {
 		list.updateOffsets(index, m);
 		vi.remove(list, index);
 		
-		if(emptyList())
+		if(list.empty())
 			disableViews();
 	}
 	
@@ -139,7 +134,7 @@ public class ElementRemover {
 			}
 
 			return e;
-		}
+		} 
 	}
 	
 	private Node findMathElement(TextMapElement t, Message m){
@@ -168,31 +163,5 @@ public class ElementRemover {
 		tree.removeListeners();
 		list.clearList();
 		text.view.setEditable(false);
-	}
-	
-	private boolean emptyList(){
-		return list.size() == 0;
-	}
-	
-	private boolean isBlockElement(TextMapElement t){
-		if( t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
-			return true;
-		else {
-			if(t.parentElement().getAttributeValue("semantics").contains("style") && t.parentElement().indexOf(t.n) == 0)
-				return true;
-			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
-				return true;
-		}
-		return false;
-	}
-	
-	private boolean firstInLineElement(Element e){
-		Element parent = (Element)e.getParent();
-		if(parent.getAttribute("semantics") != null && parent.getAttributeValue("semantics").contains("style")){
-			if(parent.indexOf(e) == 0)
-				return true;
-		}
-		
-		return false;
 	}
 }

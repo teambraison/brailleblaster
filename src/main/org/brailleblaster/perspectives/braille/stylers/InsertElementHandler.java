@@ -276,16 +276,6 @@ public class InsertElementHandler extends Handler{
 			return false;
 	}
 	
-	private boolean firstInLineElement(Element e){
-		Element parent = (Element)e.getParent();
-		if(parent.getAttribute("semantics") != null && parent.getAttributeValue("semantics").contains("style")){
-			if(parent.indexOf(e) == 0)
-				return true;
-		}
-		
-		return false;
-	}
-	
 	//returns element removed from DOM
 	private Element replaceElement(Event f){
 		ParentNode parent = f.getParent();
@@ -331,18 +321,6 @@ public class InsertElementHandler extends Handler{
 	private boolean shouldInsertBlankLine(ArrayList<TextMapElement>elList){
 		return elList.get(elList.size() - 1).parentElement().getAttributeValue("semantics").contains("style") 
 				|| firstInLineElement(elList.get(0).parentElement()) || elList.get(0) instanceof PageMapElement || elList.get(0) instanceof BrlOnlyMapElement;
-	}
-	
-	private boolean isBlockElement(TextMapElement t){
-		if( t instanceof PageMapElement || t instanceof BrlOnlyMapElement)
-			return true;
-		else {
-			if(t.parentElement().getAttributeValue("semantics").contains("style") && t.parentElement().indexOf(t.n) == 0)
-				return true;
-			else if(firstInLineElement(t.parentElement()) && t.parentElement().indexOf(t.n) == 0)
-				return true;
-		}
-		return false;
 	}
 	
 	//checks for a rare case if a line break element occurs within a block element

@@ -70,7 +70,7 @@ public class PagePropertiesTab {
 		lh = new LocaleHandler();
 		this.sm = sm;
 		this.settingsMap = settingsMap;
-//		listenerLocked = false;
+		listenerLocked = false;
 		item = new TabItem(folder, 0);	
 		item.setText(lh.localValue("pageProperties"));
 		
@@ -205,7 +205,6 @@ public class PagePropertiesTab {
 	}
 
 	private void addMarginListener(final Text t, final String type){
-		if (!listenerLocked){
 			if(type.equals("leftMargin") || type.equals("rightMargin")){
 
 				t.addModifyListener(new ModifyListener(){
@@ -220,10 +219,10 @@ public class PagePropertiesTab {
 							t.setText(settingsMap.get(type));
 						}
 						else {
+
 							settingsMap.put(type, getStringValue(t));
 							cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
 							linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
-						
 						}
 				}		
 				});
@@ -232,7 +231,6 @@ public class PagePropertiesTab {
 				t.addModifyListener(new ModifyListener(){
 					@Override
 					public void modifyText(ModifyEvent e) {
-						if (!listenerLocked){
 						
 						Double margin =  getDoubleValue(t);
 						
@@ -241,61 +239,14 @@ public class PagePropertiesTab {
 							t.setText(settingsMap.get(type));
 						}
 						else {
+
 							settingsMap.put(type, getStringValue(t));
 							cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
-							linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));					
+							linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));	
 						}
-						}
-					}		
+						}	
 				});
-			}
-	
 		}
-//		else{//
-//		if(type.equals("leftMargin") || type.equals("rightMargin")){
-//
-//			t.addModifyListener(new ModifyListener(){
-//				@Override
-//				public void modifyText(ModifyEvent e) {
-//				
-//					
-//					Double margin = getDoubleValue(t);
-//	  
-//					if(margin >= getDoubleValue(widthBox) || (getDoubleValue(marginLeftBox) + getDoubleValue(marginRightBox) >= getDoubleValue(widthBox))){
-//						new Notify(lh.localValue("incorrectMarginWidth"));
-//						t.setText(settingsMap.get(type));
-//					}
-//					else {
-//						settingsMap.put(type, getStringValue(t));
-//						cellsBox.setText(String.valueOf(calculateCellsPerInch(Double.valueOf(widthBox.getText()))));
-//						linesBox.setText(String.valueOf(calculateLinesPerInch(Double.valueOf(heightBox.getText()))));
-//					
-//					}
-//			}		
-//			});
-//		}
-//		else {
-//			t.addModifyListener(new ModifyListener(){
-//				@Override
-//				public void modifyText(ModifyEvent e) {
-//					if (!listenerLocked){
-//					
-//					Double margin =  getDoubleValue(t);
-//					
-//					if(margin >= Double.valueOf(heightBox.getText()) || (getDoubleValue(marginTopBox) + getDoubleValue(marginBottomBox) >= getDoubleValue(widthBox))){
-//						new Notify(lh.localValue("incorectMarginHeight"));
-//						t.setText(settingsMap.get(type));
-//					}
-//					else {
-//						settingsMap.put(type, getStringValue(t));
-//						cellsBox.setText(String.valueOf(calculateCellsPerInch(Double.valueOf(widthBox.getText()))));
-//						linesBox.setText(String.valueOf(calculateLinesPerInch(Double.valueOf(heightBox.getText()))));					
-//					}
-//					}
-//				}		
-//			});
-//		}
-//		}
 	}
 	
 	private void setStandardPages(){
@@ -530,11 +481,10 @@ public class PagePropertiesTab {
 	//This will modify the margins value and the margins text box. It will receive a boolean default units from the listeners 
 	//to the radio buttons
 	public void modifyMargins(String defaultUnits){
-		listenerLocked = true;
+	
 		if (defaultUnits=="regional"){
-			
+			listenerLocked = true;
 			units = "regional";
-
 			
 			regionalButton.setSelection(true);
 			cellsLinesButton.setSelection(false);
@@ -551,37 +501,39 @@ public class PagePropertiesTab {
 			String bottomMargin = settingsMap.get("bottomMargin");
 			marginBottomBox.setText(bottomMargin);
 			
-			saveSettings(units);
+			saveConfiguration(units);
 
 			}
 	
 		else{
 			units = "cellsLines";
-
-			
+			listenerLocked = true;
 			cellsLinesButton.setSelection(true);
 			regionalButton.setSelection(false);
 
 			String leftMargin = settingsMap.get("leftMargin");
-			String convertedLeftMargin = String.valueOf(calculateCellsPerInch(Double.valueOf(leftMargin)));
+			String convertedLeftMargin = String.valueOf(calculateCellsPerLine(Double.valueOf(leftMargin)));
 			marginLeftBox.setText(convertedLeftMargin);
 
 			String rightMargin = settingsMap.get("rightMargin");
-			String convertedRightMargin =String.valueOf(calculateCellsPerInch(Double.valueOf(rightMargin)));
+			String convertedRightMargin =String.valueOf(calculateCellsPerLine(Double.valueOf(rightMargin)));
 			marginRightBox.setText(convertedRightMargin);
 			
 			String topMargin = settingsMap.get("topMargin");
-			String convertedTopMargin = String.valueOf(calculateLinesPerInch(Double.valueOf(topMargin)));
+			String convertedTopMargin = String.valueOf(calculateLinesPerPage(Double.valueOf(topMargin)));
 			marginTopBox.setText(convertedTopMargin);
 			
 			String bottomMargin = settingsMap.get("bottomMargin");
-			String convertedBottomMargin = String.valueOf(calculateLinesPerInch(Double.valueOf(bottomMargin)));
+			String convertedBottomMargin = String.valueOf(calculateLinesPerPage(Double.valueOf(bottomMargin)));
 			marginBottomBox.setText(convertedBottomMargin);
 			
-			saveSettings(units);
+			saveConfiguration(units);
 
 			}
 
+	}
+	public void saveConfiguration(String units){
+		saveSettings(units);
 	}
 	 
 	private void saveSettings(String units){
@@ -597,8 +549,12 @@ public class PagePropertiesTab {
 			e.printStackTrace();
 		}
 	}
+	public String getUnits(){
+		return units;
+	}
 
 	private int calculateCellsPerLine(double pWidth){
+		if (!listenerLocked){
 	
 		double cellWidth;
 		if(!sm.isMetric())
@@ -613,7 +569,17 @@ public class PagePropertiesTab {
 			pWidth -= Double.valueOf(settingsMap.get("rightMargin"));
 		
 		return (int)(pWidth / cellWidth);
-
+		}
+		else{
+			
+			double cellWidth;
+			if(!sm.isMetric())
+				cellWidth = 0.246063;
+			else
+				cellWidth = 6.25;
+			
+			return (int)(pWidth / cellWidth);	
+		}
 	}
 	
 	private int calculateLinesPerInch(double inches){
@@ -626,6 +592,7 @@ public class PagePropertiesTab {
 	}
 	
 	private int calculateLinesPerPage(double pHeight){
+		if (!listenerLocked){
 
 		double cellHeight;
 		if(!sm.isMetric()) 
@@ -640,7 +607,16 @@ public class PagePropertiesTab {
 			pHeight -= Double.valueOf(settingsMap.get("bottomMargin"));
 		
 		return (int)(pHeight / cellHeight);
-
+		}
+		else{
+			double cellHeight;
+			if(!sm.isMetric()) 
+				cellHeight = 0.393701;
+			else
+				cellHeight = 10;
+			
+			return (int)(pHeight / cellHeight);	
+		}
 	}
 	public int calculateCellsPerInch(double inches){
 		double cellWidth;

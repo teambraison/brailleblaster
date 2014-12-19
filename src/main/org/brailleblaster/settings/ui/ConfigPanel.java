@@ -56,11 +56,9 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String units = pageProperties.getUnits();//
 				String errorStr = null;
 					if( translationSettings.validate() && (errorStr = pageProperties.validate()).compareTo("SUCCESS") == 0 && advTab.validate() ){
-						sm.saveConfiguration(settingsCopy);//essential to save
-						pageProperties.saveConfiguration(units);//
+						sm.saveConfiguration(settingsCopy);
 						sm.close();
 						m.refresh();
 					}

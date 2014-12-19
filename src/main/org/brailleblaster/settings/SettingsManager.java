@@ -183,7 +183,7 @@ public class SettingsManager {
 	public Page[] getStandardSizes(){
 		return standardPages;
 	}
-	//essential to save
+	
 	public void saveConfiguration(HashMap<String, String>map){
 		outputMap.clear();
 		resetMap(map);

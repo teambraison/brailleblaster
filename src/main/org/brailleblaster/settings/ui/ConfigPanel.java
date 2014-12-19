@@ -48,6 +48,7 @@ public class ConfigPanel {
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
 		advTab = new AdvancedTab(folder, sm, settingsCopy);
+
 		
 		okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));
@@ -55,9 +56,11 @@ public class ConfigPanel {
 		okButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				String units = pageProperties.getUnits();//
 				String errorStr = null;
 					if( translationSettings.validate() && (errorStr = pageProperties.validate()).compareTo("SUCCESS") == 0 && advTab.validate() ){
 						sm.saveConfiguration(settingsCopy);//essential to save
+						pageProperties.saveConfiguration(units);//
 						sm.close();
 						m.refresh();
 					}

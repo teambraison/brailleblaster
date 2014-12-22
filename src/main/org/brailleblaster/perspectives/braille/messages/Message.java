@@ -156,10 +156,11 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createTextDeletionMessage(int offset, int length, boolean update){
+	public static Message createTextDeletionMessage(int offset, int length, String replacedText, boolean update){
 		Message m = new Message(BBEvent.WHITESPACE_DELETION);
 		m.put("offset", offset);
 		m.put("length", length);
+		m.put("replacedText", replacedText);
 		m.put("update", update);
 		
 		return m;

@@ -7,6 +7,7 @@ import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
+import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class RedoQueue extends EventQueue{
@@ -39,6 +40,10 @@ public class RedoQueue extends EventQueue{
 				case Style_Change:
 					StyleHandler s = new StyleHandler(manager, vi, list);
 					s.redoStyle(frame);
+					break;
+				case Whitespace:
+					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
+					wsh.redoDelete(frame);
 					break;
 				default:
 					break;

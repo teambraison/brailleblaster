@@ -17,6 +17,7 @@ public class WhiteSpaceHandler {
 	TextView text;
 	BrailleView braille;
 	MapList list;
+	EventFrame eventFrame;
 	
 	public WhiteSpaceHandler(Manager manager, MapList list){
 		this.manager = manager;
@@ -26,6 +27,7 @@ public class WhiteSpaceHandler {
 	}
 	
 	public void removeWhitespace(Message message){
+		eventFrame = new EventFrame();
 		int brailleStart = 0;
 		list.checkList();
 		if(!list.empty()){		
@@ -54,12 +56,18 @@ public class WhiteSpaceHandler {
 		else
 			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
 		
-		addUndoEvent((Integer)message.getValue("offset"), brailleStart, (String)message.getValue("replacedText"));
+		eventFrame.addEvent(new ViewEvent(EventTypes.Whitespace, (Integer)message.getValue("offset"), brailleStart, (String)message.getValue("replacedText")));
+		manager.addUndoEvent(eventFrame);
 	}
 	
 	public void UndoDelete(EventFrame frame){
-		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
-			insertWhitespace((ViewEvent)frame.pop());
+		eventFrame = new EventFrame();
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace)){
+			ViewEvent ev = (ViewEvent)frame.pop();
+			insertWhitespace(ev);
+			eventFrame.addEvent(ev);
+		}
+		manager.addRedoEvent(eventFrame);
 	}
 	
 	private void insertWhitespace(ViewEvent ev){
@@ -80,9 +88,13 @@ public class WhiteSpaceHandler {
 		}
 	}
 	
-	private void addUndoEvent(int textStart, int brailleStart, String text){
-		EventFrame frame = new EventFrame();
-		frame.addEvent( new ViewEvent(EventTypes.Whitespace, textStart, brailleStart, text));
-		manager.addUndoEvent(frame);
+	public void redoDelete(EventFrame frame){
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
+			removeWhitespace((ViewEvent)frame.pop());
+	}
+	
+	private void removeWhitespace(ViewEvent ev){
+		text.setCurrentSelection(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
+		text.cut();
 	}
 }

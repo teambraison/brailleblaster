@@ -14,6 +14,8 @@ import nu.xom.Attribute;
 import nu.xom.Element;
 
 public abstract class Handler {
+	protected static final String SEMANTICS = "semantics";
+	
 	protected static final String BOXLINE = "boxline";
 	protected static final String FULLBOX = "fullBox";
 	protected static final String TOPBOX = "topBox";
@@ -59,7 +61,7 @@ public abstract class Handler {
 	
 	protected boolean firstInLineElement(Element e){
 		Element parent = (Element)e.getParent();
-		if(parent.getAttribute("semantics") != null && parent.getAttributeValue("semantics").contains("style")){
+		if(parent.getAttribute(SEMANTICS) != null && parent.getAttributeValue(SEMANTICS).contains("style")){
 			if(parent.indexOf(e) == 0)
 				return true;
 		}
@@ -76,7 +78,7 @@ public abstract class Handler {
 	}
 	
 	protected boolean isHeading(Element e){
-		Attribute atr = e.getAttribute("semantics");
+		Attribute atr = e.getAttribute(SEMANTICS);
 		
 		if(atr != null){
 			if(atr.getValue().contains("heading"))
@@ -87,7 +89,7 @@ public abstract class Handler {
 	}
 	
 	protected boolean isInLine(Element e){
-		Attribute atr = e.getAttribute("semantics");
+		Attribute atr = e.getAttribute(SEMANTICS);
 		if(atr != null){
 			String [] tokens = atr.getValue().split(",");
 			if(tokens[0].equals("action"))
@@ -97,7 +99,7 @@ public abstract class Handler {
 	}
 	
 	protected boolean checkSemanticsAttribute(Element e, String value){
-		Attribute atr = e.getAttribute("semantics");
+		Attribute atr = e.getAttribute(SEMANTICS);
 		
 		if(atr == null || !atr.getValue().contains(value))
 			return false;
@@ -106,7 +108,7 @@ public abstract class Handler {
 	}
 	
 	protected String getSemanticAttribute(Element e){
-		Attribute atr = e.getAttribute("semantics");
+		Attribute atr = e.getAttribute(SEMANTICS);
 		if(atr != null){
 			String val = atr.getValue();
 			String[] tokens = val.split(",");

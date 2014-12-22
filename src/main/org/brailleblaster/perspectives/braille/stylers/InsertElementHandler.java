@@ -64,7 +64,7 @@ public class InsertElementHandler extends Handler{
 		else
 			p.insertChild(ev.getNode(), ev.getParentIndex());
 	
-		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue("semantics").contains("style")){
+		if(ev.getNode() instanceof Element && ((Element)ev.getNode()).getAttributeValue(SEMANTICS).contains("style")){
 			ArrayList<TextMapElement>elList = constructMapElements((Element)ev.getNode(), 0);
 		
 			if(!list.empty() && ev.getListIndex() > 0 && list.get(ev.getListIndex() - 1).end == ev.getTextOffset())
@@ -173,7 +173,7 @@ public class InsertElementHandler extends Handler{
 	
 	private ArrayList<TextMapElement> constructMapElements(Element e, int index){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
-		if(e.getAttributeValue("semantics").contains("pagenum"))
+		if(e.getAttributeValue(SEMANTICS).contains("pagenum"))
 			elList.add(makePageMapElement(e));
 		else {
 			for(int i = index; i < e.getChildCount(); i++){
@@ -197,7 +197,7 @@ public class InsertElementHandler extends Handler{
 	
 	private ArrayList<TextMapElement> constructMapElement(Element e, int index){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
-		if(e.getAttributeValue("semantics").contains("pagenum"))
+		if(e.getAttributeValue(SEMANTICS).contains("pagenum"))
 			elList.add(makePageMapElement(e));
 		else {
 			for(int i = index; i < index + 2; i++){
@@ -259,8 +259,8 @@ public class InsertElementHandler extends Handler{
 	}
 	
 	private boolean hasSameSemantics(Element e, Element newElement){
-		Attribute sem1 = e.getAttribute("semantics");
-		Attribute sem2 = newElement.getAttribute("semantics");
+		Attribute sem1 = e.getAttribute(SEMANTICS);
+		Attribute sem2 = newElement.getAttribute(SEMANTICS);
 		if(sem1.equals(sem2))
 			return true;
 		else
@@ -297,7 +297,7 @@ public class InsertElementHandler extends Handler{
 		String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(manager.getWorkingPath()) + ".sem";
 		String id = e.getAttributeValue("id");
 		sfh.removeSemanticEntry(file, id);
-		String [] tokens = e.getAttributeValue("semantics").split(",");
+		String [] tokens = e.getAttributeValue(SEMANTICS).split(",");
 		sfh.writeEntry(file, tokens[1], e.getLocalName(), id);
 	}
 	
@@ -310,7 +310,7 @@ public class InsertElementHandler extends Handler{
 	}
 	
 	private boolean shouldInsertBlankLine(ArrayList<TextMapElement>elList){
-		return elList.get(elList.size() - 1).parentElement().getAttributeValue("semantics").contains("style") 
+		return elList.get(elList.size() - 1).parentElement().getAttributeValue(SEMANTICS).contains("style") 
 				|| firstInLineElement(elList.get(0).parentElement()) || elList.get(0) instanceof PageMapElement || elList.get(0) instanceof BrlOnlyMapElement;
 	}
 	

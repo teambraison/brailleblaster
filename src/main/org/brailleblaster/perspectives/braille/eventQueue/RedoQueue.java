@@ -24,7 +24,7 @@ public class RedoQueue extends EventQueue{
 			switch(event.eventType){
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
-					tuh.redoText(event);
+					tuh.redoText(frame);
 					break;
 				case Insert:
 					break;

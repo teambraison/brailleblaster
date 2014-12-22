@@ -5,6 +5,7 @@ import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -34,22 +35,28 @@ public class TextUpdateHandler extends Handler {
 		manager.getArchiver().setDocumentEdited(true);
 	}
 	
-	public void undoText(Event ev){
-		list.setCurrent(ev.getListIndex());
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-		addRedoEvent();
-		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-		resetText(m);
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	public void undoText(EventFrame f){
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
+			ModelEvent ev = (ModelEvent)f.pop();
+			list.setCurrent(ev.getListIndex());
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			addRedoEvent();
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
+			resetText(m);
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		}
 	}
 	
-	public void redoText(Event ev){
-		list.setCurrent(ev.getListIndex());
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-		addUndoEvent();
-		Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-		resetText(m);
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+	public void redoText(EventFrame f){
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
+			ModelEvent ev = (ModelEvent)f.pop();
+			list.setCurrent(ev.getListIndex());
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			addUndoEvent();
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
+			resetText(m);
+			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		}
 	}
 
 	private void resetText(Message message){
@@ -71,7 +78,7 @@ public class TextUpdateHandler extends Handler {
 	private EventFrame addEvent(){
 		EventFrame f = new EventFrame();
 		TextMapElement t = list.getCurrent();
-		Event e = new Event(EventTypes.Update, t.n, vi.getStartIndex(), list.getCurrentIndex(), t.start, 
+		Event e = new ModelEvent(EventTypes.Update, t.n, vi.getStartIndex(), list.getCurrentIndex(), t.start, 
 				t.brailleList.getFirst().start, tree.getItemPath());
 		f.addEvent(e);
 		

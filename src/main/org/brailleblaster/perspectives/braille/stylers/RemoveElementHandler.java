@@ -10,6 +10,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -36,7 +37,7 @@ public class RemoveElementHandler extends Handler{
 	public void removeNode(EventFrame frame){
 		eventFrame = new EventFrame();
 		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Delete)){
-			Event ev = frame.pop();
+			ModelEvent ev = (ModelEvent)frame.pop();
 		
 			int length = list.get(ev.getListIndex()).end - list.get(ev.getListIndex()).end; 
 			Message m = Message.createRemoveNodeMessage(ev.getListIndex(), length);
@@ -106,7 +107,7 @@ public class RemoveElementHandler extends Handler{
 		if(node instanceof Element)
 			message.put("element", node);
 		
-		return new Event(EventTypes.Delete, node, vi.getStartIndex(), index, list.get(index).start, list.get(index).brailleList.getFirst().start, treeIndex);
+		return new ModelEvent(EventTypes.Delete, node, vi.getStartIndex(), index, list.get(index).start, list.get(index).brailleList.getFirst().start, treeIndex);
 		//return f;
 	}
 	

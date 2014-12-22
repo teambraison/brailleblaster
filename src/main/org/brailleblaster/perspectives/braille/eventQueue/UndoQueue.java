@@ -6,6 +6,7 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
+import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class UndoQueue extends EventQueue {
@@ -18,8 +19,8 @@ public class UndoQueue extends EventQueue {
 	
 	@Override
 	protected void handleEvent(EventFrame frame, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager){
-		for(int i = frame.size() - 1; !frame.empty() && i >= 0; i--){
-			Event event = frame.get(i);
+		while(!frame.empty()){
+			Event event = frame.get(frame.size() - 1);
 			switch(event.eventType){
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
@@ -38,6 +39,10 @@ public class UndoQueue extends EventQueue {
 				case Style_Change:
 					StyleHandler sh = new StyleHandler(manager, vi, list);
 					sh.undoStyle(frame);
+					break;
+				case Whitespace:
+					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
+					wsh.UndoDelete(frame);
 					break;
 				default:
 					break;

@@ -63,7 +63,7 @@ public class StyleHandler extends Handler{
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		
 			Element e = (Element)event.getNode();
-			String semantic = e.getAttributeValue("semantics").split(",")[1];
+			String semantic = e.getAttributeValue(SEMANTICS).split(",")[1];
 			Styles style = manager.getStyleTable().get(semantic);
 			Message message = Message.createUpdateStyleMessage(style, false, false);
 			handleStyleSingleSelected(message);

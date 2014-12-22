@@ -121,7 +121,7 @@ public class BoxlineHandler extends Handler{
 			TextMapElement tempElement= itr.next();
 			if(tempElement instanceof BrlOnlyMapElement){
 				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
+				if((b == null && !tempElement.parentElement().getAttributeValue(SEMANTICS).contains("middleBox") && !tempElement.parentElement().getAttributeValue(SEMANTICS).contains("bottomBox") )
 						|| (b != null && (b.start > end || b.end < start))){
 					invalid = true;
 					LocaleHandler lh = new LocaleHandler();

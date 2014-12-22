@@ -116,7 +116,7 @@ public class RemoveElementHandler extends Handler{
 		}
 		else {
 			Element e = t.parentElement();
-			while(!e.getAttributeValue("semantics").contains("style")){
+			while(!e.getAttributeValue(SEMANTICS).contains("style")){
 				if(((Element)e.getParent()).getChildElements().size() <= 1)
 					e = (Element)e.getParent();
 				else

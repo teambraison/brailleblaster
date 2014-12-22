@@ -9,9 +9,9 @@ import nu.xom.Element;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -49,7 +49,7 @@ public class HideActionHandler extends Handler{
 	public void hideText(EventFrame f){
 		eventFrame = new EventFrame();
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Hide)){
-			Event ev = f.pop();
+			ModelEvent ev = (ModelEvent)f.pop();
 			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
 		
 			//resets selection to recreate hide event by user
@@ -194,7 +194,7 @@ public class HideActionHandler extends Handler{
 		}
 		
 		if(!boxlineAdded)
-			eventFrame.addEvent(new Event(EventTypes.Hide, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
+			eventFrame.addEvent(new ModelEvent(EventTypes.Hide, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
 		
 		if(parent.getLocalName().equals("sidebar"))
 			boxlineAdded = true;

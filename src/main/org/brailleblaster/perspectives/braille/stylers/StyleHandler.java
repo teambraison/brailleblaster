@@ -13,6 +13,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -58,7 +59,7 @@ public class StyleHandler extends Handler{
 	
 	private void updateStyle(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Style_Change)){
-			Event event = f.pop();
+			ModelEvent event = (ModelEvent)f.pop();
 			list.setCurrent(event.getListIndex());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		
@@ -78,7 +79,7 @@ public class StyleHandler extends Handler{
 	private void handleStyleSingleSelected(Message message) {	
 		Element parent = parentStyle(list.getCurrent(), message);
 		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		Event e = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
+		Event e = new ModelEvent(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
 		document.changeSemanticAction(message, parent);
 		adjustStyle(itemList, message);
 		
@@ -106,7 +107,7 @@ public class StyleHandler extends Handler{
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
 				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-				Event event = new Event(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
+				Event event = new ModelEvent(EventTypes.Style_Change, parent,  vi.getStartIndex(), list.indexOf(itemList.get(0)), itemList.get(0).start, itemList.get(0).brailleList.getFirst().start, tree.getItemPath());	
 				document.changeSemanticAction(message, parent);
 				adjustStyle( itemList,styleMessage);
 				frame.addEvent(event);

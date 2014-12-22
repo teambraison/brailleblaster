@@ -12,9 +12,9 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
-import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
@@ -46,13 +46,13 @@ public class InsertElementHandler extends Handler{
 	
 	public void insertElement(EventFrame f){
 		frame = new EventFrame();
-		while(f.size() > 0 && f.get(f.size() - 1).getEventType().equals(EventTypes.Delete)){
-			insertElement(f.pop());
+		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Delete)){
+			insertElement((ModelEvent)f.pop());
 		}
 		manager.addRedoEvent(frame);
 	}
 	
-	private void insertElement(Event ev){
+	private void insertElement(ModelEvent ev){
 		ParentNode p = ev.getParent();
 		if(ev.getNode() instanceof Text){
 			p.insertChild(ev.getNode(), ev.getParentIndex());
@@ -93,18 +93,18 @@ public class InsertElementHandler extends Handler{
 	
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-		frame.addEvent(new Event(EventTypes.Delete, p.getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
+		frame.addEvent(new ModelEvent(EventTypes.Delete, p.getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 	}
 	
 	public void resetElement(EventFrame f){
 		frame = new EventFrame();
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Hide)){
-			resetElement(f.pop());
+			resetElement((ModelEvent)f.pop());
 		}
 		manager.addRedoEvent(frame);
 	}
 	
-	private void resetElement(Event event){
+	private void resetElement(ModelEvent event){
 		if(vi.getStartIndex() != event.getFirstSectionIndex())
 			list = vi.resetViews(event.getFirstSectionIndex());
 	
@@ -121,7 +121,7 @@ public class InsertElementHandler extends Handler{
 		if(!onScreen(event.getTextOffset()))
 			setTopIndex(event.getTextOffset());
 		
-		frame.addEvent(new Event(EventTypes.Hide, event.getNode(), vi.getStartIndex(), event.getListIndex(), list.get(event.getListIndex()).start, list.get(event.getListIndex()).brailleList.getFirst().start, tree.getItemPath()));
+		frame.addEvent(new ModelEvent(EventTypes.Hide, event.getNode(), vi.getStartIndex(), event.getListIndex(), list.get(event.getListIndex()).start, list.get(event.getListIndex()).brailleList.getFirst().start, tree.getItemPath()));
 	}
 	
 	private void insertInList(ArrayList<TextMapElement>elList, int index, int textOffset, int brailleOffset){
@@ -268,7 +268,7 @@ public class InsertElementHandler extends Handler{
 	}
 	
 	//returns element removed from DOM
-	private Element replaceElement(Event f){
+	private Element replaceElement(ModelEvent f){
 		ParentNode parent = f.getParent();
 		Element replacedElement = (Element)parent.getChild(f.getParentIndex());
 		parent.replaceChild(replacedElement, f.getNode());

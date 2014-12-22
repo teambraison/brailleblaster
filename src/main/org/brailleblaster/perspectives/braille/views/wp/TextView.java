@@ -747,6 +747,32 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	
+	public void refreshStyle(TextMapElement t){
+		Styles style = stylesTable.makeStylesElement((Element)t.parentElement(), t.n);
+		String text = view.getTextRange(t.start, t.end - t.start);
+		int margin = 0;
+		if(style.contains(StylesType.leftMargin)){
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
+		}
+		
+		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent) && text.length() > 0)
+			setFirstLineIndent(t.start, style);
+		
+		if(style.contains(StylesType.emphasis))
+			setFontStyleRange(t.start, text.length(), (StyleRange)style.get(StylesType.emphasis));
+		else {
+			StyleRange range = getStyleRange();
+			if(range != null)
+				 resetStyleRange(range);		
+		}
+		
+		if(style.contains(StylesType.format))
+			setAlignment(currentStart, currentEnd, style);
+		else
+			setAlignment(currentStart, currentEnd, SWT.LEFT);
+	}
+	
 	public void removeMathML(Message m){
 		setListenerLock(true);
 		

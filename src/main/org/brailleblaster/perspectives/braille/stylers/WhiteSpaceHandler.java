@@ -74,6 +74,8 @@ public class WhiteSpaceHandler {
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), ev.getText().length(),  ev.getText().length());
 			
 			text.view.setCaretOffset(list.getCurrent().start);
+			text.refreshStyle(list.getCurrent());
+			braille.refreshStyle(list.getCurrent());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 	}

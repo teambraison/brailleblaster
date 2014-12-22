@@ -718,6 +718,26 @@ public class BrailleView extends WPView {
 		}
 	}
 	
+	public void refreshStyle(TextMapElement t){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		String text = view.getTextRange(t.brailleList.getFirst().start, t.brailleList.getLast().end - t.brailleList.getFirst().start);
+		int margin = 0;
+		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
+			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
+		
+		//reset margin in case it is not applied
+		if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
+			handleLineWrap(t.brailleList.getFirst().start, text, 0, false);
+		
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(t.brailleList.getFirst().start, text, margin, style.contains(StylesType.firstLineIndent));
+		}
+			
+		if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(t.brailleList.getFirst().start, style);
+	}
+	
 	public void removeMathML(TextMapElement t){
 		int total = t.brailleList.getLast().end - t.brailleList.getFirst().start;
 		view.replaceTextRange(t.brailleList.getFirst().start, total, "");

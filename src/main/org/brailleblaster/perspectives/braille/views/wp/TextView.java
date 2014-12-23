@@ -41,7 +41,6 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
-
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -51,6 +50,7 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -790,7 +790,6 @@ public class TextView extends WPView {
 		view.setCaretOffset(start);
 		view.insert(reformattedText);
 		vi.addElementToSection(list, new TextMapElement(start, start + reformattedText.length(), n), listIndex);
-		//list.add(listIndex, new TextMapElement(start, start + reformattedText.length(), n));
 		
 		int margin = 0;
 		
@@ -1199,19 +1198,17 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else if( (oldCursorPosition == currentEnd && nextStart == -1)|| (oldCursorPosition > currentEnd && (oldCursorPosition < nextStart || nextStart == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
-			else
+			else 
 				makeTextChange(offset);
 		}
 		else {
 			offset = -1;
 			if((previousEnd == -1 || selectionStart >= previousEnd) && selectionStart + selectionLength <= currentStart)
 				deleteSpaceAndShift(selectionStart, offset, e);
-			else if(selectionStart == currentEnd && (nextStart == -1 || selectionStart + selectionLength <= nextStart)){
+			else if(selectionStart == currentEnd && (nextStart == -1 || selectionStart + selectionLength <= nextStart))
 				deleteSpaceAndShift(selectionStart, offset, e);
-			}
-			else {
+			else 
 				makeTextChange(offset);
-			}
 		}
 		
 		if(currentStart == currentEnd && (currentStart == previousEnd || currentStart == nextStart)){

@@ -54,7 +54,6 @@ import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
@@ -661,9 +660,8 @@ public class Manager extends Controller {
 	    else
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
 			
-		Styles style = styles.get("trnote");
-		Message styleMessage =  Message.createUpdateStyleMessage(style, false, false);
-		dispatch(styleMessage);
+	    text.refreshStyle(list.getCurrent());
+	    braille.refreshStyle(list.getCurrent());
 	}
 	
 	private void handleRemoveNode(Message message){

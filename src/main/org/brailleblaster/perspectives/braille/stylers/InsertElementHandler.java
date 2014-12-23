@@ -106,6 +106,8 @@ public class InsertElementHandler extends Handler{
 		}
 	
 		list.setCurrent(ev.getListIndex());
+		text.refreshStyle(list.getCurrent());
+		braille.refreshStyle(list.getCurrent());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	

@@ -38,18 +38,32 @@ public class InsertElementHandler extends Handler{
 	}
 	
 	public void insertElement(Message m){
+		frame = new EventFrame();
 		if(m.getValue("atStart").equals(true))
 			insertElementAtBeginning(m);
 		else
 			insertElementAtEnd(m);
+		manager.addUndoEvent(frame);
 	}
 	
 	public void insertElement(EventFrame f){
 		frame = new EventFrame();
 		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Delete)){
-			insertElement((ModelEvent)f.pop());
+			ModelEvent ev= (ModelEvent)f.pop();
+			insertElement(ev);
+			frame.addEvent(new ModelEvent(EventTypes.Delete, ev.getParent().getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 		}
 		manager.addRedoEvent(frame);
+	}
+	
+	public void redoInsert(EventFrame f){
+		frame = new EventFrame();
+		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Insert)){
+			ModelEvent ev= (ModelEvent)f.pop();
+			insertElement(ev);
+			frame.addEvent(new ModelEvent(EventTypes.Insert, ev.getParent().getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
+		}
+		manager.addUndoEvent(frame);
 	}
 	
 	private void insertElement(ModelEvent ev){
@@ -93,7 +107,6 @@ public class InsertElementHandler extends Handler{
 	
 		list.setCurrent(ev.getListIndex());
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-		frame.addEvent(new ModelEvent(EventTypes.Delete, p.getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 	}
 	
 	public void resetElement(EventFrame f){
@@ -167,8 +180,11 @@ public class InsertElementHandler extends Handler{
 		m.put("newBrailleLength", 1);
 		m.put("brailleLength", 0);
 
+		int newItemIndex = list.getCurrentIndex() + 1;
 		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
-		tree.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
+		tree.newTreeItem(list.get(newItemIndex), index, 1);
+		TextMapElement t = list.get(newItemIndex);
+		frame.addEvent(new ModelEvent(EventTypes.Insert, t.parentElement(), vi.getStartIndex(), newItemIndex, t.start, t.brailleList.getFirst().start, tree.getItemPath()));
 	}
 	
 	private ArrayList<TextMapElement> constructMapElements(Element e, int index){

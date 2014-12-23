@@ -960,12 +960,11 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			if(list.empty()){
-				sm.displayTable(null);
-			}
-			else {
+			if(list.empty())
+				sm.displayTable(null);	
+			else 
 				sm.displayTable(list.getCurrent());
-			}
+			
 			setTabList();
 			PropertyFileManager pfm = BBIni.getPropertyFileManager();
 			String weight = pfm.getProperty("stylePanelWeight");

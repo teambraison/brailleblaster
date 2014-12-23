@@ -756,7 +756,7 @@ public class TextView extends WPView {
 			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
 		}
 		
-		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent) && text.length() > 0)
+		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent))
 			setFirstLineIndent(t.start, style);
 		
 		if(style.contains(StylesType.emphasis))

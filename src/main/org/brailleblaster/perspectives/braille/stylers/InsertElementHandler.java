@@ -169,6 +169,8 @@ public class InsertElementHandler extends Handler{
 		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
 			
 		tree.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
+		TextMapElement t = list.get(list.getCurrentIndex());
+		frame.addEvent(new ModelEvent(EventTypes.Insert, t.parentElement(), vi.getStartIndex(), list.getCurrentIndex(), t.start, t.brailleList.getFirst().start, tree.getItemPath()));
 	}
 	
 	private void insertElementAtEnd(Message m){

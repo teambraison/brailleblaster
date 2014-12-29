@@ -186,7 +186,7 @@ public class PagePropertiesTab {
 		setValue(marginRightBox, "rightMargin");
 		addMarginListener(marginRightBox, "rightMargin");
 		
-		Control [] tabList = {sizeGroup, marginGroup};
+		Control [] tabList = {sizeGroup, marginGroup, unitsGroup};
 		group.setTabList(tabList);
 		
 		if(widthBox.getText().length() > 0 || heightBox.getText().length() > 0)

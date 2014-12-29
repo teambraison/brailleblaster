@@ -292,10 +292,6 @@ public class SettingsManager {
 		return (int)(pWidth / cellWidth);
 	}
 	
-	/* 
-	 * This method calculates the width of the page from the number of cells.
-	 * It receives the number of cells and returns a double of the page width.
-	 */
 	public double calcWidthFromCells(int numberOfCells){
 		double cellWidth;
 		if (!isMetric())
@@ -306,10 +302,8 @@ public class SettingsManager {
 		return cellWidth*numberOfCells;
 			
 	}
-	
-	//This method calculates the height of the page from a number of lines.  It receives an int number of lines and 
-	//returns a double page height
-	public double calcHeightFromLines(int numberOfLines){
+
+	public double calcHeightFromLines(double numberOfLines){
 		Double cellHeight;
 		if (!isMetric())
 			cellHeight = 0.393701;

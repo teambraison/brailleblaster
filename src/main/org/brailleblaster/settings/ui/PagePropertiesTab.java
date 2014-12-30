@@ -157,7 +157,7 @@ public class PagePropertiesTab {
 		marginTopBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginTopBox);
 		setGridData(marginTopBox);
-		setValue(marginTopBox, "topMargin");
+		setValueForMargins(marginTopBox, "topMargin");
 		addMarginListener(marginTopBox, "topMargin");
 		
 		marginBottomLabel = new Label(marginGroup, 0);
@@ -165,7 +165,7 @@ public class PagePropertiesTab {
 		marginBottomBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginBottomBox);
 		setGridData(marginBottomBox);
-		setValue(marginBottomBox, "bottomMargin");
+		setValueForMargins(marginBottomBox, "bottomMargin");
 		addMarginListener(marginBottomBox, "bottomMargin");
 		
 		marginLeftLabel= new Label(marginGroup, 0);
@@ -173,7 +173,7 @@ public class PagePropertiesTab {
 		marginLeftBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginLeftBox);
 		setGridData(marginLeftBox);
-		setValue(marginLeftBox, "leftMargin");
+		setValueForMargins(marginLeftBox, "leftMargin");
 		addMarginListener(marginLeftBox, "leftMargin");
 		
 		marginRightLabel = new Label(marginGroup, 0);
@@ -181,7 +181,7 @@ public class PagePropertiesTab {
 		marginRightBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleListener(marginRightBox);
 		setGridData(marginRightBox);
-		setValue(marginRightBox, "rightMargin");
+		setValueForMargins(marginRightBox, "rightMargin");
 		addMarginListener(marginRightBox, "rightMargin");
 		
 		Control [] tabList = {sizeGroup, marginGroup, unitsGroup};
@@ -514,6 +514,23 @@ public class PagePropertiesTab {
 	private void setValue(Text text, String key){
 		if(settingsMap.containsKey(key))
 			text.setText(settingsMap.get(key));
+	}
+	
+	private void setValueForMargins (Text text, String key) {
+		if (regionalButton.getSelection()) {
+			if(settingsMap.containsKey(key))
+				text.setText(settingsMap.get(key));
+		}
+		else {
+			if(key.equals("leftMargin")||key.equals("rightMargin")) {
+				if(settingsMap.containsKey(key))
+					text.setText(String.valueOf(calculateCellsPerInch(Double.valueOf(settingsMap.get(key)))));
+			}
+			else {
+				if(settingsMap.containsKey(key))
+					text.setText(String.valueOf(calculateLinesPerInch(Double.valueOf(settingsMap.get(key)))));
+			}
+		}
 	}
 	
 	private void setDefault(){

@@ -205,7 +205,7 @@ public class SettingsManager {
 				e.printStackTrace();
 			}
 	}
-	
+	//
 	public HashMap<String, String> getMapClone(){
 		HashMap<String, String>temp = new HashMap<String, String>();
 		
@@ -264,7 +264,7 @@ public class SettingsManager {
 	 * Calculate numbers of lines per page
 	 * @return Number of line per page
 	 */
-	private int calculateLinesPerPage(double pHeight){
+	public int calculateLinesPerPage(double pHeight){
 		double cellHeight = 0.393701;
 		
 		if(outputMap.containsKey("topMargin"))
@@ -274,6 +274,42 @@ public class SettingsManager {
 			pHeight -= Double.valueOf(outputMap.get("bottomMargin"));
 		
 		return (int)(pHeight / cellHeight);
+	}
+	
+	public int calculateCellsPerLine(double pWidth){
+		double cellWidth;
+		if(!isMetric())
+			cellWidth = 0.246063;
+		else
+			cellWidth = 6.25;
+		
+		if(outputMap.containsKey("leftMargin"))
+			pWidth -= Double.valueOf(outputMap.get("leftMargin"));
+		
+		if(outputMap.containsKey("rightMargin"))
+			pWidth -= Double.valueOf(outputMap.get("rightMargin"));
+		
+		return (int)(pWidth / cellWidth);
+	}
+	
+	public double calcWidthFromCells(int numberOfCells){
+		double cellWidth;
+		if (!isMetric())
+			cellWidth=0.246063;
+		else
+			cellWidth=6.25;
+		
+		return cellWidth*numberOfCells;
+			
+	}
+
+	public double calcHeightFromLines(double numberOfLines){
+		Double cellHeight;
+		if (!isMetric())
+			cellHeight = 0.393701;
+		else
+			cellHeight = 10.0;
+		return cellHeight*numberOfLines;
 	}
 	
 	/**

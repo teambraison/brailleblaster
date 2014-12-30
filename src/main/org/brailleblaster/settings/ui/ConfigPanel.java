@@ -48,6 +48,7 @@ public class ConfigPanel {
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
 		advTab = new AdvancedTab(folder, sm, settingsCopy);
+
 		
 		okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));
@@ -101,7 +102,7 @@ public class ConfigPanel {
 		Monitor primary = shell.getDisplay().getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();
 		int x = (bounds.width / 2) - ((bounds.width / 6) / 2);
-		int y = (bounds.height / 2) - ((bounds.height / 3) / 2);
+		int y = (bounds.height / 2) - ((bounds.height / 2) / 2);
 		shell.setSize(bounds.width / 3, (int) (bounds.height/1.5) );
 		shell.setLocation(x, y);
 	}

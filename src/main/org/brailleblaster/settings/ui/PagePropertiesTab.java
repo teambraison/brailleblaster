@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.swing.ButtonModel;
-
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.settings.SettingsManager;
@@ -242,9 +240,17 @@ public class PagePropertiesTab {
 								}
 							}
 								else {
+									if (regionalButton.getSelection()) {
 									settingsMap.put(type,getStringValue(t));
 									cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
 									linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+									}
+									else {
+										settingsMap.put(type,
+												String.valueOf(df.format(calcWidthFromCells(Integer.valueOf((getStringValue(t)))))));
+										cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+										linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+									}
 								}
 						}
 						
@@ -277,9 +283,17 @@ public class PagePropertiesTab {
 								}
 							}
 							else {
+								if(regionalButton.getSelection()) {
 								settingsMap.put(type,getStringValue(t));
 								cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
 								linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+								}
+								else {
+									settingsMap.put(type, 
+											String.valueOf(df.format(sm.calcHeightFromLines(Integer.valueOf((getStringValue(t)))))));
+									cellsBox.setText(String.valueOf(calculateCellsPerLine(Double.valueOf(widthBox.getText()))));
+									linesBox.setText(String.valueOf(calculateLinesPerPage(Double.valueOf(heightBox.getText()))));
+								}
 							}
 						}
 						}	

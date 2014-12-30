@@ -6,6 +6,7 @@ import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
+import org.brailleblaster.perspectives.braille.eventQueue.ViewEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -83,5 +84,40 @@ public class TextUpdateHandler extends Handler {
 		f.addEvent(e);
 		
 		return f;
+	}
+	
+	public void undoEdit(EventFrame f){
+		EventFrame frame = new EventFrame();
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
+			ViewEvent ev = (ViewEvent)f.pop();
+			text.view.setCaretOffset(ev.getTextOffset());
+			
+			int start = ev.getTextOffset();
+			int end = ev.getTextOffset() + ev.getText().length();
+			//String replacedtext = text.view.getText(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
+			String replacedtext = text.view.getTextRange(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset());
+			
+			frame.addEvent(new ViewEvent(EventTypes.Edit, start, end, 0, 0, replacedtext));
+			text.undoEdit(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset(), ev.getText());
+		}
+		
+		manager.addRedoEvent(frame);
+	}
+	
+	public void redoEdit(EventFrame f){
+		EventFrame frame = new EventFrame();
+		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
+			ViewEvent ev = (ViewEvent)f.pop();
+			text.view.setCaretOffset(ev.getTextOffset());
+			
+			int start = ev.getTextOffset();
+			int end =  ev.getTextOffset() + ev.getText().length();
+			String replacedText = text.view.getTextRange(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset());
+		
+			frame.addEvent(new ViewEvent(EventTypes.Edit, start, end, 0,0, replacedText));
+			text.undoEdit(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset(), ev.getText());
+		}
+		
+		manager.addUndoEvent(frame);
 	}
 }

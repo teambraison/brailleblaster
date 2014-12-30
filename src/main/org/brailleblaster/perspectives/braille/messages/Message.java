@@ -35,6 +35,7 @@ import java.util.HashMap;
 
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+import org.eclipse.swt.custom.ExtendedModifyEvent;
 
 import nu.xom.Text;
 
@@ -188,6 +189,13 @@ public class Message {
 		m.put("Style", style);
 		m.put("multiSelect", multiSelect);
 		m.put("isBoxline", isBoxline);
+		return m;
+	}
+	
+	public static Message createEditEventMesag(ExtendedModifyEvent e){
+		Message m = new Message(BBEvent.EDIT);
+		m.put("event", e);
+		
 		return m;
 	}
 	

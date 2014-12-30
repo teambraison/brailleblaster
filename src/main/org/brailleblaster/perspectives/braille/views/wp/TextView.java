@@ -48,6 +48,7 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
 
@@ -105,13 +106,15 @@ public class TextView extends WPView {
 	private EditMenu menu;
 
 	private boolean multiSelected;
-
+	private EditRecorder editRecorder;
+	
  	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
 		super (manager, sash, table);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
 		this.manager = manager;
+		this.editRecorder = new EditRecorder(manager, this);
 		menu = new EditMenu(this, manager);
 		multiSelected=false;
 		readOnly = false;
@@ -141,6 +144,11 @@ public class TextView extends WPView {
 				oldCursorPosition = view.getCaretOffset();
 				currentChar = e.keyCode;
 
+				if(selectionLength > 0)
+					editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
+				else
+					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+				
 				if(readOnly){
 					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
 						e.doit = false;
@@ -296,7 +304,7 @@ public class TextView extends WPView {
 				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
-							if(textChanged == true){
+							if(textChanged == true && currentChanges != 0){
 								sendUpdate();
 							}
 							
@@ -1134,10 +1142,12 @@ public class TextView extends WPView {
 				else if(e.start + e.replacedText.length() == currentEnd){
 					changes -= e.replacedText.length();
 					makeTextChange(changes);
+					recordEvent(e, true);
 				}
 				else {					
 					changes = e.length - selectionLength;							
 					makeTextChange(changes);
+					recordEvent(e, true);
 				}
 			}
 		}
@@ -1149,6 +1159,7 @@ public class TextView extends WPView {
 				sendAdjustRangeMessage("start", currentStart - oldCursorPosition);
 		
 			makeTextChange(changes);
+			recordEvent(e, true);
 		}
 		
 		checkStyleRange(range);
@@ -1174,8 +1185,10 @@ public class TextView extends WPView {
 			}
 			else if(oldCursorPosition > currentEnd)
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
-			else
+			else{
 				makeTextChange(offset);
+				recordEvent(e, false);
+			}
 		}
 		else if(currentChar == SWT.DEL){
 			offset = -1;
@@ -1198,8 +1211,10 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else if( (oldCursorPosition == currentEnd && nextStart == -1)|| (oldCursorPosition > currentEnd && (oldCursorPosition < nextStart || nextStart == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
-			else 
+			else {
 				makeTextChange(offset);
+				recordEvent(e, false);
+			}
 		}
 		else {
 			offset = -1;
@@ -1207,8 +1222,10 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(selectionStart, offset, e);
 			else if(selectionStart == currentEnd && (nextStart == -1 || selectionStart + selectionLength <= nextStart))
 				deleteSpaceAndShift(selectionStart, offset, e);
-			else 
+			else {
 				makeTextChange(offset);
+				recordEvent(e, false);
+			}
 		}
 		
 		if(currentStart == currentEnd && (currentStart == previousEnd || currentStart == nextStart)){
@@ -1221,8 +1238,10 @@ public class TextView extends WPView {
 	}
 
 	private void deleteSelection(ExtendedModifyEvent e){
-		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd)
+		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd){
 			makeTextChange(-selectionLength);
+			recordEvent(e, false);
+		}
 		else if(selectionStart + selectionLength > currentEnd && selectionStart + selectionLength >= nextStart || previousEnd == -1){	
 			int changes = 0;
 			while(selectionLength > 0){
@@ -1320,6 +1339,14 @@ public class TextView extends WPView {
 		
 		if(currentElement instanceof PageMapElement)
 			view.setCaretOffset(previousEnd);
+	}
+	
+	private void recordEvent(ExtendedModifyEvent e, boolean edit){
+		Message message = Message.createEditEventMesag(e);
+		if(edit)
+			editRecorder.recordEditEvent(message);
+		else
+			editRecorder.recordDeleteEvent(message);
 	}
 	
 	private void handleReadOnlySelection(TextMapElement p, boolean partial){
@@ -1461,6 +1488,11 @@ public class TextView extends WPView {
 	}
 	
 	public void cut(){
+		if(selectionLength > 0)
+			editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
+		else
+			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+		
 		if(validCut())
 			view.cut();
 	}
@@ -1800,6 +1832,7 @@ public class TextView extends WPView {
 		setListenerLock(true);
 		menu.dispose();
 		recreateView(sashform);
+		editRecorder = new EditRecorder(manager, this);
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;
@@ -1933,5 +1966,11 @@ public class TextView extends WPView {
 		else{
 			multiSelected = false;
 		}
+	}
+	
+	public void undoEdit(int start, int length, String text){
+		int changes = text.length() - length;
+		replaceTextRange(start, length, text);
+		makeTextChange(changes);
 	}
 }

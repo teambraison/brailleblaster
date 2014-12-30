@@ -193,10 +193,6 @@ public class PagePropertiesTab {
 		addListeners();
 	}
 	
-	public void test() {
-		System.out.println("this is a test");
-	}
-	
 	private void addDoubleListener(final Text t){
 		t.addKeyListener(new KeyAdapter(){
 			@Override

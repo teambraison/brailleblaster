@@ -28,8 +28,10 @@ public class PageNumbersTab {
 	LocaleHandler lh;
 	Group ppnGroup, bpnGroup, cpGroup;
 	Composite group;
-	Label ppnLabel, bpnLabel, cpLabel, intpLabel, ppnlocLabel, bpnlocLabel, ppnRngLabel;
-	Combo ppnCombo, bpnCombo, cpCombo, intpCombo, ppnlocCombo, bpnlocCombo, ppnRngCombo;
+	Label cpLabel, intpLabel, ppnRngLabel, bpnLocLabel, ppnLocLabel;
+	//Label ppnLabel, bpnLabel, ppnlocLabel, bpnlocLabel;
+	Combo cpCombo, intpCombo, ppnRngCombo, bpnLocCombo, ppnLocCombo;
+	//Combo ppnCombo, bpnCombo, ppnlocCombo, bpnlocCombo;
 	
 	public PageNumbersTab(TabFolder folder, final SettingsManager sm, HashMap<String, String> settingsMap) {
 		super();
@@ -52,18 +54,6 @@ public class PageNumbersTab {
 		bpnGroup.setLayout(new GridLayout(2, true));
 		bpnGroup.setText(lh.localValue("braille"));
 		
-		bpnLabel = new Label(bpnGroup, 0);
-		bpnLabel.setText("Braille Page Numbers");
-		setGridData(bpnLabel);
-		bpnCombo = new Combo(bpnGroup, SWT.READ_ONLY);
-		bpnCombo.add("No");
-		bpnCombo.add("Yes");
-		if( settingsMap.get("numberBraillePages").equals("yes") )
-			bpnCombo.setText("Yes");
-		else
-			bpnCombo.setText("No");
-		setGridData(bpnCombo);
-		
 		////////////
 		
 		intpLabel = new Label(bpnGroup, 0);
@@ -79,18 +69,34 @@ public class PageNumbersTab {
 		setGridData(intpCombo);
 		
 		///////////
+			
+		/**
+		 * Currently the settings have one drop down menu to select "Yes" or "No" 
+		 * and a separate settings box to select the location. 
+		 * Rather than the user having to enter two settings, this could be consolidated into 
+		 * one drop down menu for Braille Page Numbers: Top, Bottom, None.
+		 */
 		
-		bpnlocLabel = new Label(bpnGroup, 0);
-		bpnlocLabel.setText("BPN Location");
-		setGridData(bpnlocLabel);
-		bpnlocCombo = new Combo(bpnGroup, SWT.READ_ONLY);
-		bpnlocCombo.add("Bottom");
-		bpnlocCombo.add("Top");
-		if( settingsMap.get("braillePageNumberAt").equals("top") )
-			bpnlocCombo.setText("Top");
-		else
-			bpnlocCombo.setText("Bottom");
-		setGridData(bpnlocCombo);
+		bpnLocLabel = new Label (bpnGroup, 0);
+		bpnLocLabel.setText("Braille Page Number Location");
+		setGridData(bpnLocLabel);
+		bpnLocCombo = new Combo(bpnGroup, SWT.READ_ONLY);
+		bpnLocCombo.add("Top");
+		bpnLocCombo.add("Bottom");
+		bpnLocCombo.add("None");
+		
+		if (settingsMap.get("braillePageNumberAt").equals("top")) {
+			bpnLocCombo.setText("Top");
+		}
+		else {
+			bpnLocCombo.setText("Bottom");
+		}
+		
+		if (settingsMap.get("numberBraillePages").equals("no")) {
+			bpnLocCombo.setText("None");
+		}
+		
+		setGridData(bpnLocCombo);
 		
 		/////////////////////////////////////////////////////////////
 		
@@ -98,32 +104,26 @@ public class PageNumbersTab {
 		ppnGroup.setLayout(new GridLayout(2, true));
 		ppnGroup.setText(lh.localValue("print"));
 		
+		ppnLocLabel = new Label(ppnGroup, 0);
+		ppnLocLabel.setText("Print Page Number Location");
+		setGridData(ppnLocLabel);
+		ppnLocCombo = new Combo(ppnGroup, SWT.READ_ONLY);
+		ppnLocCombo.add("Top");
+		ppnLocCombo.add("Bottom");
+		ppnLocCombo.add("None");
 		
-		ppnLabel = new Label(ppnGroup, 0);
-		ppnLabel.setText("Print Page Numbers");
-		setGridData(ppnLabel);
-		ppnCombo = new Combo(ppnGroup, SWT.READ_ONLY);
-		ppnCombo.add("No");
-		ppnCombo.add("Yes");
-		if( settingsMap.get("printPages").equals("yes") )
-			ppnCombo.setText("Yes");
-		else
-			ppnCombo.setText("No");
-		setGridData(ppnCombo);
+		if (settingsMap.get("printPageNumberAt").equals("top") ) {
+			ppnLocCombo.setText("Top");
+		}
+		else {
+			ppnLocCombo.setText("Bottom");
+		}
 		
-		/////////////
+		if (settingsMap.get("printPages").equals("no")) {
+			ppnLocCombo.setText("None");
+		}
 		
-		ppnlocLabel = new Label(ppnGroup, 0);
-		ppnlocLabel.setText("PPN Location");
-		setGridData(ppnlocLabel);
-		ppnlocCombo = new Combo(ppnGroup, SWT.READ_ONLY);
-		ppnlocCombo.add("Bottom");
-		ppnlocCombo.add("Top");
-		if( settingsMap.get("printPageNumberAt").equals("top") )
-			ppnlocCombo.setText("Top");
-		else
-			ppnlocCombo.setText("Bottom");
-		setGridData(ppnlocCombo);
+		setGridData(ppnLocCombo);
 		
 		/////////////
 		
@@ -146,7 +146,7 @@ public class PageNumbersTab {
 		cpGroup.setText(lh.localValue("continue"));
 		cpLabel = new Label(cpGroup, 0);
 		cpLabel.setText("Continue Pages");
-		setGridData(ppnLabel);
+		setGridData(ppnLocLabel);
 		cpCombo = new Combo(cpGroup, SWT.READ_ONLY);
 		cpCombo.add("No");
 		cpCombo.add("Yes");
@@ -161,22 +161,6 @@ public class PageNumbersTab {
 	}
 	
 	private void addListeners(){
-		
-		ppnCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = ppnCombo.getSelectionIndex();
-				settingsMap.put("printPages", ppnCombo.getText().toLowerCase());
-			}
-		});
-		
-		bpnCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = bpnCombo.getSelectionIndex();
-				settingsMap.put("numberBraillePages", bpnCombo.getText().toLowerCase());
-			}
-		});
 		
 		cpCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -193,20 +177,32 @@ public class PageNumbersTab {
 				settingsMap.put("interpoint", intpCombo.getText().toLowerCase());
 			}
 		});
-		
-		ppnlocCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = ppnlocCombo.getSelectionIndex();
-				settingsMap.put("printPageNumberAt", ppnlocCombo.getText().toLowerCase());
+
+		ppnLocCombo.addSelectionListener(new SelectionAdapter(){
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			int index = ppnLocCombo.getSelectionIndex();
+			if (ppnLocCombo.getText().equals("None")) {
+				settingsMap.put("printPages", "no");
+			}
+			else {
+				settingsMap.put("printPageNumberAt", ppnLocCombo.getText().toLowerCase());
+				settingsMap.put("printPages", "yes");
+			}
 			}
 		});
 		
-		bpnlocCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = bpnlocCombo.getSelectionIndex();
-				settingsMap.put("braillePageNumberAt", bpnlocCombo.getText().toLowerCase());
+		bpnLocCombo.addSelectionListener(new SelectionAdapter(){
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			int index = bpnLocCombo.getSelectionIndex();
+			if (bpnLocCombo.getText().equals("None")) {
+				settingsMap.put("numberBraillePages", "no");
+			}
+			else {
+				settingsMap.put("braillePageNumberAt", bpnLocCombo.getText().toLowerCase());
+				settingsMap.put("numberBraillePages", "yes");
+			}
 			}
 		});
 		

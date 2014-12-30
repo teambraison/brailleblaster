@@ -24,6 +24,10 @@ public class RedoQueue extends EventQueue{
 		for(int i = 0; i < frame.size(); i++){
 			Event event = frame.get(i);
 			switch(event.eventType){
+				case Edit:
+					TextUpdateHandler editUpdater = new TextUpdateHandler(manager, vi, list);
+					editUpdater.redoEdit(frame);
+					break;
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
 					tuh.redoText(frame);

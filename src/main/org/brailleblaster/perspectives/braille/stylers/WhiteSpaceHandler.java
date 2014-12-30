@@ -56,7 +56,7 @@ public class WhiteSpaceHandler {
 		else
 			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
 		
-		eventFrame.addEvent(new ViewEvent(EventTypes.Whitespace, (Integer)message.getValue("offset"), brailleStart, (String)message.getValue("replacedText")));
+		eventFrame.addEvent(new ViewEvent(EventTypes.Whitespace, (Integer)message.getValue("offset"), 0, brailleStart, 0,(String)message.getValue("replacedText")));
 		manager.addUndoEvent(eventFrame);
 	}
 	

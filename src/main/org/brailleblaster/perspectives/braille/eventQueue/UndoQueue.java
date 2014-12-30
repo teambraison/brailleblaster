@@ -47,6 +47,9 @@ public class UndoQueue extends EventQueue {
 					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
 					wsh.UndoDelete(frame);
 					break;
+				case Edit:
+					TextUpdateHandler editHandler = new TextUpdateHandler(manager, vi, list);
+					editHandler.undoEdit(frame);
 				default:
 					break;
 			}

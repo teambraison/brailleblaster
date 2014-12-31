@@ -23,6 +23,10 @@ public class UndoQueue extends EventQueue {
 		while(!frame.empty()){
 			Event event = frame.get(frame.size() - 1);
 			switch(event.eventType){
+				case Edit:
+					TextUpdateHandler editHandler = new TextUpdateHandler(manager, vi, list);
+					editHandler.undoEdit(frame);	
+					break;
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
 					tuh.undoText(frame);
@@ -47,9 +51,6 @@ public class UndoQueue extends EventQueue {
 					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
 					wsh.UndoDelete(frame);
 					break;
-				case Edit:
-					TextUpdateHandler editHandler = new TextUpdateHandler(manager, vi, list);
-					editHandler.undoEdit(frame);
 				default:
 					break;
 			}

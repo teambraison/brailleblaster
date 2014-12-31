@@ -21,7 +21,6 @@ public class EditRecorder {
 	}
 	
 	public void recordEditEvent(Message m){
-		EventFrame frame = new EventFrame();
 		ExtendedModifyEvent e = (ExtendedModifyEvent)m.getValue("event");
 		
 		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
@@ -40,12 +39,10 @@ public class EditRecorder {
 		String recordedText = lineText.substring(wordStart, offset) + e.replacedText + lineText.substring(offset + e.length, wordEnd);
 		wordStart = lineStart + wordStart;
 		wordEnd = lineStart + wordEnd;
-		frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-		manager.addUndoEvent(frame);
+		createEvent(wordStart, wordEnd, recordedText);
 	}
 	
 	public void recordDeleteEvent(Message m){
-		EventFrame frame = new EventFrame();
 		ExtendedModifyEvent e = (ExtendedModifyEvent)m.getValue("event");
 		
 		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
@@ -64,8 +61,7 @@ public class EditRecorder {
 		String recordedText = lineText.substring(wordStart, offset) + lineText.substring(offset + e.length, wordEnd);
 		wordStart = lineStart + wordStart;
 		wordEnd = lineStart + wordEnd - e.replacedText.length();
-		frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-		manager.addUndoEvent(frame);
+		createEvent(wordStart, wordEnd, recordedText);
 	}
 	
 	public void recordLine(String currentLine){
@@ -87,5 +83,11 @@ public class EditRecorder {
 	
 	public String getCurrentLine(){
 		return currentLine;
+	}
+	
+	private void createEvent(int wordStart, int wordEnd, String recordedText){
+		EventFrame frame = new EventFrame();
+		frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+		manager.addUndoEvent(frame);
 	}
 }

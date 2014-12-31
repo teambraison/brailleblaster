@@ -87,24 +87,16 @@ public class TextUpdateHandler extends Handler {
 	}
 	
 	public void undoEdit(EventFrame f){
-		EventFrame frame = new EventFrame();
-		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
-			ViewEvent ev = (ViewEvent)f.pop();
-			text.view.setCaretOffset(ev.getTextOffset());
-			
-			int start = ev.getTextOffset();
-			int end = ev.getTextOffset() + ev.getText().length();
-			//String replacedtext = text.view.getText(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
-			String replacedtext = text.view.getTextRange(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset());
-			
-			frame.addEvent(new ViewEvent(EventTypes.Edit, start, end, 0, 0, replacedtext));
-			text.undoEdit(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset(), ev.getText());
-		}
-		
+		EventFrame frame = recreateEditEvent(f);
 		manager.addRedoEvent(frame);
 	}
 	
 	public void redoEdit(EventFrame f){
+		EventFrame frame = recreateEditEvent(f);
+		manager.addUndoEvent(frame);
+	}
+	
+	private EventFrame recreateEditEvent(EventFrame f){
 		EventFrame frame = new EventFrame();
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
 			ViewEvent ev = (ViewEvent)f.pop();
@@ -118,6 +110,6 @@ public class TextUpdateHandler extends Handler {
 			text.undoEdit(ev.getTextOffset(), ev.getTextEnd() - ev.getTextOffset(), ev.getText());
 		}
 		
-		manager.addUndoEvent(frame);
+		return frame;
 	}
 }

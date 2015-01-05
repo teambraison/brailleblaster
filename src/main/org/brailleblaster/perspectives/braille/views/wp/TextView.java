@@ -445,6 +445,11 @@ public class TextView extends WPView {
 		textChanged = false;
 	}
 	
+	public void setCurrentElement(int pos){
+		view.setCaretOffset(pos);
+		setCurrent(pos);
+	}
+	
 	private void setCurrent(int pos){
 		Message message = Message.createSetCurrentMessage(Sender.TEXT, pos, false);
 		manager.dispatch(message);
@@ -1335,6 +1340,11 @@ public class TextView extends WPView {
 		
 		if(currentElement instanceof PageMapElement)
 			view.setCaretOffset(previousEnd);
+	}
+	
+	public void adjustCurrentElementValues(int changes){
+		currentChanges = changes;
+		currentEnd += changes;
 	}
 	
 	private void recordEvent(ExtendedModifyEvent e, boolean edit){

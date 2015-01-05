@@ -39,24 +39,44 @@ public class TextUpdateHandler extends Handler {
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
 			list.setCurrent(ev.getListIndex());
+			text.view.setCaretOffset(list.getCurrent().start);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			int changes = calculateEditDifference(ev, list.getCurrent());
 			addRedoEvent();
-			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-			resetText(m);
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
+			resetModelEvent(m);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			text.adjustCurrentElementValues(-changes);
 		}
+	}
+	
+	private int calculateEditDifference(ModelEvent ev, TextMapElement t){
+		int evLength = ev.getNode().getValue().length();
+		int viewLength = text.view.getTextRange(t.start, t.end - t.start).replace("\n", "").length();
+		
+		return evLength - viewLength;
 	}
 	
 	public void redoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
 			list.setCurrent(ev.getListIndex());
+			text.view.setCaretOffset(list.getCurrent().start);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 			addUndoEvent();
-			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-			resetText(m);
+			int changes = calculateEditDifference(ev, list.getCurrent());
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
+			resetModelEvent(m);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			//text.adjustCurrentElementValues(-changes);
 		}
+	}
+
+	private void resetModelEvent(Message message){
+		document.updateDOM(list, message);
+		braille.updateBraille(list.getCurrent(), message);
+		list.updateOffsets(list.getCurrentIndex(), message);
+		list.checkList();
 	}
 	
 	private void resetText(Message message){
@@ -99,7 +119,9 @@ public class TextUpdateHandler extends Handler {
 		EventFrame frame = new EventFrame();
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
 			ViewEvent ev = (ViewEvent)f.pop();
-			text.view.setCaretOffset(ev.getTextOffset());
+			
+			text.setCurrentElement(ev.getTextOffset());
+			//text.view.setCaretOffset(ev.getTextOffset());	
 			
 			int start = ev.getTextOffset();
 			int end =  ev.getTextOffset() + ev.getText().length();

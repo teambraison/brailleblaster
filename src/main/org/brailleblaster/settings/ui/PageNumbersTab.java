@@ -8,8 +8,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -165,7 +163,6 @@ public class PageNumbersTab {
 		ppnCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = ppnCombo.getSelectionIndex();
 				settingsMap.put("printPages", ppnCombo.getText().toLowerCase());
 			}
 		});
@@ -173,7 +170,6 @@ public class PageNumbersTab {
 		bpnCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = bpnCombo.getSelectionIndex();
 				settingsMap.put("numberBraillePages", bpnCombo.getText().toLowerCase());
 			}
 		});
@@ -181,7 +177,6 @@ public class PageNumbersTab {
 		cpCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = cpCombo.getSelectionIndex();
 				settingsMap.put("continuePages", cpCombo.getText().toLowerCase());
 			}
 		});
@@ -189,7 +184,6 @@ public class PageNumbersTab {
 		intpCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = intpCombo.getSelectionIndex();
 				settingsMap.put("interpoint", intpCombo.getText().toLowerCase());
 			}
 		});
@@ -197,7 +191,6 @@ public class PageNumbersTab {
 		ppnlocCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = ppnlocCombo.getSelectionIndex();
 				settingsMap.put("printPageNumberAt", ppnlocCombo.getText().toLowerCase());
 			}
 		});
@@ -205,7 +198,6 @@ public class PageNumbersTab {
 		bpnlocCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = bpnlocCombo.getSelectionIndex();
 				settingsMap.put("braillePageNumberAt", bpnlocCombo.getText().toLowerCase());
 			}
 		});
@@ -213,21 +205,9 @@ public class PageNumbersTab {
 		ppnRngCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = ppnRngCombo.getSelectionIndex();
 				settingsMap.put("printPageNumberRange", ppnRngCombo.getText().toLowerCase());
 			}
 		});
-	}
-	
-	private void setFormLayout(Control c, int left, int right, int top, int bottom){
-		FormData location = new FormData();
-		
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		
-		c.setLayoutData(location);
 	}
 	
 	private void setGridData(Control c){

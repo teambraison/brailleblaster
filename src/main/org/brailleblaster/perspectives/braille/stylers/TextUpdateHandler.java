@@ -19,7 +19,6 @@ public class TextUpdateHandler extends Handler {
 
 	public TextUpdateHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);
-	
 		document = manager.getDocument();
 	}
 	
@@ -59,7 +58,7 @@ public class TextUpdateHandler extends Handler {
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 	}
-
+	
 	private void resetText(Message message){
 		document.updateDOM(list, message);
 		braille.updateBraille(list.getCurrent(), message);

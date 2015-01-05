@@ -77,7 +77,7 @@ public class EditRecorder {
 				firstLine++;
 				this.currentLine += "\n";
 				this.currentLine += text.view.getLine(firstLine);
-			} while(firstLine <= lastLine);
+			} while(firstLine < lastLine);
 		}
 	}
 	

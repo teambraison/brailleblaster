@@ -304,17 +304,13 @@ public class TextView extends WPView {
 				if(!getLock()){
 					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
 						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){
-							if(textChanged == true && currentChanges != 0){
+							if(textChanged == true && currentChanges != 0)
 								sendUpdate();
-							}
 							
 							setCurrent(view.getCaretOffset());
-
-							currentChar = ' ';
-							
+							currentChar = ' ';							
 						}
-						sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-						
+						sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));					
 					}
 				}
 

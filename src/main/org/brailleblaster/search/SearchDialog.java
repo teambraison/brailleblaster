@@ -298,13 +298,17 @@ public class SearchDialog extends Dialog {
 		replaceBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				int oldTopIndex = man.getTextView().getTopIndex();
+				int oldCursorPos = man.getText().getCursorOffset();
+				man.getText().setCursor(0, man);
 				// Find string in our "Find" combo box.
 				// If we find one, replace it with what's in the
 				// "Replace" box.
 				if (findStr() == true)
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							startCharIndex, endCharIndex);
+				man.getTextView().setTopIndex(oldTopIndex);
+				man.getText().setCursorOffset(oldCursorPos);
 
 			} // widgetSelected()
 

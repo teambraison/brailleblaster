@@ -379,7 +379,7 @@ public class SearchDialog extends Dialog {
 		String findMeStr = searchCombo.getText();
 
 		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
+		int numChars = tv.view.getText().length()+1;
 
 		// If the search string is larger than the total number of
 		// characters in the view, don't bother.

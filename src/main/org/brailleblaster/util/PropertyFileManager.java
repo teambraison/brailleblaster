@@ -1,4 +1,4 @@
-/* BrailleBlaster Braille Transcription Application
+ /* BrailleBlaster Braille Transcription Application
   *
   * Copyright (C) 2014
 * American Printing House for the Blind, Inc. www.aph.org

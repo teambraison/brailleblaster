@@ -1138,12 +1138,12 @@ public class TextView extends WPView {
 				else if(e.start + e.replacedText.length() == currentEnd){
 					changes -= e.replacedText.length();
 					makeTextChange(changes);
-					recordEvent(e, true);
+	//				recordEvent(e, true);
 				}
 				else {					
 					changes = e.length - selectionLength;							
 					makeTextChange(changes);
-					recordEvent(e, true);
+	//				recordEvent(e, true);
 				}
 			}
 		}
@@ -1155,7 +1155,7 @@ public class TextView extends WPView {
 				sendAdjustRangeMessage("start", currentStart - oldCursorPosition);
 		
 			makeTextChange(changes);
-			recordEvent(e, true);
+	//		recordEvent(e, true);
 		}
 		
 		checkStyleRange(range);
@@ -1183,7 +1183,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else{
 				makeTextChange(offset);
-				recordEvent(e, false);
+	//			recordEvent(e, false);
 			}
 		}
 		else if(currentChar == SWT.DEL){
@@ -1209,7 +1209,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else {
 				makeTextChange(offset);
-				recordEvent(e, false);
+//				recordEvent(e, false);
 			}
 		}
 		else {
@@ -1220,7 +1220,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(selectionStart, offset, e);
 			else {
 				makeTextChange(offset);
-				recordEvent(e, false);
+	//			recordEvent(e, false);
 			}
 		}
 		
@@ -1236,7 +1236,7 @@ public class TextView extends WPView {
 	private void deleteSelection(ExtendedModifyEvent e){
 		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd){
 			makeTextChange(-selectionLength);
-			recordEvent(e, false);
+//			recordEvent(e, false);
 		}
 		else if(selectionStart + selectionLength > currentEnd && selectionStart + selectionLength >= nextStart || previousEnd == -1){	
 			int changes = 0;
@@ -1337,6 +1337,7 @@ public class TextView extends WPView {
 			view.setCaretOffset(previousEnd);
 	}
 	
+	/*
 	private void recordEvent(ExtendedModifyEvent e, boolean edit){
 		Message message = Message.createEditEventMesag(e);
 		if(edit)
@@ -1344,7 +1345,7 @@ public class TextView extends WPView {
 		else
 			editRecorder.recordDeleteEvent(message);
 	}
-	
+	*/
 	private void handleReadOnlySelection(TextMapElement p, boolean partial){
 		int pos = p.end;
 		setListenerLock(true);

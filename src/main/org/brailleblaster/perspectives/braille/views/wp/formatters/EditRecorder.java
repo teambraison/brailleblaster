@@ -36,6 +36,11 @@ public class EditRecorder {
 			index--;
 		
 		int wordStart = index;
+		
+		//handles case where char is space
+		if(wordStart == wordEnd && e.length == 1)
+			wordEnd++;
+		
 		String recordedText = lineText.substring(wordStart, offset) + e.replacedText + lineText.substring(offset + e.length, wordEnd);
 		wordStart = lineStart + wordStart;
 		wordEnd = lineStart + wordEnd;

@@ -1982,6 +1982,9 @@ public class TextView extends WPView {
 		int changes = text.length() - length;
 		replaceTextRange(start, length, text);
 		makeTextChange(changes);
+		
+		if(currentChanges == 0)
+			textChanged = false;
 	}
 	
 	public int getCurrentStart(){

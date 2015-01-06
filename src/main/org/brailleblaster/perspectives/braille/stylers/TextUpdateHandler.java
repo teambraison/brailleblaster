@@ -120,8 +120,10 @@ public class TextUpdateHandler extends Handler {
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
 			ViewEvent ev = (ViewEvent)f.pop();
 			
-			text.setCurrentElement(ev.getTextOffset());
-			//text.view.setCaretOffset(ev.getTextOffset());	
+			if(ev.getTextOffset() >= list.getCurrent().start && ev.getTextOffset() <= list.getCurrent().end)
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else
+				text.setCurrentElement(ev.getTextOffset());
 			
 			int start = ev.getTextOffset();
 			int end =  ev.getTextOffset() + ev.getText().length();

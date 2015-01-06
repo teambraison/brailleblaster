@@ -1345,6 +1345,10 @@ public class TextView extends WPView {
 	public void adjustCurrentElementValues(int changes){
 		currentChanges = changes;
 		currentEnd += changes;
+		nextStart += changes;
+		
+		if(currentChanges > 0)
+			textChanged = true;
 	}
 	
 	private void recordEvent(ExtendedModifyEvent e, boolean edit){

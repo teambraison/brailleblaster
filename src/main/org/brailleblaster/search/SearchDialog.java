@@ -298,17 +298,13 @@ public class SearchDialog extends Dialog {
 		replaceBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int oldTopIndex = man.getTextView().getTopIndex();
-				int oldCursorPos = man.getText().getCursorOffset();
-				man.getText().setCursor(0, man);
+
 				// Find string in our "Find" combo box.
 				// If we find one, replace it with what's in the
 				// "Replace" box.
 				if (findStr() == true)
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							startCharIndex, endCharIndex);
-				man.getTextView().setTopIndex(oldTopIndex);
-				man.getText().setCursorOffset(oldCursorPos);
 
 			} // widgetSelected()
 
@@ -323,7 +319,8 @@ public class SearchDialog extends Dialog {
 		replaceAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-
+				
+				if(searchDirection == SCH_FORWARD) {
 				// Replace every instance of word.
 				int oldTopIndex = man.getTextView().getTopIndex();
 				int oldCursorPos = man.getText().getCursorOffset();
@@ -333,6 +330,19 @@ public class SearchDialog extends Dialog {
 							startCharIndex, endCharIndex);
 				man.getTextView().setTopIndex(oldTopIndex);
 				man.getText().setCursorOffset(oldCursorPos);
+				}
+				else {
+					int oldTopIndex = man.getTextView().getTopIndex();
+					int oldCursorPos = man.getText().getCursorOffset();
+					TextView tv = man.getText();
+					int numChars = tv.view.getText().length();
+					man.getText().setCursor(numChars, man);
+					while (findStr() == true)
+						man.getText().copyAndPaste(replaceCombo.getText(),
+								startCharIndex, endCharIndex);	
+					man.getTextView().setTopIndex(oldTopIndex);
+					man.getText().setCursorOffset(oldCursorPos);				
+				}
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -379,7 +389,7 @@ public class SearchDialog extends Dialog {
 		String findMeStr = searchCombo.getText();
 
 		// Get number of characters in text view.
-		int numChars = tv.view.getText().length()+1;
+		int numChars = tv.view.getText().length();
 
 		// If the search string is larger than the total number of
 		// characters in the view, don't bother.
@@ -396,7 +406,7 @@ public class SearchDialog extends Dialog {
 			endCharIndex = startCharIndex + findMeStr.length();
 
 			// Scour the view for the search string.
-			while (startCharIndex < numChars && endCharIndex < numChars) {
+			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
 				// Get current snippet of text we're testing.
 				String curViewSnippet = tv.view.getText().substring(
 						startCharIndex, endCharIndex);
@@ -561,3 +571,4 @@ public class SearchDialog extends Dialog {
 	} // findStr()
 
 } // class SearchDialog...
+

@@ -1,6 +1,7 @@
 package org.brailleblaster.perspectives.braille.views.wp.formatters;
 
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.ViewEvent;
@@ -12,6 +13,7 @@ public class EditRecorder {
 
 	EventFrame frame;
 	String currentLine;
+	int currentLineNumber;
 	Manager manager;
 	TextView text;
 	
@@ -25,6 +27,7 @@ public class EditRecorder {
 		
 		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
 		int offset = e.start - lineStart;
+		
 		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));
 		int index = offset;
 		while(index < lineText.length() && lineText.charAt(index) != ' ')
@@ -69,19 +72,22 @@ public class EditRecorder {
 		createEvent(wordStart, wordEnd, recordedText);
 	}
 	
-	public void recordLine(String currentLine){
+	public void recordLine(String currentLine, int currentLineNumber){
 		this.currentLine = currentLine;
+		this.currentLineNumber = currentLineNumber;
 	}
 	
 	public void recordLine(int start, int end){
 		int firstLine = text.view.getLineAtOffset(start);
 		int lastLine = text.view.getLineAtOffset(end);
+		
+		currentLineNumber = firstLine;
 		currentLine = text.view.getLine(firstLine);
 		if(firstLine != lastLine){
 			do{
 				firstLine++;
-				this.currentLine += "\n";
-				this.currentLine += text.view.getLine(firstLine);
+				currentLine += "\n";
+				currentLine += text.view.getLine(firstLine);
 			} while(firstLine < lastLine);
 		}
 	}
@@ -91,8 +97,34 @@ public class EditRecorder {
 	}
 	
 	private void createEvent(int wordStart, int wordEnd, String recordedText){
-		EventFrame frame = new EventFrame();
-		frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-		manager.addUndoEvent(frame);
+		if(manager.peekEvent() != null && manager.peekEvent().peek().getEventType().equals(EventTypes.Edit)){
+			ViewEvent ev = (ViewEvent)manager.peekEvent().peek();
+			if(sameWord(ev, wordStart)){
+				manager.peekEvent().addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+			}
+			else {
+				frame = new EventFrame();
+				frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+				manager.addUndoEvent(frame);
+			}
+		}
+		else {
+			frame = new EventFrame();
+			frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+			manager.addUndoEvent(frame);
+		}
+	}
+	
+	private boolean sameWord(Event e, int wordStart){
+		int line = text.view.getLineAtOffset(wordStart);
+		
+		if(line == currentLineNumber){
+			int priorStart = e.getTextOffset();
+				
+			if(wordStart == priorStart)
+				return true;
+		}
+		
+		return false;
 	}
 }

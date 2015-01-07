@@ -1468,6 +1468,13 @@ public class Manager extends Controller {
 	public void redo(){
 		redoQueue.popEvent(vi, document, list, this);
 	}
+	
+	public EventFrame peekEvent(){
+		if(undoQueue.size() == 0)
+			return null;
+		else
+			return undoQueue.getLast();
+	}
 
 	/** Creates a Notify class alert box if debugging is not active
 	 * @param notify : String to be used in an alert box, should already be localized

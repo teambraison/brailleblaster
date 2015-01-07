@@ -99,7 +99,7 @@ public class BrailleDocument extends BBDocument {
 	}
 	
 	/** Inserts an Element into the DOM.  This is used for inserting transcribers notes, paragraphs when a user hits enter, etc.
-	 * @param vi : View Intializer managing segments of a DOM 
+	 * @param vi : View Initializer managing segments of a DOM 
 	 * @param list : maplist currently visible in the views
 	 * @param current : element used to determine insertion point in DOM
 	 * @param textOffset : position in text view for start and end of text element inserted

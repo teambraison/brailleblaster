@@ -147,7 +147,7 @@ public class TextView extends WPView {
 				if(selectionLength > 0)
 					editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
 				else
-					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 				
 				if(readOnly){
 					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
@@ -1501,7 +1501,7 @@ public class TextView extends WPView {
 		if(selectionLength > 0)
 			editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
 		else
-			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 		
 		if(validCut())
 			view.cut();

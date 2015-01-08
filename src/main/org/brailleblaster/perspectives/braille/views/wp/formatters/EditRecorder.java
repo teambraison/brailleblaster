@@ -97,22 +97,22 @@ public class EditRecorder {
 	}
 	
 	private void createEvent(int wordStart, int wordEnd, String recordedText){
-		if(manager.peekEvent() != null && manager.peekEvent().peek().getEventType().equals(EventTypes.Edit)){
-			ViewEvent ev = (ViewEvent)manager.peekEvent().peek();
-			if(sameWord(ev, wordStart)){
-				manager.peekEvent().addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-			}
-			else {
-				frame = new EventFrame();
-				frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-				manager.addUndoEvent(frame);
-			}
+		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().peek().getEventType().equals(EventTypes.Edit)){
+			ViewEvent ev = (ViewEvent)manager.peekUndoEvent().peek();
+			if(sameWord(ev, wordStart))
+				manager.peekUndoEvent().addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+			else 
+				addEvent(wordStart, wordEnd, recordedText);
 		}
 		else {
-			frame = new EventFrame();
-			frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
-			manager.addUndoEvent(frame);
+			addEvent(wordStart, wordEnd, recordedText);
 		}
+	}
+	
+	private void addEvent(int wordStart, int wordEnd, String recordedText){
+		frame = new EventFrame();
+		frame.addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
+		manager.addUndoEvent(frame);
 	}
 	
 	private boolean sameWord(Event e, int wordStart){

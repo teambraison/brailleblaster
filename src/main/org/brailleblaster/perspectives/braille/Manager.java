@@ -1469,11 +1469,8 @@ public class Manager extends Controller {
 		redoQueue.popEvent(vi, document, list, this);
 	}
 	
-	public EventFrame peekEvent(){
-		if(undoQueue.size() == 0)
-			return null;
-		else
-			return undoQueue.getLast();
+	public EventFrame peekUndoEvent(){
+		return undoQueue.peek();
 	}
 
 	/** Creates a Notify class alert box if debugging is not active

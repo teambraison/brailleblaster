@@ -50,13 +50,6 @@ public class TextUpdateHandler extends Handler {
 		}
 	}
 	
-	private int calculateEditDifference(ModelEvent ev, TextMapElement t){
-		int evLength = ev.getNode().getValue().length();
-		int viewLength = text.view.getTextRange(t.start, t.end - t.start).replace("\n", "").length();
-		
-		return evLength - viewLength;
-	}
-	
 	public void redoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
@@ -72,6 +65,13 @@ public class TextUpdateHandler extends Handler {
 		}
 	}
 
+	private int calculateEditDifference(ModelEvent ev, TextMapElement t){
+		int evLength = ev.getNode().getValue().length();
+		int viewLength = text.view.getTextRange(t.start, t.end - t.start).replace("\n", "").length();
+		
+		return evLength - viewLength;
+	}
+	
 	private void resetModelEvent(Message message){
 		document.updateDOM(list, message);
 		braille.updateBraille(list.getCurrent(), message);

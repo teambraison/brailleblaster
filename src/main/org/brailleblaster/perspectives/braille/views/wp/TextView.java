@@ -1998,4 +1998,32 @@ public class TextView extends WPView {
 	public int getCurrentEnd(){
 		return currentEnd;
 	}
+	
+	public int getCurrentChanges(){
+		return currentChanges;
+	}
+	
+	public void redoText(Message m){
+		String text = view.getTextRange(currentStart, currentEnd - currentStart);
+		int viewLineCount = (text.length() - text.replace("\n", "").length()) + 1;
+		int brailleLineCount = currentElement.brailleList.size();
+		int adjustBy = viewLineCount - brailleLineCount;
+		
+		if(adjustBy > 0){
+			int length = (Integer)m.getValue("length");
+			int index = currentEnd - 1;
+			while(index > currentStart && adjustBy > 0){
+				String character = view.getTextRange(index, 1);
+				if(character.equals("\n")){
+					replaceTextRange(index, 1, "");
+					currentEnd--;
+					nextStart--;
+					length--;
+					adjustBy--;
+				}
+				index--;
+			}
+			m.put("length", length);
+		}
+	}
 }

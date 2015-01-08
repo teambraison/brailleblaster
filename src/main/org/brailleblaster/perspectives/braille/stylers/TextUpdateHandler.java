@@ -38,13 +38,17 @@ public class TextUpdateHandler extends Handler {
 	public void undoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
-			list.setCurrent(ev.getListIndex());
-			text.view.setCaretOffset(list.getCurrent().start);
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			if(ev.getTextOffset() >= text.getCurrentStart() && ev.getTextOffset() <= text.getCurrentEnd())
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else{
+				list.setCurrent(ev.getListIndex());
+				text.view.setCaretOffset(list.getCurrent().start);
+				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			}
 			int changes = calculateEditDifference(ev, list.getCurrent());
 			addRedoEvent();
 			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
-			resetModelEvent(m);
+			resetModelEvent(m, true);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 			text.adjustCurrentElementValues(-changes);
 		}
@@ -53,13 +57,17 @@ public class TextUpdateHandler extends Handler {
 	public void redoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
-			list.setCurrent(ev.getListIndex());
-			text.view.setCaretOffset(list.getCurrent().start);
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			if(ev.getTextOffset() >= text.getCurrentStart() && ev.getTextOffset() <= text.getCurrentEnd())
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else{
+				list.setCurrent(ev.getListIndex());
+				text.view.setCaretOffset(list.getCurrent().start);
+				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			}
 			addUndoEvent();
 			int changes = calculateEditDifference(ev, list.getCurrent());
 			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
-			resetModelEvent(m);
+			resetModelEvent(m, false);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 			//text.adjustCurrentElementValues(-changes);
 		}
@@ -72,9 +80,18 @@ public class TextUpdateHandler extends Handler {
 		return evLength - viewLength;
 	}
 	
-	private void resetModelEvent(Message message){
+	private void resetModelEvent(Message message, boolean undoEvent){
 		document.updateDOM(list, message);
 		braille.updateBraille(list.getCurrent(), message);
+		if(undoEvent)
+			text.redoText(message);
+		else {
+			message.put("length", text.getCurrentEnd() - text.getCurrentStart());
+			text.reformatText(list.getCurrent().n, message, manager);
+			message.put("length", (Integer)message.getValue("length") + text.getCurrentChanges());
+			text.adjustCurrentElementValues(0);
+		}
+		
 		list.updateOffsets(list.getCurrentIndex(), message);
 		list.checkList();
 	}

@@ -1980,8 +1980,12 @@ public class TextView extends WPView {
 	
 	public void undoEdit(int start, int length, String text){
 		int changes = text.length() - length;
+		StyleRange [] ranges = view.getStyleRanges(start, length);
 		replaceTextRange(start, length, text);
 		makeTextChange(changes);
+		
+		for(int i = 0; i < ranges.length; i++)
+			view.setStyleRange(ranges[i]);
 		
 		if(currentChanges == 0)
 			textChanged = false;

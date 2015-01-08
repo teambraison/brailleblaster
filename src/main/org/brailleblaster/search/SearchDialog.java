@@ -307,7 +307,7 @@ public class SearchDialog extends Dialog {
 				// "Replace" box.
 				if (findStr() == true)
 					man.getText().copyAndPaste(replaceCombo.getText(),
-							startCharIndex, endCharIndex);
+							(startCharIndex), endCharIndex);
 
 			} // widgetSelected()
 
@@ -411,13 +411,14 @@ public class SearchDialog extends Dialog {
 			startCharIndex = tv.view.getCaretOffset();
 			endCharIndex = startCharIndex + findMeStr.length();
 			
-			// If search wrap is on, move to other end of document, if at
-			// the end.
+			// Check to see if we need a to reset it to zero first; it won' t go through the while loop
+			// if it's at the end
 			if (searchWrap == SCH_WRAP_ON) {
-//		
-//				if (numberOfLoops >= 2) {
-//					return false;
-//				}
+		
+				// Make sure we aren't in an endless loop
+				if (numberOfLoops >= 2) {
+					return false;
+				}// if numberOfLoops
 									
 				// If we're at the end, move to the other end.
 				while (startCharIndex >= numChars || endCharIndex >= numChars) {
@@ -481,13 +482,15 @@ public class SearchDialog extends Dialog {
 					// Move forward a character.
 					startCharIndex++;
 					endCharIndex++;
-					// If search wrap is on, move to other end of document, if at
+					
+					// Check the search wrap again.  If search wrap is on, move to other end of document, if at
 					// the end.
 					if (searchWrap == SCH_WRAP_ON) {
 				
+						// Make sure we aren't in an endless loop
 						if (numberOfLoops >= 2) {
 							return false;
-						}
+						}// if numberOfLoops
 											
 						// If we're at the end, move to the other end.
 						while (startCharIndex >= numChars || endCharIndex >= (numChars+1)) {
@@ -499,12 +502,16 @@ public class SearchDialog extends Dialog {
 							numberOfLoops++;
 
 						} // if( startCharIndex...
-					}
+						
+					}// if searchWrap is on
 
 				} // while( startCharIndex...
+				
 			} // if( searchWrap == SCH_WRAP_ON )
 			
 			else {
+				
+			// Else is for when the searchWrap is off
 
 			// Scour the view for the search string.
 				
@@ -560,7 +567,8 @@ public class SearchDialog extends Dialog {
 				endCharIndex++;
 
 			  } // while( startCharIndex...
-			}
+			
+			}//else
 
 		} // if(searchDirection == SCH_FORWARD)
 
@@ -574,9 +582,13 @@ public class SearchDialog extends Dialog {
 		if (searchDirection == SCH_BACKWARD) {
 			
 
-			// If search wrap is on, move to other end of document, if at
-			// the end.
+			// Check to see if we need to set it to zero first.  It can't search if it's at the end.
 			if (searchWrap == SCH_WRAP_ON) {
+				
+				// Make sure we aren't in an endless loop
+				if (numberOfLoops >= 2) {
+					return false;
+				}//if number of loops
 
 				// If we're at the end, move to the other end.
 				while (startCharIndex < 0 || endCharIndex < 0) {
@@ -585,9 +597,6 @@ public class SearchDialog extends Dialog {
 					endCharIndex = numChars;
 					startCharIndex = endCharIndex - findMeStr.length();
 					tv.setCursor((endCharIndex), man);
-					if (numberOfLoops >= 2) {
-						return false;
-					}
 
 				} // if( startCharIndex...
 			
@@ -610,7 +619,7 @@ public class SearchDialog extends Dialog {
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					curViewSnippet = curViewSnippet.toLowerCase();
 					findMeStr = findMeStr.toLowerCase();
-				}
+				}//if searchCaseSensitive
 
 				// Compare the two strings. Is there a match?
 				if (curViewSnippet.matches(findMeStr) == true) {
@@ -655,6 +664,11 @@ public class SearchDialog extends Dialog {
 				// If search wrap is on, move to other end of document, if at
 				// the end.
 				if (searchWrap == SCH_WRAP_ON) {
+					
+					// Make sure we aren't in an endless loop
+					if (numberOfLoops >= 2) {
+						return false;
+					}// if numberOfLoops
 
 					// If we're at the end, move to the other end.
 					if (startCharIndex < 0 || endCharIndex < 0) {
@@ -662,10 +676,7 @@ public class SearchDialog extends Dialog {
 						// Reset position.
 						endCharIndex = numChars-1;
 						startCharIndex = endCharIndex - findMeStr.length();
-						tv.setCursor((endCharIndex+1), man);
-						if (numberOfLoops >= 2) {
-							return false;
-						}
+						tv.setCursor((endCharIndex), man);
 
 					} // if( startCharIndex...
 
@@ -673,8 +684,12 @@ public class SearchDialog extends Dialog {
 
 			} // while( startCharIndex...
 			
-			}
+			}// if searchWrap 
+			
 			else {
+				
+				// Else is for when search wrap is off.  
+				
 				// If there is selection text, that means we're still looking at
 				// what we found earlier. Move past it.
 				if (tv.view.getSelectionText().length() == findMeStr.length())
@@ -694,7 +709,7 @@ public class SearchDialog extends Dialog {
 					if (searchCaseSensitive == SCH_CASE_OFF) {
 						curViewSnippet = curViewSnippet.toLowerCase();
 						findMeStr = findMeStr.toLowerCase();
-					}
+					}// if searchCaseSensitive
 
 					// Compare the two strings. Is there a match?
 					if (curViewSnippet.matches(findMeStr) == true) {
@@ -721,7 +736,7 @@ public class SearchDialog extends Dialog {
 						if (haveAmatch == true) {
 							// Set cursor and view to point to search string we
 							// found.
-							tv.view.setSelection(startCharIndex, endCharIndex);
+							tv.view.setSelection((startCharIndex-1), (endCharIndex-1));
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 
@@ -735,8 +750,10 @@ public class SearchDialog extends Dialog {
 					// Move back a character.
 					startCharIndex--;
 					endCharIndex--;	
-			}
-			}
+					
+			}// while 
+				
+			}// else no searchWrap
 
 		} // if(searchDirection == SCH_BACKWARD)
 
@@ -749,4 +766,7 @@ public class SearchDialog extends Dialog {
 	} // findStr()
 
 } // class SearchDialog...
+
+
+
 

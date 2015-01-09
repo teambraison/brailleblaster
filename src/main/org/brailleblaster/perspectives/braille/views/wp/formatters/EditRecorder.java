@@ -30,7 +30,7 @@ public class EditRecorder {
 		
 		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));
 		int index = offset;
-		while(index < lineText.length() && lineText.charAt(index) != ' ')
+		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
 			index++;
 		
 		int wordEnd = index;

@@ -594,7 +594,7 @@ public class SearchDialog extends Dialog {
 				while (startCharIndex < 0 || endCharIndex < 0) {
 					numberOfLoops++;
 					// Reset position.
-					endCharIndex = numChars;
+					endCharIndex = numChars-1;
 					startCharIndex = endCharIndex - findMeStr.length();
 					tv.setCursor((endCharIndex), man);
 
@@ -736,7 +736,7 @@ public class SearchDialog extends Dialog {
 						if (haveAmatch == true) {
 							// Set cursor and view to point to search string we
 							// found.
-							tv.view.setSelection((startCharIndex-1), (endCharIndex-1));
+							tv.view.setSelection((startCharIndex), (endCharIndex));
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 

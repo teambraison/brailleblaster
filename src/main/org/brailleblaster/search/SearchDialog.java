@@ -551,6 +551,7 @@ public class SearchDialog extends Dialog {
 					if (haveAmatch == true) {
 						// Set cursor and view to point to search string we
 						// found.
+						tv.setCursor(startCharIndex, man);
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
@@ -582,8 +583,15 @@ public class SearchDialog extends Dialog {
 		if (searchDirection == SCH_BACKWARD) {
 			
 
+			
+			// Get current cursor position.
+			endCharIndex = tv.view.getCaretOffset();
+			startCharIndex = endCharIndex - findMeStr.length();
+			
+
 			// Check to see if we need to set it to zero first.  It can't search if it's at the end.
 			if (searchWrap == SCH_WRAP_ON) {
+
 				
 				// Make sure we aren't in an endless loop
 				if (numberOfLoops >= 2) {
@@ -594,23 +602,15 @@ public class SearchDialog extends Dialog {
 				while (startCharIndex < 0 || endCharIndex < 0) {
 					numberOfLoops++;
 					// Reset position.
-					endCharIndex = numChars-1;
+					endCharIndex = numChars;
 					startCharIndex = endCharIndex - findMeStr.length();
 					tv.setCursor((endCharIndex), man);
 
-				} // if( startCharIndex...
-			
-			// If there is selection text, that means we're still looking at
-			// what we found earlier. Move past it.
-			if (tv.view.getSelectionText().length() == findMeStr.length())
-				tv.setCursor(startCharIndex, man);
+				} // while startCharIndex
 
-			// Get current cursor position.
-			endCharIndex = tv.view.getCaretOffset();
-			startCharIndex = endCharIndex - findMeStr.length();
 
 			// Scour the view for the search string.
-			while (startCharIndex >= 0 && endCharIndex > 0) {
+			while (startCharIndex >= 0 && (endCharIndex) > 0) {
 				// Get current snippet of text we're testing.
 				String curViewSnippet = tv.view.getText().substring(
 						startCharIndex, endCharIndex);
@@ -655,7 +655,7 @@ public class SearchDialog extends Dialog {
 
 					} // if( haveAmatch = true)
 
-				} // if( curViewSnippet...
+				} // if( curViewSnippet...matches
 
 				// Move back a character.
 				startCharIndex--;
@@ -671,12 +671,12 @@ public class SearchDialog extends Dialog {
 					}// if numberOfLoops
 
 					// If we're at the end, move to the other end.
-					if (startCharIndex < 0 || endCharIndex < 0) {
+					while (startCharIndex < 0 || endCharIndex < 0) {
 						numberOfLoops++;
 						// Reset position.
-						endCharIndex = numChars-1;
+						endCharIndex = numChars;
 						startCharIndex = endCharIndex - findMeStr.length();
-						tv.setCursor((endCharIndex), man);
+//						tv.setCursor((endCharIndex), man);
 
 					} // if( startCharIndex...
 
@@ -689,18 +689,9 @@ public class SearchDialog extends Dialog {
 			else {
 				
 				// Else is for when search wrap is off.  
-				
-				// If there is selection text, that means we're still looking at
-				// what we found earlier. Move past it.
-				if (tv.view.getSelectionText().length() == findMeStr.length())
-					tv.setCursor(startCharIndex, man);
-
-				// Get current cursor position.
-				endCharIndex = tv.view.getCaretOffset();
-				startCharIndex = endCharIndex - findMeStr.length();
 
 				// Scour the view for the search string.
-				while (startCharIndex >= 0 && endCharIndex > 0) {
+				while (startCharIndex >= 0  && endCharIndex > 0) {
 					// Get current snippet of text we're testing.
 					String curViewSnippet = tv.view.getText().substring(
 							startCharIndex, endCharIndex);
@@ -736,6 +727,7 @@ public class SearchDialog extends Dialog {
 						if (haveAmatch == true) {
 							// Set cursor and view to point to search string we
 							// found.
+							tv.setCursor(startCharIndex,man);
 							tv.view.setSelection((startCharIndex), (endCharIndex));
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));

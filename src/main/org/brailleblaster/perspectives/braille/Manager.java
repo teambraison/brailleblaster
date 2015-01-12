@@ -56,9 +56,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
-import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
-import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
-import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
+import org.brailleblaster.perspectives.braille.eventQueue.QueueManager;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -124,14 +122,13 @@ public class Manager extends Controller {
 	private FontManager fontManager;
 	private boolean simBrailleDisplayed;
 	private MapList list;
-	private EventQueue undoQueue, redoQueue;
+	private QueueManager queueManager;
 	SearchDialog srch = null;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp);	
-		undoQueue = new UndoQueue();
-		redoQueue = new RedoQueue();
+		queueManager = new QueueManager();
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
 		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
@@ -180,8 +177,7 @@ public class Manager extends Controller {
 	
 	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
 		super(wp);	
-		undoQueue = new UndoQueue();
-		redoQueue = new RedoQueue();
+		queueManager = new QueueManager();
 		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
@@ -1454,23 +1450,23 @@ public class Manager extends Controller {
 	}
 	
 	public void addUndoEvent(EventFrame f){
-		undoQueue.add(f);
+		queueManager.addUndoEvent(f);
 	}
 	
 	public void addRedoEvent(EventFrame f){
-		redoQueue.add(f);
+		queueManager.addRedoEvent(f);
 	}
 	
 	public void undo(){
-		undoQueue.popEvent(vi, document, list, this);
+		queueManager.undo(vi, document, list, this);
 	}
 	
 	public void redo(){
-		redoQueue.popEvent(vi, document, list, this);
+		queueManager.undo(vi, document, list, this);
 	}
 	
 	public EventFrame peekUndoEvent(){
-		return undoQueue.peek();
+		return queueManager.peekUndoEvent();
 	}
 
 	/** Creates a Notify class alert box if debugging is not active

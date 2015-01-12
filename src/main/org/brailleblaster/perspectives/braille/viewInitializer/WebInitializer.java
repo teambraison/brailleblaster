@@ -11,6 +11,7 @@ import nu.xom.Text;
 import org.brailleblaster.document.SemanticFileHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
+import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
@@ -82,8 +83,13 @@ public class WebInitializer extends ViewInitializer{
 			SemanticFileHandler sfh = new SemanticFileHandler(m.getArchiver().getCurrentConfig());
 			p.addAttribute(new Attribute("semantics","styles," + sfh.getDefault("p")));	
 			p.appendChild(new Text(""));
+			Element brl = new Element("brl");
+			brl.appendChild(new Text(""));
+			p.appendChild(brl);
 			((Element)n.get(0)).appendChild(p);
-			list.add(new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0)));
+			TextMapElement t = new TextMapElement(0, 0, n.get(0).getChild(0).getChild(0));
+			t.brailleList.add(new BrailleMapElement(0,0, brl.getChild(0)));
+			list.add(t);
 		}
 	}
 }

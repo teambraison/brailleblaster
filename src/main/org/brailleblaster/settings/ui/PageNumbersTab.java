@@ -8,8 +8,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -162,21 +160,6 @@ public class PageNumbersTab {
 	
 	private void addListeners(){
 		
-		cpCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = cpCombo.getSelectionIndex();
-				settingsMap.put("continuePages", cpCombo.getText().toLowerCase());
-			}
-		});
-		
-		intpCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				int index = intpCombo.getSelectionIndex();
-				settingsMap.put("interpoint", intpCombo.getText().toLowerCase());
-			}
-		});
 
 		ppnLocCombo.addSelectionListener(new SelectionAdapter(){
 		@Override
@@ -209,21 +192,9 @@ public class PageNumbersTab {
 		ppnRngCombo.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				int index = ppnRngCombo.getSelectionIndex();
 				settingsMap.put("printPageNumberRange", ppnRngCombo.getText().toLowerCase());
 			}
 		});
-	}
-	
-	private void setFormLayout(Control c, int left, int right, int top, int bottom){
-		FormData location = new FormData();
-		
-		location.left = new FormAttachment(left);
-		location.right = new FormAttachment(right);
-		location.top = new FormAttachment(top);
-		location.bottom = new FormAttachment(bottom);
-		
-		c.setLayoutData(location);
 	}
 	
 	private void setGridData(Control c){

@@ -22,8 +22,8 @@ public class EventFrame {
 		return eventList.get(index);
 	}
 	
-	public void setId(int id){
-		this.sequenceId = id;
+	public void setId(int sequenceId){
+		this.sequenceId = sequenceId;
 	}
 	
 	public int getId(){

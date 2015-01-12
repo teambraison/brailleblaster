@@ -9,6 +9,7 @@ public class QueueManager {
 	private static final int FIRST_ITEM_ID = 1;
 	
 	private EventQueue undoQueue, redoQueue;
+	private boolean swapFrame = false;
 	
 	public QueueManager(){
 		undoQueue = new UndoQueue();
@@ -16,8 +17,11 @@ public class QueueManager {
 	}
 
 	public void addUndoEvent(EventFrame f){
-		if(undoQueue.empty())
+		if(undoQueue.empty()){
 			f.setId(FIRST_ITEM_ID);
+			if(!redoQueue.empty() && !swapFrame)
+				redoQueue.clear();
+		}
 		else{
 			int id = undoQueue.peek().getId() + 1;
 			if(!redoQueue.empty() && redoQueue.peek().getId() == id)
@@ -44,7 +48,9 @@ public class QueueManager {
 	}
 	
 	public void redo(ViewInitializer vi, BrailleDocument document, MapList list, Manager manager){
+		swapFrame = true;
 		redoQueue.popEvent(vi, document, list, manager);
+		swapFrame = false;
 	}
 	
 	public EventFrame peekUndoEvent(){

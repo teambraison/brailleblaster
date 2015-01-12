@@ -91,6 +91,7 @@ import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -1462,7 +1463,7 @@ public class Manager extends Controller {
 	}
 	
 	public void redo(){
-		queueManager.undo(vi, document, list, this);
+		queueManager.redo(vi, document, list, this);
 	}
 	
 	public EventFrame peekUndoEvent(){

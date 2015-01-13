@@ -539,7 +539,7 @@ public class SearchDialog extends Dialog {
 											startCharIndex)
 									.matches("^[\\pL\\pN]*$") == true)
 								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
+		 				if (endCharIndex + 1 < numChars)
 							if (tv.view.getText()
 									.substring(endCharIndex, endCharIndex + 1)
 									.matches("^[\\pL\\pN]*$") == true)
@@ -551,7 +551,7 @@ public class SearchDialog extends Dialog {
 					if (haveAmatch == true) {
 						// Set cursor and view to point to search string we
 						// found.
-						tv.setCursor(startCharIndex, man);
+//						tv.setCursor(startCharIndex, man);
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
@@ -602,7 +602,7 @@ public class SearchDialog extends Dialog {
 				while (startCharIndex < 0 || endCharIndex < 0) {
 					numberOfLoops++;
 					// Reset position.
-					endCharIndex = numChars;
+					endCharIndex = numChars-1;
 					startCharIndex = endCharIndex - findMeStr.length();
 					tv.setCursor((endCharIndex), man);
 
@@ -674,7 +674,7 @@ public class SearchDialog extends Dialog {
 					while (startCharIndex < 0 || endCharIndex < 0) {
 						numberOfLoops++;
 						// Reset position.
-						endCharIndex = numChars;
+						endCharIndex = numChars-1;
 						startCharIndex = endCharIndex - findMeStr.length();
 //						tv.setCursor((endCharIndex), man);
 

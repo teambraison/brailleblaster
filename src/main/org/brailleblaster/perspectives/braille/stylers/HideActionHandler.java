@@ -103,8 +103,8 @@ public class HideActionHandler extends Handler{
 				
 				hide(tempElement);
 			}
-			updateCurrentElement(index);
 			text.clearSelection();
+			updateCurrentElement(index);
 			return true;
 		}
 		

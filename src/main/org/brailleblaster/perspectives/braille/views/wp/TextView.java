@@ -1347,8 +1347,10 @@ public class TextView extends WPView {
 		currentEnd += changes;
 		nextStart += changes;
 		
-		if(currentChanges > 0)
+		if(currentChanges != 0)
 			textChanged = true;
+		else
+			textChanged = false;
 	}
 	
 	private void recordEvent(ExtendedModifyEvent e, boolean edit){
@@ -1986,6 +1988,7 @@ public class TextView extends WPView {
 		
 		for(int i = 0; i < ranges.length; i++)
 			view.setStyleRange(ranges[i]);
+		
 		
 		if(currentChanges == 0)
 			textChanged = false;

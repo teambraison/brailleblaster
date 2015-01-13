@@ -1965,6 +1965,11 @@ public class TextView extends WPView {
 		setSelection();
 	}
 	
+	public void clearSelection(){
+		view.setSelection(-1, -1);
+		setSelection(-1, -1);
+	}
+	
 	private void setSelection(){
 		selectionArray = view.getSelectionRanges();
 		

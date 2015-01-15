@@ -21,7 +21,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SearchDialog extends Dialog {
-
+ 
 	private final int MAX_SRCH_CHARS = 10000;
 	protected Object result;
 	protected Shell shlFindreplace;
@@ -53,7 +53,8 @@ public class SearchDialog extends Dialog {
 	private final int SCH_WHOLE_OFF = 1;
 	private int searchWholeWord = SCH_WHOLE_OFF;
 	int numberOfLoops;
-
+	int oldCursorPos;
+	int oldTopIndex;
 	// private final FormToolkit // formToolkit = new
 	// FormToolkit(Display.getDefault());
 
@@ -112,6 +113,7 @@ public class SearchDialog extends Dialog {
 		shlFindreplace.setSize(262,376);
 		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
 		shlFindreplace.setText("Find/Replace");
+
 		GridLayout gl_shlFindreplace = new GridLayout(5, false);
 		gl_shlFindreplace.marginTop = 10;
 		gl_shlFindreplace.marginLeft = 5;
@@ -274,44 +276,42 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
+		shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				// Grab text view.
+				TextView tv = man.getText();
 				
 				numberOfLoops = 0;
 				
 				if (searchDirection==SCH_FORWARD) {
 					if (searchWrap==SCH_WRAP_ON) {
-						findFwdWrap();
-						if (!findFwdWrap()) {
+						if (!findFwdWrap()) 
 							createErrorMessage();
-						}// if nothing found
 					}// if findFwdWrap
 					else {
-						findFwdNoWrap();
-						if (!findFwdNoWrap()) {
+						if (!findFwdNoWrap()) 
 							createErrorMessage();
-						}// if nothing found
 					}// else findFwdNoWrap
 				}// if searchForward
 				else {
 						if (searchWrap==SCH_WRAP_ON) {
-							findBackWrap();
-							if (!findBackWrap()) {
+							if (!findBackWrap()) 
 								createErrorMessage();
-							}// if nothing found
 						}// if findBwdWrap
 						else {
-							findBackNoWrap();
-							if(!findBackNoWrap()) {
+							if(!findBackNoWrap()) 
 								createErrorMessage();
-							}// if nothing found
 						}// else findBwdNoWrap
 				}// else searchBackward
 
 			} // widgetSelected()
 
 		}); // btnFind.addSelectionListener()
+		
+
 
 		Button replaceFindBtn = new Button(shlFindreplace, SWT.NONE);
 		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -371,8 +371,8 @@ public class SearchDialog extends Dialog {
 					do {
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							startCharIndex, endCharIndex);
-				man.getTextView().setTopIndex(oldTopIndex);
-				man.getText().setCursorOffset(oldCursorPos);
+					man.getTextView().setTopIndex(oldTopIndex);
+					man.getText().setCursorOffset(oldCursorPos);
 					}// do
 				while (findStr() == true);
 				}//if findStr==true
@@ -392,14 +392,14 @@ public class SearchDialog extends Dialog {
 
 						man.getText().copyAndPaste(replaceCombo.getText(),
 								startCharIndex, endCharIndex);	
-					man.getTextView().setTopIndex(oldTopIndex);
-					man.getText().setCursorOffset(oldCursorPos);
-						}
+						man.getTextView().setTopIndex(oldTopIndex);
+						man.getText().setCursorOffset(oldCursorPos);
+						}// do
 						while (findStr() == true);
-					}
+					}// if findStr == true
 					else {
 						createErrorMessage();
-					}
+					}// else if nothing found 
 				}// if searchBackward
 				
 			} // widgetSelected()
@@ -865,13 +865,13 @@ public boolean findFwdWrap() {
 			endCharIndex = startCharIndex + findMeStr.length();
 			
 			// Make sure we aren't in an endless loop
-			if (numberOfLoops <= 1) {
+			if (numberOfLoops <= 2) {
 
 			// If search wrap is on, move to other end of document, if at
 			// the end.
 			if (searchWrap == SCH_WRAP_ON) {
 				// If we're at the end, move to the other end.
-				if (startCharIndex >= numChars || endCharIndex >= numChars) {
+				if (startCharIndex >= numChars || endCharIndex >= (numChars+1)) {
 					// Reset position.
 					startCharIndex = 0;
 					endCharIndex = startCharIndex + findMeStr.length();
@@ -937,13 +937,13 @@ public boolean findFwdWrap() {
 				endCharIndex++;
 				
 				// Make sure we aren't in an endless loop
-				if (numberOfLoops <=2) {
+				if (numberOfLoops <= 2) {
 
 				// If search wrap is on, move to other end of document, if at
 				// the end.
 				if (searchWrap == SCH_WRAP_ON) {
 					// If we're at the end, move to the other end.
-					if (startCharIndex >= numChars || endCharIndex > numChars) {
+					if (startCharIndex >= numChars || endCharIndex > (numChars+1)) {
 						// Reset position.
 						startCharIndex = 0;
 						endCharIndex = startCharIndex + findMeStr.length();

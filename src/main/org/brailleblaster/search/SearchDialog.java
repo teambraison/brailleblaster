@@ -110,7 +110,7 @@ public class SearchDialog extends Dialog {
 	private void createContents() {
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
 		shlFindreplace.setSize(262,376);
-		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific
+		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
 		shlFindreplace.setText("Find/Replace");
 		GridLayout gl_shlFindreplace = new GridLayout(5, false);
 		gl_shlFindreplace.marginTop = 10;
@@ -277,6 +277,9 @@ public class SearchDialog extends Dialog {
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				numberOfLoops = 0;
+				
 				if (searchDirection==SCH_FORWARD) {
 					if (searchWrap==SCH_WRAP_ON) {
 						findFwdWrap();
@@ -335,9 +338,13 @@ public class SearchDialog extends Dialog {
 				// Find string in our "Find" combo box.
 				// If we find one, replace it with what's in the
 				// "Replace" box.
-				if (findStr() == true)
+				if (findStr() == true) {
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							(startCharIndex), endCharIndex);
+				}// if findStr==true
+				else {
+					createErrorMessage();
+				}// else if nothing found
 
 			} // widgetSelected()
 
@@ -360,24 +367,41 @@ public class SearchDialog extends Dialog {
 				int oldTopIndex = man.getTextView().getTopIndex();
 				int oldCursorPos = man.getText().getCursorOffset();
 				man.getText().setCursor(0, man);
-				while (findStr() == true)
+				if(findStr() == true) {
+					do {
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							startCharIndex, endCharIndex);
 				man.getTextView().setTopIndex(oldTopIndex);
 				man.getText().setCursorOffset(oldCursorPos);
-				}
+					}// do
+				while (findStr() == true);
+				}//if findStr==true
+				else {
+					createErrorMessage();
+				}// else nothing found
+				
+				}// if searchForward
 				else {
 					int oldTopIndex = man.getTextView().getTopIndex();
 					int oldCursorPos = man.getText().getCursorOffset();
 					TextView tv = man.getText();
 					int numChars = tv.view.getText().length();
 					man.getText().setCursor(numChars, man);
-					while (findStr() == true)
+					if (findStr() == true) {
+						do {
+
 						man.getText().copyAndPaste(replaceCombo.getText(),
 								startCharIndex, endCharIndex);	
 					man.getTextView().setTopIndex(oldTopIndex);
-					man.getText().setCursorOffset(oldCursorPos);				
-				}
+					man.getText().setCursorOffset(oldCursorPos);
+						}
+						while (findStr() == true);
+					}
+					else {
+						createErrorMessage();
+					}
+				}// if searchBackward
+				
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()

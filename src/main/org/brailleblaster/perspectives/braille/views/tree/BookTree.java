@@ -582,7 +582,7 @@ public class BookTree extends TreeView {
 	}
 
 	@Override
-	public void merge(Message m) {
+	public void merge(ArrayList<TextMapElement>mapList, ArrayList<Element>elList) {
 		// TODO Auto-generated method stub
 		
 	}

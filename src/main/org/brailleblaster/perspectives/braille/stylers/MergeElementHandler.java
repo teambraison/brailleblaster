@@ -44,6 +44,7 @@ public class MergeElementHandler extends Handler{
 		ArrayList<TextMapElement>textList = getListRange(startIndex, size);	
 		setViews(textList,startIndex, textStart, brailleStart);
 		resetTree(mergeTo, merging, mergedElement, textList);
+		text.setCurrentElement(text.view.getCaretOffset());
 	}
 	
 	private void setViews(ArrayList<TextMapElement> elList, int index, int textOffset, int brailleOffset ){
@@ -81,11 +82,9 @@ public class MergeElementHandler extends Handler{
 	}
 	
 	private void resetTree(Element e1, Element e2, Element newParent, ArrayList<TextMapElement>textList){
-		Message m = new Message(null);
 		ArrayList<Element>elList = new ArrayList<Element>();
 		elList.add(e1);
 		elList.add(e2);
-		m.put("elList", elList);
 		
 		for(int i = 0; i < textList.size(); i++){
 			if(!textList.get(i).parentElement().equals(newParent)){
@@ -93,8 +92,8 @@ public class MergeElementHandler extends Handler{
 				i--;
 			}
 		}
-		m.put("mapList", textList);
-		tree.merge(m);
+		
+		tree.merge(textList, elList);
 	}
 	
 	private Element getBlockElement(Node n){

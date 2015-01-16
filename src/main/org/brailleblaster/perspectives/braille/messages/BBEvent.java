@@ -33,7 +33,8 @@ package org.brailleblaster.perspectives.braille.messages;
 public enum BBEvent {
 	INCREMENT,
 	DECREMENT,
-	TEXT_DELETION,
+	WHITESPACE_DELETION,
+	EDIT,
 	UPDATE,
 	INSERT_NODE,
 	REMOVE_NODE,
@@ -47,6 +48,5 @@ public enum BBEvent {
 	UPDATE_SCROLLBAR,
 	UPDATE_STYLE,
 	ADJUST_RANGE,
-	REMOVE_MATHML,
 	SPLIT_TREE;
 }

@@ -236,7 +236,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	}
 
 	
-	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset, int origPos){
+	public void shiftOffsetsFromIndex(int index, int offset, int brailleOffset){
 		UpdaterThread [] arr = new UpdaterThread[PROCESSORS];
 		int length = (this.size() - index) / PROCESSORS;
 		int start = index;
@@ -253,7 +253,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			
 		for (int i = 0; i < arr.length; i++) {
 		    try {
-		    		arr[i].join();
+		    	arr[i].join();
 		    } catch (InterruptedException e) {
 			   	e.printStackTrace();
 			}
@@ -369,7 +369,7 @@ public class MapList extends LinkedList<TextMapElement>{
 			dm.dispatch(message);
 			return this.currentIndex;
 		}
-		else if(this.size() == 0){
+		else if(empty()){
 			return -1;
 		}
 		else {
@@ -716,5 +716,9 @@ public class MapList extends LinkedList<TextMapElement>{
 				return true;
 		
 		return false;
+	}
+	
+	public boolean empty(){
+		return size() == 0;
 	}
 }

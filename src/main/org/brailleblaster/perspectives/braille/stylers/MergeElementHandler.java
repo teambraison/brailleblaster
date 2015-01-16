@@ -63,7 +63,7 @@ public class MergeElementHandler extends Handler{
 		//	
 			int brailleLength = 0;
 			
-			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i));
+			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i), true);
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){
@@ -108,7 +108,7 @@ public class MergeElementHandler extends Handler{
 	private int repopulateRange(Element e, int index){
 		ArrayList<TextMapElement> elList = 	constructMapElement(e);
 		for(int i = 0; i < elList.size(); i++, index++)
-			list.add(index, elList.get(i));
+			vi.addElementToSection(list, elList.get(i), index);
 		
 		return elList.size();
 	}

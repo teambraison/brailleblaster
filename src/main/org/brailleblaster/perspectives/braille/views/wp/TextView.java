@@ -831,7 +831,7 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	
-	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t, boolean merge){
 		int linesBefore = 0;
 		int linesAfter = 0;
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
@@ -850,7 +850,8 @@ public class TextView extends WPView {
 		view.setCaretOffset(start);
 		view.insert(reformattedText);
 		
-		vi.addElementToSection(list, t, listIndex);
+		if(!merge)
+			vi.addElementToSection(list, t, listIndex);
 		
 		int margin = 0;
 		

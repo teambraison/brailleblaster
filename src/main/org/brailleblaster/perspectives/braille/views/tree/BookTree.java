@@ -580,4 +580,10 @@ public class BookTree extends TreeView {
 		tree.setRedraw(true);
 		
 	}
+
+	@Override
+	public void merge(Message m) {
+		// TODO Auto-generated method stub
+		
+	}
 }

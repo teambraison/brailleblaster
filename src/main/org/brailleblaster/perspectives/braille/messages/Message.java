@@ -83,6 +83,13 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createMergeElementMessage(boolean isFirst){
+		Message m = new Message(BBEvent.MERGE);
+		m.put("isFirst", isFirst);
+		
+		return m;
+	}
+	
 	public static Message createIncrementMessage(){
 		Message m = new Message(BBEvent.INCREMENT);
 		return m;

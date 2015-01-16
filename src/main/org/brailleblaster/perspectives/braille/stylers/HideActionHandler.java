@@ -328,7 +328,7 @@ public class HideActionHandler extends Handler{
 			return true;
 		else {
 			if(isHeading(manager.getDocument().getParent(t.n, true))){
-				TextMapElement nextItem =  list.get(index + 1);
+				TextMapElement nextItem = list.get(index + 1);
 				Element nextParent;
 				
 				if(nextItem instanceof BrlOnlyMapElement)

@@ -474,6 +474,11 @@ public class TextView extends WPView {
 			incrementNext(offset);
 			textChanged = true;
 		}
+		
+		if(isFirst(currentElement.n) && previousEnd == currentStart)
+			manager.dispatch(Message.createMergeElementMessage(true));
+		else if(isLast(currentElement.n) && currentEnd == nextStart)
+			manager.dispatch(Message.createMergeElementMessage(false));
 	}
 	
 	private void sendAdjustRangeMessage(String type, int position){
@@ -572,6 +577,7 @@ public class TextView extends WPView {
 	}
 	
 	public void prependText(TextMapElement t, MapList list, int index){
+		setListenerLock(true);
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		Styles prevStyle;
 		if(list.size() > 0 && index != 0)
@@ -592,6 +598,7 @@ public class TextView extends WPView {
 		spaceBeforeText = 0;
 		view.setCaretOffset(total);
 		words += getWordCount(t.getText());
+		setListenerLock(false);
 	}
 	
 	public void setMathML(MapList list, TextMapElement t){

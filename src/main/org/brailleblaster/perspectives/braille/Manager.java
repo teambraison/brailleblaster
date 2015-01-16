@@ -67,6 +67,7 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
@@ -91,7 +92,6 @@ import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -434,6 +434,9 @@ public class Manager extends Controller {
 			case INSERT_NODE:
 				handleInsertNode(message);
 				break;
+			case MERGE:
+				handleMergeElement(message);
+				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
 				break;
@@ -659,6 +662,17 @@ public class Manager extends Controller {
 			
 	    text.refreshStyle(list.getCurrent());
 	    braille.refreshStyle(list.getCurrent());
+	}
+	
+	private void handleMergeElement(Message message){
+		MergeElementHandler meh = new MergeElementHandler(this, vi, list);
+		int index = list.getCurrentIndex();
+		boolean isFirst = (Boolean)message.getValue("isFirst");
+		
+		if(isFirst && index > 0 && list.getCurrent().start == list.get(index - 1).end)
+			meh.merge(list.get(index - 1), list.getCurrent());
+		else if(!isFirst && index < list.size() - 1 && list.getCurrent().end == list.get(index + 1).start)
+			meh.merge(list.getCurrent(), list.get(index + 1));
 	}
 	
 	private void handleRemoveNode(Message message){

@@ -847,4 +847,25 @@ public class BrailleDocument extends BBDocument {
 		
 		return null;
 	}
+	
+	public Element mergeElements(Element originalParent, Element child){
+		Element parent = (Element)originalParent.copy();
+		removeBraille(parent);
+		removeBraille(child);
+		
+		while(child.getChildCount() > 0){
+			if(parent.getChild(parent.getChildCount() - 1) instanceof Text && child.getChild(0) instanceof Text){
+				((Text)parent.getChild(parent.getChildCount() - 1)).setValue(parent.getChild(parent.getChildCount() - 1).getValue() + child.getChild(0).getValue());
+				child.removeChild(0);
+			}
+			else
+				parent.appendChild(child.removeChild(0));
+		}
+		
+		child.getParent().removeChild(child);
+		Element mergedElement = translateElement(parent);
+	
+		originalParent.getParent().replaceChild(originalParent, mergedElement);
+		return mergedElement;
+	}
 }

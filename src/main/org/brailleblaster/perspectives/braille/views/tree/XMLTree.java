@@ -652,17 +652,31 @@ public class XMLTree extends TreeView {
 		ArrayList<TextMapElement> elementList = new ArrayList<TextMapElement>();
 		
 		for(int i = start; i < end; i++){
-			if(parent.equals(manager.getTextMapElement(i).parentElement())){
+			if(parent.equals(manager.getTextMapElement(i).parentElement()))
 				elementList.add(manager.getTextMapElement(i));
-			}
 		}
 		
-		if(elementList.size() > 0){
+		if(elementList.size() > 0)
 			newTreeItem(elementList, treeIndex, offset);
-		}
-		else {
+		else
 			newTreeItem(manager.getTextMapElement(start), treeIndex, offset);
+	}
+	
+	@Override
+	public void merge(Message m){
+		ArrayList<TextMapElement>mapList = (ArrayList<TextMapElement>)m.getValue("mapList");
+		ArrayList<Element>elList = (ArrayList<Element>)m.getValue("elList");
+		
+		TreeItem item = this.findElementInTree(root, elList.get(0));
+		TreeItem parent = item.getParentItem();
+		int index = parent.indexOf(item);
+		
+		for(int i = 0; i < elList.size(); i++){
+			TreeItem deletedItem = this.findElementInTree(root, elList.get(i));
+			deletedItem.dispose();
 		}
+		
+		newTreeItem(mapList, index, 0);
 	}
 	
 	@Override

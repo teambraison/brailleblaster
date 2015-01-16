@@ -253,7 +253,7 @@ public class InsertElementHandler extends Handler{
 			
 			int brailleLength = 0;
 			
-			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i));
+			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i), false);
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){

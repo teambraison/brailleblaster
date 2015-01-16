@@ -134,7 +134,8 @@ public class BookTree extends TreeView {
 	
 	public void setTree(Element e, TreeItem item){	
 		Elements els = e.getChildElements();
-		for(int i = 0; i < els.size(); i++){
+		
+		for(int i = 0; i < els.size(); i++){			
 			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){			
 				TreeItem childItem;
 				if(previousItem == null){
@@ -583,7 +584,9 @@ public class BookTree extends TreeView {
 
 	@Override
 	public void merge(ArrayList<TextMapElement>mapList, ArrayList<Element>elList) {
-		// TODO Auto-generated method stub
-		
+		tree.setRedraw(false);
+		tree.removeAll();
+		setRoot(manager.getDocument().getRootElement());
+		tree.setRedraw(true);
 	}
 }

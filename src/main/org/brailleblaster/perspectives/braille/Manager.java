@@ -36,7 +36,6 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -55,15 +54,11 @@ import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.RedoQueue;
 import org.brailleblaster.perspectives.braille.eventQueue.UndoQueue;
-import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.Range;
 import org.brailleblaster.perspectives.braille.mapping.elements.SectionElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -73,7 +68,13 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
+import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
+import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
+import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
+import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -167,10 +168,8 @@ public class Manager extends Controller {
 			else {
 				arch = ArchiverFactory.getArchive( templateFile, false);
 				vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-				//list = vi.getList(this);
 				resetConfiguations();
 				initializeAllViews(docName, templateFile, null);
-				//formatTemplateDocument();
 				setTabTitle(docName);
 			}
 		}				
@@ -265,12 +264,10 @@ public class Manager extends Controller {
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
-			if(view.equals(text.getClass().getCanonicalName())){
+			if(view.equals(text.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(text.view);
-			}
-			else if(view.equals(braille.getClass().getCanonicalName())){
+			else if(view.equals(braille.getClass().getCanonicalName()))
 				editorSash.setMaximizedControl(braille.view);
-			}
 		}
 	}
 	
@@ -406,7 +403,6 @@ public class Manager extends Controller {
 			else {
 				System.out.println("The Document Base document tree is empty");
 				logger.error("The Document Base document tree is null, the file failed to parse properly");
-				//workingFilePath = null;
 			}
 		}
 		catch(Exception e){
@@ -432,7 +428,7 @@ public class Manager extends Controller {
 			case GET_CURRENT:
 				handleGetCurrent(message);
 				break;
-			case TEXT_DELETION:
+			case WHITESPACE_DELETION:
 				handleTextDeletion(message);
 				break;
 			case UPDATE:
@@ -443,9 +439,6 @@ public class Manager extends Controller {
 				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
-				break;
-			case REMOVE_MATHML:
-				handleRemoveMathML(message);
 				break;
 			case UPDATE_STATUSBAR:
 				handleUpdateStatusBar(message);
@@ -513,11 +506,8 @@ public class Manager extends Controller {
 				if(secList.get(i).getParent().equals(e)){
 					if(secList.get(i).isVisible())
 						list.findTextMapElements(message);
-					else {
+					else 
 						secList.get(i).getList().findTextMapElements(message);
-						//list = vi.resetViews(i);
-						//list.findTextMapElements(message);
-					}
 				}
 			}
 		}
@@ -630,149 +620,24 @@ public class Manager extends Controller {
 	}
 	
 	private void handleTextDeletion(Message message){
-		int brailleStart = 0;
-		list.checkList();
-		if(list.size() > 0){		
-			int start = (Integer)message.getValue("offset");
-			int index = list.findClosest(message, 0, list.size() - 1);
-			TextMapElement t = list.get(index);
-			if(start < t.start){
-				if(index > 0){
-					if(t.brailleList.size() > 0)
-						brailleStart = t.brailleList.getFirst().start + (Integer)message.getValue("length");
-				}
-				else{
-					brailleStart = 0;
-				}
-			}
-			else if(t.brailleList.size() > 0)
-				brailleStart = t.brailleList.getLast().end;
-		
-			braille.removeWhitespace(brailleStart, (Integer)message.getValue("length"));
-		
-			if(start >= t.end && index != list.size() - 1 && list.size() > 1)
-				list.shiftOffsetsFromIndex(index + 1, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
-			else if(index != list.size() -1 || (index == list.size() - 1 && start < t.start))
-				list.shiftOffsetsFromIndex(index, (Integer)message.getValue("length"), (Integer)message.getValue("length"), (Integer)message.getValue("offset"));
-		}
-		else
-			braille.removeWhitespace(0,  (Integer)message.getValue("length"));
+		WhiteSpaceHandler wsp = new WhiteSpaceHandler(this, list);
+		wsp.removeWhitespace(message);
 	}
 	
 	private void handleUpdate(Message message){
-		message.put("selection", treeView.getSelection(list.getCurrent()));
-		if(list.getCurrent().isMathML()){
-			handleRemoveMathML(Message.createRemoveMathMLMessage((Integer)message.getValue("offset"), list.getCurrent().end - list.getCurrent().start, list.getCurrent()));
-			message.put("diff", 0);
-		}
-		else {
-			document.updateDOM(list, message);
-			braille.updateBraille(list.getCurrent(), message);
-			text.reformatText(list.getCurrent().n, message, this);
-			list.updateOffsets(list.getCurrentIndex(), message);
-			list.checkList();
-		}
-		arch.setDocumentEdited(true);
+		TextUpdateHandler tuh = new TextUpdateHandler(this, vi, list);
+		tuh.updateText(message);
 	}
 	
 	private void handleInsertNode(Message m){
 		if(m.getValue("split").equals(true)){
-			splitElement(m);
+			SplitElementHandler splitter = new SplitElementHandler(this, vi, list);
+			splitter.splitElement(m);
 		}
 		else {
-			if(m.getValue("atStart").equals(true))
-				insertElementAtBeginning(m);
-			else
-				insertElementAtEnd(m);
+			InsertElementHandler inserter = new InsertElementHandler(this, vi, list);
+			inserter.insertElement(m);
 		}
-	}
-	
-	private void splitElement(Message m){
-		int origPos =list.getCurrent().start;
-		int treeIndex = treeView.getBlockElementIndex();
-		
-		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
-		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
-		
-		int textStart = list.get(originalElements.get(0)).start;
-		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
-		int brailleStart = list.get(originalElements.get(0)).brailleList.getFirst().start;	
-			
-		int brailleEnd = list.get(originalElements.get(originalElements.size() - 1)).brailleList.getLast().end;
-				
-		int currentIndex = list.getCurrentIndex();
-		
-		for(int i = originalElements.size() - 1; i >= 0; i--){
-			int pos = originalElements.get(i);
-			
-			if(pos < currentIndex){
-				vi.remove(list, pos);
-				currentIndex--;
-			}
-			else if(pos >= currentIndex){
-				vi.remove(list, pos);
-			}
-		}
-		
-		text.clearTextRange(textStart, textEnd - textStart);
-		braille.clearTextRange(brailleStart, brailleEnd - brailleStart);
-		list.shiftOffsetsFromIndex(currentIndex, -(textEnd - textStart), -(brailleEnd - brailleStart), origPos);	
-		
-		int firstElementIndex = currentIndex;
-		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
-		
-		String insertionString = "";
-		Styles style = styles.get(styles.getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
-
-		if(style.contains(StylesType.linesBefore)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++){
-				insertionString += "\n";
-			}
-		}
-		else if(style.contains(StylesType.linesAfter)){
-			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesAfter)) + 1; i++){
-				insertionString += "\n";
-			}
-		}
-		else {
-			insertionString = "\n";
-		}
-
-		text.insertText(list.get(currentIndex).end, insertionString);
-		braille.insertText(list.get(currentIndex).brailleList.getLast().end, insertionString);
-		m.put("length", insertionString.length());
-		
-		int secondElementIndex = currentIndex + 1;
-		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
-
-		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart, origPos);
-		
-		treeView.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
-	}
-	
-	private int insertElement(Element e, int index, int start, int brailleStart){
-		int count = e.getChildCount();
-		int currentIndex = index;
-		int currentStart = start;
-		int currentBrailleStart = brailleStart;
-		
-		for(int i = 0; i < count; i++){
-			if(e.getChild(i) instanceof Text){
-				text.insertText(vi,list, currentIndex, currentStart, e.getChild(i));
-				currentStart = list.get(currentIndex).end;
-				i++;
-				insertBraille((Element)e.getChild(i), currentIndex, currentBrailleStart);
-				currentBrailleStart = list.get(currentIndex).brailleList.getLast().end;
-				currentIndex++;
-			}
-			else if(e.getChild(i) instanceof Element && !((Element)e.getChild(i)).getLocalName().equals("brl")){
-				currentIndex = insertElement((Element)e.getChild(i), currentIndex, currentStart, currentBrailleStart);
-				currentStart = list.get(currentIndex - 1).end;
-				currentBrailleStart = list.get(currentIndex - 1).brailleList.getLast().end;
-			}
-		}
-		
-		return currentIndex;
 	}
 	
 	public void insertBraille(Element e, int index, int brailleStart){
@@ -786,97 +651,22 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void insertElementAtBeginning(Message m){
-		int origPos = list.getCurrent().start;
-		if(list.getCurrentIndex() > 0 && list.getCurrent().start != 0)
-			document.insertEmptyTextNode(vi, list, list.getCurrent(),  list.getCurrent().start - 1, list.getCurrent().brailleList.getFirst().start - 1,list.getCurrentIndex(),(String) m.getValue("elementName"));
-		else
-			document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().start, list.getCurrent().brailleList.getFirst().start, list.getCurrentIndex(),(String) m.getValue("elementName"));
-			
-		if(list.size() - 1 != list.getCurrentIndex() - 1){
-			if(list.getCurrentIndex() == 0)
-				list.shiftOffsetsFromIndex(list.getCurrentIndex() + 1, 1, 1, origPos);
-			else
-				list.shiftOffsetsFromIndex(list.getCurrentIndex(), 1, 1, origPos);
-		}
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getFirst().start - 1);
-			
-		treeView.newTreeItem(list.get(list.getCurrentIndex()), index, 0);
-	}
-	
-	private void insertElementAtEnd(Message m){
-		int origPos = list.getCurrent().start;
-		document.insertEmptyTextNode(vi, list, list.getCurrent(), list.getCurrent().end + 1, list.getCurrent().brailleList.getLast().end + 1, list.getCurrentIndex() + 1,(String) m.getValue("elementName"));
-		if(list.size() - 1 != list.getCurrentIndex() + 1)
-			list.shiftOffsetsFromIndex(list.getCurrentIndex() + 2, 1, 1, origPos);
-		
-		int index = treeView.getSelectionIndex();
-		
-		m.put("length", 1);
-		m.put("newBrailleLength", 1);
-		m.put("brailleLength", 0);
-
-		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
-		treeView.newTreeItem(list.get(list.getCurrentIndex() + 1), index, 1);
-	}
-	
 	public void insertTranscriberNote(){
 		text.update(false);
 			
 		ArrayList<Integer>posList = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().n.getParent(), true);
-	    if (arch.getCurrentConfig().equals("epub.cfg")){
+	    if (arch.getCurrentConfig().equals("epub.cfg"))
 	    	text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"aside");
-	    }
-	    else{		
+	    else
 		    text.insertNewNode(list.get(posList.get(posList.size() - 1)).end,"prodnote");
-	    }
 			
-		Styles style = styles.get("trnote");
-		Message styleMessage =  Message.createUpdateStyleMessage(style, false, false);
-		dispatch(styleMessage);
+	    text.refreshStyle(list.getCurrent());
+	    braille.refreshStyle(list.getCurrent());
 	}
 	
 	private void handleRemoveNode(Message message){
-		int index = (Integer)message.getValue("index");
-		treeView.removeItem(list.get(index), message);
-		document.updateDOM(list, message);
-		list.get(index).brailleList.clear();
-		vi.remove(list, index);
-		//list.remove(index);
-					
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
-	}
-	
-	private void handleRemoveMathML(Message m){
-		TextMapElement t = (TextMapElement)m.getValue("TextMapElement");
-		document.updateDOM(list, m);
-		braille.removeMathML(t);
-		text.removeMathML(m);
-		treeView.removeMathML(t);
-		int index = list.indexOf(t);
-		list.updateOffsets(index, m);
-		vi.remove(list, index);
-		//list.remove(t);
-		
-		if(list.size() == 0){
-			text.removeListeners();
-			braille.removeListeners();
-			treeView.removeListeners();
-			list.clearList();
-			text.view.setEditable(false);
-		}
+		RemoveElementHandler er = new RemoveElementHandler(this, vi, list);
+		er.removeNode(message);
 	}
 	
 	private void handleUpdateStatusBar(Message message){
@@ -900,23 +690,6 @@ public class Manager extends Controller {
 	}
 	
 	/***
-     * Get parent style of the current TextMapElement 
-     * @param current
-     * @param message
-     * @return
-     */
-	private Element parentStyle(TextMapElement current, Message message) {
-		Element parent;
-		if(current instanceof PageMapElement || current instanceof BrlOnlyMapElement)
-			parent = current.parentElement();
-		else
-			parent = document.getParent(current.n, true);
-		
-		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-		return parent;
-	}
-	
-	/***
 	 * Handle style for all cases
 	 * @param message
 	 */
@@ -924,204 +697,18 @@ public class Manager extends Controller {
 		if (document.getDOM() != null && text.view.getText().length() > 0) {
 			containerSash.setRedraw(false);
 			if(message.getValue("isBoxline").equals(true)){
-				if(message.getValue("multiSelect").equals(false)) 
-					handleSingleBoxLine(message);
-				else 
-					handleMultiBoxLine(message);
+				BoxlineHandler bxh = new BoxlineHandler(this, vi ,list);
+				bxh.handleBoxline(message);
 			}
 			else{
-				if(message.getValue("multiSelect").equals(false)) 
-					handleStyleSingleSelected(message);
-				else 
-					handleStyleMultiSelected(message);
+				StyleHandler sh = new StyleHandler(this, vi, list);
+				sh.updateStyle(message);
 			}
 			containerSash.setRedraw(true);
 		}
 		else
 			notify(lh.localValue("nothingToApply"));
 	}
-	
-	/***
-	 * Handle style if user just move cursor
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleStyleSingleSelected(Message message) {
-		Element parent = parentStyle(list.getCurrent(), message);
-		document.changeSemanticAction(message, parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		adjustStyle(itemList, message);
-	}
-	
-	/***
-	 * Apply styles to selected text for multiple elements
-	 * @param start: starting offset of highlighted text used to find first block element
-	 * @param end: end position of highlighted text used to find last block element
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleStyleMultiSelected(Message message){
-		
-		int start=text.getSelectedText()[0];
-		int end=text.getSelectedText()[1];
-		
-		Set<TextMapElement> itemSet = getElementSelected(start, end);		
-		Iterator<TextMapElement> itr = itemSet.iterator();
-		ArrayList<Element>parents = new ArrayList<Element>();
-		
-		while (itr.hasNext()) {
-			TextMapElement tempElement= itr.next();
-			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
-				Element parent = parentStyle(tempElement, styleMessage);
-				parents.add(parent);
-				document.changeSemanticAction(message, parent);
-				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
-				adjustStyle( itemList,styleMessage);
-			}
-		}
-	}
-	
-	
-	/** Prepares object needed by boxline handler to create boxline around a single element
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleSingleBoxLine(Message message){
-		Element parent = parentStyle(list.getCurrent(), message);
-		ArrayList<Element>parents = new ArrayList<Element>();
-		parents.add(parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-			boolean invalid = false;
-			for(int i = 0; i < itemList.size() && !invalid; i++){
-				if(itemList.get(i) instanceof PageMapElement)
-					invalid = true;
-			}
-			if(!invalid){
-				adjustStyle(itemList, message);
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.createBoxline(parents, message, itemList);
-			}
-		else
-			notify(lh.localValue("invalidBoxline.containsPage"));
-		}
-		else {
-			adjustStyle(itemList, message);
-			TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-			if(box != null){
-				if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-					itemList.add(0, box);
-				else
-					itemList.add(box);
-			}
-			
-			BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-			bxh.removeSingleBoxline(parent, itemList);
-			
-			if(list.getCurrentIndex() > list.size())
-				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-			else if(list.size() > 0)
-				dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-		}
-	}
-	
-	/** Prepares object needed by boxline handler to create boxline around a multiple elements
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleMultiBoxLine(Message message){
-		int start=text.getSelectedText()[0];
-		int end=text.getSelectedText()[1];
-		
-		Set<TextMapElement> itemSet = getElementSelected(start, end);		
-		Iterator<TextMapElement> itr = itemSet.iterator();
-		ArrayList<Element>parents = new ArrayList<Element>();
-		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
-		
-		boolean invalid = false;
-		
-		while(itr.hasNext() && !invalid){
-			TextMapElement tempElement= itr.next();
-			if(tempElement instanceof BrlOnlyMapElement){
-				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if((b == null && !tempElement.parentElement().getAttributeValue("semantics").contains("middleBox") && !tempElement.parentElement().getAttributeValue("semantics").contains("bottomBox") )
-						|| (b != null && (b.start > end || b.end < start))){
-					invalid = true;
-					notify(lh.localValue("invalidBoxline.incorrectSelection"));
-					break;
-				}
-			}
-			Element parent = parentStyle(tempElement, message);
-			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
-			parents.add(parent);
-		}
-		
-		for(int i = 0; i < itemList.size() && !invalid; i++){
-			if(itemList.get(i) instanceof PageMapElement){
-				invalid = true;
-				notify(lh.localValue("invalidBoxline.containsPage"));
-			}
-		}
-		
-		if(!invalid){
-			if(((Styles)message.getValue("Style")).getName().equals("boxline")){
-				adjustStyle(itemList, message);
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.createBoxline(parents, message, itemList);	
-			}
-			else {
-				BoxlineHandler bxh = new BoxlineHandler(this, list, vi);
-				bxh.removeMultiBoxline(itemList);
-				if(list.getCurrentIndex() > list.size())
-					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-				else if(list.size() > 0)
-					dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-				
-				dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
-			}
-		}
-	}
-	
-	/***
-	 * Adjust style of elements in the list base on previous and next element 
-	 * @param itemList : all selected items which we want style to be applied
-	 * @param message : passing information regarding styles
-	 */
-	private void adjustStyle(ArrayList<TextMapElement> itemList, Message message) {
-		int start = list.indexOf(itemList.get(0));
-		int end = list.indexOf(itemList.get(itemList.size() - 1));
-		int origPos = list.get(list.getNodeIndex(itemList.get(0))).start;
-		if (start > 0) {
-			message.put("prev", list.get(start - 1).end);
-			message.put("braillePrev",
-					list.get(start - 1).brailleList.getLast().end);
-		} else {
-			message.put("prev", -1);
-			message.put("braillePrev", -1);
-		}
-
-		if (end < list.size() - 1) {
-			message.put("next", list.get(end + 1).start);
-			message.put("brailleNext",
-					list.get(end + 1).brailleList.getFirst().start);
-		} else {
-			message.put("next", -1);
-			message.put("brailleNext", -1);
-		}
-
-		text.adjustStyle(message, itemList);
-		braille.adjustStyle(message, itemList);
-
-		if (message.contains("linesBeforeOffset"))
-			list.shiftOffsetsFromIndex(start,
-					(Integer) message.getValue("linesBeforeOffset"),
-					(Integer) message.getValue("linesBeforeOffset"), origPos);
-		if (message.contains("linesAfterOffset") && list.size() > 1
-				&& end < list.size() - 1)
-			list.shiftOffsetsFromIndex(end + 1,
-					(Integer) message.getValue("linesAfterOffset"),
-					(Integer) message.getValue("linesAfterOffset"), origPos);
-
-		treeView.adjustItemStyle(list.getCurrent());
-	}	
 	
 	public void saveAs(){
 		String filePath;
@@ -1242,9 +829,8 @@ public class Manager extends Controller {
 	}
 	
 	public void printPreview(){
-		if(braille.view.getCharCount() > 0){
+		if(braille.view.getCharCount() > 0)
 			new PrintPreview(this.getDisplay(), document, this);
-		}
 	}
 	
 	private void setCurrentOnRefresh(Sender sender, int offset, boolean isBraille){
@@ -1356,8 +942,6 @@ public class Manager extends Controller {
 			
 			if(index != -1)
 				vi.bufferViews(index);
-			//if(arch.getOrigDocPath() == null && list.size() == 0)
-			//	formatTemplateDocument();
 		} 
 		catch (IOException e) {
 			new Notify("An error occurred while refreshing the document. Please save your work and try again.");
@@ -1374,12 +958,11 @@ public class Manager extends Controller {
 	
 	public void toggleAttributeEditor(){
 		if(!sm.panelIsVisible()){
-			if(list.size() == 0){
-				sm.displayTable(null);
-			}
-			else {
+			if(list.empty())
+				sm.displayTable(null);	
+			else 
 				sm.displayTable(list.getCurrent());
-			}
+			
 			setTabList();
 			PropertyFileManager pfm = BBIni.getPropertyFileManager();
 			String weight = pfm.getProperty("stylePanelWeight");
@@ -1443,7 +1026,7 @@ public class Manager extends Controller {
 	}
 	
 	public void hide(){
-		HideActionHandler h = new HideActionHandler(this, list, vi);
+		HideActionHandler h = new HideActionHandler(this, vi, list);
 		h.hideText();
 	}
 	
@@ -1494,7 +1077,7 @@ public class Manager extends Controller {
 	}
 	
 	public TextMapElement getNext(){
-		if(list.size() > 0 && list.getCurrentIndex() <= list.size() - 1)
+		if(!list.empty() && list.getCurrentIndex() <= list.size() - 1)
 			return list.get(list.getCurrentIndex() + 1);
 		else
 			return null;
@@ -1515,13 +1098,14 @@ public class Manager extends Controller {
 		else
 			return null;
 	}
+	
 	/***
 	 * Return all elements that selected in text
 	 * @param start :start location of where text selected
 	 * @param end:  where selection ended
 	 * @return: Set of all element where in selection
 	 */
-	public Set<TextMapElement> getElementSelected(int start, int end) {
+	public Set<TextMapElement> getElementInSelectedRange(int start, int end) {
 		
 		Set<TextMapElement> elementSelectedSet = new LinkedHashSet<TextMapElement>();
 		Set<Element> parentElement = new LinkedHashSet<Element>();
@@ -1539,8 +1123,7 @@ public class Manager extends Controller {
 				j=t.end+1;
 				
 			}
-			else
-			{
+			else {
 			    j=j+1;	
 			}
 		}
@@ -1874,10 +1457,12 @@ public class Manager extends Controller {
 		undoQueue.add(f);
 	}
 	
+	public void addRedoEvent(EventFrame f){
+		redoQueue.add(f);
+	}
+	
 	public void undo(){
-		EventFrame f = undoQueue.popEvent(vi, document, list, this);
-		if(f != null)
-			redoQueue.add(f);
+		undoQueue.popEvent(vi, document, list, this);
 	}
 	
 	public void redo(){
@@ -1887,9 +1472,8 @@ public class Manager extends Controller {
 	/** Creates a Notify class alert box if debugging is not active
 	 * @param notify : String to be used in an alert box, should already be localized
 	 */
-	private void notify(String notify){
+	public void notify(String notify){
 		if(!BBIni.debugging())
 			new Notify(notify);
 	}
-	
 }

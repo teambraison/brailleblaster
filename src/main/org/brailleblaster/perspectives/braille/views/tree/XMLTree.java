@@ -663,10 +663,7 @@ public class XMLTree extends TreeView {
 	}
 	
 	@Override
-	public void merge(Message m){
-		ArrayList<TextMapElement>mapList = (ArrayList<TextMapElement>)m.getValue("mapList");
-		ArrayList<Element>elList = (ArrayList<Element>)m.getValue("elList");
-		
+	public void merge(ArrayList<TextMapElement>mapList, ArrayList<Element>elList){
 		TreeItem item = this.findElementInTree(root, elList.get(0));
 		TreeItem parent = item.getParentItem();
 		int index = parent.indexOf(item);

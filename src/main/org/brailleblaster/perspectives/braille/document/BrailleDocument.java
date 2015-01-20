@@ -858,6 +858,18 @@ public class BrailleDocument extends BBDocument {
 				((Text)parent.getChild(parent.getChildCount() - 1)).setValue(parent.getChild(parent.getChildCount() - 1).getValue() + child.getChild(0).getValue());
 				child.removeChild(0);
 			}
+			else if(parent.getChild(parent.getChildCount() - 1) instanceof Element && child.getChild(0) instanceof Element){
+				Element e1 = (Element)parent.getChild(parent.getChildCount() - 1);
+				Element e2 = (Element)child.getChild(0);
+				if( table.getSemanticTypeFromAttribute(e1).equals("action") && table.getSemanticTypeFromAttribute(e1).equals("action")){
+					if(table.getKeyFromAttribute(e1).equals(table.getKeyFromAttribute(e2))){
+						if(e1.getChild(0) instanceof Text && e2.getChild(0) instanceof Text){
+							((Text)e1.getChild(0)).setValue(e1.getChild(0).getValue() + e2.getChild(0).getValue());
+							e2.getParent().removeChild(e2);
+						}
+					}
+				}
+			}
 			else
 				parent.appendChild(child.removeChild(0));
 		}

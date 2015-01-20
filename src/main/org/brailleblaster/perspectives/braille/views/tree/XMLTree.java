@@ -673,7 +673,13 @@ public class XMLTree extends TreeView {
 			deletedItem.dispose();
 		}
 		
-		newTreeItem(mapList, index, 0);
+		//resets complex structures like list where all map elements are children of block element
+		if(mapList.size() == 0){
+			depopulateItemChildren(parent);
+			buildTreeFromElement(getTreeItemData(parent).element);
+		}
+		else
+			newTreeItem(mapList, index, 0);
 	}
 	
 	@Override

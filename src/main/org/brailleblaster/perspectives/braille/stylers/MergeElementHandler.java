@@ -27,8 +27,8 @@ public class MergeElementHandler extends Handler{
 		Element mergeTo = getBlockElement(t1.n);
 		Element merging = getBlockElement(t2.n);
 		
-		ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(list.indexOf(t1), t1.parentElement(), true);
-		ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(t2), t2.parentElement(), true);
+		ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(list.indexOf(t1), mergeTo, true);
+		ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(t2), merging, true);
 		
 		int startIndex = list.indexOf(mergeList1.get(0));
 		int textStart = mergeList1.get(0).start;
@@ -63,11 +63,11 @@ public class MergeElementHandler extends Handler{
 		//	
 			int brailleLength = 0;
 			
-			manager.getText().resetElement(m, vi, list, index, textOffset, elList.get(i), true);
+			text.resetElement(m, vi, list, index, textOffset, elList.get(i), true);
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){
-				manager.getBraille().resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
+				braille.resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
 				brailleOffset = (Integer)m.getValue("brailleOffset");
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}

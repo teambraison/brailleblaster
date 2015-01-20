@@ -138,9 +138,8 @@ public class BookTree extends TreeView {
 		for(int i = 0; i < els.size(); i++){			
 			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){			
 				TreeItem childItem;
-				if(previousItem == null){
+				if(previousItem == null)
 					childItem = new TreeItem(findCorrectLevel(root, els.get(i)), SWT.LEFT | SWT.BORDER);
-				}
 				else
 					childItem =  new TreeItem(findCorrectLevel(previousItem, els.get(i)), SWT.LEFT | SWT.BORDER);
 					

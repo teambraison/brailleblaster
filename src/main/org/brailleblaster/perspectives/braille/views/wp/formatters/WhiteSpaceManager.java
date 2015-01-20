@@ -131,11 +131,11 @@ public class WhiteSpaceManager {
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);
-			//linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 		}
 		
 		return linesAfter;
 	}
+	
 	
 	public int setLinesAfterBraille(TextMapElement t, BrailleMapElement b, int start, Styles style){
 		int linesAfter = 0;
@@ -170,7 +170,6 @@ public class WhiteSpaceManager {
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);
-			//linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 		}
 		
 		return linesAfter;

@@ -51,23 +51,14 @@ public class MergeElementHandler extends Handler{
 		Message m = new Message(null);
 		int count = elList.size();
 		
-	//	if(shouldInsertBlankLine(elList))
-	//		createBlankLine(textOffset, brailleOffset, index);
-		
 		for(int i = 0; i < count; i++){
-		//	if(i > 0 && (isBlockElement(elList.get(i)) || afterLineBreak(elList.get(i)))){
-		//		createBlankLine(textOffset, brailleOffset, index);
-		//		textOffset++;
-		//		brailleOffset++;
-		//	}
-		//	
 			int brailleLength = 0;
 			
-			text.resetElement(m, vi, list, index, textOffset, elList.get(i), true);
+			text.mergeElement(m, vi, list, index, textOffset, elList.get(i));
 			textOffset = elList.get(i).end;
 			
 			for(int j = 0; j < elList.get(i).brailleList.size(); j++){
-				braille.resetElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
+				braille.mergeElement(m, list, list.get(index), elList.get(i).brailleList.get(j), brailleOffset);
 				brailleOffset = (Integer)m.getValue("brailleOffset");
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}

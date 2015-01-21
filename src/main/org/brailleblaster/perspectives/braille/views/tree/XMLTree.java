@@ -672,8 +672,6 @@ public class XMLTree extends TreeView {
 			TreeItem deletedItem = this.findElementInTree(root, elList.get(i));
 			deletedItem.dispose();
 		}
-		
-		//resets complex structures like list where all map elements are children of block element
 		if(mapList.size() == 0){
 			depopulateItemChildren(parent);
 			buildTreeFromElement(getTreeItemData(parent).element);

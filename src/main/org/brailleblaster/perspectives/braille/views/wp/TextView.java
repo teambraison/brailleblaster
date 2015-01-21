@@ -831,7 +831,7 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	
-	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t, boolean merge){
+	public void resetElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
 		int linesBefore = 0;
 		int linesAfter = 0;
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
@@ -850,8 +850,7 @@ public class TextView extends WPView {
 		view.setCaretOffset(start);
 		view.insert(reformattedText);
 		
-		if(!merge)
-			vi.addElementToSection(list, t, listIndex);
+		vi.addElementToSection(list, t, listIndex);
 		
 		int margin = 0;
 		
@@ -865,6 +864,65 @@ public class TextView extends WPView {
 		
 		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
 		m.put("textLength", reformattedText.length() + linesBefore + linesAfter);
+		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+		
+		start += linesBefore;
+		//reset margin in case it is not applied
+		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+			handleLineWrap(start, reformattedText, 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+		}
+					
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start, start + t.n.getValue().length(), style);
+		
+		if(style.contains(StylesType.emphasis))
+			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void mergeElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		int linesBefore = 0;
+		int linesAfter = 0;
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		String reformattedText;
+		if(t instanceof BrlOnlyMapElement)
+			reformattedText = t.getText();
+		else
+			reformattedText =  appendToView(t.n, false);
+		
+		boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+		boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
+		
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		
+		view.setCaretOffset(start);
+		view.insert(reformattedText);	
+		
+		t.setOffsets(start, start + reformattedText.length());
+		list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+		
+		int margin = 0;
+		
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		
+		if(isFirst)
+			linesBefore = wsp.setLinesBefore(t, start, style);	
+		
+		if(isLast)
+			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		
+		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+		m.put("textLength", linesBefore + linesAfter);
 		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
 		
 		start += linesBefore;

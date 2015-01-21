@@ -117,6 +117,8 @@ public class WhiteSpaceManager {
 				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
 			}
+			else
+				nextPos = list.get(index + 1).start;
 			
 			if(linesAfter < nextLinesBefore)
 				linesAfter = nextLinesBefore;
@@ -132,10 +134,42 @@ public class WhiteSpaceManager {
 			
 			setLines(start, linesAfter);
 		}
+		else
+			return removeLinesAfter(t, start, style);
 		
 		return linesAfter;
 	}
 	
+	private int removeLinesAfter(TextMapElement t, int end, Styles style){
+		int index = list.indexOf(t);
+		int removeLength = 0;
+		int nextLinesBefore = 0;
+		int nextPos = 0;
+		
+		if(isLastInList(index)){
+			Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
+			String sem = getSemanticAttribute(prevParent);
+			if(isLastInList(index))
+				nextPos = manager.getText().view.getCharCount();
+			else
+				nextPos = list.get(index + 1).start;
+			
+			if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
+				nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
+		}
+		else
+			nextPos = list.get(index + 1).start;
+		
+		removeLength = nextPos - end - nextLinesBefore;
+		if(removeLength > 0)
+			removeLength--;
+		
+		
+		if(removeLength != 0)
+			compressSpace(end, removeLength);
+		
+		return -removeLength;
+	}
 	
 	public int setLinesAfterBraille(TextMapElement t, BrailleMapElement b, int start, Styles style){
 		int linesAfter = 0;
@@ -156,6 +190,8 @@ public class WhiteSpaceManager {
 				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
 			}
+			else
+				nextPos = list.get(index + 1).brailleList.getFirst().start;
 			
 			if(linesAfter < nextLinesBefore)
 				linesAfter = nextLinesBefore;
@@ -171,8 +207,41 @@ public class WhiteSpaceManager {
 			
 			setLines(start, linesAfter);
 		}
+		else
+			return removeBrailleLinesAfter(t, b, start, style);
 		
 		return linesAfter;
+	}
+	
+	private int removeBrailleLinesAfter(TextMapElement t, BrailleMapElement b, int end, Styles style){
+		int index = list.indexOf(t);
+		int removeLength = 0;
+		int nextLinesBefore = 0;
+		int nextPos = 0;
+		
+		if(isLastInList(index)){
+			Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
+			String sem = getSemanticAttribute(prevParent);
+			if(isLastInList(index))
+				nextPos = manager.getBraille().view.getCharCount();
+			else
+				nextPos = list.get(index + 1).brailleList.getFirst().start;
+			
+			if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
+				nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
+		}
+		else
+			nextPos = list.get(index + 1).brailleList.getFirst().start;
+		
+		removeLength = nextPos - end - nextLinesBefore;
+		if(removeLength > 0)
+			removeLength--;
+		
+		
+		if(removeLength != 0)
+			compressSpace(end, removeLength);
+		
+		return -removeLength;
 	}
 	
 	private void setLines(int start, int lines){
@@ -180,6 +249,10 @@ public class WhiteSpaceManager {
 		insert(start, text);
 	}
 	
+	private void compressSpace(int start, int length){
+		String emptyString = "";
+		wpView.replaceTextRange(start, length, emptyString);
+	}
 	private void insert(int start, String text){
 		int previousPosition = wpView.view.getCaretOffset();
 		wpView.view.setCaretOffset(start);

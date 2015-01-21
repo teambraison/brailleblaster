@@ -887,6 +887,7 @@ public class BrailleDocument extends BBDocument {
 		Element mergedElement = translateElement(parent);
 	
 		originalParent.getParent().replaceChild(originalParent, mergedElement);
+		
 		return mergedElement;
 	}
 }

@@ -165,8 +165,10 @@ public class WhiteSpaceManager {
 			removeLength--;
 		
 		
-		if(removeLength != 0)
+		if(removeLength > 0)
 			compressSpace(end, removeLength);
+		else
+			return 0;
 		
 		return -removeLength;
 	}
@@ -238,8 +240,10 @@ public class WhiteSpaceManager {
 			removeLength--;
 		
 		
-		if(removeLength != 0)
+		if(removeLength > 0)
 			compressSpace(end, removeLength);
+		else
+			return 0;
 		
 		return -removeLength;
 	}

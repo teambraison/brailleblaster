@@ -13,9 +13,9 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 public class UndoQueue extends EventQueue {
 	
 	private static final long serialVersionUID = 1658714661481118195L;
-
+	
 	public UndoQueue(){
-		super();		
+		super();	
 	}
 	
 	@Override

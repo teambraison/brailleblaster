@@ -181,7 +181,7 @@ public class Message {
 	 * Create a Message object base on multiple selection is true or false
 	 * @param style: Style to add, remove, or adjust 
 	 * @param multiSelect: signifies whether multiple elements have been selected
-	 * @param isBoxline: signifies whether selection is addining or removing a boxline, since boxline are handled differently than other styles
+	 * @param isBoxline: signifies whether selection is adding or removing a boxline, since boxline are handled differently than other styles
 	 * @return
 	 */
 	public static Message createUpdateStyleMessage(Styles style, boolean multiSelect, boolean isBoxline){

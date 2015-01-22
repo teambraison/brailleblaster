@@ -38,25 +38,62 @@ public class TextUpdateHandler extends Handler {
 	public void undoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
-			list.setCurrent(ev.getListIndex());
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			if(ev.getTextOffset() >= text.getCurrentStart() && ev.getTextOffset() <= text.getCurrentEnd())
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else{
+				list.setCurrent(ev.getListIndex());
+				text.view.setCaretOffset(list.getCurrent().start);
+				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			}
+			int changes = calculateEditDifference(ev, list.getCurrent());
 			addRedoEvent();
-			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-			resetText(m);
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
+			resetModelEvent(m, true);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			text.adjustCurrentElementValues(-changes);
 		}
 	}
 	
 	public void redoText(EventFrame f){
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Update)){
 			ModelEvent ev = (ModelEvent)f.pop();
-			list.setCurrent(ev.getListIndex());
-			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			if(ev.getTextOffset() >= text.getCurrentStart() && ev.getTextOffset() <= text.getCurrentEnd())
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else{
+				list.setCurrent(ev.getListIndex());
+				text.view.setCaretOffset(list.getCurrent().start);
+				manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			}
 			addUndoEvent();
-			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), list.getCurrent().end - list.getCurrent().start);
-			resetText(m);
+			int changes = calculateEditDifference(ev, list.getCurrent());
+			Message m = Message.createUpdateMessage(list.getCurrent().start, ev.getNode().getValue(), changes);
+			resetModelEvent(m, false);
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+			//text.adjustCurrentElementValues(-changes);
 		}
+	}
+
+	private int calculateEditDifference(ModelEvent ev, TextMapElement t){
+		int evLength = ev.getNode().getValue().length();
+		int viewLength = text.view.getTextRange(t.start, t.end - t.start).replace("\n", "").length();
+		
+		return evLength - viewLength;
+	}
+	
+	private void resetModelEvent(Message message, boolean undoEvent){
+		document.updateDOM(list, message);
+		braille.updateBraille(list.getCurrent(), message);
+		if(undoEvent)
+			text.redoText(message);
+		else {
+			message.put("length", text.getCurrentEnd() - text.getCurrentStart());
+			text.reformatText(list.getCurrent().n, message, manager);
+			message.put("length", (Integer)message.getValue("length") + text.getCurrentChanges());
+			text.adjustCurrentElementValues(0);
+		}
+		
+		list.updateOffsets(list.getCurrentIndex(), message);
+		list.checkList();
 	}
 	
 	private void resetText(Message message){
@@ -99,7 +136,11 @@ public class TextUpdateHandler extends Handler {
 		EventFrame frame = new EventFrame();
 		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Edit)){
 			ViewEvent ev = (ViewEvent)f.pop();
-			text.view.setCaretOffset(ev.getTextOffset());
+			
+			if(ev.getTextOffset() >= text.getCurrentStart() && ev.getTextOffset() <= text.getCurrentEnd())
+				text.view.setCaretOffset(ev.getTextOffset());	
+			else
+				text.setCurrentElement(ev.getTextOffset());
 			
 			int start = ev.getTextOffset();
 			int end =  ev.getTextOffset() + ev.getText().length();

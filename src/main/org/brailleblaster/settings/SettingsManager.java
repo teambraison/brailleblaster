@@ -28,6 +28,7 @@ public class SettingsManager {
 	private ConfigPanel configPanel;
 	private HashMap<String, String>outputMap;
 	private boolean compress;
+	
 	public SettingsManager(String config){
 		if(Locale.getDefault().getCountry().equals(NONMETRIC_COUTNRY))
 			isMetric = false;
@@ -48,7 +49,6 @@ public class SettingsManager {
 		configPanel.close();
 		configPanel = null;
 	}
-	
 	
 	private void setDefault(String config){
 		File f = new File(USER_SETTINGS);
@@ -205,7 +205,7 @@ public class SettingsManager {
 			e.printStackTrace();
 		}
 	}
-	//
+	
 	public HashMap<String, String> getMapClone(){
 		HashMap<String, String>temp = new HashMap<String, String>();
 		

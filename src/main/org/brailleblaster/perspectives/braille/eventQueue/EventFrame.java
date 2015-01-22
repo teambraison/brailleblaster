@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class EventFrame {
 	ArrayList<Event>eventList;
+	int sequenceId;
 	
 	public EventFrame(){
 		eventList = new ArrayList<Event>();
@@ -19,6 +20,14 @@ public class EventFrame {
 	
 	public Event get(int index){
 		return eventList.get(index);
+	}
+	
+	public void setId(int sequenceId){
+		this.sequenceId = sequenceId;
+	}
+	
+	public int getId(){
+		return sequenceId;
 	}
 	
 	public Event peek(){

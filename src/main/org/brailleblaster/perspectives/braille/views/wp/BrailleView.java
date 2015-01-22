@@ -945,6 +945,65 @@ public class BrailleView extends WPView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
+	
+	public void mergeElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
+		boolean isLast =  t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n);
+		int margin = 0;
+		int lineBreaks = 0;
+		int originalPosition = view.getCaretOffset();
+		int start = pos;
+		Element parent = (Element)b.n.getParent();
+		int index = parent.indexOf(b.n);
+		setListenerLock(true);
+		view.setCaretOffset(pos);
+		
+		//checks for newline element before text node if not at the beginning of a block element
+		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			view.insert("\n" + b.n.getValue());
+			lineBreaks++;
+			view.setCaretOffset(pos + 1);
+		}
+		else
+			view.insert(b.n.getValue());
+		
+		b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
+		list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length() + lineBreaks);
+		
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		int linesBefore = 0;
+		if(isFirst)
+			linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
+		
+		int linesAfter = 0;
+		if(isLast)
+			linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
+		
+		
+		b.setOffsets(lineBreaks + linesBefore + start, lineBreaks + start + b.n.getValue().length() + linesBefore);
+		m.put("brailleLength", linesBefore + linesAfter);
+		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+		
+		
+		//reset margin in case it is not applied
+		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
+		}
+					
+		if(isFirst && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(t.brailleList.getFirst().start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
+		
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
 
 	@Override
 	public void addPageNumber(PageMapElement p, boolean insert) {

@@ -67,7 +67,8 @@ public class WhiteSpaceHandler {
 			insertWhitespace(ev);
 			eventFrame.addEvent(ev);
 		}
-		manager.addRedoEvent(eventFrame);
+		createRedoEvent();
+		//manager.addRedoEvent(eventFrame);
 	}
 	
 	private void insertWhitespace(ViewEvent ev){
@@ -96,5 +97,15 @@ public class WhiteSpaceHandler {
 	private void removeWhitespace(ViewEvent ev){
 		text.setCurrentSelection(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
 		text.cut();
+	}
+	
+	private void createRedoEvent(){
+		if(manager.peekRedoEvent() != null && manager.peekRedoEvent().peek().getEventType().equals(EventTypes.Merge)){
+			while(!eventFrame.empty())
+				manager.peekRedoEvent().addEvent(eventFrame.push());
+		}
+		else {
+			manager.addRedoEvent(eventFrame);
+		}
 	}
 }

@@ -105,7 +105,7 @@ public class StyleManager{
     }
     
     
-    private Styles  indentToCell (Styles style){
+    private Styles indentToCell (Styles style){
     	int cellPosition;
     	if (style.contains(BBSemanticsTable.StylesType.leftMargin)){
     		cellPosition = Integer.valueOf((String)style.get((BBSemanticsTable.StylesType.leftMargin))) + 1;

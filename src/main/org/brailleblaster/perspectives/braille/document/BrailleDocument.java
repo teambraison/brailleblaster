@@ -769,7 +769,7 @@ public class BrailleDocument extends BBDocument {
 		return parent;
 	}
 	
-	/** Checks if an element has emphasis, currently used because emphasis can only be toggled on/off elements in bold,em, u tags
+	/** Checks if an element has emphasis, currently used because emphasis can only be toggled on/off elements in bold, em, u tags
 	 * @param t : TextMapElement to check
 	 * @param fontType : swt constant for emphasis
 	 * @return true if element is contained in a valid tag for toggling emphasis

@@ -83,8 +83,7 @@ public class BBSemanticsTable {
 		public String getName(){
 			return elementName;
 		}
-
-				
+		
 		@SuppressWarnings("unchecked")
 		@Override
 		public Styles clone() throws CloneNotSupportedException {

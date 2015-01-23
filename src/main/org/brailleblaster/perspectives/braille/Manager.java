@@ -316,6 +316,7 @@ public class Manager extends Controller {
 	public void search() {
 		if (srch==null) {
 			srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+			srch.open();
 		}
 		else {
 		srch.openWithPreviousValues();

@@ -2,9 +2,12 @@ package org.brailleblaster.search;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
@@ -72,6 +75,8 @@ public class SearchDialog extends Dialog {
 	private String [] searchList = new String [50];
 	private String [] replaceList = new String [50];
 	Map<String,String> searchSettings = new HashMap<String,String>();
+	protected int count;
+	public Set<String> searchComboSet;
 
 	
 	// private final FormToolkit // formToolkit = new
@@ -180,10 +185,11 @@ public class SearchDialog extends Dialog {
 				false, 3, 1));
 		// load the searchList from the previous session
 		for (int i = 0; i < searchList.length; i++) {
-			if (searchList[i]!=null) {
-				searchCombo.add(searchList[i]);
+			if (replaceList[i]!=null) {
+				searchCombo.add(replaceList[i]);
 			}// if
 		}//for
+
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
@@ -191,11 +197,8 @@ public class SearchDialog extends Dialog {
 					String newText = searchCombo.getText();
 					searchCombo.add(newText);
 					searchList = searchCombo.getItems();
-					Arrays.sort(searchList);
-					if(Arrays.binarySearch(searchList, newText)> 0) {
-						searchCombo.remove(newText);
-					}//if array already contains string
-						
+
+					
 			}// key traversed
 		});// addTraverseListener
 		
@@ -601,11 +604,17 @@ public class SearchDialog extends Dialog {
 
 					String newText = searchCombo.getText();
 					searchCombo.add(newText);
-					String [] searchList = searchCombo.getItems();
+					searchList = searchCombo.getItems();
 					Arrays.sort(searchList);
 					if(Arrays.binarySearch(searchList, newText)> 0) {
 						searchCombo.remove(newText);
 					}//if array already contains string
+//					for (int i = 0; i < searchList.length; i++) {
+//						if (!String.valueOf(searchList[i]).equals(newText)) {
+//							searchCombo.add(newText);
+//							searchList = searchCombo.getItems();
+//						}
+//					}
 						
 			}// key traversed
 		});// addTraverseListener

@@ -1,11 +1,20 @@
 package org.brailleblaster.search;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -52,9 +61,19 @@ public class SearchDialog extends Dialog {
 	private final int SCH_WHOLE_ON = 0;
 	private final int SCH_WHOLE_OFF = 1;
 	private int searchWholeWord = SCH_WHOLE_OFF;
+	
 	int numberOfLoops;
 	int oldCursorPos;
 	int oldTopIndex;
+//	private String searchDirectionString = "forward";
+//	private String caseSensitive = "notCaseSensitive";
+//	private String wholeWord = "notWholeWord";
+//	private String wrapSearch = "notWrapSearch";
+	private String [] searchList = new String [50];
+	private String [] replaceList = new String [50];
+	Map<String,String> searchSettings = new HashMap<String,String>();
+
+	
 	// private final FormToolkit // formToolkit = new
 	// FormToolkit(Display.getDefault());
 
@@ -103,16 +122,48 @@ public class SearchDialog extends Dialog {
 			}
 		}
 		return result;
+		
 	}
+	
+	public Object openWithPreviousValues() {
+		createPreviousContents();
+		shlFindreplace.open();
+		shlFindreplace.layout();
 
-	/**
-	 * Create contents of the dialog.
-	 */
-	private void createContents() {
+		display = getParent().getDisplay();
+		display.addFilter(SWT.KeyDown, new Listener() {
+			@Override
+			public void handleEvent(Event e) {
+
+				// If user presses F3 key, do find/replace.
+				if (e.keyCode == SWT.F3) {
+					if (findStr() == true
+							&& replaceCombo.getText().length() > 0)
+						man.getText().copyAndPaste(replaceCombo.getText(),
+								startCharIndex, endCharIndex);
+				} // if(e.keyCode == SWT.F3)
+
+			} // handleEvent()
+
+		}); // addFilter()
+
+		while (!shlFindreplace.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
+		}
+		return result;
+	}// open with previous values
+	
+	private void createPreviousContents() {
+
+		//this method loads the contents of the search dialog in between searches but within the
+		//same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
 		shlFindreplace.setSize(262,376);
 		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
 		shlFindreplace.setText("Find/Replace");
+		shlFindreplace.setVisible(true);
 
 		GridLayout gl_shlFindreplace = new GridLayout(5, false);
 		gl_shlFindreplace.marginTop = 10;
@@ -127,7 +178,27 @@ public class SearchDialog extends Dialog {
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
+		// load the searchList from the previous session
+		for (int i = 0; i < searchList.length; i++) {
+			if (searchList[i]!=null) {
+				searchCombo.add(searchList[i]);
+			}// if
+		}//for
+		searchCombo.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
 
+					String newText = searchCombo.getText();
+					searchCombo.add(newText);
+					searchList = searchCombo.getItems();
+					Arrays.sort(searchList);
+					if(Arrays.binarySearch(searchList, newText)> 0) {
+						searchCombo.remove(newText);
+					}//if array already contains string
+						
+			}// key traversed
+		});// addTraverseListener
+		
 		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
 		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
 				false, 2, 1));
@@ -137,6 +208,430 @@ public class SearchDialog extends Dialog {
 		replaceCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
 		replaceCombo.setEnabled(true);
+		// load the replaceList from the previous session
+		for (int i = 0; i < replaceList.length; i++) {
+			if (replaceList[i]!=null) {
+				replaceCombo.add(replaceList[i]);
+			}// if
+		}//for
+		replaceCombo.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+
+				String newText = replaceCombo.getText();
+				replaceCombo.add(newText);
+				replaceList = replaceCombo.getItems();
+				Arrays.sort(replaceList);
+				if(Arrays.binarySearch(replaceList, newText)> 0) {
+					replaceCombo.remove(newText);
+				}//if array already contains string	
+			}// key traversed
+		});// addTraverseListener
+
+		Group grpDirection = new Group(shlFindreplace, SWT.NONE);
+		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
+				false, 3, 1));
+		// grpDirection.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		grpDirection.setText("Direction");
+		// formToolkit.adapt(grpDirection);
+		// formToolkit.paintBordersFor(grpDirection);
+
+		Button forwardRadioBtn = new Button(grpDirection, SWT.RADIO);
+		//loads the value from the previous search
+		if (searchSettings.containsValue("forward")) {
+		forwardRadioBtn.setSelection(true);
+		}//if
+		forwardRadioBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				searchDirection = SCH_FORWARD;
+				searchSettings.put("searchDirectionString", "forward");
+			}//event
+		});//listener
+		forwardRadioBtn.setBounds(10, 21, 90, 16);
+		// formToolkit.adapt(btnRadioButton, true, true);
+		forwardRadioBtn.setText("Forward");
+
+		Button backwardRadioBtn = new Button(grpDirection, SWT.RADIO);
+		// load the value from the previous search
+		if (searchSettings.containsValue("backward")) {
+		backwardRadioBtn.setSelection(true);
+		}//if
+		else {
+			forwardRadioBtn.setSelection(true);
+		}
+		backwardRadioBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				searchDirection = SCH_BACKWARD;
+				searchSettings.put("searchDirectionString", "backward");
+			}//event
+		});//listener
+		backwardRadioBtn.setBounds(10, 43, 90, 16);
+		// formToolkit.adapt(btnRadioButton_1, true, true);
+		backwardRadioBtn.setText("Backward");
+
+		Group grpScope = new Group(shlFindreplace, SWT.NONE);
+		grpScope.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false,
+				2, 1));
+		grpScope.setText("Scope");
+		// formToolkit.adapt(grpScope);
+		// formToolkit.paintBordersFor(grpScope);
+
+		Button allRadioBtn = new Button(grpScope, SWT.RADIO);
+		allRadioBtn.setSelection(true);
+		allRadioBtn.setBounds(10, 20, 90, 16);
+		// formToolkit.adapt(btnRadioButton_2, true, true);
+		allRadioBtn.setText("All");
+		allRadioBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				searchScope = SCH_SCOPE_ALL;
+			}
+		});
+		allRadioBtn.setEnabled(false);
+
+		Button selectedLinesBtn = new Button(grpScope, SWT.RADIO);
+		selectedLinesBtn.setBounds(10, 43, 90, 16);
+		// formToolkit.adapt(btnSelectedLines, true, true);
+		selectedLinesBtn.setText("Selected Lines");
+		selectedLinesBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				searchScope = SCH_SELECT_LINES;
+			}
+		});
+		selectedLinesBtn.setEnabled(false);
+
+		Group grpOptions = new Group(shlFindreplace, SWT.NONE);
+		grpOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 5, 1));
+		grpOptions.setText("Options");
+		// formToolkit.adapt(grpOptions);
+		// formToolkit.paintBordersFor(grpOptions);
+
+		Button caseSensitiveCheck = new Button(grpOptions, SWT.CHECK);
+		caseSensitiveCheck.setBounds(10, 21, 91, 16);
+		// formToolkit.adapt(btnCaseSensitive, true, true);
+		caseSensitiveCheck.setText("Case sensitive");
+		
+		//set the value from the previous search
+		if (searchSettings.containsValue("caseSensitive")) {
+		caseSensitiveCheck.setSelection(true);
+		}//previous search
+		
+		caseSensitiveCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				if (!searchSettings.containsValue("caseSensitive")) {
+					searchSettings.put("caseSensitive", "caseSensitive");
+				}
+				else {
+					searchSettings.put("caseSensitive", "notCaseSensitive");
+				}
+				// searchCaseSensitive
+				if (searchCaseSensitive == SCH_CASE_OFF) {
+					searchCaseSensitive = SCH_CASE_ON;
+				}
+				else {
+					searchCaseSensitive = SCH_CASE_OFF;
+				}
+			}
+		});
+
+		Button wholeWordCheck = new Button(grpOptions, SWT.CHECK);
+		wholeWordCheck.setBounds(10, 43, 91, 16);
+		// formToolkit.adapt(btnWholeWord, true, true);
+		wholeWordCheck.setText("Whole word");
+		
+		//set the value from the previous search		
+		if(searchSettings.containsValue("wholeWord")) {
+		wholeWordCheck.setSelection(true);
+		}//previous search
+		
+		wholeWordCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				if (!searchSettings.containsValue("wholeWord")) {
+					searchSettings.put("wholeWord", "wholeWord");
+				}
+				else {
+					searchSettings.put("wholeWord", "notWholeWord");
+				}
+				
+				if (searchWholeWord == SCH_WHOLE_OFF)
+					searchWholeWord = SCH_WHOLE_ON;
+				else
+					searchWholeWord = SCH_WHOLE_OFF;
+			}
+		});
+
+		Button regExpressionsCheck = new Button(grpOptions, SWT.CHECK);
+		regExpressionsCheck.setBounds(10, 65, 124, 16);
+		// formToolkit.adapt(btnRegularExpressions, true, true);
+		regExpressionsCheck.setText("Regular expressions");
+		regExpressionsCheck.setEnabled(false);
+
+		Button wrapSearchCheck = new Button(grpOptions, SWT.CHECK);
+		wrapSearchCheck.setBounds(107, 21, 91, 16);
+		// formToolkit.adapt(btnWrapSearch, true, true);
+		wrapSearchCheck.setText("Wrap search");
+		
+		//set selection from previous search
+		if(searchSettings.containsValue("wrapSearch")) {
+		wrapSearchCheck.setSelection(true);
+		}//if
+		
+		wrapSearchCheck.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				if (!searchSettings.containsValue("wrapSearch")) {
+					searchSettings.put("wrapSearch", "wrapSearch");
+				}
+				else {
+					searchSettings.put("wrapSearch", "notWrapSearch");
+				}
+				if (searchWrap == SCH_WRAP_OFF)
+					searchWrap = SCH_WRAP_ON;
+				else
+					searchWrap = SCH_WRAP_OFF;
+			}
+		});
+
+		Button incrementalCheck = new Button(grpOptions, SWT.CHECK);
+		incrementalCheck.setBounds(107, 43, 91, 16);
+		// formToolkit.adapt(btnIncremental, true, true);
+		incrementalCheck.setText("Incremental");
+		incrementalCheck.setEnabled(false);
+
+		Label label_1 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_1, true, true);
+
+		// /////////////////////////////////////////////////////////////////////////////////
+		// Define our find button.
+		Button findBtn = new Button(shlFindreplace, SWT.NONE);
+		findBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
+				3, 1));
+		// formToolkit.adapt(btnFind, true, true);
+		findBtn.setText("Find");
+		shlFindreplace.setDefaultButton(findBtn);
+		findBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				// Grab text view.
+				TextView tv = man.getText();
+				
+				numberOfLoops = 0;
+				
+				if (searchDirection==SCH_FORWARD) {
+					if (searchWrap==SCH_WRAP_ON) {
+						if (!findFwdWrap()) 
+							createErrorMessage();
+					}// if findFwdWrap
+					else {
+						if (!findFwdNoWrap()) 
+							createErrorMessage();
+					}// else findFwdNoWrap
+				}// if searchForward
+				else {
+						if (searchWrap==SCH_WRAP_ON) {
+							if (!findBackWrap()) 
+								createErrorMessage();
+						}// if findBwdWrap
+						else {
+							if(!findBackNoWrap()) 
+								createErrorMessage();
+						}// else findBwdNoWrap
+				}// else searchBackward
+
+			} // widgetSelected()
+
+		}); // btnFind.addSelectionListener()
+		
+
+
+		Button replaceFindBtn = new Button(shlFindreplace, SWT.NONE);
+		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
+				false, 1, 1));
+		// formToolkit.adapt(btnReplacefind, true, true);
+		replaceFindBtn.setText("Replace/Find");
+		replaceFindBtn.setEnabled(false);
+
+		Label label_2 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_2, true, true);
+
+		Button replaceBtn = new Button(shlFindreplace, SWT.NONE);
+		replaceBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 3, 1));
+		// formToolkit.adapt(btnReplace, true, true);
+		replaceBtn.setText("Replace");
+		replaceBtn.setEnabled(true);
+		replaceBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				numberOfLoops = 0;
+
+				// Find string in our "Find" combo box.
+				// If we find one, replace it with what's in the
+				// "Replace" box.
+				if (findStr() == true) {
+					man.getText().copyAndPaste(replaceCombo.getText(),
+							(startCharIndex), endCharIndex);
+				}// if findStr==true
+				else {
+					createErrorMessage();
+				}// else if nothing found
+
+			} // widgetSelected()
+
+		}); // replaceBtn.addSelectionListener()
+
+		Button replaceAllBtn = new Button(shlFindreplace, SWT.NONE);
+		replaceAllBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 1, 1));
+		// formToolkit.adapt(btnReplaceAll, true, true);
+		replaceAllBtn.setText("Replace All");
+		replaceAllBtn.setEnabled(true);
+		replaceAllBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				numberOfLoops = 0;
+				
+				if(searchDirection == SCH_FORWARD) {
+				// Replace every instance of word.
+				int oldTopIndex = man.getTextView().getTopIndex();
+				int oldCursorPos = man.getText().getCursorOffset();
+				man.getText().setCursor(0, man);
+				if(findStr() == true) {
+					do {
+					man.getText().copyAndPaste(replaceCombo.getText(),
+							startCharIndex, endCharIndex);
+					man.getTextView().setTopIndex(oldTopIndex);
+					man.getText().setCursorOffset(oldCursorPos);
+					}// do
+				while (findStr() == true);
+				}//if findStr==true
+				else {
+					createErrorMessage();
+				}// else nothing found
+				
+				}// if searchForward
+				else {
+					int oldTopIndex = man.getTextView().getTopIndex();
+					int oldCursorPos = man.getText().getCursorOffset();
+					TextView tv = man.getText();
+					int numChars = tv.view.getText().length();
+					man.getText().setCursor(numChars, man);
+					if (findStr() == true) {
+						do {
+
+						man.getText().copyAndPaste(replaceCombo.getText(),
+								startCharIndex, endCharIndex);	
+						man.getTextView().setTopIndex(oldTopIndex);
+						man.getText().setCursorOffset(oldCursorPos);
+						}// do
+						while (findStr() == true);
+					}// if findStr == true
+					else {
+						createErrorMessage();
+					}// else if nothing found 
+				}// if searchBackward
+				
+			} // widgetSelected()
+
+		}); // replaceBtn.addSelectionListener()
+
+		Label label_3 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_3, true, true);
+		Label label_4 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_4, true, true);
+		Label label_5 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_5, true, true);
+		Label label_6 = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label_6, true, true);
+
+		Button closeBtn = new Button(shlFindreplace, SWT.NONE);
+		closeBtn.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false,
+				1, 1));
+		// formToolkit.adapt(btnClose, true, true);
+		closeBtn.setText("Close");
+		closeBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shlFindreplace.close();
+
+			} // widgetSelected()
+
+		}); // closeBtn.addSelectionListener...
+	}//createPreviousContents
+
+	/**
+	 * Create contents of the dialog.
+	 */
+	private void createContents() {
+
+		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
+		shlFindreplace.setSize(262,376);
+		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
+		shlFindreplace.setText("Find/Replace");
+		shlFindreplace.setVisible(true);
+
+		GridLayout gl_shlFindreplace = new GridLayout(5, false);
+		gl_shlFindreplace.marginTop = 10;
+		gl_shlFindreplace.marginLeft = 5;
+		shlFindreplace.setLayout(gl_shlFindreplace);
+
+		Label lblFind = new Label(shlFindreplace, SWT.NONE);
+		lblFind.setText("Find:");
+		Label label = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label, true, true);
+
+		searchCombo = new Combo(shlFindreplace, SWT.NONE);
+		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 3, 1));
+		searchCombo.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+
+					String newText = searchCombo.getText();
+					searchCombo.add(newText);
+					String [] searchList = searchCombo.getItems();
+					Arrays.sort(searchList);
+					if(Arrays.binarySearch(searchList, newText)> 0) {
+						searchCombo.remove(newText);
+					}//if array already contains string
+						
+			}// key traversed
+		});// addTraverseListener
+		
+		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
+		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
+				false, 2, 1));
+		lblReplaceWith.setText("Replace with:");
+
+		replaceCombo = new Combo(shlFindreplace, SWT.NONE);
+		replaceCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+				false, 3, 1));
+		replaceCombo.setEnabled(true);
+		replaceCombo.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent e) {
+
+				String newText = replaceCombo.getText();
+				replaceCombo.add(newText);
+				String [] replaceList = replaceCombo.getItems();
+				Arrays.sort(replaceList);
+				if(Arrays.binarySearch(replaceList, newText)> 0) {
+					replaceCombo.remove(newText);
+				}//if array already contains string	
+			}// key traversed
+		});// addTraverseListener
 
 		Group grpDirection = new Group(shlFindreplace, SWT.NONE);
 		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
@@ -152,6 +647,7 @@ public class SearchDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_FORWARD;
+				searchSettings.put("searchDirectionString", "forward");
 			}
 		});
 		forwardRadioBtn.setBounds(10, 21, 90, 16);
@@ -163,6 +659,7 @@ public class SearchDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_BACKWARD;
+				searchSettings.put("searchDirectionString", "backward");
 			}
 		});
 		backwardRadioBtn.setBounds(10, 43, 90, 16);
@@ -217,10 +714,19 @@ public class SearchDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// searchCaseSensitive
-				if (searchCaseSensitive == SCH_CASE_OFF)
+				
+				if (!searchSettings.containsValue("caseSensitive")) {
+					searchSettings.put("caseSensitive", "caseSensitive");
+				}
+				else {
+					searchSettings.put("caseSensitive", "notCaseSensitive");
+				}
+
+				if (searchCaseSensitive == SCH_CASE_OFF) {
 					searchCaseSensitive = SCH_CASE_ON;
+				}
 				else
-					searchCaseSensitive = SCH_CASE_OFF;
+					searchCaseSensitive = SCH_CASE_OFF;			
 			}
 		});
 
@@ -232,6 +738,13 @@ public class SearchDialog extends Dialog {
 		wholeWordCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				if (!searchSettings.containsValue("wholeWord")) {
+					searchSettings.put("wholeWord", "wholeWord");
+				}
+				else {
+					searchSettings.put("wholeWord", "notWholeWord");
+				}
 				if (searchWholeWord == SCH_WHOLE_OFF)
 					searchWholeWord = SCH_WHOLE_ON;
 				else
@@ -253,6 +766,13 @@ public class SearchDialog extends Dialog {
 		wrapSearchCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				
+				if (!searchSettings.containsValue("wrapSearch")) {
+					searchSettings.put("wrapSearch", "wrapSearch");
+				}
+				else {
+					searchSettings.put("wrapSearch", "notWrapSearch");
+				}
 				if (searchWrap == SCH_WRAP_OFF)
 					searchWrap = SCH_WRAP_ON;
 				else
@@ -440,9 +960,11 @@ public class SearchDialog extends Dialog {
 		errorMessageShell.setText("Find/Replace Error");
 		errorMessageShell.setSize(300,100);
 		errorMessageShell.setLocation(500,250);
+
 		
 		Label label = new Label(errorMessageShell,SWT.RESIZE);
 		label.setText("BrailleBlaster cannot find your word in the document");
+
 				
 		Button ok = new Button (errorMessageShell,SWT.NONE);
 		ok.setText("OK");
@@ -451,11 +973,21 @@ public class SearchDialog extends Dialog {
 		ok.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				errorMessageShell.close();
+				searchCombo.setFocus();
 			}// widgetSelected
+
 		});// selectionListener
-		
-		errorMessageShell.open();
+		errorMessageShell.open();	
+
 	}// createErrorMessage
+	
+	public String[] getSearchList() {
+		return searchList;
+	}// get searchList
+	
+	public String[] getReplaceList() {
+		return replaceList;
+	}// get replaceList
 
 	// /////////////////////////////////////////////////////////////////
 	// Searches document for string in our combo box.

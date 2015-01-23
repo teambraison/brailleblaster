@@ -152,7 +152,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+//		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
 		if(docName != null)
 			openDocument(docName);
 		else {
@@ -314,7 +314,12 @@ public class Manager extends Controller {
 	///////////////////////////////////////////////////////////////
 	// Opens the search/replace dialog.
 	public void search() {
-		srch.open();
+		if (srch==null) {
+			srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+		}
+		else {
+		srch.openWithPreviousValues();
+		}
 	}
 	
 	public void fileSave(){	

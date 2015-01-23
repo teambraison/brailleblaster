@@ -690,7 +690,7 @@ public class Manager extends Controller {
 	}
 	
 	private void handleAdjustIndent(Message message){
-		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);	
+		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
 	}
 	
 	private void handleUpdateScrollbar(Message message){
@@ -1482,6 +1482,10 @@ public class Manager extends Controller {
 	
 	public EventFrame peekUndoEvent(){
 		return queueManager.peekUndoEvent();
+	}
+	
+	public EventFrame peekRedoEvent(){
+		return queueManager.peekRedoEvent();
 	}
 
 	/** Creates a Notify class alert box if debugging is not active

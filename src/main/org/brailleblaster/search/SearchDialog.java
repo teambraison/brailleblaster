@@ -68,15 +68,9 @@ public class SearchDialog extends Dialog {
 	int numberOfLoops;
 	int oldCursorPos;
 	int oldTopIndex;
-//	private String searchDirectionString = "forward";
-//	private String caseSensitive = "notCaseSensitive";
-//	private String wholeWord = "notWholeWord";
-//	private String wrapSearch = "notWrapSearch";
 	private String [] searchList = new String [50];
 	private String [] replaceList = new String [50];
 	Map<String,String> searchSettings = new HashMap<String,String>();
-	protected int count;
-	public Set<String> searchComboSet;
 
 	
 	// private final FormToolkit // formToolkit = new
@@ -183,21 +177,24 @@ public class SearchDialog extends Dialog {
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
-		// load the searchList from the previous session
+		// load the replaceList from the previous session
 		for (int i = 0; i < searchList.length; i++) {
-			if (replaceList[i]!=null) {
-				searchCombo.add(replaceList[i]);
+			if (searchList[i]!=null) {
+				searchCombo.add(searchList[i]);
 			}// if
 		}//for
-
+		searchCombo.getData();
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 
-					String newText = searchCombo.getText();
-					searchCombo.add(newText);
-					searchList = searchCombo.getItems();
-
+				String newText = searchCombo.getText();
+				searchCombo.add(newText,1);
+				String [] searchList = searchCombo.getItems();
+				Arrays.sort(searchList);
+				if(Arrays.binarySearch(searchList, newText)> 0) {
+					searchCombo.remove(newText);
+				}
 					
 			}// key traversed
 		});// addTraverseListener
@@ -625,9 +622,12 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 
 					String newText = searchCombo.getText();
-					searchCombo.add(newText);
-					searchList = searchCombo.getItems();
-
+					searchCombo.add(newText,searchCombo.getItemCount());
+					String [] searchList = searchCombo.getItems();
+//					Arrays.sort(searchList);
+					if(Arrays.binarySearch(searchList, newText)> 0) {
+						searchCombo.remove(newText);
+					}
 						
 			}// key traversed
 		});// addTraverseListener

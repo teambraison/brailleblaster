@@ -60,7 +60,7 @@ public class WhiteSpaceHandler {
 		manager.addUndoEvent(eventFrame);
 	}
 	
-	public void UndoDelete(EventFrame frame){
+	public void undoDelete(EventFrame frame){
 		eventFrame = new EventFrame();
 		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace)){
 			ViewEvent ev = (ViewEvent)frame.pop();
@@ -68,6 +68,14 @@ public class WhiteSpaceHandler {
 			eventFrame.addEvent(ev);
 		}
 		createRedoEvent();
+	}
+	
+	public void redoDelete(EventFrame frame){
+		eventFrame = new EventFrame();
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
+			removeWhitespace((ViewEvent)frame.pop());
+		
+		manager.addUndoEvent(eventFrame);
 	}
 	
 	private void insertWhitespace(ViewEvent ev){
@@ -83,18 +91,36 @@ public class WhiteSpaceHandler {
 			list.setCurrent(index);
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), ev.getText().length(),  ev.getText().length());
 			text.view.setCaretOffset(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
+			refreshStyles(ev.getTextOffset());
+			//text.refreshStyle(list.getCurrent());
+			//braille.refreshStyle(list.getCurrent());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 	}
 	
-	public void redoDelete(EventFrame frame){
-		eventFrame = new EventFrame();
-		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
-			removeWhitespace((ViewEvent)frame.pop());
+	private void refreshStyles(int offset){
+		int pos  = text.view.getCaretOffset();
+		if(list.getCurrent().end == offset){
+			text.setCurrentElement(list.getCurrent().start);
+			text.refreshStyle(list.getCurrent());
+			braille.refreshStyle(list.getCurrent());
+			
+			text.setCurrentElement(list.get(list.getCurrentIndex() + 1).start);
+			text.refreshStyle(list.get(list.getCurrentIndex()));
+			braille.refreshStyle(list.get(list.getCurrentIndex()));
+		}
+		else {
+			text.setCurrentElement(list.getCurrent().start);
+			text.refreshStyle(list.getCurrent());
+			braille.refreshStyle(list.getCurrent());
+			
+			text.setCurrentElement(list.get(list.getCurrentIndex() - 1).start);
+			text.refreshStyle(list.get(list.getCurrentIndex()));
+			braille.refreshStyle(list.get(list.getCurrentIndex()));
+		}
 		
-		manager.addUndoEvent(eventFrame);
+		text.view.setCaretOffset(pos);
+		text.setCurrentElement(pos);
 	}
 	
 	private void removeWhitespace(ViewEvent ev){

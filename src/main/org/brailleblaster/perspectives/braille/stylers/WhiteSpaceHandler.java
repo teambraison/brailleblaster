@@ -68,7 +68,6 @@ public class WhiteSpaceHandler {
 			eventFrame.addEvent(ev);
 		}
 		createRedoEvent();
-		//manager.addRedoEvent(eventFrame);
 	}
 	
 	private void insertWhitespace(ViewEvent ev){
@@ -79,9 +78,10 @@ public class WhiteSpaceHandler {
 		
 		if(pos != text.view.getCharCount()){
 			Message curMessage = Message.createGetCurrentMessage(Sender.TREE, pos);
-			manager.dispatch(curMessage);	
+			manager.dispatch(curMessage);
+			int index = list.getCurrent().end == ev.getTextOffset() ? list.getCurrentIndex() + 1 : list.getCurrentIndex();
+			list.setCurrent(index);
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), ev.getText().length(),  ev.getText().length());
-			
 			text.view.setCaretOffset(list.getCurrent().start);
 			text.refreshStyle(list.getCurrent());
 			braille.refreshStyle(list.getCurrent());
@@ -90,13 +90,21 @@ public class WhiteSpaceHandler {
 	}
 	
 	public void redoDelete(EventFrame frame){
+		eventFrame = new EventFrame();
 		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
 			removeWhitespace((ViewEvent)frame.pop());
+		
+		manager.addUndoEvent(eventFrame);
 	}
 	
 	private void removeWhitespace(ViewEvent ev){
-		text.setCurrentSelection(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
-		text.cut();
+		Message m = new Message(null);
+		m.put("offset", ev.getTextOffset());
+		int index = list.findClosest(m, 0, list.size() - 1);
+		text.replaceTextRange(ev.getTextOffset(), ev.getText().length(), "");
+		braille.replaceTextRange(ev.getBrailleOffset(), ev.getText().length(), "");
+		list.shiftOffsetsFromIndex(index + 1, -ev.getText().length(), -ev.getText().length());
+		eventFrame.addEvent(ev);
 	}
 	
 	private void createRedoEvent(){

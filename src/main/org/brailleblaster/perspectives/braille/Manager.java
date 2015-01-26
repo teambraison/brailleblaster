@@ -314,12 +314,11 @@ public class Manager extends Controller {
 	///////////////////////////////////////////////////////////////
 	// Opens the search/replace dialog.
 	public void search() {
-		if (srch==null) {
+		if (srch == null) {
 			srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
 			srch.open();
-		}
-		else {
-		srch.openWithPreviousValues();
+		} else {
+			srch.openWithPreviousValues();
 		}
 	}
 	

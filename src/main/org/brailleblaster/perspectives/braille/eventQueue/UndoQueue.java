@@ -54,7 +54,7 @@ public class UndoQueue extends EventQueue {
 					break;
 				case Whitespace:
 					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
-					wsh.UndoDelete(frame);
+					wsh.undoDelete(frame);
 					break;
 				default:
 					break;

@@ -57,7 +57,6 @@ public class MergeElementHandler extends Handler{
 		resetTree(mergeTo, merging, mergedElement, textList);
 		text.setCurrentElement(text.view.getCaretOffset());
 	
-		//manager.addUndoEvent(frame);
 		createUndoEvent();
 	}
 	
@@ -65,36 +64,29 @@ public class MergeElementHandler extends Handler{
 		frame = new EventFrame();
 		removeMergedElement((ModelEvent)f.peek());
 		
-		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Merge)){
-			ModelEvent ev= (ModelEvent)f.pop();
-			ev.getParent().insertChild(ev.getNode(), ev.getParentIndex());
-			int size = repopulateRange((Element)ev.getNode(), ev.getListIndex());
-			ArrayList<TextMapElement>textList = getListRange(ev.getListIndex(), size);	
-			setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-			tree.rebuildTree(ev.getTreeIndex());
-			text.setCurrentElement(ev.getTextOffset());
-
-		}
+		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Merge))
+			resetViews( (ModelEvent)f.pop() );
+		
 		manager.addRedoEvent(frame);
 	}
 	
 	public void redoMerge(EventFrame f){
 		frame = new EventFrame();
-		
 		removeOriginalElement((ModelEvent)f.peek());
 		
-		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Merge)){
-			ModelEvent ev= (ModelEvent)f.pop();
-			ev.getParent().insertChild(ev.getNode(), ev.getParentIndex());
-			int size = repopulateRange((Element)ev.getNode(), ev.getListIndex());
-			ArrayList<TextMapElement>textList = getListRange(ev.getListIndex(), size);	
-			setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-			tree.rebuildTree(ev.getTreeIndex());
-			text.setCurrentElement(ev.getTextOffset());
-		
-		}
+		while(f.size() > 0 && f.peek().getEventType().equals(EventTypes.Merge))
+			resetViews( (ModelEvent)f.pop() );	
 		
 		createUndoEvent();
+	}
+	
+	private void resetViews(ModelEvent ev){
+		ev.getParent().insertChild(ev.getNode(), ev.getParentIndex());
+		int size = repopulateRange((Element)ev.getNode(), ev.getListIndex());
+		ArrayList<TextMapElement>textList = getListRange(ev.getListIndex(), size);	
+		setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
+		tree.rebuildTree(ev.getTreeIndex());
+		text.setCurrentElement(ev.getTextOffset());		
 	}
 	
 	private void removeMergedElement(ModelEvent ev){
@@ -105,9 +97,7 @@ public class MergeElementHandler extends Handler{
 			int startIndex = list.indexOf(elList.get(0));
 			clearListRange(startIndex, elList.size());
 			clearViewRanges(elList.get(0), elList.get(elList.size() - 1), startIndex);
-			Message m = new Message(null);
-			m.put("element", e);
-			tree.removeItem(elList.get(0), m);
+			removeTreeItem(elList.get(0), e);
 			e.getParent().removeChild(e);		
 		}
 	}
@@ -133,14 +123,10 @@ public class MergeElementHandler extends Handler{
 			clearListRange(startIndex, mergeList1.size() + mergeList2.size());
 			clearViewRanges(mergeList1.get(0), mergeList2.get(mergeList2.size() - 1), startIndex);	
 		
-			Message m = new Message(null);
-			m.put("element", merging);
-			tree.removeItem(mergeList2.get(0), m);
+			removeTreeItem(mergeList2.get(0), merging);
 			e.getParent().removeChild(merging);
 			
-			m = new Message(null);
-			m.put("element", mergeTo);
-			tree.removeItem(mergeList1.get(0), m);
+			removeTreeItem(mergeList1.get(0), merging);
 			e.getParent().removeChild(mergeTo);
 		}
 	}
@@ -201,6 +187,7 @@ public class MergeElementHandler extends Handler{
 		
 		return elList.size();
 	}
+	
 	private ArrayList<TextMapElement> constructMapElement(Element e){
 		ArrayList<TextMapElement> elList = new ArrayList<TextMapElement>();
 		
@@ -253,5 +240,11 @@ public class MergeElementHandler extends Handler{
 		else {
 			manager.addUndoEvent(frame);
 		}
+	}
+	
+	private void removeTreeItem(TextMapElement t, Element e){
+		Message m = new Message(null);
+		m.put("element", e);
+		tree.removeItem(t, m);
 	}
 }

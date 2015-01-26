@@ -1,4 +1,4 @@
-/* BrailleBlaster Braille Transcription Application
+ /* BrailleBlaster Braille Transcription Application
   *
   * Copyright (C) 2014
 * American Printing House for the Blind, Inc. www.aph.org
@@ -147,7 +147,7 @@ public class TextView extends WPView {
 				if(selectionLength > 0)
 					editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
 				else
-					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 				
 				if(readOnly){
 					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
@@ -443,6 +443,11 @@ public class TextView extends WPView {
 		words += (Integer)updateMessage.getValue("diff");
 		currentChanges = 0;
 		textChanged = false;
+	}
+	
+	public void setCurrentElement(int pos){
+		view.setCaretOffset(pos);
+		setCurrent(pos);
 	}
 	
 	private void setCurrent(int pos){
@@ -1138,12 +1143,12 @@ public class TextView extends WPView {
 				else if(e.start + e.replacedText.length() == currentEnd){
 					changes -= e.replacedText.length();
 					makeTextChange(changes);
-	//				recordEvent(e, true);
+					recordEvent(e, true);
 				}
 				else {					
 					changes = e.length - selectionLength;							
 					makeTextChange(changes);
-	//				recordEvent(e, true);
+					recordEvent(e, true);
 				}
 			}
 		}
@@ -1155,7 +1160,7 @@ public class TextView extends WPView {
 				sendAdjustRangeMessage("start", currentStart - oldCursorPosition);
 		
 			makeTextChange(changes);
-	//		recordEvent(e, true);
+			recordEvent(e, true);
 		}
 		
 		checkStyleRange(range);
@@ -1183,7 +1188,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else{
 				makeTextChange(offset);
-	//			recordEvent(e, false);
+				recordEvent(e, false);
 			}
 		}
 		else if(currentChar == SWT.DEL){
@@ -1209,7 +1214,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else {
 				makeTextChange(offset);
-//				recordEvent(e, false);
+				recordEvent(e, false);
 			}
 		}
 		else {
@@ -1220,7 +1225,7 @@ public class TextView extends WPView {
 				deleteSpaceAndShift(selectionStart, offset, e);
 			else {
 				makeTextChange(offset);
-	//			recordEvent(e, false);
+				recordEvent(e, false);
 			}
 		}
 		
@@ -1236,7 +1241,7 @@ public class TextView extends WPView {
 	private void deleteSelection(ExtendedModifyEvent e){
 		if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd){
 			makeTextChange(-selectionLength);
-//			recordEvent(e, false);
+			recordEvent(e, false);
 		}
 		else if(selectionStart + selectionLength > currentEnd && selectionStart + selectionLength >= nextStart || previousEnd == -1){	
 			int changes = 0;
@@ -1337,7 +1342,17 @@ public class TextView extends WPView {
 			view.setCaretOffset(previousEnd);
 	}
 	
-	/*
+	public void adjustCurrentElementValues(int changes){
+		currentChanges = changes;
+		currentEnd += changes;
+		nextStart += changes;
+		
+		if(currentChanges != 0)
+			textChanged = true;
+		else
+			textChanged = false;
+	}
+	
 	private void recordEvent(ExtendedModifyEvent e, boolean edit){
 		Message message = Message.createEditEventMesag(e);
 		if(edit)
@@ -1345,7 +1360,7 @@ public class TextView extends WPView {
 		else
 			editRecorder.recordDeleteEvent(message);
 	}
-	*/
+	
 	private void handleReadOnlySelection(TextMapElement p, boolean partial){
 		int pos = p.end;
 		setListenerLock(true);
@@ -1488,7 +1503,7 @@ public class TextView extends WPView {
 		if(selectionLength > 0)
 			editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
 		else
-			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())));
+			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 		
 		if(validCut())
 			view.cut();
@@ -1950,6 +1965,11 @@ public class TextView extends WPView {
 		setSelection();
 	}
 	
+	public void clearSelection(){
+		view.setSelection(-1, -1);
+		setSelection(-1, -1);
+	}
+	
 	private void setSelection(){
 		selectionArray = view.getSelectionRanges();
 		
@@ -1967,7 +1987,51 @@ public class TextView extends WPView {
 	
 	public void undoEdit(int start, int length, String text){
 		int changes = text.length() - length;
+		StyleRange [] ranges = view.getStyleRanges(start, length);
 		replaceTextRange(start, length, text);
 		makeTextChange(changes);
+		
+		for(int i = 0; i < ranges.length; i++)
+			view.setStyleRange(ranges[i]);
+		
+		
+		if(currentChanges == 0)
+			textChanged = false;
+	}
+	
+	public int getCurrentStart(){
+		return currentStart;
+	}
+	
+	public int getCurrentEnd(){
+		return currentEnd;
+	}
+	
+	public int getCurrentChanges(){
+		return currentChanges;
+	}
+	
+	public void redoText(Message m){
+		String text = view.getTextRange(currentStart, currentEnd - currentStart);
+		int viewLineCount = (text.length() - text.replace("\n", "").length()) + 1;
+		int brailleLineCount = currentElement.brailleList.size();
+		int adjustBy = viewLineCount - brailleLineCount;
+		
+		if(adjustBy > 0){
+			int length = (Integer)m.getValue("length");
+			int index = currentEnd - 1;
+			while(index > currentStart && adjustBy > 0){
+				String character = view.getTextRange(index, 1);
+				if(character.equals("\n")){
+					replaceTextRange(index, 1, "");
+					currentEnd--;
+					nextStart--;
+					length--;
+					adjustBy--;
+				}
+				index--;
+			}
+			m.put("length", length);
+		}
 	}
 }

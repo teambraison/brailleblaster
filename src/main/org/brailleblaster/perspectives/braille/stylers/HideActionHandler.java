@@ -101,8 +101,12 @@ public class HideActionHandler extends Handler{
 				if(index == null)
 					index = list.indexOf(tempElement);
 				
+				if(BBIni.getPlatformName().equals("gtk"))
+					checkLinuxTree(tempElement);
+				
 				hide(tempElement);
 			}
+			text.clearSelection();
 			updateCurrentElement(index);
 			return true;
 		}
@@ -346,5 +350,12 @@ public class HideActionHandler extends Handler{
 			return true;
 		else
 			return false;
+	}
+	
+	private void checkLinuxTree(TextMapElement t){
+		if(!boxlineAdded && !(t instanceof BrlOnlyMapElement)){
+			if(tree.getTree().getSelection().length == 0)
+				tree.setSelection(t);
+		}
 	}
 }

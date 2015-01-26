@@ -257,13 +257,13 @@ public class WhiteSpaceManager {
 		String emptyString = "";
 		wpView.replaceTextRange(start, length, emptyString);
 	}
+	
 	private void insert(int start, String text){
 		int previousPosition = wpView.view.getCaretOffset();
 		wpView.view.setCaretOffset(start);
 		wpView.view.insert(text);
 		wpView.view.setCaretOffset(previousPosition);
 	}
-	
 	
 	protected String makeInsertionString(int length, char c){
 		String insertionString = "";

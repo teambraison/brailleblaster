@@ -32,14 +32,14 @@ public class MergeElementHandler extends Handler{
 		Element mergeTo = getBlockElement(t1.n);
 		Element merging = getBlockElement(t2.n);
 		
-		int pos = text.view.getCaretOffset();
-		frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(t2), t2.start, t2.brailleList.getFirst().start, tree.getItemPath()));
-		text.setCurrentElement(t1.start);
-		frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(t1), t1.start, t1.brailleList.getFirst().start, tree.getItemPath()));
-		text.setCurrentElement(pos);
-		
 		ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(list.indexOf(t1), mergeTo, true);
 		ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(t2), merging, true);
+		
+		int pos = text.view.getCaretOffset();
+		frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(mergeList2.get(0)), mergeList2.get(0).start, mergeList2.get(0).brailleList.getFirst().start, tree.getItemPath()));
+		text.setCurrentElement(t1.start);
+		frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(mergeList1.get(0)), mergeList1.get(0).start, mergeList1.get(0).brailleList.getFirst().start, tree.getItemPath()));
+		text.setCurrentElement(pos);
 		
 		int startIndex = list.indexOf(mergeList1.get(0));
 		int textStart = mergeList1.get(0).start;
@@ -73,6 +73,7 @@ public class MergeElementHandler extends Handler{
 			setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
 			tree.rebuildTree(ev.getTreeIndex());
 			text.setCurrentElement(ev.getTextOffset());
+
 		}
 		manager.addRedoEvent(frame);
 	}
@@ -90,40 +91,57 @@ public class MergeElementHandler extends Handler{
 			setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
 			tree.rebuildTree(ev.getTreeIndex());
 			text.setCurrentElement(ev.getTextOffset());
+		
 		}
 		
 		createUndoEvent();
-		//manager.addUndoEvent(f);
 	}
 	
 	private void removeMergedElement(ModelEvent ev){
 		if(ev.getEventType().equals(EventTypes.Merge)){
-			Element e = document.getParent(list.get(ev.getListIndex()).n, true);
-			ArrayList<TextMapElement> elList = list.findTextMapElements(ev.getListIndex(), list.get(ev.getListIndex()).parentElement(), true);
+			Element e = getBlockElement(list.get(ev.getListIndex()).n); 
+			ArrayList<TextMapElement> elList = list.findTextMapElements(ev.getListIndex(), e, true);
 			frame.addEvent(new ModelEvent(EventTypes.Merge, e, vi.getStartIndex(), list.indexOf(elList.get(0)), elList.get(0).start, elList.get(0).brailleList.getFirst().start, tree.getItemPath()));
-			clearListRange(ev.getListIndex(), elList.size());
-			clearViewRanges(elList.get(0), elList.get(elList.size() - 1), ev.getListIndex());
+			int startIndex = list.indexOf(elList.get(0));
+			clearListRange(startIndex, elList.size());
+			clearViewRanges(elList.get(0), elList.get(elList.size() - 1), startIndex);
 			Message m = new Message(null);
 			m.put("element", e);
 			tree.removeItem(elList.get(0), m);
-			e.getParent().removeChild(e);
+			e.getParent().removeChild(e);		
 		}
 	}
 	
 	private void removeOriginalElement(ModelEvent ev){
-		if(ev.getEventType().equals(EventTypes.Merge)){
-			for(int i = 0; i < 2; i++){
-				int index = ev.getListIndex();
-				Element e = document.getParent(list.get(index).n, true);
-				ArrayList<TextMapElement> elList = list.findTextMapElements(ev.getListIndex(), list.get(ev.getListIndex()).parentElement(), true);
-				frame.addEvent(new ModelEvent(EventTypes.Merge, e, vi.getStartIndex(), list.indexOf(elList.get(0)), elList.get(0).start, elList.get(0).end, tree.getItemPath()));
-				clearListRange(ev.getListIndex(), elList.size());
-				clearViewRanges(elList.get(0), elList.get(elList.size() - 1), ev.getListIndex());
-				Message m = new Message(null);
-				m.put("element", e);
-				tree.removeItem(elList.get(0), m);
-				e.getParent().removeChild(e);
-			}
+		if(ev.getEventType().equals(EventTypes.Merge)){		
+			Element mergeTo = document.getParent(list.get(ev.getListIndex()).n, true);
+			Element merging = (Element)mergeTo.getParent().getChild(mergeTo.getParent().indexOf(mergeTo) + 1);
+			
+			ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(ev.getListIndex(), mergeTo, true);
+			ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(mergeList1.get(mergeList1.size() - 1)) + 1, merging, true);
+			
+			int pos = text.view.getCaretOffset();
+			frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(mergeList2.get(0)), mergeList2.get(0).start, mergeList2.get(0).brailleList.getFirst().start, tree.getItemPath()));
+			text.setCurrentElement(mergeList1.get(0).start);
+			frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(mergeList1.get(0)), mergeList1.get(0).start, mergeList1.get(0).brailleList.getFirst().start, tree.getItemPath()));
+			text.setCurrentElement(pos);
+			
+			int index = ev.getListIndex();
+			Element e = document.getParent(list.get(index).n, true);
+			int startIndex = list.indexOf(mergeList1.get(0));			
+			list.setCurrent(list.getCurrentIndex());
+			clearListRange(startIndex, mergeList1.size() + mergeList2.size());
+			clearViewRanges(mergeList1.get(0), mergeList2.get(mergeList2.size() - 1), startIndex);	
+		
+			Message m = new Message(null);
+			m.put("element", merging);
+			tree.removeItem(mergeList2.get(0), m);
+			e.getParent().removeChild(merging);
+			
+			m = new Message(null);
+			m.put("element", mergeTo);
+			tree.removeItem(mergeList1.get(0), m);
+			e.getParent().removeChild(mergeTo);
 		}
 	}
 	
@@ -143,7 +161,7 @@ public class MergeElementHandler extends Handler{
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}
 			
-			int textLength =list.get(index).end - list.get(index).start;
+			int textLength = list.get(index).end - list.get(index).start;
 			
 			textLength = (Integer)m.getValue("textLength");
 			textOffset = (Integer)m.getValue("textOffset");

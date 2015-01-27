@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -71,6 +72,8 @@ public class SearchDialog extends Dialog {
 	private String [] searchList = new String [50];
 	private String [] replaceList = new String [50];
 	Map<String,String> searchSettings = new HashMap<String,String>();
+	int searchArraySize; 
+	Map<String,String>searchMap = new HashMap<String,String>();
 
 	
 	// private final FormToolkit // formToolkit = new
@@ -178,24 +181,28 @@ public class SearchDialog extends Dialog {
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
 		// load the replaceList from the previous session
-		for (int i = 0; i < searchList.length; i++) {
-			if (searchList[i]!=null) {
+		if (searchList != null) {
+			for (int i = 0; i < searchArraySize; i++) {
+
 				searchCombo.add(searchList[i]);
-			}// if
-		}//for
+
+			}// for
+		}// if
+
 		searchCombo.getData();
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
-
+				
 				String newText = searchCombo.getText();
-				searchCombo.add(newText,1);
-				String [] searchList = searchCombo.getItems();
-				Arrays.sort(searchList);
-				if(Arrays.binarySearch(searchList, newText)> 0) {
-					searchCombo.remove(newText);
+
+				if (!searchMap.containsValue(String.valueOf(newText))) {
+					searchCombo.add(newText);
+					searchList[searchArraySize]=newText;
+					searchMap.put(newText, newText);
+					searchArraySize++;
 				}
-					
+
 			}// key traversed
 		});// addTraverseListener
 		
@@ -620,15 +627,16 @@ public class SearchDialog extends Dialog {
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
+				
+				String newText = searchCombo.getText();
 
-					String newText = searchCombo.getText();
-					searchCombo.add(newText,searchCombo.getItemCount());
-					String [] searchList = searchCombo.getItems();
-//					Arrays.sort(searchList);
-					if(Arrays.binarySearch(searchList, newText)> 0) {
-						searchCombo.remove(newText);
-					}
-						
+				if (!searchMap.containsValue(String.valueOf(newText))) {
+					searchCombo.add(newText);
+					searchList[searchArraySize]=newText;
+					searchMap.put(newText, newText);
+					searchArraySize++;
+				}
+
 			}// key traversed
 		});// addTraverseListener
 		
@@ -2037,7 +2045,7 @@ public boolean replaceFwdNoWrap() {
 				if (haveAmatch == true) {
 					// Set cursor and view to point to search string we
 					// found.
-//					tv.setCursor(startCharIndex, man);
+					tv.setCursor(startCharIndex, man);
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view
 							.getLineAtOffset(startCharIndex));

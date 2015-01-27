@@ -34,12 +34,7 @@ public class MergeElementHandler extends Handler{
 		
 		ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(list.indexOf(t1), mergeTo, true);
 		ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(t2), merging, true);
-		
-		int pos = text.view.getCaretOffset();
-		frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(mergeList2.get(0)), mergeList2.get(0).start, mergeList2.get(0).brailleList.getFirst().start, tree.getItemPath()));
-		text.setCurrentElement(t1.start);
-		frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(mergeList1.get(0)), mergeList1.get(0).start, mergeList1.get(0).brailleList.getFirst().start, tree.getItemPath()));
-		text.setCurrentElement(pos);
+		saveOriginalElements(mergeTo, mergeList1.get(0), merging, mergeList2.get(0));
 		
 		int startIndex = list.indexOf(mergeList1.get(0));
 		int textStart = mergeList1.get(0).start;
@@ -80,15 +75,6 @@ public class MergeElementHandler extends Handler{
 		createUndoEvent();
 	}
 	
-	private void resetViews(ModelEvent ev){
-		ev.getParent().insertChild(ev.getNode(), ev.getParentIndex());
-		int size = repopulateRange((Element)ev.getNode(), ev.getListIndex());
-		ArrayList<TextMapElement>textList = getListRange(ev.getListIndex(), size);	
-		setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-		tree.rebuildTree(ev.getTreeIndex());
-		text.setCurrentElement(ev.getTextOffset());		
-	}
-	
 	private void removeMergedElement(ModelEvent ev){
 		if(ev.getEventType().equals(EventTypes.Merge)){
 			Element e = getBlockElement(list.get(ev.getListIndex()).n); 
@@ -108,13 +94,8 @@ public class MergeElementHandler extends Handler{
 			Element merging = (Element)mergeTo.getParent().getChild(mergeTo.getParent().indexOf(mergeTo) + 1);
 			
 			ArrayList<TextMapElement> mergeList1 = list.findTextMapElements(ev.getListIndex(), mergeTo, true);
-			ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(mergeList1.get(mergeList1.size() - 1)) + 1, merging, true);
-			
-			int pos = text.view.getCaretOffset();
-			frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(mergeList2.get(0)), mergeList2.get(0).start, mergeList2.get(0).brailleList.getFirst().start, tree.getItemPath()));
-			text.setCurrentElement(mergeList1.get(0).start);
-			frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(mergeList1.get(0)), mergeList1.get(0).start, mergeList1.get(0).brailleList.getFirst().start, tree.getItemPath()));
-			text.setCurrentElement(pos);
+			ArrayList<TextMapElement> mergeList2 = list.findTextMapElements(list.indexOf(mergeList1.get(mergeList1.size() - 1)) + 1, merging, true);			
+			saveOriginalElements(mergeTo, mergeList1.get(0), merging, mergeList2.get(0));
 			
 			int index = ev.getListIndex();
 			Element e = document.getParent(list.get(index).n, true);
@@ -154,6 +135,15 @@ public class MergeElementHandler extends Handler{
 			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength);
 			index++;
 		}
+	}
+	
+	private void resetViews(ModelEvent ev){
+		ev.getParent().insertChild(ev.getNode(), ev.getParentIndex());
+		int size = repopulateRange((Element)ev.getNode(), ev.getListIndex());
+		ArrayList<TextMapElement>textList = getListRange(ev.getListIndex(), size);	
+		setViews(textList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
+		tree.rebuildTree(ev.getTreeIndex());
+		text.setCurrentElement(ev.getTextOffset());		
 	}
 	
 	private void resetTree(Element e1, Element e2, Element newParent, ArrayList<TextMapElement>textList){
@@ -246,5 +236,13 @@ public class MergeElementHandler extends Handler{
 		Message m = new Message(null);
 		m.put("element", e);
 		tree.removeItem(t, m);
+	}
+	
+	private void saveOriginalElements(Element mergeTo, TextMapElement t1, Element merging, TextMapElement t2 ){
+		int pos = text.view.getCaretOffset();
+		frame.addEvent(new ModelEvent(EventTypes.Merge, merging, vi.getStartIndex(), list.indexOf(t2), t2.start, t2.brailleList.getFirst().start, tree.getItemPath()));
+		text.setCurrentElement(t1.start);
+		frame.addEvent(new ModelEvent(EventTypes.Merge, mergeTo, vi.getStartIndex(), list.indexOf(t1), t1.start, t1.brailleList.getFirst().start, tree.getItemPath()));
+		text.setCurrentElement(pos);
 	}
 }

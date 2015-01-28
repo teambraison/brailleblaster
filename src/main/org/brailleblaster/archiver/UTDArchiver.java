@@ -51,7 +51,7 @@ public class UTDArchiver extends Archiver{
 		filterNames = new String[] { "BRF", "UTDML working document"};
 		filterExtensions = new String[] { "*.brf", "*.utd"};
 		currentConfig = findConfig();
-		copyFileToTemp(docToPrepare);
+		copyFilesToTemp(docToPrepare);
 		zip = false;
 	}
 	

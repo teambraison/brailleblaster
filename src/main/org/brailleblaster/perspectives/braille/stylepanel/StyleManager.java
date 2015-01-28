@@ -140,13 +140,13 @@ public class StyleManager{
     
     private void setName(Styles style, Element e){
     	Attribute atr = e.getAttribute("id");
-    	String name;
     	if(atr == null){
     		dm.getDocument().addID(e);
     		atr = e.getAttribute("id");
     	}
-    	name = "local_" + semanticsTable.getKeyFromAttribute(e) + "_" + atr.getValue();
+    	String name = "local_" + semanticsTable.getKeyFromAttribute(e) + "_" + atr.getValue();
     	style.setName(name);
+    	style.put(StylesType.name, "local_" +style.get(StylesType.name));
     }
     
     private void updateAndApply(Styles style, Element e){

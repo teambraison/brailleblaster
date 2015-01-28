@@ -80,10 +80,13 @@ public class BBSemanticsTable {
 			return map.containsKey(key);
 		}
 		
+		public void setName(String elementName){
+			this.elementName = elementName;
+		}
+		
 		public String getName(){
 			return elementName;
 		}
-
 				
 		@SuppressWarnings("unchecked")
 		@Override

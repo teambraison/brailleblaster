@@ -383,7 +383,7 @@ public class BBDocument {
 	public boolean createBrlFile(String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
-		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
+		String config = configureConfigurationFiles(dm.getWorkingPath(), dm.getCurrentConfig());
 		String logFile = BBIni.getTempFilesPath() + fileSep + "liblouisutdml.log";
 		String semFile = "";
 		

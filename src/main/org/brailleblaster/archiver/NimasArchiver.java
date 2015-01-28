@@ -86,7 +86,7 @@ public class NimasArchiver extends Archiver {
 		}
 		else { 
 			if( resumingPrevSession == false )
-				copyFileToTemp(docToPrepare);
+				copyFilesToTemp(docToPrepare);
 			zip = false;
 		}
 		

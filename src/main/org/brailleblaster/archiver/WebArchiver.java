@@ -21,7 +21,7 @@ public class WebArchiver extends Archiver{
 		if(workingDocPath.equals(templateFile))
 			originalDocPath = null;
 		
-		copyFileToTemp(docToPrepare);
+		copyFilesToTemp(docToPrepare);
 	}
 	
 	/**This constructor is used when saveAs is called

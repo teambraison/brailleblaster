@@ -74,6 +74,8 @@ public class SearchDialog extends Dialog {
 	Map<String,String> searchSettings = new HashMap<String,String>();
 	int searchArraySize; 
 	Map<String,String>searchMap = new HashMap<String,String>();
+	int replaceArraySize;
+	Map<String,String>replaceMap = new HashMap<String,String>();
 
 	
 	// private final FormToolkit // formToolkit = new
@@ -180,12 +182,10 @@ public class SearchDialog extends Dialog {
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
-		// load the replaceList from the previous session
+		// load the searchList from the previous session
 		if (searchList != null) {
 			for (int i = 0; i < searchArraySize; i++) {
-
 				searchCombo.add(searchList[i]);
-
 			}// for
 		}// if
 
@@ -195,13 +195,12 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 				
 				String newText = searchCombo.getText();
-
 				if (!searchMap.containsValue(String.valueOf(newText))) {
 					searchCombo.add(newText);
 					searchList[searchArraySize]=newText;
 					searchMap.put(newText, newText);
 					searchArraySize++;
-				}
+				}//if 
 
 			}// key traversed
 		});// addTraverseListener
@@ -216,22 +215,22 @@ public class SearchDialog extends Dialog {
 				false, 3, 1));
 		replaceCombo.setEnabled(true);
 		// load the replaceList from the previous session
-		for (int i = 0; i < replaceList.length; i++) {
-			if (replaceList[i]!=null) {
+		if (replaceList != null) {
+			for (int i = 0; i < replaceArraySize; i++) {
 				replaceCombo.add(replaceList[i]);
-			}// if
-		}//for
+			}// for
+		}// if
 		replaceCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = replaceCombo.getText();
-				replaceCombo.add(newText);
-				replaceList = replaceCombo.getItems();
-				Arrays.sort(replaceList);
-				if(Arrays.binarySearch(replaceList, newText)> 0) {
-					replaceCombo.remove(newText);
-				}//if array already contains string	
+				if (!replaceMap.containsValue(String.valueOf(newText))) {
+					replaceCombo.add(newText);
+					replaceList[replaceArraySize]=newText;
+					replaceMap.put(newText, newText);
+					replaceArraySize++;
+				}//if
 			}// key traversed
 		});// addTraverseListener
 
@@ -629,13 +628,12 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 				
 				String newText = searchCombo.getText();
-
 				if (!searchMap.containsValue(String.valueOf(newText))) {
 					searchCombo.add(newText);
 					searchList[searchArraySize]=newText;
 					searchMap.put(newText, newText);
 					searchArraySize++;
-				}
+				}//if
 
 			}// key traversed
 		});// addTraverseListener
@@ -649,17 +647,18 @@ public class SearchDialog extends Dialog {
 		replaceCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
 		replaceCombo.setEnabled(true);
+		
 		replaceCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = replaceCombo.getText();
-				replaceCombo.add(newText);
-				String [] replaceList = replaceCombo.getItems();
-				Arrays.sort(replaceList);
-				if(Arrays.binarySearch(replaceList, newText)> 0) {
-					replaceCombo.remove(newText);
-				}//if array already contains string	
+				if (!replaceMap.containsValue(String.valueOf(newText))) {
+					replaceCombo.add(newText);
+					replaceList[replaceArraySize]=newText;
+					replaceMap.put(newText, newText);
+					replaceArraySize++;
+				}//if
 			}// key traversed
 		});// addTraverseListener
 
@@ -1449,24 +1448,19 @@ public boolean findFwdWrap() {
 			endCharIndex = startCharIndex + findMeStr.length();
 			
 			// Make sure we aren't in an endless loop
-			if (numberOfLoops <= 2) {
+			if (numberOfLoops >= 2) {
+				return false;
+			}// if numberOfLoops
 
-			// If search wrap is on, move to other end of document, if at
-			// the end.
-			if (searchWrap == SCH_WRAP_ON) {
 				// If we're at the end, move to the other end.
-				if (startCharIndex >= numChars || endCharIndex >= (numChars+1)) {
+				while (startCharIndex >= numChars || endCharIndex >= (numChars)) {
 					// Reset position.
 					startCharIndex = 0;
 					endCharIndex = startCharIndex + findMeStr.length();
-					tv.setCursor(startCharIndex, man);
+					tv.view.setCaretOffset(startCharIndex);
 					numberOfLoops++;
 
 				} // if( startCharIndex...
-
-			} // if( searchWrap == SCH_WRAP_ON )
-			
-			}// number of loops
 
 			// Scour the view for the search string.
 			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
@@ -1478,7 +1472,7 @@ public boolean findFwdWrap() {
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					curViewSnippet = curViewSnippet.toLowerCase();
 					findMeStr = findMeStr.toLowerCase();
-				}
+				}// caseSensitive
 
 				// Compare the two strings. Is there a match?
 				if (curViewSnippet.matches(findMeStr) == true) {
@@ -1519,27 +1513,28 @@ public boolean findFwdWrap() {
 				// Move forward a character.
 				startCharIndex++;
 				endCharIndex++;
-				
-				// Make sure we aren't in an endless loop
-				if (numberOfLoops <= 2) {
 
 				// If search wrap is on, move to other end of document, if at
 				// the end.
 				if (searchWrap == SCH_WRAP_ON) {
+					
+					// Make sure we aren't in an endless loop
+					if (numberOfLoops >= 2) {
+						return false;
+					}// if numberOfLoops
+
 					// If we're at the end, move to the other end.
-					if (startCharIndex >= numChars || endCharIndex > (numChars+1)) {
+					if (startCharIndex >= numChars || endCharIndex > (numChars)) {
 						// Reset position.
 						startCharIndex = 0;
 						endCharIndex = startCharIndex + findMeStr.length();
-						tv.setCursor(startCharIndex, man);
+						tv.view.setCaretOffset(startCharIndex);
 						numberOfLoops++;
 
 					} // if( startCharIndex...
 
 				} // if( searchWrap == SCH_WRAP_ON )
 				
-				}// number of loops
-
 			} // while( startCharIndex
 
 		// If for some reason we get here, couldn't find a matching string.
@@ -1663,32 +1658,31 @@ public boolean findBackWrap() {
 			// If there is selection text, that means we're still looking at
 			// what we found earlier. Move past it.
 			if (tv.view.getSelectionText().length() == findMeStr.length())
-				tv.setCursor(startCharIndex, man);
+				tv.view.setCaretOffset(startCharIndex);
 
 			// Get current cursor position.
 			endCharIndex = tv.view.getCaretOffset();
 			startCharIndex = endCharIndex - findMeStr.length();
 			
-			// Make sure we aren't in an endless loop
-			if (numberOfLoops <= 2) {
-			
-
 			// If search wrap is on, move to other end of document, if at
 			// the end.
 			if (searchWrap == SCH_WRAP_ON) {
+			
+			// Make sure we aren't in an endless loop
+			if (numberOfLoops >= 2) {
+				return false;
+			}// if numberOfLoops
+
 				// If we're at the end, move to the other end.
-				if (startCharIndex < 0 || endCharIndex < 0) {
+				while (startCharIndex < 0 || endCharIndex < 0) {
+					numberOfLoops++;
 					// Reset position.
 					endCharIndex = numChars;
 					startCharIndex = endCharIndex - findMeStr.length();
-					tv.setCursor(endCharIndex, man);
-					numberOfLoops++;
+					tv.view.setCaretOffset(endCharIndex);
 
-				} // if( startCharIndex...
 
-			} // if( searchWrap == SCH_WRAP_ON
-			
-			} // numberOfLoops
+				} // while( startCharIndex...
 
 			// Scour the view for the search string.
 			while (startCharIndex >= 0 && endCharIndex > 0) {
@@ -1700,7 +1694,7 @@ public boolean findBackWrap() {
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					curViewSnippet = curViewSnippet.toLowerCase();
 					findMeStr = findMeStr.toLowerCase();
-				}
+				}// if searchCaseSensitive
 
 				// Compare the two strings. Is there a match?
 				if (curViewSnippet.matches(findMeStr) == true) {
@@ -1741,28 +1735,31 @@ public boolean findBackWrap() {
 				// Move back a character.
 				startCharIndex--;
 				endCharIndex--;
-				
-				// Make sure we aren't in an endless loop
-				if (numberOfLoops <= 2) {
 
 				// If search wrap is on, move to other end of document, if at
 				// the end.
 				if (searchWrap == SCH_WRAP_ON) {
+										
+					// Make sure we aren't in an endless loop
+					if (numberOfLoops >= 2) {
+						return false;
+					}// if numberOfLoops
+					
 					// If we're at the end, move to the other end.
 					if (startCharIndex < 0 || endCharIndex < 0) {
+						numberOfLoops++;
 						// Reset position.
 						endCharIndex = numChars;
 						startCharIndex = endCharIndex - findMeStr.length();
-						tv.setCursor(endCharIndex, man);
-						numberOfLoops++;
+						tv.view.setCaretOffset(endCharIndex);
 
 					} // if( startCharIndex...
 
 				} // if( searchWrap == SCH_WRAP_ON )
-				
-				}// numberOfLoops
 
 			} // while( startCharIndex...
+			
+			}// if searchWrap
 
 		// If for some reason we get here, couldn't find a matching string.
 		return false;
@@ -1796,7 +1793,7 @@ public boolean findBackNoWrap() {
 			// If there is selection text, that means we're still looking at
 			// what we found earlier. Move past it.
 			if (tv.view.getSelectionText().length() == findMeStr.length())
-				tv.setCursor(startCharIndex, man);
+				tv.view.setCaretOffset(startCharIndex);
 
 			// Get current cursor position.
 			endCharIndex = tv.view.getCaretOffset();

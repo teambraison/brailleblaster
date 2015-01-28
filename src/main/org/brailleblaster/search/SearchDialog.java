@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SearchDialog extends Dialog {
- 
+
 	private final int MAX_SRCH_CHARS = 10000;
 	protected Object result;
 	protected Shell shlFindreplace;
@@ -65,19 +65,18 @@ public class SearchDialog extends Dialog {
 	private final int SCH_WHOLE_ON = 0;
 	private final int SCH_WHOLE_OFF = 1;
 	private int searchWholeWord = SCH_WHOLE_OFF;
-	
+
 	int numberOfLoops;
 	int oldCursorPos;
 	int oldTopIndex;
-	private String [] searchList = new String [50];
-	private String [] replaceList = new String [50];
-	Map<String,String> searchSettings = new HashMap<String,String>();
-	int searchArraySize; 
-	Map<String,String>searchMap = new HashMap<String,String>();
+	private String[] searchList = new String[50];
+	private String[] replaceList = new String[50];
+	Map<String, String> searchSettings = new HashMap<String, String>();
+	int searchArraySize;
+	Map<String, String> searchMap = new HashMap<String, String>();
 	int replaceArraySize;
-	Map<String,String>replaceMap = new HashMap<String,String>();
+	Map<String, String> replaceMap = new HashMap<String, String>();
 
-	
 	// private final FormToolkit // formToolkit = new
 	// FormToolkit(Display.getDefault());
 
@@ -126,9 +125,9 @@ public class SearchDialog extends Dialog {
 			}
 		}
 		return result;
-		
+
 	}
-	
+
 	public Object openWithPreviousValues() {
 		createPreviousContents();
 		shlFindreplace.open();
@@ -158,14 +157,17 @@ public class SearchDialog extends Dialog {
 		}
 		return result;
 	}// open with previous values
-	
+
 	private void createPreviousContents() {
 
-		//this method loads the contents of the search dialog in between searches but within the
-		//same session
+		// this method loads the contents of the search dialog in between
+		// searches but within the
+		// same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlFindreplace.setSize(262,376);
-		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
+		shlFindreplace.setSize(262, 376);
+		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
+												// me during testing--windows
+												// specific position
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -193,18 +195,18 @@ public class SearchDialog extends Dialog {
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
-				
+
 				String newText = searchCombo.getText();
 				if (!searchMap.containsValue(String.valueOf(newText))) {
 					searchCombo.add(newText);
-					searchList[searchArraySize]=newText;
+					searchList[searchArraySize] = newText;
 					searchMap.put(newText, newText);
 					searchArraySize++;
-				}//if 
+				}// if
 
 			}// key traversed
 		});// addTraverseListener
-		
+
 		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
 		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
 				false, 2, 1));
@@ -227,10 +229,10 @@ public class SearchDialog extends Dialog {
 				String newText = replaceCombo.getText();
 				if (!replaceMap.containsValue(String.valueOf(newText))) {
 					replaceCombo.add(newText);
-					replaceList[replaceArraySize]=newText;
+					replaceList[replaceArraySize] = newText;
 					replaceMap.put(newText, newText);
 					replaceArraySize++;
-				}//if
+				}// if
 			}// key traversed
 		});// addTraverseListener
 
@@ -243,17 +245,17 @@ public class SearchDialog extends Dialog {
 		// formToolkit.paintBordersFor(grpDirection);
 
 		Button forwardRadioBtn = new Button(grpDirection, SWT.RADIO);
-		//loads the value from the previous search
+		// loads the value from the previous search
 		if (searchSettings.containsValue("forward")) {
-		forwardRadioBtn.setSelection(true);
-		}//if
+			forwardRadioBtn.setSelection(true);
+		}// if
 		forwardRadioBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_FORWARD;
 				searchSettings.put("searchDirectionString", "forward");
-			}//event
-		});//listener
+			}// event
+		});// listener
 		forwardRadioBtn.setBounds(10, 21, 90, 16);
 		// formToolkit.adapt(btnRadioButton, true, true);
 		forwardRadioBtn.setText("Forward");
@@ -261,8 +263,8 @@ public class SearchDialog extends Dialog {
 		Button backwardRadioBtn = new Button(grpDirection, SWT.RADIO);
 		// load the value from the previous search
 		if (searchSettings.containsValue("backward")) {
-		backwardRadioBtn.setSelection(true);
-		}//if
+			backwardRadioBtn.setSelection(true);
+		}// if
 		else {
 			forwardRadioBtn.setSelection(true);
 		}
@@ -271,8 +273,8 @@ public class SearchDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_BACKWARD;
 				searchSettings.put("searchDirectionString", "backward");
-			}//event
-		});//listener
+			}// event
+		});// listener
 		backwardRadioBtn.setBounds(10, 43, 90, 16);
 		// formToolkit.adapt(btnRadioButton_1, true, true);
 		backwardRadioBtn.setText("Backward");
@@ -320,27 +322,25 @@ public class SearchDialog extends Dialog {
 		caseSensitiveCheck.setBounds(10, 21, 91, 16);
 		// formToolkit.adapt(btnCaseSensitive, true, true);
 		caseSensitiveCheck.setText("Case sensitive");
-		
-		//set the value from the previous search
+
+		// set the value from the previous search
 		if (searchSettings.containsValue("caseSensitive")) {
-		caseSensitiveCheck.setSelection(true);
-		}//previous search
-		
+			caseSensitiveCheck.setSelection(true);
+		}// previous search
+
 		caseSensitiveCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				if (!searchSettings.containsValue("caseSensitive")) {
 					searchSettings.put("caseSensitive", "caseSensitive");
-				}
-				else {
+				} else {
 					searchSettings.put("caseSensitive", "notCaseSensitive");
 				}
 				// searchCaseSensitive
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					searchCaseSensitive = SCH_CASE_ON;
-				}
-				else {
+				} else {
 					searchCaseSensitive = SCH_CASE_OFF;
 				}
 			}
@@ -350,23 +350,22 @@ public class SearchDialog extends Dialog {
 		wholeWordCheck.setBounds(10, 43, 91, 16);
 		// formToolkit.adapt(btnWholeWord, true, true);
 		wholeWordCheck.setText("Whole word");
-		
-		//set the value from the previous search		
-		if(searchSettings.containsValue("wholeWord")) {
-		wholeWordCheck.setSelection(true);
-		}//previous search
-		
+
+		// set the value from the previous search
+		if (searchSettings.containsValue("wholeWord")) {
+			wholeWordCheck.setSelection(true);
+		}// previous search
+
 		wholeWordCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				if (!searchSettings.containsValue("wholeWord")) {
 					searchSettings.put("wholeWord", "wholeWord");
-				}
-				else {
+				} else {
 					searchSettings.put("wholeWord", "notWholeWord");
 				}
-				
+
 				if (searchWholeWord == SCH_WHOLE_OFF)
 					searchWholeWord = SCH_WHOLE_ON;
 				else
@@ -384,20 +383,19 @@ public class SearchDialog extends Dialog {
 		wrapSearchCheck.setBounds(107, 21, 91, 16);
 		// formToolkit.adapt(btnWrapSearch, true, true);
 		wrapSearchCheck.setText("Wrap search");
-		
-		//set selection from previous search
-		if(searchSettings.containsValue("wrapSearch")) {
-		wrapSearchCheck.setSelection(true);
-		}//if
-		
+
+		// set selection from previous search
+		if (searchSettings.containsValue("wrapSearch")) {
+			wrapSearchCheck.setSelection(true);
+		}// if
+
 		wrapSearchCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				if (!searchSettings.containsValue("wrapSearch")) {
 					searchSettings.put("wrapSearch", "wrapSearch");
-				}
-				else {
+				} else {
 					searchSettings.put("wrapSearch", "notWrapSearch");
 				}
 				if (searchWrap == SCH_WRAP_OFF)
@@ -427,35 +425,33 @@ public class SearchDialog extends Dialog {
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				numberOfLoops = 0;
-				
-				if (searchDirection==SCH_FORWARD) {
-					if (searchWrap==SCH_WRAP_ON) {
-						if (!findFwdWrap()) 
+
+				if (searchDirection == SCH_FORWARD) {
+					if (searchWrap == SCH_WRAP_ON) {
+						if (!findFwdWrap())
 							createErrorMessage();
 					}// if findFwdWrap
 					else {
-						if (!findFwdNoWrap()) 
+						if (!findFwdNoWrap())
 							createErrorMessage();
 					}// else findFwdNoWrap
 				}// if searchForward
 				else {
-						if (searchWrap==SCH_WRAP_ON) {
-							if (!findBackWrap()) 
-								createErrorMessage();
-						}// if findBwdWrap
-						else {
-							if(!findBackNoWrap()) 
-								createErrorMessage();
-						}// else findBwdNoWrap
+					if (searchWrap == SCH_WRAP_ON) {
+						if (!findBackWrap())
+							createErrorMessage();
+					}// if findBwdWrap
+					else {
+						if (!findBackNoWrap())
+							createErrorMessage();
+					}// else findBwdNoWrap
 				}// else searchBackward
 
 			} // widgetSelected()
 
 		}); // btnFind.addSelectionListener()
-		
-
 
 		Button replaceFindBtn = new Button(shlFindreplace, SWT.NONE);
 		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -476,44 +472,44 @@ public class SearchDialog extends Dialog {
 		replaceBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				numberOfLoops = 0;
-				
-				if (searchDirection==SCH_FORWARD) {
-					if (searchWrap==SCH_WRAP_ON) {
+
+				if (searchDirection == SCH_FORWARD) {
+					if (searchWrap == SCH_WRAP_ON) {
 						if (replaceFwdWrap()) {
-							man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-						}
-						else {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
 							createErrorMessage();
 						}
 					}// if replaceFwdWrap
 					else {
 						if (replaceFwdNoWrap()) {
-							man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-						}
-						else {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
 							createErrorMessage();
 						}
 					}// else replaceFwdNoWrap
 				}// if searchForward
 				else {
-						if (searchWrap==SCH_WRAP_ON) {
-							if (replaceBackWrap()) {
-								man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-							}
-							else {
-								createErrorMessage();
-							}
-						}// if replaceBwdWrap
-						else {
-							if(replaceBackNoWrap()) {
-								man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-							}
-							else {
-								createErrorMessage();
-							}
-						}// else replaceBwdNoWrap
+					if (searchWrap == SCH_WRAP_ON) {
+						if (replaceBackWrap()) {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
+							createErrorMessage();
+						}
+					}// if replaceBwdWrap
+					else {
+						if (replaceBackNoWrap()) {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
+							createErrorMessage();
+						}
+					}// else replaceBwdNoWrap
 				}// else searchBackward
 			} // widgetSelected()
 
@@ -528,27 +524,27 @@ public class SearchDialog extends Dialog {
 		replaceAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				numberOfLoops = 0;
-				
-				if(searchDirection == SCH_FORWARD) {
-				// Replace every instance of word.
-				int oldTopIndex = man.getTextView().getTopIndex();
-				int oldCursorPos = man.getText().getCursorOffset();
-				man.getText().setCursor(0, man);
-				if(findStr() == true) {
-					do {
-					man.getText().copyAndPaste(replaceCombo.getText(),
-							startCharIndex, endCharIndex);
-					man.getTextView().setTopIndex(oldTopIndex);
-					man.getText().setCursorOffset(oldCursorPos);
-					}// do
-				while (findStr() == true);
-				}//if findStr==true
-				else {
-					createErrorMessage();
-				}// else nothing found
-				
+
+				if (searchDirection == SCH_FORWARD) {
+					// Replace every instance of word.
+					int oldTopIndex = man.getTextView().getTopIndex();
+					int oldCursorPos = man.getText().getCursorOffset();
+					man.getText().setCursor(0, man);
+					if (findStr() == true) {
+						do {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+							man.getTextView().setTopIndex(oldTopIndex);
+							man.getText().setCursorOffset(oldCursorPos);
+						}// do
+						while (findStr() == true);
+					}// if findStr==true
+					else {
+						createErrorMessage();
+					}// else nothing found
+
 				}// if searchForward
 				else {
 					int oldTopIndex = man.getTextView().getTopIndex();
@@ -559,18 +555,18 @@ public class SearchDialog extends Dialog {
 					if (findStr() == true) {
 						do {
 
-						man.getText().copyAndPaste(replaceCombo.getText(),
-								startCharIndex, endCharIndex);	
-						man.getTextView().setTopIndex(oldTopIndex);
-						man.getText().setCursorOffset(oldCursorPos);
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+							man.getTextView().setTopIndex(oldTopIndex);
+							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (findStr() == true);
 					}// if findStr == true
 					else {
 						createErrorMessage();
-					}// else if nothing found 
+					}// else if nothing found
 				}// if searchBackward
-				
+
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -597,7 +593,7 @@ public class SearchDialog extends Dialog {
 			} // widgetSelected()
 
 		}); // closeBtn.addSelectionListener...
-	}//createPreviousContents
+	}// createPreviousContents
 
 	/**
 	 * Create contents of the dialog.
@@ -605,8 +601,10 @@ public class SearchDialog extends Dialog {
 	private void createContents() {
 
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlFindreplace.setSize(262,376);
-		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
+		shlFindreplace.setSize(262, 376);
+		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
+												// me during testing--windows
+												// specific position
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -626,18 +624,18 @@ public class SearchDialog extends Dialog {
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
-				
+
 				String newText = searchCombo.getText();
 				if (!searchMap.containsValue(String.valueOf(newText))) {
 					searchCombo.add(newText);
-					searchList[searchArraySize]=newText;
+					searchList[searchArraySize] = newText;
 					searchMap.put(newText, newText);
 					searchArraySize++;
-				}//if
+				}// if
 
 			}// key traversed
 		});// addTraverseListener
-		
+
 		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
 		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
 				false, 2, 1));
@@ -647,7 +645,7 @@ public class SearchDialog extends Dialog {
 		replaceCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
 		replaceCombo.setEnabled(true);
-		
+
 		replaceCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
@@ -655,10 +653,10 @@ public class SearchDialog extends Dialog {
 				String newText = replaceCombo.getText();
 				if (!replaceMap.containsValue(String.valueOf(newText))) {
 					replaceCombo.add(newText);
-					replaceList[replaceArraySize]=newText;
+					replaceList[replaceArraySize] = newText;
 					replaceMap.put(newText, newText);
 					replaceArraySize++;
-				}//if
+				}// if
 			}// key traversed
 		});// addTraverseListener
 
@@ -743,19 +741,17 @@ public class SearchDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// searchCaseSensitive
-				
+
 				if (!searchSettings.containsValue("caseSensitive")) {
 					searchSettings.put("caseSensitive", "caseSensitive");
-				}
-				else {
+				} else {
 					searchSettings.put("caseSensitive", "notCaseSensitive");
 				}
 
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					searchCaseSensitive = SCH_CASE_ON;
-				}
-				else
-					searchCaseSensitive = SCH_CASE_OFF;			
+				} else
+					searchCaseSensitive = SCH_CASE_OFF;
 			}
 		});
 
@@ -767,11 +763,10 @@ public class SearchDialog extends Dialog {
 		wholeWordCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				if (!searchSettings.containsValue("wholeWord")) {
 					searchSettings.put("wholeWord", "wholeWord");
-				}
-				else {
+				} else {
 					searchSettings.put("wholeWord", "notWholeWord");
 				}
 				if (searchWholeWord == SCH_WHOLE_OFF)
@@ -795,11 +790,10 @@ public class SearchDialog extends Dialog {
 		wrapSearchCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				if (!searchSettings.containsValue("wrapSearch")) {
 					searchSettings.put("wrapSearch", "wrapSearch");
-				}
-				else {
+				} else {
 					searchSettings.put("wrapSearch", "notWrapSearch");
 				}
 				if (searchWrap == SCH_WRAP_OFF)
@@ -831,33 +825,31 @@ public class SearchDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 
 				numberOfLoops = 0;
-				
-				if (searchDirection==SCH_FORWARD) {
-					if (searchWrap==SCH_WRAP_ON) {
-						if (!findFwdWrap()) 
+
+				if (searchDirection == SCH_FORWARD) {
+					if (searchWrap == SCH_WRAP_ON) {
+						if (!findFwdWrap())
 							createErrorMessage();
 					}// if findFwdWrap
 					else {
-						if (!findFwdNoWrap()) 
+						if (!findFwdNoWrap())
 							createErrorMessage();
 					}// else findFwdNoWrap
 				}// if searchForward
 				else {
-						if (searchWrap==SCH_WRAP_ON) {
-							if (!findBackWrap()) 
-								createErrorMessage();
-						}// if findBwdWrap
-						else {
-							if(!findBackNoWrap()) 
-								createErrorMessage();
-						}// else findBwdNoWrap
+					if (searchWrap == SCH_WRAP_ON) {
+						if (!findBackWrap())
+							createErrorMessage();
+					}// if findBwdWrap
+					else {
+						if (!findBackNoWrap())
+							createErrorMessage();
+					}// else findBwdNoWrap
 				}// else searchBackward
 
 			} // widgetSelected()
 
 		}); // btnFind.addSelectionListener()
-		
-
 
 		Button replaceFindBtn = new Button(shlFindreplace, SWT.NONE);
 		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
@@ -878,44 +870,44 @@ public class SearchDialog extends Dialog {
 		replaceBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				numberOfLoops = 0;
-				
-				if (searchDirection==SCH_FORWARD) {
-					if (searchWrap==SCH_WRAP_ON) {
+
+				if (searchDirection == SCH_FORWARD) {
+					if (searchWrap == SCH_WRAP_ON) {
 						if (replaceFwdWrap()) {
-							man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-						}
-						else {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
 							createErrorMessage();
 						}
 					}// if replaceFwdWrap
 					else {
 						if (replaceFwdNoWrap()) {
-							man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-						}
-						else {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
 							createErrorMessage();
 						}
 					}// else replaceFwdNoWrap
 				}// if searchForward
 				else {
-						if (searchWrap==SCH_WRAP_ON) {
-							if (replaceBackWrap()) {
-								man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-							}
-							else {
-								createErrorMessage();
-							}
-						}// if replaceBwdWrap
-						else {
-							if(replaceBackNoWrap()) {
-								man.getText().copyAndPaste(replaceCombo.getText(), startCharIndex, endCharIndex);
-							}
-							else {
-								createErrorMessage();
-							}
-						}// else replaceBwdNoWrap
+					if (searchWrap == SCH_WRAP_ON) {
+						if (replaceBackWrap()) {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
+							createErrorMessage();
+						}
+					}// if replaceBwdWrap
+					else {
+						if (replaceBackNoWrap()) {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+						} else {
+							createErrorMessage();
+						}
+					}// else replaceBwdNoWrap
 				}// else searchBackward
 			} // widgetSelected()
 
@@ -930,27 +922,27 @@ public class SearchDialog extends Dialog {
 		replaceAllBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
+
 				numberOfLoops = 0;
-				
-				if(searchDirection == SCH_FORWARD) {
-				// Replace every instance of word.
-				int oldTopIndex = man.getTextView().getTopIndex();
-				int oldCursorPos = man.getText().getCursorOffset();
-				man.getText().setCursor(0, man);
-				if(findStr() == true) {
-					do {
-					man.getText().copyAndPaste(replaceCombo.getText(),
-							startCharIndex, endCharIndex);
-					man.getTextView().setTopIndex(oldTopIndex);
-					man.getText().setCursorOffset(oldCursorPos);
-					}// do
-				while (findStr() == true);
-				}//if findStr==true
-				else {
-					createErrorMessage();
-				}// else nothing found
-				
+
+				if (searchDirection == SCH_FORWARD) {
+					// Replace every instance of word.
+					int oldTopIndex = man.getTextView().getTopIndex();
+					int oldCursorPos = man.getText().getCursorOffset();
+					man.getText().setCursor(0, man);
+					if (findStr() == true) {
+						do {
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+							man.getTextView().setTopIndex(oldTopIndex);
+							man.getText().setCursorOffset(oldCursorPos);
+						}// do
+						while (findStr() == true);
+					}// if findStr==true
+					else {
+						createErrorMessage();
+					}// else nothing found
+
 				}// if searchForward
 				else {
 					int oldTopIndex = man.getTextView().getTopIndex();
@@ -961,18 +953,18 @@ public class SearchDialog extends Dialog {
 					if (findStr() == true) {
 						do {
 
-						man.getText().copyAndPaste(replaceCombo.getText(),
-								startCharIndex, endCharIndex);	
-						man.getTextView().setTopIndex(oldTopIndex);
-						man.getText().setCursorOffset(oldCursorPos);
+							man.getText().copyAndPaste(replaceCombo.getText(),
+									startCharIndex, endCharIndex);
+							man.getTextView().setTopIndex(oldTopIndex);
+							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (findStr() == true);
 					}// if findStr == true
 					else {
 						createErrorMessage();
-					}// else if nothing found 
+					}// else if nothing found
 				}// if searchBackward
-				
+
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -1001,23 +993,21 @@ public class SearchDialog extends Dialog {
 		}); // closeBtn.addSelectionListener...
 
 	} // createContents()
-	
+
 	public void createErrorMessage() {
 
 		display = getParent().getDisplay();
 		display.beep();
 		errorMessageShell = new Shell(display, SWT.DIALOG_TRIM);
-		errorMessageShell.setLayout(new GridLayout(1,true));
+		errorMessageShell.setLayout(new GridLayout(1, true));
 		errorMessageShell.setText("Find/Replace Error");
-		errorMessageShell.setSize(300,100);
-		errorMessageShell.setLocation(500,250);
+		errorMessageShell.setSize(300, 100);
+		errorMessageShell.setLocation(500, 250);
 
-		
-		Label label = new Label(errorMessageShell,SWT.RESIZE);
+		Label label = new Label(errorMessageShell, SWT.RESIZE);
 		label.setText("BrailleBlaster cannot find your word in the document");
 
-				
-		Button ok = new Button (errorMessageShell,SWT.NONE);
+		Button ok = new Button(errorMessageShell, SWT.NONE);
 		ok.setText("OK");
 		GridData errorMessageData = new GridData(SWT.HORIZONTAL);
 		ok.setLayoutData(errorMessageData);
@@ -1028,14 +1018,14 @@ public class SearchDialog extends Dialog {
 			}// widgetSelected
 
 		});// selectionListener
-		errorMessageShell.open();	
+		errorMessageShell.open();
 
 	}// createErrorMessage
-	
+
 	public String[] getSearchList() {
 		return searchList;
 	}// get searchList
-	
+
 	public String[] getReplaceList() {
 		return replaceList;
 	}// get replaceList
@@ -1068,34 +1058,36 @@ public class SearchDialog extends Dialog {
 		// Search forward.
 
 		// Go forth!
-		if (searchDirection == SCH_FORWARD) {	
-			
+		if (searchDirection == SCH_FORWARD) {
+
 			// Get current cursor position.
 			startCharIndex = tv.view.getCaretOffset();
 			endCharIndex = startCharIndex + findMeStr.length();
-			
-			// Check to see if we need a to reset it to zero first; it won' t go through the while loop
+
+			// Check to see if we need a to reset it to zero first; it won' t go
+			// through the while loop
 			// if it's at the end
 			if (searchWrap == SCH_WRAP_ON) {
-		
+
 				// Make sure we aren't in an endless loop
 				if (numberOfLoops >= 2) {
 					return false;
 				}// if numberOfLoops
-									
+
 				// If we're at the end, move to the other end.
 				while (startCharIndex >= numChars || endCharIndex >= numChars) {
 
-				// Reset position.
+					// Reset position.
 					startCharIndex = 0;
 					endCharIndex = startCharIndex + findMeStr.length();
 					tv.setCursor(startCharIndex, man);
 					numberOfLoops++;
 
 				} // if( startCharIndex...
-				
+
 				// Scour the view for the search string.
-				while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
+				while (startCharIndex < numChars
+						&& endCharIndex < (numChars + 1)) {
 					// Get current snippet of text we're testing.
 					String curViewSnippet = tv.view.getText().substring(
 							startCharIndex, endCharIndex);
@@ -1120,8 +1112,10 @@ public class SearchDialog extends Dialog {
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 							if (endCharIndex + 1 < numChars)
-								if (tv.view.getText()
-										.substring(endCharIndex, endCharIndex + 1)
+								if (tv.view
+										.getText()
+										.substring(endCharIndex,
+												endCharIndex + 1)
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 
@@ -1145,40 +1139,547 @@ public class SearchDialog extends Dialog {
 					// Move forward a character.
 					startCharIndex++;
 					endCharIndex++;
-					
-					// Check the search wrap again.  If search wrap is on, move to other end of document, if at
+
+					// Check the search wrap again. If search wrap is on, move
+					// to other end of document, if at
 					// the end.
 					if (searchWrap == SCH_WRAP_ON) {
-				
+
 						// Make sure we aren't in an endless loop
 						if (numberOfLoops >= 2) {
 							return false;
 						}// if numberOfLoops
-											
-						// If we're at the end, move to the other end.
-						while (startCharIndex >= numChars || endCharIndex >= (numChars+1)) {
 
-						// Reset position.
+						// If we're at the end, move to the other end.
+						while (startCharIndex >= numChars
+								|| endCharIndex >= (numChars + 1)) {
+
+							// Reset position.
 							startCharIndex = 0;
 							endCharIndex = startCharIndex + findMeStr.length();
 							tv.setCursor(startCharIndex, man);
 							numberOfLoops++;
 
 						} // if( startCharIndex...
-						
+
 					}// if searchWrap is on
 
 				} // while( startCharIndex...
-				
+
 			} // if( searchWrap == SCH_WRAP_ON )
-			
+
 			else {
-				
-			// Else is for when the searchWrap is off
+
+				// Else is for when the searchWrap is off
+
+				// Scour the view for the search string.
+
+				while (startCharIndex < numChars
+						&& endCharIndex < (numChars + 1)) {
+					// Get current snippet of text we're testing.
+					String curViewSnippet = tv.view.getText().substring(
+							startCharIndex, endCharIndex);
+
+					// Should we be checking case sensitive version?
+					if (searchCaseSensitive == SCH_CASE_OFF) {
+						curViewSnippet = curViewSnippet.toLowerCase();
+						findMeStr = findMeStr.toLowerCase();
+					}
+
+					// Compare the two strings. Is there a match?
+					if (curViewSnippet.matches(findMeStr) == true) {
+						// Whole word?
+						boolean haveAmatch = true;
+						if (searchWholeWord == SCH_WHOLE_ON) {
+							// "^[\pL\pN]*$";
+							if (startCharIndex - 1 >= 0)
+								if (tv.view
+										.getText()
+										.substring(startCharIndex - 1,
+												startCharIndex)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+							if (endCharIndex + 1 < numChars)
+								if (tv.view
+										.getText()
+										.substring(endCharIndex,
+												endCharIndex + 1)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+
+						} // if( searchWholeWord...
+
+						// Update view if we have a match.
+						if (haveAmatch == true) {
+							// Set cursor and view to point to search string we
+							// found.
+							// tv.setCursor(startCharIndex, man);
+							tv.view.setSelection(startCharIndex, endCharIndex);
+							tv.view.setTopIndex(tv.view
+									.getLineAtOffset(startCharIndex));
+
+							// Found it; break.
+							return true;
+
+						} // if( haveAmatch = true)
+
+					} // if( curViewSnippet...
+
+					// Move forward a character.
+					startCharIndex++;
+					endCharIndex++;
+
+				} // while( startCharIndex...
+
+			}// else
+
+		} // if(searchDirection == SCH_FORWARD)
+
+		// Search forward.
+		// ////////////////
+
+		// /////////////////
+		// Search backward.
+
+		// Go backward!
+		if (searchDirection == SCH_BACKWARD) {
+
+			// Get current cursor position.
+			endCharIndex = tv.view.getCaretOffset();
+			startCharIndex = endCharIndex - findMeStr.length();
+
+			// Check to see if we need to set it to zero first. It can't search
+			// if it's at the end.
+			if (searchWrap == SCH_WRAP_ON) {
+
+				// Make sure we aren't in an endless loop
+				if (numberOfLoops >= 2) {
+					return false;
+				}// if number of loops
+
+				// If we're at the end, move to the other end.
+				while (startCharIndex < 0 || endCharIndex < 0) {
+					numberOfLoops++;
+					// Reset position.
+					endCharIndex = numChars;
+					startCharIndex = endCharIndex - findMeStr.length();
+					tv.setCursor((endCharIndex), man);
+
+				} // while startCharIndex
+
+				// Scour the view for the search string.
+				while (startCharIndex >= 0 && (endCharIndex) > 0) {
+					// Get current snippet of text we're testing.
+					String curViewSnippet = tv.view.getText().substring(
+							startCharIndex, endCharIndex);
+
+					// Should we be checking case sensitive version?
+					if (searchCaseSensitive == SCH_CASE_OFF) {
+						curViewSnippet = curViewSnippet.toLowerCase();
+						findMeStr = findMeStr.toLowerCase();
+					}// if searchCaseSensitive
+
+					// Compare the two strings. Is there a match?
+					if (curViewSnippet.matches(findMeStr) == true) {
+						// Whole word?
+						boolean haveAmatch = true;
+						if (searchWholeWord == SCH_WHOLE_ON) {
+							// "^[\pL\pN]*$";
+							if (startCharIndex - 1 >= 0)
+								if (tv.view
+										.getText()
+										.substring(startCharIndex - 1,
+												startCharIndex)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+							if (endCharIndex + 1 < numChars)
+								if (tv.view
+										.getText()
+										.substring(endCharIndex,
+												endCharIndex + 1)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+
+						} // if( searchWholeWord...
+
+						// Update view if we have a match.
+						if (haveAmatch == true) {
+							// Set cursor and view to point to search string we
+							// found.
+							tv.view.setSelection(startCharIndex, endCharIndex);
+							tv.view.setTopIndex(tv.view
+									.getLineAtOffset(startCharIndex));
+
+							// Found it; break.
+							return true;
+
+						} // if( haveAmatch = true)
+
+					} // if( curViewSnippet...matches
+
+					// Move back a character.
+					startCharIndex--;
+					endCharIndex--;
+
+					// If search wrap is on, move to other end of document, if
+					// at
+					// the end.
+					if (searchWrap == SCH_WRAP_ON) {
+
+						// Make sure we aren't in an endless loop
+						if (numberOfLoops >= 2) {
+							return false;
+						}// if numberOfLoops
+
+						// If we're at the end, move to the other end.
+						while (startCharIndex < 0 || endCharIndex < 0) {
+							numberOfLoops++;
+							// Reset position.
+							endCharIndex = numChars;
+							startCharIndex = endCharIndex - findMeStr.length();
+							// tv.setCursor((endCharIndex), man);
+
+						} // if( startCharIndex...
+
+					} // if( searchWrap == SCH_WRAP_ON )
+
+				} // while( startCharIndex...
+
+			}// if searchWrap
+
+			else {
+
+				// Else is for when search wrap is off.
+
+				// Scour the view for the search string.
+				while (startCharIndex >= 0 && endCharIndex > 0) {
+					// Get current snippet of text we're testing.
+					String curViewSnippet = tv.view.getText().substring(
+							startCharIndex, endCharIndex);
+
+					// Should we be checking case sensitive version?
+					if (searchCaseSensitive == SCH_CASE_OFF) {
+						curViewSnippet = curViewSnippet.toLowerCase();
+						findMeStr = findMeStr.toLowerCase();
+					}// if searchCaseSensitive
+
+					// Compare the two strings. Is there a match?
+					if (curViewSnippet.matches(findMeStr) == true) {
+						// Whole word?
+						boolean haveAmatch = true;
+						if (searchWholeWord == SCH_WHOLE_ON) {
+							// "^[\pL\pN]*$";
+							if (startCharIndex - 1 >= 0)
+								if (tv.view
+										.getText()
+										.substring(startCharIndex - 1,
+												startCharIndex)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+							if (endCharIndex + 1 < numChars)
+								if (tv.view
+										.getText()
+										.substring(endCharIndex,
+												endCharIndex + 1)
+										.matches("^[\\pL\\pN]*$") == true)
+									haveAmatch = false;
+
+						} // if( searchWholeWord...
+
+						// Update view if we have a match.
+						if (haveAmatch == true) {
+							// Set cursor and view to point to search string we
+							// found.
+							tv.setCursor(startCharIndex, man);
+							tv.view.setSelection((startCharIndex),
+									(endCharIndex));
+							tv.view.setTopIndex(tv.view
+									.getLineAtOffset(startCharIndex));
+
+							// Found it; break.
+							return true;
+
+						} // if( haveAmatch = true)
+
+					} // if( curViewSnippet...
+
+					// Move back a character.
+					startCharIndex--;
+					endCharIndex--;
+
+				}// while
+
+			}// else no searchWrap
+
+		} // if(searchDirection == SCH_BACKWARD)
+
+		// Search backward.
+		// /////////////////
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	} // findStr()
+
+	public boolean findFwdWrap() {
+		// /////////////////////////////////////////////////////////////////
+		// Searches document for string in our combo box.
+		// Returns true if one was found.
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		startCharIndex = tv.view.getCaretOffset();
+		endCharIndex = startCharIndex + findMeStr.length();
+
+		// Make sure we aren't in an endless loop
+		if (numberOfLoops <= 2) {
+
+			// If we're at the end, move to the other end.
+			while (startCharIndex >= numChars || endCharIndex >= (numChars)) {
+				// Reset position.
+				startCharIndex = 0;
+				endCharIndex = startCharIndex + findMeStr.length();
+				tv.view.setCaretOffset(startCharIndex);
+				numberOfLoops++;
+
+			} // if( startCharIndex...
+
+		}// if numberOfLoops
+
+		// Scour the view for the search string.
+		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}// caseSensitive
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (tv.view.getText()
+								.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move forward a character.
+			startCharIndex++;
+			endCharIndex++;
+
+			// Make sure we aren't in an endless loop
+			if (numberOfLoops <= 2) {
+
+				// If search wrap is on, move to other end of document, if at
+				// the end.
+				if (searchWrap == SCH_WRAP_ON) {
+
+					// If we're at the end, move to the other end.
+					if (startCharIndex >= numChars || endCharIndex > (numChars)) {
+						// Reset position.
+						startCharIndex = 0;
+						endCharIndex = startCharIndex + findMeStr.length();
+						tv.view.setCaretOffset(startCharIndex);
+						numberOfLoops++;
+
+					} // if( startCharIndex...
+
+				} // if( searchWrap == SCH_WRAP_ON )
+
+			}// numberOfLoops
+
+		} // while( startCharIndex
+
+		// If for some reason we get here, couldn't find a matching string.
+
+		return false;
+
+	}// findFwdWrap
+
+	public boolean findFwdNoWrap() {
+		// /////////////////////////////////////////////////////////////////
+		// Searches document for string in our combo box.
+		// Returns true if one was found.
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// Get current cursor position.
+		startCharIndex = tv.view.getCaretOffset();
+		endCharIndex = startCharIndex + findMeStr.length();
+
+		// Scour the view for the search string.
+		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (tv.view.getText()
+								.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move forward a character.
+			startCharIndex++;
+			endCharIndex++;
+
+		} // while( startCharIndex...
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// findFwdNoWrap
+
+	public boolean findBackWrap() {
+		// /////////////////////////////////////////////////////////////////
+		// Searches document for string in our combo box.
+		// Returns true if one was found.
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// If there is selection text, that means we're still looking at
+		// what we found earlier. Move past it.
+		if (tv.view.getSelectionText().length() == findMeStr.length())
+			tv.view.setCaretOffset(startCharIndex);
+
+		// Get current cursor position.
+		endCharIndex = tv.view.getCaretOffset();
+		startCharIndex = endCharIndex - findMeStr.length();
+
+		// Make sure we aren't in an endless loop
+		if (numberOfLoops <= 2) {
+
+		// If search wrap is on, move to other end of document, if at
+		// the end.
+		if (searchWrap == SCH_WRAP_ON) {
+
+
+			// If we're at the end, move to the other end.
+			while (startCharIndex < 0 || endCharIndex < 0) {
+				numberOfLoops++;
+				// Reset position.
+				endCharIndex = numChars;
+				startCharIndex = endCharIndex - findMeStr.length();
+				tv.view.setCaretOffset(endCharIndex);
+
+			} // while( startCharIndex...
+			
+		}// if numberOfLoops
 
 			// Scour the view for the search string.
-				
-			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
+			while (startCharIndex >= 0 && endCharIndex > 0) {
 				// Get current snippet of text we're testing.
 				String curViewSnippet = tv.view.getText().substring(
 						startCharIndex, endCharIndex);
@@ -1187,7 +1688,7 @@ public class SearchDialog extends Dialog {
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					curViewSnippet = curViewSnippet.toLowerCase();
 					findMeStr = findMeStr.toLowerCase();
-				}
+				}// if searchCaseSensitive
 
 				// Compare the two strings. Is there a match?
 				if (curViewSnippet.matches(findMeStr) == true) {
@@ -1214,7 +1715,6 @@ public class SearchDialog extends Dialog {
 					if (haveAmatch == true) {
 						// Set cursor and view to point to search string we
 						// found.
-//						tv.setCursor(startCharIndex, man);
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
@@ -1226,51 +1726,375 @@ public class SearchDialog extends Dialog {
 
 				} // if( curViewSnippet...
 
-				// Move forward a character.
-				startCharIndex++;
-				endCharIndex++;
+				// Move back a character.
+				startCharIndex--;
+				endCharIndex--;
 
-			  } // while( startCharIndex...
-			
-			}//else
+				// Make sure we aren't in an endless loop
+				if (numberOfLoops <= 2) {
 
-		} // if(searchDirection == SCH_FORWARD)
+				// If search wrap is on, move to other end of document, if at
+				// the end.
+				if (searchWrap == SCH_WRAP_ON) {
 
-		// Search forward.
-		// ////////////////
+					// If we're at the end, move to the other end.
+					if (startCharIndex < 0 || endCharIndex < 0) {
+						numberOfLoops++;
+						// Reset position.
+						endCharIndex = numChars;
+						startCharIndex = endCharIndex - findMeStr.length();
+						tv.view.setCaretOffset(endCharIndex);
 
-		// /////////////////
-		// Search backward.
+					} // if( startCharIndex...
 
-		// Go backward!
-		if (searchDirection == SCH_BACKWARD) {
-			
+				} // if( searchWrap == SCH_WRAP_ON )
 
-			
-			// Get current cursor position.
-			endCharIndex = tv.view.getCaretOffset();
-			startCharIndex = endCharIndex - findMeStr.length();
-			
+				}// if numberOfLoops
 
-			// Check to see if we need to set it to zero first.  It can't search if it's at the end.
+			} // while( startCharIndex...
+
+		}// if searchWrap
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// findBackWrap
+
+	public boolean findBackNoWrap() {
+		// /////////////////////////////////////////////////////////////////
+		// Searches document for string in our combo box.
+		// Returns true if one was found.
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// If there is selection text, that means we're still looking at
+		// what we found earlier. Move past it.
+		if (tv.view.getSelectionText().length() == findMeStr.length())
+			tv.view.setCaretOffset(startCharIndex);
+
+		// Get current cursor position.
+		endCharIndex = tv.view.getCaretOffset();
+		startCharIndex = endCharIndex - findMeStr.length();
+
+		// Scour the view for the search string.
+		while (startCharIndex >= 0 && endCharIndex > 0) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (tv.view.getText()
+								.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move back a character.
+			startCharIndex--;
+			endCharIndex--;
+
+		} // while( startCharIndex...
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// findBackNoWrap
+
+	public boolean replaceFwdWrap() {
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// Get current cursor position.
+		startCharIndex = tv.view.getCaretOffset();
+		endCharIndex = startCharIndex + findMeStr.length();
+
+		// Make sure we aren't in an endless loop
+		if (numberOfLoops >= 2) {
+			return false;
+		}// if numberOfLoops
+
+		// If we're at the end, move to the other end.
+		while (startCharIndex >= numChars || endCharIndex >= numChars) {
+
+			// Reset position.
+			startCharIndex = 0;
+			endCharIndex = startCharIndex + findMeStr.length();
+			tv.setCursor(startCharIndex, man);
+			numberOfLoops++;
+
+		} // if( startCharIndex...
+
+		// Scour the view for the search string.
+		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (tv.view.getText()
+								.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move forward a character.
+			startCharIndex++;
+			endCharIndex++;
+
+			// Check the search wrap again. If search wrap is on, move to other
+			// end of document, if at
+			// the end.
 			if (searchWrap == SCH_WRAP_ON) {
 
-				
 				// Make sure we aren't in an endless loop
 				if (numberOfLoops >= 2) {
 					return false;
-				}//if number of loops
+				}// if numberOfLoops
 
 				// If we're at the end, move to the other end.
-				while (startCharIndex < 0 || endCharIndex < 0) {
-					numberOfLoops++;
+				while (startCharIndex >= numChars
+						|| endCharIndex >= (numChars + 1)) {
+
 					// Reset position.
-					endCharIndex = numChars;
-					startCharIndex = endCharIndex - findMeStr.length();
-					tv.setCursor((endCharIndex), man);
+					startCharIndex = 0;
+					endCharIndex = startCharIndex + findMeStr.length();
+					tv.setCursor(startCharIndex, man);
+					numberOfLoops++;
 
-				} // while startCharIndex
+				} // if( startCharIndex...
 
+			}// if searchWrap is on
+
+		} // while( startCharIndex...
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// replaceFwdWrap
+
+	public boolean replaceFwdNoWrap() {
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// Get current cursor position.
+		startCharIndex = tv.view.getCaretOffset();
+		endCharIndex = startCharIndex + findMeStr.length();
+		// Scour the view for the search string.
+
+		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (tv.view.getText()
+								.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.setCursor(startCharIndex, man);
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move forward a character.
+			startCharIndex++;
+			endCharIndex++;
+
+		} // while( startCharIndex...
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// replaceFwdNoWrap
+
+	public boolean replaceBackWrap() {
+		// Grab text view.
+		TextView tv = man.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = tv.view.getText().length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// Get current cursor position.
+		endCharIndex = tv.view.getCaretOffset();
+		startCharIndex = endCharIndex - findMeStr.length();
+
+		// Check to see if we need to set it to zero first. It can't search if
+		// it's at the end.
+		if (searchWrap == SCH_WRAP_ON) {
+
+			// Make sure we aren't in an endless loop
+			if (numberOfLoops >= 2) {
+				return false;
+			}// if number of loops
+
+			// If we're at the end, move to the other end.
+			while (startCharIndex < 0 || endCharIndex < 0) {
+				numberOfLoops++;
+				// Reset position.
+				endCharIndex = numChars;
+				startCharIndex = endCharIndex - findMeStr.length();
+				tv.setCursor((endCharIndex), man);
+
+			} // while startCharIndex
 
 			// Scour the view for the search string.
 			while (startCharIndex >= 0 && (endCharIndex) > 0) {
@@ -1282,7 +2106,7 @@ public class SearchDialog extends Dialog {
 				if (searchCaseSensitive == SCH_CASE_OFF) {
 					curViewSnippet = curViewSnippet.toLowerCase();
 					findMeStr = findMeStr.toLowerCase();
-				}//if searchCaseSensitive
+				}// if searchCaseSensitive
 
 				// Compare the two strings. Is there a match?
 				if (curViewSnippet.matches(findMeStr) == true) {
@@ -1327,7 +2151,7 @@ public class SearchDialog extends Dialog {
 				// If search wrap is on, move to other end of document, if at
 				// the end.
 				if (searchWrap == SCH_WRAP_ON) {
-					
+
 					// Make sure we aren't in an endless loop
 					if (numberOfLoops >= 2) {
 						return false;
@@ -1339,91 +2163,22 @@ public class SearchDialog extends Dialog {
 						// Reset position.
 						endCharIndex = numChars;
 						startCharIndex = endCharIndex - findMeStr.length();
-//						tv.setCursor((endCharIndex), man);
+						tv.setCursor((endCharIndex), man);
 
 					} // if( startCharIndex...
 
 				} // if( searchWrap == SCH_WRAP_ON )
 
 			} // while( startCharIndex...
-			
-			}// if searchWrap 
-			
-			else {
-				
-				// Else is for when search wrap is off.  
 
-				// Scour the view for the search string.
-				while (startCharIndex >= 0  && endCharIndex > 0) {
-					// Get current snippet of text we're testing.
-					String curViewSnippet = tv.view.getText().substring(
-							startCharIndex, endCharIndex);
-
-					// Should we be checking case sensitive version?
-					if (searchCaseSensitive == SCH_CASE_OFF) {
-						curViewSnippet = curViewSnippet.toLowerCase();
-						findMeStr = findMeStr.toLowerCase();
-					}// if searchCaseSensitive
-
-					// Compare the two strings. Is there a match?
-					if (curViewSnippet.matches(findMeStr) == true) {
-						// Whole word?
-						boolean haveAmatch = true;
-						if (searchWholeWord == SCH_WHOLE_ON) {
-							// "^[\pL\pN]*$";
-							if (startCharIndex - 1 >= 0)
-								if (tv.view
-										.getText()
-										.substring(startCharIndex - 1,
-												startCharIndex)
-										.matches("^[\\pL\\pN]*$") == true)
-									haveAmatch = false;
-							if (endCharIndex + 1 < numChars)
-								if (tv.view.getText()
-										.substring(endCharIndex, endCharIndex + 1)
-										.matches("^[\\pL\\pN]*$") == true)
-									haveAmatch = false;
-
-						} // if( searchWholeWord...
-
-						// Update view if we have a match.
-						if (haveAmatch == true) {
-							// Set cursor and view to point to search string we
-							// found.
-							tv.setCursor(startCharIndex,man);
-							tv.view.setSelection((startCharIndex), (endCharIndex));
-							tv.view.setTopIndex(tv.view
-									.getLineAtOffset(startCharIndex));
-
-							// Found it; break.
-							return true;
-
-						} // if( haveAmatch = true)
-
-					} // if( curViewSnippet...
-
-					// Move back a character.
-					startCharIndex--;
-					endCharIndex--;	
-					
-			}// while 
-				
-			}// else no searchWrap
-
-		} // if(searchDirection == SCH_BACKWARD)
-
-		// Search backward.
-		// /////////////////
+		}// if searchWrap
 
 		// If for some reason we get here, couldn't find a matching string.
 		return false;
-		
-	} // findStr()
-	
-public boolean findFwdWrap() {
-	// /////////////////////////////////////////////////////////////////
-	// Searches document for string in our combo box.
-	// Returns true if one was found.
+
+	}// replaceBackWrap
+
+	public boolean replaceBackNoWrap() {
 		// Grab text view.
 		TextView tv = man.getText();
 
@@ -1443,579 +2198,24 @@ public boolean findFwdWrap() {
 		// characters in the view, don't bother.
 		if (findMeStr.length() > numChars)
 			return false;
-
-			startCharIndex = tv.view.getCaretOffset();
-			endCharIndex = startCharIndex + findMeStr.length();
-			
-			// Make sure we aren't in an endless loop
-			if (numberOfLoops >= 2) {
-				return false;
-			}// if numberOfLoops
-
-				// If we're at the end, move to the other end.
-				while (startCharIndex >= numChars || endCharIndex >= (numChars)) {
-					// Reset position.
-					startCharIndex = 0;
-					endCharIndex = startCharIndex + findMeStr.length();
-					tv.view.setCaretOffset(startCharIndex);
-					numberOfLoops++;
-
-				} // if( startCharIndex...
-
-			// Scour the view for the search string.
-			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}// caseSensitive
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.view.setSelection(startCharIndex, endCharIndex);
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move forward a character.
-				startCharIndex++;
-				endCharIndex++;
-
-				// If search wrap is on, move to other end of document, if at
-				// the end.
-				if (searchWrap == SCH_WRAP_ON) {
-					
-					// Make sure we aren't in an endless loop
-					if (numberOfLoops >= 2) {
-						return false;
-					}// if numberOfLoops
-
-					// If we're at the end, move to the other end.
-					if (startCharIndex >= numChars || endCharIndex > (numChars)) {
-						// Reset position.
-						startCharIndex = 0;
-						endCharIndex = startCharIndex + findMeStr.length();
-						tv.view.setCaretOffset(startCharIndex);
-						numberOfLoops++;
-
-					} // if( startCharIndex...
-
-				} // if( searchWrap == SCH_WRAP_ON )
-				
-			} // while( startCharIndex
-
-		// If for some reason we get here, couldn't find a matching string.
-
-			return false;
-
-
-}// findFwdWrap
-
-public boolean findFwdNoWrap() {
-	// /////////////////////////////////////////////////////////////////
-	// Searches document for string in our combo box.
-	// Returns true if one was found.
-		// Grab text view.
-		TextView tv = man.getText();
-
-		// Are there any characters in the text view? If there
-		// are no characters, we probably don't have a document
-		// loaded yet.
-		if (tv.view.getCharCount() == 0)
-			return false;
-
-		// Grab search string.
-		String findMeStr = searchCombo.getText();
-
-		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
-
-		// If the search string is larger than the total number of
-		// characters in the view, don't bother.
-		if (findMeStr.length() > numChars)
-			return false;
-
-			// Get current cursor position.
-			startCharIndex = tv.view.getCaretOffset();
-			endCharIndex = startCharIndex + findMeStr.length();
-
-			// Scour the view for the search string.
-			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.view.setSelection(startCharIndex, endCharIndex);
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move forward a character.
-				startCharIndex++;
-				endCharIndex++;
-
-			} // while( startCharIndex...
-
-		// If for some reason we get here, couldn't find a matching string.
-		return false;
-
-}// findFwdNoWrap
-
-public boolean findBackWrap() {
-	// /////////////////////////////////////////////////////////////////
-	// Searches document for string in our combo box.
-	// Returns true if one was found.
-		// Grab text view.
-		TextView tv = man.getText();
-
-		// Are there any characters in the text view? If there
-		// are no characters, we probably don't have a document
-		// loaded yet.
-		if (tv.view.getCharCount() == 0)
-			return false;
-
-		// Grab search string.
-		String findMeStr = searchCombo.getText();
-
-		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
-
-		// If the search string is larger than the total number of
-		// characters in the view, don't bother.
-		if (findMeStr.length() > numChars)
-			return false;
-
-			// If there is selection text, that means we're still looking at
-			// what we found earlier. Move past it.
-			if (tv.view.getSelectionText().length() == findMeStr.length())
-				tv.view.setCaretOffset(startCharIndex);
-
-			// Get current cursor position.
-			endCharIndex = tv.view.getCaretOffset();
-			startCharIndex = endCharIndex - findMeStr.length();
-			
-			// If search wrap is on, move to other end of document, if at
-			// the end.
-			if (searchWrap == SCH_WRAP_ON) {
-			
-			// Make sure we aren't in an endless loop
-			if (numberOfLoops >= 2) {
-				return false;
-			}// if numberOfLoops
-
-				// If we're at the end, move to the other end.
-				while (startCharIndex < 0 || endCharIndex < 0) {
-					numberOfLoops++;
-					// Reset position.
-					endCharIndex = numChars;
-					startCharIndex = endCharIndex - findMeStr.length();
-					tv.view.setCaretOffset(endCharIndex);
-
-
-				} // while( startCharIndex...
-
-			// Scour the view for the search string.
-			while (startCharIndex >= 0 && endCharIndex > 0) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}// if searchCaseSensitive
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.view.setSelection(startCharIndex, endCharIndex);
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move back a character.
-				startCharIndex--;
-				endCharIndex--;
-
-				// If search wrap is on, move to other end of document, if at
-				// the end.
-				if (searchWrap == SCH_WRAP_ON) {
-										
-					// Make sure we aren't in an endless loop
-					if (numberOfLoops >= 2) {
-						return false;
-					}// if numberOfLoops
-					
-					// If we're at the end, move to the other end.
-					if (startCharIndex < 0 || endCharIndex < 0) {
-						numberOfLoops++;
-						// Reset position.
-						endCharIndex = numChars;
-						startCharIndex = endCharIndex - findMeStr.length();
-						tv.view.setCaretOffset(endCharIndex);
-
-					} // if( startCharIndex...
-
-				} // if( searchWrap == SCH_WRAP_ON )
-
-			} // while( startCharIndex...
-			
-			}// if searchWrap
-
-		// If for some reason we get here, couldn't find a matching string.
-		return false;
-
-}// findBackWrap
-
-public boolean findBackNoWrap() {
-	// /////////////////////////////////////////////////////////////////
-	// Searches document for string in our combo box.
-	// Returns true if one was found.
-		// Grab text view.
-		TextView tv = man.getText();
-
-		// Are there any characters in the text view? If there
-		// are no characters, we probably don't have a document
-		// loaded yet.
-		if (tv.view.getCharCount() == 0)
-			return false;
-
-		// Grab search string.
-		String findMeStr = searchCombo.getText();
-
-		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
-
-		// If the search string is larger than the total number of
-		// characters in the view, don't bother.
-		if (findMeStr.length() > numChars)
-			return false;
-
-			// If there is selection text, that means we're still looking at
-			// what we found earlier. Move past it.
-			if (tv.view.getSelectionText().length() == findMeStr.length())
-				tv.view.setCaretOffset(startCharIndex);
-
-			// Get current cursor position.
-			endCharIndex = tv.view.getCaretOffset();
-			startCharIndex = endCharIndex - findMeStr.length();
-
-			// Scour the view for the search string.
-			while (startCharIndex >= 0 && endCharIndex > 0) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.view.setSelection(startCharIndex, endCharIndex);
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move back a character.
-				startCharIndex--;
-				endCharIndex--;
-
-			} // while( startCharIndex...
-
-		// If for some reason we get here, couldn't find a matching string.
-		return false;
-
-}// findBackNoWrap
-
-public boolean replaceFwdWrap() {
-	// Grab text view.
-	TextView tv = man.getText();
-
-	// Are there any characters in the text view? If there
-	// are no characters, we probably don't have a document
-	// loaded yet.
-	if (tv.view.getCharCount() == 0)
-		return false;
-
-	// Grab search string.
-	String findMeStr = searchCombo.getText();
-
-	// Get number of characters in text view.
-	int numChars = tv.view.getText().length();
-
-	// If the search string is larger than the total number of
-	// characters in the view, don't bother.
-	if (findMeStr.length() > numChars)
-		return false;
 
 		// Get current cursor position.
-		startCharIndex = tv.view.getCaretOffset();
-		endCharIndex = startCharIndex + findMeStr.length();
-	
-			// Make sure we aren't in an endless loop
-			if (numberOfLoops >= 2) {
-				return false;
-			}// if numberOfLoops
-								
-			// If we're at the end, move to the other end.
-			while (startCharIndex >= numChars || endCharIndex >= numChars) {
+		endCharIndex = tv.view.getCaretOffset();
+		startCharIndex = endCharIndex - findMeStr.length();
 
-			// Reset position.
-				startCharIndex = 0;
-				endCharIndex = startCharIndex + findMeStr.length();
-				tv.setCursor(startCharIndex, man);
-				numberOfLoops++;
+		// Else is for when search wrap is off.
 
-			} // if( startCharIndex...
-			
-			// Scour the view for the search string.
-			while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.view.setSelection(startCharIndex, endCharIndex);
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move forward a character.
-				startCharIndex++;
-				endCharIndex++;
-				
-				// Check the search wrap again.  If search wrap is on, move to other end of document, if at
-				// the end.
-				if (searchWrap == SCH_WRAP_ON) {
-			
-					// Make sure we aren't in an endless loop
-					if (numberOfLoops >= 2) {
-						return false;
-					}// if numberOfLoops
-										
-					// If we're at the end, move to the other end.
-					while (startCharIndex >= numChars || endCharIndex >= (numChars+1)) {
-
-					// Reset position.
-						startCharIndex = 0;
-						endCharIndex = startCharIndex + findMeStr.length();
-						tv.setCursor(startCharIndex, man);
-						numberOfLoops++;
-
-					} // if( startCharIndex...
-					
-				}// if searchWrap is on
-
-			} // while( startCharIndex...
-			
-	// If for some reason we get here, couldn't find a matching string.
-	return false;
-	
-}// replaceFwdWrap
-
-public boolean replaceFwdNoWrap() {
-	// Grab text view.
-	TextView tv = man.getText();
-
-	// Are there any characters in the text view? If there
-	// are no characters, we probably don't have a document
-	// loaded yet.
-	if (tv.view.getCharCount() == 0)
-		return false;
-
-	// Grab search string.
-	String findMeStr = searchCombo.getText();
-
-	// Get number of characters in text view.
-	int numChars = tv.view.getText().length();
-
-	// If the search string is larger than the total number of
-	// characters in the view, don't bother.
-	if (findMeStr.length() > numChars)
-		return false;
-		
-		// Get current cursor position.
-		startCharIndex = tv.view.getCaretOffset();
-		endCharIndex = startCharIndex + findMeStr.length();
 		// Scour the view for the search string.
-			
-		while (startCharIndex < numChars && endCharIndex < (numChars+1)) {
+		while (startCharIndex >= 0 && endCharIndex > 0) {
 			// Get current snippet of text we're testing.
-			String curViewSnippet = tv.view.getText().substring(
-					startCharIndex, endCharIndex);
+			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+					endCharIndex);
 
 			// Should we be checking case sensitive version?
 			if (searchCaseSensitive == SCH_CASE_OFF) {
 				curViewSnippet = curViewSnippet.toLowerCase();
 				findMeStr = findMeStr.toLowerCase();
-			}
+			}// if searchCaseSensitive
 
 			// Compare the two strings. Is there a match?
 			if (curViewSnippet.matches(findMeStr) == true) {
@@ -2024,10 +2224,8 @@ public boolean replaceFwdNoWrap() {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (tv.view
-								.getText()
-								.substring(startCharIndex - 1,
-										startCharIndex)
+						if (tv.view.getText()
+								.substring(startCharIndex - 1, startCharIndex)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
@@ -2043,9 +2241,8 @@ public boolean replaceFwdNoWrap() {
 					// Set cursor and view to point to search string we
 					// found.
 					tv.setCursor(startCharIndex, man);
-					tv.view.setSelection(startCharIndex, endCharIndex);
-					tv.view.setTopIndex(tv.view
-							.getLineAtOffset(startCharIndex));
+					tv.view.setSelection((startCharIndex), (endCharIndex));
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
 
 					// Found it; break.
 					return true;
@@ -2054,231 +2251,16 @@ public boolean replaceFwdNoWrap() {
 
 			} // if( curViewSnippet...
 
-			// Move forward a character.
-			startCharIndex++;
-			endCharIndex++;
-
-		  } // while( startCharIndex...
-		
-	// If for some reason we get here, couldn't find a matching string.
-	return false;
-	
-}// replaceFwdNoWrap
-
-public boolean replaceBackWrap() {
-	// Grab text view.
-	TextView tv = man.getText();
-
-	// Are there any characters in the text view? If there
-	// are no characters, we probably don't have a document
-	// loaded yet.
-	if (tv.view.getCharCount() == 0)
-		return false;
-
-	// Grab search string.
-	String findMeStr = searchCombo.getText();
-
-	// Get number of characters in text view.
-	int numChars = tv.view.getText().length();
-
-	// If the search string is larger than the total number of
-	// characters in the view, don't bother.
-	if (findMeStr.length() > numChars)
-		return false;
-
-		// Get current cursor position.
-		endCharIndex = tv.view.getCaretOffset();
-		startCharIndex = endCharIndex - findMeStr.length();		
-
-		// Check to see if we need to set it to zero first.  It can't search if it's at the end.
-		if (searchWrap == SCH_WRAP_ON) {
-			
-			// Make sure we aren't in an endless loop
-			if (numberOfLoops >= 2) {
-				return false;
-			}//if number of loops
-
-			// If we're at the end, move to the other end.
-			while (startCharIndex < 0 || endCharIndex < 0) {
-				numberOfLoops++;
-				// Reset position.
-				endCharIndex = numChars;
-				startCharIndex = endCharIndex - findMeStr.length();
-				tv.setCursor((endCharIndex), man);
-
-			} // while startCharIndex
-
-		// Scour the view for the search string.
-		while (startCharIndex >= 0 && (endCharIndex) > 0) {
-			// Get current snippet of text we're testing.
-			String curViewSnippet = tv.view.getText().substring(
-					startCharIndex, endCharIndex);
-
-			// Should we be checking case sensitive version?
-			if (searchCaseSensitive == SCH_CASE_OFF) {
-				curViewSnippet = curViewSnippet.toLowerCase();
-				findMeStr = findMeStr.toLowerCase();
-			}//if searchCaseSensitive
-
-			// Compare the two strings. Is there a match?
-			if (curViewSnippet.matches(findMeStr) == true) {
-				// Whole word?
-				boolean haveAmatch = true;
-				if (searchWholeWord == SCH_WHOLE_ON) {
-					// "^[\pL\pN]*$";
-					if (startCharIndex - 1 >= 0)
-						if (tv.view
-								.getText()
-								.substring(startCharIndex - 1,
-										startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
-							haveAmatch = false;
-					if (endCharIndex + 1 < numChars)
-						if (tv.view.getText()
-								.substring(endCharIndex, endCharIndex + 1)
-								.matches("^[\\pL\\pN]*$") == true)
-							haveAmatch = false;
-
-				} // if( searchWholeWord...
-
-				// Update view if we have a match.
-				if (haveAmatch == true) {
-					// Set cursor and view to point to search string we
-					// found.
-					tv.view.setSelection(startCharIndex, endCharIndex);
-					tv.view.setTopIndex(tv.view
-							.getLineAtOffset(startCharIndex));
-
-					// Found it; break.
-					return true;
-
-				} // if( haveAmatch = true)
-
-			} // if( curViewSnippet...matches
-
 			// Move back a character.
 			startCharIndex--;
 			endCharIndex--;
 
-			// If search wrap is on, move to other end of document, if at
-			// the end.
-			if (searchWrap == SCH_WRAP_ON) {
-				
-				// Make sure we aren't in an endless loop
-				if (numberOfLoops >= 2) {
-					return false;
-				}// if numberOfLoops
+		}// while
 
-				// If we're at the end, move to the other end.
-				while (startCharIndex < 0 || endCharIndex < 0) {
-					numberOfLoops++;
-					// Reset position.
-					endCharIndex = numChars;
-					startCharIndex = endCharIndex - findMeStr.length();
-					tv.setCursor((endCharIndex), man);
-
-				} // if( startCharIndex...
-
-			} // if( searchWrap == SCH_WRAP_ON )
-
-		} // while( startCharIndex...
-		
-		}// if searchWrap 
-
-	// If for some reason we get here, couldn't find a matching string.
-	return false;
-	
-}// replaceBackWrap
-
-public boolean replaceBackNoWrap() {
-	// Grab text view.
-	TextView tv = man.getText();
-
-	// Are there any characters in the text view? If there
-	// are no characters, we probably don't have a document
-	// loaded yet.
-	if (tv.view.getCharCount() == 0)
+		// If for some reason we get here, couldn't find a matching string.
 		return false;
 
-	// Grab search string.
-	String findMeStr = searchCombo.getText();
-
-	// Get number of characters in text view.
-	int numChars = tv.view.getText().length();
-
-	// If the search string is larger than the total number of
-	// characters in the view, don't bother.
-	if (findMeStr.length() > numChars)
-		return false;
-	
-		// Get current cursor position.
-		endCharIndex = tv.view.getCaretOffset();
-		startCharIndex = endCharIndex - findMeStr.length();
-			
-			// Else is for when search wrap is off.  
-
-			// Scour the view for the search string.
-			while (startCharIndex >= 0  && endCharIndex > 0) {
-				// Get current snippet of text we're testing.
-				String curViewSnippet = tv.view.getText().substring(
-						startCharIndex, endCharIndex);
-
-				// Should we be checking case sensitive version?
-				if (searchCaseSensitive == SCH_CASE_OFF) {
-					curViewSnippet = curViewSnippet.toLowerCase();
-					findMeStr = findMeStr.toLowerCase();
-				}// if searchCaseSensitive
-
-				// Compare the two strings. Is there a match?
-				if (curViewSnippet.matches(findMeStr) == true) {
-					// Whole word?
-					boolean haveAmatch = true;
-					if (searchWholeWord == SCH_WHOLE_ON) {
-						// "^[\pL\pN]*$";
-						if (startCharIndex - 1 >= 0)
-							if (tv.view
-									.getText()
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-						if (endCharIndex + 1 < numChars)
-							if (tv.view.getText()
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
-								haveAmatch = false;
-
-					} // if( searchWholeWord...
-
-					// Update view if we have a match.
-					if (haveAmatch == true) {
-						// Set cursor and view to point to search string we
-						// found.
-						tv.setCursor(startCharIndex,man);
-						tv.view.setSelection((startCharIndex), (endCharIndex));
-						tv.view.setTopIndex(tv.view
-								.getLineAtOffset(startCharIndex));
-
-						// Found it; break.
-						return true;
-
-					} // if( haveAmatch = true)
-
-				} // if( curViewSnippet...
-
-				// Move back a character.
-				startCharIndex--;
-				endCharIndex--;	
-				
-		}// while 
-
-	// If for some reason we get here, couldn't find a matching string.
-	return false;
-	
-}// replaceBackNoWrap
+	}// replaceBackNoWrap
 
 } // class SearchDialog...
-
-
-
 

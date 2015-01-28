@@ -375,6 +375,12 @@ public abstract class WPView extends AbstractView implements BBView {
 				e = (Element)e.getParent();
 			
 			String style = this.stylesTable.getKeyFromAttribute(e);
+			
+			if(style.contains("local_")){
+				String [] tokens = style.split("_");
+				style = tokens[1];
+			}
+				
 			statusBarText += "Style: " + style + " | ";
 		}
 		

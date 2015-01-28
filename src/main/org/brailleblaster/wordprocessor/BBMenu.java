@@ -195,6 +195,7 @@ public abstract class BBMenu {
 		falconItem.setText(lh.localValue("Novint Falcon"));
 		falconItem.setSelection(false);
 		falconItem.setData(FalconController.class);
+		falconItem.setEnabled(false);
 		falconItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -211,6 +212,7 @@ public abstract class BBMenu {
 		webViewItem.setText(lh.localValue("Web View"));
 		webViewItem.setSelection(false);
 		webViewItem.setData(WebViewController.class);
+		webViewItem.setEnabled(false);
 		webViewItem.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {

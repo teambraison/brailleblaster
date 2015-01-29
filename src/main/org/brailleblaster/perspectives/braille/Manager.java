@@ -353,9 +353,8 @@ public class Manager extends Controller {
 			config = arch.getCurrentConfig();
 		
 		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
-		
-		if(!config.equals(arch.getCurrentConfig()))
-			resetConfiguations();
+		//if(!config.equals(arch.getCurrentConfig()))
+		resetConfiguations();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
@@ -1042,7 +1041,7 @@ public class Manager extends Controller {
 	
 	private void resetConfiguations(){
 		document.resetBBDocument(arch.getCurrentConfig());
-		styles.resetStyleTable(arch.getCurrentConfig());
+		styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 		sm.getStyleTable().resetTable(arch.getCurrentConfig());
 	}
 	

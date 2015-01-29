@@ -64,8 +64,7 @@ public class BBSemanticsTable {
 			if (map.containsKey(st))
 			   return map.get(st);
 			else
-				return null;
-			
+				return null;	
 		}
 		
 		public Set<StylesType> getKeySet(){
@@ -101,29 +100,46 @@ public class BBSemanticsTable {
 	Document doc;
 	TreeMap<String,Styles> table;
 	FileUtils fu = new FileUtils();
-	String config;
+	String config, fileConfig;
 	static Logger logger = LoggerFactory.getLogger(BBSemanticsTable.class);
 	
 	public BBSemanticsTable(String config){
+		table = new TreeMap<String, Styles>();
+		this.config = config;
+		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
+		populateTable(filePath);
+		setEmphasisValues();
+	}
+	
+	public BBSemanticsTable(String config, String fileName){
+		table = new TreeMap<String, Styles>();
+		this.config = config;
+		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
+		populateTable(filePath);
+		setEmphasisValues();
+	}
+	
+	private void populateTable(String filePath){
+		FileReader file;
 		try {
-			table = new TreeMap<String, Styles>();
-			this.config = config;
-			String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
-			FileReader file = new FileReader(filePath);
+			file = new FileReader(filePath);
 			BufferedReader reader = new BufferedReader(file);
 			makeHashTable(reader);
 			reader.close();
-			makeStylesObject("italicx");
-			insertValue("italicx","\temphasis italicx");
-			makeStylesObject("boldx");
-			insertValue("boldx","\temphasis boldx");
-			makeStylesObject("underlinex");
-			insertValue("underlinex","\temphasis underlinex");
+		}catch (FileNotFoundException e) {
+			logger.error("File Not Found Exception Config: " + config, e);
+		} catch (IOException e) {
+			logger.error("IO Exception Config: " + config, e);
 		}
-		catch(Exception e){
-			new Notify("The application failed to load due to errors in " + BBIni.getDefaultConfigFile());
-			logger.error("Config File Error", e);
-		}
+	}
+	
+	private void setEmphasisValues(){
+		makeStylesObject("italicx");
+		insertValue("italicx","\temphasis italicx");
+		makeStylesObject("boldx");
+		insertValue("boldx","\temphasis boldx");
+		makeStylesObject("underlinex");
+		insertValue("underlinex","\temphasis underlinex");
 	}
 	
 	private void makeHashTable(BufferedReader reader) throws IOException{
@@ -326,31 +342,34 @@ public class BBSemanticsTable {
 	
 	public void resetStyleTable(String configFile){
 		table.clear();
-		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
 		this.config = configFile;
 		
-		try {
-			FileReader file = new FileReader(filePath);
-			BufferedReader reader = new BufferedReader(file);
-			makeHashTable(reader);
-			reader.close();
-			makeStylesObject("italicx");
-			insertValue("italicx","\temphasis italicx");
-			makeStylesObject("boldx");
-			insertValue("boldx","\temphasis boldx");
-			makeStylesObject("underlinex");
-			insertValue("underlinex","\temphasis underlinex");
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
+		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
+		populateTable(filePath);
+		setEmphasisValues();
+	}
+	
+	public void resetStyleTable(String configFile, String fileName){
+		resetStyleTable(configFile);
+		
+		String docConfig = fu.getFileName(fileName) + ".cfg";
+		String localConfig = fu.getPath(fileName) + BBIni.getFileSep() + docConfig;
+		if(fu.exists(localConfig)){
+			populateTable(localConfig);
+			this.fileConfig = docConfig;
 		}
 	}
 	
 	public Set<String>getKeySet(){
 		return table.keySet();
+	}
+	
+	public boolean hasDocumentConfig(){
+		return fileConfig == null;
+	}
+	
+	public String getDocumentConfig(){
+		return fileConfig;
 	}
 	
 	public String getConfig(){

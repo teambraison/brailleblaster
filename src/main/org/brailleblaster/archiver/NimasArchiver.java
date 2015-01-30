@@ -130,6 +130,10 @@ public class NimasArchiver extends Archiver {
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			String newSem = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			copyUTDFile(tempSemFile, newSem);
+			
+			String tempCFGFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			String newCFG = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			copyUTDFile(tempCFGFile, newCFG);
 		}					
 				
 		// Resume autosave feature.

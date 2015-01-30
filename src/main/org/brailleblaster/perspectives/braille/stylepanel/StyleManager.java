@@ -129,6 +129,11 @@ public class StyleManager{
 				
 				updateAndApply(style, e);
 			}	
+    		else if(message.type.equals(BBEvent.ADJUST_LINES)){
+    			int lines = (Integer)message.getValue("lines");
+    			style.put(StylesType.linesAfter, String.valueOf(lines));
+    			updateAndApply(style, e);
+    		}
     	} catch (CloneNotSupportedException e1) {
 			e1.printStackTrace();
 		}

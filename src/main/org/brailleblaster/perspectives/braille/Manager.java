@@ -448,6 +448,9 @@ public class Manager extends Controller {
 			case ADJUST_INDENT:
 				handleAdjustIndent(message);
 				break;
+			case ADJUST_LINES:
+				handleLineAdjust(message);
+				break;
 			case ADJUST_RANGE:
 				list.adjustOffsets(list.getCurrentIndex(), message);
 				break;
@@ -694,6 +697,11 @@ public class Manager extends Controller {
 		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
 		Element e = document.getParent(list.getCurrent().n, true);
 		sm.createAndApplyStyle(list.getCurrent(), e, message);
+	}
+	
+	private void handleLineAdjust(Message message){
+		Element e = document.getParent(list.getCurrent().n, true);
+		sm.createAndApplyStyle(list.getCurrent(), e, message);	
 	}
 	
 	private void handleUpdateScrollbar(Message message){

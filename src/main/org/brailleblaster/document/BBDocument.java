@@ -153,7 +153,7 @@ public class BBDocument {
 		String configFileWithPath = "temp";
 		String configWithUTD;
 		
-		configFileWithPath = configureConfigurationFiles(completePath, configFile);
+		configFileWithPath = configureConfigurationFiles(dm.getWorkingPath(), configFile);
 		
 		if (configSettings == null) 
 			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";

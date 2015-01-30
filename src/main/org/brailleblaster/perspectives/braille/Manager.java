@@ -1000,8 +1000,10 @@ public class Manager extends Controller {
 	}
 	
 	public void checkSemanticsTable(){
-		if(!styles.getConfig().equals(arch.getCurrentConfig()))
+		if(!styles.getConfig().equals(arch.getCurrentConfig()) && !styles.hasDocumentConfig())
 			styles.resetStyleTable(arch.getCurrentConfig());	
+		else
+			styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 	}
 	
 	public void toggleFont(int fontType){

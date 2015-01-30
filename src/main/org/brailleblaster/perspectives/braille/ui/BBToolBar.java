@@ -33,6 +33,8 @@ package org.brailleblaster.perspectives.braille.ui;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -60,6 +62,7 @@ public class BBToolBar {
 	WPManager wordProc;
 	ImageHelper imgHelper;
 	Manager currentEditor;
+	String curView = null;
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
 		setEditor(manager);
@@ -207,6 +210,34 @@ public class BBToolBar {
 				// dm.daisyPrint();
 			}
 		});
+		
+		final ToolItem viewSwitch = new ToolItem(toolBar, SWT.PUSH);
+		final String dpStr = distPath;
+		final String sepStr = sep;
+		tlabel = lh.localValue("&Toggle View");
+		viewSwitch.setText(tlabel.replace("&", ""));
+		viewSwitch.setImage(new Image(null, distPath  + sep + "images" + sep + "view_PB.png"));
+		viewSwitch.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				
+				String view = currentEditor.getCurrentEditor();
+				if(view == null || view.equals("")){
+					currentEditor.setEditingView(TextView.class.getCanonicalName());
+					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
+				}
+				else if(view.equals(TextView.class.getCanonicalName())){
+					currentEditor.setEditingView(BrailleView.class.getCanonicalName());
+					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
+				}
+				else if(view.equals(BrailleView.class.getCanonicalName())) {
+					currentEditor.setEditingView(null);
+					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
+				}
+				
+				
+			}
+		}); 
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);

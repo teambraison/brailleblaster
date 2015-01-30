@@ -330,10 +330,16 @@ abstract public class Archiver {
 		FileUtils fu = new FileUtils();
 		String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(oldPath) + ".sem";
     	String savedSemFile = fu.getPath(newPath) + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem";   
+    	
+    	String tempCfgFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(oldPath) + ".cfg";
+    	String savedCfgFile = fu.getPath(newPath) + BBIni.getFileSep() + fu.getFileName(newPath) + ".cfg";   
     
     	//Save new semantic file to correct location and temp folder for further editing
     	copyUTDFile(tempSemFile, savedSemFile);	
     	copyUTDFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem");
+    	
+    	copyUTDFile(tempCfgFile, savedCfgFile);	
+    	copyUTDFile(tempCfgFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".cfg");
 	}
 
 	/** Copies a semantic file into a new file; used by save as methods

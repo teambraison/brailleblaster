@@ -238,13 +238,11 @@ public abstract class WPView extends AbstractView implements BBView {
 		int newPos;
 		int i = 0;
 		
-		while(i < text.length() && text.charAt(i) == '\n'){
+		while(i < text.length() && text.charAt(i) == '\n')
 			i++;
-		}
 		
-		if(!skipFirstLine){
+		if(!skipFirstLine)
 			view.setLineIndent(view.getLineAtOffset(pos + i), 1, indent * charWidth);
-		}
 	
 		for(; i < text.length(); i++){
 			if(text.charAt(i) == '\n' && i != text.length() - 1){
@@ -262,8 +260,7 @@ public abstract class WPView extends AbstractView implements BBView {
 	 */
 	protected int getLineNumber(int startOffset, String text){
 		int startLine = view.getLineAtOffset(startOffset);
-		int endLine = view.getLineAtOffset(startOffset + text.length());
-		
+		int endLine = view.getLineAtOffset(startOffset + text.length());	
 		return (endLine - startLine) + 1;
 	}
 	
@@ -348,19 +345,16 @@ public abstract class WPView extends AbstractView implements BBView {
 	protected void sendStatusBarUpdate(int line){
 		String statusBarText = "";
 		String page = manager.getCurrentPrintPage();
-		if(page != null){
-		
+		if(page != null)
 			statusBarText += "Page: " + page + " | ";
-		}
+		
 		//Every 25th line start counting line again
 		statusBarText += "Line: " + String.valueOf(line % manager.getDocument().getLinesPerPage() + 1) + " | ";
 		//Added this line for cursor position
 		statusBarText += "Cell Number: " + String.valueOf(view.getCaretOffset()-view.getOffsetAtLine(line) + ((view.getLineIndent(line) / charWidth) + 1)) + " | ";
 		
-		if(view.getLineIndent(line) > 0){
+		if(view.getLineIndent(line) > 0)
 			statusBarText += " Indent: Cell " + ((view.getLineIndent(line) / charWidth) + 1) + " | ";
-			
-		}
 		
 		if(view.getLineAlignment(line) != SWT.LEFT){
 			if(view.getLineAlignment(line) == SWT.CENTER)
@@ -374,7 +368,13 @@ public abstract class WPView extends AbstractView implements BBView {
 			while(stylesTable.getSemanticTypeFromAttribute(e).equals("action"))
 				e = (Element)e.getParent();
 			
-			String style = this.stylesTable.getKeyFromAttribute(e);
+			String style = stylesTable.getKeyFromAttribute(e);
+			
+			if(style.contains("local_")){
+				String [] tokens = style.split("_");
+				style = tokens[1];
+			}
+				
 			statusBarText += "Style: " + style + " | ";
 		}
 		

@@ -701,7 +701,7 @@ public class BrailleDocument extends BBDocument {
 			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
-			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+			addID(e);
 			String fileName; 
 			if(dm.getWorkingPath() == null)
 				fileName = "outFile";
@@ -710,7 +710,6 @@ public class BrailleDocument extends BBDocument {
 			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
-			idCount++;
 		}
 	}
 	
@@ -739,7 +738,7 @@ public class BrailleDocument extends BBDocument {
 			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
-			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+			addID(e);
 			
 			String fileName;
 			if(dm.getWorkingPath() == null)
@@ -749,7 +748,6 @@ public class BrailleDocument extends BBDocument {
 			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
-			idCount++;
 		}
 	}
 	
@@ -889,5 +887,10 @@ public class BrailleDocument extends BBDocument {
 		originalParent.getParent().replaceChild(originalParent, mergedElement);
 		
 		return mergedElement;
+	}
+
+	public void addID(Element e){
+		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+		idCount++;
 	}
 }

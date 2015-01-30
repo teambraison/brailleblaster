@@ -348,14 +348,13 @@ public class Manager extends Controller {
 			restoreArchive = false;
 		
 		// Create archiver and massage document if necessary.
-		String config = ""; 
-		if(arch != null)
-			config = arch.getCurrentConfig();
+	//	String config = ""; 
+	//	if(arch != null)
+	//		config = arch.getCurrentConfig();
 		
 		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
-		
-		if(!config.equals(arch.getCurrentConfig()))
-			resetConfiguations();
+		//if(!config.equals(arch.getCurrentConfig()))
+		resetConfiguations();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
@@ -687,10 +686,14 @@ public class Manager extends Controller {
 	
 	private void handleAdjustAlignment(Message message){
 		braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+		Element e = document.getParent(list.getCurrent().n, true);
+		sm.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleAdjustIndent(Message message){
 		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+		Element e = document.getParent(list.getCurrent().n, true);
+		sm.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleUpdateScrollbar(Message message){
@@ -1010,8 +1013,10 @@ public class Manager extends Controller {
 	}
 	
 	public void checkSemanticsTable(){
-		if(!styles.getConfig().equals(arch.getCurrentConfig()))
+		if(!styles.getConfig().equals(arch.getCurrentConfig()) && !styles.hasDocumentConfig())
 			styles.resetStyleTable(arch.getCurrentConfig());	
+		else
+			styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 	}
 	
 	public void toggleFont(int fontType){
@@ -1052,7 +1057,7 @@ public class Manager extends Controller {
 	
 	private void resetConfiguations(){
 		document.resetBBDocument(arch.getCurrentConfig());
-		styles.resetStyleTable(arch.getCurrentConfig());
+		styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 		sm.getStyleTable().resetTable(arch.getCurrentConfig());
 	}
 	

@@ -703,7 +703,6 @@ public class Manager extends Controller {
 			else{
 				StyleHandler sh = new StyleHandler(this, vi, list);
 				sh.updateStyle(message);
-				System.out.println(document.getRootElement().toXML().toString());
 			}
 			containerSash.setRedraw(true);
 		}

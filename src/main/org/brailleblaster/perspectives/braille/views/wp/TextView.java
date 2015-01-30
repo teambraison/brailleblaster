@@ -51,7 +51,6 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -242,6 +241,20 @@ public class TextView extends WPView {
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
 					e.doit = false;
+				}
+				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
+					TextMapElement t = manager.getPrevious();
+					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
+					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
+						int pos = oldCursorPosition - 1;
+						setCurrentElement(t.start);
+						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
+						style.put(StylesType.linesAfter, String.valueOf(linesAfter));
+						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
+						setCurrent(pos);
+						view.setCaretOffset(currentStart);
+						e.doit = false;
+					}
 				}
 				
 				//Blocks text from crossing page boundaries in original markup

@@ -75,7 +75,6 @@ public class BBToolBar {
 		imgHelper = new ImageHelper();
 		
 		// Calculate max width and height for toolbar buttons.
-		//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Monitor mon[] = Display.getDefault().getMonitors();
 		Rectangle screenSize = mon[0].getBounds();
 		

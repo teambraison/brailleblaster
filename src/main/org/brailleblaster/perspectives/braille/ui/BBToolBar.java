@@ -208,43 +208,6 @@ public class BBToolBar {
 				// dm.daisyPrint();
 			}
 		});
-		
-		/*
-		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
-		tlabel = lh.localValue("&Image Describer");
-		imageDesc.setText(tlabel.replace("&", ""));
-		imageDesc.setImage(new Image(null, distPath  + sep + "images" + sep + "imgdesc.png"));
-		imageDesc.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				
-				// Current Doc Manager.
-				Manager curDm = null;
-				
-				if (BBIni.debugging()) {
-					// dm.setReturn (WP.OpenDocumentGetFile);
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						curDm =(Manager) wp.getList().getFirst();
-					}
-					else {
-						curDm = (Manager)wp.getList().get(index);
-					}
-				}
-				
-				// Run Image Describer on current document.
-				if(curDm.document.getDOM() != null) {
-					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
-//					curDm.text.view.setVisible(false);
-//					curDm.braille.view.setVisible(false);
-				}
-					
-			} // widgetSelected...
-				
-		}); // addSelectionListener(new SelectionAdapter()...
-		*/
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);

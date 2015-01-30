@@ -88,7 +88,7 @@ public class UTDArchiver extends Archiver{
 			fu.copyFile(workingDocPath, originalDocPath);
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			String newSemFile = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(originalDocPath) + ".sem";
-			copySemanticsFile(tempSemFile, newSemFile);
+			copyUTDFile(tempSemFile, newSemFile);
 		}
 		else {
 			new Notify("An error occured while saving your document.  Please check your original document.");

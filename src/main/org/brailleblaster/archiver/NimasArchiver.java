@@ -86,7 +86,7 @@ public class NimasArchiver extends Archiver {
 		}
 		else { 
 			if( resumingPrevSession == false )
-				copyFileToTemp(docToPrepare);
+				copyFilesToTemp(docToPrepare);
 			zip = false;
 		}
 		
@@ -113,9 +113,9 @@ public class NimasArchiver extends Archiver {
 			if(zip){
 				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 				if(zip)
-					copySemanticsFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
+					copyUTDFile(tempSemFile, fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".sem");
 				else if(originalDocPath != null)
-					copySemanticsFile(tempSemFile, originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + ".sem");
+					copyUTDFile(tempSemFile, originalDocPath.substring(0, originalDocPath.lastIndexOf(".")) + ".sem");
 			}
 		}
 		else {
@@ -129,7 +129,11 @@ public class NimasArchiver extends Archiver {
 			fu.copyFile(workingDocPath, originalDocPath);
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			String newSem = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
-			copySemanticsFile(tempSemFile, newSem);
+			copyUTDFile(tempSemFile, newSem);
+			
+			String tempCFGFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			String newCFG = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			copyUTDFile(tempCFGFile, newCFG);
 		}					
 				
 		// Resume autosave feature.
@@ -155,7 +159,7 @@ public class NimasArchiver extends Archiver {
 		if(fu.createXMLFile(__doc.getNewXML(), __path)){
 			if(zip){
 				String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(__path) + ".sem";
-				copySemanticsFile(tempSemFile, fu.getPath(__path) + BBIni.getFileSep() + fu.getFileName(__path) + ".sem");
+				copyUTDFile(tempSemFile, fu.getPath(__path) + BBIni.getFileSep() + fu.getFileName(__path) + ".sem");
 			}
 		}
 		else {
@@ -220,7 +224,7 @@ public class NimasArchiver extends Archiver {
 		
 		if(zippedPath != null){
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";
-			copySemanticsFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
+			copyUTDFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
 		}
 		
 		if(zippedPath == null || zippedPath.equals(""))

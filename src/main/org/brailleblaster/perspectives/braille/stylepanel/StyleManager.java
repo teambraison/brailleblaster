@@ -48,6 +48,7 @@ import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesT
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -150,15 +151,15 @@ public class StyleManager{
     }
     
     private void updateAndApply(Styles style, Element e){
-    	ConfigFileHandler handler = new ConfigFileHandler(configFile);
+    	ConfigFileHandler handler = new ConfigFileHandler(configFile, dm.getWorkingPath());
 		if(!isHiddenStyle(style)){
 			setName(style, e);	
-    		handler.appendStyle(style);
-    		semanticsTable.resetStyleTable(configFile);
+    		handler.appendDocumentStyle(style);
+    		semanticsTable.resetStyleTable(configFile, dm.getWorkingPath());
     		apply(style.getName());
 		}
 		else{
-			handler.updateStyle(style);
+			handler.updateDocumentStyle(style);
 	    	semanticsTable.resetStyleTable(configFile);
 		}	
     }

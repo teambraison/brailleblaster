@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
 

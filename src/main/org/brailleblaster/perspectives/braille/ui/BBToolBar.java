@@ -82,20 +82,6 @@ public class BBToolBar {
 		MAX_W = screenSize.width / 30;
 		MAX_H = MAX_W;
 		
-		// Change font size depending on screen resolution.
-//		FontData[] oldFontData = toolBar.getFont().getFontData();
-//		if( screenSize.width >= 1920)
-//			oldFontData[0].setHeight(9);
-//		else if( screenSize.width >= 1600)
-//			oldFontData[0].setHeight(8);
-//		else if( screenSize.width >= 1280)
-//			oldFontData[0].setHeight(6);
-//		else if( screenSize.width >= 1024)
-//			oldFontData[0].setHeight(4);
-//		else if( screenSize.width >= 800)
-//			oldFontData[0].setHeight(3);
-//		toolBar.setFont( new Font(null, oldFontData[0]) );
-		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
 		distPath += sep + "programData";

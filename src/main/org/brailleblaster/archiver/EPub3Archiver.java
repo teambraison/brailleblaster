@@ -403,7 +403,7 @@ public class EPub3Archiver extends Archiver {
 		if(zip == true) {
 			FileUtils fu = new FileUtils();
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem";	
-			copySemanticsFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
+			copyUTDFile(tempSemFile, fu.getPath(workingDocPath) + BBIni.getFileSep() + fu.getFileName(workingDocPath) + ".sem");
 				
 			// Create unzipper.
 			Zipper zpr = new Zipper();

@@ -27,7 +27,7 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
 
 public class BrailleDocument extends BBDocument {
-	private int idCount = 0;
+	private int idCount = -1;
 	private BBSemanticsTable table;
 	
 	/**Base constructor for initializing a new document
@@ -890,7 +890,7 @@ public class BrailleDocument extends BBDocument {
 	}
 
 	public void addID(Element e){
-		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
 		idCount++;
+		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
 	}
 }

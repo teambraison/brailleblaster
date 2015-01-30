@@ -29,8 +29,7 @@ public class StyleHandler extends Handler{
 	EventFrame frame;
 	
 	public StyleHandler(Manager manager, ViewInitializer vi, MapList list){
-		super(manager, vi, list);
-		
+		super(manager, vi, list);	
 		this.document = manager.getDocument();
 	}
 	
@@ -43,6 +42,7 @@ public class StyleHandler extends Handler{
 			handleStyleMultiSelected(message);
 		
 		manager.addUndoEvent(frame);
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	public void undoStyle(EventFrame f){
@@ -70,6 +70,7 @@ public class StyleHandler extends Handler{
 			handleStyleSingleSelected(message);
 			tree.rebuildTree(event.getTreeIndex());
 		}
+		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 	}
 	
 	/***

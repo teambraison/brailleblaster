@@ -48,6 +48,8 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -63,10 +65,13 @@ public class BBToolBar {
 	ImageHelper imgHelper;
 	Manager currentEditor;
 	String curView = null;
+	
+	String sep = null;
+	String distPath = null;
+	
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
 		setEditor(manager);
-		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.NONE);
 		FormData location = new FormData();
@@ -83,9 +88,9 @@ public class BBToolBar {
 		
 		MAX_W = screenSize.width / 30;
 		MAX_H = MAX_W;
-		
-		// Path to dist folder.
-		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
+
+		sep = BBIni.getFileSep();
+		distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
 		distPath += sep + "programData";
 		
 		// FO
@@ -212,32 +217,15 @@ public class BBToolBar {
 		});
 		
 		final ToolItem viewSwitch = new ToolItem(toolBar, SWT.PUSH);
-		final String dpStr = distPath;
-		final String sepStr = sep;
 		tlabel = lh.localValue("&Toggle View");
 		viewSwitch.setText(tlabel.replace("&", ""));
-		viewSwitch.setImage(new Image(null, distPath  + sep + "images" + sep + "view_PB.png"));
+		setViewButton(viewSwitch);
 		viewSwitch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-				String view = currentEditor.getCurrentEditor();
-				if(view == null || view.equals("")){
-					currentEditor.setEditingView(TextView.class.getCanonicalName());
-					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
-				}
-				else if(view.equals(TextView.class.getCanonicalName())){
-					currentEditor.setEditingView(BrailleView.class.getCanonicalName());
-					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
-				}
-				else if(view.equals(BrailleView.class.getCanonicalName())) {
-					currentEditor.setEditingView(null);
-					viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
-				}
-				
-				
+				setViewButton(viewSwitch);
 			}
-		}); 
+		});
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);
@@ -245,6 +233,24 @@ public class BBToolBar {
 		bloc.top = new FormAttachment(5);
 		
 		toolBar.pack();
+	}
+	
+	public void setViewButton(final ToolItem ti) {
+		final String dpStr = distPath;
+		final String sepStr = sep;
+		String view = currentEditor.getCurrentEditor();
+		if(view == null || view.equals("")){
+			currentEditor.setEditingView(TextView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
+		}
+		else if(view.equals(TextView.class.getCanonicalName())){
+			currentEditor.setEditingView(BrailleView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
+		}
+		else if(view.equals(BrailleView.class.getCanonicalName())) {
+			currentEditor.setEditingView(null);
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
+		}
 	}
 	
 	public void setEditor(Manager editor){

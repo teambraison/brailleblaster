@@ -51,6 +51,7 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -131,12 +132,28 @@ public class StyleManager{
 			}	
     		else if(message.type.equals(BBEvent.ADJUST_LINES)){
     			int lines = (Integer)message.getValue("lines");
-    			style.put(StylesType.linesAfter, String.valueOf(lines));
+    			if((Boolean)message.getValue("linesBefore") == true)
+    				style.put(StylesType.linesBefore, String.valueOf(lines));
+    			else 
+    				style.put(StylesType.linesAfter, String.valueOf(lines));	
+    			
     			updateAndApply(style, e);
     		}
     	} catch (CloneNotSupportedException e1) {
 			e1.printStackTrace();
 		}
+    }
+    
+    private void setEmphasis(Styles style){
+    	if(style.contains(StylesType.emphasis)){
+    		StyleRange emphasis = (StyleRange)style.get(StylesType.emphasis);
+    		if(emphasis.fontStyle == SWT.BOLD)
+    			style.put(StylesType.emphasis, "boldx");
+    		else if(emphasis.fontStyle == SWT.UNDERLINE_SINGLE)
+    			style.put(StylesType.emphasis, "underlinex");
+    		else if(emphasis.fontStyle == SWT.ITALIC)
+    			style.put(StylesType.emphasis, "italicx");
+    	}
     }
     
     private boolean isHiddenStyle(Styles style){
@@ -155,17 +172,18 @@ public class StyleManager{
     }
     
     private void updateAndApply(Styles style, Element e){
+    	setEmphasis(style);
     	ConfigFileHandler handler = new ConfigFileHandler(configFile, dm.getWorkingPath());
 		if(!isHiddenStyle(style)){
 			setName(style, e);	
     		handler.appendDocumentStyle(style);
-    		semanticsTable.resetStyleTable(configFile, dm.getWorkingPath());
-    		apply(style.getName());
 		}
 		else{
 			handler.updateDocumentStyle(style);
-	    	semanticsTable.resetStyleTable(configFile);
 		}	
+		
+		semanticsTable.resetStyleTable(configFile, dm.getWorkingPath());
+		apply(style.getName());
     }
     
     private Styles indentToCell (Styles style){

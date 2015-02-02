@@ -94,14 +94,13 @@ public abstract class TreeView extends AbstractView implements BBTree{
 	
 	public ArrayList<Integer> getItemPath(){
 		ArrayList<Integer> list = new ArrayList<Integer>();
-		if(tree.getSelection().length > 0){
-			TreeItem item = tree.getSelection()[0];
-			int first = 0;
-			while(item.getParentItem() != null){
-				list.add(first, item.getParentItem().indexOf(item));
-				item = item.getParentItem();
-			}
+		TreeItem item = tree.getSelection()[0];
+		int first = 0;
+		while(item.getParentItem() != null){
+			list.add(first, item.getParentItem().indexOf(item));
+			item = item.getParentItem();
 		}
+		
 		return list;
 	}
 }

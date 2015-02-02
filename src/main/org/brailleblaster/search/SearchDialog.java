@@ -1661,22 +1661,21 @@ public class SearchDialog extends Dialog {
 		// Make sure we aren't in an endless loop
 		if (numberOfLoops <= 2) {
 
-		// If search wrap is on, move to other end of document, if at
-		// the end.
-		if (searchWrap == SCH_WRAP_ON) {
+			// If search wrap is on, move to other end of document, if at
+			// the end.
+			if (searchWrap == SCH_WRAP_ON) {
 
+				// If we're at the end, move to the other end.
+				while (startCharIndex < 0 || endCharIndex < 0) {
+					numberOfLoops++;
+					// Reset position.
+					endCharIndex = numChars;
+					startCharIndex = endCharIndex - findMeStr.length();
+					tv.view.setCaretOffset(endCharIndex);
 
-			// If we're at the end, move to the other end.
-			while (startCharIndex < 0 || endCharIndex < 0) {
-				numberOfLoops++;
-				// Reset position.
-				endCharIndex = numChars;
-				startCharIndex = endCharIndex - findMeStr.length();
-				tv.view.setCaretOffset(endCharIndex);
+				} // while( startCharIndex...
 
-			} // while( startCharIndex...
-			
-		}// if numberOfLoops
+			}// if numberOfLoops
 
 			// Scour the view for the search string.
 			while (startCharIndex >= 0 && endCharIndex > 0) {
@@ -1733,21 +1732,22 @@ public class SearchDialog extends Dialog {
 				// Make sure we aren't in an endless loop
 				if (numberOfLoops <= 2) {
 
-				// If search wrap is on, move to other end of document, if at
-				// the end.
-				if (searchWrap == SCH_WRAP_ON) {
+					// If search wrap is on, move to other end of document, if
+					// at
+					// the end.
+					if (searchWrap == SCH_WRAP_ON) {
 
-					// If we're at the end, move to the other end.
-					if (startCharIndex < 0 || endCharIndex < 0) {
-						numberOfLoops++;
-						// Reset position.
-						endCharIndex = numChars;
-						startCharIndex = endCharIndex - findMeStr.length();
-						tv.view.setCaretOffset(endCharIndex);
+						// If we're at the end, move to the other end.
+						if (startCharIndex < 0 || endCharIndex < 0) {
+							numberOfLoops++;
+							// Reset position.
+							endCharIndex = numChars;
+							startCharIndex = endCharIndex - findMeStr.length();
+							tv.view.setCaretOffset(endCharIndex);
 
-					} // if( startCharIndex...
+						} // if( startCharIndex...
 
-				} // if( searchWrap == SCH_WRAP_ON )
+					} // if( searchWrap == SCH_WRAP_ON )
 
 				}// if numberOfLoops
 

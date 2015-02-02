@@ -35,7 +35,6 @@ import java.util.HashMap;
 
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
-import org.eclipse.swt.custom.ExtendedModifyEvent;
 
 import nu.xom.Text;
 
@@ -157,12 +156,20 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createTextDeletionMessage(int offset, int length, String replacedText, boolean update){
-		Message m = new Message(BBEvent.WHITESPACE_DELETION);
+	public static Message createTextDeletionMessage(int offset, int length, boolean update){
+		Message m = new Message(BBEvent.TEXT_DELETION);
 		m.put("offset", offset);
 		m.put("length", length);
-		m.put("replacedText", replacedText);
 		m.put("update", update);
+		
+		return m;
+	}
+	
+	public static Message createRemoveMathMLMessage(int offset, int length, TextMapElement t){
+		Message m = new Message(BBEvent.REMOVE_MATHML);
+		m.put("start", offset);
+		m.put("length", length);
+		m.put("TextMapElement", t);
 		
 		return m;
 	}
@@ -181,7 +188,7 @@ public class Message {
 	 * Create a Message object base on multiple selection is true or false
 	 * @param style: Style to add, remove, or adjust 
 	 * @param multiSelect: signifies whether multiple elements have been selected
-	 * @param isBoxline: signifies whether selection is adding or removing a boxline, since boxline are handled differently than other styles
+	 * @param isBoxline: signifies whether selection is addining or removing a boxline, since boxline are handled differently than other styles
 	 * @return
 	 */
 	public static Message createUpdateStyleMessage(Styles style, boolean multiSelect, boolean isBoxline){
@@ -189,13 +196,6 @@ public class Message {
 		m.put("Style", style);
 		m.put("multiSelect", multiSelect);
 		m.put("isBoxline", isBoxline);
-		return m;
-	}
-	
-	public static Message createEditEventMesag(ExtendedModifyEvent e){
-		Message m = new Message(BBEvent.EDIT);
-		m.put("event", e);
-		
 		return m;
 	}
 	

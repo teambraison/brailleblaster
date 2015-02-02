@@ -12,7 +12,6 @@ import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
-import nu.xom.Nodes;
 import nu.xom.ParsingException;
 import nu.xom.Text;
 
@@ -59,7 +58,10 @@ public class BrailleDocument extends BBDocument {
 				updateNode(list, message);
 				break;
 			case REMOVE_NODE:
-				removeNode(list, message);
+				removeNode(list.get((Integer)message.getValue("index")), message);
+				break;
+			case REMOVE_MATHML:
+				removeMathML((TextMapElement)message.getValue("TextMapElement"), message);
 				break;
 			default:
 				System.out.println("No available operations for this message type");
@@ -98,8 +100,8 @@ public class BrailleDocument extends BBDocument {
 		message.put("brailleLength", total);
 	}
 	
-	/** Inserts an Element into the DOM.  This is used for inserting transcribers notes, paragraphs when a user hits enter, etc.
-	 * @param vi : View Initializer managing segments of a DOM 
+	/** Inserts an empty text node into the DOM.  This is used for inserting trasncribes notes, paragraphs when a user hits enter, etc.
+	 * @param vi : View Intializer managing segments of a DOM 
 	 * @param list : maplist currently visible in the views
 	 * @param current : element used to determine insertion point in DOM
 	 * @param textOffset : position in text view for start and end of text element inserted
@@ -107,16 +109,18 @@ public class BrailleDocument extends BBDocument {
 	 * @param index : insertion index in maplist
 	 * @param elem : Name of element to insert
 	 */
-	public void insertElement(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
+	public void insertEmptyTextNode(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
 		String type = this.semHandler.getDefault(elem);
 		Element p = makeElement(elem, "semantics", "style," + type);
 		//Add new attribute for epub aside and for nimas prodnote
 		if ((elem.equalsIgnoreCase("prodnote") )||( elem.equalsIgnoreCase("aside"))){
 			p.addAttribute(new Attribute("render", "optional"));
+
 			p.addAttribute(new Attribute("showin", "bxx"));
+
 			p.addAttribute(new Attribute("class", "utd-trnote"));
+			
 		}
-	
 		p.appendChild(new Text(""));
 		
 		Element parent = current.parentElement();
@@ -136,19 +140,14 @@ public class BrailleDocument extends BBDocument {
 		
 		parent.insertChild(p, nodeIndex + 1);
 		
-		Element brl = appendBRLNode(p);
-		TextMapElement t = new TextMapElement(textOffset, textOffset, p.getChild(0));
-		t.brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
-		vi.addElementToSection(list, t, index);
-	}
-	
-	private Element appendBRLNode(Element e){
+		vi.addElementToSection(list, new TextMapElement(textOffset, textOffset, p.getChild(0)), index);
+		//list.add(index,  new TextMapElement(textOffset, textOffset, p.getChild(0)));
+		
 		Element brl = new Element("brl");
 		brl.appendChild(new Text(""));
-		e.appendChild(brl);
+		p.appendChild(brl);
 		addNamespace(brl);
-		
-		return brl;
+		list.get(index).brailleList.add(new BrailleMapElement(brailleOffset, brailleOffset, brl.getChild(0)));
 	}
 	
 	/** Updates the text of a given text node prior to translation
@@ -189,7 +188,7 @@ public class BrailleDocument extends BBDocument {
 		Element child = (Element)t.brailleList.getFirst().n.getParent();
 		while(!child.getParent().equals(parent)){
 			child = (Element)child.getParent();
-		}
+		};
 		parent.replaceChild(child, e);	
 		t.brailleList.clear();
 		
@@ -298,42 +297,20 @@ public class BrailleDocument extends BBDocument {
 		m.put("newBrailleLength", insertionString.length());
 	}
 	
-	private void removeNode(MapList list, Message message){
-		int index = (Integer)message.getValue("index");
-		if(list.get(index).isMathML())
-			removeMathML(list.get(index), message);
-		else if(message.contains("element"))
-			removeElement(message);
-		else
-			removeNode(list.get((Integer)message.getValue("index")));
-	}
-	
-	private void removeElement(Message m){
-		Element e = (Element)m.getValue("element");
-		e.getParent().removeChild(e);
-	}
-	
-	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
-	 * @param t : TextMapElement containing node to remove
-	 * @param message : message to put element information
-	 */
-	private void removeNode(TextMapElement t){
-		Element e = (Element)t.brailleList.getFirst().n.getParent();
-		t.parentElement().removeChild(e);
-		t.parentElement().removeChild(t.n);
-	}
-	
 	/** Removes MathML from DOM
-	 * @param t : TextMapElement to remove
+	 * @param t : TextMapElemetn to remove
 	 * @param m : message to contain offset information
 	 */
 	private void removeMathML(TextMapElement t, Message m){
 		int length = t.brailleList.getLast().end - t.brailleList.getFirst().start;
-		Nodes nodes = (Nodes)m.getValue("nodes");
-		Element parent = (Element)t.parentElement();
 		
-		while(nodes.size() > 0)
-			parent.removeChild(nodes.remove(0));
+		Element parent = t.parentElement();
+		int index = parent.indexOf(t.n);
+		
+		parent.removeChild(index);
+		while(index < parent.getChildCount() && parent.getChild(index) instanceof Element && ((Element)parent.getChild(index)).getLocalName().equals("brl")){
+			parent.removeChild(index);
+		}
 		
 		if(parent.getChildElements().size() == 0)
 			parent.getParent().removeChild(parent);
@@ -459,11 +436,12 @@ public class BrailleDocument extends BBDocument {
 			outlength[0] = text.length() * 10;
 			
 			String semPath;
-			if(dm.getWorkingPath() == null)
+			if(dm.getWorkingPath() == null){
 				semPath =  BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
-			else 
+			}
+			else {
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
-			
+			}
 			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
 			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
 				return outlength[0];
@@ -515,11 +493,35 @@ public class BrailleDocument extends BBDocument {
 		return d;
 	}
 	
+	/** Removes a node from the DOM, checks whether other children exists, if not the entire element is removed
+	 * @param t : TextMapElement containing node to remove
+	 * @param message : message to put element information
+	 */
+	private void removeNode(TextMapElement t, Message message){
+		if(hasNonBrailleChildren(t.parentElement()) && !(t.n instanceof Element)){
+			Element e = (Element)t.brailleList.getFirst().n.getParent();
+			t.parentElement().removeChild(e);
+			t.parentElement().removeChild(t.n);
+		}
+		else {
+			Element parent = t.parentElement();
+			while(!parent.getAttributeValue("semantics").contains("style")){
+				if(((Element)parent.getParent()).getChildElements().size() <= 1)
+					parent = (Element)parent.getParent();
+				else
+					break;
+			}
+			
+			message.put("element", parent);
+			parent.getParent().removeChild(parent);
+		}
+	}
+	
 	/** Checks if an element contains other elements other than brl
 	 * @param e : Element to check
 	 * @return true if non-braille children exist, false if not
 	 */
-	public boolean hasNonBrailleChildren(Element e){
+	private boolean hasNonBrailleChildren(Element e){
 		Elements els = e.getChildElements();
 		for(int i = 0; i <els.size(); i++){
 			if(!els.get(i).getLocalName().equals("brl")){
@@ -835,14 +837,17 @@ public class BrailleDocument extends BBDocument {
 			boxline.addAttribute(new Attribute("semantics","style,boxline"));
 			for(int i = 0; i < parents.size(); i++){	
 				Element parent = (Element)parents.get(i).getParent();
+			//	int index = parent.indexOf(parents.get(i));
 				
 				if(!parents.contains(parent))
 					boxline.appendChild(parent.removeChild(parents.get(i)));
 			}
 			
+			//if(parent != null){
 			grandparent.insertChild(boxline, grandParentIndex);
 			addNamespace(boxline);
 			return boxline;
+			//}
 		}
 		
 		return null;

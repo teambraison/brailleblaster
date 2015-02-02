@@ -155,7 +155,7 @@ class RecentDocuments {
     private void processDocsList() {
         recentDocsArr = recentDocsList.toArray(new String[recentDocsList.size()]);
         boolean[] dupArr = new boolean[recentDocsArr.length];
-     //   for(boolean b:dupArr) b=false;
+        for(boolean b:dupArr) b=false;
         for( int i=0; (i < recentDocsArr.length-1)&&(!dupArr[i]);i++) {
             String s1 = recentDocsArr[i];
             int index = s1.lastIndexOf(fileSep);

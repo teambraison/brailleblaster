@@ -814,8 +814,8 @@ public class PagePropertiesTab {
 		int maxLines = calculateLinesPerPage(Double.valueOf(settingsMap
 				.get("paperHeight")));
 		if (cellsLinesButton.getSelection()) {
-			maxLines += Integer.valueOf(marginTopBox.getText());
-			maxLines += Integer.valueOf(marginBottomBox.getText());
+			maxLines += Integer.valueOf(settingsMap.get(marginBottomBox));
+			maxLines += Integer.valueOf(settingsMap.get(marginTopBox));
 			if ((Integer.valueOf(marginTopBox.getText()) + Integer
 					.valueOf(linesBox.getText())) > maxLines) {
 				new Notify(lh.localValue("incorectMarginHeight"));

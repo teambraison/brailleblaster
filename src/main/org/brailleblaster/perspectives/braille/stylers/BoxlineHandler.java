@@ -1,23 +1,20 @@
 package org.brailleblaster.perspectives.braille.stylers;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Set;
 
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 import nu.xom.Node;
 import nu.xom.Text;
 
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
-import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
@@ -28,142 +25,32 @@ import org.brailleblaster.perspectives.braille.views.tree.XMLTree;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class BoxlineHandler extends Handler{
+public class BoxlineHandler {
 	
+	private static final String BOXLINE = "boxline";
+	private static final String FULLBOX = "fullBox";
+	private static final String TOPBOX = "topBox";
+	private static final String MIDDLEBOX = "middleBox";
+	private static final String BOTTOMBOX = "bottomBox";
+	
+	Manager manager;
 	BrailleDocument document;
 	BBSemanticsTable styles;
 	BBTree treeView;
 	TextView text;
 	BrailleView braille;
+	MapList list;
+	ViewInitializer vi;
 	
-	public BoxlineHandler(Manager manager, ViewInitializer vi,  MapList list){
-		super(manager, vi, list);
-
+	public BoxlineHandler(Manager manager, MapList list, ViewInitializer vi){
+		this.manager = manager;
 		this.document = manager.getDocument();
 		this.styles = manager.getStyleTable();
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
 		this.treeView = manager.getTreeView();
-	}
-	
-	public void handleBoxline(Message message){
-		if(message.getValue("multiSelect").equals(false)) 
-			handleSingleBoxLine(message);
-		else 
-			handleMultiBoxLine(message);
-	}
-	
-	/** Prepares object needed by boxline handler to create boxline around a single element
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleSingleBoxLine(Message message){
-		Element parent = parentStyle(list.getCurrent(), message);
-		ArrayList<Element>parents = new ArrayList<Element>();
-		parents.add(parent);
-		ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
-		
-		if(((Styles)message.getValue("Style")).getName().equals("boxline"))
-			createSingleBoxLine(itemList, parents, message);
-		else 
-			removeSingleBoxLine(itemList, parent, message);
-	}
-	
-	private void createSingleBoxLine(ArrayList<TextMapElement> itemList, ArrayList<Element>parents, Message message){
-		boolean invalid = false;
-		for(int i = 0; i < itemList.size() && !invalid; i++){
-			if(itemList.get(i) instanceof PageMapElement)
-				invalid = true;
-		}
-		
-		if(!invalid){
-			getBounds(itemList, message);
-			createBoxline(parents, message, itemList);
-		}
-		else{
-			LocaleHandler lh = new LocaleHandler();
-			manager.notify(lh.localValue("invalidBoxline.containsPage"));
-		}
-	}
-	
-	private void removeSingleBoxLine(ArrayList<TextMapElement> itemList, Element parent, Message message){
-		getBounds(itemList, message);
-		TextMapElement box = list.findJoiningBoxline((BrlOnlyMapElement)itemList.get(0));
-		if(box != null){
-			if(list.indexOf(box) < list.indexOf(itemList.get(0)))
-				itemList.add(0, box);
-			else
-				itemList.add(box);
-		}
-		
-		removeSingleBoxline(parent, itemList);
-		
-		if(list.getCurrentIndex() > list.size())
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-		else if(list.size() > 0)
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-	}
-	
-	/** Prepares object needed by boxline handler to create boxline around a multiple elements
-	 * @param message: Message object passed containing information from style table manager
-	 */
-	private void handleMultiBoxLine(Message message){
-		int start=text.getSelectedText()[0];
-		int end=text.getSelectedText()[1];
-		
-		Set<TextMapElement> itemSet = manager.getElementInSelectedRange(start, end);		
-		Iterator<TextMapElement> itr = itemSet.iterator();
-		ArrayList<Element>parents = new ArrayList<Element>();
-		ArrayList<TextMapElement>itemList = new ArrayList<TextMapElement>();
-		
-		boolean invalid = false;
-		
-		while(itr.hasNext() && !invalid){
-			TextMapElement tempElement= itr.next();
-			if(tempElement instanceof BrlOnlyMapElement){
-				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)tempElement);
-				if((b == null && !tempElement.parentElement().getAttributeValue(SEMANTICS).contains("middleBox") && !tempElement.parentElement().getAttributeValue(SEMANTICS).contains("bottomBox") )
-						|| (b != null && (b.start > end || b.end < start))){
-					invalid = true;
-					LocaleHandler lh = new LocaleHandler();
-					manager.notify(lh.localValue("invalidBoxline.incorrectSelection"));
-					break;
-				}
-			}
-			Element parent = parentStyle(tempElement, message);
-			itemList.addAll(list.findTextMapElements(list.getNodeIndex(tempElement), parent, true));
-			parents.add(parent);
-		}
-		
-		for(int i = 0; i < itemList.size() && !invalid; i++){
-			if(itemList.get(i) instanceof PageMapElement){
-				invalid = true;
-				LocaleHandler lh = new LocaleHandler();
-				manager.notify(lh.localValue("invalidBoxline.containsPage"));
-			}
-		}
-		
-		if(!invalid){
-			if(((Styles)message.getValue("Style")).getName().equals("boxline"))
-				createMultipleBoxline(itemList, parents,message);
-			else 
-				removeMultipleBoxlines(itemList);
-		}
-	}
-	
-	private void createMultipleBoxline(ArrayList<TextMapElement> itemList, ArrayList<Element> parents, Message message){
-		getBounds(itemList, message);
-		createBoxline(parents, message, itemList);	
-	}
-	
-	private void removeMultipleBoxlines(ArrayList<TextMapElement> itemList){
-		removeMultiBoxline(itemList);
-		
-		if(list.getCurrentIndex() > list.size())
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.size() - 1).start, false));
-		else if(list.size() > 0)
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TEXT, list.get(list.getCurrentIndex()).start, false));
-		
-		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
+		this.list = list;
+		this.vi = vi;
 	}
 	
 	/** Wraps a block level element in the appropriate tag then translates and adds boxline brl top and bottom nodes
@@ -171,7 +58,7 @@ public class BoxlineHandler extends Handler{
 	 * @param m: message passed to views containing offset positions
 	 * @param itemList: arraylist containing text nodes of the block element
 	 */
-	private void createBoxline(ArrayList<Element>parents, Message m, ArrayList<TextMapElement> itemList){		
+	public void createBoxline(ArrayList<Element>parents, Message m, ArrayList<TextMapElement> itemList){		
 		Element wrapper = document.wrapElement(parents, BOXLINE);
 		if(wrapper != null){
 			ArrayList<Element>sidebarList = findBoxlines(wrapper);
@@ -198,7 +85,7 @@ public class BoxlineHandler extends Handler{
 		Document doc = document.translateElements(elList);
 		Element parent = (Element)doc.getChild(0);
 		
-		String style = getSemanticAttribute(wrapper);
+		String style = getStyle(wrapper);
 		Message m = new Message(null);
 		if(style.equals(TOPBOX))
 			createFullBoxline(wrapper, parents, m, itemList);
@@ -295,7 +182,7 @@ public class BoxlineHandler extends Handler{
 		//set text
 		text.insertText(start, list.get(startPos).getText() + "\n");
 		braille.insertText(brailleStart, list.get(startPos).brailleList.getFirst().value() + "\n");
-		list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1);
+		list.shiftOffsetsFromIndex(startPos + 1, list.get(startPos).getText().length() + 1, list.get(startPos).brailleList.getFirst().value().length() + 1, list.get(startPos + 1).start);
 		
 		return startPos;
 	}
@@ -331,19 +218,19 @@ public class BoxlineHandler extends Handler{
 		//set text
 		text.insertText(end, "\n" + list.get(endPos).getText());
 		braille.insertText(brailleEnd, "\n" + list.get(endPos).brailleList.getFirst().value());
-		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1);
+		list.shiftOffsetsFromIndex(endPos + 1, list.get(endPos).getText().length() + 1, list.get(endPos).brailleList.getFirst().value().length() + 1, list.get(endPos).start);
 			
 		return endPos;
 	}
 	
 	private void resetSidebars(ArrayList<Element> elList, Element parent){
 		while(elList.size() > 0){
-			if(getSemanticAttribute(parent.getChildElements().get(0)).equals(TOPBOX) || getSemanticAttribute(parent.getChildElements().get(0)).equals(BOXLINE))
+			if(getStyle(parent.getChildElements().get(0)).equals(TOPBOX) || getStyle(parent.getChildElements().get(0)).equals(BOXLINE))
 				changeToFullBox(elList.get(0), parent.getChildElements().get(0));
-			else if(getSemanticAttribute(parent.getChildElements().get(0)).equals(BOTTOMBOX) || getSemanticAttribute(parent.getChildElements().get(0)).equals(MIDDLEBOX))
+			else if(getStyle(parent.getChildElements().get(0)).equals(BOTTOMBOX) || getStyle(parent.getChildElements().get(0)).equals(MIDDLEBOX))
 				changeToHalfBox(elList.get(0), parent.getChildElements().get(0));
 			
-			setStyle(elList.get(0), getSemanticAttribute(parent.getChildElements().get(0)));
+			setStyle(elList.get(0), getStyle(parent.getChildElements().get(0)));
 			parent.removeChild(0);
 			elList.remove(0);
 		}
@@ -386,7 +273,7 @@ public class BoxlineHandler extends Handler{
 	}
 	
 	private void insertBoxLine(int index, Element box, Element brl){
-		String style = getSemanticAttribute(list.get(index).parentElement());
+		String style = getStyle(list.get(index).parentElement());
 		Styles firstStyle = styles.get(style);
 		//inserted in DOM
 		box.insertChild(brl, 0);
@@ -411,7 +298,7 @@ public class BoxlineHandler extends Handler{
 		//set text
 		text.insertText(start, list.get(index).getText() + "\n");
 		braille.insertText(brailleStart, list.get(index).brailleList.getFirst().value() + "\n");
-		list.shiftOffsetsFromIndex(index + 1, list.get(index).getText().length() + 1, list.get(index).brailleList.getFirst().value().length() + 1);
+		list.shiftOffsetsFromIndex(index + 1, list.get(index).getText().length() + 1, list.get(index).brailleList.getFirst().value().length() + 1, list.get(index + 1).start);
 	}
 	
 	private void replaceBoxLine(Element brl, Element replacement){		
@@ -423,7 +310,7 @@ public class BoxlineHandler extends Handler{
 		braille.replaceTextRange(list.get(index).brailleList.getFirst().start, list.get(index).brailleList.getLast().end - list.get(index).brailleList.getFirst().start, t.getValue());
 		
 		if(length > 0)
-			list.shiftOffsetsFromIndex(index + 1, length, length);
+			list.shiftOffsetsFromIndex(index + 1, length, length, 0);
 	}
 		
 	private ArrayList<Element> findBoxlines(Element e){
@@ -453,7 +340,7 @@ public class BoxlineHandler extends Handler{
 	 * @param boxline : Element wrapping content and representing a boxline
 	 * @param itemList : List containing opening and closing boxline
 	 */
-	private void removeSingleBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
+	public void removeSingleBoxline(Element boxline, ArrayList<TextMapElement> itemList){		
 		ArrayList<Element>sidebarList = findBoxlines(boxline);
 		removeBoxLine(boxline, itemList);
 		
@@ -468,7 +355,7 @@ public class BoxlineHandler extends Handler{
 	/** Handles deleting a boxline when text selection occurs and one or more boxlines may be selected
 	 * @param itemList : ItemList containing text map elements in selection collected via manager's getSelected method
 	 */
-	private void removeMultiBoxline(ArrayList<TextMapElement> itemList){
+	public void removeMultiBoxline(ArrayList<TextMapElement> itemList){
 		clearNonBrlElements(itemList);
 		
 		int start = itemList.get(0).parentElement().getParent().indexOf(itemList.get(0).parentElement());
@@ -486,14 +373,14 @@ public class BoxlineHandler extends Handler{
 		
 		while(itemList.size() > 0){
 			ArrayList<TextMapElement>boxline = new ArrayList<TextMapElement>();
-			if(getSemanticAttribute(itemList.get(0).parentElement()).equals(BOXLINE) || getSemanticAttribute(itemList.get(0).parentElement()).equals(TOPBOX) || getSemanticAttribute(itemList.get(0).parentElement()).equals(FULLBOX)){
+			if(getStyle(itemList.get(0).parentElement()).equals(BOXLINE) || getStyle(itemList.get(0).parentElement()).equals(TOPBOX) || getStyle(itemList.get(0).parentElement()).equals(FULLBOX)){
 				int index = getMatchingParent(itemList, 0);
 				boxline.add(itemList.get(0));
 				boxline.add(itemList.get(index));
 				itemList.remove(0);
 				itemList.remove(index - 1);
 			}
-			else if(getSemanticAttribute(itemList.get(0).parentElement()).equals(MIDDLEBOX) || getSemanticAttribute(itemList.get(0).parentElement()).equals(BOTTOMBOX)){
+			else if(getStyle(itemList.get(0).parentElement()).equals(MIDDLEBOX) || getStyle(itemList.get(0).parentElement()).equals(BOTTOMBOX)){
 				boxline.add(itemList.get(0));
 				itemList.remove(0);
 			}
@@ -517,12 +404,12 @@ public class BoxlineHandler extends Handler{
 	}
 	
 	private void removeBoxLine(Element boxline, ArrayList<TextMapElement> itemList){
-		String style = getSemanticAttribute(boxline);
+		String style = getStyle(boxline);
 		if(style.equals(BOXLINE) || style.equals(TOPBOX) ||  style.equals(FULLBOX)){
 			Element parent = null;
 			removeTopBoxline((BrlOnlyMapElement)itemList.get(0));
 			removeBottomBoxline((BrlOnlyMapElement)itemList.get(1));
-			if(isBoxLine((Element)boxline.getParent()) && getSemanticAttribute((Element)boxline.getParent()).equals(FULLBOX)){
+			if(isBoxLine((Element)boxline.getParent()) && getStyle((Element)boxline.getParent()).equals(FULLBOX)){
 				if(nestedSidebarCount((Element)boxline.getParent()) == 1)
 					parent = (Element)boxline.getParent();
 			}
@@ -599,7 +486,7 @@ public class BoxlineHandler extends Handler{
 		int index = list.indexOf(b);
 		manager.getText().replaceTextRange(b.start, (b.end + 1) - b.start, "");
 		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start, (b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start, "");
-		list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start));
+		list.shiftOffsetsFromIndex(index,  -((b.end + 1) - b.start), -((b.brailleList.getFirst().end + 1) - b.brailleList.getFirst().start), 0);
 		list.remove(index);
 	}
 	
@@ -610,7 +497,7 @@ public class BoxlineHandler extends Handler{
 		int index = list.indexOf(b);
 		manager.getText().replaceTextRange(b.start - 1, b.end - (b.start - 1), "");
 		manager.getBraille().replaceTextRange(b.brailleList.getFirst().start - 1, b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1), "");
-		list.shiftOffsetsFromIndex(index,  -(b.end - (b.start - 1)), -(b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1)));
+		list.shiftOffsetsFromIndex(index,  -(b.end - (b.start - 1)), -(b.brailleList.getFirst().end - (b.brailleList.getFirst().start - 1)), 0);
 		list.remove(index);
 	}
 	
@@ -631,6 +518,23 @@ public class BoxlineHandler extends Handler{
 		}
 		treeView.resetTreeItem(boxline);
 		boxline.getParent().removeChild(boxline);
+	}
+	
+	private boolean isBoxLine(Element e){
+		if(checkSemanticsAttribute(e, BOXLINE) || checkSemanticsAttribute(e, TOPBOX) || checkSemanticsAttribute(e, MIDDLEBOX) 
+				|| checkSemanticsAttribute(e, BOTTOMBOX) || checkSemanticsAttribute(e, FULLBOX))
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean checkSemanticsAttribute(Element e, String value){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr == null || !atr.getValue().contains(value))
+			return false;
+		
+		return true;
 	}
 	
 	private Text findText(Node n){
@@ -660,6 +564,10 @@ public class BoxlineHandler extends Handler{
 		manager.getDocument().applyAction(m);
 	}
 	
+	private String getStyle(Element box){
+		return box.getAttributeValue("semantics").split(",")[1];
+	}
+	
 	private int getMatchingParent(ArrayList<TextMapElement>elList, int index){
 		Element parent = elList.get(index).parentElement();
 		for(int i = 0; i < elList.size(); i++)
@@ -678,52 +586,4 @@ public class BoxlineHandler extends Handler{
 		}
 		return sidebarCount;
 	}
-	
-	/***
-     * Get parent style of the current TextMapElement 
-     * @param current
-     * @param message
-     * @return
-     */
-	private Element parentStyle(TextMapElement current, Message message) {
-		Element parent;
-		if(current instanceof PageMapElement || current instanceof BrlOnlyMapElement)
-			parent = current.parentElement();
-		else
-			parent = document.getParent(current.n, true);
-		
-		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
-		return parent;
-	}
-	
-	/***
-	 * get bounds of elements in the list based on previous and next element 
-	 * @param itemList : all selected items which we want style to be applied
-	 * @param message : passing information regarding styles
-	 */
-	private void getBounds(ArrayList<TextMapElement> itemList, Message message) {
-		int start = list.indexOf(itemList.get(0));
-		int end = list.indexOf(itemList.get(itemList.size() - 1));
-	
-		if (start > 0) {
-			message.put("prev", list.get(start - 1).end);
-			message.put("braillePrev",
-					list.get(start - 1).brailleList.getLast().end);
-		} else {
-			message.put("prev", -1);
-			message.put("braillePrev", -1);
-		}
-
-		if (end < list.size() - 1) {
-			message.put("next", list.get(end + 1).start);
-			message.put("brailleNext",
-					list.get(end + 1).brailleList.getFirst().start);
-		} else {
-			message.put("next", -1);
-			message.put("brailleNext", -1);
-		}
-
-		text.getBounds(message, itemList);
-		braille.getBounds(message, itemList);
-	}	
 }

@@ -152,6 +152,7 @@ public class WPManager {
 					display.sleep();
 				}
 			} catch (Throwable e) {
+				e.printStackTrace();
 				logger.error("Uncaught exception detected", e);
  /* 
 				MessageBox questionBox = new MessageBox(this.shell,

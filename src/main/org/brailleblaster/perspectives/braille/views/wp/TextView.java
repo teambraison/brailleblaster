@@ -547,6 +547,14 @@ public class TextView extends WPView {
 			setCurrent(view.getCaretOffset());
 	}
 	
+	public void setCursorNoFocus(int offset, Manager cont){
+		view.setFocus();
+		view.setCaretOffset(offset);
+		
+		if(offset < currentStart || offset > currentEnd)
+			setCurrent(view.getCaretOffset());
+	}
+	
 	public void setText(TextMapElement t, MapList list, int index){
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		Styles prevStyle;

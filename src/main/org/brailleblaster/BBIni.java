@@ -63,6 +63,10 @@ import org.slf4j.LoggerFactory;
  * @author cmyers
  *
  */
+/**
+ * @author cmyers
+ * 
+ */
 public final class BBIni {
 
 	private static BBIni bbini;
@@ -90,6 +94,8 @@ public final class BBIni {
 	private static String releaseDate;
 	
 	private static String brailleblasterPath; // FO
+	private static String osName;
+	private static String osVersion;
 	private static String fileSep;
 	private static String nativeCommandPath;
 	private static String nativeLibraryPath;
@@ -108,6 +114,7 @@ public final class BBIni {
 	public final static String propExtension = ".properties";
 	private static boolean hSubcommands = false;
 	private static boolean hLiblouisutdml = false;
+	// private static FileHandler logFile;
 	private static final String BBID = "brlblst";
 	private static String instanceId;
 	private static String defaultCfg;
@@ -122,6 +129,8 @@ public final class BBIni {
 		platformName = SWT.getPlatform();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
+		osName = System.getProperty("os.name");
+		osVersion = System.getProperty("os.version");
 		fileSep = System.getProperty("file.separator");
 		String userHome = System.getProperty("user.home");
 		String BBHome;
@@ -435,10 +444,6 @@ public final class BBIni {
 
 	public static String getVersion() {
 		return BBVersion;
-	}
-	
-	public static boolean gotGUI(){
-		return gotGui;
 	}
 
 	public static String getReleaseDate() {

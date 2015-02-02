@@ -59,6 +59,7 @@ public class Notify {
 		Shell shell = new Shell(WPManager.getDisplay(), SWT.DIALOG_TRIM);
 		MessageBox mb = new MessageBox(shell, SWT.OK);
 		mb.setMessage(realMessage);
+
 		mb.open();
 		shell.dispose();
 	}

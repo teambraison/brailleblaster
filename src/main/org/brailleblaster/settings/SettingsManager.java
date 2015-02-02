@@ -123,8 +123,6 @@ public class SettingsManager {
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("leftMargin"))
 			outputMap.put(tokens[0], tokens[1]);
-		else if(tokens[0].equals("cellsPerLine"))
-			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("linesPerPage"))
 			outputMap.put(tokens[0], tokens[1]);
 		else if(tokens[0].equals("literaryTextTable")){

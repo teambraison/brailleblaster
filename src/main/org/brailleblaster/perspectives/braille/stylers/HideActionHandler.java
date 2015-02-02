@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import nu.xom.Attribute;
 import nu.xom.Element;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
-import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
@@ -19,99 +20,90 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.perspectives.braille.views.tree.BBTree;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.brailleblaster.util.Notify;
 
-public class HideActionHandler extends Handler{	
-	
+public class HideActionHandler {	
+	Manager manager;
+	MapList list;
+	TextView text;
+	BrailleView braille;
+	BBTree tree;
+	ViewInitializer vi;
 	EventFrame eventFrame;
 	boolean boxlineAdded;
 	
-	public HideActionHandler(Manager manager, ViewInitializer vi, MapList list){
-		super(manager, vi, list);
+	public HideActionHandler(Manager manager, MapList list, ViewInitializer vi){
+		this.manager = manager;
+		this.list = list;
+		this.vi = vi;
+		text = manager.getText();
+		braille = manager.getBraille();
+		tree = manager.getTreeView();
 	}
 	
 	public void hideText(){
-		eventFrame = new EventFrame();
-		if(list.size() > 0 && text.view.getCharCount() > 0){
-			if(text.isMultiSelected()){
-				boolean valid = hideMultipleElements();
-				if(valid)
-					manager.addUndoEvent(eventFrame);
-			}
-			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
-				hideSingleElement();
-				manager.addUndoEvent(eventFrame);
-			}
-			else 
-				invalidSelection();
-		}
-	}
-	
-	public void hideText(EventFrame f){
-		eventFrame = new EventFrame();
-		while(!f.empty() && f.peek().getEventType().equals(EventTypes.Hide)){
-			ModelEvent ev = (ModelEvent)f.pop();
-			manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
-		
-			//resets selection to recreate hide event by user
-			if(list.getCurrent() instanceof BrlOnlyMapElement){
-				BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)list.getCurrent());
-				int start =list.getCurrent().start;
-				int end = b.end;
-				text.setCurrentSelection(start, end);
-			}
-		
-			redoHide();
-		}
-		manager.addUndoEvent(eventFrame);
-	}
-	
-	private void redoHide(){
 		if(list.size() > 0 && text.view.getCharCount() > 0){
 			if(text.isMultiSelected())
 				hideMultipleElements();
-			else if(!(list.getCurrent() instanceof BrlOnlyMapElement))
+			else if(!(list.getCurrent() instanceof BrlOnlyMapElement)){
 				hideSingleElement();
-			else 
+			}
+			else {
 				invalidSelection();
+			}
 		}
+	}
+	
+	public void hideText(Event ev){
+		manager.dispatch(Message.createSetCurrentMessage(Sender.TREE, list.get(ev.getListIndex()).start, false));
+		
+		//resets selection to recreate hide event by user
+		if(list.getCurrent() instanceof BrlOnlyMapElement){
+			BrlOnlyMapElement b = list.findJoiningBoxline((BrlOnlyMapElement)list.getCurrent());
+			int start =list.getCurrent().start;
+			int end = b.end;
+			text.setCurrentSelection(start, end);
+		}
+		
+		hideText();
 	}
 	
 	private void hideSingleElement(){
 		text.update(false);
 		int index = list.getCurrentIndex();
+		eventFrame = new EventFrame();
 		boxlineAdded = false;
 		hide(list.getCurrent());
 		updateCurrentElement(index);
+		manager.addUndoEvent(eventFrame);
 	}
 	
-	private boolean hideMultipleElements(){
+	private void hideMultipleElements(){
 		int start=text.getSelectedText()[0];
 		int end=text.getSelectedText()[1];
 		boolean invalid = false;
 		
-		Set<TextMapElement> itemSet = manager.getElementInSelectedRange(start, end);		
+		Set<TextMapElement> itemSet = manager.getElementSelected(start, end);		
 		Iterator<TextMapElement> itr = itemSet.iterator();
 		invalid = checkSelection(itemSet, start, end);
 		Integer index = null;
 		if(!invalid){
 			itr = itemSet.iterator();
+			eventFrame = new EventFrame();
 			boxlineAdded = false;
 			while (itr.hasNext()) {
 				TextMapElement tempElement= itr.next();
 				if(index == null)
 					index = list.indexOf(tempElement);
 				
-				if(BBIni.getPlatformName().equals("gtk"))
-					checkLinuxTree(tempElement);
-				
 				hide(tempElement);
 			}
-			text.clearSelection();
 			updateCurrentElement(index);
-			return true;
+			manager.addUndoEvent(eventFrame);
 		}
-		
-		return invalid;
 	}
 	
 	private void updateCurrentElement(int index){
@@ -198,7 +190,7 @@ public class HideActionHandler extends Handler{
 		}
 		
 		if(!boxlineAdded)
-			eventFrame.addEvent(new ModelEvent(EventTypes.Hide, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
+			eventFrame.addEvent(new Event(EventTypes.Hide, parent, vi.getStartIndex(), list.indexOf(itemList.get(0)),  startPos, brailleStartPos, treeIndexes));
 		
 		if(parent.getLocalName().equals("sidebar"))
 			boxlineAdded = true;
@@ -212,7 +204,7 @@ public class HideActionHandler extends Handler{
 			vi.remove(list, list.indexOf(itemList.get(i)));
 		}
 	
-		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength);
+		list.shiftOffsetsFromIndex(index, -textLength, -brailleLength, 0);
 	
 		manager.getDocument().applyAction(m);
 	}
@@ -301,7 +293,18 @@ public class HideActionHandler extends Handler{
 	
 	private void invalidSelection(){
 		if(!BBIni.debugging())
-			manager.notify("In order to hide a boxline both opening and closing boxlines must be selected");
+			new Notify("In order to hide a boxline both opening and closing boxlines must be selected");
+	}
+	
+	private boolean isHeading(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		
+		if(atr != null){
+			if(atr.getValue().contains("heading"))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	private boolean collapseSpaceBefore(TextMapElement t){
@@ -345,6 +348,32 @@ public class HideActionHandler extends Handler{
 		return false;
 	}
 	
+	private boolean isFirstInList(int index){
+		if(index == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	private boolean isLastInList(int index){
+		if(index == list.size() - 1)
+			return true;
+		else
+			return false;
+	}
+	
+	private String getSemanticAttribute(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		if(atr != null){
+			String val = atr.getValue();
+			String[] tokens = val.split(",");
+			if(tokens.length > 1)
+				return tokens[1];
+		}
+		
+		return null;
+	}
+	
 	private boolean removeParent(TextMapElement t){
 		if(!(t instanceof PageMapElement) && isInLine(t.parentElement()))
 			return true;
@@ -352,10 +381,13 @@ public class HideActionHandler extends Handler{
 			return false;
 	}
 	
-	private void checkLinuxTree(TextMapElement t){
-		if(!boxlineAdded && !(t instanceof BrlOnlyMapElement)){
-			if(tree.getTree().getSelection().length == 0)
-				tree.setSelection(t);
+	private boolean isInLine(Element e){
+		Attribute atr = e.getAttribute("semantics");
+		if(atr != null){
+			String [] tokens = atr.getValue().split(",");
+			if(tokens[0].equals("action"))
+				return true;
 		}
+		return false;
 	}
 }

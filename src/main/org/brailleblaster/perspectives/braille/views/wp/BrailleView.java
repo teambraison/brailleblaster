@@ -724,6 +724,8 @@ public class BrailleView extends WPView {
 		int margin = 0;
 		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
 			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
+		else
+			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, SWT.LEFT);
 		
 		//reset margin in case it is not applied
 		if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))

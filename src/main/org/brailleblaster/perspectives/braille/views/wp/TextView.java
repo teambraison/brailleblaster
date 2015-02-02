@@ -221,6 +221,7 @@ public class TextView extends WPView {
 				
 				if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
 					Message message;
+					int pos = view.getCaretOffset();
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
 						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.CENTER);
@@ -232,10 +233,10 @@ public class TextView extends WPView {
 					manager.dispatch(message);
 					e.doit = false;
 					setSelection(-1, -1);
+					view.setCaretOffset(pos);
 				}
 				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
 					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
-				
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
 					e.doit = false;
@@ -278,6 +279,21 @@ public class TextView extends WPView {
 						setCurrent(pos);
 						view.setCaretOffset(currentEnd);
 						e.doit = false;
+					}
+					
+					TextMapElement t = manager.getNext();
+					if(t != null){
+						style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
+						if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
+							int pos = oldCursorPosition;
+							setCurrentElement(t.start);
+							int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
+							style.put(StylesType.linesBefore, String.valueOf(linesBefore));
+							manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
+							setCurrent(pos);
+							view.setCaretOffset(pos);
+							e.doit = false;
+						}
 					}
 				}
 				

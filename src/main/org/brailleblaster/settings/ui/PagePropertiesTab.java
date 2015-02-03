@@ -460,8 +460,10 @@ public class PagePropertiesTab {
 		linesBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
+				
+				userModifiesLinesBox();
 
-				if (!listenerLocked && !userModified) 
+				if (!listenerLocked) 
 					settingsMap.put("linesPerPage", getStringValue(linesBox));
 				
 			}// modifyText
@@ -840,12 +842,23 @@ public class PagePropertiesTab {
 			}// if incorrect margins
 			else {
 				marginBottomBox.setText(String.valueOf(maxLines-(Integer.valueOf(linesBox.getText())+
-						(Integer.valueOf(marginTopBox.getText())))));
-				
+						(Integer.valueOf(marginTopBox.getText())))));	
+				settingsMap.put("bottomMargin",String.valueOf(marginBottomBox.getText()));
+				settingsMap.put("linesPerPage", String.valueOf(linesBox.getText()));
 			}// else correct margins
 		}// if cellsLines button
 		else {
-			
+			if ((calculateLinesPerInch(Double.valueOf(marginTopBox.getText()))+
+					Double.valueOf(linesBox.getText()))> maxLines) {
+				new Notify (lh.localValue("incorectMarginHeight"));
+				marginTopBox.setText(String.valueOf(calculateLinesPerInch
+						(Double.valueOf(settingsMap.get("topMargin")))));
+				linesBox.setText(settingsMap.get("linesPerPage"));
+			}//if incorrect margins
+			else {
+				marginBottomBox.setText(String.valueOf(df.format(maxLines-(Double.valueOf(linesBox.getText())+
+						(Double.valueOf(marginTopBox.getText()))))));
+			}
 		}// else regionalButton
 
 		System.out.println(maxLines);

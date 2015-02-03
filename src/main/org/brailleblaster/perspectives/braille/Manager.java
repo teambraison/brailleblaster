@@ -690,18 +690,21 @@ public class Manager extends Controller {
 	private void handleAdjustAlignment(Message message){
 		braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
 		Element e = document.getParent(list.getCurrent().n, true);
-		sm.createAndApplyStyle(list.getCurrent(), e, message);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleAdjustIndent(Message message){
 		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
 		Element e = document.getParent(list.getCurrent().n, true);
-		sm.createAndApplyStyle(list.getCurrent(), e, message);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleLineAdjust(Message message){
 		Element e = document.getParent(list.getCurrent().n, true);
-		sm.createAndApplyStyle(list.getCurrent(), e, message);	
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleUpdateScrollbar(Message message){

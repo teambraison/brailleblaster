@@ -247,7 +247,6 @@ public class TextView extends WPView {
 						int pos = oldCursorPosition - 1;
 						setCurrentElement(currentElement.start);
 						int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
-						style.put(StylesType.linesBefore, String.valueOf(linesBefore));
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
 						setCurrent(pos);
 						view.setCaretOffset(currentStart);
@@ -260,7 +259,6 @@ public class TextView extends WPView {
 						int pos = oldCursorPosition - 1;
 						setCurrentElement(t.start);
 						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
-						style.put(StylesType.linesAfter, String.valueOf(linesAfter));
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
 						setCurrent(pos);
 						view.setCaretOffset(currentStart);

@@ -36,22 +36,17 @@ package org.brailleblaster.perspectives.braille.stylepanel;
 import java.util.ArrayList;
 import java.util.Set;
 
-import nu.xom.Attribute;
-import nu.xom.Element;
-
 import org.brailleblaster.document.ConfigFileHandler;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
-import org.brailleblaster.perspectives.braille.messages.BBEvent;
+
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
-import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
 
@@ -109,81 +104,6 @@ public class StyleManager{
    
     	container.setWeights(weights);
     	dm.setTabList();
-    }
-    
-    public void createAndApplyStyle(TextMapElement t, Element e, Message message){
-    	try {
-    		Styles style = (Styles)semanticsTable.makeStylesElement(e, t.n).clone();
-    		if(message.type.equals(BBEvent.ADJUST_INDENT)){    		
-    			int indent = (Integer)message.getValue("indent");
-				style.put(StylesType.firstLineIndent, String.valueOf(indent));
-				updateAndApply(style, e);
-    		}
-    		else if(message.type.equals(BBEvent.ADJUST_ALIGNMENT)){
-    			int alignment = (Integer)message.getValue("alignment");
-				if(alignment == SWT.RIGHT)
-	    			style.put(StylesType.format, "rightJustified");
-	    		else if(alignment == SWT.CENTER)
-	    			style.put(StylesType.format, "centered");
-	    		else
-	    			style.put(StylesType.format, "leftJustified");
-				
-				updateAndApply(style, e);
-			}	
-    		else if(message.type.equals(BBEvent.ADJUST_LINES)){
-    			int lines = (Integer)message.getValue("lines");
-    			if((Boolean)message.getValue("linesBefore") == true)
-    				style.put(StylesType.linesBefore, String.valueOf(lines));
-    			else 
-    				style.put(StylesType.linesAfter, String.valueOf(lines));	
-    			
-    			updateAndApply(style, e);
-    		}
-    	} catch (CloneNotSupportedException e1) {
-			e1.printStackTrace();
-		}
-    }
-    
-    private void setEmphasis(Styles style){
-    	if(style.contains(StylesType.emphasis)){
-    		StyleRange emphasis = (StyleRange)style.get(StylesType.emphasis);
-    		if(emphasis.fontStyle == SWT.BOLD)
-    			style.put(StylesType.emphasis, "boldx");
-    		else if(emphasis.fontStyle == SWT.UNDERLINE_SINGLE)
-    			style.put(StylesType.emphasis, "underlinex");
-    		else if(emphasis.fontStyle == SWT.ITALIC)
-    			style.put(StylesType.emphasis, "italicx");
-    	}
-    }
-    
-    private boolean isHiddenStyle(Styles style){
-    	return style.getName().contains("local_") ? true : false;
-    }
-    
-    private void setName(Styles style, Element e){
-    	Attribute atr = e.getAttribute("id");
-    	if(atr == null){
-    		dm.getDocument().addID(e);
-    		atr = e.getAttribute("id");
-    	}
-    	String name = "local_" + semanticsTable.getKeyFromAttribute(e) + "_" + atr.getValue();
-    	style.setName(name);
-    	style.put(StylesType.name, "local_" +style.get(StylesType.name));
-    }
-    
-    private void updateAndApply(Styles style, Element e){
-    	setEmphasis(style);
-    	ConfigFileHandler handler = new ConfigFileHandler(configFile, dm.getWorkingPath());
-		if(!isHiddenStyle(style)){
-			setName(style, e);	
-    		handler.appendDocumentStyle(style);
-		}
-		else{
-			handler.updateDocumentStyle(style);
-		}	
-		
-		semanticsTable.resetStyleTable(configFile, dm.getWorkingPath());
-		apply(style.getName());
     }
     
     private Styles indentToCell (Styles style){

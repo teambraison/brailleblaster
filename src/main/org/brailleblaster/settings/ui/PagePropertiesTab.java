@@ -242,8 +242,7 @@ public class PagePropertiesTab {
 									settingsMap.put(
 											type,
 											String.valueOf(df
-													.format(calcWidthFromCells(Integer
-															.valueOf((getStringValue(t)))))));
+													.format(calcWidthFromCells((int) getDoubleValue((t))))));
 								}// if cellsLinesButton
 								else {
 									settingsMap.put(type, getStringValue(t));
@@ -253,27 +252,20 @@ public class PagePropertiesTab {
 								if (regionalButton.getSelection()) {
 									settingsMap.put(type, getStringValue(t));
 									cellsBox.setText(String
-											.valueOf(calculateCellsPerLine(Double
-													.valueOf(widthBox.getText()))));
+											.valueOf(calculateCellsPerLine(getDoubleValue(widthBox))));
 									linesBox.setText(String
-											.valueOf(calculateLinesPerPage(Double
-													.valueOf(heightBox
-															.getText()))));
+											.valueOf(calculateLinesPerPage(getDoubleValue(heightBox))));
 
 								}// if regionalButton
 								else {
 									settingsMap.put(
 											type,
 											String.valueOf(df
-													.format(calcWidthFromCells(Integer
-															.valueOf((getStringValue(t)))))));
+													.format(calcWidthFromCells((int) getDoubleValue(t)))));
 									cellsBox.setText(String
-											.valueOf(calculateCellsPerLine(Double
-													.valueOf(widthBox.getText()))));
+											.valueOf(calculateCellsPerLine(getDoubleValue(widthBox))));
 									linesBox.setText(String
-											.valueOf(calculateLinesPerPage(Double
-													.valueOf(heightBox
-															.getText()))));
+											.valueOf(calculateLinesPerPage(getDoubleValue(heightBox))));
 								}// else cellsLinesButton
 							}// else notListenerLocked
 						}// else correctValues
@@ -286,9 +278,10 @@ public class PagePropertiesTab {
 			t.addModifyListener(new ModifyListener() {
 				@Override
 				public void modifyText(ModifyEvent e) {
+		
 					if (!userModified) {
 						Double margin;
-						if (currentUnits.equals("regional"))
+						if (regionalButton.getSelection())
 							margin = getDoubleValue(t);
 						else
 							margin = sm.calcHeightFromLines(getDoubleValue(t));
@@ -306,8 +299,7 @@ public class PagePropertiesTab {
 									settingsMap.put(
 											type,
 											String.valueOf(df.format(sm
-													.calcHeightFromLines(Integer
-															.valueOf((getStringValue(t)))))));
+													.calcHeightFromLines(getDoubleValue(t)))));
 								}// if cellsLinesButton
 								else {
 
@@ -318,26 +310,19 @@ public class PagePropertiesTab {
 								if (regionalButton.getSelection()) {
 									settingsMap.put(type, getStringValue(t));
 									cellsBox.setText(String
-											.valueOf(calculateCellsPerLine(Double
-													.valueOf(widthBox.getText()))));
+											.valueOf(calculateCellsPerLine(getDoubleValue(widthBox))));
 									linesBox.setText(String
-											.valueOf(calculateLinesPerPage(Double
-													.valueOf(heightBox
-															.getText()))));
+											.valueOf(calculateLinesPerPage(getDoubleValue(heightBox))));
 								}// if regionalButton
 								else {
 									settingsMap.put(
 											type,
 											String.valueOf(df.format(sm
-													.calcHeightFromLines(Integer
-															.valueOf((getStringValue(t)))))));
+													.calcHeightFromLines(getDoubleValue(t)))));
 									cellsBox.setText(String
-											.valueOf(calculateCellsPerLine(Double
-													.valueOf(widthBox.getText()))));
+											.valueOf(calculateCellsPerLine(getDoubleValue(widthBox))));
 									linesBox.setText(String
-											.valueOf(calculateLinesPerPage(Double
-													.valueOf(heightBox
-															.getText()))));
+											.valueOf(calculateLinesPerPage(getDoubleValue(heightBox))));
 								}// else cellsLinesButton
 							}// else not listenerLocked
 						}// else correctSettings
@@ -451,6 +436,7 @@ public class PagePropertiesTab {
 		cellsBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
+				userModifiesCellsBox();
 				if (!listenerLocked) {
 					settingsMap.put("cellsPerLine", getStringValue(cellsBox));
 				}
@@ -460,32 +446,17 @@ public class PagePropertiesTab {
 		linesBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				
-				userModifiesLinesBox();
 
-				if (!listenerLocked) 
+				if (!userModified) {
+					userModifiesLinesBox();
+				}
+
+				if (!listenerLocked)
 					settingsMap.put("linesPerPage", getStringValue(linesBox));
-				
+
 			}// modifyText
 
-
 		});// modifyListener
-		
-		linesBox.addVerifyListener(new VerifyListener() {
-
-			@Override
-			public void verifyText(VerifyEvent ve) {
-				try {
-					if (!userModified) {
-						userModifiesLinesBox();
-					}//if
-				}//try
-				catch (NumberFormatException e) {
-					ve.doit = false;
-				}
-				
-			}
-		});
 
 		pageTypes.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -657,23 +628,23 @@ public class PagePropertiesTab {
 
 	public void modifyMargins() {
 
-		if (userModified == false) {
+		if (!userModified) {
 
 			Boolean isRegional = getRadioSelection();
 
 			if (isRegional) {
 
 				String leftMargin = settingsMap.get("leftMargin");
-				marginLeftBox.setText(leftMargin);
+				marginLeftBox.setText(df.format(Double.valueOf(leftMargin)));
 
 				String rightMargin = settingsMap.get("rightMargin");
-				marginRightBox.setText(rightMargin);
+				marginRightBox.setText(df.format(Double.valueOf(rightMargin)));
 
 				String topMargin = settingsMap.get("topMargin");
-				marginTopBox.setText(topMargin);
+				marginTopBox.setText(df.format(Double.valueOf(topMargin)));
 
 				String bottomMargin = settingsMap.get("bottomMargin");
-				marginBottomBox.setText(bottomMargin);
+				marginBottomBox.setText(df.format(Double.valueOf(bottomMargin)));
 
 			}
 
@@ -825,48 +796,117 @@ public class PagePropertiesTab {
 		c.setLayoutData(location);
 	}
 
-	private void userModifiesLinesBox() throws NumberFormatException {
+	private void userModifiesLinesBox() {
 
-		userModified = true;
+		if (!directMarginEdit()) {
 
-		int maxLines = calculateLinesPerInch(Double.valueOf(settingsMap
-				.get("paperHeight")));
-		if (cellsLinesButton.getSelection()) {
-			if ((Double.valueOf(marginTopBox.getText()) + Double
-					.valueOf(linesBox.getText())) > maxLines) {
-				new Notify(lh.localValue("incorectMarginHeight"));
-				marginTopBox.setText(String
-						.valueOf(calculateLinesPerInch(Double
-								.valueOf(settingsMap.get("topMargin")))));
-				linesBox.setText(settingsMap.get("linesPerPage"));
-			}// if incorrect margins
+			userModified = true;
+
+			int maxLines = calculateLinesPerInch(Double.valueOf(settingsMap
+					.get("paperHeight")));
+			if (cellsLinesButton.getSelection()) {
+				if ((getDoubleValue(marginTopBox) + getDoubleValue(linesBox)) > maxLines) {
+					new Notify(lh.localValue("incorectMarginHeight"));
+					linesBox.setText(settingsMap.get("linesPerPage"));
+				}// if incorrect input cellsLines
+				else {
+					marginBottomBox
+							.setText(String
+									.valueOf((int) (maxLines - (getDoubleValue(linesBox) + (getDoubleValue(marginTopBox))))));
+					settingsMap
+							.put("bottomMargin",
+									String.valueOf(sm
+											.calcHeightFromLines(getDoubleValue(marginBottomBox))));
+					settingsMap.put("linesPerPage", getStringValue(linesBox));
+				}// else correct input cellsLines
+			}// if cellsLines button
 			else {
-				marginBottomBox.setText(String.valueOf(maxLines-(Integer.valueOf(linesBox.getText())+
-						(Integer.valueOf(marginTopBox.getText())))));	
-				settingsMap.put("bottomMargin",String.valueOf(marginBottomBox.getText()));
-				settingsMap.put("linesPerPage", String.valueOf(linesBox.getText()));
-			}// else correct margins
-		}// if cellsLines button
-		else {
-			if ((calculateLinesPerInch(Double.valueOf(marginTopBox.getText()))+
-					Double.valueOf(linesBox.getText()))> maxLines) {
-				new Notify (lh.localValue("incorectMarginHeight"));
-				marginTopBox.setText(String.valueOf(calculateLinesPerInch
-						(Double.valueOf(settingsMap.get("topMargin")))));
-				linesBox.setText(settingsMap.get("linesPerPage"));
-			}//if incorrect margins
-			else {
-				marginBottomBox.setText(String.valueOf(df.format(maxLines-(Double.valueOf(linesBox.getText())+
-						(Double.valueOf(marginTopBox.getText()))))));
-			}
-		}// else regionalButton
+				if ((calculateLinesPerInch(getDoubleValue(marginTopBox)) + getDoubleValue(linesBox)) > maxLines) {
+					new Notify(lh.localValue("incorectMarginHeight"));
+					linesBox.setText(settingsMap.get("linesPerPage"));
+				}// if incorrect input regional
+				else {
+					marginBottomBox
+							.setText(String.valueOf(df
+									.format(sm.calcHeightFromLines(maxLines)
+											- (sm.calcHeightFromLines(getDoubleValue(linesBox) + 
+													(getDoubleValue(marginTopBox)))))));
+					settingsMap
+							.put("bottomMargin",
+									String.valueOf(sm
+											.calcHeightFromLines(getDoubleValue(marginBottomBox))));
+					settingsMap.put("linesPerPage",
+							String.valueOf(linesBox.getText()));
+				}// else correct input regional
+			}// else regionalButton
 
-		System.out.println(maxLines);
-		System.out.println(settingsMap);
+			System.out.println(maxLines);
+			System.out.println(settingsMap);
 
-		userModified = false;
+			userModified = false;
+
+		}// is isn't focus control
 
 	}// userModifiesLinesBox
+
+	private void userModifiesCellsBox() {
+
+		if (!directMarginEdit()) {
+
+			userModified = true;
+			int maxCells = calculateCellsPerInch(Double.valueOf(settingsMap
+					.get("paperWidth")));
+			if (cellsLinesButton.getSelection()) {
+				if ((Double.valueOf(marginLeftBox.getText()) + Double
+						.valueOf(cellsBox.getText())) > maxCells) {
+					new Notify(lh.localValue("incorrectMarginWidth"));
+					cellsBox.setText(settingsMap.get("cellsPerLine"));
+				}// if incorrect input cellsLines
+				else {
+					marginRightBox
+							.setText(String
+									.valueOf((int) (maxCells - (getDoubleValue(cellsBox) + 
+											(getDoubleValue(marginLeftBox))))));
+					settingsMap.put("rightMargin", String
+							.valueOf(sm.calcWidthFromCells(getDoubleValue(marginRightBox))));
+					settingsMap.put("cellsPerLine", getStringValue(cellsBox));
+				}// else correct input cellsLines
+			}// if cellsLines Buttons
+			else {
+				if ((calculateCellsPerInch(getDoubleValue(marginLeftBox)) + getDoubleValue(cellsBox)) > maxCells) {
+					new Notify(lh.localValue("incorrectMarginWidth"));
+					cellsBox.setText(settingsMap.get("cellsPerLine"));
+				}// if incorrect input regional
+				else {
+					marginRightBox
+							.setText(String.valueOf(df
+									.format(sm.calcWidthFromCells(maxCells)
+											- (sm.calcWidthFromCells(getDoubleValue(cellsBox)) +
+													getDoubleValue(marginLeftBox)))));
+					settingsMap.put("topMargin", String
+							.valueOf(sm.calcWidthFromCells(getDoubleValue(marginRightBox))));
+					settingsMap.put("cellsPerLine",
+							String.valueOf(cellsBox.getText()));
+				}// else correct input regional
+
+			}// else regional button
+
+			System.out.println(maxCells);
+			System.out.println(settingsMap);
+			userModified = false;
+		}// if not directMarginEdit
+	}// userModifiesCellsBox
+
+	private boolean directMarginEdit() {
+		if (marginBottomBox.isFocusControl() || marginTopBox.isFocusControl()
+				|| marginLeftBox.isFocusControl()
+				|| marginRightBox.isFocusControl()) {
+			return true;
+		}// if
+		else {
+			return false;
+		}// else
+	}// directMarginEdit
 
 }// pagePropertiesTabClass
 

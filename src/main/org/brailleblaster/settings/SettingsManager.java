@@ -302,6 +302,16 @@ public class SettingsManager {
 		return cellWidth*numberOfCells;
 			
 	}
+	public double calcWidthFromCells(double numberOfCells){
+		double cellWidth;
+		if (!isMetric())
+			cellWidth=0.246063;
+		else
+			cellWidth=6.25;
+		
+		return cellWidth*numberOfCells;
+			
+	}
 
 	public double calcHeightFromLines(double numberOfLines){
 		Double cellHeight;

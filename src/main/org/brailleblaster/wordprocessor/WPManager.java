@@ -36,6 +36,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.ui.BrailleToolBar;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
@@ -253,7 +254,8 @@ public class WPManager {
 					managerList.get(index).getDoc());
 			managerList.set(index, currentPerspective.getController());
 			bbMenu = currentPerspective.getMenu();
-			bbToolbar = currentPerspective.getToolBar();
+//			bbToolbar = currentPerspective.getToolBar();
+			bbToolbar = new BrailleToolBar(shell, this, currentPerspective.getController());
 			managerList.get(index).setStatusBarText(statusBar);
 			managerList.get(index).restore(this);
 			currentPerspective.getController().getArchiver()

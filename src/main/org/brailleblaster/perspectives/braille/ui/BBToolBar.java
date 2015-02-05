@@ -33,6 +33,8 @@ package org.brailleblaster.perspectives.braille.ui;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -46,6 +48,8 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
@@ -60,10 +64,14 @@ public class BBToolBar {
 	WPManager wordProc;
 	ImageHelper imgHelper;
 	Manager currentEditor;
+	String curView = null;
+	
+	String sep = null;
+	String distPath = null;
+	
 	// FO
 	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
 		setEditor(manager);
-		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();
 		toolBar = new ToolBar(shell, SWT.NONE);
 		FormData location = new FormData();
@@ -75,29 +83,14 @@ public class BBToolBar {
 		imgHelper = new ImageHelper();
 		
 		// Calculate max width and height for toolbar buttons.
-		//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Monitor mon[] = Display.getDefault().getMonitors();
 		Rectangle screenSize = mon[0].getBounds();
 		
 		MAX_W = screenSize.width / 30;
 		MAX_H = MAX_W;
-		
-		// Change font size depending on screen resolution.
-//		FontData[] oldFontData = toolBar.getFont().getFontData();
-//		if( screenSize.width >= 1920)
-//			oldFontData[0].setHeight(9);
-//		else if( screenSize.width >= 1600)
-//			oldFontData[0].setHeight(8);
-//		else if( screenSize.width >= 1280)
-//			oldFontData[0].setHeight(6);
-//		else if( screenSize.width >= 1024)
-//			oldFontData[0].setHeight(4);
-//		else if( screenSize.width >= 800)
-//			oldFontData[0].setHeight(3);
-//		toolBar.setFont( new Font(null, oldFontData[0]) );
-		
-		// Path to dist folder.
-		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
+
+		sep = BBIni.getFileSep();
+		distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
 		distPath += sep + "programData";
 		
 		// FO
@@ -223,42 +216,16 @@ public class BBToolBar {
 			}
 		});
 		
-		/*
-		ToolItem imageDesc = new ToolItem(toolBar, SWT.PUSH);
-		tlabel = lh.localValue("&Image Describer");
-		imageDesc.setText(tlabel.replace("&", ""));
-		imageDesc.setImage(new Image(null, distPath  + sep + "images" + sep + "imgdesc.png"));
-		imageDesc.addSelectionListener(new SelectionAdapter() {
+		final ToolItem viewSwitch = new ToolItem(toolBar, SWT.PUSH);
+		tlabel = lh.localValue("&Toggle View");
+		viewSwitch.setText(tlabel.replace("&", ""));
+		setViewButton(viewSwitch);
+		viewSwitch.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
-				
-				// Current Doc Manager.
-				Manager curDm = null;
-				
-				if (BBIni.debugging()) {
-					// dm.setReturn (WP.OpenDocumentGetFile);
-				} 
-				else {
-					int index= wp.getFolder().getSelectionIndex();
-					if(index == -1){
-						wp.addDocumentManager(null);
-						curDm =(Manager) wp.getList().getFirst();
-					}
-					else {
-						curDm = (Manager)wp.getList().get(index);
-					}
-				}
-				
-				// Run Image Describer on current document.
-				if(curDm.document.getDOM() != null) {
-					ImageDescriberDialog imgDlg = new ImageDescriberDialog(wordProc.getShell(), SWT.NONE, wordProc);
-//					curDm.text.view.setVisible(false);
-//					curDm.braille.view.setVisible(false);
-				}
-					
-			} // widgetSelected...
-				
-		}); // addSelectionListener(new SelectionAdapter()...
-		*/
+				setViewButton(viewSwitch);
+			}
+		});
 
 		FormData bloc = new FormData();
 		bloc.left = new FormAttachment(40);
@@ -266,6 +233,24 @@ public class BBToolBar {
 		bloc.top = new FormAttachment(5);
 		
 		toolBar.pack();
+	}
+	
+	public void setViewButton(final ToolItem ti) {
+		final String dpStr = distPath;
+		final String sepStr = sep;
+		String view = currentEditor.getCurrentEditor();
+		if(view == null || view.equals("")){
+			currentEditor.setEditingView(TextView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
+		}
+		else if(view.equals(TextView.class.getCanonicalName())){
+			currentEditor.setEditingView(BrailleView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
+		}
+		else if(view.equals(BrailleView.class.getCanonicalName())) {
+			currentEditor.setEditingView(null);
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
+		}
 	}
 	
 	public void setEditor(Manager editor){

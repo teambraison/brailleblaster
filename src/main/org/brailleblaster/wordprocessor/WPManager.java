@@ -68,6 +68,7 @@ public class WPManager {
 	private TabFolder folder;
 	private FormData location;
 	private BBMenu bbMenu;
+	private BBToolBar bbToolbar;
 	private BBStatusBar statusBar;
 	private Perspective currentPerspective;
 	private LinkedList<Controller> managerList;
@@ -248,6 +249,7 @@ public class WPManager {
 					managerList.get(index).getDoc());
 			managerList.set(index, currentPerspective.getController());
 			bbMenu = currentPerspective.getMenu();
+			bbToolbar = currentPerspective.getToolBar();
 			managerList.get(index).setStatusBarText(statusBar);
 			managerList.get(index).restore(this);
 			currentPerspective.getController().getArchiver()
@@ -260,6 +262,8 @@ public class WPManager {
 					currentPerspective, this, controllerClass, null);
 			bbMenu = currentPerspective.getMenu();
 			bbMenu.setCurrent(null);
+			bbToolbar = currentPerspective.getToolBar();
+			bbToolbar.setCurrent(null);
 			currentPerspective.getController().getArchiver()
 					.resumeAutoSave(null, null);
 		}

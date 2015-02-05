@@ -1,0 +1,22 @@
+Please read this brief introduction. It contains important information.
+
+Welcome to BrailleBlaster, your completely accessible total solution for creation, translation and embossing of Braille documents.
+
+BrailleBlaster is still actively being developed and many of the features referenced on the menus have not been implemented yet. To see a full description of the state of BrailleBlaster at the moment and exactly what you can do with it, see the BrailleBlaster tutorial. To read the tutorial, once you have installed BrailleBlaster and run it for the first time, choose the Tutorial item on the Help menu and the tutorial will come up in your default browser.
+
+Remember, BrailleBlaster must have the Java runtime for your version of windows installed. If you don't have java installed click cancel in this dialog and download and install Java. To download the Java runtime for your version of Windows, go to http://java.com/en/download/manual.jsp and choose either the download for 32-bit Windows or 64-bit Windows depending on which version you are running. Once you have Java installed, you can run this setup again and install BrailleBlaster.
+
+If you don't know if you have Java installed follow these steps:
+
+For Windows Vista or Windows 7:
+Open the start menu.
+In the search box, type "java" without the quotes.
+If your screen reader doesn't say "java.exe" or something about Java, try moving down and back up with the arrow keys.
+If you can't find java.exe, you probably don't have Java installed.
+Press escape to exit the start menu.
+
+For Windows XP:
+Press Windows-R to open the Run dialog. This means hold down the Windows key and press the R key.
+Type "appwiz.cpl" without the quotes and press enter. You will be placed in Add/Remove Programs.
+Once the list of programs comes up, arrow down to see if you can find a version of Java. If Java isn't listed in the list, it isn't installed.
+To close this dialog, just press Alt-F4.

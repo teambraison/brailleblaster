@@ -21,7 +21,7 @@ public class WebArchiver extends Archiver{
 		if(workingDocPath.equals(templateFile))
 			originalDocPath = null;
 		
-		copyFileToTemp(docToPrepare);
+		copyFilesToTemp(docToPrepare);
 	}
 	
 	/**This constructor is used when saveAs is called
@@ -58,7 +58,11 @@ public class WebArchiver extends Archiver{
 			fu.copyFile(workingDocPath, originalDocPath);
 			String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			String newSemFile = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(originalDocPath) + ".sem";
-			copySemanticsFile(tempSemFile, newSemFile);
+			copyUTDFile(tempSemFile, newSemFile);
+			
+			String tempCfgFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			String newCfgFile = fu.getPath(originalDocPath) + BBIni.getFileSep() + fu.getFileName(originalDocPath) + ".cfg";
+			copyUTDFile(tempCfgFile, newCfgFile);
 		}
 		else {
 			new Notify("An error occured while saving your document.  Please check your original document.");

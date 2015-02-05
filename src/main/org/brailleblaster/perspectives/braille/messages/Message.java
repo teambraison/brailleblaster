@@ -66,6 +66,15 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createAdjustLinesMessage(Sender sender, boolean linesBefore, int lines){
+		Message m = new Message(BBEvent.ADJUST_LINES);
+		m.put("sender", sender);
+		m.put("linesBefore", linesBefore);
+		m.put("lines", lines);
+		
+		return m;
+	}
+	
 	public static Message createAdjustRange(String type, int position){
 		Message m = new Message(BBEvent.ADJUST_RANGE);
 		m.put(type, position);
@@ -79,6 +88,13 @@ public class Message {
 		m.put("atStart", atStart);
 		m.put("atEnd", atEnd);
 		m.put("elementName", elementName);
+		
+		return m;
+	}
+	
+	public static Message createMergeElementMessage(boolean isFirst){
+		Message m = new Message(BBEvent.MERGE);
+		m.put("isFirst", isFirst);
 		
 		return m;
 	}

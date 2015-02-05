@@ -27,7 +27,7 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
 
 public class BrailleDocument extends BBDocument {
-	private int idCount = 0;
+	private int idCount = -1;
 	private BBSemanticsTable table;
 	
 	/**Base constructor for initializing a new document
@@ -701,7 +701,7 @@ public class BrailleDocument extends BBDocument {
 			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
-			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+			addID(e);
 			String fileName; 
 			if(dm.getWorkingPath() == null)
 				fileName = "outFile";
@@ -710,7 +710,6 @@ public class BrailleDocument extends BBDocument {
 			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
-			idCount++;
 		}
 	}
 	
@@ -739,7 +738,7 @@ public class BrailleDocument extends BBDocument {
 			semHandler.writeEntry(file, name, e.getLocalName(), e.getAttributeValue("id"));
 		}
 		else {
-			e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
+			addID(e);
 			
 			String fileName;
 			if(dm.getWorkingPath() == null)
@@ -749,7 +748,6 @@ public class BrailleDocument extends BBDocument {
 			
 			String file = BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem";
 			semHandler.writeEntry(file, name,  e.getLocalName(), BBIni.getInstanceID() + "_" + idCount);			
-			idCount++;
 		}
 	}
 	
@@ -769,7 +767,7 @@ public class BrailleDocument extends BBDocument {
 		return parent;
 	}
 	
-	/** Checks if an element has emphasis, currently used because emphasis can only be toggled on/off elements in bold,em, u tags
+	/** Checks if an element has emphasis, currently used because emphasis can only be toggled on/off elements in bold, em, u tags
 	 * @param t : TextMapElement to check
 	 * @param fontType : swt constant for emphasis
 	 * @return true if element is contained in a valid tag for toggling emphasis
@@ -846,5 +844,53 @@ public class BrailleDocument extends BBDocument {
 		}
 		
 		return null;
+	}
+	
+	public Element mergeElements(Element originalParent, Element child){
+		Element parent = (Element)originalParent.copy();
+		removeBraille(parent);
+		removeBraille(child);
+		
+		while(child.getChildCount() > 0){
+			if(parent.getChild(parent.getChildCount() - 1) instanceof Text && child.getChild(0) instanceof Text){
+				((Text)parent.getChild(parent.getChildCount() - 1)).setValue(parent.getChild(parent.getChildCount() - 1).getValue() + child.getChild(0).getValue());
+				child.removeChild(0);
+			}
+			else if(parent.getChild(parent.getChildCount() - 1) instanceof Element && child.getChild(0) instanceof Element){
+				Element e1 = (Element)parent.getChild(parent.getChildCount() - 1);
+				Element e2 = (Element)child.getChild(0);
+				boolean merged = false;
+				if( table.getSemanticTypeFromAttribute(e1).equals("action") && table.getSemanticTypeFromAttribute(e1).equals("action")){
+					if(table.getKeyFromAttribute(e1).equals(table.getKeyFromAttribute(e2))){
+						if(e1.getChild(0) instanceof Text && e2.getChild(0) instanceof Text){
+							((Text)e1.getChild(0)).setValue(e1.getChild(0).getValue() + e2.getChild(0).getValue());
+							Elements els = e2.getChildElements();
+							for(int i = 0; i < els.size(); i++)
+								e1.appendChild(e2.removeChild(els.get(0)));
+							
+							e2.getParent().removeChild(e2);
+							merged = true;
+						}
+					}
+				}
+				
+				if(!merged)
+					parent.appendChild(child.removeChild(0));
+			}
+			else
+				parent.appendChild(child.removeChild(0));
+		}
+		
+		child.getParent().removeChild(child);
+		Element mergedElement = translateElement(parent);
+	
+		originalParent.getParent().replaceChild(originalParent, mergedElement);
+		
+		return mergedElement;
+	}
+
+	public void addID(Element e){
+		idCount++;
+		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));
 	}
 }

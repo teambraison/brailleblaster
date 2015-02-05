@@ -134,12 +134,12 @@ public class BookTree extends TreeView {
 	
 	public void setTree(Element e, TreeItem item){	
 		Elements els = e.getChildElements();
-		for(int i = 0; i < els.size(); i++){
+		
+		for(int i = 0; i < els.size(); i++){			
 			if(table.getKeyFromAttribute(els.get(i)).contains("heading") || table.getKeyFromAttribute(els.get(i)).contains("header")){			
 				TreeItem childItem;
-				if(previousItem == null){
+				if(previousItem == null)
 					childItem = new TreeItem(findCorrectLevel(root, els.get(i)), SWT.LEFT | SWT.BORDER);
-				}
 				else
 					childItem =  new TreeItem(findCorrectLevel(previousItem, els.get(i)), SWT.LEFT | SWT.BORDER);
 					
@@ -579,5 +579,13 @@ public class BookTree extends TreeView {
 		setRoot(manager.getDocument().getRootElement());
 		tree.setRedraw(true);
 		
+	}
+
+	@Override
+	public void merge(ArrayList<TextMapElement>mapList, ArrayList<Element>elList) {
+		tree.setRedraw(false);
+		tree.removeAll();
+		setRoot(manager.getDocument().getRootElement());
+		tree.setRedraw(true);
 	}
 }

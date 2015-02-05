@@ -79,22 +79,9 @@ public class ImageDescriberToolBar extends BBToolBar {
 		// Calculate max width and height for toolbar buttons.
 		Monitor mon[] = Display.getDefault().getMonitors();
 		Rectangle screenSize = mon[0].getBounds();
+		
 		MAX_W = screenSize.width / 30;
 		MAX_H = MAX_W;
-		
-		// Change font size depending on screen resolution.
-		FontData[] oldFontData = toolBar.getFont().getFontData();
-		if( screenSize.width >= 1920)
-			oldFontData[0].setHeight(9);
-		else if( screenSize.width >= 1600)
-			oldFontData[0].setHeight(8);
-		else if( screenSize.width >= 1280)
-			oldFontData[0].setHeight(6);
-		else if( screenSize.width >= 1024)
-			oldFontData[0].setHeight(4);
-		else if( screenSize.width >= 800)
-			oldFontData[0].setHeight(3);
-		toolBar.setFont( new Font(null, oldFontData[0]) );
 		
 		// Path to dist folder.
 		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
@@ -172,32 +159,14 @@ public class ImageDescriberToolBar extends BBToolBar {
 			}
 		});
 		
+		FormData bloc = new FormData();
+		bloc.left = new FormAttachment(40);
+		bloc.right = new FormAttachment(50);
+		bloc.top = new FormAttachment(5);
+		
 		toolBar.pack();
 		
 	} // ImageDescriberToolBar() constructor.
-	
-	public void setEditor(ImageDescriberController editor){
-		currentEditor = editor;
-	}
-	
-	public void dispose() {
-		toolBar.dispose();
-	}
-	
-	protected String fileOpenDialog(){
-		String tempName = null;
-
-		if(!BBIni.debugging()){
-			String[] filterNames = new String[] { "XML", "XML ZIP", "EPUB", "XHTML", "HTML","HTM","UTDML working document"};
-			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.epub", "*.xhtml","*.html", "*.htm", "*.utd"};
-			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
-			tempName = dialog.open();
-		}
-		else
-			tempName = BBIni.getDebugFilePath();
-		
-		return tempName;
-	}
 	
 } // class ImageDescriberToolBar.
 

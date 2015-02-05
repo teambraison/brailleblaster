@@ -18,6 +18,7 @@ import org.brailleblaster.perspectives.imageDescriber.ImageDescriberPerspective;
 import org.brailleblaster.perspectives.webView.WebViewController;
 import org.brailleblaster.perspectives.webView.WebViewPerspective;
 import org.brailleblaster.wordprocessor.BBMenu;
+import org.brailleblaster.wordprocessor.BBToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
 
@@ -32,9 +33,14 @@ public abstract class Perspective {
 		PERSPECTIVE_MAP = Collections.unmodifiableMap(temp);
 	}
 	
+	protected BBToolBar toolbar;
 	protected BBMenu menu;
 	protected Class<?> perspectiveType;
 	protected Controller controller;
+	
+	public BBToolBar getToolBar(){
+		return toolbar;
+	}
 	
 	public BBMenu getMenu(){
 		return menu;

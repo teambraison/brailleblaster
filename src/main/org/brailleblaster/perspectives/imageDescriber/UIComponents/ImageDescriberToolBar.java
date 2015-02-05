@@ -35,6 +35,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.BBFileDialog;
+import org.brailleblaster.wordprocessor.BBToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -51,7 +52,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-public class ImageDescriberToolBar {
+public class ImageDescriberToolBar extends BBToolBar {
 	
 	int MAX_W = 32;
 	int MAX_H = 32;
@@ -62,6 +63,7 @@ public class ImageDescriberToolBar {
 	
 	public ImageDescriberToolBar(Shell shell, final WPManager wp, ImageDescriberController controller)
 	{
+		super(shell, wp, controller);
 		setEditor(controller);
 		String sep = BBIni.getFileSep();
 		LocaleHandler lh = new LocaleHandler();

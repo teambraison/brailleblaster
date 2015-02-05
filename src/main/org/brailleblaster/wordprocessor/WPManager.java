@@ -109,22 +109,24 @@ public class WPManager {
 		managerList.add(currentPerspective.getController());
 		currentPerspective.getController().setStatusBarText(statusBar);
 		bbMenu = currentPerspective.getMenu();
+		bbToolbar = currentPerspective.getToolBar();
 
 		folder.addSelectionListener(folderListener = new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
 				if (managerList.size() > 0) {
-					if (bbMenu.getCurrent().getClass()
-							.isInstance(managerList.get(index))) {
+					if (bbMenu.getCurrent().getClass().isInstance(managerList.get(index))) {
 						bbMenu.setCurrent(managerList.get(index));
 						currentPerspective.setController(managerList.get(index));
+						bbToolbar.setCurrent(managerList.get(index));
 					} else {
 						currentPerspective.dispose();
-						currentPerspective = Perspective.restorePerspective(
-								WPManager.this, managerList.get(index));
+						currentPerspective = Perspective.restorePerspective(WPManager.this, managerList.get(index));
 						bbMenu = currentPerspective.getMenu();
 						bbMenu.setCurrent(managerList.get(index));
+						bbToolbar = currentPerspective.getToolBar();
+						bbToolbar.setCurrent(managerList.get(index));
 					}
 
 					managerList.get(index).setStatusBarText(statusBar);
@@ -212,12 +214,14 @@ public class WPManager {
 			managerList.add(c);
 			currentPerspective.setController(c);
 			bbMenu.setCurrent(managerList.getLast());
+			bbToolbar.setCurrent(managerList.getLast());
 			setSelection();
 		} else {
 			Controller c = Perspective.getNewController(this,
 					currentPerspective.getType(), fileName);
 			managerList.add(c);
 			bbMenu.setCurrent(managerList.getLast());
+			bbToolbar.setCurrent(managerList.getLast());
 			currentPerspective.setController(c);
 			setSelection();
 		}
@@ -325,5 +329,9 @@ public class WPManager {
 
 	public BBMenu getMainMenu() {
 		return bbMenu;
+	}
+	
+	public BBToolBar getToolBar() {
+		return bbToolbar;
 	}
 }

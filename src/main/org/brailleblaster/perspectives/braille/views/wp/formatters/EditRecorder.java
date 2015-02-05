@@ -61,12 +61,17 @@ public class EditRecorder {
 		int offset = e.start - lineStart;
 		String lineText = currentLine;
 		int index = offset;
-		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.replacedText.length())))
-			index++;
+		if(e.replacedText.length() == 0){
+			while(index < lineText.length() && (lineText.charAt(index) != ' '))
+				index++;
+		}
+		else {
+			index = offset + e.replacedText.length();
+		}
 		
 		int wordEnd = index;
 		index = offset;
-		while(index > 0 && lineText.charAt(index) != ' ')
+		while(index - 1 >= 0 && lineText.charAt(index - 1) != ' ')
 			index--;
 		
 		int wordStart = index;

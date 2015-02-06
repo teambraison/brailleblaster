@@ -1,4 +1,3 @@
-
 package org.brailleblaster.search;
 
 import java.util.ArrayList;

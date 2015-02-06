@@ -31,70 +31,29 @@
 package org.brailleblaster.perspectives.braille.ui;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.wordprocessor.BBFileDialog;
+import org.brailleblaster.wordprocessor.BBToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-//import org.eclipse.swt.graphics.Font;
-//import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-public class BBToolBar {
-
-	int MAX_W = 32;
-	int MAX_H = 32;
-	
-	private ToolBar toolBar;
-	WPManager wordProc;
-	ImageHelper imgHelper;
-	Manager currentEditor;
+public class BrailleToolBar extends BBToolBar {
 	String curView = null;
 	
-	String sep = null;
-	String distPath = null;
-	
 	// FO
-	public BBToolBar(Shell shell, final WPManager wp, Manager manager) {
+	public BrailleToolBar(Shell shell, final WPManager wp, Manager manager) {
+		super(shell, wp, manager);
+		
 		setEditor(manager);
-		LocaleHandler lh = new LocaleHandler();
-		toolBar = new ToolBar(shell, SWT.NONE);
-		FormData location = new FormData();
-		location.left = new FormAttachment(0);
-		location.right = new FormAttachment(40);
-		location.top = new FormAttachment(0);
-		toolBar.setLayoutData(location);
-		wordProc = wp;
-		imgHelper = new ImageHelper();
-		
-		// Calculate max width and height for toolbar buttons.
-		Monitor mon[] = Display.getDefault().getMonitors();
-		Rectangle screenSize = mon[0].getBounds();
-		
-		MAX_W = screenSize.width / 30;
-		MAX_H = MAX_W;
 
-		sep = BBIni.getFileSep();
-		distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
-		distPath += sep + "programData";
-		
-		// FO
-		String tlabel;
 		ToolItem openItem = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Open");
 		openItem.setText(tlabel.replace("&", ""));
@@ -109,10 +68,10 @@ public class BBToolBar {
 					wp.addDocumentManager(filePath);
 				}
 				else if(filePath != null){
-					if(currentEditor.canReuseTab()){
-						currentEditor.closeUntitledTab();
-						currentEditor.openDocument(filePath);
-						currentEditor.checkTreeFocus();
+					if( ((Manager)currentEditor).canReuseTab() ){
+						((Manager)currentEditor).closeUntitledTab();
+						((Manager)currentEditor).openDocument(filePath);
+						((Manager)currentEditor).checkTreeFocus();
 					}
 					else
 						wp.addDocumentManager(filePath);
@@ -139,7 +98,7 @@ public class BBToolBar {
 					}
 					else {
 					//	wp.getList().get(index).fileSave();
-						currentEditor.fileSave();
+						((Manager)currentEditor).fileSave();
 					}
 				}
 			}
@@ -162,12 +121,13 @@ public class BBToolBar {
 					}
 					else {
 						//wp.getList().get(index).saveAs();
-						currentEditor.saveAs();
+						((Manager)currentEditor).saveAs();
 					}
 				}
 			}
 		});
-
+	
+		
 		ToolItem translateItem = new ToolItem(toolBar, SWT.PUSH);
 		// FO
 		tlabel = lh.localValue("&Translate");
@@ -192,7 +152,7 @@ public class BBToolBar {
 				int index= wp.getFolder().getSelectionIndex();
 				if(index != -1){
 					//wp.getList().get(index).fileEmbossNow();
-					currentEditor.fileEmbossNow();
+					((Manager)currentEditor).fileEmbossNow();
 				}
 			}
 		});
@@ -238,41 +198,18 @@ public class BBToolBar {
 	public void setViewButton(final ToolItem ti) {
 		final String dpStr = distPath;
 		final String sepStr = sep;
-		String view = currentEditor.getCurrentEditor();
+		String view = ((Manager)currentEditor).getCurrentEditor();
 		if(view == null || view.equals("")){
-			currentEditor.setEditingView(TextView.class.getCanonicalName());
-			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
-		}
-		else if(view.equals(TextView.class.getCanonicalName())){
-			currentEditor.setEditingView(BrailleView.class.getCanonicalName());
-			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
-		}
-		else if(view.equals(BrailleView.class.getCanonicalName())) {
-			currentEditor.setEditingView(null);
+			((Manager)currentEditor).setEditingView(null);
 			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
 		}
-	}
-	
-	public void setEditor(Manager editor){
-		currentEditor = editor;
-	}
-	
-	public void dispose(){
-		toolBar.dispose();
-	}
-	
-	protected String fileOpenDialog(){
-		String tempName = null;
-
-		if(!BBIni.debugging()){
-			String[] filterNames = new String[] { "XML", "XML ZIP", "XHTML", "HTML","HTM", "EPUB", "TEXT", "UTDML working document"};
-			String[] filterExtensions = new String[] { "*.xml", "*.zip", "*.xhtml","*.html", "*.htm", "*.epub", "*.txt", "*.utd"};
-			BBFileDialog dialog = new BBFileDialog(wordProc.getShell(), SWT.OPEN, filterNames, filterExtensions);
-			tempName = dialog.open();
+		else if(view.equals(TextView.class.getCanonicalName())){
+			((Manager)currentEditor).setEditingView(TextView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
 		}
-		else
-			tempName = BBIni.getDebugFilePath();
-		
-		return tempName;
+		else if(view.equals(BrailleView.class.getCanonicalName())) {
+			((Manager)currentEditor).setEditingView(BrailleView.class.getCanonicalName());
+			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
+		}
 	}
 }

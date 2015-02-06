@@ -36,7 +36,6 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.ui.BrailleToolBar;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
@@ -113,14 +112,14 @@ public class WPManager {
 		bbToolbar = currentPerspective.getToolBar();
 
 		folder.addSelectionListener(folderListener = new SelectionAdapter() {
-			@Override
+			@Override	
 			public void widgetSelected(SelectionEvent e) {
 				int index = folder.getSelectionIndex();
 				if (managerList.size() > 0) {
 					if (bbMenu.getCurrent().getClass().isInstance(managerList.get(index))) {
 						bbMenu.setCurrent(managerList.get(index));
-						currentPerspective.setController(managerList.get(index));
 						bbToolbar.setCurrent(managerList.get(index));
+						currentPerspective.setController(managerList.get(index));
 					} else {
 						currentPerspective.dispose();
 						currentPerspective = Perspective.restorePerspective(WPManager.this, managerList.get(index));
@@ -257,8 +256,7 @@ public class WPManager {
 			bbToolbar = currentPerspective.getToolBar();
 			managerList.get(index).setStatusBarText(statusBar);
 			managerList.get(index).restore(this);
-			currentPerspective.getController().getArchiver()
-					.resumeAutoSave(null, null);
+			currentPerspective.getController().getArchiver().resumeAutoSave(null, null);
 		} else {
 			currentPerspective.getController().getArchiver().pauseAutoSave();
 			currentPerspective.dispose();
@@ -269,8 +267,7 @@ public class WPManager {
 			bbMenu.setCurrent(null);
 			bbToolbar = currentPerspective.getToolBar();
 			bbToolbar.setCurrent(null);
-			currentPerspective.getController().getArchiver()
-					.resumeAutoSave(null, null);
+			currentPerspective.getController().getArchiver().resumeAutoSave(null, null);
 		}
 
 		lastPerspective = controllerClass;

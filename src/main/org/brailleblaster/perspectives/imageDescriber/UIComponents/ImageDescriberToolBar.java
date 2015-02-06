@@ -34,32 +34,19 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
 import org.brailleblaster.util.ImageHelper;
-import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 public class ImageDescriberToolBar extends BBToolBar {
-	
-	int MAX_W = 32;
-	int MAX_H = 32;
-	private ToolBar toolBar;
-	WPManager wordProc;
-	ImageHelper imgHelper;
-	ImageDescriberController currentEditor;
 	
 	public ImageDescriberToolBar(Shell shell, final WPManager wp, ImageDescriberController controller)
 	{
@@ -75,17 +62,6 @@ public class ImageDescriberToolBar extends BBToolBar {
 		toolBar.setLayoutData(location);
 		wordProc = wp;
 		imgHelper = new ImageHelper();
-		
-		// Calculate max width and height for toolbar buttons.
-		Monitor mon[] = Display.getDefault().getMonitors();
-		Rectangle screenSize = mon[0].getBounds();
-		
-		MAX_W = screenSize.width / 30;
-		MAX_H = MAX_W;
-		
-		// Path to dist folder.
-		String distPath = BBIni.getProgramDataPath().substring(0, BBIni.getProgramDataPath().lastIndexOf(sep));
-		distPath += sep + "programData";
 		
 		// FO
 		String tlabel;
@@ -103,8 +79,8 @@ public class ImageDescriberToolBar extends BBToolBar {
 					wp.addDocumentManager(filePath);
 				}
 				else if(filePath != null){
-					if(currentEditor.canReuseTab())
-						currentEditor.openDocument(filePath);
+					if(((ImageDescriberController)currentEditor).canReuseTab())
+						((ImageDescriberController)currentEditor).openDocument(filePath);
 					else
 						wp.addDocumentManager(filePath);
 				}
@@ -130,7 +106,7 @@ public class ImageDescriberToolBar extends BBToolBar {
 					}
 					else {
 					//	wp.getList().get(index).fileSave();
-						currentEditor.save();
+						((ImageDescriberController)currentEditor).save();
 					}
 				}
 			}
@@ -153,7 +129,7 @@ public class ImageDescriberToolBar extends BBToolBar {
 					}
 					else {
 						//wp.getList().get(index).saveAs();
-						currentEditor.saveAs();
+						((ImageDescriberController)currentEditor).saveAs();
 					}
 				}
 			}

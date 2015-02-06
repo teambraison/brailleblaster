@@ -37,7 +37,7 @@ public abstract class Perspective {
 	protected BBMenu menu;
 	protected Class<?> perspectiveType;
 	protected Controller controller;
-	
+
 	public BBToolBar getToolBar(){
 		return toolbar;
 	}

@@ -1557,6 +1557,7 @@ public class SearchDialog extends Dialog {
 		// Grab search string.
 		String findMeStr = searchCombo.getText();
 
+
 		// Get number of characters in text view.
 		int numChars = tv.view.getText().length();
 
@@ -1606,6 +1607,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+					System.out.println(tv.view.getSelectionText());
 
 					// Found it; break.
 					return true;
@@ -1861,6 +1863,12 @@ public class SearchDialog extends Dialog {
 
 		// Grab search string.
 		String findMeStr = searchCombo.getText();
+		
+		//tests to see if the user has used the find button and has selected
+		//text that they want to replace
+		if ((tv.view.getSelectionText()).equals(findMeStr)) {
+			return true;
+		}//if text selected
 
 		// Get number of characters in text view.
 		int numChars = tv.view.getText().length();
@@ -1982,6 +1990,12 @@ public class SearchDialog extends Dialog {
 
 		// Grab search string.
 		String findMeStr = searchCombo.getText();
+		
+		//tests to see if the user has used the find button and has selected
+		//text that they want to replace
+		if ((tv.view.getSelectionText()).equals(findMeStr)) {
+			return true;
+		}//if text selected
 
 		// Get number of characters in text view.
 		int numChars = tv.view.getText().length();
@@ -2064,6 +2078,12 @@ public class SearchDialog extends Dialog {
 
 		// Grab search string.
 		String findMeStr = searchCombo.getText();
+		
+		//tests to see if the user has used the find button and has selected
+		//text that they want to replace
+		if ((tv.view.getSelectionText()).equals(findMeStr)) {
+			return true;
+		}//if text selected
 
 		// Get number of characters in text view.
 		int numChars = tv.view.getText().length();
@@ -2193,6 +2213,12 @@ public class SearchDialog extends Dialog {
 
 		// Get number of characters in text view.
 		int numChars = tv.view.getText().length();
+		
+		//tests to see if the user has used the find button and has selected
+		//text that they want to replace
+		if ((tv.view.getSelectionText()).equals(findMeStr)) {
+			return true;
+		}//if text selected
 
 		// If the search string is larger than the total number of
 		// characters in the view, don't bother.

@@ -25,10 +25,9 @@ public class EditRecorder {
 		ExtendedModifyEvent e = (ExtendedModifyEvent)m.getValue("event");
 		
 		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
-		int offset = e.start - lineStart;
-		
-		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));
+		int offset = e.start - lineStart;	
 		int index = offset;
+		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));	
 		
 		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
 			index++;
@@ -61,12 +60,13 @@ public class EditRecorder {
 		int offset = e.start - lineStart;
 		String lineText = currentLine;
 		int index = offset;
-		if(e.replacedText.length() == 0){
-			while(index < lineText.length() && (lineText.charAt(index) != ' '))
-				index++;
-		}
-		else {
-			index = offset + e.replacedText.length();
+	
+		while(index < lineText.length()){
+			if(lineText.charAt(index) == ' '){
+				if(index > offset + e.replacedText.length())
+					break;
+			}
+			index++;
 		}
 		
 		int wordEnd = index;

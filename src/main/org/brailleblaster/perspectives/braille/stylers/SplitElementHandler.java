@@ -8,21 +8,24 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
+import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class SplitElementHandler extends Handler{
+	BrailleDocument document;
 	
 	public SplitElementHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);
+		document = manager.getDocument();
 	}
 	
 	public void splitElement(Message m){
 		int treeIndex = tree.getBlockElementIndex();
 		
 		ArrayList<Integer> originalElements = list.findTextMapElementRange(list.getCurrentIndex(), (Element)list.getCurrent().parentElement(), true);
-		ArrayList<Element> els = manager.getDocument().splitElement(list, list.getCurrent(), m);
+		ArrayList<Element> els = document.splitElement(list, list.getCurrent(), m);
 		
 		int textStart = list.get(originalElements.get(0)).start;
 		int textEnd = list.get(originalElements.get(originalElements.size() - 1)).end;
@@ -52,7 +55,7 @@ public class SplitElementHandler extends Handler{
 		currentIndex = insertElement(els.get(0), currentIndex, textStart, brailleStart) - 1;
 		
 		String insertionString = "";
-		Styles style = manager.getStyleTable().get(manager.getStyleTable().getKeyFromAttribute(manager.getDocument().getParent(list.get(currentIndex).n, true)));
+		Styles style = manager.getStyleTable().get(manager.getStyleTable().getKeyFromAttribute(document.getParent(list.get(currentIndex).n, true)));
 
 		if(style.contains(StylesType.linesBefore)){
 			for(int i = 0; i < Integer.valueOf((String)style.get(StylesType.linesBefore)) + 1; i++)
@@ -74,7 +77,6 @@ public class SplitElementHandler extends Handler{
 		currentIndex = insertElement(els.get(1), currentIndex + 1, list.get(currentIndex).end + insertionString.length(), list.get(currentIndex).brailleList.getLast().end + insertionString.length());
 
 		list.shiftOffsetsFromIndex(currentIndex, list.get(currentIndex - 1).end - textStart, list.get(currentIndex - 1).brailleList.getLast().end - brailleStart);
-		
 		tree.split(Message.createSplitTreeMessage(firstElementIndex, secondElementIndex, currentIndex, treeIndex));
 	}
 

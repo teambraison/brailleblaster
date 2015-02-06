@@ -42,8 +42,10 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
+
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.util.Notify;
+
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Table;
@@ -104,8 +106,7 @@ public class StyleManager{
     	dm.setTabList();
     }
     
-    
-    private Styles  indentToCell (Styles style){
+    private Styles indentToCell (Styles style){
     	int cellPosition;
     	if (style.contains(BBSemanticsTable.StylesType.leftMargin)){
     		cellPosition = Integer.valueOf((String)style.get((BBSemanticsTable.StylesType.leftMargin))) + 1;
@@ -122,7 +123,6 @@ public class StyleManager{
         style.put(BBSemanticsTable.StylesType.leftMargin, String.valueOf(cellPosition));
     	return style;	
     }
-    
     
     private Styles  cellToIndent (Styles style){
 		 int cellPosition;

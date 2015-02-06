@@ -330,17 +330,23 @@ abstract public class Archiver {
 		FileUtils fu = new FileUtils();
 		String tempSemFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(oldPath) + ".sem";
     	String savedSemFile = fu.getPath(newPath) + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem";   
+    	
+    	String tempCfgFile = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(oldPath) + ".cfg";
+    	String savedCfgFile = fu.getPath(newPath) + BBIni.getFileSep() + fu.getFileName(newPath) + ".cfg";   
     
     	//Save new semantic file to correct location and temp folder for further editing
-    	copySemanticsFile(tempSemFile, savedSemFile);	
-    	copySemanticsFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem");
+    	copyUTDFile(tempSemFile, savedSemFile);	
+    	copyUTDFile(tempSemFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".sem");
+    	
+    	copyUTDFile(tempCfgFile, savedCfgFile);	
+    	copyUTDFile(tempCfgFile, BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(newPath) + ".cfg");
 	}
 
 	/** Copies a semantic file into a new file; used by save as methods
 	 * @param tempSemFile: path to existing file
 	 * @param savedFilePath: path to which to create file
 	 */
-	protected void copySemanticsFile(String tempSemFile, String savedFilePath) {
+	protected void copyUTDFile(String tempSemFile, String savedFilePath) {
 		FileUtils fu = new FileUtils();
 		
 		if(fu.exists(tempSemFile)){
@@ -701,12 +707,12 @@ abstract public class Archiver {
 		
 	} // deleteTempFiles()
 	
-	/** Copies an file not in an epub or zip file, and it's corresponding semantic file, if it exists, to the temp folder
+	/** Copies an file not in an epub or zip file, and it's corresponding semantic file and/or config file, if they exist, to the temp folder
 	 * These files are placed in the temp folder so work can saved and recovered due to an unexpected crash
 	 * without altering the original file
 	 * @param path: path of file to open
 	 */
-	protected void copyFileToTemp(String path){
+	protected void copyFilesToTemp(String path){
 		FileUtils fu = new FileUtils();
 		workingDocPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1);
 		fu.copyFile(path, workingDocPath);
@@ -716,6 +722,13 @@ abstract public class Archiver {
 		if(f.exists()){
 			String tempSem = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".sem";
 			fu.copyFile(sem, tempSem);
+		}
+		
+		String config = fu.getPath(path) + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+		File configFile = new File(config);
+		if(configFile.exists()){
+			String tempConfig = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(path) + ".cfg";
+			fu.copyFile(config, tempConfig);
 		}
 	}
 	

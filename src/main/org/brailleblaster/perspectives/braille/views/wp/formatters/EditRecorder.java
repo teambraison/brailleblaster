@@ -1,7 +1,6 @@
 package org.brailleblaster.perspectives.braille.views.wp.formatters;
 
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.eventQueue.ViewEvent;
@@ -30,11 +29,16 @@ public class EditRecorder {
 		
 		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));
 		int index = offset;
+		
 		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
 			index++;
 		
-		int wordEnd = index;
+		int wordEnd = index; 
 		index = offset;
+		
+		if(isBlankSpace(text.view.getTextRange(e.start, e.length)))
+			index--;
+		
 		while(index > 0 && lineText.charAt(index) != ' ')
 			index--;
 		
@@ -57,12 +61,17 @@ public class EditRecorder {
 		int offset = e.start - lineStart;
 		String lineText = currentLine;
 		int index = offset;
-		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.replacedText.length())))
-			index++;
+		if(e.replacedText.length() == 0){
+			while(index < lineText.length() && (lineText.charAt(index) != ' '))
+				index++;
+		}
+		else {
+			index = offset + e.replacedText.length();
+		}
 		
 		int wordEnd = index;
 		index = offset;
-		while(index > 0 && lineText.charAt(index) != ' ')
+		while(index - 1 >= 0 && lineText.charAt(index - 1) != ' ')
 			index--;
 		
 		int wordStart = index;
@@ -99,7 +108,7 @@ public class EditRecorder {
 	private void createEvent(int wordStart, int wordEnd, String recordedText){
 		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().peek().getEventType().equals(EventTypes.Edit)){
 			ViewEvent ev = (ViewEvent)manager.peekUndoEvent().peek();
-			if(sameWord(ev, wordStart))
+			if(sameWord(ev, wordStart, recordedText))
 				manager.peekUndoEvent().addEvent(new ViewEvent(EventTypes.Edit, wordStart, wordEnd, 0, 0, recordedText));
 			else 
 				addEvent(wordStart, wordEnd, recordedText);
@@ -115,10 +124,10 @@ public class EditRecorder {
 		manager.addUndoEvent(frame);
 	}
 	
-	private boolean sameWord(Event e, int wordStart){
+	private boolean sameWord(ViewEvent e, int wordStart, String recordedText){
 		int line = text.view.getLineAtOffset(wordStart);
-		
-		if(line == currentLineNumber){
+	
+		if(line == currentLineNumber && !isBlankSpace(recordedText)){
 			int priorStart = e.getTextOffset();
 				
 			if(wordStart == priorStart)
@@ -126,5 +135,15 @@ public class EditRecorder {
 		}
 		
 		return false;
+	}
+	
+	private boolean isBlankSpace(String text){
+		int length = text.length();
+		for(int i = 0; i < length; i++){
+			if(text.charAt(i) != ' ')
+				return false;
+		}
+		
+		return true;
 	}
 }

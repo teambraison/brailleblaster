@@ -4,6 +4,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
@@ -21,8 +22,8 @@ public class RedoQueue extends EventQueue{
 	
 	@Override
 	protected void handleEvent(EventFrame frame, ViewInitializer vi, BrailleDocument doc, MapList list, Manager manager) {
-		for(int i = 0; i < frame.size(); i++){
-			Event event = frame.get(i);
+		while(!frame.empty()){
+			Event event = frame.get(frame.size() - 1);
 			switch(event.eventType){
 				case Edit:
 					TextUpdateHandler editUpdater = new TextUpdateHandler(manager, vi, list);
@@ -31,6 +32,10 @@ public class RedoQueue extends EventQueue{
 				case Update:
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
 					tuh.redoText(frame);
+					break;
+				case Merge:
+					MergeElementHandler meh = new MergeElementHandler(manager, vi, list);
+					meh.redoMerge(frame);
 					break;
 				case Insert:
 					InsertElementHandler inserter = new InsertElementHandler(manager, vi, list);

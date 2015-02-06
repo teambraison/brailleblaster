@@ -419,11 +419,16 @@ public class ImageDescriber extends BBDocument {
 			// Remove %20(space).
 			tempStr = tempStr.replace("%20", " ");
 			
-			// Add.
-			if( imgElmList.get(elmIndex).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
-				return new Image( null, convertSVG2JPG(tempStr) );
-			else	
-				return new Image(null, tempStr);
+			// Add image to image list.
+			
+			// Does the file exist?
+			File f = new File(tempStr);
+			if(f.exists()) {
+				if( imgElmList.get(elmIndex).getAttribute("src").getValue().toLowerCase().endsWith(".svg") )
+					return new Image( null, convertSVG2JPG(tempStr) );
+				else	
+					return new Image(null, tempStr);
+			}
 		}
 		
 		// Return null if the list is empty.

@@ -254,8 +254,7 @@ public class WPManager {
 					managerList.get(index).getDoc());
 			managerList.set(index, currentPerspective.getController());
 			bbMenu = currentPerspective.getMenu();
-//			bbToolbar = currentPerspective.getToolBar();
-			bbToolbar = new BrailleToolBar(shell, this, currentPerspective.getController());
+			bbToolbar = currentPerspective.getToolBar();
 			managerList.get(index).setStatusBarText(statusBar);
 			managerList.get(index).restore(this);
 			currentPerspective.getController().getArchiver()

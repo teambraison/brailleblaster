@@ -51,7 +51,6 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.util.Notify;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
 import org.eclipse.swt.custom.CaretListener;
@@ -222,7 +221,7 @@ public class TextView extends WPView {
 				
 				if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
 					Message message;
-					
+					int pos = view.getCaretOffset();
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
 						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
 						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.CENTER);
@@ -234,14 +233,66 @@ public class TextView extends WPView {
 					manager.dispatch(message);
 					e.doit = false;
 					setSelection(-1, -1);
+					view.setCaretOffset(pos);
 				}
-				
-				if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
+				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
 					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
-				
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
 					e.doit = false;
+				}
+				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != previousEnd && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
+					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
+					if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
+						int pos = oldCursorPosition - 1;
+						setCurrentElement(currentElement.start);
+						int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
+						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
+						setCurrent(pos);
+						view.setCaretOffset(currentStart);
+						e.doit = false;
+					}
+					
+					TextMapElement t = manager.getPrevious();
+					style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
+					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
+						int pos = oldCursorPosition - 1;
+						setCurrentElement(t.start);
+						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
+						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
+						setCurrent(pos);
+						view.setCaretOffset(currentStart);
+						e.doit = false;
+					}
+				}
+				
+				if(selectionLength <= 0 && oldCursorPosition == currentEnd && oldCursorPosition != nextStart && e.character == SWT.DEL && currentStart != currentEnd){
+					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
+					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
+						int pos = oldCursorPosition;
+						setCurrentElement(currentElement.end);
+						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
+						style.put(StylesType.linesAfter, String.valueOf(linesAfter));
+						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
+						setCurrent(pos);
+						view.setCaretOffset(currentEnd);
+						e.doit = false;
+					}
+					
+					TextMapElement t = manager.getNext();
+					if(t != null){
+						style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
+						if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
+							int pos = oldCursorPosition;
+							setCurrentElement(t.start);
+							int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
+							style.put(StylesType.linesBefore, String.valueOf(linesBefore));
+							manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
+							setCurrent(pos);
+							view.setCaretOffset(pos);
+							e.doit = false;
+						}
+					}
 				}
 				
 				//Blocks text from crossing page boundaries in original markup
@@ -474,6 +525,11 @@ public class TextView extends WPView {
 			incrementNext(offset);
 			textChanged = true;
 		}
+		
+		if(isFirst(currentElement.n) && previousEnd == currentStart)
+			manager.dispatch(Message.createMergeElementMessage(true));
+		else if(isLast(currentElement.n) && currentEnd == nextStart)
+			manager.dispatch(Message.createMergeElementMessage(false));
 	}
 	
 	private void sendAdjustRangeMessage(String type, int position){
@@ -572,6 +628,7 @@ public class TextView extends WPView {
 	}
 	
 	public void prependText(TextMapElement t, MapList list, int index){
+		setListenerLock(true);
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		Styles prevStyle;
 		if(list.size() > 0 && index != 0)
@@ -592,6 +649,7 @@ public class TextView extends WPView {
 		spaceBeforeText = 0;
 		view.setCaretOffset(total);
 		words += getWordCount(t.getText());
+		setListenerLock(false);
 	}
 	
 	public void setMathML(MapList list, TextMapElement t){
@@ -857,6 +915,65 @@ public class TextView extends WPView {
 		
 		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
 		m.put("textLength", reformattedText.length() + linesBefore + linesAfter);
+		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+		
+		start += linesBefore;
+		//reset margin in case it is not applied
+		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+			handleLineWrap(start, reformattedText, 0, false);
+				
+		if(style.contains(StylesType.leftMargin)) {
+			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+		}
+					
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+			setFirstLineIndent(start, style);
+		
+		if(style.contains(StylesType.format))
+			setAlignment(start, start + t.n.getValue().length(), style);
+		
+		if(style.contains(StylesType.emphasis))
+			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	
+	public void mergeElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		int linesBefore = 0;
+		int linesAfter = 0;
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		String reformattedText;
+		if(t instanceof BrlOnlyMapElement)
+			reformattedText = t.getText();
+		else
+			reformattedText =  appendToView(t.n, false);
+		
+		boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+		boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
+		
+		setListenerLock(true);
+		int originalPosition = view.getCaretOffset();
+		
+		view.setCaretOffset(start);
+		view.insert(reformattedText);	
+		
+		t.setOffsets(start, start + reformattedText.length());
+		list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+		
+		int margin = 0;
+		
+		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		
+		if(isFirst)
+			linesBefore = wsp.setLinesBefore(t, start, style);	
+		
+		if(isLast)
+			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		
+		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+		m.put("textLength", linesBefore + linesAfter);
 		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
 		
 		start += linesBefore;

@@ -56,4 +56,8 @@ public class QueueManager {
 	public EventFrame peekUndoEvent(){
 		return undoQueue.peek();
 	}
+	
+	public EventFrame peekRedoEvent(){
+		return redoQueue.peek();
+	}
 }

@@ -227,7 +227,7 @@ public class PagePropertiesTab {
 						if (currentUnits.equals("regional"))
 							margin = getDoubleValue(t);
 						else
-							margin = calcWidthFromCells((int) getDoubleValue(t));
+							margin = calcWidthFromCells(getDoubleValue(t));
 
 						if (margin >= getDoubleValue(widthBox)
 								|| (getDoubleValue(marginLeftBox)
@@ -242,7 +242,7 @@ public class PagePropertiesTab {
 									settingsMap.put(
 											type,
 											String.valueOf(df
-													.format(calcWidthFromCells((int) getDoubleValue((t))))));
+													.format(calcWidthFromCells(getDoubleValue((t))))));
 								}// if cellsLinesButton
 								else {
 									settingsMap.put(type, getStringValue(t));
@@ -261,7 +261,7 @@ public class PagePropertiesTab {
 									settingsMap.put(
 											type,
 											String.valueOf(df
-													.format(calcWidthFromCells((int) getDoubleValue(t)))));
+													.format(calcWidthFromCells(getDoubleValue(t)))));
 									cellsBox.setText(String
 											.valueOf(calculateCellsPerLine(getDoubleValue(widthBox))));
 									linesBox.setText(String
@@ -769,7 +769,16 @@ public class PagePropertiesTab {
 		return cellWidth * numberOfCells;
 
 	}
+	private double calcWidthFromCells(double numberOfCells) {
+		double cellWidth;
+		if (!sm.isMetric())
+			cellWidth = 0.246063;
+		else
+			cellWidth = 6.25;
 
+		return cellWidth * numberOfCells;
+
+	}
 	private boolean checkEqualWidth(Page p, double width) {
 		if (sm.isMetric())
 			return p.mmWidth == width;

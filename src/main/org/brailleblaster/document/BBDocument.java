@@ -153,8 +153,7 @@ public class BBDocument {
 		String configFileWithPath = "temp";
 		String configWithUTD;
 		
-		// Use the default; we don't have a local version.
-		configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
+		configFileWithPath = configureConfigurationFiles(dm.getWorkingPath(), configFile);
 		
 		if (configSettings == null) 
 			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
@@ -162,9 +161,9 @@ public class BBDocument {
 			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
 		
 		if(dm.getWorkingPath() != null)
-			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);			
-		else 
-			configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
+			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);
+		//else 
+		//	configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
 		
 		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
 		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
@@ -203,6 +202,15 @@ public class BBDocument {
 		new CheckLiblouisutdmlLog().displayLog();
 		
 		return false;
+	}
+	
+	private String configureConfigurationFiles(String completPath, String configFile){
+		String configPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
+		String documentConfig = fu.getPath(completPath) + BBIni.getFileSep() + fu.getFileName(completPath) + ".cfg";
+		if(fu.exists(documentConfig))
+			configPath += "," + documentConfig;
+		
+		return configPath;
 	}
 	
 	/**
@@ -375,7 +383,7 @@ public class BBDocument {
 	public boolean createBrlFile(String filePath){		
 		Document temp = getNewXML();
 		String inFile = createTempFile(temp);
-		String config = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
+		String config = configureConfigurationFiles(dm.getWorkingPath(), dm.getCurrentConfig());
 		String logFile = BBIni.getTempFilesPath() + fileSep + "liblouisutdml.log";
 		String semFile = "";
 		

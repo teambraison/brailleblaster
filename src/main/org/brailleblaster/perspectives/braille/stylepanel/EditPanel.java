@@ -45,6 +45,11 @@ public class EditPanel extends StylePanel {
 				String key = String.valueOf(e.character);
 				if(key.matches("\\s+"))
 					e.doit = false;
+				else if((styleName.getText() + e.character).equals("local_")){
+					e.doit = false;
+					styleName.setText("");
+					new Notify(lh.localValue("invalidStyleName"));
+				}
 			}
 		});
 		styleName.setToolTipText(lh.localValue("styleNameTooltip"));

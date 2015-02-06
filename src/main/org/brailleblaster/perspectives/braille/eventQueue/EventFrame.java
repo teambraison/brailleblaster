@@ -44,6 +44,12 @@ public class EventFrame {
 			return null;
 	}
 	
+	public Event push(){
+		if(!empty())
+			return eventList.remove(0);
+		else
+			return null;
+	}
 	public boolean empty(){
 		return eventList.size() == 0;
 	}

@@ -140,6 +140,10 @@ public class SectionElement {
 				return true;
 		}
 		
+		//if empty node of length zero, but followed by brl, then part of template document
+		if(length == 0 && index < e.getChildCount() - 1 && e.getChild(index + 1) instanceof Element &&((Element)e.getChild(index + 1)).getLocalName().equals("brl"))
+			return true;
+		
 		return false;
 	}
 	

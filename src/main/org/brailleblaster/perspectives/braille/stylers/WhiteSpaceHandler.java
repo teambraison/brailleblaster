@@ -60,14 +60,22 @@ public class WhiteSpaceHandler {
 		manager.addUndoEvent(eventFrame);
 	}
 	
-	public void UndoDelete(EventFrame frame){
+	public void undoDelete(EventFrame frame){
 		eventFrame = new EventFrame();
 		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace)){
 			ViewEvent ev = (ViewEvent)frame.pop();
 			insertWhitespace(ev);
 			eventFrame.addEvent(ev);
 		}
-		manager.addRedoEvent(eventFrame);
+		createRedoEvent();
+	}
+	
+	public void redoDelete(EventFrame frame){
+		eventFrame = new EventFrame();
+		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
+			removeWhitespace((ViewEvent)frame.pop());
+		
+		manager.addUndoEvent(eventFrame);
 	}
 	
 	private void insertWhitespace(ViewEvent ev){
@@ -78,23 +86,58 @@ public class WhiteSpaceHandler {
 		
 		if(pos != text.view.getCharCount()){
 			Message curMessage = Message.createGetCurrentMessage(Sender.TREE, pos);
-			manager.dispatch(curMessage);	
+			manager.dispatch(curMessage);
+			int index = list.getCurrent().end == ev.getTextOffset() ? list.getCurrentIndex() + 1 : list.getCurrentIndex();
+			list.setCurrent(index);
 			list.shiftOffsetsFromIndex(list.getCurrentIndex(), ev.getText().length(),  ev.getText().length());
-			
 			text.view.setCaretOffset(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
+			refreshStyles(ev.getTextOffset());
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
 	}
 	
-	public void redoDelete(EventFrame frame){
-		while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Whitespace))
-			removeWhitespace((ViewEvent)frame.pop());
+	private void refreshStyles(int offset){
+		int pos  = text.view.getCaretOffset();
+		if(list.getCurrent().end == offset){
+			text.setCurrentElement(list.getCurrent().start);
+			text.refreshStyle(list.getCurrent());
+			braille.refreshStyle(list.getCurrent());
+			
+			text.setCurrentElement(list.get(list.getCurrentIndex() + 1).start);
+			text.refreshStyle(list.get(list.getCurrentIndex()));
+			braille.refreshStyle(list.get(list.getCurrentIndex()));
+		}
+		else {
+			text.setCurrentElement(list.getCurrent().start);
+			text.refreshStyle(list.getCurrent());
+			braille.refreshStyle(list.getCurrent());
+			
+			text.setCurrentElement(list.get(list.getCurrentIndex() - 1).start);
+			text.refreshStyle(list.get(list.getCurrentIndex()));
+			braille.refreshStyle(list.get(list.getCurrentIndex()));
+		}
+		
+		text.view.setCaretOffset(pos);
+		text.setCurrentElement(pos);
 	}
 	
 	private void removeWhitespace(ViewEvent ev){
-		text.setCurrentSelection(ev.getTextOffset(), ev.getTextOffset() + ev.getText().length());
-		text.cut();
+		Message m = new Message(null);
+		m.put("offset", ev.getTextOffset());
+		int index = list.findClosest(m, 0, list.size() - 1);
+		text.replaceTextRange(ev.getTextOffset(), ev.getText().length(), "");
+		braille.replaceTextRange(ev.getBrailleOffset(), ev.getText().length(), "");
+		list.shiftOffsetsFromIndex(index + 1, -ev.getText().length(), -ev.getText().length());
+		eventFrame.addEvent(ev);
+	}
+	
+	private void createRedoEvent(){
+		if(manager.peekRedoEvent() != null && manager.peekRedoEvent().peek().getEventType().equals(EventTypes.Merge)){
+			while(!eventFrame.empty())
+				manager.peekRedoEvent().addEvent(eventFrame.push());
+		}
+		else {
+			manager.addRedoEvent(eventFrame);
+		}
 	}
 }

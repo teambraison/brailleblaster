@@ -4,6 +4,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
@@ -31,6 +32,10 @@ public class UndoQueue extends EventQueue {
 					TextUpdateHandler tuh = new TextUpdateHandler(manager, vi, list);
 					tuh.undoText(frame);
 					break;
+				case Merge:
+					MergeElementHandler meh = new MergeElementHandler(manager, vi, list);
+					meh.undoMerge(frame);
+					break;
 				case Insert:
 					RemoveElementHandler remover = new RemoveElementHandler(manager, vi, list);
 					remover.undoInsert(frame);
@@ -49,7 +54,7 @@ public class UndoQueue extends EventQueue {
 					break;
 				case Whitespace:
 					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
-					wsh.UndoDelete(frame);
+					wsh.undoDelete(frame);
 					break;
 				default:
 					break;

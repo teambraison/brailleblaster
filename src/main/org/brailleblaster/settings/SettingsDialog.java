@@ -48,6 +48,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Group;
@@ -57,7 +58,9 @@ import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ch.qos.logback.classic.Level;
+
 import org.liblouis.LibLouis;
 import org.liblouis.LibLouisUTDML;
 
@@ -83,16 +86,15 @@ public class SettingsDialog {
 		final Shell dialog =
 				new Shell(shell, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		dialog.setLayout(new GridLayout(2,  true));
-		GridData data = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, true);
-		data.horizontalSpan = 2;
-		data.horizontalAlignment = GridData.FILL;
-		data.widthHint = 400;
+		GridData data = new GridData(SWT.FILL, SWT.BEGINNING, true, true,2,1);
 		dialog.setText(lh.localValue("settingsTitle"));
+		
 		final Button[] checkbox= new Button[2];
 		checkbox[0] = new Button(dialog, SWT.CHECK);
 		checkbox[0].setText(lh.localValue("settingsWelcome"));
 		checkbox[0].setSelection(showWelcome());
 		checkbox[0].setLayoutData(data);
+		data = new GridData(SWT.FILL, SWT.BEGINNING, true, true, 2, 1);
 		checkbox[1] = new Button(dialog, SWT.CHECK);
 		checkbox[1].setText(lh.localValue("settingsTutorial"));
 		checkbox[1].setLayoutData(data);
@@ -112,8 +114,7 @@ public class SettingsDialog {
 		logError.setSelection(logLevel==Level.ERROR_INT);
 		logLevelGroup.setText("Log Level");
 		logLevelGroup.setLayout(new RowLayout(SWT.HORIZONTAL));
-		data = new GridData(SWT.BEGINNING, SWT.FILL, true, true);
-		data.horizontalSpan = 2;
+		data = new GridData(SWT.BEGINNING, SWT.FILL, true, true, 2, 1);
 		logLevelGroup.setLayoutData(data);
 		logDebug.setText("Debug");
 		logInfo.setText("Info");
@@ -122,7 +123,7 @@ public class SettingsDialog {
 		
 		Button saveButton = new Button(dialog, SWT.PUSH);
 		saveButton.setText(lh.localValue("&Save"));
-		data = new GridData(SWT.RIGHT, SWT.BOTTOM, true, true);		
+		data = new GridData(SWT.RIGHT, SWT.BOTTOM, true, true, 1, 1);		
 		data.widthHint = 100;
 		saveButton.setLayoutData(data);
 		saveButton.pack();
@@ -166,7 +167,7 @@ public class SettingsDialog {
 			}
 		});
 		
-		data = new GridData(SWT.LEFT, SWT.BOTTOM, true, true);
+		data = new GridData(SWT.LEFT, SWT.BOTTOM, true, true, 1, 1);
 		data.widthHint = 100;
 		Button cancelButton = new Button(dialog, SWT.PUSH);
 		cancelButton.setText(lh.localValue("&Cancel"));
@@ -183,13 +184,14 @@ public class SettingsDialog {
 				
 			}
 		});
-		dialog.pack();
+		dialog.pack(true);
 		// Move the dialog to the center of the top level shell.
 		Rectangle shellBounds = shell.getBounds();
 		Point dialogSize = dialog.getSize();
 		dialog.setLocation(
 				shellBounds.x + (shellBounds.width - dialogSize.x) / 2,
 				shellBounds.y + (shellBounds.height - dialogSize.y) / 2);
+		
 		dialog.open();
 	}
 

@@ -6,8 +6,10 @@ import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -110,8 +112,8 @@ public class SearchDialog extends Dialog {
 	 */
 	private void createContents() {
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlFindreplace.setSize(262,376);
-		shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
+		//shlFindreplace.setSize(262,376);
+		//shlFindreplace.setLocation(600,250);// I did this so it wouldn't annoy me during testing--windows specific position
 		shlFindreplace.setText("Find/Replace");
 
 		GridLayout gl_shlFindreplace = new GridLayout(5, false);
@@ -139,8 +141,8 @@ public class SearchDialog extends Dialog {
 		replaceCombo.setEnabled(true);
 
 		Group grpDirection = new Group(shlFindreplace, SWT.NONE);
-		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
-				false, 3, 1));
+		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		grpDirection.setLayout(new RowLayout(SWT.VERTICAL));
 		// grpDirection.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		grpDirection.setText("Direction");
 		// formToolkit.adapt(grpDirection);
@@ -148,37 +150,41 @@ public class SearchDialog extends Dialog {
 
 		Button forwardRadioBtn = new Button(grpDirection, SWT.RADIO);
 		forwardRadioBtn.setSelection(true);
+		//forwardRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		forwardRadioBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_FORWARD;
 			}
 		});
-		forwardRadioBtn.setBounds(10, 21, 90, 16);
+		//forwardRadioBtn.setBounds(10, 21, 90, 16);
 		// formToolkit.adapt(btnRadioButton, true, true);
 		forwardRadioBtn.setText("Forward");
 
 		Button backwardRadioBtn = new Button(grpDirection, SWT.RADIO);
+		//backwardRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		backwardRadioBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_BACKWARD;
 			}
 		});
-		backwardRadioBtn.setBounds(10, 43, 90, 16);
+		//backwardRadioBtn.setBounds(10, 43, 90, 16);
 		// formToolkit.adapt(btnRadioButton_1, true, true);
 		backwardRadioBtn.setText("Backward");
 
 		Group grpScope = new Group(shlFindreplace, SWT.NONE);
 		grpScope.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false,
 				2, 1));
+		grpScope.setLayout(new RowLayout(SWT.VERTICAL));
 		grpScope.setText("Scope");
 		// formToolkit.adapt(grpScope);
 		// formToolkit.paintBordersFor(grpScope);
 
 		Button allRadioBtn = new Button(grpScope, SWT.RADIO);
 		allRadioBtn.setSelection(true);
-		allRadioBtn.setBounds(10, 20, 90, 16);
+		//allRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
+		//allRadioBtn.setBounds(10, 20, 90, 16);
 		// formToolkit.adapt(btnRadioButton_2, true, true);
 		allRadioBtn.setText("All");
 		allRadioBtn.addSelectionListener(new SelectionAdapter() {
@@ -190,9 +196,10 @@ public class SearchDialog extends Dialog {
 		allRadioBtn.setEnabled(false);
 
 		Button selectedLinesBtn = new Button(grpScope, SWT.RADIO);
-		selectedLinesBtn.setBounds(10, 43, 90, 16);
+		//selectedLinesBtn.setBounds(10, 43, 90, 16);
 		// formToolkit.adapt(btnSelectedLines, true, true);
 		selectedLinesBtn.setText("Selected Lines");
+		//selectedLinesBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		selectedLinesBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -204,14 +211,16 @@ public class SearchDialog extends Dialog {
 		Group grpOptions = new Group(shlFindreplace, SWT.NONE);
 		grpOptions.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 5, 1));
+		grpOptions.setLayout(new GridLayout(2, false));
 		grpOptions.setText("Options");
 		// formToolkit.adapt(grpOptions);
 		// formToolkit.paintBordersFor(grpOptions);
 
 		Button caseSensitiveCheck = new Button(grpOptions, SWT.CHECK);
-		caseSensitiveCheck.setBounds(10, 21, 91, 16);
+		//caseSensitiveCheck.setBounds(10, 21, 91, 16);
 		// formToolkit.adapt(btnCaseSensitive, true, true);
 		caseSensitiveCheck.setText("Case sensitive");
+		caseSensitiveCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		caseSensitiveCheck.setEnabled(true);
 		caseSensitiveCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -225,9 +234,10 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button wholeWordCheck = new Button(grpOptions, SWT.CHECK);
-		wholeWordCheck.setBounds(10, 43, 91, 16);
+		//wholeWordCheck.setBounds(10, 43, 91, 16);
 		// formToolkit.adapt(btnWholeWord, true, true);
 		wholeWordCheck.setText("Whole word");
+		wholeWordCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		wholeWordCheck.setEnabled(true);
 		wholeWordCheck.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -240,13 +250,15 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button regExpressionsCheck = new Button(grpOptions, SWT.CHECK);
-		regExpressionsCheck.setBounds(10, 65, 124, 16);
+		//regExpressionsCheck.setBounds(10, 65, 124, 16);
+		regExpressionsCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnRegularExpressions, true, true);
 		regExpressionsCheck.setText("Regular expressions");
 		regExpressionsCheck.setEnabled(false);
 
 		Button wrapSearchCheck = new Button(grpOptions, SWT.CHECK);
-		wrapSearchCheck.setBounds(107, 21, 91, 16);
+		//wrapSearchCheck.setBounds(107, 21, 91, 16);
+		wrapSearchCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnWrapSearch, true, true);
 		wrapSearchCheck.setText("Wrap search");
 		wrapSearchCheck.setEnabled(true);
@@ -261,7 +273,8 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button incrementalCheck = new Button(grpOptions, SWT.CHECK);
-		incrementalCheck.setBounds(107, 43, 91, 16);
+		//incrementalCheck.setBounds(107, 43, 91, 16);
+		incrementalCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnIncremental, true, true);
 		incrementalCheck.setText("Incremental");
 		incrementalCheck.setEnabled(false);
@@ -428,7 +441,11 @@ public class SearchDialog extends Dialog {
 			} // widgetSelected()
 
 		}); // closeBtn.addSelectionListener...
-
+		shlFindreplace.layout(true, true);
+		Point newSize2 = shlFindreplace.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
+		System.out.println(newSize2.x + ", " + newSize2.y);
+		shlFindreplace.setSize(shlFindreplace.computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
+		shlFindreplace.pack(true);
 	} // createContents()
 	
 	public void createErrorMessage() {

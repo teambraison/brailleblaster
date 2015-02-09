@@ -58,8 +58,8 @@ public class Main {
 		}
 
 		if (BBIni.haveLiblouisutdml()) {
-			LibLouisUTDML louisutdml = LibLouisUTDML.getInstance();
-			louisutdml.free();
+	//		LibLouisUTDML louisutdml = LibLouisUTDML.getInstance();
+	//		louisutdml.free();
 			FileUtils fu = new FileUtils();
 			fu.deleteDirectory(new File(BBIni.getTempFilesPath()));
 		}

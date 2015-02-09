@@ -19,6 +19,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -30,6 +31,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -164,10 +166,12 @@ public class SearchDialog extends Dialog {
 		// searches but within the
 		// same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlFindreplace.setSize(262, 376);
+//		shlFindreplace.setSize(262, 376);
 //		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
 //												// me during testing--windows
 //												// specific position
+		setPanelSize();
+		
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -601,10 +605,11 @@ public class SearchDialog extends Dialog {
 	private void createContents() {
 
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlFindreplace.setSize(262, 376);
-		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
-												// me during testing--windows
-												// specific position
+//		shlFindreplace.setSize(262, 376);
+//		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
+//												// me during testing--windows
+//												// specific position
+		setPanelSize();
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -2287,6 +2292,15 @@ public class SearchDialog extends Dialog {
 		return false;
 
 	}// replaceBackNoWrap
+	
+	private void setPanelSize(){
+		Monitor primary = shlFindreplace.getDisplay().getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		int x = (bounds.width / 2) - ((bounds.width / 6) / 2);
+		int y = (bounds.height / 2) - ((bounds.height / 2) / 2);
+		shlFindreplace.setSize(bounds.width / 3, (int) (bounds.height/1.5) );
+		shlFindreplace.setLocation(x, y);
+	}
 
 } // class SearchDialog...
 

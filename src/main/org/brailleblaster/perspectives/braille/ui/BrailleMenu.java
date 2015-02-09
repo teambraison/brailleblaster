@@ -16,7 +16,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-//import org.brailleblaster.search.*;
 
 public class BrailleMenu extends BBMenu{
 	private final int MENU_INDEX = 0;
@@ -521,6 +520,7 @@ public class BrailleMenu extends BBMenu{
 				if(dualViewItem.getSelection() && !dualViewItem.equals(selectedViewItem)){
 					currentEditor.setEditingView(null);
 					selectedViewItem = dualViewItem;
+					((BrailleToolBar)(currentEditor.getWPManager().getToolBar())).updateEditorViewBtnImg();
 				}
 			}
 		});
@@ -533,6 +533,7 @@ public class BrailleMenu extends BBMenu{
 				if(textItem.getSelection() && !textItem.equals(selectedViewItem)){
 					currentEditor.setEditingView(TextView.class.getCanonicalName());
 					selectedViewItem = textItem;
+					((BrailleToolBar)(currentEditor.getWPManager().getToolBar())).updateEditorViewBtnImg();
 				}
 			}
 		});
@@ -545,6 +546,7 @@ public class BrailleMenu extends BBMenu{
 				if(brailleItem.getSelection() && !brailleItem.equals(selectedViewItem)){
 					currentEditor.setEditingView(BrailleView.class.getCanonicalName());
 					selectedViewItem = brailleItem;
+					((BrailleToolBar)(currentEditor.getWPManager().getToolBar())).updateEditorViewBtnImg();
 				}
 			}
 		});
@@ -870,7 +872,7 @@ public class BrailleMenu extends BBMenu{
 		}
 	}
 	
-	private void setEditorView(){
+	public void setEditorView(){
 		String view = currentEditor.getCurrentEditor();
 		if(view == null || view.equals("")){
 			dualViewItem.setSelection(true);

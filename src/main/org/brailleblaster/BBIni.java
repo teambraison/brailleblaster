@@ -47,9 +47,9 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.liblouis.LibLouis;
-import org.liblouis.LibLouisUTDML;
-import org.liblouis.LogLevel;
+//import org.liblouis.LibLouis;
+//import org.liblouis.LibLouisUTDML;
+//import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,9 +81,6 @@ public final class BBIni {
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
-	//private static final String productName = "BrailleBlaster ND";
-	//private static final String BBVersion = "0.07 Alpha";
-	//private static final String releaseDate = "October, 31, 2014";
 	
 	private static String productName;
 	private static String BBVersion;

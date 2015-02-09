@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 public class BrailleToolBar extends BBToolBar {
 	String curView = null;
-	
+	ToolItem viewSwitch = null;
 	// FO
 	public BrailleToolBar(Shell shell, final WPManager wp, Manager manager) {
 		super(shell, wp, manager);
@@ -176,14 +176,16 @@ public class BrailleToolBar extends BBToolBar {
 			}
 		});
 		
-		final ToolItem viewSwitch = new ToolItem(toolBar, SWT.PUSH);
+		viewSwitch = new ToolItem(toolBar, SWT.PUSH);
 		tlabel = lh.localValue("&Toggle View");
 		viewSwitch.setText(tlabel.replace("&", ""));
-		setViewButton(viewSwitch);
+		updateEditorViewBtnImg();
 		viewSwitch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				setViewButton(viewSwitch);
+				toggleEditorView();
+				updateEditorViewBtnImg();
+				( (BrailleMenu)(((Manager)(currentEditor)).getWPManager().getMainMenu()) ).setEditorView();
 			}
 		});
 
@@ -195,21 +197,25 @@ public class BrailleToolBar extends BBToolBar {
 		toolBar.pack();
 	}
 	
-	public void setViewButton(final ToolItem ti) {
+	public void toggleEditorView() {
+		String view = ((Manager)currentEditor).getCurrentEditor();
+		if(view == null || view.equals(""))
+			((Manager)currentEditor).setEditingView(TextView.class.getCanonicalName());
+		else if(view.equals(TextView.class.getCanonicalName()))
+			((Manager)currentEditor).setEditingView(BrailleView.class.getCanonicalName());
+		else if(view.equals(BrailleView.class.getCanonicalName()))
+			((Manager)currentEditor).setEditingView(null);
+	}
+	
+	public void updateEditorViewBtnImg() {
 		final String dpStr = distPath;
 		final String sepStr = sep;
 		String view = ((Manager)currentEditor).getCurrentEditor();
-		if(view == null || view.equals("")){
-			((Manager)currentEditor).setEditingView(null);
-			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
-		}
-		else if(view.equals(TextView.class.getCanonicalName())){
-			((Manager)currentEditor).setEditingView(TextView.class.getCanonicalName());
-			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
-		}
-		else if(view.equals(BrailleView.class.getCanonicalName())) {
-			((Manager)currentEditor).setEditingView(BrailleView.class.getCanonicalName());
-			ti.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
-		}
+		if(view == null || view.equals(""))
+			viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_PB.png"));
+		else if(view.equals(TextView.class.getCanonicalName()))
+			viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_P.png"));
+		else if(view.equals(BrailleView.class.getCanonicalName()))
+			viewSwitch.setImage(new Image(null, dpStr  + sepStr + "images" + sepStr + "view_B.png"));
 	}
 }

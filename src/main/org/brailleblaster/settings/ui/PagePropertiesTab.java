@@ -72,6 +72,9 @@ public class PagePropertiesTab {
 	public String currentUnits = "regional";//
 	DecimalFormat df = new DecimalFormat("#.#");
 	boolean userModified;
+//	protected String oldCellsBox;
+//	protected String oldLeftMargin;
+//	protected String oldRightMargin;
 
 	PagePropertiesTab(TabFolder folder, final SettingsManager sm,
 			HashMap<String, String> settingsMap) {
@@ -441,7 +444,12 @@ public class PagePropertiesTab {
 		cellsBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
+//				oldCellsBox = settingsMap.get("cellsPerLine");
+//				oldLeftMargin = settingsMap.get("leftMargin");
+//				oldRightMargin = settingsMap.get("rightMargin");
+				if (!userModified) {
 				userModifiesCellsBox();
+				}
 				if (!listenerLocked) {
 					settingsMap.put("cellsPerLine", getStringValue(cellsBox));
 				}
@@ -870,11 +878,15 @@ public class PagePropertiesTab {
 			userModified = true;
 			int maxCells = calculateCellsPerInch(Double.valueOf(settingsMap
 					.get("paperWidth")));
+
 			if (cellsLinesButton.getSelection()) {
-				if ((Double.valueOf(marginLeftBox.getText()) + Double
-						.valueOf(cellsBox.getText())) > maxCells) {
+				if ((getDoubleValue(marginLeftBox) + getDoubleValue(cellsBox)) > maxCells) {
 					new Notify(lh.localValue("incorrectMarginWidth"));
 					cellsBox.setText(settingsMap.get("cellsPerLine"));
+//					marginLeftBox.setText(String.valueOf(calculateCellsPerInch
+//							(Double.valueOf(oldLeftMargin))));
+//					marginRightBox.setText(String.valueOf(calculateCellsPerInch
+//							(Double.valueOf(oldRightMargin))));
 				}// if incorrect input cellsLines
 				else {
 					marginRightBox

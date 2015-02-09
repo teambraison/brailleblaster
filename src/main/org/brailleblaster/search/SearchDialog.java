@@ -150,26 +150,22 @@ public class SearchDialog extends Dialog {
 
 		Button forwardRadioBtn = new Button(grpDirection, SWT.RADIO);
 		forwardRadioBtn.setSelection(true);
-		//forwardRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		forwardRadioBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_FORWARD;
 			}
 		});
-		//forwardRadioBtn.setBounds(10, 21, 90, 16);
 		// formToolkit.adapt(btnRadioButton, true, true);
 		forwardRadioBtn.setText("Forward");
 
 		Button backwardRadioBtn = new Button(grpDirection, SWT.RADIO);
-		//backwardRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		backwardRadioBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				searchDirection = SCH_BACKWARD;
 			}
 		});
-		//backwardRadioBtn.setBounds(10, 43, 90, 16);
 		// formToolkit.adapt(btnRadioButton_1, true, true);
 		backwardRadioBtn.setText("Backward");
 
@@ -183,8 +179,6 @@ public class SearchDialog extends Dialog {
 
 		Button allRadioBtn = new Button(grpScope, SWT.RADIO);
 		allRadioBtn.setSelection(true);
-		//allRadioBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
-		//allRadioBtn.setBounds(10, 20, 90, 16);
 		// formToolkit.adapt(btnRadioButton_2, true, true);
 		allRadioBtn.setText("All");
 		allRadioBtn.addSelectionListener(new SelectionAdapter() {
@@ -196,10 +190,8 @@ public class SearchDialog extends Dialog {
 		allRadioBtn.setEnabled(false);
 
 		Button selectedLinesBtn = new Button(grpScope, SWT.RADIO);
-		//selectedLinesBtn.setBounds(10, 43, 90, 16);
 		// formToolkit.adapt(btnSelectedLines, true, true);
 		selectedLinesBtn.setText("Selected Lines");
-		//selectedLinesBtn.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		selectedLinesBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -217,7 +209,6 @@ public class SearchDialog extends Dialog {
 		// formToolkit.paintBordersFor(grpOptions);
 
 		Button caseSensitiveCheck = new Button(grpOptions, SWT.CHECK);
-		//caseSensitiveCheck.setBounds(10, 21, 91, 16);
 		// formToolkit.adapt(btnCaseSensitive, true, true);
 		caseSensitiveCheck.setText("Case sensitive");
 		caseSensitiveCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
@@ -234,7 +225,6 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button wholeWordCheck = new Button(grpOptions, SWT.CHECK);
-		//wholeWordCheck.setBounds(10, 43, 91, 16);
 		// formToolkit.adapt(btnWholeWord, true, true);
 		wholeWordCheck.setText("Whole word");
 		wholeWordCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
@@ -250,14 +240,12 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button regExpressionsCheck = new Button(grpOptions, SWT.CHECK);
-		//regExpressionsCheck.setBounds(10, 65, 124, 16);
 		regExpressionsCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnRegularExpressions, true, true);
 		regExpressionsCheck.setText("Regular expressions");
 		regExpressionsCheck.setEnabled(false);
 
 		Button wrapSearchCheck = new Button(grpOptions, SWT.CHECK);
-		//wrapSearchCheck.setBounds(107, 21, 91, 16);
 		wrapSearchCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnWrapSearch, true, true);
 		wrapSearchCheck.setText("Wrap search");
@@ -273,7 +261,6 @@ public class SearchDialog extends Dialog {
 		});
 
 		Button incrementalCheck = new Button(grpOptions, SWT.CHECK);
-		//incrementalCheck.setBounds(107, 43, 91, 16);
 		incrementalCheck.setLayoutData(new GridData(SWT.LEFT,SWT.BEGINNING, false, false, 1, 1));
 		// formToolkit.adapt(btnIncremental, true, true);
 		incrementalCheck.setText("Incremental");
@@ -441,10 +428,6 @@ public class SearchDialog extends Dialog {
 			} // widgetSelected()
 
 		}); // closeBtn.addSelectionListener...
-		shlFindreplace.layout(true, true);
-		Point newSize2 = shlFindreplace.computeSize(SWT.DEFAULT, SWT.DEFAULT, true);
-		System.out.println(newSize2.x + ", " + newSize2.y);
-		shlFindreplace.setSize(shlFindreplace.computeSize(SWT.DEFAULT, SWT.DEFAULT, true));
 		shlFindreplace.pack(true);
 	} // createContents()
 	

@@ -165,9 +165,9 @@ public class SearchDialog extends Dialog {
 		// same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
 		shlFindreplace.setSize(262, 376);
-		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
-												// me during testing--windows
-												// specific position
+//		shlFindreplace.setLocation(600, 250);// I did this so it wouldn't annoy
+//												// me during testing--windows
+//												// specific position
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 

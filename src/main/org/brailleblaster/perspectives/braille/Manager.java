@@ -67,6 +67,7 @@ import org.brailleblaster.perspectives.braille.spellcheck.SpellCheckManager;
 import org.brailleblaster.perspectives.braille.stylepanel.StyleManager;
 import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
@@ -91,7 +92,6 @@ import org.brailleblaster.wordprocessor.BBFileDialog;
 import org.brailleblaster.wordprocessor.BBStatusBar;
 import org.brailleblaster.wordprocessor.FontManager;
 import org.brailleblaster.wordprocessor.WPManager;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyledText;
@@ -152,7 +152,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+//		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
 		if(docName != null)
 			openDocument(docName);
 		else {
@@ -314,7 +314,14 @@ public class Manager extends Controller {
 	///////////////////////////////////////////////////////////////
 	// Opens the search/replace dialog.
 	public void search() {
-		srch.open();
+		if (srch==null) {
+			srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+			srch.open();
+		}
+		else {
+			srch.openWithPreviousValues();
+		}
+
 	}
 	
 	public void fileSave(){	
@@ -348,14 +355,13 @@ public class Manager extends Controller {
 			restoreArchive = false;
 		
 		// Create archiver and massage document if necessary.
-		String config = ""; 
-		if(arch != null)
-			config = arch.getCurrentConfig();
+	//	String config = ""; 
+	//	if(arch != null)
+	//		config = arch.getCurrentConfig();
 		
 		arch = ArchiverFactory.getArchive(fileName, restoreArchive);
-		
-		if(!config.equals(arch.getCurrentConfig()))
-			resetConfiguations();
+		//if(!config.equals(arch.getCurrentConfig()))
+		resetConfiguations();
 		
 		// Recent Files.
 		addRecentFileEntry(fileName);
@@ -434,6 +440,9 @@ public class Manager extends Controller {
 			case INSERT_NODE:
 				handleInsertNode(message);
 				break;
+			case MERGE:
+				handleMergeElement(message);
+				break;
 			case REMOVE_NODE:
 				handleRemoveNode(message);
 				break;
@@ -445,6 +454,9 @@ public class Manager extends Controller {
 				break;
 			case ADJUST_INDENT:
 				handleAdjustIndent(message);
+				break;
+			case ADJUST_LINES:
+				handleLineAdjust(message);
 				break;
 			case ADJUST_RANGE:
 				list.adjustOffsets(list.getCurrentIndex(), message);
@@ -661,6 +673,17 @@ public class Manager extends Controller {
 	    braille.refreshStyle(list.getCurrent());
 	}
 	
+	private void handleMergeElement(Message message){
+		MergeElementHandler meh = new MergeElementHandler(this, vi, list);
+		int index = list.getCurrentIndex();
+		boolean isFirst = (Boolean)message.getValue("isFirst");
+		
+		if(isFirst && index > 0 && list.getCurrent().start == list.get(index - 1).end)
+			meh.merge(list.get(index - 1), list.getCurrent());
+		else if(!isFirst && index < list.size() - 1 && list.getCurrent().end == list.get(index + 1).start)
+			meh.merge(list.getCurrent(), list.get(index + 1));
+	}
+	
 	private void handleRemoveNode(Message message){
 		RemoveElementHandler er = new RemoveElementHandler(this, vi, list);
 		er.removeNode(message);
@@ -673,10 +696,22 @@ public class Manager extends Controller {
 	
 	private void handleAdjustAlignment(Message message){
 		braille.changeAlignment(list.getCurrent().brailleList.getFirst().start, (Integer)message.getValue("alignment"));
+		Element e = document.getParent(list.getCurrent().n, true);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleAdjustIndent(Message message){
-		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);	
+		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+		Element e = document.getParent(list.getCurrent().n, true);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
+	}
+	
+	private void handleLineAdjust(Message message){
+		Element e = document.getParent(list.getCurrent().n, true);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
 	}
 	
 	private void handleUpdateScrollbar(Message message){
@@ -996,8 +1031,10 @@ public class Manager extends Controller {
 	}
 	
 	public void checkSemanticsTable(){
-		if(!styles.getConfig().equals(arch.getCurrentConfig()))
+		if(!styles.getConfig().equals(arch.getCurrentConfig()) && !styles.hasDocumentConfig())
 			styles.resetStyleTable(arch.getCurrentConfig());	
+		else
+			styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 	}
 	
 	public void toggleFont(int fontType){
@@ -1038,7 +1075,7 @@ public class Manager extends Controller {
 	
 	private void resetConfiguations(){
 		document.resetBBDocument(arch.getCurrentConfig());
-		styles.resetStyleTable(arch.getCurrentConfig());
+		styles.resetStyleTable(arch.getCurrentConfig(), arch.getWorkingFilePath());
 		sm.getStyleTable().resetTable(arch.getCurrentConfig());
 	}
 	
@@ -1468,6 +1505,10 @@ public class Manager extends Controller {
 	
 	public EventFrame peekUndoEvent(){
 		return queueManager.peekUndoEvent();
+	}
+	
+	public EventFrame peekRedoEvent(){
+		return queueManager.peekRedoEvent();
 	}
 
 	/** Creates a Notify class alert box if debugging is not active

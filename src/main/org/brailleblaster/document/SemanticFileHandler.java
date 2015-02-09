@@ -109,18 +109,15 @@ public class SemanticFileHandler {
 	}
 	
 	public void writeEntry(String path, String style, String element, String id){
-		if(fu.exists(path)){
+		if(fu.exists(path))
 			appendEntry(path, style, element,id);
-		}
-		else {
+		else 
 			createNewSemanticsFile(path, style, element,id);
-		}
 	}
 	
 	public void removeSemanticEntry(String path, String id){
-		if(fu.exists(path)){
+		if(fu.exists(path))
 			removeEntry(path, id);
-		}
 	}
 	
 	private void appendEntry(String path, String style, String element, String id){

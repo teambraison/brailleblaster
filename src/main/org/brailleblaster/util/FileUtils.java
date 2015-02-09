@@ -167,49 +167,39 @@ public class FileUtils {
 		  return directory.delete();
 	}
 
-/**
- * Search for partialPathName first in the user's programData directory 
- * and then in the built-in programData directory.
- * @param partialPathName: a name like 
- * liblouisutdml/lbu_files/preferences.cfg
- */
-public String findInProgramData (String partialPath) {
-File file;
-String fileSep = BBIni.getFileSep();
-String completePath = BBIni.getUserProgramDataPath() + fileSep 
-+ partialPath;
-file = new File (completePath);
-if (file.exists()) {
-return completePath;
-}
-completePath = BBIni.getProgramDataPath() + fileSep + partialPath;
-file = new File (completePath);
-if (file.exists()) {
-return completePath;
-}
-return null;
-}
+	/**
+	 * Search for partialPathName first in the user's programData directory 
+	 * and then in the built-in programData directory.
+	 * @param partialPathName: a name like 
+	 * liblouisutdml/lbu_files/preferences.cfg
+	 */
+	public String findInProgramData (String partialPath) {
+		String fileSep = BBIni.getFileSep();
+		String completePath = BBIni.getUserProgramDataPath() + fileSep + partialPath;
+		File file = new File (completePath);
+		if (file.exists()) {
+			return completePath;
+		}
+		completePath = BBIni.getProgramDataPath() + fileSep + partialPath;
+		file = new File (completePath);
+		if (file.exists()) {
+			return completePath;
+		}
+		return null;
+	}
 
-/**
- * Write a file to userProgramData.
- * @param partialPath: pathname based at userProgramDataPath.
- */
-public boolean writeToUserProgrramData (String partialPath) {
-return true;
-}
-
-public void appendToFile(String path, String text){
-	File f = new File(path);
-	if(f.exists()){
-		try {
-			FileWriter out = new FileWriter(f, true);
-			out.write(text);
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void appendToFile(String path, String text){
+		File f = new File(path);
+		if(f.exists()){
+			try {
+				FileWriter out = new FileWriter(f, true);
+				out.write(text);
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
-}
 
 public void writeToFile(String path, String text){
 	FileWriter fw;
@@ -262,13 +252,25 @@ public boolean createXMLFile(Document xmlDoc, String path){
 }
 
 
-//Returns file name minus path and extension
-public String getFileName(String path){
-	return path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1, path.lastIndexOf("."));
-}
+	//Returns file name minus path and extension
+	public String getFileName(String path){
+		return path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1, path.lastIndexOf("."));
+	}
+	
+	/**
+	 * @param path : complete path of file
+	 * @return : file name with extension
+	 */
+	public String getFileNameWithExtension(String path){
+		return path.substring(path.lastIndexOf(BBIni.getFileSep()) + 1);
+	}
 
-public String getPath(String path){
-	return path.substring(0, path.lastIndexOf(BBIni.getFileSep()));
-}
+	/**
+	 * @param path : complete path of file
+	 * @return : path to directory containing file
+	 */
+	public String getPath(String path){
+		return path.substring(0, path.lastIndexOf(BBIni.getFileSep()));
+	}
 }
 

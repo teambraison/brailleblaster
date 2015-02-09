@@ -61,6 +61,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
+import org.brailleblaster.utd.UTDTranslationEngine;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -150,58 +151,64 @@ public class BBDocument {
 	 * @throws Exception
 	 */
 	private boolean setupFromFile (String completePath, String configFile, String configSettings) throws Exception {
-		String configFileWithPath = "temp";
-		String configWithUTD;
-		
-		configFileWithPath = configureConfigurationFiles(dm.getWorkingPath(), configFile);
-		
-		if (configSettings == null) 
-			configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
-		else 
-			configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
-		
-		if(dm.getWorkingPath() != null)
-			configWithUTD += semHandler.getSemanticsConfigSetting(completePath);
-		//else 
-		//	configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
-		
-		String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
-		String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
-		int extPos = completePath.lastIndexOf (".") + 1;
-		String ext = completePath.substring (extPos).toLowerCase();
-		if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
-			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
-			if( normalizeFile(completePath, tempPath) ){
-				if( lutdml.translateFile (configFileWithPath, tempPath, outFile, logFile, configWithUTD + sm.getSettings(), 0) )
-				{
-					deleteFile(tempPath);
-					return buildDOM(outFile);
-				}
+		//String configFileWithPath = "temp";
+				//String configWithUTD;
+				
+				// Use the default; we don't have a local version.
+				//configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + configFile);
+				
+				//if (configSettings == null) 
+				//	configWithUTD = "formatFor utd\n mode notUC\n printPages yes\n";
+				//else 
+				//	configWithUTD = configSettings + "formatFor utd\n mode notUC\n printPages yes\n";
+				
+				//if(dm.getWorkingPath() != null)
+				//	configWithUTD += semHandler.getSemanticsConfigSetting(completePath);			
+				//else 
+				//	configFileWithPath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "nimas.cfg");
+				
+				//String outFile = BBIni.getTempFilesPath() + fileSep + "outFile.utd";
+				//String logFile = BBIni.getLogFilesPath() + fileSep + "liblouisutdml.log";
+				int extPos = completePath.lastIndexOf (".") + 1;
+				String ext = completePath.substring (extPos).toLowerCase();
+				if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
+					String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
+					if( normalizeFile(completePath, tempPath) && buildDOM(tempPath)){
+						UTDTranslationEngine engine = new UTDTranslationEngine();
+						engine.getBrailleSettings().setMainTranslationTable(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouis" + BBIni.getFileSep() + "tables" + BBIni.getFileSep() +  "en-us-g2.ctb");
+						engine.getBrailleSettings().setUseAsciiBraille(true);
+				
+						Document result = engine.translateAndFormatDocument(doc);	
+						if( result != null ) {
+							doc = result;
+							deleteFile(tempPath);
+							return true;
+						}
+						else {
+			//				new CheckLiblouisutdmlLog().displayLog();
+							return false;
+						}
+					}
+				} 
+				else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.TXT).contains(ext)) {
+				//	if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
+				//		return buildDOM(outFile);
+				} 
+				else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.BRF).contains(ext)) {
+				//	if(lutdml.backTranslateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
+				// buildDOM(outFile);
+				} 
+				else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
+				//	String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
+				//	normalizeFile(completePath, tempPath);
+				//	return buildDOM(tempPath);
+				} 
 				else {
-					new CheckLiblouisutdmlLog().displayLog();
-					return false;
+					throw new IllegalArgumentException (completePath + " not .xml, .txt, or .brf");
 				}
-			}
-		} 
-		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.TXT).contains(ext)) {
-			if(lutdml.translateTextFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
-				return buildDOM(outFile);
-		} 
-		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.BRF).contains(ext)) {
-			if(lutdml.backTranslateFile (configFileWithPath, completePath, outFile, logFile, configWithUTD + sm.getSettings(), 0))
-				return buildDOM(outFile);
-		} 
-		else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
-			String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
-			normalizeFile(completePath, tempPath);
-			return buildDOM(tempPath);
-		} 
-		else {
-			throw new IllegalArgumentException (completePath + " not .xml, .txt, or .brf");
-		}
-		new CheckLiblouisutdmlLog().displayLog();
-		
-		return false;
+			//	new CheckLiblouisutdmlLog().displayLog();
+				
+				return false;
 	}
 	
 	private String configureConfigurationFiles(String completPath, String configFile){

@@ -604,19 +604,19 @@ public class TextView extends WPView {
 	}
 	
 	public void setText(TextMapElement t, MapList list, int index){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
-		Styles prevStyle;
-		if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
-			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
-		else
-			prevStyle = null;
+		//Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		//Styles prevStyle;
+		//if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
+		//	prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
+		//else
+		//	prevStyle = null;
 		
 		String newText = appendToView(t.n, true);
 		int textLength = newText.length();
 
 		view.append(newText);
-		if(!(t instanceof PageMapElement))
-			handleStyle(prevStyle, style, t.n, newText);
+		//if(!(t instanceof PageMapElement))
+		//	handleStyle(prevStyle, style, t.n, newText);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 		total += spaceBeforeText + textLength + spaceAfterText;

@@ -32,7 +32,6 @@ package org.brailleblaster.document;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -118,19 +117,6 @@ public class BBDocument {
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
 	}
-
-	/** Legacy code for BB's early days.  A method designed to use an input stream for translation. This method has no implementation.
-	 * @param inputStream
-	 * @param configFile
-	 * @param configSettings
-	 * @return
-	 * @throws Exception
-	 */
-	public boolean startDocument (InputStream inputStream, String configFile, String configSettings) throws Exception {
-		String fileName = "xxx";
-		return buildDOM(fileName);
-	}
-	
 	
 	/** Public method for beginning the translation process of a file
 	 * @param completePath: Path to input file
@@ -199,9 +185,9 @@ public class BBDocument {
 				// buildDOM(outFile);
 				} 
 				else if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.UTD).contains(ext)) {
-				//	String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
-				//	normalizeFile(completePath, tempPath);
-				//	return buildDOM(tempPath);
+					String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.utd";
+					normalizeFile(completePath, tempPath);
+					return buildDOM(tempPath);
 				} 
 				else {
 					throw new IllegalArgumentException (completePath + " not .xml, .txt, or .brf");

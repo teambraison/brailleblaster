@@ -441,7 +441,12 @@ public class PagePropertiesTab {
 		cellsBox.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
+//				oldCellsBox = settingsMap.get("cellsPerLine");
+//				oldLeftMargin = settingsMap.get("leftMargin");
+//				oldRightMargin = settingsMap.get("rightMargin");
+				if (!userModified) {
 				userModifiesCellsBox();
+				}
 				if (!listenerLocked) {
 					settingsMap.put("cellsPerLine", getStringValue(cellsBox));
 				}
@@ -870,9 +875,9 @@ public class PagePropertiesTab {
 			userModified = true;
 			int maxCells = calculateCellsPerInch(Double.valueOf(settingsMap
 					.get("paperWidth")));
+
 			if (cellsLinesButton.getSelection()) {
-				if ((Double.valueOf(marginLeftBox.getText()) + Double
-						.valueOf(cellsBox.getText())) > maxCells) {
+				if ((getDoubleValue(marginLeftBox) + getDoubleValue(cellsBox)) > maxCells) {
 					new Notify(lh.localValue("incorrectMarginWidth"));
 					cellsBox.setText(settingsMap.get("cellsPerLine"));
 				}// if incorrect input cellsLines

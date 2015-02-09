@@ -90,7 +90,7 @@ public class BBDocument {
 	protected SettingsManager sm;
 	protected SemanticFileHandler semHandler;
 	protected LocaleHandler lh;
-	
+	protected UTDTranslationEngine engine;
 	
 	/** Base constructor for initializing a new document
 	 * @param dm: Document Manager for relaying information between DOM and view
@@ -102,6 +102,9 @@ public class BBDocument {
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
+		engine = new UTDTranslationEngine();
+		engine.getBrailleSettings().setMainTranslationTable(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouis" + BBIni.getFileSep() + "tables" + BBIni.getFileSep() +  "en-us-g2.ctb");
+		engine.getBrailleSettings().setUseAsciiBraille(true);
 	}
 	
 	/** Base constructor for when perspectives are switched and the XOM Document is passed to a Document specific to the view
@@ -160,10 +163,6 @@ public class BBDocument {
 				if (BBDocument.SUPPORTED_FILE_TYPES.get(FileTypes.XML).contains(ext)) {
 					String tempPath = BBIni.getTempFilesPath() + completePath.substring(completePath.lastIndexOf(BBIni.getFileSep()), completePath.lastIndexOf(".")) + "_temp.xml";
 					if( normalizeFile(completePath, tempPath) && buildDOM(tempPath)){
-						UTDTranslationEngine engine = new UTDTranslationEngine();
-						engine.getBrailleSettings().setMainTranslationTable(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouis" + BBIni.getFileSep() + "tables" + BBIni.getFileSep() +  "en-us-g2.ctb");
-						engine.getBrailleSettings().setUseAsciiBraille(true);
-				
 						Document result = engine.translateAndFormatDocument(doc);	
 						if( result != null ) {
 							doc = result;

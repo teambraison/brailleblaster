@@ -681,9 +681,9 @@ public class BrailleView extends WPView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+	//	Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		int total = (Integer)message.getValue("brailleLength");
-		int margin = 0;
+//		int margin = 0;
 		int pos = view.getCaretOffset();
 		System.out.println("Value: " + t.value());
 		String insertionString = (String)message.getValue("newBrailleText");
@@ -699,20 +699,20 @@ public class BrailleView extends WPView {
 			removeIndicator();
 			addIndicator();
 
-			if(style.contains(StylesType.format) && t.brailleList.size() > 0)
-				setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
+	//		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
+	//			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
 			
 			//reset margin in case it is not applied
 			if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
 				handleLineWrap(t.brailleList.getFirst().start, insertionString, 0, false);
 			
-			if(style.contains(StylesType.leftMargin)) {
-				margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-				handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
-			}
+	//		if(style.contains(StylesType.leftMargin)) {
+	///			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+	//			handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
+	//		}
 				
-			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
-				setFirstLineIndent(t.brailleList.getFirst().start, style);
+	//		if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
+	//			setFirstLineIndent(t.brailleList.getFirst().start, style);
 			view.setCaretOffset(pos);
 			setListenerLock(false);	
 		}

@@ -772,8 +772,8 @@ public class TextView extends WPView {
 	
 	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
-		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
-		int margin = 0;
+	//	Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+//		int margin = 0;
 		int pos = view.getCaretOffset();
 		setListenerLock(true);		
 		
@@ -787,26 +787,26 @@ public class TextView extends WPView {
 			handleLineWrap(currentStart, reformattedText, 0, false);
 		
 		message.put("length", (reformattedText.length() + spaceAfterText) - (Integer)message.getValue("length"));
-		if(style.contains(StylesType.leftMargin)){
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
-		}
+//		if(style.contains(StylesType.leftMargin)){
+//			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+//		}
 		
-		if(isFirst(n) && style.contains(StylesType.firstLineIndent) && reformattedText.length() > 0)
-			setFirstLineIndent(currentStart, style);
+//		if(isFirst(n) && style.contains(StylesType.firstLineIndent) && reformattedText.length() > 0)
+//			setFirstLineIndent(currentStart, style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
-		else {
-			StyleRange range = getStyleRange();
-			if(range != null)
-				 resetStyleRange(range);		
-		}
+//		if(style.contains(StylesType.emphasis))
+//			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	else {
+//			StyleRange range = getStyleRange();
+//			if(range != null)
+//				 resetStyleRange(range);		
+//		}
 		
-		if(style.contains(StylesType.format))
-			setAlignment(currentStart, currentEnd, style);
-		else
-			setAlignment(currentStart, currentEnd, SWT.LEFT);
+//		if(style.contains(StylesType.format))
+//			setAlignment(currentStart, currentEnd, style);
+//		else
+//			setAlignment(currentStart, currentEnd, SWT.LEFT);
 	
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;

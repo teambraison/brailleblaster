@@ -51,17 +51,8 @@ public class ImageDescriberToolBar extends BBToolBar {
 	public ImageDescriberToolBar(Shell shell, final WPManager wp, ImageDescriberController controller)
 	{
 		super(shell, wp, controller);
+		
 		setEditor(controller);
-		String sep = BBIni.getFileSep();
-		LocaleHandler lh = new LocaleHandler();
-		toolBar = new ToolBar(shell, SWT.NONE);
-		FormData location = new FormData();
-		location.left = new FormAttachment(0);
-		location.right = new FormAttachment(40);
-		location.top = new FormAttachment(0);
-		toolBar.setLayoutData(location);
-		wordProc = wp;
-		imgHelper = new ImageHelper();
 		
 		// FO
 		String tlabel;

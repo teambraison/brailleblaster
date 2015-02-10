@@ -872,6 +872,10 @@ public class BrailleMenu extends BBMenu{
 		}
 	}
 	
+	public MenuItem getCurViewSelection() {
+		return selectedViewItem;
+	}
+	
 	public void setEditorView(){
 		String view = currentEditor.getCurrentEditor();
 		if(view == null || view.equals("")){

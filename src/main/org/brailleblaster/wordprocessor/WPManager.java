@@ -36,6 +36,10 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.perspectives.Perspective;
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.ui.BrailleMenu;
+import org.brailleblaster.perspectives.braille.ui.BrailleToolBar;
+import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
+import org.brailleblaster.perspectives.braille.views.wp.TextView;
 import org.brailleblaster.settings.Welcome;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.util.YesNoChoice;
@@ -77,6 +81,10 @@ public class WPManager {
 	private static final int MAX_NUM_DOCS = 4;// the max limit of total number
 												// of docs can have at the same
 												// time
+	// This is the last view the user was looking at before we switched perspectives.
+	// Will be able to switch back to last view they were using instead of defaulting to 
+	// DUAL.
+	private String lastView = null;
 
 	// This constructor is the entry point to the word processor. It gets things
 	// set up, handles multiple documents, etc.
@@ -111,6 +119,10 @@ public class WPManager {
 		bbMenu = currentPerspective.getMenu();
 		bbToolbar = currentPerspective.getToolBar();
 
+		// Hang onto last editor view selection(Dual, Print, Braille).
+		if( currentPerspective.toString().toLowerCase().contains("brailleperspective") )
+			lastView = ((BrailleMenu)(bbMenu)).getCurViewSelection().toString();
+		
 		folder.addSelectionListener(folderListener = new SelectionAdapter() {
 			@Override	
 			public void widgetSelected(SelectionEvent e) {
@@ -242,7 +254,30 @@ public class WPManager {
 		}
 	}
 
+	// Checks the appropriate setting for the main menu and updates the image 
+	// for the toggle button.
+	public void updateViewMenuAndButtons() {
+		
+		// Update main menu.
+		((BrailleMenu)bbMenu).setEditorView();
+		
+		// Update the toolbar image.
+		((BrailleToolBar)(bbToolbar)).updateEditorViewBtnImg();
+	}
+	
 	public void swapPerspectiveController(Class<?> controllerClass) {
+		
+		// Save current view if we're in the braille perspective, before switching 
+		// to another one.
+		if( currentPerspective.toString().toLowerCase().contains("brailleperspective") ) {
+			
+			// Record the current view configuration.
+			lastView = ((BrailleMenu)(bbMenu)).getCurViewSelection().toString();
+			
+			// Save view configuration to file.
+			((Manager)(currentPerspective.getController())).saveScreenProperties();
+		}
+		
 		int index = folder.getSelectionIndex();
 		if (index != -1) {
 			currentPerspective.getController().getArchiver().pauseAutoSave();
@@ -271,6 +306,32 @@ public class WPManager {
 		}
 
 		lastPerspective = controllerClass;
+		
+		// Just changed to the braille perspective. Update main menu and such.
+		// Only fires if we started from braille, then to another persp, then back.
+		if( currentPerspective.toString().toLowerCase().contains("brailleperspective") && lastView != null ) {
+			
+			// Switch the view.
+			if( lastView.compareTo("MenuItem {dualView}") == 0 )
+				((Manager)(currentPerspective.getController())).setEditingView(null);
+			else if( lastView.compareTo("MenuItem {textView}") == 0 )
+				((Manager)(currentPerspective.getController())).setEditingView(TextView.class.getCanonicalName());
+			else if( lastView.compareTo("MenuItem {brailleView}") == 0 )
+				((Manager)(currentPerspective.getController())).setEditingView(BrailleView.class.getCanonicalName());
+
+			// Update UI.
+			updateViewMenuAndButtons();
+		}
+		// Started application in perspective other than braille, then switched to braille.
+		else if( currentPerspective.toString().toLowerCase().contains("brailleperspective") && lastView == null ) {
+			
+			// Set views.
+			((Manager)(currentPerspective.getController())).setSash();
+			((Manager)(currentPerspective.getController())).setEditingView();
+			
+			// Update UI.
+			updateViewMenuAndButtons();
+		}
 	}
 
 	private Class<?> getDefaultPerspective() {

@@ -231,7 +231,7 @@ public final class BBIni {
 
 		// Default Config File.
 		// /////////////////////
-
+		
 		// Temporary fix, should be removed once log file handle issue is
 		// resolved
 		// Only delete the files if we weren't working on something.
@@ -321,10 +321,19 @@ public final class BBIni {
 				hSubcommands = true;
 			}
 		}
+		// Access log level settings
+		String logLevel = props.getProperty("logLevel");
+		
+		//If logLevel does not exist, make it
+		if (logLevel == null){
+			props.setProperty("logLevel", "" + LogLevel.ERROR);
+			logLevel = "" + LogLevel.ERROR;
+		}
+		
 		try {
 			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
-			LibLouis.getInstance().setLogLevel(LogLevel.ERROR);
+			LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR); 
+			LibLouis.getInstance().setLogLevel(Integer.parseInt(logLevel));
 			org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
 			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
 			LibLouisUTDML.getInstance().registerLogCallback(

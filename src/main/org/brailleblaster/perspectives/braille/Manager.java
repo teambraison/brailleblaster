@@ -235,7 +235,7 @@ public class Manager extends Controller {
 		wp.getShell().layout();
 	}
 	
-	private void setSash(){
+	public void setSash(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String containerWeight = pfm.getProperty("containerWeight");
 		String editorWeight = pfm.getProperty("textWeight");
@@ -257,7 +257,7 @@ public class Manager extends Controller {
 		miscSash.setWeights(new int[] {100, 0});
 	}
 	
-	private void setEditingView(){
+	public void setEditingView(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
@@ -1443,7 +1443,7 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void saveScreenProperties(){
+	public void saveScreenProperties(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		int [] containerWeights = containerSash.getWeights();
 		int [] editorWeights = editorSash.getWeights();

@@ -64,7 +64,17 @@ public class SpellCheckManager {
     			correctSpelling = sc.checkSpelling(tokenizer.getCurrentWord());
     			if(!correctSpelling){
     				String [] suggestions = sc.getSuggestions(tokenizer.getCurrentWord());
-    				setWord(tokenizer.getCurrentWord(), suggestions);
+    				if(tokenizer.getSplitPos()!=0){ //Caught a word that probably needs a space
+    					String word1, word2;
+    					word1 = tokenizer.getCurrentWord().substring(0, tokenizer.getSplitPos());
+    					word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
+    					String[] newSuggestions = new String[suggestions.length+1]; // Make a new suggestions array that includes existing words with space
+    					newSuggestions[0] = word1 + " " + word2;
+    					System.arraycopy(suggestions, 0, newSuggestions, 1, suggestions.length);
+    					setWord(tokenizer.getCurrentWord(), newSuggestions);
+    				} else {
+    					setWord(tokenizer.getCurrentWord(), suggestions);
+    				}
     			}		
     		}
     	}
@@ -103,7 +113,7 @@ public class SpellCheckManager {
 	}
 	
 	public void replace(String text){
-		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());
+		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());		
 		tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
 	}
 	

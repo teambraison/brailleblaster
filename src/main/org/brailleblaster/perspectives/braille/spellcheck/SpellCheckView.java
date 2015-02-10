@@ -206,6 +206,7 @@ class SpellCheckView {
     		suggestionBox.add(suggestions[i]);
     	}
     	suggestionBox.setFocus();
+    	suggestionBox.deselectAll();
     	suggestionBox.select(0);
     }
     

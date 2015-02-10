@@ -14,7 +14,7 @@ public class SpellCheckManager {
 	private SpellChecker sc;
 	private SpellCheckView view;
 	private Tokenizer tokenizer;
-	private Vector<String> ignoreList;
+	private Vector<String> ignoreList = new Vector<String>();
     private String dictPath, affPath, dictLang;
     private FileUtils fu;
     private Manager m;
@@ -24,9 +24,14 @@ public class SpellCheckManager {
     public SpellCheckManager(Manager m) {
     	fu = new FileUtils();
     	lh = new LocaleHandler();
-    	this.m = m;    	
-    	this.ignoreList = new Vector<String>();
-	  	
+    	this.m = m;
+    	System.out.println("Initializing spellcheckmanager");
+    	if(!m.getIgnoreList().isEmpty()){
+	    	for(String dc : m.getIgnoreList()){
+	    		ignoreList.add(dc);
+	    		System.out.println(dc);
+	    	}
+    	}
 	  	try {
 	  		dictLang = lh.localValue("dictionary");
 	  		dictPath = fu.findInProgramData("dictionaries" + BBIni.getFileSep() + dictLang + ".dic");
@@ -109,6 +114,7 @@ public class SpellCheckManager {
 	}
 	
 	public void ignoreWord(String word){
+		m.newIgnore(word);
 		ignoreList.add(word);
 	}
 	

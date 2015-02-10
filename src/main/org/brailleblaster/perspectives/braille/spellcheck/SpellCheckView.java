@@ -119,7 +119,8 @@ class SpellCheckView {
     	});
     	
     	ignore = new Button(group, SWT.PUSH);
-    	ignore.setText(lh.localValue("spellIgnore"));
+    	//ignore.setText(lh.localValue("spellIgnore"));
+    	ignore.setText("Skip");
     	setLayout(ignore, 0,100,40,60);
     	ignore.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -129,7 +130,8 @@ class SpellCheckView {
     	});
     	
     	ignoreAll = new Button(group, SWT.PUSH);
-    	ignoreAll.setText(lh.localValue("spellIgnoreAll"));
+    	//ignoreAll.setText(lh.localValue("spellIgnoreAll"));
+    	ignoreAll.setText("Ignore Word");
     	setLayout(ignoreAll, 0,100,60,80);
     	ignoreAll.addSelectionListener(new SelectionAdapter(){
 			@Override
@@ -155,7 +157,7 @@ class SpellCheckView {
     	suggestionGroup.setText(lh.localValue("Suggestions"));
     	setLayout(suggestionGroup, 5, 64, 17, 85);
     	
-    	suggestionBox = new org.eclipse.swt.widgets.List(suggestionGroup, SWT.MULTI | SWT.BORDER);
+    	suggestionBox = new org.eclipse.swt.widgets.List(suggestionGroup, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
     	setLayout(suggestionBox, 0, 100, 0, 100);
     	suggestionBox.addFocusListener(new FocusListener(){
 			@Override

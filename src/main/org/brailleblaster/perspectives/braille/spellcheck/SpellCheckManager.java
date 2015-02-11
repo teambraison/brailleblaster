@@ -25,7 +25,6 @@ public class SpellCheckManager {
     	fu = new FileUtils();
     	lh = new LocaleHandler();
     	this.m = m;
-    	System.out.println("Initializing spellcheckmanager");
     	if(!m.getIgnoreList().isEmpty()){
 	    	for(String dc : m.getIgnoreList()){
 	    		ignoreList.add(dc);
@@ -73,14 +72,24 @@ public class SpellCheckManager {
     					String word1, word2;
     					word1 = tokenizer.getCurrentWord().substring(0, tokenizer.getSplitPos());
     					word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
-    					String[] newSuggestions = new String[suggestions.length+1]; // Make a new suggestions array that includes existing words with space
+    					// Make a new suggestions array that includes existing words with space
+    					String[] newSuggestions = new String[suggestions.length+1]; 
     					newSuggestions[0] = word1 + " " + word2;
     					System.arraycopy(suggestions, 0, newSuggestions, 1, suggestions.length);
     					setWord(tokenizer.getCurrentWord(), newSuggestions);
     				} else {
     					setWord(tokenizer.getCurrentWord(), suggestions);
     				}
-    			}		
+    			} else { //correctSpelling == true
+    				if(tokenizer.getCapFlag()){ //Something needs capitalization
+    					tokenizer.next();
+    					correctSpelling = false;
+    					String[] capsSuggestion = new String[1];
+    					capsSuggestion[0] = tokenizer.getCurrentWord().substring(0, 1).toUpperCase() + tokenizer.getCurrentWord().substring(1);
+    					setWord(tokenizer.getCurrentWord(), capsSuggestion);
+    					tokenizer.setCapFlag(false);
+    				}
+    			}
     		}
     	}
     	
@@ -111,6 +120,8 @@ public class SpellCheckManager {
 			fu.appendToFile(dictPath, word);
 			sc.addToDictionary(word);
 		}
+		
+		m.newIgnore(word);
 	}
 	
 	public void ignoreWord(String word){
@@ -119,7 +130,7 @@ public class SpellCheckManager {
 	}
 	
 	public void replace(String text){
-		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());		
+		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());
 		tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
 	}
 	

@@ -57,7 +57,7 @@ public class PagePropertiesTab<heightWidthMod> {
 	BBIni bbini;
 	private static final String userSettings = BBIni.getUserSettings();
 
-	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup;//
+	Group sizeGroup, marginGroup, pageGroup, buttonGroup, unitsGroup;
 	Label pageSizeLabel, widthLabel, heightLabel, linesPerPageLabel,
 			cellsPerLineLabel, marginTopLabel, marginBottomLabel,
 			marginLeftLabel, marginRightLabel;
@@ -65,11 +65,11 @@ public class PagePropertiesTab<heightWidthMod> {
 	Combo pageTypes;
 	Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox,
 			marginRightBox, marginBottomBox;
-	Button okButton, cancelButton, regionalButton, cellsLinesButton;//
+	Button okButton, cancelButton, regionalButton, cellsLinesButton;
 
 	boolean listenerLocked;
 	LocaleHandler lh;
-	public String currentUnits = "regional";//
+	public String currentUnits = "regional";
 	DecimalFormat df = new DecimalFormat("#.#");
 	boolean userModified;
 	protected boolean heightWidthMod;
@@ -230,10 +230,10 @@ public class PagePropertiesTab<heightWidthMod> {
 					if (!userModified) {
 							if (listenerLocked) {
 								if (cellsLinesButton.getSelection()) {
-									settingsMap.put(
-											type,
-											String.valueOf(df
-													.format(calcWidthFromCells(getDoubleValue((t))))));
+//									settingsMap.put(
+//											type,
+//											String.valueOf(df
+//													.format(calcWidthFromCells(getDoubleValue((t))))));
 								}// if cellsLinesButton
 								else {
 									settingsMap.put(type, getStringValue(t));
@@ -271,10 +271,10 @@ public class PagePropertiesTab<heightWidthMod> {
 					if (!userModified) {
 							if (listenerLocked) {
 								if (cellsLinesButton.getSelection()) {
-									settingsMap.put(
-											type,
-											String.valueOf(df.format(sm
-													.calcHeightFromLines(getDoubleValue(t)))));
+//									settingsMap.put(
+//											type,
+//											String.valueOf(df.format(sm
+//													.calcHeightFromLines(getDoubleValue(t)))));
 								}// if cellsLinesButton
 								else {
 
@@ -584,10 +584,20 @@ public class PagePropertiesTab<heightWidthMod> {
 	}
 
 	private double getDoubleValue(Text t) {
+		try {
 		if (t.getText().length() == 0)
 			return 0.0;
 		else
 			return Double.valueOf(t.getText());
+		}
+		catch (NumberFormatException e) {
+			if (t.getText().contains("-"))
+				t.setText(t.getText().replaceAll("-", ""));
+			if (t.getText().length() == 0)
+				return 0.0;
+			else
+				return Double.valueOf(t.getText());
+		}
 	}
 
 	private String getStringValue(Text t) {
@@ -597,19 +607,11 @@ public class PagePropertiesTab<heightWidthMod> {
 			return t.getText();
 	}
 
-	public Boolean getRadioSelection() {
-		Boolean isRegional = regionalButton.getSelection();
-		return isRegional;
-
-	}
-
 	public void modifyMargins() {
 
 		if (!userModified) {
 
-			Boolean isRegional = getRadioSelection();
-
-			if (isRegional) {
+			if (regionalButton.getSelection()) {
 
 				String leftMargin = settingsMap.get("leftMargin");
 				marginLeftBox.setText(df.format(Double.valueOf(leftMargin)));
@@ -813,11 +815,7 @@ public class PagePropertiesTab<heightWidthMod> {
 					settingsMap.put("linesPerPage",
 							String.valueOf(linesBox.getText()));
 			}// else regionalButton
-
-			System.out.println(maxLines);
-			System.out.println(settingsMap);
 			userModified = false;
-
 		}// is isn't focus control
 
 	}// userModifiesLinesBox
@@ -850,9 +848,6 @@ public class PagePropertiesTab<heightWidthMod> {
 					settingsMap.put("cellsPerLine",
 							String.valueOf(cellsBox.getText()));
 			}// else regional button
-
-			System.out.println(maxCells);
-			System.out.println(settingsMap);
 			userModified = false;
 		}// if not directMarginEdit
 	}// userModifiesCellsBox
@@ -867,6 +862,15 @@ public class PagePropertiesTab<heightWidthMod> {
 			return false;
 		}// else
 	}// directMarginEdit
+	
+	private boolean directLinesCellsEdit() {
+		if (linesBox.isFocusControl()||cellsBox.isFocusControl()) {
+			return true;
+		}//if
+		else {
+			return false;
+		}//else
+	}//directLinesCellsEdit
 
 }// pagePropertiesTabClass
 

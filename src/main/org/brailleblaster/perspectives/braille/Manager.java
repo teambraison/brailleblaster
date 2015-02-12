@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -125,6 +126,7 @@ public class Manager extends Controller {
 	private MapList list;
 	private QueueManager queueManager;
 	SearchDialog srch = null;
+	private Vector<String> ignoreList = new Vector<String>();
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -1384,6 +1386,14 @@ public class Manager extends Controller {
 	
 	public BBTree getTreeView(){
 		return treeView;
+	}
+	
+	public Vector<String> getIgnoreList(){
+		return ignoreList;
+	}
+	
+	public void newIgnore(String newWord){
+		ignoreList.add(newWord);
 	}
 
 	public boolean isSimBrailleDisplayed() {

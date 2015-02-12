@@ -526,9 +526,9 @@ public class TextView extends WPView {
 			textChanged = true;
 		}
 		
-		if(isFirst(currentElement.n) && previousEnd == currentStart)
+		if(isFirst(currentElement.n) && previousEnd == currentStart && (currentStart != currentEnd))
 			manager.dispatch(Message.createMergeElementMessage(true));
-		else if(isLast(currentElement.n) && currentEnd == nextStart)
+		else if(isLast(currentElement.n) && currentEnd == nextStart && (currentStart != currentEnd) )
 			manager.dispatch(Message.createMergeElementMessage(false));
 	}
 	

@@ -807,8 +807,7 @@ public class SearchDialog extends Dialog {
 		// /////////////////////////////////////////////////////////////////////////////////
 		// Define our find button.
 		Button findBtn = new Button(shlFindreplace, SWT.NONE);
-		findBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
-				3, 1));
+		findBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
 		shlFindreplace.setDefaultButton(findBtn);
@@ -844,8 +843,7 @@ public class SearchDialog extends Dialog {
 		}); // btnFind.addSelectionListener()
 
 		Button replaceFindBtn = new Button(shlFindreplace, SWT.NONE);
-		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-				false, 1, 1));
+		replaceFindBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 		// formToolkit.adapt(btnReplacefind, true, true);
 		replaceFindBtn.setText("Replace/Find");
 		replaceFindBtn.setEnabled(false);
@@ -1421,6 +1419,9 @@ public class SearchDialog extends Dialog {
 		// Grab text view.
 		TextView tv = man.getText();
 
+		// The text in the view.
+		String textStr = tv.view.getText();
+		
 		// Are there any characters in the text view? If there
 		// are no characters, we probably don't have a document
 		// loaded yet.
@@ -1431,7 +1432,7 @@ public class SearchDialog extends Dialog {
 		String findMeStr = searchCombo.getText();
 
 		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
+		int numChars = textStr.length();
 
 		// If the search string is larger than the total number of
 		// characters in the view, don't bother.
@@ -1459,7 +1460,7 @@ public class SearchDialog extends Dialog {
 		// Scour the view for the search string.
 		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
 			// Get current snippet of text we're testing.
-			String curViewSnippet = tv.view.getText().substring(startCharIndex,
+			String curViewSnippet = textStr.substring(startCharIndex,
 					endCharIndex);
 
 			// Should we be checking case sensitive version?
@@ -1475,12 +1476,12 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (tv.view.getText()
+						if (textStr
 								.substring(startCharIndex - 1, startCharIndex)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (tv.view.getText()
+						if (textStr
 								.substring(endCharIndex, endCharIndex + 1)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
@@ -1540,6 +1541,9 @@ public class SearchDialog extends Dialog {
 		// Returns true if one was found.
 		// Grab text view.
 		TextView tv = man.getText();
+		
+		// The text in the view.
+		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
 		// are no characters, we probably don't have a document
@@ -1550,9 +1554,8 @@ public class SearchDialog extends Dialog {
 		// Grab search string.
 		String findMeStr = searchCombo.getText();
 
-
 		// Get number of characters in text view.
-		int numChars = tv.view.getText().length();
+		int numChars = textStr.length();
 
 		// If the search string is larger than the total number of
 		// characters in the view, don't bother.
@@ -1566,8 +1569,7 @@ public class SearchDialog extends Dialog {
 		// Scour the view for the search string.
 		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
 			// Get current snippet of text we're testing.
-			String curViewSnippet = tv.view.getText().substring(startCharIndex,
-					endCharIndex);
+			String curViewSnippet = textStr.substring(startCharIndex, endCharIndex);
 
 			// Should we be checking case sensitive version?
 			if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1582,14 +1584,10 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (tv.view.getText()
-								.substring(startCharIndex - 1, startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(startCharIndex - 1, startCharIndex).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (tv.view.getText()
-								.substring(endCharIndex, endCharIndex + 1)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(endCharIndex, endCharIndex + 1).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 
 				} // if( searchWholeWord...

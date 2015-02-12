@@ -38,7 +38,7 @@ public class Tokenizer {
 		
 		while(endPos < text.length() && ((Character.isLetter(text.charAt(endPos))|| Character.isDigit(text.charAt(endPos))) || text.charAt(endPos) == '\'')){
 			endPos++;
-			if(endPos < text.length()){
+			if(endPos+2 < text.length()){
 				if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
 					if(text.charAt(endPos+1) != ' '){
 						//If the next character isn't a space, something might be wrong
@@ -54,7 +54,7 @@ public class Tokenizer {
 					} else { //If it is a space, the following character needs to be capitalized
 						if(sentenceEnd.contains(Character.toString(text.charAt(endPos)))){ //Make sure it isn't a comma
 							if(Character.isLowerCase(text.charAt(endPos+2))){
-								capFlag = true;
+									capFlag = true;
 							}
 						}
 					}

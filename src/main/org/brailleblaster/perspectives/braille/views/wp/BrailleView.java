@@ -711,7 +711,7 @@ public class BrailleView extends WPView {
 				handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
 			}
 				
-			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
+			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent)&& insertionString.length() > 0)
 				setFirstLineIndent(t.brailleList.getFirst().start, style);
 			view.setCaretOffset(pos);
 			setListenerLock(false);	

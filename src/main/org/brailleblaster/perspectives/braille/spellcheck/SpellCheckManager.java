@@ -70,8 +70,14 @@ public class SpellCheckManager {
     				String [] suggestions = sc.getSuggestions(tokenizer.getCurrentWord());
     				if(tokenizer.getSplitPos()!=0){ //Caught a word that probably needs a space
     					String word1, word2;
+    					String punc = ".?!";
     					word1 = tokenizer.getCurrentWord().substring(0, tokenizer.getSplitPos());
-    					word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
+    					if(punc.contains(Character.toString(tokenizer.getCurrentWord().charAt(tokenizer.getSplitPos()- 1)))){
+    						//If we're splitting a word at a . ! or ? the second word should be capitalized.
+    						word2 = Character.toUpperCase(tokenizer.getCurrentWord().charAt(tokenizer.getSplitPos())) + tokenizer.getCurrentWord().substring(tokenizer.getSplitPos()+1);
+    					} else {
+    						word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
+    					}
     					// Make a new suggestions array that includes existing words with space
     					String[] newSuggestions = new String[suggestions.length+1]; 
     					newSuggestions[0] = word1 + " " + word2;
@@ -90,7 +96,7 @@ public class SpellCheckManager {
     					tokenizer.setCapFlag(false);
     				}
     			}
-    		}
+       		}
     	}
     	
     	if(tokenizer.isComplete()) {

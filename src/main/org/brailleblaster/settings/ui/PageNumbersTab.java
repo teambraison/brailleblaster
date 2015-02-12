@@ -126,7 +126,7 @@ public class PageNumbersTab {
 		/////////////
 		
 		ppnRngLabel = new Label(ppnGroup, 0);
-		ppnRngLabel.setText("Page Number Range");
+		ppnRngLabel.setText("Continuation Symbols For Print Pages");
 		setGridData(ppnRngLabel);
 		ppnRngCombo = new Combo(ppnGroup, SWT.READ_ONLY);
 		ppnRngCombo.add("No");

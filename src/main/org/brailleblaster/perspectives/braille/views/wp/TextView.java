@@ -82,6 +82,7 @@ import org.eclipse.swt.widgets.Listener;
 
 public class TextView extends WPView {
 	private ViewStateObject stateObj;
+	private TextActionValidator validator;
 	private int currentChar;
 	private int selectionStart, selectionLength;
 	private int currentChanges = 0;
@@ -110,6 +111,7 @@ public class TextView extends WPView {
  	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
 		super (manager, sash, table);
 		stateObj = new ViewStateObject();
+		validator = new TextActionValidator(manager, view);
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -152,7 +154,8 @@ public class TextView extends WPView {
 					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 				
 				if(readOnly){
-					if((Character.isDigit(e.character) && !validEdit())|| (Character.isLetter(e.character) && !validEdit()) || e.keyCode == SWT.CR)
+					if((Character.isDigit(e.character) && !validator.validEdit(currentElement, stateObj, selectionStart, selectionLength))|| (Character.isLetter(e.character) 
+							&& !validator.validEdit(currentElement, stateObj, selectionStart, selectionLength)) || e.keyCode == SWT.CR)
 						e.doit = false;
 				}
 				
@@ -164,11 +167,11 @@ public class TextView extends WPView {
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == 'x' && (currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement)){
-					if(!validCut())
+					if(!validator.validCut(currentElement, stateObj, selectionStart, selectionLength))
 						e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == 'v' && (currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement)){
-					if(!validPaste())
+					if(!validator.validPaste(currentElement, stateObj, selectionStart, selectionLength))
 						e.doit = false;
 				}
 				else if(!readOnly && e.character == SWT.CR){
@@ -299,9 +302,9 @@ public class TextView extends WPView {
 				}
 				
 				//Blocks text from crossing page boundaries in original markup
-				if(e.keyCode == SWT.BS && !validBackspace())
+				if(e.keyCode == SWT.BS && !validator.validBackspace(currentElement, stateObj, selectionStart, selectionLength))
 					e.doit = false;
-				else if(e.keyCode == SWT.DEL && !validDelete())
+				else if(e.keyCode == SWT.DEL && !validator.validDelete(currentElement, stateObj, selectionStart, selectionLength))
 					e.doit = false;
 			
 				if(selectionLength > 0)
@@ -599,9 +602,8 @@ public class TextView extends WPView {
 	}
 	
 	private void incrementNext(int offset){
-		int nextStart = stateObj.getNextStart();
-		if(nextStart != -1)
-			nextStart += offset;
+		if(stateObj.getNextStart() != -1)
+			stateObj.adjustNextStart(offset);
 	}
 	
 	private void shiftLeft(int offset){
@@ -1643,12 +1645,12 @@ public class TextView extends WPView {
 		else
 			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 		
-		if(validCut())
+		if(validator.validCut(currentElement, stateObj, selectionStart, selectionLength))
 			view.cut();
 	}
 	
 	public void paste(){
-		if(validPaste())
+		if(validator.validPaste(currentElement, stateObj, selectionStart, selectionLength))
 			view.paste();
 	}
 	
@@ -2036,88 +2038,6 @@ public class TextView extends WPView {
 
 	public boolean isMultiSelected() {
 		return multiSelected;
-	}
-	
-	private boolean validCut(){
-		int currentStart = stateObj.getCurrentStart();
-		int currentEnd = stateObj.getCurrentEnd();
-		int nextStart = stateObj.getNextStart();
-		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionStart == currentStart && selectionLength == (currentEnd - currentStart))
-				return false;
-			else if(selectionStart >= currentStart && selectionStart < currentEnd && selectionLength <= (currentEnd - selectionStart))
-				return false;
-			else if(selectionStart  == currentEnd && selectionLength == 1 && selectionStart + selectionLength == nextStart)
-				return false;
-		}
-		return true;
-	}
-	
-	private boolean validPaste(){
-		int currentStart = stateObj.getCurrentStart();
-		int currentEnd = stateObj.getCurrentEnd();
-		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionStart == currentStart && selectionLength == (currentEnd - currentStart))
-				return false;
-			else if(selectionStart >= currentStart && selectionStart < currentEnd && selectionLength <= (currentEnd - selectionStart))
-				return false;
-			else if(view.getSelectionRanges()[1] == 0 || (selectionStart >= currentStart && selectionStart <= currentEnd ))
-				return false;
-		}
-		return true;
-	}
-	
-	private boolean validDelete(){
-		int currentStart = stateObj.getCurrentStart();
-		int currentEnd = stateObj.getCurrentEnd();
-		int nextStart = stateObj.getNextStart();
-		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if((selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd) || selectionLength == 0)
-				return false;
-			else if(selectionLength <= 0 && view.getCaretOffset() == currentEnd)
-				return false;
-			else if(selectionStart == currentEnd && (selectionStart + selectionLength) == nextStart && selectionLength == 1)
-				return false;
-		}
-		else if(selectionLength <= 0 && manager.inPrintPageRange(view.getCaretOffset() + 1) || (selectionLength <= 0 && (manager.getElementInRange(view.getCaretOffset() + 1) instanceof BrlOnlyMapElement)))
-			return false;
-		
-		return true;
-	}
-	
-	private boolean validBackspace(){
-		int currentStart = stateObj.getCurrentStart();
-		int currentEnd = stateObj.getCurrentEnd();
-		int nextStart = stateObj.getNextStart();
-		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionStart >= currentStart && selectionStart + selectionLength <= currentEnd)
-				return false;
-			else if(selectionLength <= 0)
-				return false;
-			else if(selectionStart == currentEnd && (selectionStart + selectionLength) == nextStart && selectionLength == 1)
-				return false;
-		}
-		else if(selectionLength <= 0 && manager.inPrintPageRange(view.getCaretOffset() - 1) || (selectionLength <= 0 && (manager.getElementInRange(view.getCaretOffset() - 1) instanceof BrlOnlyMapElement)))
-			return false;
-		
-		return true;
-	}
-	
-	private boolean validEdit(){
-		int currentStart = stateObj.getCurrentStart();
-		int currentEnd = stateObj.getCurrentEnd();
-		if(currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement){
-			if(selectionLength <= 0)
-				return false;
-			else if(selectionStart == currentStart && selectionLength == (currentEnd - currentStart))
-				return false;
-			else if(selectionStart >= currentStart && selectionStart < currentEnd && selectionLength <= (currentEnd - selectionStart))
-				return false;
-			else if(selectionStart >= currentStart && selectionStart <= currentEnd)
-				return false;
-		}
-		
-		return true;
 	}
 	
 	public void setCurrentSelection(int start, int end){

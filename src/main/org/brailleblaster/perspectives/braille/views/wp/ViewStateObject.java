@@ -1,10 +1,10 @@
 package org.brailleblaster.perspectives.braille.views.wp;
 
 public class ViewStateObject {
-	private int currentStart, currentEnd, previousEnd, nextStart;
+	private int currentStart, currentEnd, previousEnd, nextStart, oldCursorPosition;
 	
 	public ViewStateObject(){
-		
+		setOldCursorPosition(-1);
 	}
 
 	public int getCurrentStart() {
@@ -49,5 +49,13 @@ public class ViewStateObject {
 	
 	public void adjustNextStart(int val){
 		nextStart += val;
+	}
+
+	public int getOldCursorPosition() {
+		return oldCursorPosition;
+	}
+
+	public void setOldCursorPosition(int oldCursorPosition) {
+		this.oldCursorPosition = oldCursorPosition;
 	}
 }

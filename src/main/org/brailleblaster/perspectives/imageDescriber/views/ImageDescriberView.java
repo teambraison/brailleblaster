@@ -621,7 +621,7 @@ public class ImageDescriberView {
 	    			// File handles to xml file and html file.
 	    			File xmlFile = new File(curBrowserFilePath);
     				File htmlFile = new File(curBrowserFilePath = curBrowserFilePath.replace(".xml", ".html"));
-	    			
+    				
 	    			// Create html version if it doesn't already exist.
     				if(htmlFile.exists() == false) {
     	    			// Write the section to disc.
@@ -630,7 +630,6 @@ public class ImageDescriberView {
 	    				catch (IOException e) { e.printStackTrace(); }
 		    			// Add this file path to our temp list so it will get deleted later.
 		    			idd.getArchiver().addTempFile(curBrowserFilePath);
-		    			
     				} // if(htmlFile.exists() == false)
     				
 	    		} // if(idd.getArchiver() instanceof NimasArchiver)

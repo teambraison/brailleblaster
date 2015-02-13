@@ -115,11 +115,13 @@ public class ImageDescriberToolBar {
 				}
 				else if(filePath != null){
 					if(currentEditor.canReuseTab())
-						currentEditor.openDocument(filePath);
+						//currentEditor.openDocument(filePath);
+						currentEditor.reuseTab(filePath);
 					else
 						wp.addDocumentManager(filePath);
 				}
 			}
+			
 		});
 
 		ToolItem saveItem = new ToolItem(toolBar, SWT.PUSH);

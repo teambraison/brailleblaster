@@ -82,7 +82,6 @@ import org.eclipse.swt.widgets.Listener;
 
 public class TextView extends WPView {
 	private ViewStateObject stateObj;
-	private int oldCursorPosition = -1;
 	private int currentChar;
 	private int selectionStart, selectionLength;
 	private int currentChanges = 0;
@@ -144,7 +143,7 @@ public class TextView extends WPView {
 			public void verifyKey(VerifyEvent e) {
 				int currentStart = stateObj.getCurrentStart();
 				int currentEnd = stateObj.getCurrentEnd();
-				oldCursorPosition = view.getCaretOffset();
+				stateObj.setOldCursorPosition(view.getCaretOffset());
 				currentChar = e.keyCode;
 
 				if(selectionLength > 0)
@@ -223,7 +222,7 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
+				if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
 					Message message;
 					int pos = view.getCaretOffset();
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
@@ -239,16 +238,16 @@ public class TextView extends WPView {
 					setSelection(-1, -1);
 					view.setCaretOffset(pos);
 				}
-				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
+				else if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
 					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
 					e.doit = false;
 				}
-				else if(selectionLength <= 0 && oldCursorPosition == currentStart && oldCursorPosition != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
+				else if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
-						int pos = oldCursorPosition - 1;
+						int pos = stateObj.getOldCursorPosition() - 1;
 						setCurrentElement(currentElement.start);
 						int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
@@ -260,7 +259,7 @@ public class TextView extends WPView {
 					TextMapElement t = manager.getPrevious();
 					style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
 					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
-						int pos = oldCursorPosition - 1;
+						int pos = stateObj.getOldCursorPosition() - 1;
 						setCurrentElement(t.start);
 						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
@@ -270,10 +269,10 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(selectionLength <= 0 && oldCursorPosition == currentEnd && oldCursorPosition != stateObj.getNextStart() && e.character == SWT.DEL && currentStart != currentEnd){
+				if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentEnd && stateObj.getOldCursorPosition() != stateObj.getNextStart() && e.character == SWT.DEL && currentStart != currentEnd){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
-						int pos = oldCursorPosition;
+						int pos = stateObj.getOldCursorPosition();
 						setCurrentElement(currentElement.end);
 						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
 						style.put(StylesType.linesAfter, String.valueOf(linesAfter));
@@ -287,7 +286,7 @@ public class TextView extends WPView {
 					if(t != null){
 						style = stylesTable.get(stylesTable.getKeyFromAttribute(t.parentElement()));
 						if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
-							int pos = oldCursorPosition;
+							int pos = stateObj.getOldCursorPosition();
 							setCurrentElement(t.start);
 							int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
 							style.put(StylesType.linesBefore, String.valueOf(linesBefore));
@@ -333,7 +332,7 @@ public class TextView extends WPView {
 				Message message = Message.createGetCurrentMessage(Sender.TEXT, view.getCaretOffset());
 				manager.dispatch(message);
 				setViewData(message);
-				if(oldCursorPosition == -1 && positionFromStart == 0)
+				if(stateObj.getOldCursorPosition() == -1 && positionFromStart == 0)
 					view.setCaretOffset((Integer)message.getValue("start"));
 				
 				sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
@@ -1292,11 +1291,11 @@ public class TextView extends WPView {
 			}
 		}
 		else {
-			if(oldCursorPosition > stateObj.getCurrentEnd())
-				sendAdjustRangeMessage("end", oldCursorPosition - stateObj.getCurrentEnd());
+			if(stateObj.getOldCursorPosition() > stateObj.getCurrentEnd())
+				sendAdjustRangeMessage("end", stateObj.getOldCursorPosition() - stateObj.getCurrentEnd());
 			
-			if(oldCursorPosition < stateObj.getCurrentStart())
-				sendAdjustRangeMessage("start", stateObj.getCurrentStart() - oldCursorPosition);
+			if(stateObj.getOldCursorPosition() < stateObj.getCurrentStart())
+				sendAdjustRangeMessage("start", stateObj.getCurrentStart() - stateObj.getOldCursorPosition());
 		
 			makeTextChange(changes);
 			recordEvent(e, true);
@@ -1307,23 +1306,23 @@ public class TextView extends WPView {
 	}
 	
 	private void handleTextDeletion(ExtendedModifyEvent e){
-		int offset = view.getCaretOffset() - oldCursorPosition;
+		int offset = view.getCaretOffset() - stateObj.getOldCursorPosition();
 		setListenerLock(true);
 		if(e.replacedText.length() > 1){
 			setCurrent(view.getCaretOffset());
 			deleteSelection(e);
 		}
 		else if(currentChar == SWT.BS){
-			if(oldCursorPosition == stateObj.getCurrentStart() && view.getCaretOffset() >= stateObj.getPreviousEnd())
+			if(stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && view.getCaretOffset() >= stateObj.getPreviousEnd())
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
-			else if(oldCursorPosition == stateObj.getCurrentStart() && view.getCaretOffset() < stateObj.getPreviousEnd()){
+			else if(stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && view.getCaretOffset() < stateObj.getPreviousEnd()){
 				if(textChanged)
 					sendUpdate();
 
 				setCurrent(view.getCaretOffset());
 				makeTextChange(offset);
 			}
-			else if(oldCursorPosition > stateObj.getCurrentEnd())
+			else if(stateObj.getOldCursorPosition() > stateObj.getCurrentEnd())
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else{
 				makeTextChange(offset);
@@ -1333,23 +1332,23 @@ public class TextView extends WPView {
 		else if(currentChar == SWT.DEL){
 			offset = -1;
 			
-			if(selectionStart + selectionLength != stateObj.getCurrentEnd() && oldCursorPosition == stateObj.getCurrentEnd() && oldCursorPosition < stateObj.getNextStart()){
+			if(selectionStart + selectionLength != stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() < stateObj.getNextStart()){
 				if(textChanged)
 					sendUpdate();
 				
 				stateObj.adjustNextStart(offset);
 				sendDeleteSpaceMessage(view.getCaretOffset(), offset, e);
 			}
-			else if(oldCursorPosition == stateObj.getCurrentEnd() && view.getCaretOffset() == stateObj.getNextStart()){
+			else if(stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && view.getCaretOffset() == stateObj.getNextStart()){
 				if(textChanged) 	
 					sendUpdate();		
 				
 				setCurrent(view.getCaretOffset() + 1);
 				makeTextChange(offset);
 			}
-			else if ((stateObj.getPreviousEnd() == -1 && selectionLength > 0 && selectionStart < stateObj.getCurrentStart() && selectionStart + selectionLength <= stateObj.getCurrentStart())|| (oldCursorPosition < stateObj.getCurrentStart() && (stateObj.getPreviousEnd() == -1 || oldCursorPosition > stateObj.getPreviousEnd())))
+			else if ((stateObj.getPreviousEnd() == -1 && selectionLength > 0 && selectionStart < stateObj.getCurrentStart() && selectionStart + selectionLength <= stateObj.getCurrentStart())|| (stateObj.getOldCursorPosition() < stateObj.getCurrentStart() && (stateObj.getPreviousEnd() == -1 || stateObj.getOldCursorPosition() > stateObj.getPreviousEnd())))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
-			else if( (oldCursorPosition == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1)|| (oldCursorPosition > stateObj.getCurrentEnd() && (oldCursorPosition < stateObj.getNextStart() || stateObj.getNextStart() == -1)))
+			else if( (stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1)|| (stateObj.getOldCursorPosition() > stateObj.getCurrentEnd() && (stateObj.getOldCursorPosition() < stateObj.getNextStart() || stateObj.getNextStart() == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else {
 				makeTextChange(offset);
@@ -1996,7 +1995,7 @@ public class TextView extends WPView {
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;
-		oldCursorPosition = -1;
+		stateObj.setOldCursorPosition(-1);
 		currentChanges = 0;
 		textChanged = false;
 		setListenerLock(false);

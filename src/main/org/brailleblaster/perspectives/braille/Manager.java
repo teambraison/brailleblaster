@@ -129,6 +129,7 @@ public class Manager extends Controller {
 	SearchDialog srch = null;
 	TPagesDialog tpDialog = null;
 	private Vector<String> ignoreList = new Vector<String>();
+	private String lastTPage;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -1504,6 +1505,14 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public String getLastTPage() {
+		return lastTPage;
+	}
+
+	public void setLastTPage(String lastTPage) {
+		this.lastTPage = lastTPage;
+	}
+
 	public void addUndoEvent(EventFrame f){
 		queueManager.addUndoEvent(f);
 	}

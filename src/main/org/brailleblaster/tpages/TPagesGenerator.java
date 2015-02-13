@@ -44,7 +44,7 @@ public class TPagesGenerator {
 	 */
 	public boolean openTPageXML(String filename){
 		try{
-			File file = new File("C:\\Users\\cknapp\\Desktop\\testingjavaxml.xml");
+			File file = new File(filename);
 			
 			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = docBuilder.parse(file);
@@ -72,7 +72,7 @@ public class TPagesGenerator {
 	}
 	
 	public boolean checkForFile(String filename){
-		File file = new File("C:\\Users\\cknapp\\Desktop\\testingjavaxml.xml");
+		File file = new File(filename);
 		if(file.exists()){
 			return true;
 		} else {
@@ -83,7 +83,7 @@ public class TPagesGenerator {
 	/*
 	 * User is using T-Pages for the first time. This will at some point require a String argument for the filename
 	 */
-	public boolean createNewTPageXML(){
+	public boolean createNewTPageXML(String filename){
 		try{
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
@@ -139,7 +139,7 @@ public class TPagesGenerator {
 			Transformer transformer = tFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
 			//StreamResult result = new StreamResult(System.out);
-			StreamResult result = new StreamResult(new File("C:\\Users\\cknapp\\Desktop\\testingjavaxml.xml"));
+			StreamResult result = new StreamResult(new File(filename));
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(source, result);
@@ -155,7 +155,9 @@ public class TPagesGenerator {
 	}
 	
 	public boolean saveNewTPage(String filename, HashMap<String, String> newXmlMap){
-		File file = new File("C:\\Users\\cknapp\\Desktop\\testingjavaxml.xml");
+		File file = new File(filename);
+		if(!checkForFile(filename))
+			createNewTPageXML(filename);
 		Set mapSet = newXmlMap.entrySet();
 		Iterator iterator = mapSet.iterator();
 		try{
@@ -170,7 +172,7 @@ public class TPagesGenerator {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
-			StreamResult result = new StreamResult(new File("C:\\Users\\cknapp\\Desktop\\testingjavaxml.xml"));
+			StreamResult result = new StreamResult(new File(filename));
 			transformer.transform(source, result);
 			
 		} catch(ParserConfigurationException e){

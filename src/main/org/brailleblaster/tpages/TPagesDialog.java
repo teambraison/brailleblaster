@@ -18,8 +18,10 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -34,6 +36,12 @@ public class TPagesDialog extends Dialog{
 	private Display display;
 	final int TEXT_BOX_WIDTH = 500;
 	final int LABEL_WIDTH = 150;
+	HashMap<Text, String> uimap;
+	Text titleText, gradeLevelText, subtitleText, seriesText, editionText, authorText, translatorText, publisherText,
+	pubLocationText, pubWebsiteText, copyDateText, copyText, reproText, isbn13Text, isbn10Text, printHistoryText,
+	transYearText, transText, tgsText, affiliationText;
+	Combo permissionCombo;
+	Button copyrightButton, copySymbolButton;
 	TPagesGenerator tpGenerator;
 	HashMap<String, String> xmlmap;
 	
@@ -45,12 +53,20 @@ public class TPagesDialog extends Dialog{
 	
 	public Object open(){
 		tpGenerator = new TPagesGenerator();
-		if(!tpGenerator.checkForFile("filename")){
+		/*if(!tpGenerator.checkForFile("filename")){
 			tpGenerator.createNewTPageXML();
 		}
-		tpGenerator.openTPageXML("filename");
+		tpGenerator.openTPageXML("filename");*/
 		xmlmap = tpGenerator.getXmlMap();
+		uimap = new HashMap<Text, String>();
 		createContents();
+		
+		if(m.getLastTPage()!=null){
+			if(tpGenerator.checkForFile(m.getLastTPage())){
+				openFromXml(m.getLastTPage());
+				updateContents();
+			}
+		}
 		
 		shlTPages.open();
 		shlTPages.layout();
@@ -91,26 +107,26 @@ public class TPagesDialog extends Dialog{
 		titleGroup.setLayout(titlePageLayout);
 		
 		createLabel(titleGroup, "Title", 1);
-		final Text titleText = createText(titleGroup, 1, "title");
+		 titleText = createText(titleGroup, 1, "title");
 		
 		createLabel(titleGroup, "Grade Level", 1);
-		final Text gradeLevelText = createText(titleGroup, 1, "gradelevel");
+		 gradeLevelText = createText(titleGroup, 1, "gradelevel");
 		
 		createLabel(titleGroup, "Subtitle", 1);
-		final Text subtitleText = createText(titleGroup, 1, "subtitle");
+		 subtitleText = createText(titleGroup, 1, "subtitle");
 		
 		createLabel(titleGroup, "Series Name", 1);
-		final Text seriesText = createText(titleGroup, 1, "seriesname");
+		 seriesText = createText(titleGroup, 1, "seriesname");
 		
 		createLabel(titleGroup, "Edition Name or Number", 1);
-		final Text editionText = createText(titleGroup, 1, "editionname");
+		 editionText = createText(titleGroup, 1, "editionname");
 		
 		Group authorGroup = new Group(titleComposite, SWT.NONE);
 		authorGroup.setText("Author");
 		authorGroup.setLayout(new GridLayout(2,false));
 		
 		createLabel(authorGroup, "Author(s)", 1);
-		final Text authorText = new Text(authorGroup, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
+		 authorText = new Text(authorGroup, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
 		GridData newData = newTpData(1);
 		newData.widthHint = TEXT_BOX_WIDTH;
 		newData.heightHint = 70;
@@ -119,35 +135,36 @@ public class TPagesDialog extends Dialog{
 		authorText.setLayoutData(newData);
 		
 		createLabel(authorGroup, "Translator", 1);
-		final Text translatorText = createText(authorGroup, 1, "translator");
+		 translatorText = createText(authorGroup, 1, "translator");
 		
 		Group publisherGroup = new Group(titleComposite, SWT.NONE);
 		publisherGroup.setText("Publisher");
 		publisherGroup.setLayout(new GridLayout(2,false));
 		
 		createLabel(publisherGroup, "Permission", 1);
-		final Combo permissionCombo = new Combo(publisherGroup, SWT.READ_ONLY);
+		permissionCombo = new Combo(publisherGroup, SWT.READ_ONLY);
 		permissionCombo.setLayoutData(newTpData(1));
 		permissionCombo.setItems(new String[]{"Published by", "With permission of the publisher,"});
-		if (xmlmap.get("pubpermission").equals("0")||xmlmap.get("pubpermission").equals("1"))
-			permissionCombo.select(Integer.parseInt(xmlmap.get("pubpermission")));
-		else
-			permissionCombo.select(0);
-		
+		permissionCombo.select(0);
+		if(xmlmap.get("pubpermission")!=null){
+			if (xmlmap.get("pubpermission").equals("0")||xmlmap.get("pubpermission").equals("1"))
+				permissionCombo.select(Integer.parseInt(xmlmap.get("pubpermission")));
+		}
+			
 		createLabel(publisherGroup, "Publisher", 1);
-		final Text publisherText = createText(publisherGroup, 1, "publisher");
+		 publisherText = createText(publisherGroup, 1, "publisher");
 		
 		createLabel(publisherGroup, "City and State", 1);
-		final Text pubLocationText = createText(publisherGroup, 1, "location");
+		 pubLocationText = createText(publisherGroup, 1, "location");
 		
 		createLabel(publisherGroup, "Website", 1);
-		final Text pubWebsiteText = createText(publisherGroup, 1, "website");
+		 pubWebsiteText = createText(publisherGroup, 1, "website");
 		
 		Group printGroup = new Group (titleComposite, SWT.NONE);
 		printGroup.setText("Printing Info");
 		printGroup.setLayout(new GridLayout(2,false));
 		
-		final Button copyrightButton = new Button(printGroup, SWT.CHECK);
+		copyrightButton = new Button(printGroup, SWT.CHECK);
 		copyrightButton.setText("Copyright");
 		copyrightButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 		if(xmlmap.get("copyrighted")!=null){
@@ -155,7 +172,7 @@ public class TPagesDialog extends Dialog{
 		} else{
 			copyrightButton.setSelection(true);
 		}
-		final Button copySymbolButton = new Button(printGroup, SWT.CHECK);
+		copySymbolButton = new Button(printGroup, SWT.CHECK);
 		copySymbolButton.setText("Copyright Symbol");
 		copySymbolButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 		if(xmlmap.get("copyrightsymbol")!=null){
@@ -165,39 +182,39 @@ public class TPagesDialog extends Dialog{
 		}
 		
 		createLabel(printGroup, "Copyright Date", 1);
-		final Text copyDateText = createText(printGroup, 1, "copyrightdate");
+		 copyDateText = createText(printGroup, 1, "copyrightdate");
 		
 		createLabel(printGroup, "Copyright Text", 1);
-		final Text copyText = createText(printGroup, 1, "copyrighttext");
+		 copyText = createText(printGroup, 1, "copyrighttext");
 		
 		createLabel(printGroup, "Reproduction Notice", 1);
-		final Text reproText = createText(printGroup, 1, "repronotice");
+		 reproText = createText(printGroup, 1, "repronotice");
 		//reproText.setText("Further reproduction or distribution in other than a specialized format is prohibited.");
 		
 		createLabel(printGroup,"ISBN-13", 1);
-		final Text isbn13Text = createText(printGroup, 1, "isbn13");
+		 isbn13Text = createText(printGroup, 1, "isbn13");
 		
 		createLabel(printGroup, "ISBN-10", 1);
-		final Text isbn10Text = createText(printGroup, 1, "isbn10");
+		 isbn10Text = createText(printGroup, 1, "isbn10");
 		
 		createLabel(printGroup, "Printing History", 1);
-		final Text printHistoryText = createText(printGroup, 1, "printhistory");
+		 printHistoryText = createText(printGroup, 1, "printhistory");
 		
 		Group transcriberGroup = new Group (titleComposite, SWT.NONE);
 		transcriberGroup.setText("Transcriber");
 		transcriberGroup.setLayout(new GridLayout(2, false));
 		
 		createLabel(transcriberGroup, "Transcription Year", 1);
-		final Text transYearText = createText(transcriberGroup, 1, "year");
+		 transYearText = createText(transcriberGroup, 1, "year");
 		
 		createLabel(transcriberGroup, "Transcriber", 1);
-		final Text transText = createText(transcriberGroup, 1, "transcriber");
+		 transText = createText(transcriberGroup, 1, "transcriber");
 		
 		createLabel(transcriberGroup, "Tactile Graphics Specialist", 1);
-		final Text tgsText = createText(transcriberGroup, 1, "tgs");
+		 tgsText = createText(transcriberGroup, 1, "tgs");
 		
 		createLabel(transcriberGroup, "Affiliation", 1);
-		final Text affiliationText = createText(transcriberGroup, 1, "affiliation");
+		affiliationText = createText(transcriberGroup, 1, "affiliation");
 		
 		Group volumesGroup = new Group (titleComposite, SWT.NONE);
 		volumesGroup.setText("Volumes");
@@ -222,7 +239,7 @@ public class TPagesDialog extends Dialog{
 		/////////////////////////////
 		
 		Button closeButton = new Button(shlTPages, SWT.PUSH);
-		GridData buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 4, 1);
+		GridData buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 3, 1);
 		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
 		closeButton.setText("Close");
@@ -240,41 +257,54 @@ public class TPagesDialog extends Dialog{
 			}
 		});
 		
+		Button openButton = new Button(shlTPages, SWT.PUSH);
+		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		buttonData.widthHint = 100;
+		buttonData.heightHint = 30;
+		openButton.setText("Open");
+		openButton.setLayoutData(buttonData);
+		
+		openButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				FileDialog openFile = new FileDialog(shlTPages, SWT.OPEN);
+				openFile.setText("Open Transcriber-Generated Page");
+				openFile.setFilterExtensions(new String[] {"*.xml"});
+				openFromXml(openFile.open());
+				updateContents();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0){
+				
+			}
+		});
+		
 		Button generateButton = new Button(shlTPages, SWT.PUSH);
 		buttonData = new GridData(SWT.LEFT, SWT.BEGINNING, false, false, 1, 1);
 		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
-		generateButton.setText("Generate");
+		generateButton.setText("Save XML");
 		generateButton.setLayoutData(buttonData);
 		
 		generateButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				xmlmap.put("title", titleText.getText());
-				xmlmap.put("gradelevel", gradeLevelText.getText());
-				xmlmap.put("subtitle", subtitleText.getText());
-				xmlmap.put("seriesname", seriesText.getText());
-				xmlmap.put("editionname", editionText.getText());
 				authorText.setText(authorText.getText().replaceAll("\r\n", ";"));
 				xmlmap.put("authors", authorText.getText());
-				xmlmap.put("translator", translatorText.getText());
 				xmlmap.put("pubpermission", "" + permissionCombo.getSelectionIndex());
-				xmlmap.put("publisher", publisherText.getText());
-				xmlmap.put("location", pubLocationText.getText());
-				xmlmap.put("website", pubWebsiteText.getText());
 				xmlmap.put("copyrighted", String.valueOf(copyrightButton.getSelection()));
 				xmlmap.put("copyrightsymbol", String.valueOf(copySymbolButton.getSelection()));
-				xmlmap.put("copyrightdate", copyDateText.getText());
-				xmlmap.put("copyrighttext", copyText.getText());
-				xmlmap.put("repronotice", reproText.getText());
-				xmlmap.put("isbn13", isbn13Text.getText());
-				xmlmap.put("isbn10", isbn10Text.getText());
-				xmlmap.put("printhistory", printHistoryText.getText());
-				xmlmap.put("year", transYearText.getText());
-				xmlmap.put("transcriber", transText.getText());
-				xmlmap.put("tgs", tgsText.getText());
-				xmlmap.put("affiliation", affiliationText.getText());
-				tpGenerator.saveNewTPage("filename", xmlmap);
+				for(Map.Entry<Text, String> entry : uimap.entrySet())
+					xmlmap.put(entry.getValue(), entry.getKey().getText());
+				
+				FileDialog saveFile = new FileDialog(shlTPages, SWT.SAVE);
+				saveFile.setFilterExtensions(new String[] { "*.xml" });	
+				String result = saveFile.open();
+				if(result!=null){
+					m.setLastTPage(result);
+					tpGenerator.saveNewTPage(result, xmlmap);
+				}
 			}
 			
 			@Override
@@ -287,11 +317,24 @@ public class TPagesDialog extends Dialog{
 		
 	}
 	
-	public GridData newTpData(int columns){
+	private void updateContents(){
+		for(Map.Entry<Text, String> entry : uimap.entrySet())
+			entry.getKey().setText(xmlmap.get(entry.getValue()));
+		permissionCombo.select(Integer.parseInt(xmlmap.get("pubpermission")));
+		copyrightButton.setSelection(xmlmap.get("copyrighted").equals("true"));
+		copySymbolButton.setSelection(xmlmap.get("copyrightsymbol").equals("true"));
+		authorText.setText(xmlmap.get("authors").replaceAll(";", "\r\n"));
+		affiliationText.setText(xmlmap.get("affiliation"));
+	}
+	
+	private void openFromXml(String filepath){
+		tpGenerator.openTPageXML(filepath);
+	}
+	private GridData newTpData(int columns){
 		return new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, columns, 1);
 	}
 	
-	public Label createLabel(Composite comp, String text, int horizSpan){ 
+	private Label createLabel(Composite comp, String text, int horizSpan){ 
 		Label newLabel = new Label(comp, SWT.NONE);
 		newLabel.setText(text);
 		GridData labelData = newTpData(horizSpan);
@@ -300,7 +343,7 @@ public class TPagesDialog extends Dialog{
 		return newLabel;
 	}
 	
-	public Text createText(Composite comp, int horizSpan, String xmlmapKey){
+	private Text createText(Composite comp, int horizSpan, String xmlmapKey){
 		Text newText = new Text(comp, SWT.SINGLE | SWT.BORDER);
 		GridData newData = newTpData(horizSpan);
 		newData.widthHint = TEXT_BOX_WIDTH;
@@ -310,6 +353,7 @@ public class TPagesDialog extends Dialog{
 				newText.setText(xmlmap.get(xmlmapKey));
 			}
 		}
+		uimap.put(newText, xmlmapKey);
 		return newText;
 	}
 }

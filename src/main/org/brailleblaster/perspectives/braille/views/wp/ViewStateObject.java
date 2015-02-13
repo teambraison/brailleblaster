@@ -1,7 +1,7 @@
 package org.brailleblaster.perspectives.braille.views.wp;
 
 public class ViewStateObject {
-	private int currentStart, currentEnd;
+	private int currentStart, currentEnd, previousEnd, nextStart;
 	
 	public ViewStateObject(){
 		
@@ -29,5 +29,25 @@ public class ViewStateObject {
 	
 	public void adjustEnd(int val){
 		currentEnd += val;
+	}
+
+	public int getPreviousEnd() {
+		return previousEnd;
+	}
+
+	public void setPreviousEnd(int previousEnd) {
+		this.previousEnd = previousEnd;
+	}
+
+	public int getNextStart() {
+		return nextStart;
+	}
+
+	public void setNextStart(int nextStart) {
+		this.nextStart = nextStart;
+	}
+	
+	public void adjustNextStart(int val){
+		nextStart += val;
 	}
 }

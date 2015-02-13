@@ -2,6 +2,7 @@ package org.brailleblaster.perspectives.braille.views.wp;
 
 public class ViewStateObject {
 	private int currentStart, currentEnd, previousEnd, nextStart, oldCursorPosition;
+	private int currentChar;
 	
 	public ViewStateObject(){
 		setOldCursorPosition(-1);
@@ -57,5 +58,13 @@ public class ViewStateObject {
 
 	public void setOldCursorPosition(int oldCursorPosition) {
 		this.oldCursorPosition = oldCursorPosition;
+	}
+
+	public int getCurrentChar() {
+		return currentChar;
+	}
+
+	public void setCurrentChar(int currentChar) {
+		this.currentChar = currentChar;
 	}
 }

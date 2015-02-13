@@ -73,7 +73,6 @@ import org.eclipse.swt.graphics.Rectangle;
 
 public class BrailleView extends WPView {
 	private ViewStateObject stateObj;
-	private int currentChar;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	private String charAtOffset;
 	
@@ -112,7 +111,7 @@ public class BrailleView extends WPView {
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
-				currentChar = e.keyCode;
+				stateObj.setCurrentChar(e.keyCode);
 
 				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
 				if(manager.inBraillePageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1)
@@ -161,10 +160,10 @@ public class BrailleView extends WPView {
 			@Override
 			public void caretMoved(CaretEvent e) {
 				if(!getLock()){
-					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
+					if(stateObj.getCurrentChar() == SWT.ARROW_DOWN || stateObj.getCurrentChar() == SWT.ARROW_LEFT || stateObj.getCurrentChar() == SWT.ARROW_RIGHT || stateObj.getCurrentChar() == SWT.ARROW_UP || stateObj.getCurrentChar() == SWT.PAGE_DOWN || stateObj.getCurrentChar() == SWT.PAGE_UP){
 						if(e.caretOffset >= stateObj.getCurrentEnd() || e.caretOffset < stateObj.getCurrentStart()){						
-							setCurrent();						
-							currentChar = ' ';
+							setCurrent();	
+							stateObj.setCurrentChar(' ');
 						}
 						//if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
 							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));

@@ -143,8 +143,8 @@ public class TextView extends WPView {
 		view.addVerifyKeyListener(verifyKeyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
-				int currentStart = stateObj.getCurrentStart();
-				int currentEnd = stateObj.getCurrentEnd();
+			//	int currentStart = stateObj.getCurrentStart();
+			//	int currentEnd = stateObj.getCurrentEnd();
 				stateObj.setOldCursorPosition(view.getCaretOffset());
 				stateObj.setCurrentChar(e.keyCode);
 
@@ -178,11 +178,11 @@ public class TextView extends WPView {
 					boolean atEnd = false;
 					boolean atStart = false;
 					
-					if(view.getCaretOffset() == currentEnd){
+					if(view.getCaretOffset() == stateObj.getCurrentEnd()){
 						if(stylesTable.isBlockElement(currentElement.parentElement()) || isLast(currentElement.n))
 							atEnd = true;
 					}
-					else if(view.getCaretOffset() == currentStart){
+					else if(view.getCaretOffset() == stateObj.getCurrentStart()){
 						if(stylesTable.isBlockElement(currentElement.parentElement()) || isFirst(currentElement.n))
 							atStart = true;
 					}
@@ -194,7 +194,7 @@ public class TextView extends WPView {
 					
 					if(atEnd) {
 						Message m = Message.createInsertNodeMessage(false, false, true,"p");
-						insertNewNode(m, currentEnd);			
+						insertNewNode(m, stateObj.getCurrentEnd());			
 						e.doit = false;	
 					}
 					else if(atStart){
@@ -204,36 +204,36 @@ public class TextView extends WPView {
 					}
 					else {
 						Message m;
-						int origLength =  getString(currentStart, view.getCaretOffset() - currentStart).length();
-						if(view.getCaretOffset() == currentEnd)
+						int origLength =  getString(stateObj.getCurrentStart(), view.getCaretOffset() - stateObj.getCurrentStart()).length();
+						if(view.getCaretOffset() == stateObj.getCurrentEnd())
 							m = Message.createInsertNodeMessage(true, false, true, "p");
-						else if(view.getCaretOffset() == currentStart)
+						else if(view.getCaretOffset() == stateObj.getCurrentStart())
 							m = Message.createInsertNodeMessage(true, true, false, "p");
 						else
 							m = Message.createInsertNodeMessage(true, false, false, "p");
 							
 						m.put("originalLength", origLength);
 						m.put("length", originalEnd - originalStart);
-						m.put("position", getString(currentStart, view.getCaretOffset() - currentStart).replace("\n", "").length());
+						m.put("position", getString(stateObj.getCurrentStart(), view.getCaretOffset() - stateObj.getCurrentStart()).replace("\n", "").length());
 						int pos = view.getCaretOffset();
 						manager.dispatch(m);
 						setListenerLock(true);
 						e.doit = false;
 						setCurrent(pos + (Integer)m.getValue("length"));
-						view.setCaretOffset(currentStart);
+						view.setCaretOffset(stateObj.getCurrentStart());
 						setListenerLock(false);
 					}
 				}
 				
-				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
+				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(stateObj.getCurrentStart())) != SWT.LEFT ){					
 					Message message;
 					int pos = view.getCaretOffset();
-					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
-						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.CENTER);
+					if(view.getLineAlignment(view.getLineAtOffset(stateObj.getCurrentStart())) == SWT.RIGHT){
+						view.setLineAlignment(view.getLineAtOffset(stateObj.getCurrentStart()), 1, SWT.CENTER);
 						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.CENTER);
 					}
 					else {
-						view.setLineAlignment(view.getLineAtOffset(currentStart), 1, SWT.LEFT);
+						view.setLineAlignment(view.getLineAtOffset(stateObj.getCurrentStart()), 1, SWT.LEFT);
 						message = Message.createAdjustAlignmentMessage(Sender.TEXT,SWT.LEFT);
 					}
 					manager.dispatch(message);
@@ -241,15 +241,15 @@ public class TextView extends WPView {
 					setSelection(-1, -1);
 					view.setCaretOffset(pos);
 				}
-				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
+				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(stateObj.getCurrentStart())) != 0 && stateObj.getCurrentStart() != stateObj.getCurrentEnd()){
 					int pos = view.getCaretOffset();
-					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
-					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
+					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
+					view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);
 					manager.dispatch(message);
 					view.setCaretOffset(pos);
 					e.doit = false;
 				}
-				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
+				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(stateObj.getCurrentStart())) == 0 && stateObj.getCurrentStart() != stateObj.getCurrentEnd()){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
 						int pos = stateObj.getOldCursorPosition() - 1;
@@ -257,7 +257,7 @@ public class TextView extends WPView {
 						int linesBefore = Integer.valueOf((String)style.get(StylesType.linesBefore)) - 1;
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, true, linesBefore));
 						setCurrent(pos);
-						view.setCaretOffset(currentStart);
+						view.setCaretOffset(stateObj.getCurrentStart());
 						e.doit = false;
 					}
 					
@@ -269,12 +269,12 @@ public class TextView extends WPView {
 						int linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter)) - 1;
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
 						setCurrent(pos);
-						view.setCaretOffset(currentStart);
+						view.setCaretOffset(stateObj.getCurrentStart());
 						e.doit = false;
 					}
 				}
 				
-				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentEnd && stateObj.getOldCursorPosition() != stateObj.getNextStart() && e.character == SWT.DEL && currentStart != currentEnd){
+				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() != stateObj.getNextStart() && e.character == SWT.DEL && stateObj.getCurrentStart() != stateObj.getCurrentEnd()){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
 						int pos = stateObj.getOldCursorPosition();
@@ -283,7 +283,7 @@ public class TextView extends WPView {
 						style.put(StylesType.linesAfter, String.valueOf(linesAfter));
 						manager.dispatch(Message.createAdjustLinesMessage(Sender.TEXT, false, linesAfter));
 						setCurrent(pos);
-						view.setCaretOffset(currentEnd);
+						view.setCaretOffset(stateObj.getCurrentEnd());
 						e.doit = false;
 					}
 					
@@ -312,7 +312,7 @@ public class TextView extends WPView {
 				if(selection.getSelectionLength() > 0)
 					saveAlignment(selection.getSelectionStart());
 				else
-					saveAlignment(currentStart);
+					saveAlignment(stateObj.getCurrentStart());
 				
 				if(currentElement.isMathML() && (e.keyCode != SWT.BS && e.keyCode != SWT.DEL && e.keyCode != SWT.ARROW_DOWN && e.keyCode != SWT.ARROW_LEFT && e.keyCode != SWT.ARROW_RIGHT && e.keyCode != SWT.ARROW_UP))
 					e.doit = false;

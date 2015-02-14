@@ -83,7 +83,7 @@ import org.eclipse.swt.widgets.Listener;
 public class TextView extends WPView {
 	private ViewStateObject stateObj;
 	private TextActionValidator validator;
-	private int selectionStart, selectionLength;
+	private Selection selection;
 	private int currentChanges = 0;
 	private boolean textChanged, readOnly;
 	private StyleRange range;
@@ -110,6 +110,7 @@ public class TextView extends WPView {
  	public TextView (Manager manager, SashForm sash, BBSemanticsTable table) {
 		super (manager, sash, table);
 		stateObj = new ViewStateObject();
+		selection = new Selection();
 		validator = new TextActionValidator(manager, view);
 		this.total = 0;
 		this.spaceBeforeText = 0;
@@ -147,14 +148,14 @@ public class TextView extends WPView {
 				stateObj.setOldCursorPosition(view.getCaretOffset());
 				stateObj.setCurrentChar(e.keyCode);
 
-				if(selectionLength > 0)
-					editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
+				if(selection.getSelectionLength() > 0)
+					editRecorder.recordLine(selection.getSelectionStart(), selection.getSelectionEnd());
 				else
 					editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 				
 				if(readOnly){
-					if((Character.isDigit(e.character) && !validator.validEdit(currentElement, stateObj, selectionStart, selectionLength))|| (Character.isLetter(e.character) 
-							&& !validator.validEdit(currentElement, stateObj, selectionStart, selectionLength)) || e.keyCode == SWT.CR)
+					if((Character.isDigit(e.character) && !validator.validEdit(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))|| (Character.isLetter(e.character) 
+							&& !validator.validEdit(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength())) || e.keyCode == SWT.CR)
 						e.doit = false;
 				}
 				
@@ -166,11 +167,11 @@ public class TextView extends WPView {
 					e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == 'x' && (currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement)){
-					if(!validator.validCut(currentElement, stateObj, selectionStart, selectionLength))
+					if(!validator.validCut(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 						e.doit = false;
 				}
 				else if(e.stateMask == SWT.MOD1 && e.keyCode == 'v' && (currentElement instanceof PageMapElement || currentElement instanceof BrlOnlyMapElement)){
-					if(!validator.validPaste(currentElement, stateObj, selectionStart, selectionLength))
+					if(!validator.validPaste(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 						e.doit = false;
 				}
 				else if(!readOnly && e.character == SWT.CR){
@@ -224,7 +225,7 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
+				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineAlignment(view.getLineAtOffset(currentStart)) != SWT.LEFT ){					
 					Message message;
 					int pos = view.getCaretOffset();
 					if(view.getLineAlignment(view.getLineAtOffset(currentStart)) == SWT.RIGHT){
@@ -240,13 +241,15 @@ public class TextView extends WPView {
 					setSelection(-1, -1);
 					view.setCaretOffset(pos);
 				}
-				else if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
+				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) != 0 && currentStart != currentEnd){
+					int pos = view.getCaretOffset();
 					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(currentStart));
 					view.setLineIndent(view.getLineAtOffset(currentStart), 1, 0);
 					manager.dispatch(message);
+					view.setCaretOffset(pos);
 					e.doit = false;
 				}
-				else if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
+				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentStart && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(currentStart)) == 0 && currentStart != currentEnd){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
 						int pos = stateObj.getOldCursorPosition() - 1;
@@ -271,7 +274,7 @@ public class TextView extends WPView {
 					}
 				}
 				
-				if(selectionLength <= 0 && stateObj.getOldCursorPosition() == currentEnd && stateObj.getOldCursorPosition() != stateObj.getNextStart() && e.character == SWT.DEL && currentStart != currentEnd){
+				if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == currentEnd && stateObj.getOldCursorPosition() != stateObj.getNextStart() && e.character == SWT.DEL && currentStart != currentEnd){
 					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
 					if(style.contains(StylesType.linesAfter) && Integer.valueOf((String)style.get(StylesType.linesAfter)) > 0){
 						int pos = stateObj.getOldCursorPosition();
@@ -301,13 +304,13 @@ public class TextView extends WPView {
 				}
 				
 				//Blocks text from crossing page boundaries in original markup
-				if(e.keyCode == SWT.BS && !validator.validBackspace(currentElement, stateObj, selectionStart, selectionLength))
+				if(e.keyCode == SWT.BS && !validator.validBackspace(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 					e.doit = false;
-				else if(e.keyCode == SWT.DEL && !validator.validDelete(currentElement, stateObj, selectionStart, selectionLength))
+				else if(e.keyCode == SWT.DEL && !validator.validDelete(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 					e.doit = false;
 			
-				if(selectionLength > 0)
-					saveAlignment(selectionStart);
+				if(selection.getSelectionLength() > 0)
+					saveAlignment(selection.getSelectionStart());
 				else
 					saveAlignment(currentStart);
 				
@@ -374,6 +377,8 @@ public class TextView extends WPView {
 
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+				
+				System.out.println("Text " + view.getCaretOffset());
 			}
 		});
 		
@@ -410,7 +415,7 @@ public class TextView extends WPView {
 		view.addVerifyListener(verifyListener = new VerifyListener()  {
 			@Override
 			public void verifyText(VerifyEvent event) {
-				if(event.doit != false && event.start != event.end && !getLock() && selectionLength != view.getCharCount()){
+				if(event.doit != false && event.start != event.end && !getLock() && selection.getSelectionLength() != view.getCharCount()){
 					TextMapElement t = manager.getElementInRange(event.start);
 					StyleRange style = null;
 					if(t != null)
@@ -520,7 +525,7 @@ public class TextView extends WPView {
 	}
 	
 	private void sendDeleteSpaceMessage(int start, int offset, ExtendedModifyEvent e){
-		int length = selectionLength > -1 ? selectionLength : 0;
+		int length = selection.getSelectionLength() > -1 ? selection.getSelectionLength() : 0;
 		int textPos = length == 0 ? 0 : e.replacedText.length() - length;
 		
 		String replacedText = e.replacedText.substring(textPos, textPos + Math.abs(offset));
@@ -1244,27 +1249,27 @@ public class TextView extends WPView {
 				view.setCaretOffset(e.start);
 				setCurrent(view.getCaretOffset());
 				
-				if(selectionStart < stateObj.getCurrentStart())
-					sendAdjustRangeMessage("start", stateObj.getCurrentStart() - selectionStart);
-				else if(selectionStart > stateObj.getCurrentEnd())
-					sendAdjustRangeMessage("end", selectionStart - stateObj.getCurrentEnd());	
+				if(selection.getSelectionStart() < stateObj.getCurrentStart())
+					sendAdjustRangeMessage("start", stateObj.getCurrentStart() - selection.getSelectionStart());
+				else if(selection.getSelectionStart() > stateObj.getCurrentEnd())
+					sendAdjustRangeMessage("end", selection.getSelectionStart()- stateObj.getCurrentEnd());	
 					
 				placeholder = stateObj.getCurrentStart();
 				if(e.length < e.replacedText.length()){
-					setSelection(selectionStart + e.length, selectionLength - e.length);
-					changes = stateObj.getCurrentEnd() - selectionStart;
+					setSelection(selection.getSelectionStart() + e.length, selection.getSelectionLength() - e.length);
+					changes = stateObj.getCurrentEnd() - selection.getSelectionStart();
 					makeTextChange(-changes);
-					selectionLength -= changes;
+					selection.adjustSelectionLength(-changes);
 					sendUpdate();
 					setCurrent(view.getCaretOffset());
-					selectionStart = stateObj.getCurrentEnd();
+					selection.setSelectionStart(stateObj.getCurrentEnd());
 				}
 				else {
-					selectionLength -= stateObj.getCurrentEnd() - e.start;
+					selection.adjustSelectionLength(-(stateObj.getCurrentEnd() - e.start));
 					makeTextChange(changes - (stateObj.getCurrentEnd() - e.start));
 					sendUpdate();
 					setCurrent(view.getCaretOffset());
-					selectionStart = stateObj.getCurrentEnd();
+					selection.setSelectionStart(stateObj.getCurrentEnd());
 				}
 		
 				deleteSelection(e);
@@ -1272,8 +1277,8 @@ public class TextView extends WPView {
 				view.setCaretOffset(e.start + e.length);
 			}
 			else {
-				if(selectionStart < stateObj.getCurrentStart()){
-					sendAdjustRangeMessage("start", stateObj.getCurrentStart() - selectionStart);
+				if(selection.getSelectionStart() < stateObj.getCurrentStart()){
+					sendAdjustRangeMessage("start", stateObj.getCurrentStart() - selection.getSelectionStart());
 					changes -= e.replacedText.length();
 					makeTextChange(changes);
 					sendUpdate();
@@ -1285,7 +1290,7 @@ public class TextView extends WPView {
 					recordEvent(e, true);
 				}
 				else {					
-					changes = e.length - selectionLength;							
+					changes = e.length - selection.getSelectionLength();							
 					makeTextChange(changes);
 					recordEvent(e, true);
 				}
@@ -1333,7 +1338,7 @@ public class TextView extends WPView {
 		else if(stateObj.getCurrentChar() == SWT.DEL){
 			offset = -1;
 			
-			if(selectionStart + selectionLength != stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() < stateObj.getNextStart()){
+			if(selection.getSelectionEnd() != stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getOldCursorPosition() < stateObj.getNextStart()){
 				if(textChanged)
 					sendUpdate();
 				
@@ -1347,7 +1352,7 @@ public class TextView extends WPView {
 				setCurrent(view.getCaretOffset() + 1);
 				makeTextChange(offset);
 			}
-			else if ((stateObj.getPreviousEnd() == -1 && selectionLength > 0 && selectionStart < stateObj.getCurrentStart() && selectionStart + selectionLength <= stateObj.getCurrentStart())|| (stateObj.getOldCursorPosition() < stateObj.getCurrentStart() && (stateObj.getPreviousEnd() == -1 || stateObj.getOldCursorPosition() > stateObj.getPreviousEnd())))
+			else if ((stateObj.getPreviousEnd() == -1 && selection.getSelectionLength() > 0 && selection.getSelectionStart() < stateObj.getCurrentStart() && selection.getSelectionEnd() <= stateObj.getCurrentStart())|| (stateObj.getOldCursorPosition() < stateObj.getCurrentStart() && (stateObj.getPreviousEnd() == -1 || stateObj.getOldCursorPosition() > stateObj.getPreviousEnd())))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
 			else if( (stateObj.getOldCursorPosition() == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1)|| (stateObj.getOldCursorPosition() > stateObj.getCurrentEnd() && (stateObj.getOldCursorPosition() < stateObj.getNextStart() || stateObj.getNextStart() == -1)))
 				deleteSpaceAndShift(view.getCaretOffset(), offset, e);
@@ -1358,10 +1363,10 @@ public class TextView extends WPView {
 		}
 		else {
 			offset = -1;
-			if((stateObj.getPreviousEnd() == -1 || selectionStart >= stateObj.getPreviousEnd()) && selectionStart + selectionLength <= stateObj.getCurrentStart())
-				deleteSpaceAndShift(selectionStart, offset, e);
-			else if(selectionStart == stateObj.getCurrentEnd() && (stateObj.getNextStart() == -1 || selectionStart + selectionLength <= stateObj.getNextStart()))
-				deleteSpaceAndShift(selectionStart, offset, e);
+			if((stateObj.getPreviousEnd() == -1 || selection.getSelectionStart() >= stateObj.getPreviousEnd()) && selection.getSelectionEnd() <= stateObj.getCurrentStart())
+				deleteSpaceAndShift(selection.getSelectionStart(), offset, e);
+			else if(selection.getSelectionStart() == stateObj.getCurrentEnd() && (stateObj.getNextStart() == -1 || selection.getSelectionEnd() <= stateObj.getNextStart()))
+				deleteSpaceAndShift(selection.getSelectionStart(), offset, e);
 			else {
 				makeTextChange(offset);
 				recordEvent(e, false);
@@ -1378,84 +1383,84 @@ public class TextView extends WPView {
 	}
 
 	private void deleteSelection(ExtendedModifyEvent e){
-		if(selectionStart >= stateObj.getCurrentStart() && selectionStart + selectionLength <= stateObj.getCurrentEnd()){
-			makeTextChange(-selectionLength);
+		if(selection.getSelectionStart() >= stateObj.getCurrentStart() && selection.getSelectionEnd() <= stateObj.getCurrentEnd()){
+			makeTextChange(-selection.getSelectionLength());
 			recordEvent(e, false);
 		}
-		else if(selectionStart + selectionLength > stateObj.getCurrentEnd() && selectionStart + selectionLength >= stateObj.getNextStart() || stateObj.getPreviousEnd() == -1){	
+		else if(selection.getSelectionEnd() > stateObj.getCurrentEnd() && selection.getSelectionEnd() >= stateObj.getNextStart() || stateObj.getPreviousEnd() == -1){	
 			int changes = 0;
-			while(selectionLength > 0){
-				if(manager.getElementInRange(selectionStart) instanceof BrlOnlyMapElement || manager.getElementInRange(selectionStart) instanceof PageMapElement){
-					TextMapElement p = manager.getElementInRange(selectionStart);
+			while(selection.getSelectionLength() > 0){
+				if(manager.getElementInRange(selection.getSelectionStart()) instanceof BrlOnlyMapElement || manager.getElementInRange(selection.getSelectionStart()) instanceof PageMapElement){
+					TextMapElement p = manager.getElementInRange(selection.getSelectionStart());
 					handleReadOnlySelection(p, true);
 			//		if(selectionLength <= 0)
 			//			break;
 				}
-				else if(manager.inPrintPageRange(selectionStart + 1) ||  manager.getElementInRange(selectionStart + 1) instanceof  BrlOnlyMapElement){
-					TextMapElement p = manager.getElementInRange(selectionStart + 1);
+				else if(manager.inPrintPageRange(selection.getSelectionStart() + 1) ||  manager.getElementInRange(selection.getSelectionStart() + 1) instanceof  BrlOnlyMapElement){
+					TextMapElement p = manager.getElementInRange(selection.getSelectionStart() + 1);
 					handleReadOnlySelection(p, false);
 			//		if(selectionLength <= 0)
 			//			break;
 				}
-				else if(selectionStart  == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1){
-					changes= (stateObj.getCurrentEnd() + selectionLength) - stateObj.getCurrentEnd();
-					sendDeleteSpaceMessage(selectionStart, -changes, e);
-					selectionLength -= changes;
+				else if(selection.getSelectionStart()  == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1){
+					changes= (stateObj.getCurrentEnd() + selection.getSelectionLength()) - stateObj.getCurrentEnd();
+					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
+					selection.adjustSelectionLength(-changes);
 				}
-				else if(selectionStart > stateObj.getCurrentStart() && selectionStart != stateObj.getCurrentEnd()){
-					changes = stateObj.getCurrentEnd() - selectionStart;
+				else if(selection.getSelectionStart() > stateObj.getCurrentStart() && selection.getSelectionStart() != stateObj.getCurrentEnd()){
+					changes = stateObj.getCurrentEnd() - selection.getSelectionStart();
 					makeTextChange(-changes);
-					selectionLength -= changes;
+					selection.adjustSelectionLength(-changes);
 					sendUpdate();
 					setCurrent(view.getCaretOffset());
-					selectionStart = stateObj.getCurrentEnd();
+					selection.setSelectionStart(stateObj.getCurrentEnd());
 				}
-				else if(selectionStart == stateObj.getCurrentEnd() && selectionStart != stateObj.getNextStart()){
-					if(stateObj.getNextStart() != -1 && manager.inPrintPageRange((selectionStart + stateObj.getNextStart()) / 2))
-						changes = manager.getElementInRange((selectionStart + stateObj.getNextStart()) / 2).start - selectionStart - 1;
+				else if(selection.getSelectionStart() == stateObj.getCurrentEnd() && selection.getSelectionStart() != stateObj.getNextStart()){
+					if(stateObj.getNextStart() != -1 && manager.inPrintPageRange((selection.getSelectionStart() + stateObj.getNextStart()) / 2))
+						changes = manager.getElementInRange((selection.getSelectionStart() + stateObj.getNextStart()) / 2).start - selection.getSelectionStart() - 1;
 					else if(stateObj.getNextStart() != -1)
 						changes = stateObj.getNextStart() - stateObj.getCurrentEnd();
 					else
-						changes= (stateObj.getCurrentEnd() + selectionLength) - stateObj.getCurrentEnd();
+						changes= (stateObj.getCurrentEnd() + selection.getSelectionLength()) - stateObj.getCurrentEnd();
 
-					if(selectionLength < changes)
-						changes = selectionLength;
+					if(selection.getSelectionLength() < changes)
+						changes = selection.getSelectionLength();
 					
-					sendDeleteSpaceMessage(selectionStart, -changes, e);
+					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
 					if(changes != 0)
-						selectionLength -= changes;
+						selection.adjustSelectionLength(-changes);
 					else
-						selectionLength = 0;
+						selection.setSelectionLength(0);
 					
 					setCurrent(stateObj.getNextStart());
 					view.setCaretOffset(stateObj.getCurrentStart());
 				}
-				else if(selectionStart < stateObj.getCurrentStart() && stateObj.getPreviousEnd() <= -1){
-					changes = stateObj.getCurrentStart() - selectionStart;
-					selectionLength -= changes;
-					sendDeleteSpaceMessage(selectionStart, -changes, e);
+				else if(selection.getSelectionStart() < stateObj.getCurrentStart() && stateObj.getPreviousEnd() <= -1){
+					changes = stateObj.getCurrentStart() - selection.getSelectionStart();
+					selection.adjustSelectionLength(-changes);
+					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
 					
 					setCurrent(stateObj.getCurrentStart());
 					view.setCaretOffset(stateObj.getCurrentStart());
 				}
-				else if(selectionStart < stateObj.getCurrentStart()){
-					changes = stateObj.getCurrentStart() - selectionStart;
-					selectionLength -= changes;
-					sendDeleteSpaceMessage(selectionStart, -changes, e);
+				else if(selection.getSelectionStart() < stateObj.getCurrentStart()){
+					changes = stateObj.getCurrentStart() - selection.getSelectionStart();
+					selection.adjustSelectionLength(-changes);
+					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
 					
 					setCurrent(stateObj.getCurrentStart());
 					view.setCaretOffset(stateObj.getCurrentStart());
 				}
-				else if(selectionStart == stateObj.getCurrentStart()){
+				else if(selection.getSelectionStart() == stateObj.getCurrentStart()){
 					if(stateObj.getCurrentStart() == stateObj.getCurrentEnd()){
 						setCurrent(stateObj.getNextStart());
 						view.setCaretOffset(stateObj.getCurrentStart());	
 					}
 					
-					if(stateObj.getCurrentEnd() - stateObj.getCurrentStart() < selectionLength){
+					if(stateObj.getCurrentEnd() - stateObj.getCurrentStart() < selection.getSelectionLength()){
 						changes = stateObj.getCurrentEnd() - stateObj.getCurrentStart();
 						makeTextChange(-changes);
-						selectionLength -= changes;
+						selection.adjustSelectionLength(-changes);
 						if(currentElement.isMathML())
 							sendRemoveMathML(currentElement);
 						else
@@ -1465,9 +1470,9 @@ public class TextView extends WPView {
 							setCurrent(view.getCaretOffset());
 					}
 					else {
-						makeTextChange(-selectionLength);
+						makeTextChange(-selection.getSelectionLength());
 						sendUpdate();
-						selectionLength = 0;
+						selection.setSelectionLength(0);
 					}
 				}
 				else {
@@ -1505,41 +1510,41 @@ public class TextView extends WPView {
 		setListenerLock(true);
 		String pageText;
 		if(partial){
-			pageText = p.getText().substring(selectionStart - p.start);
+			pageText = p.getText().substring(selection.getSelectionStart() - p.start);
 		}
 		else {
-			if(selectionStart + selectionLength > p.end)
+			if(selection.getSelectionEnd() > p.end)
 				pageText = "\n" + p.getText();
 			else
-				pageText = "\n" + p.getText().substring(0, (selectionStart + selectionLength) - (selectionStart + 1));
+				pageText = "\n" + p.getText().substring(0, (selection.getSelectionEnd()) - (selection.getSelectionStart() + 1));
 		}
 		
 		while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
 			p =  manager.getElementInRange(pos + 1);
 			pos = p.end;
-			if(selectionStart + selectionLength > p.end)
+			if(selection.getSelectionEnd() > p.end)
 				pageText += "\n"+ p.getText();
 			else
-				pageText += "\n" + p.getText().substring(0, (selectionStart + selectionLength) - p.start);
+				pageText += "\n" + p.getText().substring(0, (selection.getSelectionEnd()) - p.start);
 		}
 		
-		if(selectionStart + selectionLength > p.end)
+		if(selection.getSelectionEnd() > p.end)
 			pageText += "\n";
 		
-		view.setCaretOffset(selectionStart);
+		view.setCaretOffset(selection.getSelectionStart());
 		view.insert(pageText);
-		setSelection(selectionStart + 1, selectionLength - 1);
-		if(selectionLength - pageText.length() - 1 <= 0 && selectionStart + pageText.length() >= view.getCharCount())
+		setSelection(selection.getSelectionStart() + 1, selection.getSelectionLength() - 1);
+		if(selection.getSelectionLength() - pageText.length() - 1 <= 0 && selection.getSelectionStart() + pageText.length() >= view.getCharCount())
 			view.replaceTextRange(view.getCharCount() -1, 1, "");		
 		
 		setListenerLock(false);		
-		if(selectionStart + selectionLength > p.end)
-			selectionLength -= pageText.length() - 1;
+		if(selection.getSelectionEnd() > p.end)
+			selection.adjustSelectionLength(-(pageText.length() - 1));
 		else
-			selectionLength -= pageText.length();
+			selection.adjustSelectionLength(-pageText.length());
 		
-		selectionStart = pos + 1;
-		view.setCaretOffset(selectionStart);
+		selection.setSelectionStart(pos + 1);
+		view.setCaretOffset(selection.getSelectionStart());
 		
 		if(manager.inPrintPageRange(view.getCaretOffset()) || manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
 			int start = manager.getElementInRange(view.getCaretOffset()).start;
@@ -1639,17 +1644,17 @@ public class TextView extends WPView {
 	}
 	
 	public void cut(){
-		if(selectionLength > 0)
-			editRecorder.recordLine(selectionStart, selectionStart + selectionLength);
+		if(selection.getSelectionLength() > 0)
+			editRecorder.recordLine(selection.getSelectionStart(), selection.getSelectionEnd());
 		else
 			editRecorder.recordLine(view.getLine(view.getLineAtOffset(view.getCaretOffset())), view.getLineAtOffset(view.getCaretOffset()));
 		
-		if(validator.validCut(currentElement, stateObj, selectionStart, selectionLength))
+		if(validator.validCut(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 			view.cut();
 	}
 	
 	public void paste(){
-		if(validator.validPaste(currentElement, stateObj, selectionStart, selectionLength))
+		if(validator.validPaste(currentElement, stateObj, selection.getSelectionStart(), selection.getSelectionLength()))
 			view.paste();
 	}
 	
@@ -1750,8 +1755,8 @@ public class TextView extends WPView {
 	}
 	
 	private void setSelection(int start, int length){
-		selectionStart = start;
-		selectionLength = length;
+		selection.setSelectionStart(start);
+		selection.setSelectionLength(length);
 	}
 	
 	public void highlight(int start, int end){
@@ -1787,8 +1792,8 @@ public class TextView extends WPView {
 		end = (Integer)m.getValue("end");
 		int prev = (Integer)m.getValue("prev");
 		int next = (Integer)m.getValue("next");
-		if(selectionLength > 0)
-			view.setSelection(selectionStart);
+		if(selection.getSelectionLength() > 0)
+			view.setSelection(selection.getSelectionStart());
 		
 		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
 			switch(entry.getKey()){

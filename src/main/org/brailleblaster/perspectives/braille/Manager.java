@@ -457,6 +457,9 @@ public class Manager extends Controller {
 			case ADJUST_INDENT:
 				handleAdjustIndent(message);
 				break;
+			case ADJUST_MARGIN:
+				handleAdjustMargin(message);
+				break;
 			case ADJUST_LINES:
 				handleLineAdjust(message);
 				break;
@@ -705,6 +708,15 @@ public class Manager extends Controller {
 	
 	private void handleAdjustIndent(Message message){
 		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+		Element e = document.getParent(list.getCurrent().n, true);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
+	}
+	
+	private void handleAdjustMargin(Message message){
+		Element parent = document.getParent(list.getCurrent().n, true);
+		ArrayList<TextMapElement>elList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
+		braille.changeMargin(elList.get(0).brailleList.getFirst().start,elList.get(elList.size() - 1).brailleList.getLast().end ,message);
 		Element e = document.getParent(list.getCurrent().n, true);
 		StyleHandler sh = new StyleHandler(this, vi, list);
 		sh.createAndApplyStyle(list.getCurrent(), e, message);

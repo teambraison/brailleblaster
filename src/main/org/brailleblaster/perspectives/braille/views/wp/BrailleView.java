@@ -757,6 +757,13 @@ public class BrailleView extends WPView {
 		view.setLineIndent(view.getLineAtOffset(start), 1, (Integer)message.getValue("indent"));
 	}
 	
+	public void changeMargin(int start, int end, Message message){
+		int startLine = view.getLineAtOffset(start);
+		int endLine = view.getLineAtOffset(end);
+		int lines = (endLine - startLine) + 1;
+		view.setLineIndent(startLine, lines, (Integer)message.getValue("margin"));
+	}
+	
 	public void updateCursorPosition(Message message){
 		setListenerLock(true);
 		setViewData(message);

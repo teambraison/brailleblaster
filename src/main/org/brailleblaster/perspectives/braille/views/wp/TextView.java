@@ -243,14 +243,25 @@ public class TextView extends WPView {
 				}
 				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(stateObj.getCurrentStart())) != 0 && stateObj.getCurrentStart() != stateObj.getCurrentEnd()){
 					int pos = view.getCaretOffset();
-					Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
-					view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);
-					manager.dispatch(message);
+					Element el = manager.getDocument().getParent(currentElement.n, true);
+					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(el));
+					if(style.contains(StylesType.firstLineIndent) && Integer.valueOf((String)style.get(StylesType.firstLineIndent)) > 0) {
+						Message message = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
+						view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);
+						manager.dispatch(message);
+					}
+					else if(style.contains(StylesType.leftMargin) && Integer.valueOf((String)style.get(StylesType.leftMargin)) > 0){
+						Message message = Message.createAdjustMarginMessager(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
+						view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);
+						manager.dispatch(message);
+					}
+					 
 					view.setCaretOffset(pos);
 					e.doit = false;
 				}
 				else if(selection.getSelectionLength() <= 0 && stateObj.getOldCursorPosition() == stateObj.getCurrentStart() && stateObj.getOldCursorPosition() != stateObj.getPreviousEnd() && e.character == SWT.BS && view.getLineIndent(view.getLineAtOffset(stateObj.getCurrentStart())) == 0 && stateObj.getCurrentStart() != stateObj.getCurrentEnd()){
-					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(currentElement.parentElement()));
+					Element el = manager.getDocument().getParent(currentElement.n, true);
+					Styles style = stylesTable.get(stylesTable.getKeyFromAttribute(el));
 					if(style.contains(StylesType.linesBefore) && Integer.valueOf((String)style.get(StylesType.linesBefore)) > 0){
 						int pos = stateObj.getOldCursorPosition() - 1;
 						setCurrentElement(currentElement.start);
@@ -377,8 +388,6 @@ public class TextView extends WPView {
 
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-				
-				System.out.println("Text " + view.getCaretOffset());
 			}
 		});
 		

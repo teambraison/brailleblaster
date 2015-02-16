@@ -250,6 +250,20 @@ public class TextView extends WPView {
 						view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);
 						manager.dispatch(message);
 					}
+					else if(style.contains(StylesType.firstLineIndent) && Integer.valueOf((String)style.get(StylesType.firstLineIndent)) < 0 && style.contains(StylesType.leftMargin) && Integer.valueOf((String)style.get(StylesType.leftMargin)) > 0){
+						int indent = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
+						int margin = Integer.valueOf((String)style.get(StylesType.leftMargin)) + indent;
+						
+						if(margin < 0)
+							margin = 0;
+						
+						Message message = Message.createAdjustMarginMessager(Sender.TEXT, margin, view.getLineAtOffset(stateObj.getCurrentStart()));
+						view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, margin);
+						manager.dispatch(message);
+						
+						Message message2 = Message.createAdjustIndentMessage(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
+						manager.dispatch(message2);
+					}
 					else if(style.contains(StylesType.leftMargin) && Integer.valueOf((String)style.get(StylesType.leftMargin)) > 0){
 						Message message = Message.createAdjustMarginMessager(Sender.TEXT, 0, view.getLineAtOffset(stateObj.getCurrentStart()));
 						view.setLineIndent(view.getLineAtOffset(stateObj.getCurrentStart()), 1, 0);

@@ -66,6 +66,14 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createAdjustMarginMessager(Sender sender, int margin, int line){
+		Message m = new Message(BBEvent.ADJUST_MARGIN);
+		m.put("sender", sender);
+		m.put("margin", margin);
+		m.put("line", line);
+		return m;
+	}
+	
 	public static Message createAdjustLinesMessage(Sender sender, boolean linesBefore, int lines){
 		Message m = new Message(BBEvent.ADJUST_LINES);
 		m.put("sender", sender);

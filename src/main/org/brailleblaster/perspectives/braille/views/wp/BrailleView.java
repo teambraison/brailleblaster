@@ -72,9 +72,7 @@ import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class BrailleView extends WPView {
-	private int currentStart, currentEnd, nextStart;
-	private int oldCursorPosition = -1;
-	private int currentChar;
+	private ViewStateObject stateObj;
 	private ArrayList<BrailleMapElement> pageRanges = new ArrayList<BrailleMapElement>();
 	private String charAtOffset;
 	
@@ -92,6 +90,7 @@ public class BrailleView extends WPView {
 	
 	public BrailleView(Manager manager, SashForm sash, BBSemanticsTable table) {
 		super(manager, sash, table);
+		stateObj = new ViewStateObject();
 		this.total = 0;
 		this.spaceBeforeText = 0;
 		this.spaceAfterText = 0;
@@ -112,14 +111,13 @@ public class BrailleView extends WPView {
 		view.addVerifyKeyListener(verifyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
-				currentChar = e.keyCode;
+				stateObj.setCurrentChar(e.keyCode);
 
 				//Handles single case where page is on last line and text is selected to last line and arrow down is pressed which does not move cursor
 				if(manager.inBraillePageRange(view.getCaretOffset()) && e.keyCode == SWT.ARROW_DOWN && view.getLineAtOffset(view.getCaretOffset()) == view.getLineCount() - 1)
-					view.setCaretOffset(nextStart);
+					view.setCaretOffset(stateObj.getNextStart());
 				
-				oldCursorPosition = view.getCaretOffset();
-
+				stateObj.setOldCursorPosition(view.getCaretOffset());
 			}
 			
 		});
@@ -130,7 +128,7 @@ public class BrailleView extends WPView {
 				Message message = Message.createGetCurrentMessage(Sender.BRAILLE, view.getCaretOffset());
 				manager.dispatch(message);
 				setViewData(message);
-				if(oldCursorPosition == -1 && positionFromStart  == 0){
+				if(stateObj.getOldCursorPosition() == -1 && positionFromStart  == 0){
 					view.setCaretOffset((Integer)message.getValue("brailleStart"));
 				}
 				sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
@@ -149,7 +147,7 @@ public class BrailleView extends WPView {
 			@Override
 			public void mouseDown(MouseEvent e) {
 				if(!getLock()){
-					if(view.getCaretOffset() > currentEnd || view.getCaretOffset() < currentStart){
+					if(view.getCaretOffset() > stateObj.getCurrentEnd() || view.getCaretOffset() < stateObj.getCurrentStart()){
 						setCurrent();
 				
 					}
@@ -162,10 +160,10 @@ public class BrailleView extends WPView {
 			@Override
 			public void caretMoved(CaretEvent e) {
 				if(!getLock()){
-					if(currentChar == SWT.ARROW_DOWN || currentChar == SWT.ARROW_LEFT || currentChar == SWT.ARROW_RIGHT || currentChar == SWT.ARROW_UP || currentChar == SWT.PAGE_DOWN || currentChar == SWT.PAGE_UP){
-						if(e.caretOffset >= currentEnd || e.caretOffset < currentStart){						
-							setCurrent();						
-							currentChar = ' ';
+					if(stateObj.getCurrentChar() == SWT.ARROW_DOWN || stateObj.getCurrentChar() == SWT.ARROW_LEFT || stateObj.getCurrentChar() == SWT.ARROW_RIGHT || stateObj.getCurrentChar() == SWT.ARROW_UP || stateObj.getCurrentChar() == SWT.PAGE_DOWN || stateObj.getCurrentChar() == SWT.PAGE_UP){
+						if(e.caretOffset >= stateObj.getCurrentEnd() || e.caretOffset < stateObj.getCurrentStart()){						
+							setCurrent();	
+							stateObj.setCurrentChar(' ');
 						}
 						//if(view.getLineAtOffset(view.getCaretOffset()) != currentLine){
 							sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
@@ -224,9 +222,9 @@ public class BrailleView extends WPView {
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void setViewData(Message message){
-		currentStart = (Integer)message.getValue("brailleStart");
-		currentEnd = (Integer)message.getValue("brailleEnd");
-		nextStart = (Integer)message.getValue("nextBrailleStart");
+		stateObj.setCurrentStart((Integer)message.getValue("brailleStart"));
+		stateObj.setCurrentEnd((Integer)message.getValue("brailleEnd"));
+		stateObj.setNextStart((Integer)message.getValue("nextBrailleStart"));
 		this.pageRanges.clear();
 		setPageRange((ArrayList<BrailleMapElement>)message.getValue("pageRanges"));
 	}
@@ -711,7 +709,7 @@ public class BrailleView extends WPView {
 				handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
 			}
 				
-			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
+			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent)&& insertionString.length() > 0)
 				setFirstLineIndent(t.brailleList.getFirst().start, style);
 			view.setCaretOffset(pos);
 			setListenerLock(false);	
@@ -759,6 +757,13 @@ public class BrailleView extends WPView {
 		view.setLineIndent(view.getLineAtOffset(start), 1, (Integer)message.getValue("indent"));
 	}
 	
+	public void changeMargin(int start, int end, Message message){
+		int startLine = view.getLineAtOffset(start);
+		int endLine = view.getLineAtOffset(end);
+		int lines = (endLine - startLine) + 1;
+		view.setLineIndent(startLine, lines, (Integer)message.getValue("margin"));
+	}
+	
 	public void updateCursorPosition(Message message){
 		setListenerLock(true);
 		setViewData(message);
@@ -769,18 +774,18 @@ public class BrailleView extends WPView {
 	
 	public void setPositionFromStart(){
 		int count = 0;
-		positionFromStart = view.getCaretOffset() - currentStart;
-		if(positionFromStart > 0 && currentStart + positionFromStart <= currentEnd){
-			String text = view.getTextRange(currentStart, positionFromStart);
+		positionFromStart = view.getCaretOffset() - stateObj.getCurrentStart();
+		if(positionFromStart > 0 && stateObj.getCurrentStart() + positionFromStart <= stateObj.getCurrentEnd()){
+			String text = view.getTextRange(stateObj.getCurrentStart(), positionFromStart);
 			count = text.length() - text.replaceAll("\n", "").length();
 			positionFromStart -= count;
-			positionFromStart -= checkPageRange(currentStart + positionFromStart);
+			positionFromStart -= checkPageRange(stateObj.getCurrentStart() + positionFromStart);
 			cursorOffset = count;
 		}
-		else if(positionFromStart > 0 && currentStart + positionFromStart > currentEnd){
-			String text = view.getTextRange(currentStart, positionFromStart);
+		else if(positionFromStart > 0 && stateObj.getCurrentStart() + positionFromStart > stateObj.getCurrentEnd()){
+			String text = view.getTextRange(stateObj.getCurrentStart(), positionFromStart);
 			count = text.length() - text.replaceAll("\n", "").length();
-			cursorOffset = (currentStart + positionFromStart) - currentEnd;
+			cursorOffset = (stateObj.getCurrentStart() + positionFromStart) - stateObj.getCurrentEnd();
 			positionFromStart = 99999;
 		}	
 		else {
@@ -798,24 +803,24 @@ public class BrailleView extends WPView {
 				int [] arr = getIndexArray(e);
 				if(arr == null){
 					if((Integer)message.getValue("lastPosition") == 0)
-						pos = currentStart;
+						pos = stateObj.getCurrentStart();
 					else
-						pos = currentEnd;
+						pos = stateObj.getCurrentEnd();
 				}
 				else {
-					if((Integer)message.getValue("lastPosition") < 0 && currentStart > 0)
-						pos = currentStart + (Integer)message.getValue("lastPosition");	
+					if((Integer)message.getValue("lastPosition") < 0 && stateObj.getCurrentStart() > 0)
+						pos = stateObj.getCurrentStart() + (Integer)message.getValue("lastPosition");	
 					else if((Integer)message.getValue("lastPosition") == 99999)
-						pos = currentEnd + offset;
+						pos = stateObj.getCurrentEnd() + offset;
 					else {
-						pos = currentStart + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + offset;
+						pos = stateObj.getCurrentStart() + findCurrentPosition(arr, (Integer)message.getValue("lastPosition")) + offset;
 						pos += checkPageRange(pos);
 					}
 				}
 				view.setCaretOffset(pos);
 			}
 			else {
-				view.setCaretOffset(currentStart);
+				view.setCaretOffset(stateObj.getCurrentStart());
 			}
 		}
 	}
@@ -853,7 +858,7 @@ public class BrailleView extends WPView {
 		total = 0;
 		spaceBeforeText = 0;
 		spaceAfterText = 0;
-		oldCursorPosition = -1;
+		stateObj.setOldCursorPosition(-1);
 		setListenerLock(false);
 	}
 	
@@ -1119,10 +1124,10 @@ public class BrailleView extends WPView {
 	 */
 	private void removeIndicator(){
 		int lineNumber;
-		if(currentStart > view.getCharCount())
+		if(stateObj.getCurrentStart() > view.getCharCount())
 			lineNumber = view.getLineAtOffset(view.getCharCount());
 		else
-			lineNumber = view.getLineAtOffset(currentStart);
+			lineNumber = view.getLineAtOffset(stateObj.getCurrentStart());
 		
 		for (int i = lineNumber; i < view.getLineCount(); i++) {
 			// Check to find bullet which are in indication array list

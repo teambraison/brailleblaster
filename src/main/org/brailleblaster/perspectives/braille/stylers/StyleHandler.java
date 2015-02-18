@@ -209,6 +209,11 @@ public class StyleHandler extends Handler{
 				style.put(StylesType.firstLineIndent, String.valueOf(indent));
 				updateAndApply(oldStyle, style, e, t);
     		}
+    		else if(message.type.equals(BBEvent.ADJUST_MARGIN)){
+    			int indent = (Integer)message.getValue("margin");
+				style.put(StylesType.leftMargin, String.valueOf(indent));
+				updateAndApply(oldStyle, style, e, t); 
+    		}
     		else if(message.type.equals(BBEvent.ADJUST_ALIGNMENT)){
     			int alignment = (Integer)message.getValue("alignment");
 				if(alignment == SWT.RIGHT)

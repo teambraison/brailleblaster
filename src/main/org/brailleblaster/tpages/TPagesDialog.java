@@ -14,6 +14,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -24,6 +25,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -53,10 +55,10 @@ public class TPagesDialog extends Dialog{
 	
 	public Object open(){
 		tpGenerator = new TPagesGenerator();
-		/*if(!tpGenerator.checkForFile("filename")){
-			tpGenerator.createNewTPageXML();
-		}
-		tpGenerator.openTPageXML("filename");*/
+		
+		if(m.getDocumentName()!=null)
+			if(m.getDocumentName().substring(m.getDocumentName().length()-4).equals(".xml"))
+				tpGenerator.autoPopulate(m.getDocumentName());
 		xmlmap = tpGenerator.getXmlMap();
 		uimap = new HashMap<Text, String>();
 		createContents();
@@ -95,13 +97,18 @@ public class TPagesDialog extends Dialog{
 		TabItem symbolsTab = new TabItem(folder, SWT.NONE);
 		symbolsTab.setText("Special Symbols");
 		
+		TabItem transNotesTab = new TabItem(folder, SWT.NONE);
+		transNotesTab.setText("Transcriber's Notes");
+		
 		/////////////////////////////
 		///////Title Page Tab////////
 		/////////////////////////////
-		Composite titleComposite = new Composite(folder, SWT.NONE);
+		ScrolledComposite sc = new ScrolledComposite(folder, SWT.V_SCROLL);
+		sc.setLayout(new FillLayout());
+		Composite titleComposite = new Composite(sc, SWT.NONE);
 		GridLayout titlePageLayout = new GridLayout(2,false);
 		titleComposite.setLayout(new RowLayout(SWT.VERTICAL));
-		
+		//titleComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
 		Group titleGroup = new Group(titleComposite, SWT.NONE);
 		titleGroup.setText("Title");
 		titleGroup.setLayout(titlePageLayout);
@@ -189,7 +196,6 @@ public class TPagesDialog extends Dialog{
 		
 		createLabel(printGroup, "Reproduction Notice", 1);
 		 reproText = createText(printGroup, 1, "repronotice");
-		//reproText.setText("Further reproduction or distribution in other than a specialized format is prohibited.");
 		
 		createLabel(printGroup,"ISBN-13", 1);
 		 isbn13Text = createText(printGroup, 1, "isbn13");
@@ -221,7 +227,12 @@ public class TPagesDialog extends Dialog{
 		volumesGroup.setLayout(new GridLayout(2,false));
 		createLabel(volumesGroup, "Not yet implemented", 1);
 		
-		titleTab.setControl(titleComposite);
+		sc.setContent(titleComposite);
+		sc.setExpandVertical(true);
+		sc.setExpandHorizontal(true);
+		sc.setMinHeight(500);
+		sc.setSize(800, 500);
+		titleTab.setControl(sc);
 		/////////////////////////////
 		
 		/////////////////////////////
@@ -233,9 +244,23 @@ public class TPagesDialog extends Dialog{
 		Group symbolsGroup = new Group(symbolsComposite, SWT.NONE);
 		symbolsGroup.setLayout(new GridLayout(1, false));
 		
-		createLabel(symbolsGroup, "lolidk", 1);
+		createLabel(symbolsGroup, "Not yet implemented", 1);
 		
 		symbolsTab.setControl(symbolsComposite);
+		/////////////////////////////
+		
+		/////////////////////////////
+		////Transcriber Notes Tab////
+		/////////////////////////////
+		Composite transNotesComposite = new Composite(folder, SWT.NONE);
+		transNotesComposite.setLayout(new RowLayout(SWT.VERTICAL));
+		
+		Group transNotesGroup = new Group(transNotesComposite, SWT.NONE);
+		transNotesGroup.setLayout(new GridLayout(1,false));
+		
+		createLabel(transNotesGroup, "Not yet implemented", 1);
+		
+		transNotesTab.setControl(transNotesComposite);
 		/////////////////////////////
 		
 		Button closeButton = new Button(shlTPages, SWT.PUSH);
@@ -270,8 +295,14 @@ public class TPagesDialog extends Dialog{
 				FileDialog openFile = new FileDialog(shlTPages, SWT.OPEN);
 				openFile.setText("Open Transcriber-Generated Page");
 				openFile.setFilterExtensions(new String[] {"*.xml"});
-				openFromXml(openFile.open());
-				updateContents();
+				String filePath = openFile.open();
+				if(filePath!=null){
+					if(openFromXml(filePath)){
+						updateContents();
+					} else {
+						createError("Error reading file. Was this file created by this dialog?");
+					}
+				}
 			}
 			
 			@Override
@@ -317,6 +348,13 @@ public class TPagesDialog extends Dialog{
 		
 	}
 	
+	public void createError(String errorMessage){
+		MessageBox errorDialog = new MessageBox(shlTPages, SWT.ICON_ERROR | SWT.OK);
+		errorDialog.setText("Error");
+		errorDialog.setMessage(errorMessage);
+		errorDialog.open();
+	}
+	
 	private void updateContents(){
 		for(Map.Entry<Text, String> entry : uimap.entrySet())
 			entry.getKey().setText(xmlmap.get(entry.getValue()));
@@ -327,8 +365,12 @@ public class TPagesDialog extends Dialog{
 		affiliationText.setText(xmlmap.get("affiliation"));
 	}
 	
-	private void openFromXml(String filepath){
-		tpGenerator.openTPageXML(filepath);
+	private boolean openFromXml(String filepath){
+		if(filepath!=null){
+			if(tpGenerator.openTPageXML(filepath))
+				return true;
+		}
+		return false;
 	}
 	private GridData newTpData(int columns){
 		return new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, columns, 1);

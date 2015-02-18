@@ -2,8 +2,10 @@ package org.brailleblaster.tpages;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,7 +33,8 @@ public class TPagesGenerator {
 	String programDataPath;
 	String[] xmlElements = {"title", "gradelevel", "subtitle", "seriesname", "editionname", "authors", "translator", 
 			"pubpermission", "publisher", "location", "website", "copyrighted", "copyrightsymbol", "copyrightdate", 
-			"copyrighttext", "repronotice", "isbn13", "isbn10", "printhistory", "year", "transcriber", "tgs", "affiliation"}; 
+			"copyrighttext", "repronotice", "isbn13", "isbn10", "printhistory", "year", "transcriber", "tgs", "affiliation"};
+	String pub, pubLoc, pubWeb, copyright, isbn13 = "", isbn10 = "", printHistory;
 	private HashMap<String, String> xmlmap;
 	
 	public TPagesGenerator(){
@@ -44,16 +47,20 @@ public class TPagesGenerator {
 	 */
 	public boolean openTPageXML(String filename){
 		try{
-			File file = new File(filename);
-			
-			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			Document doc = docBuilder.parse(file);
-			doc.getDocumentElement().normalize();
-			
-			//NodeList nodes = doc.getChildNodes();
-			//System.out.println("nodelist = " + nodes.getLength() + " nodes");
-			for (int i = 0; i < xmlElements.length; i++){
-				xmlmap.put(xmlElements[i], doc.getElementsByTagName(xmlElements[i]).item(0).getTextContent());
+			if(checkForFile(filename)){
+				File file = new File(filename);
+				
+				DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				Document doc = docBuilder.parse(file);
+				doc.getDocumentElement().normalize();
+				if(!doc.getFirstChild().getNodeName().equals("tpage")){
+					return false;
+				}
+				for (int i = 0; i < xmlElements.length; i++){
+					xmlmap.put(xmlElements[i], doc.getElementsByTagName(xmlElements[i]).item(0).getTextContent());
+				}
+			} else {
+				return false;
 			}
 			
 			
@@ -138,7 +145,6 @@ public class TPagesGenerator {
 			TransformerFactory tFactory = TransformerFactory.newInstance();
 			Transformer transformer = tFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
-			//StreamResult result = new StreamResult(System.out);
 			StreamResult result = new StreamResult(new File(filename));
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -191,6 +197,224 @@ public class TPagesGenerator {
 		
 			
 		return true;
+	}
+	
+	/*
+	 * Attempts to find data in the book to automatically populate the text fields
+	 */
+	public void autoPopulate(String bookPath){
+		File book = new File(bookPath);
+		try{
+			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = docBuilder.parse(book);
+			
+			Node fmNode = doc.getElementsByTagName("frontmatter").item(0);
+			
+			///////Title
+			String title = findTitle(doc);
+			String subtitle = "";
+			if(title.contains(":")){ //There is probably a subtitle
+				subtitle = title.substring(title.indexOf(":") + 2);
+				while(subtitle.charAt(0)==' '){ // Remove spaces from beginning of subtitle
+					subtitle = subtitle.substring(1);
+				}
+				title = title.substring(0, title.indexOf(":"));
+			}
+			while(title.charAt(0)==' '){
+				title = title.substring(1);
+			}
+			//////////Authors
+			String authors = findAuthors(doc);
+			if(authors.contains("by")){
+				authors = authors.substring(authors.indexOf("by") + 2);
+			}
+			authors = authors.replace(", ", ";");
+			authors = authors.replace("and ", "");
+			while(authors.charAt(0)==' ' || authors.charAt(0)==';'){
+				authors = authors.substring(1);
+			}
+			xmlmap.put("title", title);
+			xmlmap.put("subtitle", subtitle);
+			xmlmap.put("authors", authors);
+			
+			///////Begin iterating through front matter
+			parseFrontMatter(fmNode);
+			xmlmap.put("isbn13", isbn13);
+			xmlmap.put("isbn10", isbn10);
+			
+			if(copyright!=null){
+				if(copyright.contains("&#169;")){
+					xmlmap.put("copyrighted", "true");
+					xmlmap.put("copyrightsymbol", "true");
+				}
+				if(copyright.contains("&#x00A9")){
+					xmlmap.put("copyrighted", "true");
+					xmlmap.put("copyrightsymbol", "true");
+				}
+				else if(copyright.contains("Copyright")){
+					xmlmap.put("copyrighted", "true");
+				}
+				else {
+					xmlmap.put("copyrighted", "false");
+					xmlmap.put("copyrightsymbol", "false");
+				}
+				if(!copyright.equals("")){
+					//Find copyright year and publisher
+					int tempInt = 0;
+					String copyYear = "";
+					String copyPub = "";
+					while(tempInt < copyright.length()){
+						if(copyYear.equals("")){
+							if(Character.isDigit(copyright.charAt(tempInt))){
+								copyYear = copyright.substring(tempInt, tempInt + 4);
+								tempInt += 4;
+							}
+						} else { //Found the year, now look for publisher
+							if(copyright.charAt(tempInt)=='b'){
+								if(copyright.charAt(tempInt+1)=='y'){
+									tempInt += 3;
+									for(int i = tempInt; i < copyright.length(); i++){
+										if(copyright.charAt(i)!='.')
+											copyPub += copyright.charAt(i);
+										else
+											i = copyright.length();
+									}
+									break;
+								}
+							}
+							if(Character.isUpperCase(copyright.charAt(tempInt))){
+								for(int i = tempInt; i < copyright.length(); i++){
+									if(copyright.charAt(i)!='.')
+										copyPub += copyright.charAt(i);
+									else
+										i = copyright.length();
+								}
+								break;
+							}
+						}
+						
+						tempInt++;
+					}
+					if(copyYear.length()==4){ //If the copyright year isn't 4 digits, we were likely very off. Throw it all out!
+						xmlmap.put("copyrightdate", copyYear);
+						xmlmap.put("copyrighttext", copyPub);
+					}
+				}
+			}
+			
+			xmlmap.put("repronotice", "Further reproduction or distribution in other than a specialized format is prohibited.");
+			
+		} catch(ParserConfigurationException e){
+			e.printStackTrace();
+			return;
+		} catch(IOException e){
+			e.printStackTrace();
+			return;
+		}catch (SAXException e){
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private List<Node> getAllChildren(Node parent){ // Could likely be made more efficient
+		List<Node> returnedNodes = new ArrayList<Node>();
+		NodeList nodes = parent.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node tempNode = nodes.item(i);
+			returnedNodes.add(tempNode);
+			if(tempNode.hasChildNodes()){
+				List<Node> childNodes = new ArrayList<Node>(getAllChildren(tempNode));
+				for(int q = 0; q < childNodes.size(); q++){
+					returnedNodes.add(childNodes.get(q));
+				}
+			}
+		}
+		return returnedNodes;
+	}
+	
+	private String findTitle(Document doc){
+		String title = "";
+		List<Node> nodeChildren = getAllChildren(doc.getElementsByTagName("doctitle").item(0));
+		for (int q = 0; q < nodeChildren.size(); q++){
+			if(nodeChildren.get(q).getNodeName().equals("#text"))
+				title += " " + nodeChildren.get(q).getNodeValue();
+		}
+		return title;
+	}
+	
+	private String findAuthors(Document doc){
+		String authors = "";
+		List<Node> nodeChildren = getAllChildren(doc.getElementsByTagName("docauthor").item(0));
+		for(int q = 0; q < nodeChildren.size(); q++){
+			if(nodeChildren.get(q).getNodeName().equals("#text"))
+				authors += ";" + nodeChildren.get(q).getNodeValue();
+		}
+		return authors;
+	}
+	
+	private void parseFrontMatter(Node parent){
+		NodeList nodes = parent.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node tempNode = nodes.item(i);
+			if(tempNode.getNodeName().equals("#text")){
+				String nodeVal = tempNode.getNodeValue();
+				//////Copyright
+				if(nodeVal.contains("Copyright") || nodeVal.contains("&#169;") || nodeVal.contains("&#x00A9;")){
+					copyright = nodeVal;
+				}
+				
+				//////ISBN
+				if(nodeVal.contains("ISBN-")){
+					if(nodeVal.contains("ISBN-13")){
+						for(int q = nodeVal.indexOf("ISBN-13") + 8; q < nodeVal.length(); q++){
+							if(Character.isDigit(nodeVal.charAt(q))||nodeVal.charAt(q) == '-'){
+								isbn13 += nodeVal.charAt(q);
+							}
+							if(nodeVal.charAt(q)==' ' && !isbn13.equals("")){
+								break;
+							}
+						}
+					}
+					if(nodeVal.contains("ISBN-10")){
+						for(int q = nodeVal.indexOf("ISBN-10") + 8; q < nodeVal.length(); q++){
+							if(Character.isDigit(nodeVal.charAt(q))||nodeVal.charAt(q) == '-'){
+								isbn10 += nodeVal.charAt(q);
+							}
+							if(nodeVal.charAt(q)==' ' && !isbn10.equals("")){
+								break;
+							}
+						}
+					}
+				} else if (nodeVal.contains("ISBN")){
+					String tempIsbn = "";
+					int numbers = 0;
+					for(int q = nodeVal.indexOf("ISBN") + 4; q < nodeVal.length(); q++){
+						if(Character.isDigit(nodeVal.charAt(q))){
+							tempIsbn += nodeVal.charAt(q);
+							numbers++;
+						}
+						if(nodeVal.charAt(q)=='-'){
+							tempIsbn += nodeVal.charAt(q);
+						}
+						if(nodeVal.charAt(q)==' '&&!tempIsbn.equals("")){
+							break;
+						}
+					}
+					if(numbers==13){
+						isbn13 = tempIsbn;
+					}
+					if(numbers==10){
+						isbn10 = tempIsbn;
+					}
+					
+				}
+			}
+			
+			//////
+			if(tempNode.hasChildNodes()){
+				parseFrontMatter(tempNode);
+			}
+		}
 	}
 	
 	public HashMap<String, String> getXmlMap(){

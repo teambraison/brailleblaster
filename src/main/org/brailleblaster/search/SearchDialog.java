@@ -167,7 +167,7 @@ public class SearchDialog extends Dialog {
 		// searches but within the
 		// same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		// setPanelSize();
+		setPanelSize();
 
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
@@ -598,7 +598,7 @@ public class SearchDialog extends Dialog {
 	private void createContents() {
 
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		// setPanelSize();
+		setPanelSize();
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -1881,7 +1881,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (findMeStr.toLowerCase().contains(foundStr.toLowerCase())) {
 			return true;
 		}// if text selected
 
@@ -2011,7 +2011,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (findMeStr.toLowerCase().contains(foundStr.toLowerCase())) {
 			return true;
 		}// if text selected
 
@@ -2102,7 +2102,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (findMeStr.toLowerCase().contains(foundStr.toLowerCase())) {
 			return true;
 		}// if text selected
 
@@ -2239,7 +2239,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (findMeStr.toLowerCase().contains(foundStr.toLowerCase())) {
 			return true;
 		}// if text selected
 

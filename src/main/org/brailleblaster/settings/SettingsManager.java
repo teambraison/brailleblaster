@@ -215,7 +215,6 @@ public class SettingsManager {
 			else
 				temp.put(entry.getKey(), entry.getValue());
 		}
-		
 		return temp;
 	}
 	

@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.brailleblaster.BBIni;
 
@@ -24,6 +26,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -35,7 +38,7 @@ public class TPagesGenerator {
 	String[] xmlElements = {"booktitle", "gradelevel", "subtitle", "seriesname", "editionname", "authors", "translator", 
 			"pubpermission", "publisher", "location", "website", "copyrighted", "copyrightsymbol", "copyrightdate", 
 			"copyrighttext", "repronotice", "isbn13", "isbn10", "printhistory", "year", "transcriber", "tgs", "affiliation"};
-	String pub, pubLoc, pubWeb, copyright, isbn13 = "", isbn10 = "", printHistory;
+	String copyright, isbn13 = "", isbn10 = "", printHistoryGuess, titleGuess, authorGuess, publisherGuess, websiteGuess;
 	private HashMap<String, String> xmlmap;
 	
 	public TPagesGenerator(){
@@ -353,8 +356,20 @@ public class TPagesGenerator {
 				return;
 			}
 			
+			//////Begin iterating through Head tags
+			Node headNode = doc.getElementsByTagName("head").item(0);
+			if(headNode != null)
+				parseHeadTags(headNode);
+			
+			if(publisherGuess != null)
+				xmlmap.put("publisher", publisherGuess);
+			
 			///////Title
-			String title = findTitle(doc);
+			String title;
+			if(titleGuess==null) //Couldn't find anything defined in Head tags. Search for <doctitle>
+				 title = findTitle(doc);
+			else
+				title = titleGuess;
 			String subtitle = "";
 			if(title.contains(":")){ //There is probably a subtitle
 				subtitle = title.substring(title.indexOf(":") + 2);
@@ -367,7 +382,11 @@ public class TPagesGenerator {
 				title = title.substring(1);
 			}
 			//////////Authors
-			String authors = findAuthors(doc);
+			String authors;
+			if(authorGuess == null) //Couldn't find anything defined in Head tags. Search for <docauthor>
+				authors = findAuthors(doc);
+			else
+				authors = authorGuess;
 			if(authors.contains("by")){
 				authors = authors.substring(authors.indexOf("by") + 2);
 			}
@@ -382,8 +401,16 @@ public class TPagesGenerator {
 			
 			///////Begin iterating through front matter
 			parseFrontMatter(fmNode);
+			
 			xmlmap.put("isbn13", isbn13);
 			xmlmap.put("isbn10", isbn10);
+			
+			if(websiteGuess != null){
+				xmlmap.put("website", websiteGuess);
+			}
+			if(printHistoryGuess != null){
+				xmlmap.put("printhistory", printHistoryGuess);
+			}
 			
 			if(copyright!=null){
 				if(copyright.contains("&#169;")){
@@ -438,10 +465,8 @@ public class TPagesGenerator {
 						
 						tempInt++;
 					}
-					if(copyYear.length()==4){ //If the copyright year isn't 4 digits, we were probably very off. Throw it all out!
-						xmlmap.put("copyrightdate", copyYear);
-						xmlmap.put("copyrighttext", copyPub);
-					}
+					xmlmap.put("copyrightdate", copyYear);
+					xmlmap.put("copyrighttext", copyPub);
 				}
 			}
 			
@@ -459,6 +484,27 @@ public class TPagesGenerator {
 		}
 	}
 	
+	private void parseHeadTags(Node head) {
+		List<Node> children = getAllChildren(head);
+		NamedNodeMap attrMap;
+		for(int i = 0; i < children.size(); i++){
+			if(children.get(i).getNodeName().equals("meta")){
+				attrMap = children.get(i).getAttributes();
+				if(attrMap.getNamedItem("name")!=null){
+					if(attrMap.getNamedItem("name").getNodeValue().equals("dc:Title")){
+						titleGuess = attrMap.getNamedItem("content").getNodeValue();
+					}
+					if(attrMap.getNamedItem("name").getNodeValue().equals("dc:Creator")){
+						authorGuess += ";" + attrMap.getNamedItem("content").getNodeValue();
+					}
+					if(attrMap.getNamedItem("name").getNodeValue().equals("dc:Publisher")){
+						publisherGuess = attrMap.getNamedItem("content").getNodeValue();
+					}
+				}
+			}
+		}
+	}
+
 	private List<Node> getAllChildren(Node parent){ // Could likely be made more efficient
 		List<Node> returnedNodes = new ArrayList<Node>();
 		NodeList nodes = parent.getChildNodes();
@@ -497,59 +543,46 @@ public class TPagesGenerator {
 	
 	private void parseFrontMatter(Node parent){
 		NodeList nodes = parent.getChildNodes();
+		Pattern isbn13pattern = Pattern.compile("(?<!\\S)[\\d]+-[\\d]+-[\\d]+-[\\d]+-[\\d]\\b");
+		Pattern isbn10pattern = Pattern.compile("(?<!\\S)[\\d]+-[\\d]+-[\\d]+-[\\d]\\b");
+		Pattern copyrightpattern1 = Pattern.compile("(Copyright [\\d][\\d][\\d][\\d])");
+		Pattern copyrightpattern2 = Pattern.compile("© [\\d][\\d][\\d][\\d]"); // Only way I can get it to work
+		Pattern websitepattern = Pattern.compile("www[.][\\w]*[.]com");
+		Pattern printpattern = Pattern.compile("[\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+");
 		for(int i = 0; i < nodes.getLength(); i++){
 			Node tempNode = nodes.item(i);
 			if(tempNode.getNodeName().equals("#text")){
 				String nodeVal = tempNode.getNodeValue();
 				//////Copyright
-				if(nodeVal.contains("Copyright") || nodeVal.contains("&#169;") || nodeVal.contains("&#x00A9;")){
+				Matcher copyMatcher1 = copyrightpattern1.matcher(nodeVal);
+				Matcher copyMatcher2 = copyrightpattern2.matcher(nodeVal);
+				if(copyMatcher1.find()){
+					copyright = nodeVal;
+				} else if (copyMatcher2.find()){
 					copyright = nodeVal;
 				}
 				
 				//////ISBN
-				if(nodeVal.contains("ISBN-")){
-					if(nodeVal.contains("ISBN-13")){
-						for(int q = nodeVal.indexOf("ISBN-13") + 8; q < nodeVal.length(); q++){
-							if(Character.isDigit(nodeVal.charAt(q))||nodeVal.charAt(q) == '-'){
-								isbn13 += nodeVal.charAt(q);
-							}
-							if(nodeVal.charAt(q)==' ' && !isbn13.equals("")){
-								break;
-							}
-						}
-					}
-					if(nodeVal.contains("ISBN-10")){
-						for(int q = nodeVal.indexOf("ISBN-10") + 8; q < nodeVal.length(); q++){
-							if(Character.isDigit(nodeVal.charAt(q))||nodeVal.charAt(q) == '-'){
-								isbn10 += nodeVal.charAt(q);
-							}
-							if(nodeVal.charAt(q)==' ' && !isbn10.equals("")){
-								break;
-							}
-						}
-					}
-				} else if (nodeVal.contains("ISBN")){
-					String tempIsbn = "";
-					int numbers = 0;
-					for(int q = nodeVal.indexOf("ISBN") + 4; q < nodeVal.length(); q++){
-						if(Character.isDigit(nodeVal.charAt(q))){
-							tempIsbn += nodeVal.charAt(q);
-							numbers++;
-						}
-						if(nodeVal.charAt(q)=='-'){
-							tempIsbn += nodeVal.charAt(q);
-						}
-						if(nodeVal.charAt(q)==' '&&!tempIsbn.equals("")){
-							break;
-						}
-					}
-					if(numbers==13){
-						isbn13 = tempIsbn;
-					}
-					if(numbers==10){
-						isbn10 = tempIsbn;
-					}
-					
+				Matcher isbn13Matcher = isbn13pattern.matcher(nodeVal);
+				if(isbn13Matcher.find()){
+					isbn13 = isbn13Matcher.group();
+				}
+				
+				Matcher isbn10Matcher = isbn10pattern.matcher(nodeVal);
+				if(isbn10Matcher.find()){
+					isbn10 = isbn10Matcher.group();
+				}
+				
+				//////Website
+				Matcher websiteMatcher = websitepattern.matcher(nodeVal);
+				if(websiteMatcher.find()){
+					websiteGuess = websiteMatcher.group();
+				}
+				
+				////Print History
+				Matcher printMatcher = printpattern.matcher(nodeVal);
+				if(printMatcher.find()){
+					printHistoryGuess = nodeVal;
 				}
 			}
 			

@@ -10,7 +10,7 @@ import ch.qos.logback.core.spi.PropertyDefiner;
 public class LogFileFinder extends PropertyDefinerBase implements PropertyDefiner {
 
 	private File logPath;
-	public LogFileFinder() {
+	public LogFileFinder() {		
 		File bbHome = new File(System.getProperty("user.home"), ".brlblst");
 		if (SWT.getPlatform().equals("win32")) {
 			bbHome = new File(System.getenv("APPDATA"), "brlblst");

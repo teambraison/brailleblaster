@@ -42,7 +42,7 @@ public class TPagesDialog extends Dialog{
 	HashMap<Text, String> uimap;
 	Text titleText, gradeLevelText, subtitleText, seriesText, editionText, authorText, translatorText, publisherText,
 	pubLocationText, pubWebsiteText, copyDateText, copyText, reproText, isbn13Text, isbn10Text, printHistoryText,
-	transYearText, transText, tgsText, affiliationText;
+	transYearText, transText, tgsText, affiliationText, transNotesText;
 	Combo permissionCombo;
 	Button copyrightButton, copySymbolButton;
 	TPagesGenerator tpGenerator;
@@ -184,8 +184,13 @@ public class TPagesDialog extends Dialog{
 		
 		Group transNotesGroup = new Group(transNotesComposite, SWT.NONE);
 		transNotesGroup.setLayout(new GridLayout(1,false));
+		transNotesGroup.setText("Transcriber's Notes");
 		
-		createLabel(transNotesGroup, "Not yet implemented", 1);
+		transNotesText = new Text(transNotesGroup, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL);
+		GridData newData = newTpData(1);
+		newData.widthHint = 700;
+		newData.heightHint = 300;
+		transNotesText.setLayoutData(newData);
 		
 		transNotesTab.setControl(transNotesComposite);
 		/////////////////////////////
@@ -322,7 +327,7 @@ public class TPagesDialog extends Dialog{
 		if(copySymbolButton!=null && !copySymbolButton.isDisposed())
 			copySymbolButton.setSelection(xmlmap.get("copyrightsymbol").equals("true"));
 		if(copyDateText!=null && !copyDateText.isDisposed())
-			copyDateText.setText(xmlmap.get("copyrighttext"));
+			copyDateText.setText(xmlmap.get("copyrightdate"));
 		if(copyText!=null && !copyText.isDisposed())
 			copyText.setText(xmlmap.get("copyrighttext"));
 		if(reproText!=null && !reproText.isDisposed())

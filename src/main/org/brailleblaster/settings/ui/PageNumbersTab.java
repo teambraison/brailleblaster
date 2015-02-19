@@ -79,15 +79,23 @@ public class PageNumbersTab {
 		bpnLocLabel.setText("Braille Page Number Location");
 		setGridData(bpnLocLabel);
 		bpnLocCombo = new Combo(bpnGroup, SWT.READ_ONLY);
-		bpnLocCombo.add("Top");
-		bpnLocCombo.add("Bottom");
+		bpnLocCombo.add("Top Left");
+		bpnLocCombo.add("Bottom Left");
+		bpnLocCombo.add("Top Right");
+		bpnLocCombo.add("Bottom Right");
 		bpnLocCombo.add("None");
 		
-		if (settingsMap.get("braillePageNumberAt").equals("top")) {
-			bpnLocCombo.setText("Top");
+		if (settingsMap.get("braillePageNumberAt").equals("Top Left")) {
+			bpnLocCombo.setText("Top Left");
+		}
+		else if (settingsMap.get("braillePageNumberAt").equals("Bottom Left")) {
+			bpnLocCombo.setText("Bottom Left");
+		}
+		else if (settingsMap.get("braillePageNumberAt").equals("Top Right")) {
+			bpnLocCombo.setText("Top Right");
 		}
 		else {
-			bpnLocCombo.setText("Bottom");
+			bpnLocCombo.setText("Bottom Right");
 		}
 		
 		if (settingsMap.get("numberBraillePages").equals("no")) {
@@ -106,15 +114,23 @@ public class PageNumbersTab {
 		ppnLocLabel.setText("Print Page Number Location");
 		setGridData(ppnLocLabel);
 		ppnLocCombo = new Combo(ppnGroup, SWT.READ_ONLY);
-		ppnLocCombo.add("Top");
-		ppnLocCombo.add("Bottom");
+		ppnLocCombo.add("Top Left");
+		ppnLocCombo.add("Bottom Left");
+		ppnLocCombo.add("Top Right");
+		ppnLocCombo.add("Bottom Right");
 		ppnLocCombo.add("None");
 		
-		if (settingsMap.get("printPageNumberAt").equals("top") ) {
-			ppnLocCombo.setText("Top");
+		if (settingsMap.get("printPageNumberAt").equals("Top Left") ) {
+			ppnLocCombo.setText("Top Left");
+		}
+		else if (settingsMap.get("printPageNumberAt").equals("Bottom Left")) {
+			ppnLocCombo.setText("Bottom Left");
+		}
+		else if (settingsMap.get("printPageNumberAt").equals("Top Right")) {
+			ppnLocCombo.setText("Top Right");
 		}
 		else {
-			ppnLocCombo.setText("Bottom");
+			ppnLocCombo.setText("Bottom Right");
 		}
 		
 		if (settingsMap.get("printPages").equals("no")) {
@@ -164,12 +180,12 @@ public class PageNumbersTab {
 		ppnLocCombo.addSelectionListener(new SelectionAdapter(){
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			int index = ppnLocCombo.getSelectionIndex();
+
 			if (ppnLocCombo.getText().equals("None")) {
 				settingsMap.put("printPages", "no");
 			}
 			else {
-				settingsMap.put("printPageNumberAt", ppnLocCombo.getText().toLowerCase());
+				settingsMap.put("printPageNumberAt", ppnLocCombo.getText());
 				settingsMap.put("printPages", "yes");
 			}
 			}
@@ -183,7 +199,7 @@ public class PageNumbersTab {
 				settingsMap.put("numberBraillePages", "no");
 			}
 			else {
-				settingsMap.put("braillePageNumberAt", bpnLocCombo.getText().toLowerCase());
+				settingsMap.put("braillePageNumberAt", bpnLocCombo.getText());
 				settingsMap.put("numberBraillePages", "yes");
 			}
 			}

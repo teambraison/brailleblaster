@@ -102,17 +102,18 @@ public class WhiteSpaceManager {
 		int linesAfter = 0;
 		int nextLinesBefore = 0;
 		int nextPos = 0;
+		int index = list.indexOf(t);
+		Styles nextStyle = null;
+		
+		if(!isLastInList(index))
+			nextStyle = manager.getStyleTable().makeStylesElement(list.get(index + 1).parentElement(), list.get(index + 1).n);
 		
 		if(style.contains(StylesType.linesAfter)){
-			int index = list.indexOf(t);	
 			linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 			if(isLastInList(index)){
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
-				if(isLastInList(index))
-					nextPos = manager.getText().view.getCharCount();
-				else
-					nextPos = list.get(index + 1).start;
+				nextPos = manager.getText().view.getCharCount();
 				
 				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
@@ -130,6 +131,24 @@ public class WhiteSpaceManager {
 			}
 	
 			if(linesAfter < 0)
+				linesAfter = 0;
+			
+			setLines(start, linesAfter);
+		}
+		else if(!isLastInList(index) && nextStyle.contains(StylesType.linesBefore)){
+			nextLinesBefore = Integer.valueOf((String)nextStyle.get(StylesType.linesBefore));	
+			nextPos = list.get(index + 1).start;
+			
+			if(linesAfter < nextLinesBefore)
+				linesAfter = nextLinesBefore;
+		
+			int diff = nextPos - start;
+			if((diff > linesAfter)){
+				int blankLinesBetween = diff - 1;
+				linesAfter = linesAfter - blankLinesBetween;
+			}
+	
+			if(linesAfter < 0 || diff < 0)
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);
@@ -177,17 +196,17 @@ public class WhiteSpaceManager {
 		int linesAfter = 0;
 		int nextLinesBefore = 0;
 		int nextPos = 0;
+		int index = list.indexOf(t);
+		Styles nextStyle = null;
+		if(!isLastInList(index))
+			nextStyle = manager.getStyleTable().makeStylesElement(list.get(index + 1).parentElement(), list.get(index + 1).n);
 		
 		if(style.contains(StylesType.linesAfter)){
-			int index = list.indexOf(t);	
 			linesAfter = Integer.valueOf((String)style.get(StylesType.linesAfter));
 			if(isLastInList(index)){
 				Element prevParent = manager.getDocument().getParent(list.get(index - 1).n, true);
 				String sem = getSemanticAttribute(prevParent);
-				if(isLastInList(index))
-					nextPos = manager.getBraille().view.getCharCount();
-				else
-					nextPos = list.get(index + 1).brailleList.getFirst().start;
+				nextPos = manager.getBraille().view.getCharCount();
 				
 				if(manager.getStyleTable().get(sem).contains(StylesType.linesBefore))
 					nextLinesBefore = Integer.valueOf((String)manager.getStyleTable().get(sem).get(StylesType.linesBefore));
@@ -205,6 +224,24 @@ public class WhiteSpaceManager {
 			}
 	
 			if(linesAfter < 0)
+				linesAfter = 0;
+			
+			setLines(start, linesAfter);
+		}
+		else if(!isLastInList(index) && nextStyle.contains(StylesType.linesBefore)){
+			nextLinesBefore =Integer.valueOf((String)nextStyle.get(StylesType.linesBefore));
+			nextPos = list.get(index + 1).brailleList.getFirst().start;
+			
+			if(linesAfter < nextLinesBefore)
+				linesAfter = nextLinesBefore;
+		
+			int diff = nextPos - start;
+			if((diff > linesAfter)){
+				int blankLinesBetween = diff - 1;
+				linesAfter = linesAfter - blankLinesBetween;
+			}
+	
+			if(linesAfter < 0 || diff < 0)
 				linesAfter = 0;
 			
 			setLines(start, linesAfter);

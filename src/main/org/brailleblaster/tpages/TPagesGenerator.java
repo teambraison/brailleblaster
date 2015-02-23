@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,14 +33,19 @@ import org.xml.sax.SAXException;
 public class TPagesGenerator {
 	String programDataPath;
 	String[] xmlElements = {"booktitle", "gradelevel", "subtitle", "seriesname", "editionname", "authors", "translator", 
-			"pubpermission", "publisher", "location", "website", "copyrighted", "copyrightsymbol", "copyrightdate", 
-			"copyrighttext", "repronotice", "isbn13", "isbn10", "printhistory", "year", "transcriber", "tgs", "affiliation"};
+			"publisherpermission", "publisher", "publisherlocation", "publisherwebsite", "copyrighttext", "reproductionnotice", "isbn13", "isbn10", 
+			"printhistory", "transcriptionyear", "transcriber", "tgs", "affiliation", "totalvolumes", "volumenumber", "customizedbraille",
+			"braillepageinfo", "printpageinfo", "transcribernotes", "template", "specialsymbols"};
 	String copyright, isbn13 = "", isbn10 = "", printHistoryGuess, titleGuess, authorGuess, publisherGuess, websiteGuess;
+	final String defaultTemplate = "(booktitle): (gradelevel)\n(subtitle)\n(seriesname)\n(editionname)\n(authors)\n(linebreak)\n(publisherpermission)"
+			+ "\n(publisher)\n(publisherwebsite)\n(linebreak)\n(copyrighttext)\n(reproductionnotice)\nTranscription of:\n"
+			+ "  ISBN-13: (isbn13)\n  ISBN-10: (isbn10)\n(printhistory)\nTranscribed (transcriptionyear) by\n(transcriber)\n"
+			+ "(linebreak)\n(totalvolumes)\n(volumenumber)\n(customizedbraille)\n(braillepageinfo)\n(printpageinfo)\n(linebreak)\n";
 	private HashMap<String, String> xmlmap;
 	
 	public TPagesGenerator(){
 		programDataPath = BBIni.getProgramDataPath();
-		xmlmap = getEmptyXmlMap();//= new HashMap<String, String>();
+		xmlmap = getEmptyXmlMap();
 	}
 	
 	/*
@@ -71,33 +73,23 @@ public class TPagesGenerator {
 				for (int q = 0; q < doc.getElementsByTagName("author").getLength(); q++){
 					tempAuthorString += ";" + doc.getElementsByTagName("author").item(q).getTextContent();
 				}
-				while(tempAuthorString.charAt(0)==' ' || tempAuthorString.charAt(0)==';'){
+				while(tempAuthorString.length() > 0 && (tempAuthorString.charAt(0)==' ' || tempAuthorString.charAt(0)==';')){
 					tempAuthorString = tempAuthorString.substring(1);
 				}
 				xmlmap.put("authors", tempAuthorString);
-				//This will probably all change when I figure out how to do templates
 				if(xmlmap.get("booktitle").contains(": "))
 					xmlmap.put("booktitle", xmlmap.get("booktitle").replace(": ", ""));
-				if(xmlmap.get("pubpermission").equals("Published by "))
-					xmlmap.put("pubpermission", "0");
-				if(xmlmap.get("pubpermission").equals("With permission of the publisher, "))
-					xmlmap.put("pubpermission", "1");
-				if(xmlmap.get("copyrighted").equals("Copyright "))
-					xmlmap.put("copyrighted", "true");
-				if(xmlmap.get("copyrighted").equals("Printed "))
-					xmlmap.put("copyrighted", "false");
-				if(xmlmap.get("copyrightsymbol").equals("&#x00A9; "))
-					xmlmap.put("copyrightsymbol", "true");
-				else
-					xmlmap.put("copyrightsymbol", "false");
 				xmlmap.put("isbn13", xmlmap.get("isbn13").replace("  ISBN-13: ", ""));
 				xmlmap.put("isbn10", xmlmap.get("isbn10").replace("  ISBN-10: ", ""));
-				if(xmlmap.get("year").contains("Transcribed")){
-					xmlmap.put("year", xmlmap.get("year").replace("Transcribed ", ""));
-					xmlmap.put("year", xmlmap.get("year").replace(" by", ""));
+				if(xmlmap.get("transcriptionyear").contains("Transcribed")){
+					xmlmap.put("transcriptionyear", xmlmap.get("transcriptionyear").replace("Transcribed ", ""));
+					xmlmap.put("transcriptionyear", xmlmap.get("transcriptionyear").replace(" by", ""));
 				}
 				xmlmap.put("transcriber", xmlmap.get("transcriber").replace("  ", ""));
 				xmlmap.put("tgs", xmlmap.get("tgs").replace("Tactile Graphics by ", "")); //This will need to change when I properly format it
+				if(xmlmap.get("template")==null || xmlmap.get("template").equals("")){
+					xmlmap.put("template", defaultTemplate);
+				}
 					
 			} else {
 				return false;
@@ -144,11 +136,14 @@ public class TPagesGenerator {
 			Element bookElement = doc.createElement("book");
 			rootElement.appendChild(bookElement);
 			
-			Element levelElement = doc.createElement("level1");
-			bookElement.appendChild(levelElement);
+			Element level1Element = doc.createElement("level1");
+			bookElement.appendChild(level1Element);
+			
+			Element level2Element = doc.createElement("level2");
+			level1Element.appendChild(level2Element);
 			
 			Element titleInfo = doc.createElement("titleinfo");
-			levelElement.appendChild(titleInfo);
+			level2Element.appendChild(titleInfo);
 			
 			Element ptag = newPTag(doc, titleInfo);
 			
@@ -164,59 +159,131 @@ public class TPagesGenerator {
 			newPTag(doc, titleInfo).appendChild(doc.createElement("editionname"));
 			
 			Element linebreak = doc.createElement("p");
-			linebreak.setTextContent("----------------------------------------");
-			levelElement.appendChild(linebreak);
+			linebreak.setTextContent(" "); //This is a non-breaking space. Coincidentally, this is a terrible line of code.
+			level2Element.appendChild(linebreak);
 			
 			Element authorInfo = doc.createElement("authorinfo");
-			levelElement.appendChild(authorInfo);
+			level2Element.appendChild(authorInfo);
 			
 			newPTag(doc, authorInfo).appendChild(doc.createElement("authors"));
 			
 			newPTag(doc, authorInfo).appendChild(doc.createElement("translator"));
 			
 			Element linebreak2 = doc.createElement("p");
-			linebreak2.setTextContent("----------------------------------------");
-			levelElement.appendChild(linebreak2);
+			linebreak2.setTextContent(" ");
+			level2Element.appendChild(linebreak2);
 			
 			Element publisherInfo = doc.createElement("publisherinfo");
-			levelElement.appendChild(publisherInfo);
+			level2Element.appendChild(publisherInfo);
 			
 			Element ptag2 = newPTag(doc, publisherInfo);
-			ptag2.appendChild(doc.createElement("pubpermission"));
+			ptag2.appendChild(doc.createElement("publisherpermission"));
 			ptag2.appendChild(doc.createElement("publisher"));
 			
-			newPTag(doc, publisherInfo).appendChild(doc.createElement("location"));
-			newPTag(doc, publisherInfo).appendChild(doc.createElement("website"));
+			newPTag(doc, publisherInfo).appendChild(doc.createElement("publisherlocation"));
+			newPTag(doc, publisherInfo).appendChild(doc.createElement("publisherwebsite"));
 			
 			Element linebreak3 = doc.createElement("p");
-			linebreak3.setTextContent("----------------------------------------");
-			levelElement.appendChild(linebreak3);
+			linebreak3.setTextContent(" ");
+			level2Element.appendChild(linebreak3);
 			
 			Element printInfo = doc.createElement("printinfo");
-			levelElement.appendChild(printInfo);
+			level2Element.appendChild(printInfo);
 			
 			Element ptag3 = newPTag(doc, printInfo);
-			ptag3.appendChild(doc.createElement("copyrighted"));
-			ptag3.appendChild(doc.createElement("copyrightsymbol"));
-			ptag3.appendChild(doc.createElement("copyrightdate"));
 			ptag3.appendChild(doc.createElement("copyrighttext"));
 			
-			newPTag(doc, printInfo).appendChild(doc.createElement("repronotice"));
+			newPTag(doc, printInfo).appendChild(doc.createElement("reproductionnotice"));
 			newPTag(doc, printInfo).appendChild(doc.createElement("isbn13"));
 			newPTag(doc, printInfo).appendChild(doc.createElement("isbn10"));
 			newPTag(doc, printInfo).appendChild(doc.createElement("printhistory"));
 
 			Element linebreak4 = doc.createElement("p");
-			linebreak4.setTextContent("----------------------------------------");
-			levelElement.appendChild(linebreak4);
+			linebreak4.setTextContent(" ");
+			level2Element.appendChild(linebreak4);
 			
 			Element transcriptionInfo = doc.createElement("transcriptioninfo");
-			levelElement.appendChild(transcriptionInfo);
+			level2Element.appendChild(transcriptionInfo);
 			
-			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("year"));
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("transcriptionyear"));
 			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("transcriber"));
 			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("tgs"));
 			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("affiliation"));
+			
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("totalvolumes"));
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("volumenumber"));
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("customizedbraille"));
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("braillepageinfo"));
+			newPTag(doc, transcriptionInfo).appendChild(doc.createElement("printpageinfo"));
+			
+			Element linebreak5 = doc.createElement("p");
+			linebreak5.setTextContent(" ");
+			level2Element.appendChild(linebreak5);
+			
+			Element level2ElementSS = doc.createElement("level2");
+			level1Element.appendChild(level2ElementSS);
+			
+			Element ssHeader = doc.createElement("p");
+			ssHeader.setTextContent("Special Symbols");
+			level2ElementSS.appendChild(ssHeader);
+			newPTag(doc, level2ElementSS).appendChild(doc.createElement("specialsymbols"));
+			
+			Element level2ElementTN = doc.createElement("level2");
+			level1Element.appendChild(level2ElementTN);
+			
+			Element tnHeader = doc.createElement("p");
+			tnHeader.setTextContent("Transcriber Notes");
+			level2ElementTN.appendChild(tnHeader);
+			newPTag(doc, level2ElementTN).appendChild(doc.createElement("transcribernotes"));
+			
+			newPTag(doc, level2ElementTN).appendChild(doc.createElement("template"));
+			
+			TransformerFactory tFactory = TransformerFactory.newInstance();
+			Transformer transformer = tFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			StreamResult result = new StreamResult(new File(filename));
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+			transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, docType.getPublicId());
+			transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, docType.getSystemId());
+			transformer.transform(source, result);
+			
+		} catch(ParserConfigurationException e){
+			e.printStackTrace();
+			return false;
+		} catch(TransformerException e){
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean generateTPage(String template, String filename){
+		for (String xmlElement : xmlElements){
+			template = template.replaceAll("\\Q(" + xmlElement + ")\\E", xmlmap.get(xmlElement));
+		}
+		try{
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			Document doc = docBuilder.newDocument();
+			DocumentType docType = doc.getImplementation().createDocumentType("doctype", "-//NISO//DTD dtbook 2005-3//EN", "http://www.daisy.org/z3986/2005/dtbook-2005-3.dtd");
+			
+			Element rootElement = doc.createElement("dtbook");
+			rootElement.setAttribute("type", "tpage");
+			doc.appendChild(rootElement);
+			
+			Element bookElement = doc.createElement("book");
+			rootElement.appendChild(bookElement);
+			
+			Element level1Element = doc.createElement("level1");
+			bookElement.appendChild(level1Element);
+			
+			String[] splitTemplate = template.split("\\r?\\n");
+			for(String line : splitTemplate){
+				Element newElement = doc.createElement("p");
+				newElement.setTextContent(line);
+				level1Element.appendChild(newElement);
+			}
 			
 			TransformerFactory tFactory = TransformerFactory.newInstance();
 			Transformer transformer = tFactory.newTransformer();
@@ -246,77 +313,51 @@ public class TPagesGenerator {
 	
 	public boolean saveNewTPage(String filename, HashMap<String, String> newXmlMap){
 		File file = new File(filename);
-		//if(!checkForFile(filename))
+		if(!checkForFile(filename))
 			createNewTPageXML(filename);
-		/*Set mapSet = newXmlMap.entrySet();
-		Iterator iterator = mapSet.iterator();*/
 		try{
 			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document doc = docBuilder.parse(file);
 			
-			/*while(iterator.hasNext()){
-				Map.Entry mapEntry = (Map.Entry)iterator.next();
-				doc.getElementsByTagName((String)mapEntry.getKey()).item(0).setTextContent((String)mapEntry.getValue());
-			}*/
-			if(newXmlMap.get("booktitle") != null){
-				if(!newXmlMap.get("gradelevel").equals("")){
-					doc.getElementsByTagName("booktitle").item(0).setTextContent(newXmlMap.get("booktitle") + ": ");
-					doc.getElementsByTagName("gradelevel").item(0).setTextContent(newXmlMap.get("gradelevel"));
-				} else {
-					doc.getElementsByTagName("booktitle").item(0).setTextContent(newXmlMap.get("booktitle"));
-				}
+			for(int i = 0; i < xmlElements.length; i++){
+				if(newXmlMap.get(xmlElements[i])==null)
+					newXmlMap.put(xmlElements[i], ""); //Initialize any empty fields
 			}
+			
+			doc.getElementsByTagName("booktitle").item(0).setTextContent(newXmlMap.get("booktitle"));
+			doc.getElementsByTagName("gradelevel").item(0).setTextContent(newXmlMap.get("gradelevel"));
 			doc.getElementsByTagName("subtitle").item(0).setTextContent(newXmlMap.get("subtitle"));
 			doc.getElementsByTagName("seriesname").item(0).setTextContent(newXmlMap.get("seriesname"));
 			doc.getElementsByTagName("editionname").item(0).setTextContent(newXmlMap.get("editionname"));
-			
+			doc.getElementsByTagName("authors").item(0).setTextContent("");
 			String[] authors = newXmlMap.get("authors").split(";");
 			for (String tempAuthor : authors){
 				Element newAuthor = doc.createElement("author");
 				newAuthor.setTextContent(tempAuthor);
 				newPTag(doc, (Element)doc.getElementsByTagName("authors").item(0)).appendChild(newAuthor);
 			}
-			
 			doc.getElementsByTagName("translator").item(0).setTextContent(newXmlMap.get("translator"));
-			
-			if(newXmlMap.get("pubpermission").equals("0")){
-				doc.getElementsByTagName("pubpermission").item(0).setTextContent("Published by ");
-			} else{
-				doc.getElementsByTagName("pubpermission").item(0).setTextContent("With permission of the publisher, ");
-			}
+			doc.getElementsByTagName("publisherpermission").item(0).setTextContent(newXmlMap.get("publisherpermission"));
 			doc.getElementsByTagName("publisher").item(0).setTextContent(newXmlMap.get("publisher"));
-			doc.getElementsByTagName("location").item(0).setTextContent(newXmlMap.get("location"));
-			doc.getElementsByTagName("website").item(0).setTextContent(newXmlMap.get("website"));
-			
-			if(newXmlMap.get("copyrighted").equals("true")){
-				doc.getElementsByTagName("copyrighted").item(0).setTextContent("Copyright ");
-			} else {
-				doc.getElementsByTagName("copyrighted").item(0).setTextContent("Printed ");
-			}
-			if(newXmlMap.get("copyrightsymbol").equals("true")){
-				doc.getElementsByTagName("copyrightsymbol").item(0).setTextContent("&#x00A9; ");
-			}
-			doc.getElementsByTagName("copyrightdate").item(0).setTextContent(newXmlMap.get("copyrightdate") + " ");
+			doc.getElementsByTagName("publisherlocation").item(0).setTextContent(newXmlMap.get("publisherlocation"));
+			doc.getElementsByTagName("publisherwebsite").item(0).setTextContent(newXmlMap.get("publisherwebsite"));
 			doc.getElementsByTagName("copyrighttext").item(0).setTextContent(newXmlMap.get("copyrighttext"));
-			doc.getElementsByTagName("repronotice").item(0).setTextContent(newXmlMap.get("repronotice"));
-			if(newXmlMap.get("isbn13").length() > 1 || newXmlMap.get("isbn10").length() > 1){
-				//doc.insertBefore(doc.getElementsByTagName("isbn13").item(0), doc.createTextNode("Transcription of")); //Probably doesn't work
-			}
-			if(newXmlMap.get("isbn13").length() > 1){
-				doc.getElementsByTagName("isbn13").item(0).setTextContent("  ISBN-13: " +newXmlMap.get("isbn13"));
-			}
-			if(newXmlMap.get("isbn10").length() > 1){
-				doc.getElementsByTagName("isbn10").item(0).setTextContent("  ISBN-10: " +newXmlMap.get("isbn10"));
-			}
+			doc.getElementsByTagName("reproductionnotice").item(0).setTextContent(newXmlMap.get("reproductionnotice"));
+			doc.getElementsByTagName("isbn13").item(0).setTextContent(newXmlMap.get("isbn13"));
+			doc.getElementsByTagName("isbn10").item(0).setTextContent(newXmlMap.get("isbn10"));
 			doc.getElementsByTagName("printhistory").item(0).setTextContent(newXmlMap.get("printhistory"));
-			if(newXmlMap.get("transcriber").length() > 1){
-				doc.getElementsByTagName("year").item(0).setTextContent("Transcribed " + newXmlMap.get("year") + " by");
-				doc.getElementsByTagName("transcriber").item(0).setTextContent("  " + newXmlMap.get("transcriber"));
-			}
-			if(newXmlMap.get("tgs").length()>1){
-				doc.getElementsByTagName("tgs").item(0).setTextContent("Tactile Graphics by " + newXmlMap.get("tgs"));
-			}
+			doc.getElementsByTagName("transcriptionyear").item(0).setTextContent(newXmlMap.get("transcriptionyear"));
+			doc.getElementsByTagName("transcriber").item(0).setTextContent(newXmlMap.get("transcriber"));
+			doc.getElementsByTagName("tgs").item(0).setTextContent(newXmlMap.get("tgs"));
 			doc.getElementsByTagName("affiliation").item(0).setTextContent(newXmlMap.get("affiliation"));
+			doc.getElementsByTagName("totalvolumes").item(0).setTextContent(newXmlMap.get("totalvolumes"));
+			doc.getElementsByTagName("volumenumber").item(0).setTextContent(newXmlMap.get("volumenumber"));
+			doc.getElementsByTagName("customizedbraille").item(0).setTextContent(newXmlMap.get("customizedbraille"));
+			doc.getElementsByTagName("braillepageinfo").item(0).setTextContent(newXmlMap.get("braillepageinfo"));
+			doc.getElementsByTagName("printpageinfo").item(0).setTextContent(newXmlMap.get("printpageinfo"));
+			doc.getElementsByTagName("transcribernotes").item(0).setTextContent(newXmlMap.get("transcribernotes"));
+			doc.getElementsByTagName("template").item(0).setTextContent(newXmlMap.get("template"));
+			doc.getElementsByTagName("specialsymbols").item(0).setTextContent(newXmlMap.get("specialsymbols"));
 			
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
@@ -348,11 +389,15 @@ public class TPagesGenerator {
 	public void autoPopulate(String bookPath){
 		File book = new File(bookPath);
 		try{
-			DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = dbf.newDocumentBuilder();
+			
 			Document doc = docBuilder.parse(book);
 			
 			Node fmNode = doc.getElementsByTagName("frontmatter").item(0);
 			if(fmNode == null){
+				xmlmap.put("reproductionnotice", "Further reproduction or distribution in other than a specialized format is prohibited.");
+				xmlmap.put("template", defaultTemplate);
 				return;
 			}
 			
@@ -371,15 +416,17 @@ public class TPagesGenerator {
 			else
 				title = titleGuess;
 			String subtitle = "";
-			if(title.contains(":")){ //There is probably a subtitle
-				subtitle = title.substring(title.indexOf(":") + 2);
-				while(subtitle.charAt(0)==' '){ // Remove spaces from beginning of subtitle
-					subtitle = subtitle.substring(1);
+			if(!title.equals("")){
+				if(title.contains(":")){ //There is probably a subtitle
+					subtitle = title.substring(title.indexOf(":") + 2);
+					while(subtitle.charAt(0)==' '){ // Remove spaces from beginning of subtitle
+						subtitle = subtitle.substring(1);
+					}
+					title = title.substring(0, title.indexOf(":"));
 				}
-				title = title.substring(0, title.indexOf(":"));
-			}
-			while(title.charAt(0)==' '){
-				title = title.substring(1);
+				while(title.charAt(0)==' '){
+					title = title.substring(1);
+				}
 			}
 			//////////Authors
 			String authors;
@@ -387,13 +434,15 @@ public class TPagesGenerator {
 				authors = findAuthors(doc);
 			else
 				authors = authorGuess;
-			if(authors.contains("by")){
-				authors = authors.substring(authors.indexOf("by") + 2);
-			}
-			authors = authors.replace(", ", ";");
-			authors = authors.replace("and ", "");
-			while(authors.charAt(0)==' ' || authors.charAt(0)==';'){
-				authors = authors.substring(1);
+			if(!authors.equals("")){
+				if(authors.contains("by")){
+					authors = authors.substring(authors.indexOf("by") + 2);
+				}
+				authors = authors.replace(", ", ";");
+				authors = authors.replace("and ", "");
+				while(authors.charAt(0)==' ' || authors.charAt(0)==';'){
+					authors = authors.substring(1);
+				}
 			}
 			xmlmap.put("booktitle", title);
 			xmlmap.put("subtitle", subtitle);
@@ -406,71 +455,18 @@ public class TPagesGenerator {
 			xmlmap.put("isbn10", isbn10);
 			
 			if(websiteGuess != null){
-				xmlmap.put("website", websiteGuess);
+				xmlmap.put("publisherwebsite", websiteGuess);
 			}
 			if(printHistoryGuess != null){
 				xmlmap.put("printhistory", printHistoryGuess);
 			}
 			
 			if(copyright!=null){
-				if(copyright.contains("&#169;")){
-					xmlmap.put("copyrighted", "true");
-					xmlmap.put("copyrightsymbol", "true");
-				}
-				if(copyright.contains("&#x00A9")){
-					xmlmap.put("copyrighted", "true");
-					xmlmap.put("copyrightsymbol", "true");
-				}
-				else if(copyright.contains("Copyright")){
-					xmlmap.put("copyrighted", "true");
-				}
-				else {
-					xmlmap.put("copyrighted", "false");
-					xmlmap.put("copyrightsymbol", "false");
-				}
-				if(!copyright.equals("")){
-					//Find copyright year and publisher
-					int tempInt = 0;
-					String copyYear = "";
-					String copyPub = "";
-					while(tempInt < copyright.length()){
-						if(copyYear.equals("")){
-							if(Character.isDigit(copyright.charAt(tempInt))){
-								copyYear = copyright.substring(tempInt, tempInt + 4);
-								tempInt += 4;
-							}
-						} else { //Found the year, now look for publisher
-							if(copyright.charAt(tempInt)=='b'){
-								if(copyright.charAt(tempInt+1)=='y'){
-									tempInt += 3;
-									for(int i = tempInt; i < copyright.length(); i++){
-										if(copyright.charAt(i)!='.')
-											copyPub += copyright.charAt(i);
-										else
-											i = copyright.length();
-									}
-									break;
-								}
-							}
-							if(Character.isUpperCase(copyright.charAt(tempInt))){
-								for(int i = tempInt; i < copyright.length(); i++){
-									if(copyright.charAt(i)!='.')
-										copyPub += copyright.charAt(i);
-									else
-										i = copyright.length();
-								}
-								break;
-							}
-						}
-						
-						tempInt++;
-					}
-					xmlmap.put("copyrightdate", copyYear);
-					xmlmap.put("copyrighttext", copyPub);
-				}
+				xmlmap.put("copyrighttext", copyright);
 			}
 			
-			xmlmap.put("repronotice", "Further reproduction or distribution in other than a specialized format is prohibited.");
+			xmlmap.put("reproductionnotice", "Further reproduction or distribution in other than a specialized format is prohibited.");
+			xmlmap.put("template", defaultTemplate);
 			
 		} catch(ParserConfigurationException e){
 			e.printStackTrace();
@@ -523,20 +519,28 @@ public class TPagesGenerator {
 	
 	private String findTitle(Document doc){
 		String title = "";
-		List<Node> nodeChildren = getAllChildren(doc.getElementsByTagName("doctitle").item(0));
-		for (int q = 0; q < nodeChildren.size(); q++){
-			if(nodeChildren.get(q).getNodeName().equals("#text"))
-				title += " " + nodeChildren.get(q).getNodeValue();
+		Node doctitle = doc.getElementsByTagName("doctitle").item(0);
+		if(doctitle!=null){
+			List<Node> nodeChildren = getAllChildren(doctitle);
+			for (int q = 0; q < nodeChildren.size(); q++){
+				if(nodeChildren.get(q).getNodeName().equals("#text"))
+					title += " " + nodeChildren.get(q).getNodeValue();
+			}
 		}
 		return title;
 	}
 	
 	private String findAuthors(Document doc){
 		String authors = "";
-		List<Node> nodeChildren = getAllChildren(doc.getElementsByTagName("docauthor").item(0));
-		for(int q = 0; q < nodeChildren.size(); q++){
-			if(nodeChildren.get(q).getNodeName().equals("#text"))
-				authors += ";" + nodeChildren.get(q).getNodeValue();
+		NodeList docAuthors = doc.getElementsByTagName("docauthor");
+		if(docAuthors.getLength()>0){
+			for(int i = 0; i < docAuthors.getLength(); i++){
+				List<Node> daChildren = getAllChildren(docAuthors.item(i));
+					for(int q = 0; q < daChildren.size(); q++){
+						if(daChildren.get(q).getNodeName().equals("#text"))
+							authors += ";" + daChildren.get(q).getNodeValue();
+					}
+			}
 		}
 		return authors;
 	}
@@ -602,6 +606,12 @@ public class TPagesGenerator {
 		for (int i = 0; i < xmlElements.length; i++){
 			newMap.put(xmlElements[i], "");
 		}
+		newMap.put("reproductionnotice", "Further reproduction or distribution in other than a specialized format is prohibited.");
+		newMap.put("template", defaultTemplate);
 		return newMap;
+	}
+	
+	public String[] getXmlElements(){
+		return xmlElements;
 	}
 }

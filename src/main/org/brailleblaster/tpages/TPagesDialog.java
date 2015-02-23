@@ -1,35 +1,35 @@
 package org.brailleblaster.tpages;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.tpages.TPagesGenerator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class TPagesDialog extends Dialog{
@@ -37,43 +37,38 @@ public class TPagesDialog extends Dialog{
 	private Shell shlTPages;
 	private Object result;
 	private Display display;
-	final int TEXT_BOX_WIDTH = 500;
+	final int TEXT_BOX_WIDTH = 400;
 	final int LABEL_WIDTH = 150;
-	HashMap<Text, String> uimap;
-	Text titleText, gradeLevelText, subtitleText, seriesText, editionText, authorText, translatorText, publisherText,
-	pubLocationText, pubWebsiteText, copyDateText, copyText, reproText, isbn13Text, isbn10Text, printHistoryText,
-	transYearText, transText, tgsText, affiliationText, transNotesText;
-	Combo permissionCombo;
-	Button copyrightButton, copySymbolButton;
+	Table symbolsTable;
+	Text titleText, gradeLevelText, subtitleText, seriesText, editionText, authorText, translatorText, publisherText, permissionText,
+	pubLocationText, pubWebsiteText, copyText, reproText, isbn13Text, isbn10Text, printHistoryText,
+	transYearText, transText, tgsText, affiliationText, transNotesText, totalVolText, volNumberText, customBrailleText, 
+	braillePagesText, printPagesText, templateText;
 	TPagesGenerator tpGenerator;
 	HashMap<String, String> xmlmap;
-	Group titleGroup, authorGroup, printGroup, publisherGroup, transcriberGroup;
+	Group titleGroup, authorGroup, printGroup, publisherGroup, transcriberGroup, volumesGroup;
+	Boolean changed = false;
+	final String WINDOW_TITLE = "Transcriber-Generated Pages";
 	
 	public TPagesDialog(Shell parent, int style, Manager brailleViewController){
 		super(parent, style);
-		setText("Transcriber-Generated Pages");
+		setText(WINDOW_TITLE);
 		m = brailleViewController;
 	}
 	
 	public Object open(){
 		tpGenerator = new TPagesGenerator();
-		
-		if(m.getDocumentName()!=null)
-			if(m.getDocumentName().substring(m.getDocumentName().length()-4).equals(".xml"))
-				tpGenerator.autoPopulate(m.getDocumentName());
 		xmlmap = tpGenerator.getXmlMap();
-		//if(xmlmap.isEmpty()){
-			//xmlmap = tpGenerator.getEmptyXmlMap();
-		//}
-		uimap = new HashMap<Text, String>();
 		createContents();
 		
 		if(m.getLastTPage()!=null){
 			if(tpGenerator.checkForFile(m.getLastTPage())){
 				openFromXml(m.getLastTPage());
-				updateContents();
 			}
 		}
+		updateContents();
+		shlTPages.setText(WINDOW_TITLE);
+		changed = false;
 		
 		shlTPages.open();
 		shlTPages.layout();
@@ -88,9 +83,9 @@ public class TPagesDialog extends Dialog{
 	
 	public void createContents(){
 		shlTPages = new Shell(getParent(), SWT.DIALOG_TRIM);
-		shlTPages.setText("Transcriber-Generated Pages");
+		shlTPages.setText(WINDOW_TITLE);
 		shlTPages.setVisible(true);
-		shlTPages.setLayout(new GridLayout(5,true));
+		shlTPages.setLayout(new GridLayout(5,false));
 		
 		GridData tfData = newTpData(5);
 		TabFolder folder = new TabFolder(shlTPages, SWT.NONE);
@@ -105,37 +100,56 @@ public class TPagesDialog extends Dialog{
 		TabItem transNotesTab = new TabItem(folder, SWT.NONE);
 		transNotesTab.setText("Transcriber's Notes");
 		
+		TabItem templateTab = new TabItem(folder, SWT.NONE);
+		templateTab.setText("Template");
+		
 		/////////////////////////////
 		///////Title Page Tab////////
 		/////////////////////////////
 		final Composite titleComposite = new Composite(folder, SWT.NONE);
 		titleComposite.setLayout(new GridLayout(2, false));
-		//titleComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
-		final List titlePageList = new List(titleComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		final Composite listComposite = new Composite(titleComposite, SWT.NONE);
+		listComposite.setLayout(new RowLayout(SWT.VERTICAL));
+		listComposite.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, true, true, 1, 2));
+		final List titlePageList = new List(listComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		titlePageList.setLayoutData(new RowData(100, 100));
 		titlePageList.add("Title");
 		titlePageList.add("Author");
 		titlePageList.add("Publisher");
 		titlePageList.add("Printing");
 		titlePageList.add("Transcription");
-		GridData listData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, true, 1, 6);
-		listData.widthHint = 100;
-		titlePageList.setLayoutData(listData);
+		titlePageList.add("Volumes");
+		
+		Label spacingLabel = new Label(listComposite, SWT.NONE);
+		spacingLabel.setLayoutData(new RowData(100, 10));
+		
+		Button autoFillButton = new Button(listComposite, SWT.PUSH);
+		autoFillButton.setText("Auto-Fill Fields");
+		autoFillButton.setLayoutData(new RowData(120, 30));
+		autoFillButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				if(m.getDocumentName()!=null){
+					if(m.getDocumentName().toLowerCase().substring(m.getDocumentName().length()-4).equals(".xml")){
+						tpGenerator.autoPopulate(m.getDocumentName());
+						updateContents();
+					}
+				}
+			}
+			
+			@Override 
+			public void widgetDefaultSelected(SelectionEvent e){
+				
+			}
+		});
 		
 		createTitleGroup(titleComposite);
-		/*createAuthorGroup(titleComposite);
-		createPublisherGroup(titleComposite);
-		createPrintGroup(titleComposite);
-		createTranscriberGroup(titleComposite);*/
 		
-		/*final Group volumesGroup = new Group (titleComposite, SWT.NONE);
-		volumesGroup.setText("Volumes");
-		volumesGroup.setLayout(new GridLayout(2,false));
-		volumesGroup.setVisible(false);
-		createLabel(volumesGroup, "Not yet implemented", 1);*/
 		
 		titlePageList.addSelectionListener(new SelectionListener(){
 			@Override
 			public void widgetSelected(SelectionEvent e){
+				Boolean tempChanged = changed;
 				saveCurrentGroup();
 				disposeAll();
 				if(titlePageList.getSelection()[0].equals("Title"))
@@ -148,7 +162,13 @@ public class TPagesDialog extends Dialog{
 					createPublisherGroup(titleComposite);
 				if(titlePageList.getSelection()[0].equals("Transcription"))
 					createTranscriberGroup(titleComposite);
+				if(titlePageList.getSelection()[0].equals("Volumes"))
+					createVolumesGroup(titleComposite);
 				updateContents();
+				if(!tempChanged){
+					shlTPages.setText(WINDOW_TITLE);
+					changed = false;
+				}
 				shlTPages.pack();
 			}
 			
@@ -168,10 +188,213 @@ public class TPagesDialog extends Dialog{
 		Composite symbolsComposite = new Composite(folder, SWT.NONE);
 		symbolsComposite.setLayout(new RowLayout(SWT.VERTICAL));
 		
-		Group symbolsGroup = new Group(symbolsComposite, SWT.NONE);
-		symbolsGroup.setLayout(new GridLayout(1, false));
+		symbolsTable = new Table(symbolsComposite, SWT.VIRTUAL | SWT.BORDER | SWT.FULL_SELECTION); 
+		symbolsTable.setLinesVisible(true);
+		symbolsTable.setHeaderVisible(true);
+		symbolsTable.setLayoutData(new RowData(500, 200));
+		TableColumn symbolColumn = new TableColumn(symbolsTable, SWT.NONE);
+		symbolColumn.setWidth(100);
+		symbolColumn.setText("Symbol");
+		TableColumn descColumn = new TableColumn(symbolsTable, SWT.NONE);
+		descColumn.setWidth(415);
+		descColumn.setText("Description");
 		
-		createLabel(symbolsGroup, "Not yet implemented", 1);
+		Composite ssButtonPanel = new Composite(symbolsComposite, SWT.NONE);
+		ssButtonPanel.setLayout(new GridLayout(3,true));
+		
+		Button ssEditButton = new Button(ssButtonPanel, SWT.PUSH);
+		GridData ssButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		ssButtonData.widthHint = 120;
+		ssEditButton.setText("Edit...");
+		ssEditButton.setLayoutData(ssButtonData);
+		ssEditButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				if(symbolsTable.getSelectionCount()>0){
+					final Shell editDialog = new Shell(shlTPages, SWT.DIALOG_TRIM);
+					editDialog.setLayout(new RowLayout(SWT.VERTICAL));
+					editDialog.setText("Edit Special Symbol");
+					Composite editContents = new Composite(editDialog, SWT.NONE);
+					editContents.setLayout(new GridLayout(2,false));
+					
+					final TableItem editingItem = symbolsTable.getSelection()[0];
+					
+					Label symbolLabel = new Label(editContents, SWT.NONE);
+					GridData labelData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1);
+					labelData.widthHint = 100;
+					symbolLabel.setLayoutData(labelData);
+					symbolLabel.setText("Symbol:");
+					final Text symbolText = new Text(editContents, SWT.SINGLE | SWT.BORDER);
+					GridData editTextData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 1, 1);
+					editTextData.widthHint = 300;
+					symbolText.setLayoutData(editTextData);
+					symbolText.setText(editingItem.getText(0));
+					
+					Label descLabel = new Label(editContents, SWT.NONE);
+					labelData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1);
+					labelData.widthHint = 100;
+					descLabel.setLayoutData(labelData);
+					descLabel.setText("Description:");
+					final Text descText = new Text(editContents, SWT.NONE);
+					editTextData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 1, 1);
+					editTextData.widthHint = 300;
+					descText.setLayoutData(editTextData);
+					descText.setText(editingItem.getText(1));
+					
+					Composite editButtonPanel = new Composite(editContents, SWT.CENTER);
+					editButtonPanel.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 2, 1));
+					editButtonPanel.setLayout(new GridLayout(2,true));
+					
+					Button okButton = new Button(editButtonPanel, SWT.PUSH);
+					GridData editButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+					editButtonData.widthHint = 100;
+					okButton.setLayoutData(editButtonData);
+					okButton.setText("Ok");
+					okButton.addSelectionListener(new SelectionListener(){
+						@Override
+						public void widgetSelected(SelectionEvent e){
+							editingItem.setText(new String[]{symbolText.getText(), descText.getText()});
+							editDialog.close();
+						}
+	
+						@Override
+						public void widgetDefaultSelected(SelectionEvent arg0) {						
+						}
+					});
+					
+					Button cancelButton = new Button(editButtonPanel, SWT.PUSH);
+					editButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+					editButtonData.widthHint = 100;
+					cancelButton.setLayoutData(editButtonData);
+					cancelButton.setText("Cancel");
+					cancelButton.addSelectionListener(new SelectionListener(){
+						@Override
+						public void widgetSelected(SelectionEvent e){
+							editDialog.close();
+						}
+	
+						@Override
+						public void widgetDefaultSelected(SelectionEvent arg0) {
+						}
+					});
+					
+					editDialog.open();
+					editDialog.pack();
+				} 
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				
+			}
+		});
+		
+		Button ssAddButton = new Button(ssButtonPanel, SWT.PUSH);
+		ssButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		ssButtonData.widthHint = 120;
+		ssAddButton.setText("Add...");
+		ssAddButton.setLayoutData(ssButtonData);
+		ssAddButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				final Shell addDialog = new Shell(shlTPages, SWT.DIALOG_TRIM);
+				addDialog.setLayout(new RowLayout(SWT.VERTICAL));
+				addDialog.setText("Add New Special Symbol");
+				Composite addContents = new Composite(addDialog, SWT.NONE);
+				addContents.setLayout(new GridLayout(2, false));
+				
+				Label symbolLabel = new Label(addContents, SWT.NONE);
+				GridData labelData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1);
+				labelData.widthHint = 100;
+				symbolLabel.setLayoutData(labelData);
+				symbolLabel.setText("Symbol:");
+				final Text symbolText = new Text(addContents, SWT.SINGLE | SWT.BORDER);
+				GridData addTextData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 1, 1);
+				addTextData.widthHint = 300;
+				symbolText.setLayoutData(addTextData);
+				
+				Label descLabel = new Label(addContents, SWT.NONE);
+				labelData = new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1);
+				labelData.widthHint = 100;
+				descLabel.setLayoutData(labelData);
+				descLabel.setText("Description:");
+				final Text descText = new Text(addContents, SWT.SINGLE | SWT.BORDER);
+				addTextData = new GridData(SWT.BEGINNING, SWT.BEGINNING, true, false, 1, 1);
+				addTextData.widthHint = 300;
+				descText.setLayoutData(addTextData);
+				
+				Composite addButtonPanel = new Composite(addContents, SWT.CENTER);
+				addButtonPanel.setLayoutData(new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 2, 1));
+				addButtonPanel.setLayout(new GridLayout(2,true));
+				
+				Button okButton = new Button(addButtonPanel, SWT.PUSH);
+				GridData addButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+				addButtonData.widthHint = 100;
+				okButton.setLayoutData(addButtonData);
+				okButton.setText("Ok");
+				okButton.addSelectionListener(new SelectionListener(){
+					@Override
+					public void widgetSelected(SelectionEvent e){
+						if(symbolText.getText().length()>0){
+							TableItem newTableItem = new TableItem(symbolsTable, SWT.NONE);
+							newTableItem.setText(new String[]{ symbolText.getText(), descText.getText()});
+						}
+						addDialog.close();
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent arg0) {
+						
+					}
+				});
+				
+				Button cancelButton = new Button(addButtonPanel, SWT.PUSH);
+				addButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+				addButtonData.widthHint = 100;
+				cancelButton.setLayoutData(addButtonData);
+				cancelButton.setText("Cancel");
+				cancelButton.addSelectionListener(new SelectionListener(){
+					@Override
+					public void widgetSelected(SelectionEvent e){
+						addDialog.close();
+					}
+					
+					@Override
+					public void widgetDefaultSelected(SelectionEvent arg0) {
+						
+					}
+				});
+				
+				addDialog.open();
+				addDialog.pack();
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				
+			}
+		});
+		
+		Button ssDeleteButton = new Button(ssButtonPanel, SWT.PUSH);
+		ssButtonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		ssButtonData.widthHint = 120;
+		ssDeleteButton.setText("Delete");
+		ssDeleteButton.setLayoutData(ssButtonData);
+		
+		ssDeleteButton.addSelectionListener(new SelectionListener(){
+			@Override
+			public void widgetSelected(SelectionEvent e){
+				if(symbolsTable.getSelectionCount() > 0){
+					symbolsTable.remove(symbolsTable.getSelectionIndex());
+				}
+			}
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				
+				
+			}
+		});
 		
 		symbolsTab.setControl(symbolsComposite);
 		/////////////////////////////
@@ -195,8 +418,51 @@ public class TPagesDialog extends Dialog{
 		transNotesTab.setControl(transNotesComposite);
 		/////////////////////////////
 		
+		/////////////////////////////
+		////////Template Tab/////////
+		/////////////////////////////
+		Composite templateComposite = new Composite(folder, SWT.NONE);
+		templateComposite.setLayout(new GridLayout(2, false));
+		
+		final List xmlList = new List(templateComposite, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+		GridData xmlListData = newTpData(1);
+		xmlListData.widthHint = 150;
+		xmlListData.heightHint = 300;
+		xmlList.setLayoutData(xmlListData);
+		for(String element : tpGenerator.getXmlElements()){
+			xmlList.add(element);
+		}
+		xmlList.add("linebreak");
+		xmlList.add("pagebreak");
+		xmlList.addSelectionListener(new SelectionListener(){
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+				
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				templateText.insert("(" + xmlList.getSelection()[0] + ")");
+				xmlList.deselectAll();
+			}
+			
+		});
+		
+		templateText = new Text(templateComposite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.WRAP);
+		GridData templateData = newTpData(1);
+		templateData.widthHint = 400;
+		templateData.heightHint = 300;
+		templateText.setLayoutData(templateData);	
+		
+		templateTab.setControl(templateComposite);
+		/////////////////////////////
+		
+		/////////////////////////////
+		///////////Buttons///////////
+		/////////////////////////////
 		Button closeButton = new Button(shlTPages, SWT.PUSH);
-		GridData buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 3, 1);
+		GridData buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
 		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
 		closeButton.setText("Close");
@@ -232,8 +498,10 @@ public class TPagesDialog extends Dialog{
 					if(openFromXml(filePath)){
 						xmlmap = tpGenerator.getXmlMap();
 						updateContents();
+						changed = false;
+						shlTPages.setText(WINDOW_TITLE);
 					} else {
-						createError("Error reading file. Was this file created by this dialog?");
+						createError("Improper format");
 					}
 				}
 			}
@@ -244,23 +512,16 @@ public class TPagesDialog extends Dialog{
 			}
 		});
 		
-		Button generateButton = new Button(shlTPages, SWT.PUSH);
-		buttonData = new GridData(SWT.LEFT, SWT.BEGINNING, false, false, 1, 1);
+		Button saveXMLButton = new Button(shlTPages, SWT.PUSH);
+		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
 		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
-		generateButton.setText("Save XML");
-		generateButton.setLayoutData(buttonData);
+		saveXMLButton.setText("Save");
+		saveXMLButton.setLayoutData(buttonData);
 		
-		generateButton.addSelectionListener(new SelectionListener() {
+		saveXMLButton.addSelectionListener(new SelectionListener() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				/*authorText.setText(authorText.getText().replaceAll("\r\n", ";"));
-				xmlmap.put("authors", authorText.getText());
-				xmlmap.put("pubpermission", "" + permissionCombo.getSelectionIndex());
-				xmlmap.put("copyrighted", String.valueOf(copyrightButton.getSelection()));
-				xmlmap.put("copyrightsymbol", String.valueOf(copySymbolButton.getSelection()));
-				for(Map.Entry<Text, String> entry : uimap.entrySet())
-					xmlmap.put(entry.getValue(), entry.getKey().getText());*/
 				saveCurrentGroup();
 				FileDialog saveFile = new FileDialog(shlTPages, SWT.SAVE);
 				saveFile.setFilterExtensions(new String[] { "*.xml" });	
@@ -268,6 +529,8 @@ public class TPagesDialog extends Dialog{
 				if(result!=null){
 					m.setLastTPage(result);
 					tpGenerator.saveNewTPage(result, xmlmap);
+					changed = false;
+					shlTPages.setText(WINDOW_TITLE);
 				}
 			}
 			
@@ -275,6 +538,53 @@ public class TPagesDialog extends Dialog{
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				
 			}
+		});
+		
+		Label spacingLabel2 = new Label(shlTPages, SWT.NONE);
+		GridData spacingLabelData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		spacingLabelData.widthHint = 200;
+		spacingLabel2.setLayoutData(spacingLabelData);
+		
+		Button generateButton = new Button(shlTPages, SWT.PUSH);
+		buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 1, 1);
+		buttonData.widthHint = 120;
+		buttonData.heightHint = 30;
+		generateButton.setText("Generate T-Pages");
+		generateButton.setLayoutData(buttonData);
+		
+		generateButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				saveCurrentGroup();
+				FileDialog saveFile = new FileDialog(shlTPages, SWT.SAVE);
+				saveFile.setFilterExtensions(new String[] {"*.xml"});
+				String result = saveFile.open();
+				if(result!=null){
+					m.setLastTPage(result);
+					tpGenerator.generateTPage(templateText.getText(), result);
+				}
+			}
+			
+		});
+		/////////////////////////////
+		
+		shlTPages.addListener(SWT.Close, new Listener(){
+			public void handleEvent(Event event){
+				if(changed){
+					MessageBox changedDialog = new MessageBox(shlTPages, SWT.ICON_ERROR | SWT.YES | SWT.NO);
+					changedDialog.setText("Close without saving");
+					changedDialog.setMessage("Close without saving?");
+					if(changedDialog.open()==SWT.YES)
+						event.doit=true;
+					else
+						event.doit=false;
+				} else
+					event.doit=true;
+				}
 		});
 		
 		shlTPages.pack(true);
@@ -289,13 +599,6 @@ public class TPagesDialog extends Dialog{
 	}
 	
 	private void updateContents(){
-		/*for(Map.Entry<Text, String> entry : uimap.entrySet())
-			entry.getKey().setText(xmlmap.get(entry.getValue()));
-		permissionCombo.select(Integer.parseInt(xmlmap.get("pubpermission")));
-		copyrightButton.setSelection(xmlmap.get("copyrighted").equals("true"));
-		copySymbolButton.setSelection(xmlmap.get("copyrightsymbol").equals("true"));
-		authorText.setText(xmlmap.get("authors").replaceAll(";", "\r\n"));
-		affiliationText.setText(xmlmap.get("affiliation"));*/
 		if(titleText!=null && !titleText.isDisposed())
 			titleText.setText(xmlmap.get("booktitle"));
 		if(gradeLevelText!=null && !gradeLevelText.isDisposed())
@@ -310,28 +613,18 @@ public class TPagesDialog extends Dialog{
 			authorText.setText(xmlmap.get("authors").replaceAll(";", "\r\n"));
 		if(translatorText!=null && !translatorText.isDisposed())
 			translatorText.setText(xmlmap.get("translator"));
-		if(permissionCombo!= null && !permissionCombo.isDisposed()){
-			if(xmlmap.get("pubpermission").equals("1"))
-				permissionCombo.select(1);
-			else
-				permissionCombo.select(0);
-		}
+		if(permissionText!=null && !permissionText.isDisposed())
+			permissionText.setText(xmlmap.get("publisherpermission"));
 		if(publisherText!=null && !publisherText.isDisposed())
 			publisherText.setText(xmlmap.get("publisher"));
 		if(pubLocationText!=null && !pubLocationText.isDisposed())
-			pubLocationText.setText(xmlmap.get("location"));
+			pubLocationText.setText(xmlmap.get("publisherlocation"));
 		if(pubWebsiteText!=null && !pubWebsiteText.isDisposed())
-			pubWebsiteText.setText(xmlmap.get("website"));
-		if(copyrightButton!=null && !copyrightButton.isDisposed())
-			copyrightButton.setSelection(xmlmap.get("copyrighted").equals("true"));
-		if(copySymbolButton!=null && !copySymbolButton.isDisposed())
-			copySymbolButton.setSelection(xmlmap.get("copyrightsymbol").equals("true"));
-		if(copyDateText!=null && !copyDateText.isDisposed())
-			copyDateText.setText(xmlmap.get("copyrightdate"));
+			pubWebsiteText.setText(xmlmap.get("publisherwebsite"));
 		if(copyText!=null && !copyText.isDisposed())
 			copyText.setText(xmlmap.get("copyrighttext"));
 		if(reproText!=null && !reproText.isDisposed())
-			reproText.setText(xmlmap.get("repronotice"));
+			reproText.setText(xmlmap.get("reproductionnotice"));
 		if(isbn13Text!=null && !isbn13Text.isDisposed())
 			isbn13Text.setText(xmlmap.get("isbn13"));
 		if(isbn10Text!=null && !isbn10Text.isDisposed())
@@ -339,13 +632,30 @@ public class TPagesDialog extends Dialog{
 		if(printHistoryText!=null && !printHistoryText.isDisposed())
 			printHistoryText.setText(xmlmap.get("printhistory"));
 		if(transYearText!=null && !transYearText.isDisposed())
-			transYearText.setText(xmlmap.get("year"));
+			transYearText.setText(xmlmap.get("transcriptionyear"));
 		if(transText!=null && !transText.isDisposed())
 			transText.setText(xmlmap.get("transcriber"));
 		if(tgsText!=null && !tgsText.isDisposed())
 			tgsText.setText(xmlmap.get("tgs"));
 		if(affiliationText!=null && !affiliationText.isDisposed())
 			affiliationText.setText(xmlmap.get("affiliation"));
+		if(totalVolText!=null&&!totalVolText.isDisposed())
+			totalVolText.setText(xmlmap.get("totalvolumes"));
+		if(volNumberText!=null&&!volNumberText.isDisposed())
+			volNumberText.setText(xmlmap.get("volumenumber"));
+		if(customBrailleText!=null&&!customBrailleText.isDisposed())
+			customBrailleText.setText(xmlmap.get("customizedbraille"));
+		if(braillePagesText!=null&&!braillePagesText.isDisposed())
+			braillePagesText.setText(xmlmap.get("braillepageinfo"));
+		if(printPagesText!=null&&!printPagesText.isDisposed())
+			printPagesText.setText(xmlmap.get("printpageinfo"));
+		if(transNotesText!=null&&!transNotesText.isDisposed())
+			transNotesText.setText(xmlmap.get("transcribernotes"));
+		if(templateText!=null&&!templateText.isDisposed())
+			if(!xmlmap.get("template").equals(""))
+				templateText.setText(xmlmap.get("template"));
+		if(symbolsTable != null && !symbolsTable.isDisposed())
+			stringToTable(xmlmap.get("specialsymbols"), symbolsTable);
 	}
 	
 	private boolean openFromXml(String filepath){
@@ -402,20 +712,13 @@ public class TPagesDialog extends Dialog{
 		publisherGroup.setLayout(new GridLayout(2,false));
 		
 		createLabel(publisherGroup, "Permission", 1);
-		permissionCombo = new Combo(publisherGroup, SWT.READ_ONLY);
-		permissionCombo.setLayoutData(newTpData(1));
-		permissionCombo.setItems(new String[]{"Published by", "With permission of the publisher,"});
-		permissionCombo.select(0);
-		if(xmlmap.get("pubpermission")!=null){
-			if (xmlmap.get("pubpermission").equals("0")||xmlmap.get("pubpermission").equals("1"))
-				permissionCombo.select(Integer.parseInt(xmlmap.get("pubpermission")));
-		}
+		permissionText = createText(publisherGroup, 1, "publisherpermission");
 		createLabel(publisherGroup, "Publisher", 1);
 		publisherText = createText(publisherGroup, 1, "publisher");
 		createLabel(publisherGroup, "City and State", 1);
-		pubLocationText = createText(publisherGroup, 1, "location");
+		pubLocationText = createText(publisherGroup, 1, "publisherlocation");
 		createLabel(publisherGroup, "Website", 1);
-		pubWebsiteText = createText(publisherGroup, 1, "website");
+		pubWebsiteText = createText(publisherGroup, 1, "publisherwebsite");
 		comp.layout(true);
 	}
 	
@@ -424,31 +727,11 @@ public class TPagesDialog extends Dialog{
 		printGroup.setText("Printing Info");
 		printGroup.setLayout(new GridLayout(2,false));
 		
-		copyrightButton = new Button(printGroup, SWT.CHECK);
-		copyrightButton.setText("Copyright");
-		copyrightButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
-		if(xmlmap.get("copyrighted")!=null){
-			copyrightButton.setSelection(xmlmap.get("copyrighted").equals("true"));
-		} else{
-			copyrightButton.setSelection(true);
-		}
-		copySymbolButton = new Button(printGroup, SWT.CHECK);
-		copySymbolButton.setText("Copyright Symbol");
-		copySymbolButton.setLayoutData(new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, 1, 1));
-		if(xmlmap.get("copyrightsymbol")!=null){
-			copySymbolButton.setSelection(xmlmap.get("copyrightsymbol").equals("true"));
-		} else{
-			copySymbolButton.setSelection(true);
-		}
-		
-		createLabel(printGroup, "Copyright Date", 1);
-		 copyDateText = createText(printGroup, 1, "copyrightdate");
-		
 		createLabel(printGroup, "Copyright Text", 1);
 		 copyText = createText(printGroup, 1, "copyrighttext");
 		
 		createLabel(printGroup, "Reproduction Notice", 1);
-		 reproText = createText(printGroup, 1, "repronotice");
+		 reproText = createText(printGroup, 1, "reproductionnotice");
 		
 		createLabel(printGroup,"ISBN-13", 1);
 		 isbn13Text = createText(printGroup, 1, "isbn13");
@@ -467,7 +750,7 @@ public class TPagesDialog extends Dialog{
 		transcriberGroup.setLayout(new GridLayout(2, false));
 		
 		createLabel(transcriberGroup, "Transcription Year", 1);
-		 transYearText = createText(transcriberGroup, 1, "year");
+		 transYearText = createText(transcriberGroup, 1, "transcriptionyear");
 		
 		createLabel(transcriberGroup, "Transcriber", 1);
 		 transText = createText(transcriberGroup, 1, "transcriber");
@@ -479,6 +762,25 @@ public class TPagesDialog extends Dialog{
 		affiliationText = createText(transcriberGroup, 1, "affiliation");
 		comp.layout(true);
 	}
+	
+	private void createVolumesGroup(Composite comp){
+		volumesGroup = new Group (comp, SWT.NONE);
+		volumesGroup.setText("Volumes");
+		volumesGroup.setLayout(new GridLayout(2, false));
+		
+		createLabel(volumesGroup, "Total Number of Volumes", 1);
+		totalVolText = createText(volumesGroup, 1, "totalvolumes");
+		createLabel(volumesGroup, "Volume Number", 1);
+		volNumberText = createText(volumesGroup, 1, "volumenumber");
+		createLabel(volumesGroup, "Customized Braille", 1);
+		customBrailleText = createText(volumesGroup, 1, "customizedbraille");
+		createLabel(volumesGroup, "Braille Page Info",1);
+		braillePagesText = createText(volumesGroup,1,"braillepageinfo");
+		createLabel(volumesGroup, "Print Page Info", 1);
+		printPagesText = createText(volumesGroup,1,"printpageinfo");
+		comp.layout(true);
+	}
+	
 	private void disposeAll(){
 		if(titleGroup!=null&&!titleGroup.isDisposed())
 			titleGroup.dispose();
@@ -490,6 +792,8 @@ public class TPagesDialog extends Dialog{
 			printGroup.dispose();
 		if(transcriberGroup!=null&&!transcriberGroup.isDisposed())
 			transcriberGroup.dispose();
+		if(volumesGroup!=null&&!volumesGroup.isDisposed())
+			volumesGroup.dispose();
 	}
 	
 	private void saveCurrentGroup(){
@@ -503,29 +807,22 @@ public class TPagesDialog extends Dialog{
 			xmlmap.put("seriesname", seriesText.getText());
 		if(!editionText.isDisposed())
 			xmlmap.put("editionname", editionText.getText());
-		if(authorText!=null && !authorText.isDisposed()){
+		if(authorText!=null && !authorText.isDisposed())
 			xmlmap.put("authors", authorText.getText().replaceAll("\r\n", ";"));
-		}
 		if(translatorText!=null && !translatorText.isDisposed())
 			xmlmap.put("translator", translatorText.getText());
-		if(permissionCombo!=null && !permissionCombo.isDisposed())
-			xmlmap.put("pubpermission", "" + permissionCombo.getSelectionIndex());
+		if(permissionText!=null && !permissionText.isDisposed())
+			xmlmap.put("publisherpermission", permissionText.getText());
 		if(publisherText!=null && !publisherText.isDisposed())
 			xmlmap.put("publisher", publisherText.getText());
 		if(pubLocationText!=null && !pubLocationText.isDisposed())
-			xmlmap.put("location", pubLocationText.getText());
+			xmlmap.put("publisherlocation", pubLocationText.getText());
 		if(pubWebsiteText!=null && !pubWebsiteText.isDisposed())
-			xmlmap.put("website", pubWebsiteText.getText());
-		if(copyrightButton!=null && !copyrightButton.isDisposed())
-			xmlmap.put("copyrighted", String.valueOf(copyrightButton.getSelection()));
-		if(copySymbolButton!=null && !copySymbolButton.isDisposed())
-			xmlmap.put("copyrightsymbol", String.valueOf(copySymbolButton.getSelection()));
-		if(copyDateText!=null && !copyDateText.isDisposed())
-			xmlmap.put("copyrightdate", copyDateText.getText());
+			xmlmap.put("publisherwebsite", pubWebsiteText.getText());
 		if(copyText!=null && !copyText.isDisposed())
 			xmlmap.put("copyrighttext", copyText.getText());
 		if(reproText!=null && !reproText.isDisposed())
-			xmlmap.put("repronotice", reproText.getText());
+			xmlmap.put("reproductionnotice", reproText.getText());
 		if(isbn13Text!=null && !isbn13Text.isDisposed())
 			xmlmap.put("isbn13", isbn13Text.getText());
 		if(isbn10Text!=null && !isbn10Text.isDisposed())
@@ -533,13 +830,69 @@ public class TPagesDialog extends Dialog{
 		if(printHistoryText!=null && !printHistoryText.isDisposed())
 			xmlmap.put("printhistory", printHistoryText.getText());
 		if(transYearText!=null && !transYearText.isDisposed())
-			xmlmap.put("year", transYearText.getText());
+			xmlmap.put("transcriptionyear", transYearText.getText());
 		if(transText!=null && !transText.isDisposed())
 			xmlmap.put("transcriber", transText.getText());
 		if(tgsText!=null && !tgsText.isDisposed())
 			xmlmap.put("tgs", tgsText.getText());
 		if(affiliationText!=null && !affiliationText.isDisposed())
 			xmlmap.put("affiliation", affiliationText.getText());
+		if(totalVolText!=null&&!totalVolText.isDisposed())
+			xmlmap.put("totalvolumes", totalVolText.getText());
+		if(volNumberText!=null&&!volNumberText.isDisposed())
+			xmlmap.put("volumenumber", volNumberText.getText());
+		if(customBrailleText!=null&&!customBrailleText.isDisposed())
+			xmlmap.put("customizedbraille", customBrailleText.getText());
+		if(braillePagesText!=null&&!braillePagesText.isDisposed())
+			xmlmap.put("braillepageinfo", braillePagesText.getText());
+		if(printPagesText!=null&&!printPagesText.isDisposed())
+			xmlmap.put("printpageinfo",printPagesText.getText());
+		if(transNotesText!=null&&!transNotesText.isDisposed())
+			xmlmap.put("transcribernotes", transNotesText.getText());
+		if(templateText!=null&&!templateText.isDisposed())
+			if(templateText.getText().length() > 0)
+				xmlmap.put("template", templateText.getText());
+		if(symbolsTable != null && !symbolsTable.isDisposed()){
+			xmlmap.put("specialsymbols", tableToString(symbolsTable));
+		}
+	}
+	
+	/*Used when creating tpage xml file*/
+	
+	private String tableToString(Table table){
+		String returnString = "";
+		for(int i = 0; i < table.getItems().length; i++){
+			TableItem item = table.getItem(i);
+			returnString += item.getText(0) + "|" + item.getText(1) + "||"; // "|" is used because it has no meaning in ASCII Braille
+		}
+		return returnString;
+	}
+	
+	/*Used when creating final tpage */
+	private String tableToTpage(Table table){
+		String returnString = "";
+		for(int i = 0; i < table.getItems().length; i++){
+			TableItem item = table.getItem(i);
+			returnString += item.getText(0) + " " + item.getText(1) + "\r\n";
+		}
+		return returnString;
+	}
+	
+	/*Used when reading xml file*/
+	
+	private void stringToTable(String string, Table table){
+		if(string.contains("||")){
+			String[] splitString = string.split("\\|\\|"); // "|" has to be escaped because it is a regex character
+			for(String newString : splitString){
+				if(newString.length()>0){
+					String[] secondSplit = newString.split("\\|");
+					if(secondSplit.length>0){
+						TableItem newItem = new TableItem(table, SWT.NONE);
+						newItem.setText(secondSplit);
+					}
+				}
+			}
+		}
 	}
 	
 	private Label createLabel(Composite comp, String text, int horizSpan){ 
@@ -561,7 +914,13 @@ public class TPagesDialog extends Dialog{
 				newText.setText(xmlmap.get(xmlmapKey));
 			}
 		}
-		uimap.put(newText, xmlmapKey);
+		newText.addModifyListener(new ModifyListener(){
+			@Override
+			public void modifyText(ModifyEvent e){
+				shlTPages.setText(WINDOW_TITLE + "*");
+				changed = true;
+			}
+		});
 		return newText;
 	}
 }

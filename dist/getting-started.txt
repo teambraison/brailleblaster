@@ -1,0 +1,11 @@
+You will find the real getting-started documents in the helpDocs 
+subdirectory (or folder). You will want to read the turorial first. 
+However, the following information may be useful.
+
+After you have downloaded the BrailleBlaster build for your platform and 
+architecture, unzip it and go to the folder (directory) which it 
+produces. You will need a Java Runtime Environment, which your machine 
+probably already has. Put a shortcut to brailleblaster.jar on your 
+desktop. You can also run it from a command line or terminal as 
+described in the helpDocs files.
+

@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 //import org.liblouis.LibLouis;
 //import org.liblouis.LibLouisUTDML;
-//import org.liblouis.LogLevel;
+import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

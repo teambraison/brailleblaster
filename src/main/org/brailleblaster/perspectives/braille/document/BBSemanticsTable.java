@@ -110,14 +110,6 @@ public class BBSemanticsTable {
 		setEmphasisValues();
 	}
 	
-	public BBSemanticsTable(String config, String fileName){
-		table = new TreeMap<String, Styles>();
-		this.config = config;
-		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
-		populateTable(filePath);
-		setEmphasisValues();
-	}
-	
 	private void populateTable(String filePath){
 		FileReader file;
 		try {

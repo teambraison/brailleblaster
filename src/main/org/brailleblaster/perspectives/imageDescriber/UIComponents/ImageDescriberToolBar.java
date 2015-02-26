@@ -71,7 +71,7 @@ public class ImageDescriberToolBar extends BBToolBar {
 				}
 				else if(filePath != null){
 					if(((ImageDescriberController)currentEditor).canReuseTab())
-						((ImageDescriberController)currentEditor).openDocument(filePath);
+						((ImageDescriberController)currentEditor).reuseTab(filePath);
 					else
 						wp.addDocumentManager(filePath);
 				}

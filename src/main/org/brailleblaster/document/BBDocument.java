@@ -61,6 +61,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.utd.UTDTranslationEngine;
+import org.brailleblaster.utd.config.StyleDefinitions;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -634,5 +635,9 @@ public class BBDocument {
 	
 	public int getLinesPerPage(){
 		return sm.getLinesPerPage();
+	}
+	
+	public StyleDefinitions getStyleDefinitions() {
+		return engine.getStyleDefinitions();
 	}
 }

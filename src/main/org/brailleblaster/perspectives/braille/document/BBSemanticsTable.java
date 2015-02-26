@@ -2,11 +2,14 @@ package org.brailleblaster.perspectives.braille.document;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +21,9 @@ import org.eclipse.swt.custom.StyleRange;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Node;
-
+import org.apache.commons.lang3.BooleanUtils;
+import org.brailleblaster.utd.Style;
+import org.brailleblaster.utd.config.StyleDefinitions;
 
 public class BBSemanticsTable {
 	public enum StylesType{
@@ -95,7 +100,7 @@ public class BBSemanticsTable {
 			return clone;
 		}
 	}
-	
+	private static final Logger log = LoggerFactory.getLogger(BBSemanticsTable.class);
 	Document doc;
 	TreeMap<String,Styles> table;
 	FileUtils fu = new FileUtils();
@@ -107,7 +112,105 @@ public class BBSemanticsTable {
 		this.config = config;
 		String filePath = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + config);
 		populateTable(filePath);
+		
+		//Port to definitions
+		log.debug("----------------- Init with config " + config);
+		try {
+			StyleDefinitions styleDefs = new StyleDefinitions();
+			for(Map.Entry<String, Styles> curEntry : table.entrySet()) {
+				String curStyleKey = curEntry.getKey();
+				Styles curStyle = curEntry.getValue();
+				Style newStyle = styleDefs.addStyle(curStyleKey);
+				
+				log.debug("Style " + curStyleKey);
+				for(StylesType typeKey : curStyle.getKeySet()) {
+					String typeValue = curStyle.get(typeKey).toString();
+
+					//missing rightMargin, keepWithPrevious
+					switch (typeKey) {
+						case linesBefore:
+							newStyle.setLinesBefore(Integer.parseInt(typeValue));
+							break;
+						case linesAfter:
+							newStyle.setLinesAfter(Integer.parseInt(typeValue));
+							break;
+						case leftMargin:
+							newStyle.setLeftMargin(Integer.parseInt(typeValue));
+							break;
+						case firstLineIndent:
+							newStyle.setFirstLineIndent(Integer.parseInt(typeValue));
+							break;
+						case skipNumberLines:
+							boolean skipNumberLinesOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setSkipNumberLines(skipNumberLinesOpt);
+							//log.debug(" - skipNumberLines " + typeValue + " " + skipNumberLinesOpt);
+							break;
+						case newPageBefore:
+							boolean newPageBeforeOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setNewPageBefore(newPageBeforeOpt);
+							//log.debug(" - newPageBefore " + typeValue + " " + newPageBeforeOpt);
+							break;
+						case newPageAfter:
+							boolean newPageAfterOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setNewPageAfter(newPageAfterOpt);
+							//log.debug(" - newPageAfter " + typeValue + " " + newPageAfterOpt);
+							break;
+						case righthandPage:
+							boolean righthandPageOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setRightHandPage(righthandPageOpt);
+							//log.debug(" - righthandPage " + typeValue + " " + righthandPageOpt);
+							break;
+						case keepWithNext:
+							boolean keepWithNextOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setKeepWithNext(keepWithNextOpt);
+							//log.debug(" - keepWithNext " + typeValue + " " + keepWithNextOpt);
+							break;
+						case dontSplit:
+							boolean dontSplitOpt = BooleanUtils.toBoolean(typeValue);
+							newStyle.setDontSplit(dontSplitOpt);
+							//log.debug(" - dontSplit " + typeValue + " " + dontSplitOpt);
+							break;
+						case orphanControl:
+							int orphanControlValue = Integer.parseInt(typeValue);
+							if(orphanControlValue == 0) {
+								log.debug(" - orphanControl is 0, converting to 1 on style " + curStyleKey);
+								orphanControlValue = 1;
+							}
+							newStyle.setOrphanControl(orphanControlValue);
+							break;
+						case format:
+							Style.Format styleFormat;
+							if(curStyleKey.equals("document"))
+								//Fuck you java
+								styleFormat = Style.Format.LEFT_JUSTIFIED;
+							else if(curStyleKey.equals("heading1"))
+								//Fuck you java
+								styleFormat = Style.Format.CENTERED;
+							else if(typeValue.equals("alignColumnsLeft"))
+								styleFormat = Style.Format.ALIGN_COLUMNS_LEFT;
+							else
+								styleFormat = Style.Format.valueOf(typeValue);
+							log.debug(" - Format " + curStyle.get(typeKey) + " converted to " + styleFormat);
+							newStyle.setFormat(styleFormat);
+							break;
+						case name:
+							log.debug(" - Style name is " + curStyleKey + " but name value is " + typeValue);
+							newStyle.setName(typeValue);
+							break;
+						default:
+							log.debug(" - Unknown " + typeKey + " " + typeValue);
+					}
+				}
+			}
+			styleDefs.save(new FileOutputStream("C:\\Users\\lblakey\\Desktop\\projects\\brailleblaster\\styleDefsNew.xml"));
+		} catch (Exception ex) {
+			log.error("!!!!Dump failed!!!!!", ex);
+		}
+		
+		System.exit(1);
+		
 		setEmphasisValues();
+		log.debug("-----------------");
 	}
 	
 	private void populateTable(String filePath){

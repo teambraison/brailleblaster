@@ -177,59 +177,6 @@ public class Manager extends Controller {
 		if(BBIni.getPlatformName().equals("cocoa"))
 			treeView.getTree().select(treeView.getRoot());
 	}
-	
-	public Manager(WPManager wp, Document doc, TabItem item, Archiver arch){
-		super(wp);	
-		queueManager = new QueueManager();
-		this.arch = arch;
-		simBrailleDisplayed = loadSimBrailleProperty();
-		fontManager = new FontManager(this);
-		styles = new BBSemanticsTable(arch.getCurrentConfig());
-		documentName = arch.getOrigDocPath();
-		this.item = item;
-		containerSash = new SashForm(wp.getFolder(),SWT.NONE);
-		containerSash.setLayout(new FormLayout());	
-		
-		miscSash = new SashForm(containerSash, SWT.VERTICAL);
-		treeView = TreeView.loadTree(this, miscSash);
-		sm = new StyleManager(this, miscSash);
-		
-		editorSash = new SashForm(containerSash, SWT.HORIZONTAL);
-		text = new TextView(this, editorSash, styles);
-		braille = new BrailleView(this, editorSash, styles);
-		
-		editorSash.setWeights(new int [] {50, 50});
-		miscSash.setWeights(new int[] {100, 0});
-		containerSash.setWeights(new int[] {10, 90});
-		
-		this.item.setControl(containerSash);
-		initializeDocumentTab();
-		document = new BrailleDocument(this, styles);
-		pb = new BBProgressBar(wp.getShell());
-		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
-		document = new BrailleDocument(this, doc, this.styles);
-		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
-		
-		containerSash.setRedraw(false);
-		vi.initializeViews(this);
-		list = vi.getList(this);
-		
-		treeView.setRoot(document.getRootElement());
-		document.notifyUser();
-		text.initializeListeners();
-		braille.initializeListeners();
-		treeView.initializeListeners();
-		text.hasChanged = false;
-		braille.hasChanged = false;
-		text.view.setWordWrap(true);
-		braille.view.setWordWrap(true);
-		containerSash.setRedraw(true);
-		
-		if(BBIni.getPlatformName().equals("cocoa"))
-			treeView.getTree().select(treeView.getRoot());
-	}	
-	
 
 	private void initializeDocumentTab(){
 		fontManager.setShellFonts(wp.getShell(), simBrailleDisplayed);	

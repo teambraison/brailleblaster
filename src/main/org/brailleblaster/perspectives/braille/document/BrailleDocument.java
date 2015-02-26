@@ -889,6 +889,40 @@ public class BrailleDocument extends BBDocument {
 		return mergedElement;
 	}
 
+	public void addTPage(Element tPageRoot){
+		// TODO: needs to check for existing tpage node and replace it
+		addNamespace(tPageRoot);
+		Element fmNode = findFrontMatter(doc.getRootElement());
+		
+		if(fmNode!=null){
+			fmNode.insertChild(tPageRoot,0);
+		}		
+	}
+	
+	public void editTPage(Element newTPage, Element prevTPage){
+		addNamespace(newTPage);
+		Element fmNode = findFrontMatter(doc.getRootElement());
+		
+		if(fmNode!=null){
+			fmNode.removeChild(prevTPage);
+			fmNode.insertChild(newTPage, 0);
+		}
+	}
+	
+	private Element findFrontMatter(Element parent){
+		Element returnElement = null;
+		Elements children = parent.getChildElements();
+		for(int i = 0; i < children.size(); i++){
+			if(children.get(i).getLocalName().equalsIgnoreCase("frontmatter")){
+				returnElement = children.get(i);
+				break;
+			} else {
+				returnElement = findFrontMatter(children.get(i));
+			}
+		}
+		return returnElement;
+	}
+	
 	public void addID(Element e){
 		idCount++;
 		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));

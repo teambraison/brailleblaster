@@ -1,7 +1,6 @@
 package org.brailleblaster.tpages;
 
 import java.util.HashMap;
-
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.tpages.TPagesGenerator;
 import org.eclipse.swt.SWT;
@@ -48,6 +47,8 @@ public class TPagesDialog extends Dialog{
 	HashMap<String, String> xmlmap;
 	Group titleGroup, authorGroup, printGroup, publisherGroup, transcriberGroup, volumesGroup;
 	Boolean changed = false;
+	Boolean existingTPage = false;
+	nu.xom.Element prevTPage = null;
 	final String WINDOW_TITLE = "Transcriber-Generated Pages";
 	
 	public TPagesDialog(Shell parent, int style, Manager brailleViewController){
@@ -61,10 +62,13 @@ public class TPagesDialog extends Dialog{
 		xmlmap = tpGenerator.getXmlMap();
 		createContents();
 		
-		if(m.getLastTPage()!=null){
-			if(tpGenerator.checkForFile(m.getLastTPage())){
-				openFromXml(m.getLastTPage());
-			}
+		nu.xom.Element tPageRoot = tpGenerator.getTPageElement(m.getDoc());
+		
+		if(tPageRoot!=null){
+			existingTPage = true;
+			prevTPage = (nu.xom.Element) tPageRoot.getParent();
+			xmlmap = tpGenerator.pullFromElement(tPageRoot);
+			xmlmap.put("template", tpGenerator.elementToTemplate(tPageRoot));
 		}
 		updateContents();
 		shlTPages.setText(WINDOW_TITLE);
@@ -131,7 +135,7 @@ public class TPagesDialog extends Dialog{
 			public void widgetSelected(SelectionEvent e){
 				if(m.getDocumentName()!=null){
 					if(m.getDocumentName().toLowerCase().substring(m.getDocumentName().length()-4).equals(".xml")){
-						tpGenerator.autoPopulate(m.getDocumentName());
+						tpGenerator.autoPopulate(m.getDoc());
 						updateContents();
 					}
 				}
@@ -443,7 +447,7 @@ public class TPagesDialog extends Dialog{
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				templateText.insert("(" + xmlList.getSelection()[0] + ")");
+				templateText.insert("<" + xmlList.getSelection()[0] + ">");
 				xmlList.deselectAll();
 			}
 			
@@ -480,7 +484,7 @@ public class TPagesDialog extends Dialog{
 			}
 		});
 		
-		Button openButton = new Button(shlTPages, SWT.PUSH);
+		/*Button openButton = new Button(shlTPages, SWT.PUSH);
 		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
 		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
@@ -538,7 +542,7 @@ public class TPagesDialog extends Dialog{
 			public void widgetDefaultSelected(SelectionEvent arg0) {
 				
 			}
-		});
+		});*/
 		
 		Label spacingLabel2 = new Label(shlTPages, SWT.NONE);
 		GridData spacingLabelData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
@@ -549,7 +553,7 @@ public class TPagesDialog extends Dialog{
 		buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 1, 1);
 		buttonData.widthHint = 120;
 		buttonData.heightHint = 30;
-		generateButton.setText("Generate T-Pages");
+		generateButton.setText("Insert");
 		generateButton.setLayoutData(buttonData);
 		
 		generateButton.addSelectionListener(new SelectionListener() {
@@ -560,13 +564,12 @@ public class TPagesDialog extends Dialog{
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				saveCurrentGroup();
-				FileDialog saveFile = new FileDialog(shlTPages, SWT.SAVE);
-				saveFile.setFilterExtensions(new String[] {"*.xml"});
-				String result = saveFile.open();
-				if(result!=null){
-					m.setLastTPage(result);
-					tpGenerator.generateTPage(templateText.getText(), result);
+				if(existingTPage){
+					m.document.editTPage(tpGenerator.getTPageParent(templateText.getText()), prevTPage);
+				} else {
+					m.document.addTPage(tpGenerator.getTPageParent(templateText.getText()));
 				}
+				m.refresh();
 			}
 			
 		});
@@ -658,13 +661,6 @@ public class TPagesDialog extends Dialog{
 			stringToTable(xmlmap.get("specialsymbols"), symbolsTable);
 	}
 	
-	private boolean openFromXml(String filepath){
-		if(filepath!=null){
-			if(tpGenerator.openTPageXML(filepath))
-				return true;
-		}
-		return false;
-	}
 	private GridData newTpData(int columns){
 		return new GridData(SWT.BEGINNING, SWT.BEGINNING, false, false, columns, 1);
 	}
@@ -857,7 +853,7 @@ public class TPagesDialog extends Dialog{
 		}
 	}
 	
-	/*Used when creating tpage xml file*/
+	/*Used when creating tpage xml element */
 	
 	private String tableToString(Table table){
 		String returnString = "";
@@ -878,9 +874,10 @@ public class TPagesDialog extends Dialog{
 		return returnString;
 	}
 	
-	/*Used when reading xml file*/
+	/*Used when reading from tpage xml element*/
 	
 	private void stringToTable(String string, Table table){
+		table.removeAll();
 		if(string.contains("||")){
 			String[] splitString = string.split("\\|\\|"); // "|" has to be escaped because it is a regex character
 			for(String newString : splitString){

@@ -683,6 +683,10 @@ public class Manager extends Controller {
 	    braille.refreshStyle(list.getCurrent());
 	}
 	
+	public void insertTPage(Element tPageRoot){
+		
+	}
+	
 	private void handleMergeElement(Message message){
 		MergeElementHandler meh = new MergeElementHandler(this, vi, list);
 		int index = list.getCurrentIndex();

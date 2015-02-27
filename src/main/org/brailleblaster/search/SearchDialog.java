@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -44,6 +46,7 @@ public class SearchDialog extends Dialog {
 	protected Object result;
 	protected Shell shlFindreplace;
 	private Shell errorMessageShell;
+	private Shell replaceAllShell;
 	Display display = null;
 	private Manager man = null;
 	Combo searchCombo = null;
@@ -82,6 +85,7 @@ public class SearchDialog extends Dialog {
 	int replaceArraySize;
 	Map<String, String> replaceMap = new HashMap<String, String>();
 	private String foundStr;
+	int numberReplaceAlls;
 
 	/**
 	 * Create the dialog.
@@ -521,6 +525,7 @@ public class SearchDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 
 				numberOfLoops = 0;
+				numberReplaceAlls = 0;
 
 				if (searchDirection == SCH_FORWARD) {
 					// Replace every instance of word.
@@ -561,7 +566,7 @@ public class SearchDialog extends Dialog {
 						createErrorMessage();
 					}// else if nothing found
 				}// if searchBackward
-
+				System.out.println("numberOfReplaces " + numberReplaceAlls);
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -922,6 +927,7 @@ public class SearchDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 
 				numberOfLoops = 0;
+				numberReplaceAlls = 0;
 
 				if (searchDirection == SCH_FORWARD) {
 					// Replace every instance of word.
@@ -962,7 +968,8 @@ public class SearchDialog extends Dialog {
 						createErrorMessage();
 					}// else if nothing found
 				}// if searchBackward
-
+				System.out.println("numberOfReplaces " + numberReplaceAlls);
+				replaceAllMessage();
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -998,37 +1005,70 @@ public class SearchDialog extends Dialog {
 		display.beep();
 		if (errorMessageShell == null) {
 
+			errorMessageShell = new Shell(display, SWT.DIALOG_TRIM);
 
-				errorMessageShell = new Shell(display, SWT.DIALOG_TRIM);
+			errorMessageShell.setLayout(new GridLayout(1, true));
+			errorMessageShell.setText("Find/Replace Error");
+			errorMessageShell.setLocation(500, 250);
 
-				errorMessageShell.setLayout(new GridLayout(1, true));
-				errorMessageShell.setText("Find/Replace Error");
-				errorMessageShell.setLocation(500, 250);
+			Label label = new Label(errorMessageShell, SWT.RESIZE);
+			label.setText("BrailleBlaster cannot find your word in the document");
 
-				Label label = new Label(errorMessageShell, SWT.RESIZE);
-				label.setText("BrailleBlaster cannot find your word in the document");
+			Button ok = new Button(errorMessageShell, SWT.NONE);
+			ok.setText("OK");
+			GridData errorMessageData = new GridData(SWT.HORIZONTAL);
+			ok.setLayoutData(errorMessageData);
+			ok.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					errorMessageShell.setVisible(false);
+					display.sleep();
+					searchCombo.setFocus();
+				}// widgetSelected
 
-				Button ok = new Button(errorMessageShell, SWT.NONE);
-				ok.setText("OK");
-				GridData errorMessageData = new GridData(SWT.HORIZONTAL);
-				ok.setLayoutData(errorMessageData);
-				ok.addSelectionListener(new SelectionAdapter() {
-					public void widgetSelected(SelectionEvent e) {
-						errorMessageShell.setVisible(false);
-						display.sleep();
-						searchCombo.setFocus();
-					}// widgetSelected
+			});// selectionListener
+			errorMessageShell.pack(true);
+			errorMessageShell.open();
 
-				});// selectionListener
-				errorMessageShell.pack(true);
-				errorMessageShell.open();
-
-			}//if null
+		}// if null
 		else {
 			errorMessageShell.open();
 		}
 
 	}// createErrorMessage
+
+	private void replaceAllMessage() {
+		display = getParent().getDisplay();
+		display.beep();
+		if (replaceAllShell == null) {
+
+			replaceAllShell = new Shell(display, SWT.DIALOG_TRIM);
+
+			replaceAllShell.setLayout(new GridLayout(1, true));
+			replaceAllShell.setText("REPLACE ALL");
+			replaceAllShell.setLocation(500, 250);
+
+			Label label = new Label(replaceAllShell, SWT.RESIZE);
+			label.setText("BrailleBlaster replaced "+numberReplaceAlls+" words");
+
+			Button ok = new Button(replaceAllShell, SWT.NONE);
+			ok.setText("OK");
+			GridData replaceAllData = new GridData(SWT.HORIZONTAL);
+			ok.setLayoutData(replaceAllData);
+			ok.addSelectionListener(new SelectionAdapter() {
+				public void widgetSelected(SelectionEvent e) {
+					replaceAllShell.setVisible(false);
+					display.sleep();
+				}// widgetSelected
+
+			});// selectionListener
+			replaceAllShell.pack(true);
+			replaceAllShell.open();
+
+		}// if null
+		else {
+			replaceAllShell.open();
+		}
+	}
 
 	public String[] getSearchList() {
 		return searchList;
@@ -1044,7 +1084,7 @@ public class SearchDialog extends Dialog {
 	public boolean replaceAll() {
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -1099,8 +1139,8 @@ public class SearchDialog extends Dialog {
 				while (startCharIndex < numChars
 						&& endCharIndex < (numChars + 1)) {
 					// Get current snippet of text we're testing.
-					String curViewSnippet = textStr.substring(
-							startCharIndex, endCharIndex);
+					String curViewSnippet = textStr.substring(startCharIndex,
+							endCharIndex);
 
 					// Should we be checking case sensitive version?
 					if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1115,16 +1155,14 @@ public class SearchDialog extends Dialog {
 						if (searchWholeWord == SCH_WHOLE_ON) {
 							// "^[\pL\pN]*$";
 							if (startCharIndex - 1 >= 0)
-								if (textStr
-										.substring(startCharIndex - 1,
-												startCharIndex)
+								if (textStr.substring(startCharIndex - 1,
+										startCharIndex)
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 							if (endCharIndex + 1 < numChars)
-								if (textStr
-										.substring(endCharIndex,
-												endCharIndex + 1)
-										.matches("^[\\pL\\pN]*$") == true)
+								if (textStr.substring(endCharIndex,
+										endCharIndex + 1).matches(
+										"^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 
 						} // if( searchWholeWord...
@@ -1137,6 +1175,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 							foundStr = tv.view.getSelectionText();
+							numberReplaceAlls++;
 
 							// Found it; break.
 							return true;
@@ -1186,8 +1225,8 @@ public class SearchDialog extends Dialog {
 				while (startCharIndex < numChars
 						&& endCharIndex < (numChars + 1)) {
 					// Get current snippet of text we're testing.
-					String curViewSnippet = textStr.substring(
-							startCharIndex, endCharIndex);
+					String curViewSnippet = textStr.substring(startCharIndex,
+							endCharIndex);
 
 					// Should we be checking case sensitive version?
 					if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1202,16 +1241,14 @@ public class SearchDialog extends Dialog {
 						if (searchWholeWord == SCH_WHOLE_ON) {
 							// "^[\pL\pN]*$";
 							if (startCharIndex - 1 >= 0)
-								if (textStr
-										.substring(startCharIndex - 1,
-												startCharIndex)
+								if (textStr.substring(startCharIndex - 1,
+										startCharIndex)
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 							if (endCharIndex + 1 < numChars)
-								if (textStr
-										.substring(endCharIndex,
-												endCharIndex + 1)
-										.matches("^[\\pL\\pN]*$") == true)
+								if (textStr.substring(endCharIndex,
+										endCharIndex + 1).matches(
+										"^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 
 						} // if( searchWholeWord...
@@ -1225,6 +1262,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 							foundStr = tv.view.getSelectionText();
+							numberReplaceAlls++;
 
 							// Found it; break.
 							return true;
@@ -1278,8 +1316,8 @@ public class SearchDialog extends Dialog {
 				// Scour the view for the search string.
 				while (startCharIndex >= 0 && (endCharIndex) > 0) {
 					// Get current snippet of text we're testing.
-					String curViewSnippet = textStr.substring(
-							startCharIndex, endCharIndex);
+					String curViewSnippet = textStr.substring(startCharIndex,
+							endCharIndex);
 
 					// Should we be checking case sensitive version?
 					if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1294,16 +1332,14 @@ public class SearchDialog extends Dialog {
 						if (searchWholeWord == SCH_WHOLE_ON) {
 							// "^[\pL\pN]*$";
 							if (startCharIndex - 1 >= 0)
-								if (textStr
-										.substring(startCharIndex - 1,
-												startCharIndex)
+								if (textStr.substring(startCharIndex - 1,
+										startCharIndex)
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 							if (endCharIndex + 1 < numChars)
-								if (textStr
-										.substring(endCharIndex,
-												endCharIndex + 1)
-										.matches("^[\\pL\\pN]*$") == true)
+								if (textStr.substring(endCharIndex,
+										endCharIndex + 1).matches(
+										"^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 
 						} // if( searchWholeWord...
@@ -1316,6 +1352,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 							foundStr = tv.view.getSelectionText();
+							numberReplaceAlls++;
 
 							// Found it; break.
 							return true;
@@ -1361,8 +1398,8 @@ public class SearchDialog extends Dialog {
 				// Scour the view for the search string.
 				while (startCharIndex >= 0 && endCharIndex > 0) {
 					// Get current snippet of text we're testing.
-					String curViewSnippet = textStr.substring(
-							startCharIndex, endCharIndex);
+					String curViewSnippet = textStr.substring(startCharIndex,
+							endCharIndex);
 
 					// Should we be checking case sensitive version?
 					if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1377,16 +1414,14 @@ public class SearchDialog extends Dialog {
 						if (searchWholeWord == SCH_WHOLE_ON) {
 							// "^[\pL\pN]*$";
 							if (startCharIndex - 1 >= 0)
-								if (textStr
-										.substring(startCharIndex - 1,
-												startCharIndex)
+								if (textStr.substring(startCharIndex - 1,
+										startCharIndex)
 										.matches("^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 							if (endCharIndex + 1 < numChars)
-								if (textStr
-										.substring(endCharIndex,
-												endCharIndex + 1)
-										.matches("^[\\pL\\pN]*$") == true)
+								if (textStr.substring(endCharIndex,
+										endCharIndex + 1).matches(
+										"^[\\pL\\pN]*$") == true)
 									haveAmatch = false;
 
 						} // if( searchWholeWord...
@@ -1401,6 +1436,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
 							foundStr = tv.view.getSelectionText();
+							numberReplaceAlls++;
 
 							// Found it; break.
 							return true;
@@ -1641,7 +1677,7 @@ public class SearchDialog extends Dialog {
 		// Returns true if one was found.
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -1692,8 +1728,8 @@ public class SearchDialog extends Dialog {
 			// Scour the view for the search string.
 			while (startCharIndex >= 0 && endCharIndex > 0) {
 				// Get current snippet of text we're testing.
-				String curViewSnippet = textStr.substring(
-						startCharIndex, endCharIndex);
+				String curViewSnippet = textStr.substring(startCharIndex,
+						endCharIndex);
 
 				// Should we be checking case sensitive version?
 				if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -1708,15 +1744,12 @@ public class SearchDialog extends Dialog {
 					if (searchWholeWord == SCH_WHOLE_ON) {
 						// "^[\pL\pN]*$";
 						if (startCharIndex - 1 >= 0)
-							if (textStr
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
+							if (textStr.substring(startCharIndex - 1,
+									startCharIndex).matches("^[\\pL\\pN]*$") == true)
 								haveAmatch = false;
 						if (endCharIndex + 1 < numChars)
-							if (textStr
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
+							if (textStr.substring(endCharIndex,
+									endCharIndex + 1).matches("^[\\pL\\pN]*$") == true)
 								haveAmatch = false;
 
 					} // if( searchWholeWord...
@@ -1778,7 +1811,7 @@ public class SearchDialog extends Dialog {
 		// Returns true if one was found.
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -1826,13 +1859,11 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (textStr
-								.substring(startCharIndex - 1, startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (textStr
-								.substring(endCharIndex, endCharIndex + 1)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 
@@ -1867,7 +1898,7 @@ public class SearchDialog extends Dialog {
 	public boolean replaceFwdWrap() {
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -1932,13 +1963,11 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (textStr
-								.substring(startCharIndex - 1, startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (textStr
-								.substring(endCharIndex, endCharIndex + 1)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 
@@ -1997,7 +2026,7 @@ public class SearchDialog extends Dialog {
 	public boolean replaceFwdNoWrap() {
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -2046,13 +2075,11 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (textStr
-								.substring(startCharIndex - 1, startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (textStr
-								.substring(endCharIndex, endCharIndex + 1)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 
@@ -2088,7 +2115,7 @@ public class SearchDialog extends Dialog {
 	public boolean replaceBackWrap() {
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -2140,8 +2167,8 @@ public class SearchDialog extends Dialog {
 			// Scour the view for the search string.
 			while (startCharIndex >= 0 && (endCharIndex) > 0) {
 				// Get current snippet of text we're testing.
-				String curViewSnippet = textStr.substring(
-						startCharIndex, endCharIndex);
+				String curViewSnippet = textStr.substring(startCharIndex,
+						endCharIndex);
 
 				// Should we be checking case sensitive version?
 				if (searchCaseSensitive == SCH_CASE_OFF) {
@@ -2156,15 +2183,12 @@ public class SearchDialog extends Dialog {
 					if (searchWholeWord == SCH_WHOLE_ON) {
 						// "^[\pL\pN]*$";
 						if (startCharIndex - 1 >= 0)
-							if (textStr
-									.substring(startCharIndex - 1,
-											startCharIndex)
-									.matches("^[\\pL\\pN]*$") == true)
+							if (textStr.substring(startCharIndex - 1,
+									startCharIndex).matches("^[\\pL\\pN]*$") == true)
 								haveAmatch = false;
 						if (endCharIndex + 1 < numChars)
-							if (textStr
-									.substring(endCharIndex, endCharIndex + 1)
-									.matches("^[\\pL\\pN]*$") == true)
+							if (textStr.substring(endCharIndex,
+									endCharIndex + 1).matches("^[\\pL\\pN]*$") == true)
 								haveAmatch = false;
 
 					} // if( searchWholeWord...
@@ -2222,7 +2246,7 @@ public class SearchDialog extends Dialog {
 	public boolean replaceBackNoWrap() {
 		// Grab text view.
 		TextView tv = man.getText();
-		
+
 		String textStr = tv.view.getText();
 
 		// Are there any characters in the text view? If there
@@ -2273,13 +2297,11 @@ public class SearchDialog extends Dialog {
 				if (searchWholeWord == SCH_WHOLE_ON) {
 					// "^[\pL\pN]*$";
 					if (startCharIndex - 1 >= 0)
-						if (textStr
-								.substring(startCharIndex - 1, startCharIndex)
-								.matches("^[\\pL\\pN]*$") == true)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 					if (endCharIndex + 1 < numChars)
-						if (textStr
-								.substring(endCharIndex, endCharIndex + 1)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
 								.matches("^[\\pL\\pN]*$") == true)
 							haveAmatch = false;
 

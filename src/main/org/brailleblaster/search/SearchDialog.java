@@ -181,7 +181,6 @@ public class SearchDialog extends Dialog {
 		lblFind.setText("Find:");
 		Label label = new Label(shlFindreplace, SWT.NONE);
 		// formToolkit.adapt(label, true, true);
-
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
@@ -189,7 +188,9 @@ public class SearchDialog extends Dialog {
 		if (searchList != null) {
 			for (int i = 0; i < searchArraySize; i++) {
 				searchCombo.add(searchList[i]);
+				searchCombo.setText(searchList[i].toString());
 			}// for
+
 		}// if
 
 		searchCombo.getData();
@@ -583,7 +584,10 @@ public class SearchDialog extends Dialog {
 		closeBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				shlFindreplace.close();
+//				shlFindreplace.close();
+				shlFindreplace.setVisible(false);
+				display.sleep();
+//				searchCombo.setFocus();
 
 			} // widgetSelected()
 
@@ -984,7 +988,10 @@ public class SearchDialog extends Dialog {
 		closeBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				shlFindreplace.close();
+//				shlFindreplace.close();
+				shlFindreplace.setVisible(false);
+				display.sleep();
+//				searchCombo.setFocus();
 
 			} // widgetSelected()
 

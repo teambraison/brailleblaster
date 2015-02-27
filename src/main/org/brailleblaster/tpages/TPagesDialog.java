@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
@@ -48,6 +47,7 @@ public class TPagesDialog extends Dialog{
 	Group titleGroup, authorGroup, printGroup, publisherGroup, transcriberGroup, volumesGroup;
 	Boolean changed = false;
 	Boolean existingTPage = false;
+	Button generateButton;
 	nu.xom.Element prevTPage = null;
 	final String WINDOW_TITLE = "Transcriber-Generated Pages";
 	
@@ -67,6 +67,7 @@ public class TPagesDialog extends Dialog{
 		if(tPageRoot!=null){
 			existingTPage = true;
 			prevTPage = (nu.xom.Element) tPageRoot.getParent();
+			generateButton.setText("Replace");
 			xmlmap = tpGenerator.pullFromElement(tPageRoot);
 			xmlmap.put("template", tpGenerator.elementToTemplate(tPageRoot));
 		}
@@ -134,10 +135,8 @@ public class TPagesDialog extends Dialog{
 			@Override
 			public void widgetSelected(SelectionEvent e){
 				if(m.getDocumentName()!=null){
-					if(m.getDocumentName().toLowerCase().substring(m.getDocumentName().length()-4).equals(".xml")){
-						tpGenerator.autoPopulate(m.getDoc());
-						updateContents();
-					}
+					tpGenerator.autoPopulate(m.getDoc());
+					updateContents();
 				}
 			}
 			
@@ -258,6 +257,8 @@ public class TPagesDialog extends Dialog{
 						@Override
 						public void widgetSelected(SelectionEvent e){
 							editingItem.setText(new String[]{symbolText.getText(), descText.getText()});
+							changed = true;
+							shlTPages.setText(WINDOW_TITLE + "*");
 							editDialog.close();
 						}
 	
@@ -343,6 +344,8 @@ public class TPagesDialog extends Dialog{
 							TableItem newTableItem = new TableItem(symbolsTable, SWT.NONE);
 							newTableItem.setText(new String[]{ symbolText.getText(), descText.getText()});
 						}
+						changed = true;
+						shlTPages.setText(WINDOW_TITLE + "*");
 						addDialog.close();
 					}
 					
@@ -390,6 +393,8 @@ public class TPagesDialog extends Dialog{
 			public void widgetSelected(SelectionEvent e){
 				if(symbolsTable.getSelectionCount() > 0){
 					symbolsTable.remove(symbolsTable.getSelectionIndex());
+					changed = true;
+					shlTPages.setText(WINDOW_TITLE + "*");
 				}
 			}
 
@@ -418,6 +423,14 @@ public class TPagesDialog extends Dialog{
 		newData.widthHint = 700;
 		newData.heightHint = 300;
 		transNotesText.setLayoutData(newData);
+		
+		transNotesText.addModifyListener(new ModifyListener(){
+			@Override
+			public void modifyText(ModifyEvent e){
+				shlTPages.setText(WINDOW_TITLE + "*");
+				changed = true;
+			}
+		});
 		
 		transNotesTab.setControl(transNotesComposite);
 		/////////////////////////////
@@ -465,93 +478,15 @@ public class TPagesDialog extends Dialog{
 		/////////////////////////////
 		///////////Buttons///////////
 		/////////////////////////////
-		Button closeButton = new Button(shlTPages, SWT.PUSH);
-		GridData buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
-		buttonData.widthHint = 100;
-		buttonData.heightHint = 30;
-		closeButton.setText("Close");
-		closeButton.setLayoutData(buttonData);
-		
-		closeButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shlTPages.close();
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				
-			}
-		});
-		
-		/*Button openButton = new Button(shlTPages, SWT.PUSH);
-		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
-		buttonData.widthHint = 100;
-		buttonData.heightHint = 30;
-		openButton.setText("Open");
-		openButton.setLayoutData(buttonData);
-		
-		openButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e){
-				FileDialog openFile = new FileDialog(shlTPages, SWT.OPEN);
-				openFile.setText("Open Transcriber-Generated Page");
-				openFile.setFilterExtensions(new String[] {"*.xml"});
-				String filePath = openFile.open();
-				if(filePath!=null){
-					if(openFromXml(filePath)){
-						xmlmap = tpGenerator.getXmlMap();
-						updateContents();
-						changed = false;
-						shlTPages.setText(WINDOW_TITLE);
-					} else {
-						createError("Improper format");
-					}
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0){
-				
-			}
-		});
-		
-		Button saveXMLButton = new Button(shlTPages, SWT.PUSH);
-		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
-		buttonData.widthHint = 100;
-		buttonData.heightHint = 30;
-		saveXMLButton.setText("Save");
-		saveXMLButton.setLayoutData(buttonData);
-		
-		saveXMLButton.addSelectionListener(new SelectionListener() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				saveCurrentGroup();
-				FileDialog saveFile = new FileDialog(shlTPages, SWT.SAVE);
-				saveFile.setFilterExtensions(new String[] { "*.xml" });	
-				String result = saveFile.open();
-				if(result!=null){
-					m.setLastTPage(result);
-					tpGenerator.saveNewTPage(result, xmlmap);
-					changed = false;
-					shlTPages.setText(WINDOW_TITLE);
-				}
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent arg0) {
-				
-			}
-		});*/
 		
 		Label spacingLabel2 = new Label(shlTPages, SWT.NONE);
 		GridData spacingLabelData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
-		spacingLabelData.widthHint = 200;
+		spacingLabelData.widthHint = 540;
 		spacingLabel2.setLayoutData(spacingLabelData);
 		
-		Button generateButton = new Button(shlTPages, SWT.PUSH);
-		buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 1, 1);
-		buttonData.widthHint = 120;
+		generateButton = new Button(shlTPages, SWT.PUSH);
+		GridData buttonData = new GridData(SWT.RIGHT, SWT.BEGINNING, false, false, 1, 1);
+		buttonData.widthHint = 100;
 		buttonData.heightHint = 30;
 		generateButton.setText("Insert");
 		generateButton.setLayoutData(buttonData);
@@ -570,8 +505,29 @@ public class TPagesDialog extends Dialog{
 					m.document.addTPage(tpGenerator.getTPageParent(templateText.getText()));
 				}
 				m.refresh();
+				changed = false;
+				shlTPages.close();
 			}
 			
+		});
+		
+		Button closeButton = new Button(shlTPages, SWT.PUSH);
+		buttonData = new GridData(SWT.CENTER, SWT.BEGINNING, false, false, 1, 1);
+		buttonData.widthHint = 100;
+		buttonData.heightHint = 30;
+		closeButton.setText("Close");
+		closeButton.setLayoutData(buttonData);
+		
+		closeButton.addSelectionListener(new SelectionListener() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				shlTPages.close();
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				
+			}
 		});
 		/////////////////////////////
 		
@@ -580,7 +536,7 @@ public class TPagesDialog extends Dialog{
 				if(changed){
 					MessageBox changedDialog = new MessageBox(shlTPages, SWT.ICON_ERROR | SWT.YES | SWT.NO);
 					changedDialog.setText("Close without saving");
-					changedDialog.setMessage("Close without saving?");
+					changedDialog.setMessage("Are you sure you want to close? Changes will not be saved.");
 					if(changedDialog.open()==SWT.YES)
 						event.doit=true;
 					else
@@ -860,16 +816,6 @@ public class TPagesDialog extends Dialog{
 		for(int i = 0; i < table.getItems().length; i++){
 			TableItem item = table.getItem(i);
 			returnString += item.getText(0) + "|" + item.getText(1) + "||"; // "|" is used because it has no meaning in ASCII Braille
-		}
-		return returnString;
-	}
-	
-	/*Used when creating final tpage */
-	private String tableToTpage(Table table){
-		String returnString = "";
-		for(int i = 0; i < table.getItems().length; i++){
-			TableItem item = table.getItem(i);
-			returnString += item.getText(0) + " " + item.getText(1) + "\r\n";
 		}
 		return returnString;
 	}

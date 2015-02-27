@@ -32,7 +32,7 @@ public class TPagesGenerator {
 	public TPagesGenerator(){
 		programDataPath = BBIni.getProgramDataPath();
 		xmlmap = getEmptyXmlMap();
-		testXmlMap();
+		//testXmlMap();
 	}
 	
 	public boolean checkForFile(String filename){
@@ -48,7 +48,7 @@ public class TPagesGenerator {
 		for(int i = 0; i < xmlElements.length; i++){
 			xmlmap.put(xmlElements[i], "Testing" + i);
 		}
-		xmlmap.put("specialsymbols", "a|Testing");
+		xmlmap.put("specialsymbols", "a|Testing||");
 		xmlmap.put("transcribernotes", "Testing");
 		xmlmap.put("template", defaultTemplate);
 	}
@@ -60,13 +60,13 @@ public class TPagesGenerator {
 		Nodes metaNodes = document.query("//dtb:meta[@name]", context);
 		for(int i = 0; i < metaNodes.size(); i++){
 			Element metaElement = (Element)metaNodes.get(i);
-			if(metaElement.getAttribute("name").getValue().equalsIgnoreCase("dc:title")){
+			if(metaElement.getAttribute("name").getValue().toLowerCase().contains("dc:title")){
 				titleGuess = metaElement.getAttributeValue("content");
 			}
-			if(metaElement.getAttribute("name").getValue().equalsIgnoreCase("dc:creator")){
+			if(metaElement.getAttribute("name").getValue().toLowerCase().contains("dc:creator")){
 				authorGuess += ";" + metaElement.getAttributeValue("content");
 			}
-			if(metaElement.getAttribute("name").getValue().equalsIgnoreCase("dc:publisher")){
+			if(metaElement.getAttribute("name").getValue().toLowerCase().contains("dc:publisher")){
 				publisherGuess = metaElement.getAttributeValue("content");
 			}
 		}
@@ -79,7 +79,9 @@ public class TPagesGenerator {
 		if(authorGuess.length()==0){
 			Nodes docAuthorNode = document.query("//dtb:docauthor", context);
 			if(docAuthorNode.size()>0){
-				authorGuess = docAuthorNode.get(0).getValue();
+				for(int i = 0; i < docAuthorNode.size(); i++){
+					authorGuess += ";" + docAuthorNode.get(i).getValue();
+				}
 			}
 		}
 		String subtitle = "";
@@ -106,12 +108,13 @@ public class TPagesGenerator {
 			}
 		}
 		
-		//Parse front matter - Currently broken
+		//Parse front matter
 		Pattern isbn13pattern = Pattern.compile("(?<!\\S)[\\d]+-[\\d]+-[\\d]+-[\\d]+-[\\d]\\b");
 		Pattern isbn10pattern = Pattern.compile("(?<!\\S)[\\d]+-[\\d]+-[\\d]+-[\\d]\\b");
-		Pattern copyrightpattern1 = Pattern.compile("(Copyright [\\d][\\d][\\d][\\d])");
-		Pattern copyrightpattern2 = Pattern.compile("© [\\d][\\d][\\d][\\d]"); // Only way I can get it to work
+		Pattern copyrightpattern1 = Pattern.compile("(Copyright [^\\d] [\\d][\\d][\\d][\\d])");
+		Pattern copyrightpattern2 = Pattern.compile("(Copyright [\\d][\\d][\\d][\\d])");
 		Pattern websitepattern = Pattern.compile("www[.][\\w]*[.]com");
+		Pattern websitepattern2 = Pattern.compile("[\\w]*[.]com");
 		Pattern printpattern = Pattern.compile("[\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+");
 		
 		Nodes fmChildren = document.query("//dtb:frontmatter/*", context);
@@ -123,7 +126,6 @@ public class TPagesGenerator {
 				allChildren.add(moreChildren.get(q));
 			}
 		}
-		//List<Node> allChildren = getAllChildren(fmChildren, context);
 		for(int i = 0; i < allChildren.size(); i++){
 			String nodeVal = removeBrlNode(allChildren.get(i));
 			///////Copyright
@@ -148,8 +150,11 @@ public class TPagesGenerator {
 			
 			//////Website
 			Matcher websiteMatcher = websitepattern.matcher(nodeVal);
+			Matcher websiteMatcher2 = websitepattern2.matcher(nodeVal);
 			if(websiteMatcher.find()){
 				websiteGuess = websiteMatcher.group();
+			} else if (websiteMatcher2.find()){
+				websiteGuess = websiteMatcher2.group();
 			}
 			
 			////Print History
@@ -166,7 +171,7 @@ public class TPagesGenerator {
 		if(publisherGuess!=null)
 			xmlmap.put("publisher", publisherGuess);
 		if(copyright!=null)
-			xmlmap.put("copyright", copyright);
+			xmlmap.put("copyrighttext", copyright);
 		if(isbn13!=null)
 			xmlmap.put("isbn13", isbn13);
 		if(isbn10!=null)
@@ -233,8 +238,10 @@ public class TPagesGenerator {
 		if(nodes.size() > 0){
 			Element pnElement = (Element)nodes.get(0);
 			if(pnElement.getAttributeCount()>0){
-				if(pnElement.getAttribute("id").getValue().equalsIgnoreCase("brl-tp-TitlePage")){
-					return pnElement;
+				if(pnElement.getAttribute("id")!=null){
+					if(pnElement.getAttribute("id").getValue().equalsIgnoreCase("brl-tp-TitlePage")){
+						return pnElement;
+					}
 				}
 			}
 		}
@@ -243,7 +250,7 @@ public class TPagesGenerator {
 	
 	/* If user has previously created a tpage, fills the xmlmap with those values */
 	public HashMap<String, String> pullFromElement(Element rootElement){
-		HashMap<String, String> returnMap = getEmptyXmlMap();
+		xmlmap = getEmptyXmlMap();
 		String nameSpace = rootElement.getNamespaceURI();
 		XPathContext context = new XPathContext("dtb", nameSpace);
 		Nodes divs = rootElement.query("//dtb:div", context);
@@ -252,11 +259,24 @@ public class TPagesGenerator {
 			Attribute attr = element.getAttribute("class");
 			if(attr!=null){
 				if(attr.getValue().contains("brl-tp-")){
-					Element finalElement = (Element)element.copy(); //Don't edit the xml file in memory
-					for(int q = finalElement.getChildCount()-1; q > 0; q--){ //Remove those brl nodes
-						finalElement.removeChild(q);
+					if(attr.getValue().equalsIgnoreCase("brl-tp-authors")){
+						Nodes allPtags = element.query("dtb:p", context);
+						String combinedPtags = "";
+						for(int r = 0; r < allPtags.size(); r++){
+							Element curPtag = (Element) allPtags.get(r).copy();
+							if(r==allPtags.size()-1)
+								combinedPtags += removeBrlNode(curPtag);
+							else
+								combinedPtags += removeBrlNode(curPtag) + ";";
+						}
+						xmlmap.put("authors", combinedPtags);
+					} else {
+						Element finalElement = (Element)element.copy(); //Don't edit the xml file in memory
+						for(int q = finalElement.getChildCount()-1; q > 0; q--){ //Remove those brl nodes
+							finalElement.removeChild(q);
+						}
+						xmlmap.put(attr.getValue().substring(7), finalElement.getValue());
 					}
-					returnMap.put(attr.getValue().substring(7), finalElement.getValue());
 				}
 			}
 		}
@@ -269,9 +289,9 @@ public class TPagesGenerator {
 				String nodeVal = removeBrlNode((Element)ssPtags.get(i));
 				xmlToString += "||" + nodeVal.replace(": ", "|");
 			}
-			returnMap.put("specialsymbols", xmlToString);
+			xmlmap.put("specialsymbols", xmlToString);
 		} else
-			returnMap.put("specialsymbols", "");
+			xmlmap.put("specialsymbols", "");
 		
 		Nodes tnPN = rootElement.query("//dtb:prodnote[@id='brl-tp-TranscriberNotesPage']", context);
 		if(tnPN.size() > 0){
@@ -285,10 +305,10 @@ public class TPagesGenerator {
 				else
 					xmlToString += nodeVal + "\r\n";
 			}
-			returnMap.put("transcribernotes", xmlToString);
+			xmlmap.put("transcribernotes", xmlToString);
 		} else
-			returnMap.put("transcribernotes", "");
-		return returnMap;
+			xmlmap.put("transcribernotes", "");
+		return xmlmap;
 	}
 	
 	/* Used by various methods to strip Brl nodes out of an element. Is not 100% accurate but not a priority to fix */
@@ -300,7 +320,6 @@ public class TPagesGenerator {
 		
 		if(returnElement.getChildCount() > 0){
 			Nodes brlNodes = returnElement.query("dtb:brl", context);
-			System.out.println("Found " + brlNodes.size() + " brl nodes");
 			for(int i = 0; i < brlNodes.size(); i++){
 				Element curNode = (Element)brlNodes.get(i);
 				returnElement.removeChild(curNode);
@@ -313,7 +332,7 @@ public class TPagesGenerator {
 	public String elementToTemplate(Element rootElement){
 		String nameSpace = rootElement.getNamespaceURI();
 		XPathContext context = new XPathContext("dtb", nameSpace);
-		Element newRoot = (Element)rootElement.copy();
+		Element newRoot = (Element)rootElement.copy();  //Make a copy so we don't edit the xml in memory
 		Nodes ptags = newRoot.query("//dtb:p", context);
 		
 		for(int i = 0; i < ptags.size(); i++){
@@ -341,6 +360,8 @@ public class TPagesGenerator {
 		returnString = returnString.replace("</prodnote>", "");
 		returnString = returnString.replaceAll("</p>", "\r\n");
 		returnString = returnString.replaceAll("<p>", "");
+		returnString = returnString.replaceAll("<p [^>]+>", "");
+		returnString = returnString.replaceAll("<br[^>]+>", "<linebreak>");
 		return returnString;
 	}
 	
@@ -373,11 +394,11 @@ public class TPagesGenerator {
 		Attribute ssAttr = new Attribute("id", "brl-tp-SpecialSymbolsPage");
 		ssPage.addAttribute(ssAttr);
 		Element ssHeader = new Element("p");
-		ssHeader.appendChild("Special Symbols");
+		ssHeader.appendChild("SPECIAL SYMBOLS USED IN THIS VOLUME");
 		ssPage.appendChild(ssHeader);
 		
 		String ssText = xmlmap.get("specialsymbols");
-		if(ssText!=null){
+		if(ssText!=null&&!ssText.equals("")){
 			String[] ssSplit = ssText.split("\\|\\|");
 			for(String string : ssSplit){
 				String[] parts = string.split("\\|");
@@ -398,7 +419,7 @@ public class TPagesGenerator {
 		Attribute tnAttr = new Attribute("id", "brl-tp-TranscriberNotesPage");
 		tnPage.addAttribute(tnAttr);
 		Element tnHeader = new Element("p");
-		tnHeader.appendChild("Transcriber Notes");
+		tnHeader.appendChild("TRANSCRIBER'S NOTES");
 		tnPage.appendChild(tnHeader);
 		
 		String tnText = xmlmap.get("transcribernotes");
@@ -431,11 +452,36 @@ public class TPagesGenerator {
 				for(int q = i+1; q < line.length(); q++){
 					if(line.charAt(q)=='>'){
 						i = q;
-						Element newElement = new Element("div");
-						Attribute newAttr = new Attribute("class", "brl-tp-" + findElement);
-						newElement.addAttribute(newAttr);
-						newElement.appendChild(xmlmap.get(findElement));
-						ptag.appendChild(newElement);
+						if(findElement.equalsIgnoreCase("linebreak")){
+							Element linebreak = new Element("br");
+							ptag.appendChild(linebreak);
+						} else if (findElement.equalsIgnoreCase("authors")){
+							String allAuthors = xmlmap.get("authors");
+							Element authorDiv = new Element("div");
+							Attribute authAttr = new Attribute("class", "brl-tp-authors");
+							authorDiv.addAttribute(authAttr);
+							if(allAuthors!=null){
+								if(allAuthors.contains(";")){
+									String[] splitAuthors = allAuthors.split(";");
+									for(String author : splitAuthors){
+										Element newAuthPtag = new Element("p");
+										newAuthPtag.appendChild(author);
+										authorDiv.appendChild(newAuthPtag);
+									}
+								} else {
+									Element authorPtag = new Element("p");
+									authorPtag.appendChild(allAuthors);
+									authorDiv.appendChild(authorPtag);
+								}
+							}
+							ptag.appendChild(authorDiv);
+						} else {
+							Element newElement = new Element("div");
+							Attribute newAttr = new Attribute("class", "brl-tp-" + findElement);
+							newElement.addAttribute(newAttr);
+							newElement.appendChild(xmlmap.get(findElement));
+							ptag.appendChild(newElement);
+						}
 						break;
 					} else {
 						findElement += line.charAt(q);

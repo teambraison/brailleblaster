@@ -890,7 +890,6 @@ public class BrailleDocument extends BBDocument {
 	}
 
 	public void addTPage(Element tPageRoot){
-		// TODO: needs to check for existing tpage node and replace it
 		addNamespace(tPageRoot);
 		Element fmNode = findFrontMatter(doc.getRootElement());
 		

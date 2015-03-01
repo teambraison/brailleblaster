@@ -279,7 +279,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	 * 
 	 */
 	public void checkList(){
-		if(this.currentIndex != -1){
+		if(this.currentIndex != -1 && !(size() == 1 && get(0).end == 0)){
 			int index = this.currentIndex;
 			int next = index + 1;
 			int previous = index - 1;

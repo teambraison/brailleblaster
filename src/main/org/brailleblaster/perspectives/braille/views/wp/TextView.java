@@ -143,8 +143,6 @@ public class TextView extends WPView {
 		view.addVerifyKeyListener(verifyKeyListener = new VerifyKeyListener(){
 			@Override
 			public void verifyKey(VerifyEvent e) {
-			//	int currentStart = stateObj.getCurrentStart();
-			//	int currentEnd = stateObj.getCurrentEnd();
 				stateObj.setOldCursorPosition(view.getCaretOffset());
 				stateObj.setCurrentChar(e.keyCode);
 
@@ -336,7 +334,7 @@ public class TextView extends WPView {
 			
 				if(selection.getSelectionLength() > 0)
 					saveAlignment(selection.getSelectionStart());
-				else
+				else if(stateObj.getCurrentStart() < view.getCharCount())
 					saveAlignment(stateObj.getCurrentStart());
 				
 				if(currentElement.isMathML() && (e.keyCode != SWT.BS && e.keyCode != SWT.DEL && e.keyCode != SWT.ARROW_DOWN && e.keyCode != SWT.ARROW_LEFT && e.keyCode != SWT.ARROW_RIGHT && e.keyCode != SWT.ARROW_UP))
@@ -989,7 +987,6 @@ public class TextView extends WPView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
-	
 	public void mergeElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
 		int linesBefore = 0;
 		int linesAfter = 0;
@@ -1045,6 +1042,99 @@ public class TextView extends WPView {
 		if(style.contains(StylesType.emphasis))
 			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 
+		view.setCaretOffset(originalPosition);
+		setListenerLock(false);
+	}
+	public void resetSelectionElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+		int linesBefore = 0;
+		int linesAfter = 0;
+		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		String reformattedText;
+		setListenerLock(true);
+		if(t instanceof BrlOnlyMapElement || t instanceof PageMapElement)
+			reformattedText = t.getText();
+		else
+			reformattedText =  appendToView(t.n, false);
+		
+		int originalPosition = view.getCaretOffset();
+		
+		view.setCaretOffset(start);
+		if(t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement){
+			if(listIndex > 0 && list.get(listIndex - 1).end == start){
+				if(listIndex < list.size() - 1 && list.get(listIndex + 1).start > start){
+					view.insert("\n" + reformattedText);
+					t.setOffsets(1 + start + linesBefore, 1 + linesBefore + start + reformattedText.length());
+					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+					m.put("textLength",linesBefore + linesAfter + 1);
+					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 1);
+				}
+				else {
+					view.insert("\n" + reformattedText + "\n");
+					t.setOffsets(1 + start + linesBefore, 1 + linesBefore + start + reformattedText.length());
+					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+					m.put("textLength",linesBefore + linesAfter + 2);
+					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 2);
+				}
+			}
+			else {
+				if((listIndex < list.size() - 1 && list.get(listIndex + 1).start > start) || listIndex == list.size() - 1){
+					view.insert(reformattedText); 
+					t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+					m.put("textLength",linesBefore + linesAfter);
+					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+				}
+				else{
+					view.insert(reformattedText + "\n"); 
+					t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+					m.put("textLength",linesBefore + linesAfter + 1);
+					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 1);
+				}
+			}
+			view.setLineIndent(view.getLineAtOffset(t.start), 1, 0);
+		}
+		else {
+			boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+			boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
+			view.insert(reformattedText);	
+		
+			t.setOffsets(start, start + reformattedText.length());
+			list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
+		
+			int margin = 0;
+		
+			WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+		
+	//		if(isFirst)
+	//			linesBefore = wsp.setLinesBefore(t, start, style);	
+		
+	//		if(isLast)
+	//			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		
+			t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+			m.put("textLength", linesBefore + linesAfter);
+			m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+		
+			start += linesBefore;
+			//reset margin in case it is not applied
+			if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+				handleLineWrap(start, reformattedText, 0, false);
+				
+			if(style.contains(StylesType.leftMargin)) {
+				margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+				handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+			}
+					
+			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+				setFirstLineIndent(start, style);
+		
+			if(style.contains(StylesType.format))
+				setAlignment(start, start + t.n.getValue().length(), style);
+		
+			if(style.contains(StylesType.emphasis))
+				setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+		}
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
@@ -1285,7 +1375,12 @@ public class TextView extends WPView {
 					selection.adjustSelectionLength(-changes);
 					sendUpdate();
 					setCurrent(view.getCaretOffset());
-					selection.setSelectionStart(stateObj.getCurrentEnd());
+					
+				//	if(stateObj.getNextStart() == -1)
+						selection.setSelectionStart(stateObj.getCurrentEnd());
+				//	else {
+				//		selection.setSelectionStart(stateObj.getNextStart());
+						
 				}
 				else {
 					selection.adjustSelectionLength(-(stateObj.getCurrentEnd() - e.start));
@@ -1410,99 +1505,10 @@ public class TextView extends WPView {
 			makeTextChange(-selection.getSelectionLength());
 			recordEvent(e, false);
 		}
-		else if(selection.getSelectionEnd() > stateObj.getCurrentEnd() && selection.getSelectionEnd() >= stateObj.getNextStart() || stateObj.getPreviousEnd() == -1){	
-			int changes = 0;
-			while(selection.getSelectionLength() > 0){
-				if(manager.getElementInRange(selection.getSelectionStart()) instanceof BrlOnlyMapElement || manager.getElementInRange(selection.getSelectionStart()) instanceof PageMapElement){
-					TextMapElement p = manager.getElementInRange(selection.getSelectionStart());
-					handleReadOnlySelection(p, true);
-			//		if(selectionLength <= 0)
-			//			break;
-				}
-				else if(manager.inPrintPageRange(selection.getSelectionStart() + 1) ||  manager.getElementInRange(selection.getSelectionStart() + 1) instanceof  BrlOnlyMapElement){
-					TextMapElement p = manager.getElementInRange(selection.getSelectionStart() + 1);
-					handleReadOnlySelection(p, false);
-			//		if(selectionLength <= 0)
-			//			break;
-				}
-				else if(selection.getSelectionStart()  == stateObj.getCurrentEnd() && stateObj.getNextStart() == -1){
-					changes= (stateObj.getCurrentEnd() + selection.getSelectionLength()) - stateObj.getCurrentEnd();
-					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
-					selection.adjustSelectionLength(-changes);
-				}
-				else if(selection.getSelectionStart() > stateObj.getCurrentStart() && selection.getSelectionStart() != stateObj.getCurrentEnd()){
-					changes = stateObj.getCurrentEnd() - selection.getSelectionStart();
-					makeTextChange(-changes);
-					selection.adjustSelectionLength(-changes);
-					sendUpdate();
-					setCurrent(view.getCaretOffset());
-					selection.setSelectionStart(stateObj.getCurrentEnd());
-				}
-				else if(selection.getSelectionStart() == stateObj.getCurrentEnd() && selection.getSelectionStart() != stateObj.getNextStart()){
-					if(stateObj.getNextStart() != -1 && manager.inPrintPageRange((selection.getSelectionStart() + stateObj.getNextStart()) / 2))
-						changes = manager.getElementInRange((selection.getSelectionStart() + stateObj.getNextStart()) / 2).start - selection.getSelectionStart() - 1;
-					else if(stateObj.getNextStart() != -1)
-						changes = stateObj.getNextStart() - stateObj.getCurrentEnd();
-					else
-						changes= (stateObj.getCurrentEnd() + selection.getSelectionLength()) - stateObj.getCurrentEnd();
-
-					if(selection.getSelectionLength() < changes)
-						changes = selection.getSelectionLength();
-					
-					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
-					if(changes != 0)
-						selection.adjustSelectionLength(-changes);
-					else
-						selection.setSelectionLength(0);
-					
-					setCurrent(stateObj.getNextStart());
-					view.setCaretOffset(stateObj.getCurrentStart());
-				}
-				else if(selection.getSelectionStart() < stateObj.getCurrentStart() && stateObj.getPreviousEnd() <= -1){
-					changes = stateObj.getCurrentStart() - selection.getSelectionStart();
-					selection.adjustSelectionLength(-changes);
-					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
-					
-					setCurrent(stateObj.getCurrentStart());
-					view.setCaretOffset(stateObj.getCurrentStart());
-				}
-				else if(selection.getSelectionStart() < stateObj.getCurrentStart()){
-					changes = stateObj.getCurrentStart() - selection.getSelectionStart();
-					selection.adjustSelectionLength(-changes);
-					sendDeleteSpaceMessage(selection.getSelectionStart(), -changes, e);
-					
-					setCurrent(stateObj.getCurrentStart());
-					view.setCaretOffset(stateObj.getCurrentStart());
-				}
-				else if(selection.getSelectionStart() == stateObj.getCurrentStart()){
-					if(stateObj.getCurrentStart() == stateObj.getCurrentEnd()){
-						setCurrent(stateObj.getNextStart());
-						view.setCaretOffset(stateObj.getCurrentStart());	
-					}
-					
-					if(stateObj.getCurrentEnd() - stateObj.getCurrentStart() < selection.getSelectionLength()){
-						changes = stateObj.getCurrentEnd() - stateObj.getCurrentStart();
-						makeTextChange(-changes);
-						selection.adjustSelectionLength(-changes);
-						if(currentElement.isMathML())
-							sendRemoveMathML(currentElement);
-						else
-							sendUpdate();
-					
-						if(stateObj.getNextStart() != -1)
-							setCurrent(view.getCaretOffset());
-					}
-					else {
-						makeTextChange(-selection.getSelectionLength());
-						sendUpdate();
-						selection.setSelectionLength(0);
-					}
-				}
-				else {
-					incrementCurrent();
-				}
-			}
+		else {
+			manager.dispatch(Message.createSelectionMessage(selection.getSelectionStart(), selection.getSelectionEnd()));
 		}
+		
 		setSelection(-1, -1);
 		
 		if(currentElement instanceof PageMapElement)
@@ -1526,57 +1532,6 @@ public class TextView extends WPView {
 			editRecorder.recordEditEvent(message);
 		else
 			editRecorder.recordDeleteEvent(message);
-	}
-	
-	private void handleReadOnlySelection(TextMapElement p, boolean partial){
-		int pos = p.end;
-		setListenerLock(true);
-		String pageText;
-		if(partial){
-			pageText = p.getText().substring(selection.getSelectionStart() - p.start);
-		}
-		else {
-			if(selection.getSelectionEnd() > p.end)
-				pageText = "\n" + p.getText();
-			else
-				pageText = "\n" + p.getText().substring(0, (selection.getSelectionEnd()) - (selection.getSelectionStart() + 1));
-		}
-		
-		while(manager.inPrintPageRange(pos + 1) ||  manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-			p =  manager.getElementInRange(pos + 1);
-			pos = p.end;
-			if(selection.getSelectionEnd() > p.end)
-				pageText += "\n"+ p.getText();
-			else
-				pageText += "\n" + p.getText().substring(0, (selection.getSelectionEnd()) - p.start);
-		}
-		
-		if(selection.getSelectionEnd() > p.end)
-			pageText += "\n";
-		
-		view.setCaretOffset(selection.getSelectionStart());
-		view.insert(pageText);
-		setSelection(selection.getSelectionStart() + 1, selection.getSelectionLength() - 1);
-		if(selection.getSelectionLength() - pageText.length() - 1 <= 0 && selection.getSelectionStart() + pageText.length() >= view.getCharCount())
-			view.replaceTextRange(view.getCharCount() -1, 1, "");		
-		
-		setListenerLock(false);		
-		if(selection.getSelectionEnd() > p.end)
-			selection.adjustSelectionLength(-(pageText.length() - 1));
-		else
-			selection.adjustSelectionLength(-pageText.length());
-		
-		selection.setSelectionStart(pos + 1);
-		view.setCaretOffset(selection.getSelectionStart());
-		
-		if(manager.inPrintPageRange(view.getCaretOffset()) || manager.getElementInRange(pos + 1) instanceof  BrlOnlyMapElement){
-			int start = manager.getElementInRange(view.getCaretOffset()).start;
-			view.setCaretOffset(start - 1);
-		}
-		
-		setCurrent(view.getCaretOffset());
-		if(currentElement.equals(p))
-			incrementCurrent();
 	}
 	
 	//a helper method for common series of methods that typically, but not always, follow one another

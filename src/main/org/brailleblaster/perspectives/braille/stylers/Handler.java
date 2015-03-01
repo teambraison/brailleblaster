@@ -133,4 +133,8 @@ public abstract class Handler {
 			return false;
 	}
 	
+	protected boolean readOnly(TextMapElement t){
+		return t instanceof BrlOnlyMapElement || t instanceof PageMapElement;
+	}
+	
 }

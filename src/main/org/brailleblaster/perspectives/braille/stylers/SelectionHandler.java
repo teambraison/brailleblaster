@@ -24,21 +24,21 @@ public class SelectionHandler extends Handler {
     }
     
     public void removeSelection(Message m){
-    	 int startPos = (Integer)m.getValue("start");
-         int endPos = (Integer)m.getValue("end");
-         int startIndex = getIndex(startPos);
-         int endIndex = getIndex(endPos);
-         Element firstEl = getBlockElement(startIndex);
-         Element lastEl = getBlockElement(endIndex);
-         boolean emptyNode = false;
-         LinkedList<Integer>nodes = null;
-         ArrayList<TextMapElement> firstList = getBlockMapElements(startIndex, firstEl);
-         if(firstEl.equals(lastEl)){
-         	TextMapElement first = list.get(startIndex);
-         	TextMapElement last = list.get(endIndex);
-         	int textStart = first.start;
-         	int brailleStart = first.brailleList.getFirst().start;
-         	
+    	int startPos = (Integer)m.getValue("start");
+        int endPos = (Integer)m.getValue("end");
+        int startIndex = getIndex(startPos);
+        int endIndex = getIndex(endPos);
+        Element firstEl = getBlockElement(startIndex);
+        Element lastEl = getBlockElement(endIndex);
+        boolean emptyNode = false;
+        LinkedList<Integer>nodes = null;
+        ArrayList<TextMapElement> firstList = getBlockMapElements(startIndex, firstEl);
+     	TextMapElement first = list.get(startIndex);
+     	TextMapElement last = list.get(endIndex);
+     	int textStart = first.start;
+     	int brailleStart = first.brailleList.getFirst().start;
+     	
+        if(firstEl.equals(lastEl)){ 
          	if(!readOnly(first)){
          		if(startPos != first.end){
          			if(first.start > startPos){
@@ -66,6 +66,7 @@ public class SelectionHandler extends Handler {
          		brailleStart -= textStart - startPos;
          		textStart = startPos;
          	}
+         	
          	clearViewRanges(textStart, brailleStart, last, startIndex, endPos - startPos, endPos);
          	ArrayList<Integer> indexes = tree.getItemPath();
          	removeTreeItem(startIndex, firstEl);
@@ -82,26 +83,20 @@ public class SelectionHandler extends Handler {
          	}
          	else
          		mapList = recreateElement(firstEl, startIndex);
+         	
          	list.setCurrent(startIndex);
          	setViews(mapList,startIndex, textStart, brailleStart);
          	tree.rebuildTree(indexes);
      		text.setCurrentElement(text.view.getCaretOffset());
          }
          else {
-        	 boolean clearAll = false;
-        	 
-        
-             ArrayList<TextMapElement> lastList = getBlockMapElements(endIndex, lastEl);
-             
-         	TextMapElement first = list.get(startIndex);
-         	TextMapElement last = list.get(endIndex);
+        	boolean clearAll = false;	 
+            ArrayList<TextMapElement> lastList = getBlockMapElements(endIndex, lastEl);
+         	
          	if(list.indexOf(first) == 0 && list.indexOf(last) == list.size() - 1){
          		if(endPos >= last.end)
          			clearAll = true;
-         	}
-         		
-         	int textStart = first.start;
-         	int brailleStart = first.brailleList.getFirst().start;    		
+         	}    		
          	
          	if(!readOnly(first)){
          		if(startPos != first.end){
@@ -147,24 +142,16 @@ public class SelectionHandler extends Handler {
          		endIndex -= removed;
          	}
          	else if(clearAll){
-         		this.removeElement(list.indexOf(last));
-         		//this.removeElements(list.indexOf(lastList), list.indexOf(lastList.get(lastList.size() - 1)));
+         		removeElement(list.indexOf(last));
          	}
          	
-         	 if(endIndex < list.indexOf(lastList.get(lastList.size() - 1))){
+         	 if(endIndex < list.indexOf(lastList.get(lastList.size() - 1)))
           		endIndex = list.indexOf(lastList.get(lastList.size() - 1));
-          	//	textStart = list.get(startIndex).start;
-          	//	brailleStart = list.get(startIndex).brailleList.getFirst().start;
-         	 }
          	 
          	 if(textStart > startPos){
          		brailleStart -= textStart - startPos;
           		textStart = startPos;
           	}
-         	 
-         	if(endPos > list.indexOf(lastList.get(lastList.size() - 1).end)){
-         		
-         	}
          	
          	clearViewRanges(textStart, brailleStart, list.get(endIndex), startIndex, endPos - startPos, endPos);
          	ArrayList<Integer> indexes = tree.getItemPath();
@@ -197,6 +184,7 @@ public class SelectionHandler extends Handler {
          		repopulateReadOnly(readOnly, startIndex + mapList.size());
          		mapList.addAll(readOnly);
          	}
+         	
          	int pos = startIndex + mapList.size();
          	if(readOnly(last)){
          		mapList.add(last);
@@ -327,14 +315,12 @@ public class SelectionHandler extends Handler {
     }
     
 	private void clearViewRanges(int start, int brailleStart, TextMapElement last, int index, int length, int endPos){
-		//int start = first.start;
 		int end = last.end;
 		int brailleEnd = last.brailleList.getLast().end;
 		if(endPos > end){
 			brailleEnd += endPos - end;
 			end = endPos;
 		}
-		//int brailleStart = first.brailleList.getFirst().start;
 	
 		text.replaceTextRange(start, (end - length) - start, "");
 		braille.replaceTextRange(brailleStart, brailleEnd - brailleStart, "");
@@ -357,9 +343,8 @@ public class SelectionHandler extends Handler {
 				brailleLength += (Integer)m.getValue("brailleLength");
 			}
 			
-			int textLength = list.get(index).end - list.get(index).start;
-			
-			textLength = (Integer)m.getValue("textLength");
+			//int textLength = list.get(index).end - list.get(index).start;		
+			int textLength = (Integer)m.getValue("textLength");
 			textOffset = (Integer)m.getValue("textOffset");
 			list.shiftOffsetsFromIndex(index + 1, textLength, brailleLength);
 			index++;
@@ -375,19 +360,14 @@ public class SelectionHandler extends Handler {
 	}
     
     private void repopulateReadOnly(ArrayList<TextMapElement>elList, int index){
-    	for(int i = 0; i < elList.size(); i++, index++){
-    		elList.get(i).setOffsets(0, 0);
-    		elList.get(i).brailleList.get(0).setOffsets(0, 0);
-    		vi.addElementToSection(list, elList.get(i), index);
-    	}
+    	for(int i = 0; i < elList.size(); i++, index++)
+    		repopulateReadOnly(elList.get(i), index);
     }
 	
     private void repopulateReadOnly(TextMapElement t, int index){
-    	//for(int i = 0; i < elList.size(); i++, index++){
-    		t.setOffsets(0, 0);
-    		t.brailleList.get(0).setOffsets(0, 0);
-    		vi.addElementToSection(list, t, index);
-    	//}
+    	t.setOffsets(0, 0);
+    	t.brailleList.get(0).setOffsets(0, 0);
+    	vi.addElementToSection(list, t, index);
     }
     
 	private ArrayList<TextMapElement> constructMapElement(Element e){
@@ -435,42 +415,16 @@ public class SelectionHandler extends Handler {
     private ArrayList<TextMapElement> getBlockMapElements(int index, Element el){
         return list.findTextMapElements(index, el, true);
     }
-
-    private ArrayList<TextMapElement> insertEmptyNodes(Element e, LinkedList<Integer>nodeIndex, int startIndex){   	
-    	while(nodeIndex.size() > 0)
-    		e = (Element)e.getChild(nodeIndex.remove());
-    	
-    	for(int i = 0; i < e.getChildCount(); i++){
-    		if(e.getChild(i) instanceof Element && ((Element)e.getChild(i)).getLocalName().equals("brl")){
-    			e.removeChild(i);
-    			i--;
-    		}
-    	}
-    
-    	ArrayList<TextMapElement> textList = new ArrayList<TextMapElement>();
-		TextMapElement t = new TextMapElement(0, 0, e.getChild(0));
-		Element brl = new Element("brl");
-		Text textNode = new Text("");
-		brl.appendChild(textNode);
-		e.appendChild(brl);
-		t.brailleList.add(new BrailleMapElement(0,0, textNode));
-		textList.add(t);
-		vi.addElementToSection(list, t, startIndex);
-		
-		return textList;
-    }
     
     private LinkedList<Integer> nodeIndexes(Node n, Element parent){
     	LinkedList<Integer> nodes = new LinkedList<Integer>();
     	ParentNode  e = n.getParent();
-    	//nodes.push(e.indexOf(n));
     	
     	while(!e.equals(parent)){
     		n = e;
     		e = e.getParent();
     		nodes.push(e.indexOf(n));
     	}
-    	
     	
     	return nodes;
     }

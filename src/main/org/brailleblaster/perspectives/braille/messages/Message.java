@@ -141,9 +141,9 @@ public class Message {
 		return m;
 	}
 	
-	public static Message createSelectionMessage(int start, int end){
+	public static Message createSelectionMessage(String replacementText, int start, int end){
 		Message m = new Message(BBEvent.SELECTION);
-		//m.put("replacementText", replacementText);
+		m.put("replacementText", replacementText);
 		m.put("start", start);
 		m.put("end", end);
 		

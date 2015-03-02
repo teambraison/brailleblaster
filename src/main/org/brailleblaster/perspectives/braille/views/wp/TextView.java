@@ -1046,8 +1046,6 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	public void resetSelectionElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
-		int linesBefore = 0;
-		int linesAfter = 0;
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
 		String reformattedText;
 		setListenerLock(true);
@@ -1063,60 +1061,50 @@ public class TextView extends WPView {
 			if(listIndex > 0 && list.get(listIndex - 1).end == start){
 				if(listIndex < list.size() - 1 && list.get(listIndex + 1).start > start){
 					view.insert("\n" + reformattedText);
-					t.setOffsets(1 + start + linesBefore, 1 + linesBefore + start + reformattedText.length());
+					t.setOffsets(1 + start, 1 + start + reformattedText.length());
 					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
-					m.put("textLength",linesBefore + linesAfter + 1);
-					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 1);
+					m.put("textLength", 1);
+					m.put("textOffset", reformattedText.length() + start + 1);
 				}
 				else {
 					view.insert("\n" + reformattedText + "\n");
-					t.setOffsets(1 + start + linesBefore, 1 + linesBefore + start + reformattedText.length());
+					t.setOffsets(1 + start , 1 + start + reformattedText.length());
 					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
-					m.put("textLength",linesBefore + linesAfter + 2);
-					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 2);
+					m.put("textLength", 2);
+					m.put("textOffset", reformattedText.length() + start + 2);
 				}
 			}
 			else {
 				if((listIndex < list.size() - 1 && list.get(listIndex + 1).start > start) || listIndex == list.size() - 1){
 					view.insert(reformattedText); 
-					t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+					t.setOffsets(start, start + reformattedText.length());
 					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
-					m.put("textLength",linesBefore + linesAfter);
-					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+					m.put("textLength", 0);
+					m.put("textOffset", reformattedText.length() + start);
 				}
 				else{
 					view.insert(reformattedText + "\n"); 
-					t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+					t.setOffsets(start, start + reformattedText.length());
 					list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
-					m.put("textLength",linesBefore + linesAfter + 1);
-					m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start + 1);
+					m.put("textLength", 1);
+					m.put("textOffset", reformattedText.length() + start + 1);
 				}
 			}
 			view.setLineIndent(view.getLineAtOffset(t.start), 1, 0);
 		}
 		else {
 			boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
-			boolean isLast  = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
 			view.insert(reformattedText);	
 		
 			t.setOffsets(start, start + reformattedText.length());
 			list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
 		
-			int margin = 0;
+			int margin = 0;		
+			t.setOffsets(start, start + reformattedText.length());
+			m.put("textLength", 0);
+			m.put("textOffset", reformattedText.length() + start);
 		
-			WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
-		
-	//		if(isFirst)
-	//			linesBefore = wsp.setLinesBefore(t, start, style);	
-		
-	//		if(isLast)
-	//			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
-		
-			t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
-			m.put("textLength", linesBefore + linesAfter);
-			m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
-		
-			start += linesBefore;
+			//start += linesBefore;
 			//reset margin in case it is not applied
 			if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
 				handleLineWrap(start, reformattedText, 0, false);
@@ -1352,46 +1340,13 @@ public class TextView extends WPView {
 	
 	private void handleTextEdit(ExtendedModifyEvent e){
 		int changes = e.length;
-		int placeholder;
 		if(e.replacedText.length() > 0){
 			if(e.start < stateObj.getCurrentStart()){
 				setCurrent(e.start);
 			}
 			
 			if(e.start + e.replacedText.length() > stateObj.getCurrentEnd()){
-				view.setCaretOffset(e.start);
-				setCurrent(view.getCaretOffset());
-				
-				if(selection.getSelectionStart() < stateObj.getCurrentStart())
-					sendAdjustRangeMessage("start", stateObj.getCurrentStart() - selection.getSelectionStart());
-				else if(selection.getSelectionStart() > stateObj.getCurrentEnd())
-					sendAdjustRangeMessage("end", selection.getSelectionStart()- stateObj.getCurrentEnd());	
-					
-				placeholder = stateObj.getCurrentStart();
-				if(e.length < e.replacedText.length()){
-					setSelection(selection.getSelectionStart() + e.length, selection.getSelectionLength() - e.length);
-					changes = stateObj.getCurrentEnd() - selection.getSelectionStart();
-					makeTextChange(-changes);
-					selection.adjustSelectionLength(-changes);
-					sendUpdate();
-					setCurrent(view.getCaretOffset());
-					
-				//	if(stateObj.getNextStart() == -1)
-						selection.setSelectionStart(stateObj.getCurrentEnd());
-				//	else {
-				//		selection.setSelectionStart(stateObj.getNextStart());
-						
-				}
-				else {
-					selection.adjustSelectionLength(-(stateObj.getCurrentEnd() - e.start));
-					makeTextChange(changes - (stateObj.getCurrentEnd() - e.start));
-					sendUpdate();
-					setCurrent(view.getCaretOffset());
-					selection.setSelectionStart(stateObj.getCurrentEnd());
-				}
-		
 				deleteSelection(e);
-				setCurrent(placeholder);
 				view.setCaretOffset(e.start + e.length);
 			}
 			else {
@@ -1506,7 +1461,7 @@ public class TextView extends WPView {
 			recordEvent(e, false);
 		}
 		else {
-			manager.dispatch(Message.createSelectionMessage(selection.getSelectionStart(), selection.getSelectionEnd()));
+			manager.dispatch(Message.createSelectionMessage(view.getTextRange(e.start, e.length) , selection.getSelectionStart(), selection.getSelectionEnd()));
 		}
 		
 		setSelection(-1, -1);

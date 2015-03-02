@@ -26,6 +26,7 @@ public class SelectionHandler extends Handler {
     public void removeSelection(Message m){
     	int startPos = (Integer)m.getValue("start");
         int endPos = (Integer)m.getValue("end");
+        String replacementText = (String)m.getValue("replacementText");
         int startIndex = getIndex(startPos);
         int endIndex = getIndex(endPos);
         Element firstEl = getBlockElement(startIndex);
@@ -48,15 +49,15 @@ public class SelectionHandler extends Handler {
          					nodes = nodeIndexes(first.n, firstEl);
          				}
          				else
-         					updateElement(first, endPos, first.end);
+         					updateElement(first, endPos, first.end, replacementText);
          			}
          			else
-         				updateElement(first, first.start, startPos);
+         				updateElement(first, first.start, startPos, replacementText);
          		}
          		
          		list.setCurrent(endIndex);
          		if(!first.equals(last))
-         			updateElement(last, endPos, last.end);
+         			updateElement(last, endPos, last.end, "");
          	}
          	
          	for(int i = startIndex + 1; i < endIndex; i++)
@@ -67,7 +68,7 @@ public class SelectionHandler extends Handler {
          		textStart = startPos;
          	}
          	
-         	clearViewRanges(textStart, brailleStart, last, startIndex, endPos - startPos, endPos);
+         	clearViewRanges(textStart, brailleStart, last, startIndex, endPos - startPos, endPos, replacementText);
          	ArrayList<Integer> indexes = tree.getItemPath();
          	removeTreeItem(startIndex, firstEl);
          	clearListItems(firstList);
@@ -99,18 +100,23 @@ public class SelectionHandler extends Handler {
          	}    		
          	
          	if(!readOnly(first)){
-         		if(startPos != first.end){
-         			if(first.start > startPos){
+         		if(startPos != first.end || replacementText.length() > 0){
+         			if(first.start > startPos && replacementText.length() == 0){
          				if(endPos > first.end){
          					clearText(first);
          					emptyNode = true;
      						nodes = nodeIndexes(first.n, firstEl);
          				}
-         				else
-         					updateElement(first, endPos, first.end);
+         				else {
+         					updateElement(first, endPos, first.end, replacementText);
+         				}
          			}
-         			else
-         				updateElement(first, first.start, startPos);
+         			else {
+         				if(startPos < first.start)
+         					updateElement(first, first.start, first.start, replacementText);
+         				else
+         					updateElement(first, first.start, startPos, replacementText);
+         			}
          		}
          		int removed = clearElement(list.indexOf(first) + 1, list.indexOf(firstList.get(firstList.size() - 1)) + 1);
          		endIndex -= removed;
@@ -137,7 +143,7 @@ public class SelectionHandler extends Handler {
          	
          	if(!readOnly(last) && !clearAll){
          		list.setCurrent(endIndex);
-         		updateElement(last, endPos, last.end);	
+         		updateElement(last, endPos, last.end, "");	
          		int removed = clearElement(list.indexOf(lastList.get(0)), list.indexOf(last));
          		endIndex -= removed;
          	}
@@ -153,7 +159,7 @@ public class SelectionHandler extends Handler {
           		textStart = startPos;
           	}
          	
-         	clearViewRanges(textStart, brailleStart, list.get(endIndex), startIndex, endPos - startPos, endPos);
+         	clearViewRanges(textStart, brailleStart, list.get(endIndex), startIndex, endPos - startPos, endPos, replacementText);
          	ArrayList<Integer> indexes = tree.getItemPath();
          	list.setCurrent(endIndex);
          	ArrayList<Integer> indexes2 = tree.getItemPath();
@@ -229,13 +235,18 @@ public class SelectionHandler extends Handler {
     	return textList;
     }
     
-    private void updateElement(TextMapElement t, int start, int end){
+    private void updateElement(TextMapElement t, int start, int end, String replacementText){
     	int offset = start - t.start;
     	if(end < start)
     		start = 0;
     	
-    	int linebreaks = (t.end - t.start) - t.textLength();
-    	String newText = t.getText().substring(offset, offset + (end - start) - linebreaks);
+    	int linebreaks;
+    	if(start != end)
+    		linebreaks = (t.end - t.start) - t.textLength();
+    	else
+    		linebreaks = 0;
+    	
+    	String newText = t.getText().substring(offset, offset + (end - start) - linebreaks) + replacementText;
     	Text textNode = (Text)t.n;
     	textNode.setValue(newText);    	
     }
@@ -314,7 +325,7 @@ public class SelectionHandler extends Handler {
     		vi.remove(list, list.indexOf(elList.get(i)));
     }
     
-	private void clearViewRanges(int start, int brailleStart, TextMapElement last, int index, int length, int endPos){
+	private void clearViewRanges(int start, int brailleStart, TextMapElement last, int index, int length, int endPos, String replacementText){
 		int end = last.end;
 		int brailleEnd = last.brailleList.getLast().end;
 		if(endPos > end){
@@ -322,7 +333,7 @@ public class SelectionHandler extends Handler {
 			end = endPos;
 		}
 	
-		text.replaceTextRange(start, (end - length) - start, "");
+		text.replaceTextRange(start, (end - length) - start + replacementText.length(), "");
 		braille.replaceTextRange(brailleStart, brailleEnd - brailleStart, "");
 		list.shiftOffsetsFromIndex(index, -(end - start), -(brailleEnd - brailleStart));
 	}

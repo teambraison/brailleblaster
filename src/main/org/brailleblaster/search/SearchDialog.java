@@ -17,6 +17,7 @@ import org.brailleblaster.util.Notify;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -47,6 +48,7 @@ public class SearchDialog extends Dialog {
 	protected Shell shlFindreplace;
 	private Shell errorMessageShell;
 	private Shell replaceAllShell;
+	private Shell newReplaceShell;
 	Display display = null;
 	private Manager man = null;
 	Combo searchCombo = null;
@@ -86,6 +88,7 @@ public class SearchDialog extends Dialog {
 	Map<String, String> replaceMap = new HashMap<String, String>();
 	private String foundStr;
 	int numberReplaceAlls;
+	Label label0, label;
 
 	/**
 	 * Create the dialog.
@@ -171,7 +174,7 @@ public class SearchDialog extends Dialog {
 		// searches but within the
 		// same session
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		// setPanelSize();
+		setPanelSize();
 
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
@@ -226,6 +229,7 @@ public class SearchDialog extends Dialog {
 		if (replaceList != null) {
 			for (int i = 0; i < replaceArraySize; i++) {
 				replaceCombo.add(replaceList[i]);
+				replaceCombo.setText(replaceList[i].toString());
 			}// for
 		}// if
 		replaceCombo.addTraverseListener(new TraverseListener() {
@@ -541,6 +545,7 @@ public class SearchDialog extends Dialog {
 							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (replaceAll() == true);
+						replaceAllMessage();
 					}// if findStr==true
 					else {
 						createErrorMessage();
@@ -562,14 +567,13 @@ public class SearchDialog extends Dialog {
 							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (replaceAll() == true);
+						replaceAllMessage();
 					}// if findStr == true
 					else {
 						createErrorMessage();
 					}// else if nothing found
 				}// if searchBackward
-				System.out.println("numberOfReplaces " + numberReplaceAlls);
 			} // widgetSelected()
-
 		}); // replaceBtn.addSelectionListener()
 
 		Label label_3 = new Label(shlFindreplace, SWT.NONE);
@@ -604,7 +608,7 @@ public class SearchDialog extends Dialog {
 	private void createContents() {
 
 		shlFindreplace = new Shell(getParent(), SWT.DIALOG_TRIM);
-		// setPanelSize();
+		setPanelSize();
 		shlFindreplace.setText("Find/Replace");
 		shlFindreplace.setVisible(true);
 
@@ -943,6 +947,7 @@ public class SearchDialog extends Dialog {
 							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (replaceAll() == true);
+						replaceAllMessage();
 					}// if findStr==true
 					else {
 						createErrorMessage();
@@ -964,13 +969,12 @@ public class SearchDialog extends Dialog {
 							man.getText().setCursorOffset(oldCursorPos);
 						}// do
 						while (replaceAll() == true);
+						replaceAllMessage();
 					}// if findStr == true
 					else {
 						createErrorMessage();
 					}// else if nothing found
 				}// if searchBackward
-				System.out.println("numberOfReplaces " + numberReplaceAlls);
-				replaceAllMessage();
 			} // widgetSelected()
 
 		}); // replaceBtn.addSelectionListener()
@@ -1004,71 +1008,79 @@ public class SearchDialog extends Dialog {
 
 		display = getParent().getDisplay();
 		display.beep();
-		if (errorMessageShell == null) {
-
-			errorMessageShell = new Shell(display, SWT.DIALOG_TRIM);
-
-			errorMessageShell.setLayout(new GridLayout(1, true));
-			errorMessageShell.setText("Find/Replace Error");
-			errorMessageShell.setLocation(500, 250);
-
-			Label label = new Label(errorMessageShell, SWT.RESIZE);
-			label.setText("BrailleBlaster cannot find your word in the document");
-
-			Button ok = new Button(errorMessageShell, SWT.NONE);
-			ok.setText("OK");
-			GridData errorMessageData = new GridData(SWT.HORIZONTAL);
-			ok.setLayoutData(errorMessageData);
-			ok.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					errorMessageShell.setVisible(false);
-					display.sleep();
-					searchCombo.setFocus();
-				}// widgetSelected
-
-			});// selectionListener
-			errorMessageShell.pack(true);
-			errorMessageShell.open();
-
-		}// if null
-		else {
-			errorMessageShell.open();
+		if (errorMessageShell != null) {
+			errorMessageShell.close();
 		}
+		errorMessageShell = new Shell(display, SWT.DIALOG_TRIM);
 
+		errorMessageShell.setLayout(new GridLayout(1, true));
+		errorMessageShell.setText("Find/Replace Error");
+		errorMessageShell.setLocation(500, 250);
+
+		Label label = new Label(errorMessageShell, SWT.RESIZE);
+		label.setText("BrailleBlaster cannot find your word in the document");
+
+		Button ok = new Button(errorMessageShell, SWT.NONE);
+		ok.setText("OK");
+		GridData errorMessageData = new GridData(SWT.HORIZONTAL);
+		ok.setLayoutData(errorMessageData);
+		ok.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				errorMessageShell.setVisible(false);
+				display.sleep();
+				searchCombo.setFocus();
+			}// widgetSelected
+
+		});// selectionListener
+		errorMessageShell.pack(true);
+		errorMessageShell.open();
+		
+		errorMessageShell.addListener(SWT.Close, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
+				errorMessageShell.setVisible(false);
+			}
+		});
 	}// createErrorMessage
 
 	private void replaceAllMessage() {
 		display = getParent().getDisplay();
 		display.beep();
-		if (replaceAllShell == null) {
-
-			replaceAllShell = new Shell(display, SWT.DIALOG_TRIM);
-
-			replaceAllShell.setLayout(new GridLayout(1, true));
-			replaceAllShell.setText("REPLACE ALL");
-			replaceAllShell.setLocation(500, 250);
-
-			Label label = new Label(replaceAllShell, SWT.RESIZE);
-			label.setText("BrailleBlaster replaced "+numberReplaceAlls+" words");
-
-			Button ok = new Button(replaceAllShell, SWT.NONE);
-			ok.setText("OK");
-			GridData replaceAllData = new GridData(SWT.HORIZONTAL);
-			ok.setLayoutData(replaceAllData);
-			ok.addSelectionListener(new SelectionAdapter() {
-				public void widgetSelected(SelectionEvent e) {
-					replaceAllShell.setVisible(false);
-					display.sleep();
-				}// widgetSelected
-
-			});// selectionListener
-			replaceAllShell.pack(true);
-			replaceAllShell.open();
-
-		}// if null
-		else {
-			replaceAllShell.open();
+		if (replaceAllShell != null) {
+			replaceAllShell.close();
 		}
+
+		replaceAllShell = new Shell(display, SWT.DIALOG_TRIM);
+
+		replaceAllShell.setLayout(new GridLayout(1, true));
+		replaceAllShell.setLocation(500, 250);
+
+		Label label0 = new Label(replaceAllShell, SWT.RESIZE);
+		label0.setText("Replace All Complete");
+
+		Label label = new Label(replaceAllShell, SWT.RESIZE);
+		label.setText("BrailleBlaster replaced " + numberReplaceAlls + " words");
+
+		Button ok = new Button(replaceAllShell, SWT.NONE);
+		ok.setText("OK");
+		GridData replaceAllData = new GridData(SWT.HORIZONTAL);
+		ok.setLayoutData(replaceAllData);
+		ok.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				replaceAllShell.setVisible(false);
+				display.sleep();
+			}// widgetSelected
+
+		});// selectionListener
+		replaceAllShell.pack(true);
+		replaceAllShell.open();
+
+		replaceAllShell.addListener(SWT.Close, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
+				replaceAllShell.setVisible(false);
+			}
+		});
 	}
 
 	public String[] getSearchList() {
@@ -1079,9 +1091,6 @@ public class SearchDialog extends Dialog {
 		return replaceList;
 	}// get replaceList
 
-	// /////////////////////////////////////////////////////////////////
-	// Searches document for string in our combo box.
-	// Returns true if one was found.
 	public boolean replaceAll() {
 		// Grab text view.
 		TextView tv = man.getText();
@@ -2041,9 +2050,11 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
+		if (foundStr!=null) {
 		if (foundStr.equals(findMeStr)) {
 			return true;
 		}// if text selected
+		}
 
 		// Get number of characters in text view.
 		int numChars = textStr.length();

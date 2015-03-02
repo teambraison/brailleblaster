@@ -9,6 +9,7 @@ import nu.xom.ParentNode;
 import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
+import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
@@ -438,5 +439,13 @@ public class SelectionHandler extends Handler {
     	}
     	
     	return nodes;
+    }
+    
+    public void undoSelection(EventFrame frame){
+    	
+    }
+    
+    public void redoSelection(EventFrame frame){
+    	
     }
 }

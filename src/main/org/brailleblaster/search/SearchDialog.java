@@ -193,6 +193,7 @@ public class SearchDialog extends Dialog {
 		if (searchList != null) {
 			for (int i = 0; i < searchArraySize; i++) {
 				searchCombo.add(searchList[i]);
+				searchCombo.setText(searchList[i].toString());
 			}// for
 		}// if
 

@@ -86,7 +86,7 @@ public class SearchDialog extends Dialog {
 	Map<String, String> searchMap = new HashMap<String, String>();
 	int replaceArraySize;
 	Map<String, String> replaceMap = new HashMap<String, String>();
-	private String foundStr;
+//	private String foundStr;
 	int numberReplaceAlls;
 	Label label0, label;
 
@@ -1184,7 +1184,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-							foundStr = tv.view.getSelectionText();
+//							foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1271,7 +1271,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-							foundStr = tv.view.getSelectionText();
+//							foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1361,7 +1361,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-							foundStr = tv.view.getSelectionText();
+//							foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1445,7 +1445,7 @@ public class SearchDialog extends Dialog {
 									(endCharIndex));
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-							foundStr = tv.view.getSelectionText();
+//							foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1553,7 +1553,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
+//					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -1661,7 +1661,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
+//					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -1771,7 +1771,7 @@ public class SearchDialog extends Dialog {
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
-						foundStr = tv.view.getSelectionText();
+//						foundStr = tv.view.getSelectionText();
 
 						// Found it; break.
 						return true;
@@ -1885,7 +1885,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
+//					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -1922,7 +1922,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
 			return true;
 		}// if text selected
 
@@ -2049,11 +2049,11 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr != null) {
-			if (foundStr.equals(findMeStr)) {
+//		if (foundStr != null) {
+			if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
 				return true;
 			}// if text selected
-		}
+//		}
 
 		// Get number of characters in text view.
 		int numChars = textStr.length();
@@ -2139,7 +2139,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
 			return true;
 		}// if text selected
 
@@ -2272,7 +2272,7 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr.equals(findMeStr)) {
+		if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
 			return true;
 		}// if text selected
 

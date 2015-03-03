@@ -1989,7 +1989,6 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -2050,10 +2049,10 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-		if (foundStr!=null) {
-		if (foundStr.equals(findMeStr)) {
-			return true;
-		}// if text selected
+		if (foundStr != null) {
+			if (foundStr.equals(findMeStr)) {
+				return true;
+			}// if text selected
 		}
 
 		// Get number of characters in text view.
@@ -2104,7 +2103,6 @@ public class SearchDialog extends Dialog {
 					tv.setCursor(startCharIndex, man);
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -2212,7 +2210,6 @@ public class SearchDialog extends Dialog {
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
-						foundStr = tv.view.getSelectionText();
 
 						// Found it; break.
 						return true;
@@ -2326,7 +2323,6 @@ public class SearchDialog extends Dialog {
 					tv.setCursor(startCharIndex, man);
 					tv.view.setSelection((startCharIndex), (endCharIndex));
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-					foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;

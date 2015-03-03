@@ -22,7 +22,7 @@ public class TPagesGenerator {
 			"publisherpermission", "publisher", "publisherlocation", "publisherwebsite", "copyrighttext", "reproductionnotice", "isbn13", "isbn10", 
 			"printhistory", "transcriptionyear", "transcriber", "tgs", "affiliation", "totalvolumes", "volumenumber", "customizedbraille",
 			"braillepageinfo", "printpageinfo", "transcribernotes", "template"};
-	String copyright, isbn13 = "", isbn10 = "", printHistoryGuess, titleGuess, authorGuess = "", publisherGuess, websiteGuess;
+	String copyright, isbn13 = "", isbn10 = "", printHistoryGuess, titleGuess, authorGuess = "", publisherGuess, websiteGuess, locationGuess;
 	final String defaultTemplate = "<booktitle>: <gradelevel>\n<subtitle>\n<seriesname>\n<editionname>\n<authors>\n<linebreak>\n<publisherpermission>"
 			+ "\n<publisher>\n<publisherwebsite>\n<linebreak>\n<copyrighttext>\n<reproductionnotice>\nTranscription of:\n"
 			+ "  ISBN-13: <isbn13>\n  ISBN-10: <isbn10>\n<printhistory>\nTranscribed <transcriptionyear> by\n<transcriber>\n"
@@ -116,6 +116,7 @@ public class TPagesGenerator {
 		Pattern websitepattern = Pattern.compile("www[.][\\w]*[.]com");
 		Pattern websitepattern2 = Pattern.compile("[\\w]*[.]com");
 		Pattern printpattern = Pattern.compile("[\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+ [\\d]+");
+		Pattern locationpattern = Pattern.compile("[\\w]+, [\\w]+ [\\d][\\d][\\d][\\d][\\d]");
 		
 		Nodes fmChildren = document.query("//dtb:frontmatter/*", context);
 		List<Element> allChildren = new ArrayList<Element>();
@@ -162,6 +163,20 @@ public class TPagesGenerator {
 			if(printMatcher.find()){
 				printHistoryGuess = nodeVal;
 			}
+			
+			////Publisher Location
+			Matcher locMatcher = locationpattern.matcher(nodeVal);
+			if(locMatcher.find()){
+				locationGuess = locMatcher.group();
+				for(int q = locationGuess.length()-1; q>0; q--){
+					if(Character.isDigit(locationGuess.charAt(q)) || locationGuess.charAt(q) == ' '){
+						locationGuess = locationGuess.substring(0, q);
+					}
+					else {
+						break;
+					}
+				}
+			}
 		}
 		
 		if(titleGuess!=null)
@@ -180,6 +195,9 @@ public class TPagesGenerator {
 			xmlmap.put("publisherwebsite", websiteGuess);
 		if(printHistoryGuess!=null){
 			xmlmap.put("printhistory", printHistoryGuess);
+		}
+		if(locationGuess!=null){
+			xmlmap.put("publisherlocation", locationGuess);
 		}
 	}
 

@@ -44,7 +44,7 @@ public class Tokenizer {
 						//If the next character isn't a space, something might be wrong
 						if(text.charAt(endPos+2) != '.'){
 							//If it is initials, ignore it
-							if(text.charAt(endPos+1) != '"' && text.charAt(endPos+1) != '\'' && text.charAt(endPos+1) != '”'){
+							if(text.charAt(endPos+1) != '"' && text.charAt(endPos+1) != '\'' && text.charAt(endPos+1) != '"'){
 								//If it is the end of a quote, ignore it
 								endPos++; //Set endPos past the period - user likely forgot a space
 								splitPos = endPos - startPos; //Denotes location of period for SpellCheckManager

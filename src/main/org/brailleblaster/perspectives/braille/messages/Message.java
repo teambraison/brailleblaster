@@ -33,11 +33,13 @@ package org.brailleblaster.perspectives.braille.messages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 
 import nu.xom.Text;
+import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
+import org.brailleblaster.utd.IStyle;
+import org.brailleblaster.utd.Style;
 
 
 //Passes data between different views and the parent DocumentManager class
@@ -208,7 +210,7 @@ public class Message {
 	 * @param isBoxline: signifies whether selection is adding or removing a boxline, since boxline are handled differently than other styles
 	 * @return
 	 */
-	public static Message createUpdateStyleMessage(Styles style, boolean multiSelect, boolean isBoxline){
+	public static Message createUpdateStyleMessage(IStyle style, boolean multiSelect, boolean isBoxline){
 		Message m = new Message(BBEvent.UPDATE_STYLE);
 		m.put("Style", style);
 		m.put("multiSelect", multiSelect);

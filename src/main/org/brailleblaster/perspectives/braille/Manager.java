@@ -54,7 +54,6 @@ import org.brailleblaster.archiver.ArchiverFactory;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.QueueManager;
@@ -113,7 +112,6 @@ public class Manager extends Controller {
 	StyleManager sm;
 	FormLayout layout;
 
-	BBSemanticsTable styles;
 	String documentName = null;
 	String logFile = "Translate.log";
 	String configSettings = null;
@@ -131,10 +129,10 @@ public class Manager extends Controller {
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
 		super(wp);	
+		logger.debug("WPManager {} docName {}", wp, docName);
 		queueManager = new QueueManager();
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		styles = new BBSemanticsTable(BBIni.getDefaultConfigFile());
 		documentName = docName;
 		item = new TabItem(wp.getFolder(), 0);
 		containerSash = new SashForm(wp.getFolder(),SWT.HORIZONTAL);
@@ -184,7 +182,6 @@ public class Manager extends Controller {
 		this.arch = arch;
 		simBrailleDisplayed = loadSimBrailleProperty();
 		fontManager = new FontManager(this);
-		styles = new BBSemanticsTable(arch.getCurrentConfig());
 		documentName = arch.getOrigDocPath();
 		this.item = item;
 		containerSash = new SashForm(wp.getFolder(),SWT.NONE);
@@ -204,11 +201,12 @@ public class Manager extends Controller {
 		
 		this.item.setControl(containerSash);
 		initializeDocumentTab();
-		document = new BrailleDocument(this, styles);
+		document = new BrailleDocument(this);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
 		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
-		document = new BrailleDocument(this, doc, this.styles);
+		//This shouldn't be called twice
+		//document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		
 		containerSash.setRedraw(false);
@@ -411,7 +409,7 @@ public class Manager extends Controller {
 			}
 		}
 		catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
 			logger.error("Unforeseen Exception", e);
 		}
 	}
@@ -977,7 +975,8 @@ public class Manager extends Controller {
 				fileName = fu.getFileName(arch.getWorkingFilePath());
 			
 			if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem"))
-				initializeAllViews(documentName, path, "semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem\n");
+				//Style TODO: Sem file dependency
+				initializeAllViews(documentName, path, /*"semanticFiles " + document.getSemanticFileHandler().getDefaultSemanticsFiles() +"," +*/ BBIni.getTempFilesPath() + BBIni.getFileSep() + fileName + ".sem\n");
 			else
 				initializeAllViews(documentName, path, null);
 			

@@ -1,13 +1,14 @@
 package org.brailleblaster.perspectives.braille.eventQueue;
 
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
+import org.brailleblaster.utd.Style;
+
 
 public class StyleEvent extends Event {
 	int listIndex, sectionIndex;
-	Styles style;
+	Style style;
 	String config;
 	
-	public StyleEvent(int listIndex, int sectionIndex, int textOffset, int brailleOffset, Styles style, String config){
+	public StyleEvent(int listIndex, int sectionIndex, int textOffset, int brailleOffset, Style style, String config){
 		super(EventTypes.Style_Change, textOffset, brailleOffset);
 		this.listIndex = listIndex;
 		this.sectionIndex = sectionIndex;
@@ -15,7 +16,7 @@ public class StyleEvent extends Event {
 		this.config = config;
 	}
 	
-	public Styles getStyle(){
+	public Style getStyle(){
 		return style;
 	}
 	

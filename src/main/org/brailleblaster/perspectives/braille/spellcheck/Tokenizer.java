@@ -38,7 +38,7 @@ public class Tokenizer {
 		
 		while(endPos < text.length() && ((Character.isLetter(text.charAt(endPos))|| Character.isDigit(text.charAt(endPos))) || text.charAt(endPos) == '\'')){
 			endPos++;
-			if(endPos+2 < text.length()){
+			if(endPos+2 < text.length() - 1){
 				if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
 					if(text.charAt(endPos+1) != ' '){
 						//If the next character isn't a space, something might be wrong
@@ -57,6 +57,7 @@ public class Tokenizer {
 									capFlag = true;
 							}
 						}
+
 					}
 				}
 			}

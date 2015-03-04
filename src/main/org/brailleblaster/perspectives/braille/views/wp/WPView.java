@@ -364,18 +364,30 @@ public abstract class WPView extends AbstractView implements BBView {
 		}
 		
 		if(manager.getCurrent() != null){
-			Element e = manager.getCurrent().parentElement();
-			while(stylesTable.getSemanticTypeFromAttribute(e).equals("action"))
-				e = (Element)e.getParent();
-			
-			String style = stylesTable.getKeyFromAttribute(e);
-			
-			if(style.contains("local_")){
-				String [] tokens = style.split("_");
-				style = tokens[1];
+			String styleName;
+			if(manager.getCurrent() instanceof PageMapElement){
+				styleName = "Print Page";
 			}
-				
-			statusBarText += "Style: " + style + " | ";
+			else {
+				Element e = manager.getCurrent().parentElement();
+				while(stylesTable.getSemanticTypeFromAttribute(e).equals("action"))
+					e = (Element)e.getParent();
+			
+				styleName = stylesTable.getKeyFromAttribute(e);
+				Styles style = stylesTable.get(styleName);
+			
+				if(styleName.contains("local_")){
+					String [] tokens = styleName.split("_");
+					styleName = tokens[1];
+					style = stylesTable.get(styleName);
+					styleName = (String)style.get(StylesType.name);
+				}
+				else if(style.contains(StylesType.name))
+					styleName = (String)style.get(StylesType.name);
+				else
+					styleName = style.getName();
+			}
+			statusBarText += "Style: " + styleName + " | ";
 		}
 		
 		Message statusMessage = Message.createUpdateStatusbarMessage(statusBarText + " Words: " + words);

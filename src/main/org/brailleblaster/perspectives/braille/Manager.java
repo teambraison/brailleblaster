@@ -237,7 +237,7 @@ public class Manager extends Controller {
 		wp.getShell().layout();
 	}
 	
-	private void setSash(){
+	public void setSash(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String containerWeight = pfm.getProperty("containerWeight");
 		String editorWeight = pfm.getProperty("textWeight");
@@ -259,7 +259,7 @@ public class Manager extends Controller {
 		miscSash.setWeights(new int[] {100, 0});
 	}
 	
-	private void setEditingView(){
+	public void setEditingView(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		String view = pfm.getProperty("editorView");
 		if(view != null){
@@ -456,6 +456,9 @@ public class Manager extends Controller {
 				break;
 			case ADJUST_INDENT:
 				handleAdjustIndent(message);
+				break;
+			case ADJUST_MARGIN:
+				handleAdjustMargin(message);
 				break;
 			case ADJUST_LINES:
 				handleLineAdjust(message);
@@ -705,6 +708,15 @@ public class Manager extends Controller {
 	
 	private void handleAdjustIndent(Message message){
 		braille.changeIndent(list.getCurrent().brailleList.getFirst().start, message);
+		Element e = document.getParent(list.getCurrent().n, true);
+		StyleHandler sh = new StyleHandler(this, vi, list);
+		sh.createAndApplyStyle(list.getCurrent(), e, message);
+	}
+	
+	private void handleAdjustMargin(Message message){
+		Element parent = document.getParent(list.getCurrent().n, true);
+		ArrayList<TextMapElement>elList = list.findTextMapElements(list.getCurrentIndex(), parent, true);
+		braille.changeMargin(elList.get(0).brailleList.getFirst().start,elList.get(elList.size() - 1).brailleList.getLast().end ,message);
 		Element e = document.getParent(list.getCurrent().n, true);
 		StyleHandler sh = new StyleHandler(this, vi, list);
 		sh.createAndApplyStyle(list.getCurrent(), e, message);
@@ -1453,7 +1465,7 @@ public class Manager extends Controller {
 		}
 	}
 	
-	private void saveScreenProperties(){
+	public void saveScreenProperties(){
 		PropertyFileManager pfm = BBIni.getPropertyFileManager();
 		int [] containerWeights = containerSash.getWeights();
 		int [] editorWeights = editorSash.getWeights();

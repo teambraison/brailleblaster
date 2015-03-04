@@ -28,7 +28,6 @@ public class SpellCheckManager {
     	if(!m.getIgnoreList().isEmpty()){
 	    	for(String dc : m.getIgnoreList()){
 	    		ignoreList.add(dc);
-	    		System.out.println(dc);
 	    	}
     	}
 	  	try {

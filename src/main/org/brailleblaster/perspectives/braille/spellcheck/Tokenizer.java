@@ -4,11 +4,12 @@ public class Tokenizer {
 	
 	private String text;
 	private int startPos, endPos, splitPos;
-	private boolean complete;
+	private boolean complete, capFlag;
 	
 	public Tokenizer(String text){
 		startPos = 0;
 		endPos = 0;
+		capFlag = false;
 		this.text = text.replaceAll("\u2019", "'");
 		complete = false;
 	}
@@ -32,16 +33,31 @@ public class Tokenizer {
 	private void setEndPos(){
 		endPos = startPos;
 		splitPos = 0;
-		String punctuation = ".,;:?!"; //List of punctuation marks we want to catch
+		String punctuation = ".,;:?!"; //List of punctuation marks that require a space after
+		String sentenceEnd = ".?!"; //List of punctuation that ends a sentence
 		
 		while(endPos < text.length() && ((Character.isLetter(text.charAt(endPos))|| Character.isDigit(text.charAt(endPos))) || text.charAt(endPos) == '\'')){
 			endPos++;
-			
-			if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
-				if(text.charAt(endPos+1)!=' '){ //If the next character isn't a space, something might be wrong
-					if(text.charAt(endPos+2)!='.'){ //The string doesn't look like initials
-						endPos++; //Set endPos past the period - user likely forgot a space
-						splitPos = endPos - startPos; //Denotes location of period for SpellCheckManager						
+			if(endPos+2 < text.length() - 1){
+				if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
+					if(text.charAt(endPos+1) != ' '){
+						//If the next character isn't a space, something might be wrong
+						if(text.charAt(endPos+2) != '.'){
+							//If it is initials, ignore it
+							if(text.charAt(endPos+1) != '"' && text.charAt(endPos+1) != '\'' && text.charAt(endPos+1) != '”'){
+								//If it is the end of a quote, ignore it
+								endPos++; //Set endPos past the period - user likely forgot a space
+								splitPos = endPos - startPos; //Denotes location of period for SpellCheckManager
+							//}
+							}
+						}
+					} else { //If it is a space, the following character needs to be capitalized
+						if(sentenceEnd.contains(Character.toString(text.charAt(endPos)))){ //Make sure it isn't a comma
+							if(Character.isLowerCase(text.charAt(endPos+2))){
+									capFlag = true;
+							}
+						}
+
 					}
 				}
 			}
@@ -68,7 +84,7 @@ public class Tokenizer {
 			return false;
 		}
 	}
-	
+
 	public boolean isComplete(){
 		return complete;
 	}
@@ -83,5 +99,13 @@ public class Tokenizer {
 	
 	public int getSplitPos(){
 		return splitPos;
+	}
+	
+	public void setCapFlag(boolean newFlag){
+		capFlag = newFlag;
+	}
+	
+	public boolean getCapFlag(){
+		return capFlag;
 	}
 }

@@ -56,7 +56,7 @@ public class PrintPreview {
 					this.text = scanner.useDelimiter("\\Z").next();
 					scanner.close();
 					this.view.setText(this.text);
-					Font font = dm.getFontManager().getFont();
+					Font font = dm.getFontManager().getFont(dm.isSimBrailleDisplayed());
 					this.view.setFont(font);
 					this.view.setMargins(MARGINS, MARGINS, MARGINS, MARGINS);
 					this.view.getShell().open();

@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -499,56 +498,4 @@ public class NimasArchiver extends Archiver {
 		return levelOnes;
 
 	}
-	
-	/////////////////////////////////////////////////////////////////////////////
-	// Helper: Uses list created with manageNimas() to create an OPF file for 
-	// EPUB conversion.
-	private String _createOPFFromDocs(ArrayList<Document> docs)
-	{
-		// Create root package element.
-		Element root = new Element("package");
-		
-		// Create document.
-        Document document = new Document(root);
-		
-        // Create spine and manifest elements.
-        Element spineElm = new Element("spine");
-        Element manifestElm = new Element("manifest");
-        
-		// Loop through all documents and append to our OPF file.
-        for(int curDoc = 0; curDoc < docs.size(); curDoc++)
-        {
-            // Create manifest entry.
-            Element newManEntry = new Element("item");
-            // Add attributes.
-            newManEntry.addAttribute( new Attribute("id", Integer.toString(curDoc)) );
-            newManEntry.addAttribute( new Attribute("href", Integer.toString(curDoc) + ".xhtml") );
-            newManEntry.addAttribute( new Attribute("media-type", "application/xhtml+xml") );
-            // Add to manifest.
-            manifestElm.appendChild(newManEntry);
-            
-            // Create spine entry.
-            Element newSpineEntry = new Element("itemref");
-            // Add attributes.
-            newSpineEntry.addAttribute( new Attribute("idref", Integer.toString(curDoc)) );
-            // Add to spine.
-            spineElm.appendChild(newSpineEntry);
-        	
-        } // for...
-        
-        // Put the filled spine and manifest into our package.
-        root.appendChild(manifestElm);
-        root.appendChild(spineElm);
-        
-		// Create file utility for saving opf.
-		FileUtils fu = new FileUtils();
-		// Build string path.
-		String opfPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + "nimas2epub.opf";
-		// Write opf.
-		fu.createXMLFile( document, opfPath );
-		
-		// Return path to our shiny, new opf.
-		return opfPath;
-		
-	} // _createOPFFromDocs()
 } // class NimasArchiver

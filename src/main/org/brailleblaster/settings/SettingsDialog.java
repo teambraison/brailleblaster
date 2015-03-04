@@ -48,7 +48,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Group;
@@ -62,7 +61,6 @@ import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Level;
 
 import org.liblouis.LibLouis;
-import org.liblouis.LibLouisUTDML;
 
 /** This class works closely with classes in the louisutdml package to 
 chose the correct liblouisutdml configuration file and other user 

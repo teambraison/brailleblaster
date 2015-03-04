@@ -11,6 +11,7 @@ import nu.xom.Text;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
+import org.brailleblaster.perspectives.braille.eventQueue.ModelEvent;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
@@ -22,12 +23,15 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 public class SelectionHandler extends Handler {
 	boolean emptyNode = false;
     LinkedList<Integer>nodes = null;
+    EventFrame evFrame;
     
     public SelectionHandler(Manager manager, ViewInitializer vi, MapList list) {
         super(manager, vi, list);
     }
     
-    public void removeSelection(Message m){
+    @SuppressWarnings("unchecked")
+	public void removeSelection(Message m){
+    	evFrame = new EventFrame();
     	int startPos = (Integer)m.getValue("start");
         int endPos = (Integer)m.getValue("end");
         String replacementText = (String)m.getValue("replacementText");
@@ -48,6 +52,7 @@ public class SelectionHandler extends Handler {
          		textStart = startPos;
          	}
         	 
+        	addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone());
         	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
          	if(!first.equals(last)){
          		list.setCurrent(endIndex);
@@ -163,6 +168,8 @@ public class SelectionHandler extends Handler {
          }
     	
      	text.setCurrentElement(startPos);
+     	if(!evFrame.empty())
+     		manager.addUndoEvent(evFrame);
     }
     
     private void updateFirstNode(Element e, TextMapElement first, int startPos, int endPos, String replacementText){
@@ -422,15 +429,48 @@ public class SelectionHandler extends Handler {
     	return nodes;
     }
     
+    private void addEvent(Element blockElement, int listIndex, int textStart, int brailleStart, ArrayList<Integer> treeIndexes){
+    	ModelEvent ev = new ModelEvent(EventTypes.Selection, blockElement, vi.getStartIndex(), listIndex, textStart, brailleStart, treeIndexes);
+    	evFrame.addEvent(ev);
+    }
+    
     public void undoSelection(EventFrame frame){
-    	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
-    		
-    	}
+    	evFrame = new EventFrame();
+    	handleEventFrame(frame);
+    	if(evFrame.size() > 0)
+    		manager.addRedoEvent(evFrame);
     }
     
     public void redoSelection(EventFrame frame){
+    	evFrame = new EventFrame();
+    	handleEventFrame(frame);   	
+    	if(evFrame.size() > 0)
+    		manager.addUndoEvent(evFrame);
+    }
+    
+    private void handleEventFrame(EventFrame frame){
     	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
-    		
-    	}
+    		ModelEvent ev = (ModelEvent)frame.pop();
+    		resetSelection(ev);
+    	}	
+    }
+    
+    private void resetSelection(ModelEvent ev){
+    	Element e = getBlockElement(ev.getListIndex());
+    	ArrayList<TextMapElement> maplist = getBlockMapElements(ev.getListIndex(), e);
+    	TextMapElement first = maplist.get(0);
+    	TextMapElement last = maplist.get(maplist.size() - 1);
+    
+    	int index = list.indexOf(first);
+    	int textStart = first.start;
+    	int brailleStart = first.brailleList.getFirst().start;
+    	addEvent(e, index, textStart, brailleStart, tree.getItemPath());
+    	clearViewRanges(textStart, first.brailleList.getFirst().start, last, list.indexOf(first), 0, last.end, "");
+    	clearListItems(maplist);
+    	
+    	e.getParent().replaceChild(e, ev.getNode());
+    	int size = repopulateRange((Element)ev.getNode(), index);
+		maplist = getListRange(index, size);
+    	rebuildViews(maplist, index, textStart, brailleStart, ev.getTreeIndex());
     }
 }

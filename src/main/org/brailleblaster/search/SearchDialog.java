@@ -88,7 +88,6 @@ public class SearchDialog extends Dialog {
 	Map<String, String> replaceMap = new HashMap<String, String>();
 //	private String foundStr;
 	int numberReplaceAlls;
-	Label label0, label;
 
 	/**
 	 * Create the dialog.
@@ -186,8 +185,8 @@ public class SearchDialog extends Dialog {
 
 		Label lblFind = new Label(shlFindreplace, SWT.NONE);
 		lblFind.setText("Find:");
-		Label label = new Label(shlFindreplace, SWT.NONE);
-		// formToolkit.adapt(label, true, true);
+//		Label label = new Label(shlFindreplace, SWT.NONE);
+//		// formToolkit.adapt(label, true, true);
 
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
@@ -199,7 +198,7 @@ public class SearchDialog extends Dialog {
 				searchCombo.setText(searchList[i].toString());
 			}// for
 		}// if
-
+		
 		searchCombo.getData();
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
@@ -224,7 +223,6 @@ public class SearchDialog extends Dialog {
 		replaceCombo = new Combo(shlFindreplace, SWT.NONE);
 		replaceCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
 				false, 3, 1));
-		replaceCombo.setEnabled(true);
 		// load the replaceList from the previous session
 		if (replaceList != null) {
 			for (int i = 0; i < replaceArraySize; i++) {
@@ -232,6 +230,7 @@ public class SearchDialog extends Dialog {
 				replaceCombo.setText(replaceList[i].toString());
 			}// for
 		}// if
+		replaceCombo.getData();
 		replaceCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
@@ -425,7 +424,7 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
-		shlFindreplace.setDefaultButton(findBtn);
+//		shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

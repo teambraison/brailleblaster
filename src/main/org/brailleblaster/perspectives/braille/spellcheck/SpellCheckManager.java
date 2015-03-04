@@ -69,17 +69,33 @@ public class SpellCheckManager {
     				String [] suggestions = sc.getSuggestions(tokenizer.getCurrentWord());
     				if(tokenizer.getSplitPos()!=0){ //Caught a word that probably needs a space
     					String word1, word2;
+    					String punc = ".?!";
     					word1 = tokenizer.getCurrentWord().substring(0, tokenizer.getSplitPos());
-    					word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
-    					String[] newSuggestions = new String[suggestions.length+1]; // Make a new suggestions array that includes existing words with space
+    					if(punc.contains(Character.toString(tokenizer.getCurrentWord().charAt(tokenizer.getSplitPos()- 1)))){
+    						//If we're splitting a word at a . ! or ? the second word should be capitalized.
+    						word2 = Character.toUpperCase(tokenizer.getCurrentWord().charAt(tokenizer.getSplitPos())) + tokenizer.getCurrentWord().substring(tokenizer.getSplitPos()+1);
+    					} else {
+    						word2 = tokenizer.getCurrentWord().substring(tokenizer.getSplitPos());
+    					}
+    					// Make a new suggestions array that includes existing words with space
+    					String[] newSuggestions = new String[suggestions.length+1]; 
     					newSuggestions[0] = word1 + " " + word2;
     					System.arraycopy(suggestions, 0, newSuggestions, 1, suggestions.length);
     					setWord(tokenizer.getCurrentWord(), newSuggestions);
     				} else {
     					setWord(tokenizer.getCurrentWord(), suggestions);
     				}
-    			}		
-    		}
+    			} else { //correctSpelling == true
+    				if(tokenizer.getCapFlag()){ //Something needs capitalization
+    					tokenizer.next();
+    					correctSpelling = false;
+    					String[] capsSuggestion = new String[1];
+    					capsSuggestion[0] = tokenizer.getCurrentWord().substring(0, 1).toUpperCase() + tokenizer.getCurrentWord().substring(1);
+    					setWord(tokenizer.getCurrentWord(), capsSuggestion);
+    					tokenizer.setCapFlag(false);
+    				}
+    			}
+       		}
     	}
     	
     	if(tokenizer.isComplete()) {
@@ -109,6 +125,8 @@ public class SpellCheckManager {
 			fu.appendToFile(dictPath, word);
 			sc.addToDictionary(word);
 		}
+		
+		m.newIgnore(word);
 	}
 	
 	public void ignoreWord(String word){
@@ -117,7 +135,7 @@ public class SpellCheckManager {
 	}
 	
 	public void replace(String text){
-		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());		
+		m.getText().copyAndPaste(text, tokenizer.getStartPos(), tokenizer.getEndPos());
 		tokenizer.resetText(m.getText().view.getText().replace("\n", " "));
 	}
 	

@@ -25,11 +25,9 @@ public class SpellCheckManager {
     	fu = new FileUtils();
     	lh = new LocaleHandler();
     	this.m = m;
-    	System.out.println("Initializing spellcheckmanager");
     	if(!m.getIgnoreList().isEmpty()){
 	    	for(String dc : m.getIgnoreList()){
 	    		ignoreList.add(dc);
-	    		System.out.println(dc);
 	    	}
     	}
 	  	try {

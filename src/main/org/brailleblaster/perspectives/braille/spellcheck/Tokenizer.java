@@ -36,12 +36,13 @@ public class Tokenizer {
 		
 		while(endPos < text.length() && ((Character.isLetter(text.charAt(endPos))|| Character.isDigit(text.charAt(endPos))) || text.charAt(endPos) == '\'')){
 			endPos++;
-			
-			if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
-				if(text.charAt(endPos+1)!=' '){ //If the next character isn't a space, something might be wrong
-					if(text.charAt(endPos+2)!='.'){ //The string doesn't look like initials
-						endPos++; //Set endPos past the period - user likely forgot a space
-						splitPos = endPos - startPos; //Denotes location of period for SpellCheckManager						
+			if(endPos+2<text.length()-1){
+				if(punctuation.contains(Character.toString(text.charAt(endPos)))){ //We are at a punctuation mark.
+					if(text.charAt(endPos+1)!=' '){ //If the next character isn't a space, something might be wrong
+						if(text.charAt(endPos+2)!='.'){ //The string doesn't look like initials
+							endPos++; //Set endPos past the period - user likely forgot a space
+							splitPos = endPos - startPos; //Denotes location of period for SpellCheckManager						
+						}
 					}
 				}
 			}

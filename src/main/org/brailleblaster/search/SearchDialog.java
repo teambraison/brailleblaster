@@ -2048,11 +2048,9 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-//		if (foundStr != null) {
 			if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
 				return true;
 			}// if text selected
-//		}
 
 		// Get number of characters in text view.
 		int numChars = textStr.length();

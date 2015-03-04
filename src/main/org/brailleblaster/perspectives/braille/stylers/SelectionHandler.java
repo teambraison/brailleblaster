@@ -10,6 +10,7 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
+import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.BrlOnlyMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
@@ -19,7 +20,9 @@ import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 
 public class SelectionHandler extends Handler {
-
+	boolean emptyNode = false;
+    LinkedList<Integer>nodes = null;
+    
     public SelectionHandler(Manager manager, ViewInitializer vi, MapList list) {
         super(manager, vi, list);
     }
@@ -31,65 +34,45 @@ public class SelectionHandler extends Handler {
         int startIndex = getIndex(startPos);
         int endIndex = getIndex(endPos);
         Element firstEl = getBlockElement(startIndex);
-        Element lastEl = getBlockElement(endIndex);
-        boolean emptyNode = false;
-        LinkedList<Integer>nodes = null;
+        Element lastEl = getBlockElement(endIndex);    
         ArrayList<TextMapElement> firstList = getBlockMapElements(startIndex, firstEl);
      	TextMapElement first = list.get(startIndex);
      	TextMapElement last = list.get(endIndex);
      	int textStart = first.start;
      	int brailleStart = first.brailleList.getFirst().start;
-     	
+    	ArrayList<Integer> indexes = tree.getItemPath();
+    	
         if(firstEl.equals(lastEl)){ 
-         	if(!readOnly(first)){
-         		if(startPos != first.end){
-         			if(first.start > startPos){
-         				if(endPos >= first.end){
-         					clearText(first);
-         					emptyNode = true;
-         					nodes = nodeIndexes(first.n, firstEl);
-         				}
-         				else
-         					updateElement(first, endPos, first.end, replacementText);
-         			}
-         			else
-         				updateElement(first, first.start, startPos, replacementText);
-         		}
-         		
+        	if(textStart > startPos){
+         		brailleStart -= textStart - startPos;
+         		textStart = startPos;
+         	}
+        	 
+        	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
+         	if(!first.equals(last)){
          		list.setCurrent(endIndex);
-         		if(!first.equals(last))
-         			updateElement(last, endPos, last.end, "");
+         		updateElement(last, endPos, last.end, "");
          	}
          	
          	for(int i = startIndex + 1; i < endIndex; i++)
          		removeElement(i);
-           
-         	if(textStart > startPos){
-         		brailleStart -= textStart - startPos;
-         		textStart = startPos;
-         	}
-         	
-         	clearViewRanges(textStart, brailleStart, last, startIndex, endPos - startPos, endPos, replacementText);
-         	ArrayList<Integer> indexes = tree.getItemPath();
-         	removeTreeItem(startIndex, firstEl);
+           	
+         	clearViewRanges(textStart, brailleStart, firstList.get(firstList.size() - 1), startIndex, endPos - startPos, endPos, replacementText);    	
          	clearListItems(firstList);
          	
-         	ArrayList<TextMapElement> mapList;
-         	if(emptyNode){
-         		Element e = firstEl;
-         		
-         		while(nodes.size() > 0)
-             		e = (Element)e.getChild(nodes.remove());
-         		
-         		mapList = recreateElement(e, startIndex);
+         	ArrayList<TextMapElement>mapList = new ArrayList<TextMapElement>(); 
+         	if(readOnly(first)){
+         		mapList.add(first);
+         		repopulateReadOnly(mapList, startIndex);
          	}
-         	else
-         		mapList = recreateElement(firstEl, startIndex);
+         	else {
+         		if(emptyNode)
+             		mapList = recreateEmptyElement(firstEl, startIndex, nodes);
+             	else
+             		mapList.addAll(recreateElement(firstEl, startIndex));
+         	}
          	
-         	list.setCurrent(startIndex);
-         	setViews(mapList,startIndex, textStart, brailleStart);
-         	tree.rebuildTree(indexes);
-     		text.setCurrentElement(text.view.getCaretOffset());
+         	rebuildViews(mapList, startIndex, textStart, brailleStart, indexes);
          }
          else {
         	boolean clearAll = false;	 
@@ -100,29 +83,13 @@ public class SelectionHandler extends Handler {
          			clearAll = true;
          	}    		
          	
-         	if(!readOnly(first)){
-         		if(startPos != first.end || replacementText.length() > 0){
-         			if(first.start > startPos && replacementText.length() == 0){
-         				if(endPos > first.end){
-         					clearText(first);
-         					emptyNode = true;
-     						nodes = nodeIndexes(first.n, firstEl);
-         				}
-         				else {
-         					updateElement(first, endPos, first.end, replacementText);
-         				}
-         			}
-         			else {
-         				if(startPos < first.start)
-         					updateElement(first, first.start, first.start, replacementText);
-         				else
-         					updateElement(first, first.start, startPos, replacementText);
-         			}
-         		}
-         		int removed = clearElement(list.indexOf(first) + 1, list.indexOf(firstList.get(firstList.size() - 1)) + 1);
-         		endIndex -= removed;
-         	}
+         	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
          	
+         	if(!readOnly(first)){
+         		int removed = clearElement(list.indexOf(first) + 1, list.indexOf(firstList.get(firstList.size() - 1)) + 1);
+     			endIndex -= removed;
+         	}
+     		
          	 if(startIndex > list.indexOf(firstList.get(0))){
              		startIndex = list.indexOf(firstList.get(0));
              		textStart = list.get(startIndex).start;
@@ -161,28 +128,17 @@ public class SelectionHandler extends Handler {
           	}
          	
          	clearViewRanges(textStart, brailleStart, list.get(endIndex), startIndex, endPos - startPos, endPos, replacementText);
-         	ArrayList<Integer> indexes = tree.getItemPath();
-         	list.setCurrent(endIndex);
-         	ArrayList<Integer> indexes2 = tree.getItemPath();
-         	list.setCurrent(startIndex);
-         	tree.setSelection(list.getCurrent());
-         	clearListItems(firstList);
+         	clearListItems(firstList);         	
+         	clearListItems(lastList);
          	
-         	clearListItems(lastList);	
          	ArrayList<TextMapElement>mapList = new ArrayList<TextMapElement>(); 
          	if(readOnly(first)){
          		mapList.add(first);
          		repopulateReadOnly(mapList, startIndex);
          	}
          	else {
-         		if(emptyNode){
-             		Element e = firstEl;
-             		
-             		while(nodes.size() > 0)
-                 		e = (Element)e.getChild(nodes.remove());
-             		
-             		mapList = recreateElement(e, startIndex);
-             	}
+         		if(emptyNode)
+             		mapList = recreateEmptyElement(firstEl, startIndex, nodes);
              	else
              		mapList.addAll(recreateElement(firstEl, startIndex));
          	}
@@ -203,14 +159,42 @@ public class SelectionHandler extends Handler {
          	if(!list.empty())
          		list.setCurrent(startIndex);
          	
-         	setViews(mapList,startIndex, textStart, brailleStart);
-         	         	
-         	tree.rebuildTree(indexes);
-         	if(!clearAll)
-         		tree.rebuildTree(indexes2); 
-         	
-         	text.setCurrentElement(startPos);
+         	rebuildViews(mapList, startIndex, textStart, brailleStart, indexes);         	
          }
+    	
+     	text.setCurrentElement(startPos);
+    }
+    
+    private void updateFirstNode(Element e, TextMapElement first, int startPos, int endPos, String replacementText){
+     	if(!readOnly(first)){
+     		if(startPos != first.end || replacementText.length() > 0){
+     			if(first.start > startPos && replacementText.length() == 0){
+     				if(endPos >= first.end){
+     					clearText(first);
+     					emptyNode = true;
+ 						nodes = nodeIndexes(first.n, e);
+     				}
+     				else {
+     					updateElement(first, endPos, first.end, replacementText);
+     				}
+     			}
+     			else {
+     				if(startPos < first.start)
+     					updateElement(first, first.start, first.start, replacementText);
+     				else
+     					updateElement(first, first.start, startPos, replacementText);
+     			}
+     		}
+     	}
+    }
+    
+    private ArrayList<TextMapElement> recreateEmptyElement(Element first, int startIndex, LinkedList<Integer>nodes){
+    	Element e = first;
+ 		
+ 		while(nodes.size() > 0)
+     		e = (Element)e.getChild(nodes.remove());
+ 		
+ 		return recreateElement(e, startIndex);
     }
     
     private ArrayList<TextMapElement> recreateElement(Element e, int startIndex){  
@@ -297,7 +281,6 @@ public class SelectionHandler extends Handler {
     		if(!readOnly(list.get(index))){
     			Element e = getBlockElement(index);
     			elList.addAll(getBlockMapElements(index, e)); 		
-    			removeTreeItem(index, e);
     			index = list.indexOf(elList.get(elList.size() - 1)) + 1;
     		}
     		else {
@@ -312,13 +295,6 @@ public class SelectionHandler extends Handler {
     	
     	clearListItems(elList);
     	return elList;
-    }
-    
-    private void removeTreeItem(int index, Element e){
-    	Message message = new Message(null);
-    	message.put("element", e);
-    	message.put("removeAll", true);
-    	tree.removeItem(list.get(index), message);
     }
     
     private void clearListItems(ArrayList<TextMapElement> elList){   
@@ -339,6 +315,11 @@ public class SelectionHandler extends Handler {
 		list.shiftOffsetsFromIndex(index, -(end - start), -(brailleEnd - brailleStart));
 	}
 	
+	private void rebuildViews(ArrayList<TextMapElement>mapList, int startIndex, int textStart, int brailleStart, ArrayList<Integer> indexes){
+		list.setCurrent(startIndex);
+     	setViews(mapList,startIndex, textStart, brailleStart);
+     	tree.rebuildTree(indexes);
+	}
 	private void setViews(ArrayList<TextMapElement> elList, int index, int textOffset, int brailleOffset ){
 		Message m = new Message(null);
 		int count = elList.size();
@@ -442,10 +423,14 @@ public class SelectionHandler extends Handler {
     }
     
     public void undoSelection(EventFrame frame){
-    	
+    	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
+    		
+    	}
     }
     
     public void redoSelection(EventFrame frame){
-    	
+    	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
+    		
+    	}
     }
 }

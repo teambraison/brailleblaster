@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleMap>
+    <namespaces/>
+    <entry>
+        <matcher nodeName="tr" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>list</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="table" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>table</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="li" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>list</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="dd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>bodytext</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="dt" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>list</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="caption" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>caption</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="epigraph" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>quotation</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="blockquote" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>quotation</styleName>
+    </entry>
+<!-- Style does not exist  <entry>
+        <matcher nodeName="br" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>softreturn</styleName>
+    </entry>-->
+<!-- Style does not exist   <entry>
+        <matcher nodeName="pagenum" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>pagenum</styleName>
+    </entry>-->
+<!--  Style does not exist  <entry>
+        <matcher nodeName="code" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>compbrl</styleName>
+    </entry>-->
+    <entry>
+        <matcher nodeName="prodnote" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>trnote</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="dateline" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="byline" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="line" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="poem" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>stanza</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="p" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>bodytext</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="author" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>bodytext</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="title" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>bodytext</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="bridgehead" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="hd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h6" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h5" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h4" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h3" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 7 heading</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h2" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>cell 5 heading</styleName>
+    </entry>
+    <entry>
+        <matcher nodeName="h1" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <styleName>centered Heading</styleName>
+    </entry>
+<!--   Style does not exist  <entry>
+        <matcher expression="//lic[count(following-sibling::list) &gt; 0]) = 0]" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <styleName>heading4</styleName>
+    </entry>-->
+    <entry>
+        <matcher expression="//h3[(preceding::text())[last()][count(ancestor::sidebar) &gt;= 1]]" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher expression="//h3[(preceding::text())[last()][count(ancestor::h2) &gt;= 1]]" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+    <entry>
+        <matcher expression="//h3[(preceding::text())[last()][count(ancestor::h1) &gt;= 1]]" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <styleName>cell 7 heading No Line</styleName>
+    </entry>
+</styleMap>

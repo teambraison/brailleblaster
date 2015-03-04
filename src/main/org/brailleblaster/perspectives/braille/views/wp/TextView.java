@@ -650,19 +650,19 @@ public class TextView extends WPView {
 	}
 	
 	public void setText(TextMapElement t, MapList list, int index){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
-		Styles prevStyle;
-		if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
-			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
-		else
-			prevStyle = null;
+		//Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		//Styles prevStyle;
+		//if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
+		//	prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
+		//else
+		//	prevStyle = null;
 		
 		String newText = appendToView(t.n, true);
 		int textLength = newText.length();
 
 		view.append(newText);
-		if(!(t instanceof PageMapElement))
-			handleStyle(prevStyle, style, t.n, newText);
+		//if(!(t instanceof PageMapElement))
+		//	handleStyle(prevStyle, style, t.n, newText);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -818,8 +818,8 @@ public class TextView extends WPView {
 	
 	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
-		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
-		int margin = 0;
+	//	Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+//		int margin = 0;
 		int currentStart = stateObj.getCurrentStart();
 		int currentEnd = stateObj.getCurrentEnd();
 		int pos = view.getCaretOffset();
@@ -835,26 +835,26 @@ public class TextView extends WPView {
 			handleLineWrap(currentStart, reformattedText, 0, false);
 		
 		message.put("length", (reformattedText.length() + spaceAfterText) - (Integer)message.getValue("length"));
-		if(style.contains(StylesType.leftMargin)){
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
-		}
+//		if(style.contains(StylesType.leftMargin)){
+//			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+//		}
 		
-		if(isFirst(n) && style.contains(StylesType.firstLineIndent) && reformattedText.length() > 0)
-			setFirstLineIndent(currentStart, style);
+//		if(isFirst(n) && style.contains(StylesType.firstLineIndent) && reformattedText.length() > 0)
+//			setFirstLineIndent(currentStart, style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
-		else {
-			StyleRange range = getStyleRange();
-			if(range != null)
-				 resetStyleRange(range);		
-		}
+//		if(style.contains(StylesType.emphasis))
+//			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	else {
+//			StyleRange range = getStyleRange();
+//			if(range != null)
+//				 resetStyleRange(range);		
+//		}
 		
-		if(style.contains(StylesType.format))
-			setAlignment(currentStart, currentEnd, style);
-		else
-			setAlignment(currentStart, currentEnd, SWT.LEFT);
+//		if(style.contains(StylesType.format))
+//			setAlignment(currentStart, currentEnd, style);
+//		else
+//			setAlignment(currentStart, currentEnd, SWT.LEFT);
 	
 		view.setCaretOffset(pos);		
 		spaceAfterText = 0;

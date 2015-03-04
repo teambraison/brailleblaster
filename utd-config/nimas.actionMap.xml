@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<actionMap>
+<!--    <namespaces>
+        <namespace prefix="xhtml" uri="http://www.w3.org/555555/xhtml"/>
+    </namespaces>-->
+	<namespaces/>
+    <entry>
+        <matcher nodeName="strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.BoldAction"/>
+    </entry>
+    <entry>
+        <matcher nodeName="em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
+    </entry>
+	<!-- Cannot find underline element in dtd documentation
+    <entry>
+        <matcher expression="//p" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericAction"/>
+    </entry> -->
+</actionMap>

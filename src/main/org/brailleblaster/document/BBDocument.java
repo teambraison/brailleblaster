@@ -61,7 +61,7 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.utd.UTDTranslationEngine;
-import org.brailleblaster.utd.config.StyleDefinitions;
+import org.brailleblaster.utd.config.XMLConfigHandler;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -89,21 +89,36 @@ public class BBDocument {
 	private String systemId;
 	private String publicId;
 	protected SettingsManager sm;
-	protected SemanticFileHandler semHandler;
 	protected LocaleHandler lh;
-	protected UTDTranslationEngine engine;
+	protected final UTDTranslationEngine engine;
+	protected final XMLConfigHandler utdConfig;
+	
+	//Style TODO: Once this class is unit tested absorb the other constructors
+	private BBDocument(Controller dm, boolean unused) {
+		this.dm = dm;
+		
+		try { 
+			engine = new UTDTranslationEngine();
+			//Style TODO: Somehow automagically load the correct config
+			utdConfig = new XMLConfigHandler(new File("utd-config"), "nimas", new File("utd-config/styleDefs.xml"));
+			engine.setActionMap(utdConfig.loadActions());
+			engine.setStyleDefinitions(utdConfig.loadStyleDefinitions());
+			engine.setStyleMap(utdConfig.loadStyle(engine.getStyleDefinitions()));
+		} catch(Exception e) {
+			throw new RuntimeException("Could not initialize UTD", e);
+		}
+	}
 	
 	/** Base constructor for initializing a new document
 	 * @param dm: Document Manager for relaying information between DOM and view
 	 */
 	public BBDocument(Controller dm){		
-		this.dm = dm;
+		this(dm, true);
 		lh = new LocaleHandler();
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
-		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
-		engine = new UTDTranslationEngine();
+		
 		engine.getBrailleSettings().setMainTranslationTable(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouis" + BBIni.getFileSep() + "tables" + BBIni.getFileSep() +  "en-us-g2.ctb");
 		engine.getBrailleSettings().setUseAsciiBraille(true);
 	}
@@ -113,12 +128,11 @@ public class BBDocument {
 	 * @param doc: XOM Document, the DOM already built for the currently open document
 	 */
 	public BBDocument(Controller dm, Document doc){
-		this.dm = dm;
+		this(dm, true);
 		this.doc = doc;
 		lh = new LocaleHandler();
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
-		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
 		sm = new SettingsManager(dm.getCurrentConfig());
 	}
 	
@@ -389,9 +403,10 @@ public class BBDocument {
 		else
 			fileName = dm.getWorkingPath();
 		
-		if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem")){
-			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem" + "\n";
-		}
+		//Style TODO: depends on .sem
+//		if(fu.exists(BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem")){
+//			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem" + "\n";
+//		}
 		
 		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n" + sm.getSettings(), 0);
 		deleteFile(inFile);
@@ -580,7 +595,8 @@ public class BBDocument {
 	public void resetBBDocument(String config){
 		deleteDOM();
 		sm = new SettingsManager(config);
-		semHandler.resetSemanticHandler(config);
+		//Style TODO: reset
+		//semHandler.resetSemanticHandler(config);
 	}
 	
 	
@@ -616,10 +632,6 @@ public class BBDocument {
 			d.setDocType(new DocType(this.getRootElement().getLocalName(), systemId));
 	}
 	
-	public SemanticFileHandler getSemanticFileHandler(){
-		return semHandler;
-	}
-	
 	/** Queries the document using xpath
 	 * @param query: xpath query
 	 * @return NodeList cotaining query result
@@ -636,8 +648,8 @@ public class BBDocument {
 	public int getLinesPerPage(){
 		return sm.getLinesPerPage();
 	}
-	
-	public StyleDefinitions getStyleDefinitions() {
-		return engine.getStyleDefinitions();
+
+	public UTDTranslationEngine getEngine() {
+		return engine;
 	}
 }

@@ -6,13 +6,10 @@ import java.util.Set;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
-
 import org.brailleblaster.document.ConfigFileHandler;
+
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable;
 import org.brailleblaster.perspectives.braille.document.BrailleDocument;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.Styles;
-import org.brailleblaster.perspectives.braille.document.BBSemanticsTable.StylesType;
 import org.brailleblaster.perspectives.braille.eventQueue.Event;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
@@ -26,21 +23,23 @@ import org.brailleblaster.perspectives.braille.messages.BBEvent;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
+import org.brailleblaster.utd.IStyle;
+import org.brailleblaster.utd.Style;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyleRange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StyleHandler extends Handler{
-
-	BrailleDocument document;
-	BBSemanticsTable semanticsTable;
+	private static final Logger log = LoggerFactory.getLogger(StyleHandler.class);
+	private final BrailleDocument document;
 	String configFile;
 	
 	EventFrame frame;
-	
+
 	public StyleHandler(Manager manager, ViewInitializer vi, MapList list){
 		super(manager, vi, list);	
 		this.document = manager.getDocument();
-		this.semanticsTable = manager.getStyleTable();
 		this.configFile = manager.getCurrentConfig();
 	}
 	
@@ -77,22 +76,17 @@ public class StyleHandler extends Handler{
 			
 				Element e = (Element)event.getNode();
 				String semantic = e.getAttributeValue(SEMANTICS).split(",")[1];
-				Styles style = manager.getStyleTable().get(semantic);
+				log.debug("Updating style " + semantic);
+				IStyle style = document.getEngine().getStyleDefinitions().getStyleByName(semantic);
 				Message message = Message.createUpdateStyleMessage(style, false, false);
 				handleStyleSingleSelected(message);
 				tree.rebuildTree(event.getTreeIndex());	
 			}
 			else {
 				StyleEvent ev = (StyleEvent)f.pop(); 
-				try {
-					Styles oldStyle = semanticsTable.get(ev.getStyle().getName()).clone();
-					ConfigFileHandler handler = new ConfigFileHandler(configFile, manager.getWorkingPath());
-			    	handler.updateDocumentStyle(ev.getStyle());
-			    	semanticsTable.resetStyleTable(configFile, manager.getWorkingPath());
-			    	addEditEvent(list.get(ev.getListIndex()), oldStyle);
-				} catch (CloneNotSupportedException e) {
-					e.printStackTrace();
-				}
+				log.debug("Copying style??? " + ev.getStyle().getName());
+				Style newStyle = document.getEngine().getStyleDefinitions().addStyleCopy(ev.getStyle() + "_new", ev.getStyle());
+			    addEditEvent(list.get(ev.getListIndex()), newStyle);
 			}
 		}
 		manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
@@ -129,7 +123,7 @@ public class StyleHandler extends Handler{
 		while (itr.hasNext()) {
 			TextMapElement tempElement= itr.next();
 			if( (!((tempElement instanceof BrlOnlyMapElement) || (tempElement instanceof PageMapElement)))){
-				Message styleMessage = Message.createUpdateStyleMessage((Styles)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
+				Message styleMessage = Message.createUpdateStyleMessage((Style)message.getValue("Style"), (Boolean)message.getValue("multiSelect"), (Boolean)message.getValue("isBoxline"));
 				Element parent = parentStyle(tempElement, styleMessage);
 				parents.add(parent);
 				ArrayList<TextMapElement> itemList = list.findTextMapElements(list.getNodeIndex(tempElement), parent, true);
@@ -150,8 +144,7 @@ public class StyleHandler extends Handler{
 		else
 			parent = document.getParent(current.n, true);
 		
-		BBSemanticsTable styles = manager.getStyleTable();
-		message.put("previousStyle", styles.get(styles.getKeyFromAttribute(parent)));
+		message.put("previousStyle", document.getEngine().getStyleDefinitions().getStyleByName(parent.getAttributeValue("style")));
 		return parent;
 	}
 	
@@ -299,14 +292,16 @@ public class StyleHandler extends Handler{
     }
     
     private void apply(String item){
-    	Styles style = semanticsTable.get(item);
+    	//Styles style = semanticsTable.get(item);
+		IStyle style = document.getEngine().getStyleDefinitions().getStyleByName(item);
     	
-    	if(style != null){
+    	//if(style != null){
+			//Umm: Keith was talking about removing box stuff from style
     		boolean isBoxLine = style.getName().equals("boxline");
     		Message m = Message.createUpdateStyleMessage(style, text.isMultiSelected(), isBoxLine);
     		m.put("Style", style);
     		updateStyle(m);
-    	}
+    	//}
     }
     
     private void addModelEvent(ModelEvent e){
@@ -318,11 +313,11 @@ public class StyleHandler extends Handler{
     	else
     		frame.addEvent(e);
     }
-    private void addStyleEditEvent(TextMapElement t, Styles style){
+    private void addStyleEditEvent(TextMapElement t, Style style){
     	manager.peekUndoEvent().addEvent(new StyleEvent(list.indexOf(t), vi.getStartIndex(), t.start, t.brailleList.getFirst().start, style, configFile));
     }
     
-    private void addEditEvent(TextMapElement t, Styles style){
+    private void addEditEvent(TextMapElement t, Style style){
 		frame.addEvent(new StyleEvent(list.indexOf(t), vi.getStartIndex(), t.start, t.brailleList.getFirst().start, style, configFile));
     }
 }

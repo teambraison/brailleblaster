@@ -23,20 +23,19 @@ import org.brailleblaster.perspectives.braille.mapping.elements.BrailleMapElemen
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.perspectives.braille.stylers.ElementUtils;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
 
 public class BrailleDocument extends BBDocument {
 	private int idCount = -1;
-	private BBSemanticsTable table;
 	
 	/**Base constructor for initializing a new document
 	 * @param dm :Document Manager for interacting with views
 	 * @param table :Semantics table containing style information
 	 */
-	public BrailleDocument(Manager dm, BBSemanticsTable table) {
+	public BrailleDocument(Manager dm) {
 		super(dm);
-		this.table = table;
 	}
 
 	/** Base constructor for when perspectives are switched and the XOM Document is passed to a Document specific to the view
@@ -44,9 +43,8 @@ public class BrailleDocument extends BBDocument {
 	 * @param doc :XOM Document, the DOM already built for the currently open document
 	 * @param table :Semantics table containing style information
 	 */
-	public BrailleDocument(Manager dm, Document doc, BBSemanticsTable table) {
+	public BrailleDocument(Manager dm, Document doc) {
 		super(dm, doc);
-		this.table = table;
 	}
 	
 	/** Method via which update and remove procedures are handled
@@ -108,8 +106,11 @@ public class BrailleDocument extends BBDocument {
 	 * @param elem : Name of element to insert
 	 */
 	public void insertElement(ViewInitializer vi, MapList list, TextMapElement current, int textOffset, int brailleOffset, int index,String elem){
-		String type = this.semHandler.getDefault(elem);
-		Element p = makeElement(elem, "semantics", "style," + type);
+		//Style TODO: There is no concept of looking up styles by element name in UTD
+//		String type = this.semHandler.getDefault(elem);
+//		Element p = makeElement(elem, "semantics", "style," + type);
+		Element p = makeElement(elem, "style", "");
+		
 		//Add new attribute for epub aside and for nimas prodnote
 		if ((elem.equalsIgnoreCase("prodnote") )||( elem.equalsIgnoreCase("aside"))){
 			p.addAttribute(new Attribute("render", "optional"));
@@ -119,14 +120,15 @@ public class BrailleDocument extends BBDocument {
 	
 		p.appendChild(new Text(""));
 		
+		//Style TODO: What does this do
 		Element parent = current.parentElement();
 		int nodeIndex = 0;
-		if(table.getSemanticTypeFromAttribute(parent).equals("style")){
+		if(ElementUtils.containsStyle(parent)){
 			parent = (Element)parent.getParent();
 			nodeIndex = parent.indexOf(current.parentElement());
 		}
 		else {
-			while(table.getSemanticTypeFromAttribute(parent).equals("action")){
+			while(ElementUtils.containsAction(parent)){
 				nodeIndex = parent.getParent().indexOf(parent);
 				parent = (Element)parent.getParent();
 			}
@@ -761,8 +763,11 @@ public class BrailleDocument extends BBDocument {
 	 */
 	public Element getParent(Node n, boolean ignoreInlineElement){
 		Element parent = (Element)n.getParent();
+		//Style TODO: This if could probably be removed as all calls set it to true
 		if(ignoreInlineElement){
-			while(attributeExists(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
+			//Style TODO: why does this ignore actions?
+			//while(attributeExists(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
+			while(attributeExists(parent, "action")){
 				parent = (Element)parent.getParent();
 			}
 		}

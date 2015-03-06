@@ -137,4 +137,10 @@ public abstract class Handler {
 		return t instanceof BrlOnlyMapElement || t instanceof PageMapElement;
 	}
 	
+	protected boolean readOnly(Element e){
+		String sem = getSemanticAttribute(e);
+		
+		return sem.equals("boxline") || sem.equals("pagenum");
+	}
+	
 }

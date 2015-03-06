@@ -400,6 +400,8 @@ public class TextView extends WPView {
 
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
+				
+				System.out.println("Text pos: " + view.getCaretOffset());
 			}
 		});
 		
@@ -1104,7 +1106,6 @@ public class TextView extends WPView {
 			m.put("textLength", 0);
 			m.put("textOffset", reformattedText.length() + start);
 		
-			//start += linesBefore;
 			//reset margin in case it is not applied
 			if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
 				handleLineWrap(start, reformattedText, 0, false);

@@ -652,4 +652,8 @@ public class BBDocument {
 	public int getLinesPerPage(){
 		return sm.getLinesPerPage();
 	}
+	
+	public UTDTranslationEngine getEngine() {
+		return engine;
+	}
 }

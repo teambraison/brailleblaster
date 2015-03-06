@@ -84,7 +84,7 @@ public class PageNumbersTab {
 		bpnLocCombo.add("Top Right");
 		bpnLocCombo.add("Bottom Right");
 		bpnLocCombo.add("None");
-		
+		//TODO: This defeats the purpose of i18n
 		if (settingsMap.get("braillePageNumberAt").equals("Top Left")) {
 			bpnLocCombo.setText("Top Left");
 		}

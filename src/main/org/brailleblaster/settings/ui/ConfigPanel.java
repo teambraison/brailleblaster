@@ -30,6 +30,7 @@ public class ConfigPanel {
 	PagePropertiesTab pageProperties;
 	TranslationSettingsTab translationSettings;
 	PageNumbersTab pageNumTab;
+	StyleDefinitionsTab styleDefsTab;
 	AdvancedTab advTab;
 	Button okButton, cancelButton;
 	
@@ -47,8 +48,8 @@ public class ConfigPanel {
 		pageProperties = new PagePropertiesTab(folder, sm, settingsCopy);
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
+		styleDefsTab = new StyleDefinitionsTab(folder, m);
 		advTab = new AdvancedTab(folder, sm, settingsCopy);
-
 		
 		okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));

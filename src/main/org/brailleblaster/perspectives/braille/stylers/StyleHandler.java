@@ -44,6 +44,7 @@ public class StyleHandler extends Handler{
 	}
 	
 	public void updateStyle(Message message){
+		log.debug("UpdateStyle {}", message);
 		frame = new EventFrame();
 		
 		if(message.getValue("multiSelect").equals(false)) 
@@ -56,12 +57,14 @@ public class StyleHandler extends Handler{
 	}
 	
 	public void undoStyle(EventFrame f){
+		log.debug("undoStyle {}", f);
 		frame = new EventFrame();
 		updateStyle(f);
 		manager.addRedoEvent(frame);
 	}
 	
 	public void redoStyle(EventFrame f){
+		log.debug("EventFrame {}", f);
 		frame = new EventFrame();
 		updateStyle(f);
 		manager.addUndoEvent(frame);
@@ -233,30 +236,32 @@ public class StyleHandler extends Handler{
 		}
     }
     
-    private void setEmphasis(Styles style){
-    	if(style.contains(StylesType.emphasis)){
-    		StyleRange emphasis = (StyleRange)style.get(StylesType.emphasis);
-    		if(emphasis.fontStyle == SWT.BOLD)
-    			style.put(StylesType.emphasis, "boldx");
-    		else if(emphasis.fontStyle == SWT.UNDERLINE_SINGLE)
-    			style.put(StylesType.emphasis, "underlinex");
-    		else if(emphasis.fontStyle == SWT.ITALIC)
-    			style.put(StylesType.emphasis, "italicx");
-    	}
-    }
+//    private void setEmphasis(IStyle style){
+//		log.trace("Unimplemented StyleHandler.setEmphasis " + style, new RuntimeException());
+////    	if(style.contains(StylesType.emphasis)){
+////    		StyleRange emphasis = (StyleRange)style.get(StylesType.emphasis);
+////    		if(emphasis.fontStyle == SWT.BOLD)
+////    			style.put(StylesType.emphasis, "boldx");
+////    		else if(emphasis.fontStyle == SWT.UNDERLINE_SINGLE)
+////    			style.put(StylesType.emphasis, "underlinex");
+////    		else if(emphasis.fontStyle == SWT.ITALIC)
+////    			style.put(StylesType.emphasis, "italicx");
+////    	}
+//    }
     
-    private void setAlignment(Styles style){
-    	if(style.contains(StylesType.format)){
-    		int format = Integer.valueOf((String)style.get(StylesType.format));
-    		
-    		if(format == SWT.RIGHT)
-    			style.put(StylesType.format, "rightJustified");
-    		else if(format == SWT.CENTER) 
-    			style.put(StylesType.format, "centered");
-    		else
-    			style.put(StylesType.format, "leftJustified");
-    	}
-    }
+//    private void setAlignment(IStyle style){
+////		
+////    	if(style.contains(StylesType.format)){
+////    		int format = Integer.valueOf((String)style.get(StylesType.format));
+////    		
+////    		if(format == SWT.RIGHT)
+////    			style.put(StylesType.format, "rightJustified");
+////    		else if(format == SWT.CENTER) 
+////    			style.put(StylesType.format, "centered");
+////    		else
+////    			style.put(StylesType.format, "leftJustified");
+////    	}
+//    }
     
     private boolean isHiddenStyle(Styles style){
     	return style.getName().contains("local_") ? true : false;
@@ -273,22 +278,25 @@ public class StyleHandler extends Handler{
     	style.put(StylesType.name, "local_" +style.get(StylesType.name));
     }
     
-    private void updateAndApply(Styles oldStyle, Styles style, Element e, TextMapElement t){
-    	setEmphasis(style);
-    	ConfigFileHandler handler = new ConfigFileHandler(configFile, manager.getWorkingPath());
-    	
-		if(!isHiddenStyle(style)){
-			setName(style, e);	
-    		handler.appendDocumentStyle(style);
-    		semanticsTable.resetStyleTable(configFile, manager.getWorkingPath());
-    		apply(style.getName());
-		}
-		else{
-			handler.updateDocumentStyle(style);
-			semanticsTable.resetStyleTable(configFile, manager.getWorkingPath());
-			apply(style.getName());
-			addStyleEditEvent(t, oldStyle);
-		}	
+    private void updateAndApply(IStyle oldStyle, IStyle style, Element e, TextMapElement t){
+    	//setEmphasis(style);
+		//Style TODO: oh god
+		log.debug("updateAndApply called for old " + oldStyle + " new " + style);
+		
+//    	ConfigFileHandler handler = new ConfigFileHandler(configFile, manager.getWorkingPath());
+//    	
+//		if(!isHiddenStyle(style)){
+//			setName(style, e);	
+//    		handler.appendDocumentStyle(style);
+//    		semanticsTable.resetStyleTable(configFile, manager.getWorkingPath());
+//    		apply(style.getName());
+//		}
+//		else{
+//			handler.updateDocumentStyle(style);
+//			semanticsTable.resetStyleTable(configFile, manager.getWorkingPath());
+//			apply(style.getName());
+//			addStyleEditEvent(t, oldStyle);
+//		}	
     }
     
     private void apply(String item){

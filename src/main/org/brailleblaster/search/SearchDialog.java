@@ -1675,6 +1675,7 @@ public class SearchDialog extends Dialog {
 
 		// The text in the view.
 		String textStr = tv.view.getText();
+		System.out.println(textStr);
 
 		// Are there any characters in the text view? If there
 		// are no characters, we probably don't have a document

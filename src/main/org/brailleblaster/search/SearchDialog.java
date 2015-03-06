@@ -461,7 +461,7 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
-		// shlFindreplace.setDefaultButton(findBtn);
+		 shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -898,7 +898,7 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
-		// shlFindreplace.setDefaultButton(findBtn);
+		 shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {

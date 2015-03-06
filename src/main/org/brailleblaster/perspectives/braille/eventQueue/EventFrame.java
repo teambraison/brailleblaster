@@ -14,6 +14,10 @@ public class EventFrame {
 		eventList.add(event);
 	}
 	
+	public void addEvent(int index, Event event){
+		eventList.add(index, event);
+	}
+	
 	public int size(){
 		return eventList.size();
 	}

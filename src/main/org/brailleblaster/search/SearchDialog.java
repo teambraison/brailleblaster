@@ -1,20 +1,38 @@
 package org.brailleblaster.search;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.brailleblaster.util.Notify;
+import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -23,6 +41,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class SearchDialog extends Dialog {
 
@@ -31,7 +50,7 @@ public class SearchDialog extends Dialog {
 	protected Shell shlFindreplace;
 	private Shell errorMessageShell;
 	private Shell replaceAllShell;
-	private Shell newReplaceShell;
+	// private Shell newReplaceShell;
 	Display display = null;
 	private Manager man = null;
 	Combo searchCombo = null;
@@ -69,7 +88,7 @@ public class SearchDialog extends Dialog {
 	Map<String, String> searchMap = new HashMap<String, String>();
 	int replaceArraySize;
 	Map<String, String> replaceMap = new HashMap<String, String>();
-//	private String foundStr;
+	// private String foundStr;
 	int numberReplaceAlls;
 
 	/**
@@ -168,8 +187,8 @@ public class SearchDialog extends Dialog {
 
 		Label lblFind = new Label(shlFindreplace, SWT.NONE);
 		lblFind.setText("Find:");
-//		Label label = new Label(shlFindreplace, SWT.NONE);
-//		// formToolkit.adapt(label, true, true);
+		Label label = new Label(shlFindreplace, SWT.NONE);
+		// formToolkit.adapt(label, true, true);
 
 		searchCombo = new Combo(shlFindreplace, SWT.NONE);
 		searchCombo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
@@ -181,14 +200,14 @@ public class SearchDialog extends Dialog {
 				searchCombo.setText(searchList[i].toString());
 			}// for
 		}// if
-		
+
 		searchCombo.getData();
 		searchCombo.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = searchCombo.getText();
-				if (!searchMap.containsValue(String.valueOf(newText))) {
+				if (!searchMap.containsValue(newText)) {
 					searchCombo.add(newText);
 					searchList[searchArraySize] = newText;
 					searchMap.put(newText, newText);
@@ -197,6 +216,24 @@ public class SearchDialog extends Dialog {
 
 			}// key traversed
 		});// addTraverseListener
+
+		searchCombo.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				String newText = searchCombo.getText();
+				if (!searchMap.containsValue(newText)) {
+					searchCombo.add(newText);
+					searchList[searchArraySize] = newText;
+					searchMap.put(newText, newText);
+					searchArraySize++;
+				}// if
+			}
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// do nothing for now
+			}
+		});
 
 		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
 		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
@@ -219,7 +256,7 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = replaceCombo.getText();
-				if (!replaceMap.containsValue(String.valueOf(newText))) {
+				if (!replaceMap.containsValue((newText))) {
 					replaceCombo.add(newText);
 					replaceList[replaceArraySize] = newText;
 					replaceMap.put(newText, newText);
@@ -227,6 +264,23 @@ public class SearchDialog extends Dialog {
 				}// if
 			}// key traversed
 		});// addTraverseListener
+		replaceCombo.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				String newText = replaceCombo.getText();
+				if (!replaceMap.containsValue(newText)) {
+					replaceCombo.add(newText);
+					replaceList[replaceArraySize] = newText;
+					replaceMap.put(newText, newText);
+					replaceArraySize++;
+				}// if
+			}
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// do nothing for now
+			}
+		});
 
 		Group grpDirection = new Group(shlFindreplace, SWT.NONE);
 		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
@@ -407,7 +461,7 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
-//		shlFindreplace.setDefaultButton(findBtn);
+		 shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -612,7 +666,7 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = searchCombo.getText();
-				if (!searchMap.containsValue(String.valueOf(newText))) {
+				if (!searchMap.containsValue(newText)) {
 					searchCombo.add(newText);
 					searchList[searchArraySize] = newText;
 					searchMap.put(newText, newText);
@@ -621,6 +675,24 @@ public class SearchDialog extends Dialog {
 
 			}// key traversed
 		});// addTraverseListener
+
+		searchCombo.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				String newText = searchCombo.getText();
+				if (!searchMap.containsValue(newText)) {
+					searchCombo.add(newText);
+					searchList[searchArraySize] = newText;
+					searchMap.put(newText, newText);
+					searchArraySize++;
+				}// if
+			}
+
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// do nothing for now
+			}
+		});
 
 		Label lblReplaceWith = new Label(shlFindreplace, SWT.NONE);
 		lblReplaceWith.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
@@ -637,7 +709,7 @@ public class SearchDialog extends Dialog {
 			public void keyTraversed(TraverseEvent e) {
 
 				String newText = replaceCombo.getText();
-				if (!replaceMap.containsValue(String.valueOf(newText))) {
+				if (!replaceMap.containsValue(newText)) {
 					replaceCombo.add(newText);
 					replaceList[replaceArraySize] = newText;
 					replaceMap.put(newText, newText);
@@ -645,6 +717,23 @@ public class SearchDialog extends Dialog {
 				}// if
 			}// key traversed
 		});// addTraverseListener
+
+		replaceCombo.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				String newText = replaceCombo.getText();
+				if (!replaceMap.containsValue(newText)) {
+					replaceCombo.add(newText);
+					replaceList[replaceArraySize] = newText;
+					replaceMap.put(newText, newText);
+					replaceArraySize++;
+				}// if
+			}
+			@Override
+			public void focusGained(FocusEvent arg0) {
+				// do nothing for now
+			}
+		});
 
 		Group grpDirection = new Group(shlFindreplace, SWT.NONE);
 		grpDirection.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false,
@@ -809,7 +898,7 @@ public class SearchDialog extends Dialog {
 				3, 1));
 		// formToolkit.adapt(btnFind, true, true);
 		findBtn.setText("Find");
-		shlFindreplace.setDefaultButton(findBtn);
+		 shlFindreplace.setDefaultButton(findBtn);
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -1016,7 +1105,7 @@ public class SearchDialog extends Dialog {
 		});// selectionListener
 		errorMessageShell.pack(true);
 		errorMessageShell.open();
-		
+
 		errorMessageShell.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
 				event.doit = false;
@@ -1166,7 +1255,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-//							foundStr = tv.view.getSelectionText();
+							// foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1253,7 +1342,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-//							foundStr = tv.view.getSelectionText();
+							// foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1343,7 +1432,7 @@ public class SearchDialog extends Dialog {
 							tv.view.setSelection(startCharIndex, endCharIndex);
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-//							foundStr = tv.view.getSelectionText();
+							// foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1427,7 +1516,7 @@ public class SearchDialog extends Dialog {
 									(endCharIndex));
 							tv.view.setTopIndex(tv.view
 									.getLineAtOffset(startCharIndex));
-//							foundStr = tv.view.getSelectionText();
+							// foundStr = tv.view.getSelectionText();
 							numberReplaceAlls++;
 
 							// Found it; break.
@@ -1535,7 +1624,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-//					foundStr = tv.view.getSelectionText();
+					// foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -1643,7 +1732,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-//					foundStr = tv.view.getSelectionText();
+					// foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -1753,7 +1842,7 @@ public class SearchDialog extends Dialog {
 						tv.view.setSelection(startCharIndex, endCharIndex);
 						tv.view.setTopIndex(tv.view
 								.getLineAtOffset(startCharIndex));
-//						foundStr = tv.view.getSelectionText();
+						// foundStr = tv.view.getSelectionText();
 
 						// Found it; break.
 						return true;
@@ -1867,7 +1956,7 @@ public class SearchDialog extends Dialog {
 					// found.
 					tv.view.setSelection(startCharIndex, endCharIndex);
 					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
-//					foundStr = tv.view.getSelectionText();
+					// foundStr = tv.view.getSelectionText();
 
 					// Found it; break.
 					return true;
@@ -2031,9 +2120,11 @@ public class SearchDialog extends Dialog {
 
 		// tests to see if the user has used the find button and has selected
 		// text that they want to replace
-			if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
-				return true;
-			}// if text selected
+		// if (foundStr != null) {
+		if (tv.view.getSelectionText().equalsIgnoreCase(findMeStr)) {
+			return true;
+		}// if text selected
+			// }
 
 		// Get number of characters in text view.
 		int numChars = textStr.length();
@@ -2332,4 +2423,5 @@ public class SearchDialog extends Dialog {
 	}
 
 } // class SearchDialog...
+
 

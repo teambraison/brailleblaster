@@ -400,8 +400,6 @@ public class TextView extends WPView {
 
 				if(view.getLineAtOffset(view.getCaretOffset()) != currentLine)
 					sendStatusBarUpdate(view.getLineAtOffset(view.getCaretOffset()));
-				
-				System.out.println("Text pos: " + view.getCaretOffset());
 			}
 		});
 		

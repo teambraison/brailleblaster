@@ -142,7 +142,7 @@ public class Message {
 	}
 	
 	public static Message createSelectionMessage(String replacementText, int start, int end){
-		Message m = new Message(BBEvent.SELECTION);
+		Message m = new Message(BBEvent.SELECTION);	
 		m.put("replacementText", replacementText);
 		m.put("start", start);
 		m.put("end", end);

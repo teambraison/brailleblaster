@@ -237,7 +237,7 @@ public class SelectionHandler extends Handler {
     		start = 0;
     	
     	int linebreaks;
-    	if(start != end)
+    	if(start != end || end == t.end)
     		linebreaks = (t.end - t.start) - t.textLength();
     	else
     		linebreaks = 0;
@@ -466,12 +466,11 @@ public class SelectionHandler extends Handler {
     public void undoSelection(EventFrame frame){
     	evFrame = new EventFrame();
     	boolean firstBlock = true;
-    	
+    	int pos = text.view.getCaretOffset();
     	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
     		ModelEvent ev = (ModelEvent)frame.push();
-    		//System.out.println(ev.getNode().toXML().toString());
-    		for(int i = 0; i < list.size(); i++)
-        		System.out.println(i + ":\t" + list.get(i).getText() + " " + list.get(i).start + " " + list.get(i).end);
+    		if(firstBlock)
+    			pos = ev.getTextOffset();
     		if(!readOnly((Element)ev.getNode())){
     			if(firstBlock || frame.size() == 0){
     				Element e = getBlockElement(ev.getListIndex());
@@ -511,15 +510,21 @@ public class SelectionHandler extends Handler {
     		
     		firstBlock = false;
     	}	
-    	if(evFrame.size() > 0)
+    	if(evFrame.size() > 0){
     		manager.addRedoEvent(evFrame);
+    		text.setCurrentElement(pos);
+    	}
     }
     
     public void redoSelection(EventFrame frame){
     	evFrame = new EventFrame();
     	boolean firstBlock = true;
+    	int pos = text.view.getCaretOffset();
+    	
     	while(!frame.empty() && frame.peek().getEventType().equals(EventTypes.Selection)){
     		ModelEvent ev = (ModelEvent)frame.pop();
+    		if(frame.empty())
+    			pos = ev.getTextOffset();
     		if(!readOnly((Element)ev.getNode())){
     			Element e = getBlockElement(ev.getListIndex());
         		ArrayList<TextMapElement> maplist = getBlockMapElements(ev.getListIndex(), e);
@@ -550,8 +555,10 @@ public class SelectionHandler extends Handler {
     		
         	firstBlock = false;
     	}	   	
-    	if(evFrame.size() > 0)
+    	if(evFrame.size() > 0){
     		manager.addUndoEvent(evFrame);
+    		text.setCurrentElement(pos);
+    	}
     }
     
     private void insertEvent(ModelEvent ev){
@@ -564,7 +571,6 @@ public class SelectionHandler extends Handler {
     	int size = repopulateRange(e, index);
 		ArrayList<TextMapElement>maplist = getListRange(index, size);
 		
-		System.out.println(list.get(ev.getListIndex() - 1).end + " " + list.get(ev.getListIndex() + 1).start);
 		if(ev.getListIndex() > 0 && !readOnly(list.get(ev.getListIndex() - 1))){
 	    //	text.insertText(textStart, "\n");
 	    //	textStart++;

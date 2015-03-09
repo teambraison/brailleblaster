@@ -82,6 +82,7 @@ public class SelectionHandler extends Handler {
          else {
         	boolean clearAll = false;	 
         	boolean removeFirst = false;
+        	boolean removeLast = false;
             ArrayList<TextMapElement> lastList = getBlockMapElements(endIndex, lastEl);
          	
          	if(list.indexOf(first) == 0 && list.indexOf(last) == list.size() - 1){
@@ -91,10 +92,12 @@ public class SelectionHandler extends Handler {
          
          	if((startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
          		removeFirst = true;
+         	else if(endPos > first.end && endPos == last.end && replacementText.length() == 0)
+         		removeLast = true;
          	
          	addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), removeFirst);
          	addEvents(list.indexOf(firstList.get(firstList.size() - 1)) + 1, list.indexOf(lastList.get(0)));
-         	addEvent(lastEl, list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), false);
+         	addEvent(lastEl, list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), removeLast);
          	
          	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
          	
@@ -174,7 +177,7 @@ public class SelectionHandler extends Handler {
          		mapList.add(last);
          		repopulateReadOnly(last, pos);
          	}
-         	else if(!clearAll)
+         	else if(!clearAll && !removeLast)
          		mapList.addAll(recreateElement(lastEl, pos));
          	
          	if(!list.empty())
@@ -482,7 +485,7 @@ public class SelectionHandler extends Handler {
     		if(firstBlock)
     			pos = ev.getTextOffset();
     		if(!readOnly((Element)ev.getNode())){
-    			if(((firstBlock  && !ev.insert()) || frame.size() == 0)){
+    			if((firstBlock  && !ev.insert()) || (frame.size() == 0 && !ev.insert())){
     				Element e = getBlockElement(ev.getListIndex());
     				ArrayList<TextMapElement> maplist = getBlockMapElements(ev.getListIndex(), e);
     				TextMapElement first = maplist.get(0);
@@ -546,9 +549,9 @@ public class SelectionHandler extends Handler {
         		else
         			clearViewRanges(textStart, first.brailleList.getFirst().start, last, list.indexOf(first), 0, last.end, "");
         		
-        		//boolean replaceElement = replaceElement(ev);
+        		
         		clearListItems(maplist);
-        		if(firstBlock || (frame.empty() && !ev.insert())){
+        		if((firstBlock && !ev.insert()) || (frame.empty() && !ev.insert())){
         			e.getParent().replaceChild(e, ev.getNode());
         			int size = repopulateRange((Element)ev.getNode(), index);
         			maplist = getListRange(index, size);

@@ -2010,7 +2010,6 @@ public class TextView extends WPView {
 		for(int i = 0; i < ranges.length; i++)
 			view.setStyleRange(ranges[i]);
 		
-		
 		if(currentChanges == 0)
 			textChanged = false;
 	}

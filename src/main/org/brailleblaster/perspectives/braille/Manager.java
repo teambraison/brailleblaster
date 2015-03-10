@@ -75,7 +75,7 @@ import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
-import org.brailleblaster.search.*;
+import org.brailleblaster.search.SearchDOM;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
@@ -125,7 +125,7 @@ public class Manager extends Controller {
 	private boolean simBrailleDisplayed;
 	private MapList list;
 	private QueueManager queueManager;
-	SearchDialog srch = null;
+	SearchDOM srch = null;
 	private Vector<String> ignoreList = new Vector<String>();
 	
 	//Constructor that sets things up for a new document.
@@ -207,7 +207,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
 		document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		
@@ -317,11 +317,11 @@ public class Manager extends Controller {
 	// Opens the search/replace dialog.
 	public void search() {
 		if (srch==null) {
-			srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+			srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
 			srch.open();
 		}
 		else {
-			srch.openWithPreviousValues();
+			srch.open();
 		}
 
 	}

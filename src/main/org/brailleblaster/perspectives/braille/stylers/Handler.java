@@ -139,6 +139,6 @@ public abstract class Handler {
 	
 	protected boolean readOnly(Element e){
 		String sem = getSemanticAttribute(e);	
-		return sem.equals("boxline") || sem.equals("pagenum");
+		return sem.equals("boxline") || sem.equals("pagenum") || sem.equals("fullBox");
 	}	
 }

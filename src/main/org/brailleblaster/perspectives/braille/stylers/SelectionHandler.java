@@ -83,6 +83,7 @@ public class SelectionHandler extends Handler {
         	boolean clearAll = false;	 
         	boolean removeFirst = false;
         	boolean removeLast = false;
+        	
             ArrayList<TextMapElement> lastList = getBlockMapElements(endIndex, lastEl);
          	
          	if(list.indexOf(first) == 0 && list.indexOf(last) == list.size() - 1){
@@ -90,9 +91,9 @@ public class SelectionHandler extends Handler {
          			clearAll = true;
          	}    		
          
-         	if((startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
+         	if(!clearAll && !readOnly(list.get(startIndex + 1)) && (startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
          		removeFirst = true;
-         	else if(endPos > first.end && endPos == last.end && replacementText.length() == 0)
+         	else if(!readOnly(list.get(endIndex - 1)) && endPos > first.end && endPos == last.end && replacementText.length() == 0)
          		removeLast = true;
          	
          	addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), removeFirst);

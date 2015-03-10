@@ -91,14 +91,22 @@ public class SelectionHandler extends Handler {
          			clearAll = true;
          	}    		
          
-         	if(!clearAll && !readOnly(list.get(startIndex + 1)) && (startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
+         	if(!clearAll && !readOnly(list.get(list.indexOf(firstList.get(firstList.size()  - 1)) + 1)) && (startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
          		removeFirst = true;
-         	else if(!readOnly(list.get(endIndex - 1)) && endPos > first.end && endPos == last.end && replacementText.length() == 0)
+         	else if(!readOnly(list.get(endIndex + 1)) && endPos > first.end && endPos == last.end && replacementText.length() == 0)
          		removeLast = true;
          	
-         	addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), removeFirst);
+         	if(readOnly(first))
+         		addEvent(list.get(list.indexOf(firstList.get(0))).parentElement(), list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), removeFirst);
+         	else
+         		addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), removeFirst);
+         
          	addEvents(list.indexOf(firstList.get(firstList.size() - 1)) + 1, list.indexOf(lastList.get(0)));
-         	addEvent(lastEl, list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), removeLast);
+         	
+         	if(readOnly(last))
+         		addEvent(list.get(list.indexOf(lastList.get(0))).parentElement(), list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), removeLast);
+         	else
+         		addEvent(lastEl, list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), removeLast);
          	
          	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
          	
@@ -131,7 +139,6 @@ public class SelectionHandler extends Handler {
          			}      				
          		}
          	}
-         	
          	
          	if(!readOnly(last) && !clearAll){
          		list.setCurrent(endIndex);

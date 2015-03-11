@@ -93,7 +93,7 @@ public class SelectionHandler extends Handler {
          
          	if(!clearAll && !readOnly(list.get(list.indexOf(firstList.get(firstList.size()  - 1)) + 1)) && (startPos <= first.start && endPos > first.end) && endPos < last.end && replacementText.length() == 0)
          		removeFirst = true;
-         	else if(!readOnly(list.get(endIndex + 1)) && endPos > first.end && endPos == last.end && replacementText.length() == 0)
+         	else if(!readOnly(list.get(endIndex - 1)) && endPos > first.end && endPos == last.end && replacementText.length() == 0)
          		removeLast = true;
          	
          	if(readOnly(first))

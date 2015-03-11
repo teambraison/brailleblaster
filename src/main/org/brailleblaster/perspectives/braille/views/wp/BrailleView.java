@@ -1012,6 +1012,103 @@ public class BrailleView extends WPView {
 		setListenerLock(false);
 	}
 
+	
+	public void resetSelectionElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
+		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
+		int margin = 0;
+		int lineBreaks = 0;
+		int originalPosition = view.getCaretOffset();
+		int start = pos;
+		Element parent = (Element)b.n.getParent();
+		int index = parent.indexOf(b.n);
+		setListenerLock(true);
+		view.setCaretOffset(pos);		
+		
+		if(t instanceof BrlOnlyMapElement || t instanceof PageMapElement){
+			index = list.indexOf(t);
+			if(index > 0 && list.get(index - 1).brailleList.getLast().end == pos){
+				if(index < list.size() - 1 && list.get(index + 1).brailleList.getFirst().start > start){
+					view.insert("\n" + b.n.getValue());
+					lineBreaks++;
+					view.setCaretOffset(pos + 1);
+			
+					b.setOffsets(1 + start, 1 + start + b.n.getValue().length());
+					list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length());
+					m.put("brailleLength", 1);
+					m.put("brailleOffset", start + b.n.getValue().length() + 1);
+				}
+				else {
+						view.insert("\n" + b.n.getValue() + "\n");
+						lineBreaks++;
+						view.setCaretOffset(pos + 1);
+			
+						b.setOffsets(1 + start, 1 + start + b.n.getValue().length());
+						list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length());
+						m.put("brailleLength", 2);
+						m.put("brailleOffset", start + b.n.getValue().length() + 2);
+				}
+			}
+			else {
+				if((index < list.size() - 1 && list.get(index + 1).brailleList.getFirst().start > start) || index == list.size() - 1){
+					view.insert(b.n.getValue());
+					view.setCaretOffset(pos + 1);
+			
+					b.setOffsets(start, start + b.n.getValue().length());
+					list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length());
+					m.put("brailleLength", 0);
+					m.put("brailleOffset", start + b.n.getValue().length());
+				}
+				else {
+					view.insert(b.n.getValue() + "\n");
+					view.setCaretOffset(pos + 1);
+			
+					b.setOffsets(start, start + b.n.getValue().length());
+					list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length());
+					m.put("brailleLength", 1);
+					m.put("brailleOffset", start + b.n.getValue().length() + 1);
+				}
+			}
+			view.setLineIndent(view.getLineAtOffset(t.brailleList.getFirst().start), 1, 0);
+		}
+		else {
+			//checks for newline element before text node if not at the beginning of a block element
+			if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+				view.insert("\n" + b.n.getValue());
+				lineBreaks++;
+				view.setCaretOffset(pos + 1);
+			}
+			else 
+				view.insert(b.n.getValue());
+		
+				b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
+				list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length() + lineBreaks);
+		
+				b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
+				m.put("brailleLength", 0);
+				m.put("brailleOffset", start + b.n.getValue().length() + lineBreaks);
+		
+		
+				//reset margin in case it is not applied
+				if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+					handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
+				
+				if(style.contains(StylesType.leftMargin)) {
+					margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+					handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
+				}
+					
+				if(isFirst && style.contains(StylesType.firstLineIndent))
+					setFirstLineIndent(t.brailleList.getFirst().start, style);
+		
+				if(style.contains(StylesType.format))
+					setAlignment(start,start + b.n.getValue().length(),style);
+		
+				view.setCaretOffset(originalPosition);
+		}
+		setListenerLock(false);
+	}
+
 	@Override
 	public void addPageNumber(PageMapElement p, boolean insert) {
 		String text = p.brailleList.getFirst().value();

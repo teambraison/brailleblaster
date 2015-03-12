@@ -154,7 +154,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-//		srch = new SearchDialog(wp.getShell(), SWT.NONE, this);
+		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
 		if(docName != null)
 			openDocument(docName);
 		else {
@@ -207,7 +207,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-//		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
+		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
 		document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		

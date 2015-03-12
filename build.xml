@@ -22,7 +22,7 @@
 	<target name="compile" depends="init">
 		<javac srcdir="${srcdir}" destdir="${builddir}"
 			debug="yes"
-			includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
+			includeantruntime="false" source="8" target="8" encoding="utf-8">
 			<classpath refid="allJars.path"/>
 		</javac>
 	</target>

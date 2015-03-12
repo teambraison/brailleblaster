@@ -11,7 +11,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 
@@ -39,7 +38,6 @@ public class ConfigPanel {
 		shell = new Shell(Display.getDefault(), SWT.APPLICATION_MODAL | SWT.RESIZE | SWT.CLOSE | SWT.TITLE | SWT.MIN);
 		shell.setText( lh.localValue("settings") );
 		shell.setLayout(new FormLayout());
-		setPanelSize();
 		
 		folder = new TabFolder(shell, SWT.NONE);
 		setFormLayout(folder, 0, 100, 0, 94);
@@ -96,16 +94,12 @@ public class ConfigPanel {
 			}		
 		});
 		
+		//Autosize shell based on what the internal elements require
+		Point size = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		shell.setSize(size);
+		
+		//Show the window
 		shell.open();
-	}
-	
-	private void setPanelSize(){
-		Monitor primary = shell.getDisplay().getPrimaryMonitor();
-		Rectangle bounds = primary.getBounds();
-		int x = (bounds.width / 2) - ((bounds.width / 6) / 2);
-		int y = (bounds.height / 2) - ((bounds.height / 2) / 2);
-		shell.setSize(bounds.width / 3, (int) (bounds.height/1.5) );
-		shell.setLocation(x, y);
 	}
 	
 	private void setFormLayout(Control c, int left, int right, int top, int bottom){

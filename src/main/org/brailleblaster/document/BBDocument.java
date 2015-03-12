@@ -99,12 +99,11 @@ public class BBDocument {
 		this.dm = dm;
 		
 		try { 
-			engine = new UTDTranslationEngine();
 			//Style TODO: Somehow automagically load the correct config
-			utdConfig = new XMLConfigHandler(new File("utd-config"), "nimas", new File("utd-config/styleDefs.xml"));
-			engine.setActionMap(utdConfig.loadActions());
-			engine.setStyleDefinitions(utdConfig.loadStyleDefinitions());
-			engine.setStyleMap(utdConfig.loadStyle(engine.getStyleDefinitions()));
+			utdConfig = new XMLConfigHandler();
+			engine = utdConfig.loadEngine(new File("utd-config/utdengine.xml"));
+			engine.setStyleDefinitions(utdConfig.loadStyleDefinitions(new File("utd-config/styleDefs.xml")));
+			utdConfig.loadMappings(engine, new File("utd-config"), "nimas");
 		} catch(Exception e) {
 			throw new RuntimeException("Could not initialize UTD", e);
 		}

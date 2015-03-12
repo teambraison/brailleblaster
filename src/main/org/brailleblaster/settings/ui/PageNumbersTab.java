@@ -33,7 +33,7 @@ public class PageNumbersTab {
 		Group pageNumGroup = new Group(parent, 0);
 		pageNumGroup.setLayout(new GridLayout(2, true));
 		pageNumGroup.setText("Page Numbers");
-		setGridDataGroup(pageNumGroup);
+		SettingsUIUtils.setGridDataGroup(pageNumGroup);
 
 		addLabel(pageNumGroup, "Braille Interpoint Page Number Location");
 		interpointCombo = makeNumberPositionCombo(pageNumGroup, pageSettingsDefault.getInterpoint());
@@ -45,7 +45,7 @@ public class PageNumbersTab {
 		Group cpGroup = new Group(parent, 0);
 		cpGroup.setLayout(new GridLayout(2, true));
 		cpGroup.setText(lh.localValue("continue"));
-		setGridDataGroup(cpGroup);
+		SettingsUIUtils.setGridDataGroup(cpGroup);
 		
 		addLabel(cpGroup, "Continue Pages");
 		continueCombo = new Combo(cpGroup, SWT.READ_ONLY);
@@ -93,10 +93,5 @@ public class PageNumbersTab {
 		gridData.verticalAlignment = GridData.FILL;
 		gridData.grabExcessHorizontalSpace = true;
 		c.setLayoutData(gridData);
-	}
-	
-	private static void setGridDataGroup(Group group) {
-		setGridData(group);
-		((GridData)group.getLayoutData()).grabExcessVerticalSpace = true;
 	}
 }

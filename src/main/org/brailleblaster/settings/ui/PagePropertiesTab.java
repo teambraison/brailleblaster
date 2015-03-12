@@ -18,12 +18,10 @@ import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
@@ -81,70 +79,70 @@ public class PagePropertiesTab {
 		Group pageGroup = new Group(parent, 0);
 		pageGroup.setText(lh.localValue("pageSize"));
 		pageGroup.setLayout(new GridLayout(2, true));
-		setGridData(pageGroup);
+		SettingsUIUtils.setGridDataGroup(pageGroup);
 
-		addLabel(pageGroup, lh.localValue("pageSize"));
+		SettingsUIUtils.addLabel(pageGroup, lh.localValue("pageSize"));
 		pageTypes = new Combo(pageGroup, SWT.NONE);
-		setGridData(pageTypes);
+		SettingsUIUtils.setGridData(pageTypes);
 
-		addLabel(pageGroup, lh.localValue("width") + unitSuffix);
+		SettingsUIUtils.addLabel(pageGroup, lh.localValue("width") + unitSuffix);
 		widthBox = new Text(pageGroup, SWT.BORDER);
 		addDoubleFilter(widthBox, false);
-		setGridData(widthBox);
+		SettingsUIUtils.setGridData(widthBox);
 
-		addLabel(pageGroup, lh.localValue("height") + unitSuffix);
+		SettingsUIUtils.addLabel(pageGroup, lh.localValue("height") + unitSuffix);
 		heightBox = new Text(pageGroup, SWT.BORDER);
 		addDoubleFilter(heightBox, false);
-		setGridData(heightBox);
+		SettingsUIUtils.setGridData(heightBox);
 
-		addLabel(pageGroup, lh.localValue("linesPerPage"));
+		SettingsUIUtils.addLabel(pageGroup, lh.localValue("linesPerPage"));
 		linesBox = new Text(pageGroup, SWT.BORDER);
-		setGridData(linesBox);
+		SettingsUIUtils.setGridData(linesBox);
 		addDoubleFilter(linesBox, true);
 
-		addLabel(pageGroup, lh.localValue("cellsPerLine"));
+		SettingsUIUtils.addLabel(pageGroup, lh.localValue("cellsPerLine"));
 		cellsBox = new Text(pageGroup, SWT.BORDER);
-		setGridData(cellsBox);
+		SettingsUIUtils.setGridData(cellsBox);
 		addDoubleFilter(cellsBox, true);
 
 		//Margin group
 		Group marginGroup = new Group(parent, 0);
 		marginGroup.setLayout(new GridLayout(2, true));
 		marginGroup.setText(lh.localValue("margins"));
-		setGridData(marginGroup);
+		SettingsUIUtils.setGridDataGroup(marginGroup);
 
 		//Units subgroup
-		addLabel(marginGroup, lh.localValue("measurementUnits"));
+		SettingsUIUtils.addLabel(marginGroup, lh.localValue("measurementUnits"));
 		Composite unitsGroup = new Composite(marginGroup, 0);
 		unitsGroup.setLayout(new GridLayout(2, true));
 		regionalButton = new Button(unitsGroup, SWT.RADIO);
 		regionalButton.setText(unitName);
 		regionalButton.setSelection(true);
-		setGridData(regionalButton);
+		SettingsUIUtils.setGridData(regionalButton);
 		cellsLinesButton = new Button(unitsGroup, SWT.RADIO);
 		cellsLinesButton.setText(lh.localValue("cellsLines"));
-		setGridData(cellsLinesButton);
+		SettingsUIUtils.setGridData(cellsLinesButton);
 
 		//All other margins
-		marginTopLabel = addLabel(marginGroup, lh.localValue("topMargin") + unitSuffix);
+		marginTopLabel = SettingsUIUtils.addLabel(marginGroup, lh.localValue("topMargin") + unitSuffix);
 		marginTopBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleFilter(marginTopBox, false);
-		setGridData(marginTopBox);
+		SettingsUIUtils.setGridData(marginTopBox);
 
-		marginBottomLabel = addLabel(marginGroup, lh.localValue("bottomMargin") + unitSuffix);
+		marginBottomLabel = SettingsUIUtils.addLabel(marginGroup, lh.localValue("bottomMargin") + unitSuffix);
 		marginBottomBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleFilter(marginBottomBox, false);
-		setGridData(marginBottomBox);
+		SettingsUIUtils.setGridData(marginBottomBox);
 
-		marginLeftLabel = addLabel(marginGroup, lh.localValue("leftMargin") + unitSuffix);
+		marginLeftLabel = SettingsUIUtils.addLabel(marginGroup, lh.localValue("leftMargin") + unitSuffix);
 		marginLeftBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleFilter(marginLeftBox, false);
-		setGridData(marginLeftBox);
+		SettingsUIUtils.setGridData(marginLeftBox);
 
-		marginRightLabel = addLabel(marginGroup, lh.localValue("rightMargin") + unitSuffix);
+		marginRightLabel = SettingsUIUtils.addLabel(marginGroup, lh.localValue("rightMargin") + unitSuffix);
 		marginRightBox = new Text(marginGroup, SWT.BORDER);
 		addDoubleFilter(marginRightBox, false);
-		setGridData(marginRightBox);
+		SettingsUIUtils.setGridData(marginRightBox);
 
 		//----Add listeners----
 		//When the user selects a page from the drop down, fill out the width, height, cells, and lines boxes
@@ -427,32 +425,5 @@ public class PagePropertiesTab {
 				function.accept(se);
 			}
 		};
-	}
-
-	/**
-	 * Generate a standard label
-	 *
-	 * @param parent
-	 * @param text
-	 * @return
-	 */
-	private static Label addLabel(Composite parent, String text) {
-		Label label = new Label(parent, 0);
-		label.setText(text);
-		setGridData(label);
-		return label;
-	}
-
-	/**
-	 * Make the Control greedily take up all available space
-	 *
-	 * @param c
-	 */
-	private static void setGridData(Control c) {
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		c.setLayoutData(gridData);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.SettingsManager;
+import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -43,9 +44,10 @@ public class ConfigPanel {
 		setFormLayout(folder, 0, 100, 0, 94);
 		
 		final HashMap<String, String> settingsCopy = sm.getMapClone();
-		pageProperties = new PagePropertiesTab(folder, m.getDocument().getEngine().getPageSettings());
+		PageSettings currentPageSettings = m.getDocument().getEngine().getPageSettings();
+		pageProperties = new PagePropertiesTab(folder, currentPageSettings);
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
-		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
+		pageNumTab = new PageNumbersTab(folder, currentPageSettings);
 		styleDefsTab = new StyleDefinitionsTab(folder, m);
 		advTab = new AdvancedTab(folder, sm, settingsCopy);
 		

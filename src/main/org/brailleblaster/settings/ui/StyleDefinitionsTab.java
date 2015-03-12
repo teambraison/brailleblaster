@@ -21,11 +21,8 @@ import org.brailleblaster.utd.Style;
 import org.brailleblaster.utd.StyleStack;
 import org.brailleblaster.utd.config.StyleDefinitions;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -80,7 +77,7 @@ public class StyleDefinitionsTab {
 		groupSelect = new Group(parent, 0);
 		groupSelect.setText(lh.localValue("styleDefsTab.headerSelect"));
 		groupSelect.setLayout(new GridLayout(1, true));
-		setGridData(groupSelect);
+		SettingsUIUtils.setGridDataGroup(groupSelect);
 
 		styleLevels.add(new StyleLevel(groupSelect, styleDefs.getStyles()));
 
@@ -88,13 +85,13 @@ public class StyleDefinitionsTab {
 		Group groupStyle = new Group(parent, 0);
 		groupStyle.setText(lh.localValue("styleDefsTab.headerFields"));
 		groupStyle.setLayout(new GridLayout(2, true));
-		setGridData(groupStyle);
+		SettingsUIUtils.setGridDataGroup(groupStyle);
 
 		//TODO: This temporarily uses the Java field name, in the future when the Style object API stabilizies give pretty names
 		for (String curField : STYLE_FIELDS.keySet()) {
 			Label fieldLabel = new Label(groupStyle, 0);
 			fieldLabel.setText(curField);
-			setGridData(fieldLabel);
+			SettingsUIUtils.setGridData(fieldLabel);
 
 			Class<?> fieldType = STYLE_FIELDS.get(curField).getType();
 			Control fieldControl;
@@ -108,7 +105,7 @@ public class StyleDefinitionsTab {
 				combo.select(0);
 				for (Object curEnumValue : fieldType.getEnumConstants())
 					combo.add(curEnumValue.toString());
-				setGridData(combo);
+				SettingsUIUtils.setGridData(combo);
 				fieldControl = combo;
 			} else if (fieldType == boolean.class) {
 				Button button = new Button(groupStyle, SWT.CHECK);
@@ -116,7 +113,7 @@ public class StyleDefinitionsTab {
 				fieldControl = button;
 			} else {
 				Text fieldText = new Text(groupStyle, SWT.BORDER);
-				setGridData(fieldText);
+				SettingsUIUtils.setGridData(fieldText);
 				fieldControl = fieldText;
 			}
 			styleFieldToControlMap.put(curField, fieldControl);
@@ -203,17 +200,17 @@ public class StyleDefinitionsTab {
 		public StyleLevel(Composite wrapperContainer, Collection<IStyle> styleList) {
 			container = new Composite(wrapperContainer, 0);
 			container.setLayout(new GridLayout(2, true));
-			setGridData(container);
+			SettingsUIUtils.setGridData(container);
 
 			label = new Label(container, 0);
 			if (styleList instanceof StyleStack)
 				label.setText("Select SubStyle");
 			else
 				label.setText("Select Style");
-			setGridData(label);
+			SettingsUIUtils.setGridData(label);
 
 			combo = new Combo(container, SWT.READ_ONLY);
-			setGridData(combo);
+			SettingsUIUtils.setGridData(combo);
 			for (IStyle style : styleList) {
 				nameToStyle.put(style.getName(), style);
 				combo.add(style.getName());
@@ -230,13 +227,5 @@ public class StyleDefinitionsTab {
 		public void dispose() {
 			container.dispose();
 		}
-	}
-
-	private static void setGridData(Control c) {
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		c.setLayoutData(gridData);
 	}
 }

@@ -59,9 +59,9 @@ public class TranslationSettingsTab {
 		langGroup.setText(lh.localValue("selectLanguage"));
 		langLabel = new Label(langGroup, 0);
 		langLabel.setText("Languages");
-		setGridData(langLabel);
+		SettingsUIUtils.setGridData(langLabel);
 		languageCombo = new Combo(langGroup, SWT.READ_ONLY);
-		setGridData(languageCombo);
+		SettingsUIUtils.setGridData(languageCombo);
 		
 		typeGroup = new Group(composite, 0);
 		typeGroup.setLayout(new GridLayout(2, true));
@@ -69,9 +69,9 @@ public class TranslationSettingsTab {
 		
 		typeLabel = new Label(typeGroup, 0);
 		typeLabel.setText(lh.localValue("brailleType"));
-		setGridData(typeLabel);
+		SettingsUIUtils.setGridData(typeLabel);
 		typeCombo = new Combo(typeGroup, SWT.READ_ONLY);
-		setGridData(typeCombo);
+		SettingsUIUtils.setGridData(typeCombo);
 		
 		computerGroup = new Group(composite,0);
 		computerGroup.setText(lh.localValue("selectComputerBraille"));
@@ -79,10 +79,10 @@ public class TranslationSettingsTab {
 		
 		computerLabel = new Label(computerGroup, 0);
 		computerLabel.setText(lh.localValue("brailleType"));
-		setGridData(computerLabel);
+		SettingsUIUtils.setGridData(computerLabel);
 		
 		computerCombo = new Combo(computerGroup, SWT.READ_ONLY);
-		setGridData(computerCombo);
+		SettingsUIUtils.setGridData(computerCombo);
 		
 		
 		transCon = loadTranslationConfigurations();
@@ -219,13 +219,5 @@ public class TranslationSettingsTab {
 			return true;
 		else
 			return false;
-	}
-	
-	private void setGridData(Control c){
-		GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.verticalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        c.setLayoutData(gridData);
 	}
 }

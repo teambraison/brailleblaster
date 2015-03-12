@@ -44,7 +44,7 @@ public class PageNumbersTab {
 //		item.setControl(group);
 //		setFormLayout(group, 0, 100, 0, 60);
 		 
-		group = new Composite(folder, SWT.BORDER);
+		group = new Composite(folder, 0);
 		group.setLayout(new FillLayout(SWT.VERTICAL));
 		item.setControl(group);
 		

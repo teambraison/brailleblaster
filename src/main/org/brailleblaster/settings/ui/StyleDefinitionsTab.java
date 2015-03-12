@@ -25,7 +25,6 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -73,10 +72,9 @@ public class StyleDefinitionsTab {
 		TabItem item = new TabItem(folder, 0);
 		item.setText(lh.localValue("styleDefsTab"));
 
-		parent = new Composite(folder, SWT.BORDER);
+		parent = new Composite(folder, 0);
 		parent.setLayout(new GridLayout(1, true));
 		item.setControl(parent);
-		setGridData(parent);
 
 		//Top part where user selects which style and/or style stack
 		groupSelect = new Group(parent, 0);
@@ -124,14 +122,6 @@ public class StyleDefinitionsTab {
 			styleFieldToControlMap.put(curField, fieldControl);
 		}
 		setStyleFieldsEnabled(false);
-
-		parent.addDisposeListener(new DisposeListener() {
-			@Override
-			public void widgetDisposed(DisposeEvent de) {
-				//TODO: Save StyleDefinitions to disk here
-				log.warn("Disposed!");
-			}
-		});
 	}
 
 	private void setStyleFieldsEnabled(boolean enabled) {

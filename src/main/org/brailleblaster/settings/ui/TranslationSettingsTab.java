@@ -50,7 +50,7 @@ public class TranslationSettingsTab {
 		item = new TabItem(folder, 0);	
 		item.setText(lh.localValue("translationSettings"));
 		
-		composite = new Composite(folder, SWT.BORDER);
+		composite = new Composite(folder, 0);
 		composite.setLayout(new FillLayout(SWT.VERTICAL));
 		item.setControl(composite);
 		

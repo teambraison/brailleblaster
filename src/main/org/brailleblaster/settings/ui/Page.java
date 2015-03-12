@@ -1,19 +1,19 @@
 package org.brailleblaster.settings.ui;
 
+import org.brailleblaster.utd.utils.PageUnitConverter;
+
 public class Page {
 	String type;
 	double width, height, mmWidth, mmHeight;
 	
-	public Page(String type, double width, double height){
+	public Page(String type, double width, double height, boolean convertToMM){
 		this.type = type;
-		this.width = width;
-		this.height = height;
-		this.mmWidth = inchesToMM(width);
-		this.mmHeight = inchesToMM(height);
+		this.width = convertToMM ? PageUnitConverter.inchesToMM(width) : width;
+		this.height = convertToMM ? PageUnitConverter.inchesToMM(height) : height;
 	}
 	
-	private double inchesToMM(double inches){
-		double denominator = 0.039370;
-		return Math.round((inches / denominator) * 10.0) / 10.0;
+	@Override
+	public String toString() {
+		return type + " (" + width + ", " + height + ")";
 	}
 }

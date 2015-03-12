@@ -45,7 +45,7 @@ public class ConfigPanel {
 		setFormLayout(folder, 0, 100, 0, 94);
 		
 		final HashMap<String, String> settingsCopy = sm.getMapClone();
-		pageProperties = new PagePropertiesTab(folder, sm, settingsCopy);
+		pageProperties = new PagePropertiesTab(folder, m.getDocument().getEngine().getPageSettings());
 		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		pageNumTab = new PageNumbersTab(folder, sm, settingsCopy);
 		styleDefsTab = new StyleDefinitionsTab(folder, m);

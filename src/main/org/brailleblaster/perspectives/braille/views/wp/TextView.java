@@ -1045,7 +1045,7 @@ public class TextView extends WPView {
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
 	}
-	public void resetSelectionElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
+	public void resetSelectionElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t, boolean format){
 		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
 		String reformattedText;
 		setListenerLock(true);
@@ -1094,16 +1094,37 @@ public class TextView extends WPView {
 		}
 		else {
 			boolean isFirst = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isFirst(t.n);
+			boolean isLast = t instanceof PageMapElement ||  t instanceof BrlOnlyMapElement || isLast(t.n);
 			view.insert(reformattedText);	
 		
 			t.setOffsets(start, start + reformattedText.length());
 			list.shiftOffsetsFromIndex(listIndex + 1, reformattedText.length(), 0);
 		
 			int margin = 0;		
-			t.setOffsets(start, start + reformattedText.length());
-			m.put("textLength", 0);
-			m.put("textOffset", reformattedText.length() + start);
-		
+			
+			if(format){
+				WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+				int linesBefore = 0;
+				int linesAfter = 0;
+				if(isFirst){
+					linesBefore = wsp.setLinesBefore(t, start, style);
+					list.shiftOffsetsFromIndex(listIndex, linesBefore, 0);
+				}
+				if(isLast){
+					linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+					list.shiftOffsetsFromIndex(listIndex + 1, linesAfter, 0);
+				}
+				t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+				m.put("textLength", 0);
+				m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+				start += linesBefore;
+			}
+			else {
+				t.setOffsets(start, start + reformattedText.length());
+				m.put("textLength", 0);
+				m.put("textOffset", reformattedText.length() + start);
+			}
+			
 			//reset margin in case it is not applied
 			if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
 				handleLineWrap(start, reformattedText, 0, false);

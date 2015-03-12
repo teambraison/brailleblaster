@@ -992,7 +992,6 @@ public class BrailleView extends WPView {
 		m.put("brailleLength", linesBefore + linesAfter);
 		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
 		
-		
 		//reset margin in case it is not applied
 		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
 			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
@@ -1013,9 +1012,10 @@ public class BrailleView extends WPView {
 	}
 
 	
-	public void resetSelectionElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
+	public void resetSelectionElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos, boolean format){
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
+		boolean isLast = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n); 
 		int margin = 0;
 		int lineBreaks = 0;
 		int originalPosition = view.getCaretOffset();
@@ -1084,10 +1084,31 @@ public class BrailleView extends WPView {
 				b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
 				list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length() + lineBreaks);
 		
-				b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
-				m.put("brailleLength", 0);
-				m.put("brailleOffset", start + b.n.getValue().length() + lineBreaks);
-		
+				if(format){
+					WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+					int linesBefore = 0;
+					int listIndex = list.indexOf(t);
+					if(isFirst){
+						linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
+						list.shiftOffsetsFromIndex(listIndex, 0, linesBefore);
+					}
+					
+					int linesAfter = 0;
+					if(isLast) {
+						linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
+						list.shiftOffsetsFromIndex(listIndex + 1, 0, linesAfter);
+					}
+					
+				//	b.setOffsets(lineBreaks + linesBefore + start, lineBreaks + start + b.n.getValue().length() + linesBefore);
+					m.put("brailleLength", 0);
+					m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
+					start += linesBefore;
+				}
+				else {
+					b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
+					m.put("brailleLength", 0);
+					m.put("brailleOffset", start + b.n.getValue().length() + lineBreaks);
+				}
 		
 				//reset margin in case it is not applied
 				if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))

@@ -56,29 +56,34 @@ public class EditRecorder {
 	public void recordDeleteEvent(Message m){
 		ExtendedModifyEvent e = (ExtendedModifyEvent)m.getValue("event");
 		
-		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
-		int offset = e.start - lineStart;
-		String lineText = currentLine;
-		int index = offset;
-	
-		while(index < lineText.length()){
-			if(lineText.charAt(index) == ' '){
-				if(index > offset + e.replacedText.length())
-					break;
-			}
-			index++;
+		if(e.replacedText.equals("\n")){
+			createEvent(e.start, e.start, "\n");
 		}
+		else {
+			int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
+			int offset = e.start - lineStart;
+			String lineText = currentLine;
+			int index = offset;
+	
+			while(index < lineText.length()){
+				if(lineText.charAt(index) == ' '){
+					if(index > offset + e.replacedText.length())
+						break;
+				}
+				index++;
+			}
 		
-		int wordEnd = index;
-		index = offset;
-		while(index - 1 >= 0 && lineText.charAt(index - 1) != ' ')
-			index--;
+			int wordEnd = index;
+			index = offset;
+			while(index - 1 >= 0 && index < lineText.length() && lineText.charAt(index - 1) != ' ')
+				index--;
 		
-		int wordStart = index;
-		String recordedText = lineText.substring(wordStart, offset) + lineText.substring(offset + e.length, wordEnd);
-		wordStart = lineStart + wordStart;
-		wordEnd = lineStart + wordEnd - e.replacedText.length();
-		createEvent(wordStart, wordEnd, recordedText);
+			int wordStart = index;
+			String recordedText = lineText.substring(wordStart, offset) + lineText.substring(offset + e.length, wordEnd);
+			wordStart = lineStart + wordStart;
+			wordEnd = lineStart + wordEnd - e.replacedText.length();
+			createEvent(wordStart, wordEnd, recordedText);
+		}
 	}
 	
 	public void recordLine(String currentLine, int currentLineNumber){

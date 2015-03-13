@@ -5,6 +5,10 @@
  */
 package org.brailleblaster.settings.ui;
 
+import java.util.function.Consumer;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -44,5 +48,15 @@ public final class SettingsUIUtils {
 		label.setText(text);
 		setGridData(label);
 		return label;
+	}
+	
+	
+	public static SelectionListener makeSelectedListener(Consumer<SelectionEvent> function) {
+		return new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent se) {
+				function.accept(se);
+			}
+		};
 	}
 }

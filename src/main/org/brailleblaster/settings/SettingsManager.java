@@ -14,6 +14,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SettingsManager {
 	private static final Logger log = LoggerFactory.getLogger(SettingsManager.class);
+	private static final String UTD_FOLDER = "utd";
+	private static final String STYLE_DEFS_NAME = "styleDefs.xml";
+	private static final String BRAILLE_SETTINGS_NAME = "brailleSettings.xml";
+	private static final String PAGE_SETTINGS_NAME = "pageSettings.xml";
 	
 	public SettingsManager(){
 	}
@@ -36,11 +40,11 @@ public class SettingsManager {
 		try { 
 			//Style TODO: Somehow automagically load the correct config
 			engine.setPageSettings(
-					UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile("utd", "pageSettings.xml")));
+					UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, PAGE_SETTINGS_NAME)));
 			engine.setBrailleSettings(
-					UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile("utd", "brailleSettings.xml")));
+					UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, BRAILLE_SETTINGS_NAME)));
 			engine.setStyleDefinitions(
-					UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile("utd", "styleDefs.xml")));
+					UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile(UTD_FOLDER, STYLE_DEFS_NAME)));
 			
 			changeMappings(engine, config);
 		} catch(Exception e) {
@@ -48,7 +52,17 @@ public class SettingsManager {
 		}
 	}
 	
-	public void saveEngine(UTDTranslationEngine engine) {
-		throw new UnsupportedOperationException("Not finished");
+	public File getUserPageSettingsFile() {
+		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, PAGE_SETTINGS_NAME));
 	}
+	
+	public File getUserBrailleSettingsFile() {
+		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, BRAILLE_SETTINGS_NAME));
+	}
+	
+	public File getUserStyleDefinitionsFile() {
+		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, STYLE_DEFS_NAME));
+	}
+	
+	
 }

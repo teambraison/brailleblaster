@@ -19,6 +19,7 @@ import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.utd.IStyle;
 import org.brailleblaster.utd.Style;
 import org.brailleblaster.utd.StyleStack;
+import org.brailleblaster.utd.UTDTranslationEngine;
 import org.brailleblaster.utd.config.StyleDefinitions;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lblakey
  */
-public class StyleDefinitionsTab {
+public class StyleDefinitionsTab implements SettingsUITab {
 	private static final Style STYLE_DEFAULT = new Style();
 	private static final Map<String, Field> STYLE_FIELDS;
 
@@ -189,6 +190,14 @@ public class StyleDefinitionsTab {
 		} else {
 			throw new UnsupportedOperationException("Unknown style " + curStyle.getClass());
 		}
+	}
+	
+	public String validate() {
+		return null;
+	}
+	
+	public boolean updateEngine(UTDTranslationEngine engine) {
+		return false;
 	}
 
 	private class StyleLevel {

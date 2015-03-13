@@ -3,6 +3,7 @@ package org.brailleblaster.settings.ui;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.PageSettings.NumberLocation;
+import org.brailleblaster.utd.UTDTranslationEngine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -15,7 +16,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class PageNumbersTab {
+public class PageNumbersTab implements SettingsUITab {
 	private final LocaleHandler lh = new LocaleHandler();
 	private final Combo continueCombo, interpointCombo, printCombo;
 
@@ -56,6 +57,16 @@ public class PageNumbersTab {
 		else
 			continueCombo.setText("No");
 		setGridData(continueCombo);
+	}
+	
+	@Override
+	public String validate() {
+		return null;
+	}
+	
+	@Override
+	public boolean updateEngine(UTDTranslationEngine engine) {
+		return false;
 	}
 	
 	public void updateEngine(PageSettings pageSettingsNew) {

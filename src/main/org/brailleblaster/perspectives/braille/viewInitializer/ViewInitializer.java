@@ -1,4 +1,4 @@
-package org.brailleblaster.perspectives.braille.viewInitializer;
+   package org.brailleblaster.perspectives.braille.viewInitializer;
 
 import java.util.ArrayList;
 

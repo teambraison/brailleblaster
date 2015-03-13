@@ -154,7 +154,7 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
+//		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
 		if(docName != null)
 			openDocument(docName);
 		else {
@@ -207,13 +207,14 @@ public class Manager extends Controller {
 		document = new BrailleDocument(this, styles);
 		pb = new BBProgressBar(wp.getShell());
 		fontManager.setFontWidth(simBrailleDisplayed);
-		srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
+
 		document = new BrailleDocument(this, doc, this.styles);
 		vi = ViewFactory.createUpdater(arch, document, text, braille, treeView);
 		
 		containerSash.setRedraw(false);
 		vi.initializeViews(this);
 		list = vi.getList(this);
+		srch = new SearchDOM(wp.getShell(), SWT.NONE, this, list);
 		
 		treeView.setRoot(document.getRootElement());
 		document.notifyUser();
@@ -317,7 +318,7 @@ public class Manager extends Controller {
 	// Opens the search/replace dialog.
 	public void search() {
 		if (srch==null) {
-			srch = new SearchDOM(wp.getShell(), SWT.NONE, this);
+			srch = new SearchDOM(wp.getShell(), SWT.NONE, this,list);
 			srch.open();
 		}
 		else {

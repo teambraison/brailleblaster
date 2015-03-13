@@ -35,6 +35,7 @@ public class SelectionHandler extends Handler {
     	evFrame = new EventFrame();
     	int startPos = (Integer)m.getValue("start");
         int endPos = (Integer)m.getValue("end");
+        String replacedText = (String)m.getValue("replacedText");
         String replacementText = (String)m.getValue("replacementText");
         int startIndex = getIndex(startPos);
         int endIndex = getIndex(endPos);
@@ -58,11 +59,11 @@ public class SelectionHandler extends Handler {
         		format = true;
         	
         	addEvent(firstEl, list.indexOf(firstList.get(0)), textStart, brailleStart, (ArrayList<Integer>)indexes.clone(), false, format, startPos, endPos);
-        	updateFirstNode(firstEl, first, startPos, endPos, replacementText);
+        	updateFirstNode(firstList, firstEl, first, startPos, endPos, replacementText);
         	int index = endIndex;
         	if(!first.equals(last) && endPos < last.end){
          		list.setCurrent(endIndex);
-         		updateElement(last, endPos, last.end, "");
+         		updateSecondNode(last, startPos, endPos, replacedText);
          	}
          	else if(endPos >= last.end){
          		removeLast = true;
@@ -120,7 +121,7 @@ public class SelectionHandler extends Handler {
          	else
          		addEvent(lastEl, list.indexOf(lastList.get(0)), lastList.get(0).start, lastList.get(0).brailleList.getFirst().start, (ArrayList<Integer>)indexes.clone(), removeLast, format, startPos, endPos);
          	
-         	updateFirstNode(firstEl, first, startPos, endPos, replacementText);	
+         	updateFirstNode(firstList, firstEl, first, startPos, endPos, replacementText);	
          	
          	if(!readOnly(first)){
          		int index; 
@@ -153,7 +154,7 @@ public class SelectionHandler extends Handler {
          	
          	if(!readOnly(last) && !clearAll){
          		list.setCurrent(endIndex);
-         		updateElement(last, endPos, last.end, "");	
+         		updateSecondNode(last, startPos, endPos, replacedText);	
          		int removed = clearElement(list.indexOf(lastList.get(0)), list.indexOf(last));
          		endIndex -= removed;
          	}
@@ -180,7 +181,7 @@ public class SelectionHandler extends Handler {
          		repopulateReadOnly(mapList, startIndex);
          	}
          	else {
-         		if(emptyNode)
+         		if(emptyNode && !removeFirst)
              		mapList = recreateEmptyElement(firstEl, startIndex, nodes);
              	else if(!removeFirst)
              		mapList.addAll(recreateElement(firstEl, startIndex));
@@ -212,27 +213,50 @@ public class SelectionHandler extends Handler {
      		manager.addUndoEvent(evFrame);
     }
     
-    private void updateFirstNode(Element e, TextMapElement first, int startPos, int endPos, String replacementText){
-     	if(!readOnly(first)){
-     		if(startPos != first.end || replacementText.length() > 0){
-     			if(first.start > startPos && replacementText.length() == 0){
-     				if(endPos >= first.end){
-     					clearText(first);
-     					emptyNode = true;
- 						nodes = nodeIndexes(first.n, e);
-     				}
-     				else {
-     					updateElement(first, endPos, first.end, replacementText);
-     				}
-     			}
-     			else {
-     				if(startPos < first.start)
-     					updateElement(first, first.start, first.start, replacementText);
-     				else
-     					updateElement(first, first.start, startPos, replacementText);
+    private void updateFirstNode(ArrayList<TextMapElement> elList, Element e, TextMapElement t, int start, int end, String replacementText){
+     	if(!readOnly(t)){
+     		if(start <= t.start && end >= t.end && replacementText.length() == 0){
+     			clearText(t);
+     			if(elList.indexOf(t) == 0){
+     				emptyNode = true;
+					nodes = nodeIndexes(t.n, e);
      			}
      		}
+     		else if(start < t.start && end < t.end){
+     			int offset = end - t.start;
+     			String newText = t.getText().substring(offset);
+     			Text node = (Text)t.n;
+     			node.setValue(newText);
+     		}
+     		else {
+     			if(start <= t.start)
+     				start = t.start;
+     			
+     			int offset = start - t.start;
+     			
+     			String newText = t.getText().substring(0, offset) + replacementText;
+     			Text node = (Text)t.n;
+     			node.setValue(newText);
+     		}
      	}
+    }
+    
+    private void updateSecondNode(TextMapElement t, int start, int end, String replacedText){
+    	String newText;
+    	if(end >= t.end)
+    		newText = "";
+    	else if(end <= t.start){
+    		newText = t.getText();
+    	}
+    	else {
+    		int offset = end - t.start;
+    		int startOffset = t.start - start;
+    		int lineBreaks = replacedText.substring(startOffset).length() - replacedText.substring(startOffset).replaceAll("\n", "").length();
+    		newText = t.getText().substring(offset - lineBreaks);
+    	}
+    	
+		Text node = (Text)t.n;
+		node.setValue(newText);
     }
     
     private ArrayList<TextMapElement> recreateEmptyElement(Element first, int startIndex, LinkedList<Integer>nodes){
@@ -264,28 +288,6 @@ public class SelectionHandler extends Handler {
     		textList = getListRange(startIndex, size);
     	}
     	return textList;
-    }
-    
-    private void updateElement(TextMapElement t, int start, int end, String replacementText){
-    	int offset = start - t.start;
-    	String newText;
-    	if(offset > t.textLength()){
-    		newText = "";
-    	}
-    	else {
-    		if(end < start)
-    			start = 0;
-    	
-    		int linebreaks;
-    		if(start != end || end == t.end)
-    			linebreaks = (t.end - t.start) - t.textLength();
-    		else
-    			linebreaks = 0;
-    	
-    		newText = t.getText().substring(offset, offset + (end - start) - linebreaks) + replacementText;
-    	}
-    	Text textNode = (Text)t.n;
-    	textNode.setValue(newText);    	
     }
     
     private void clearText(TextMapElement t){

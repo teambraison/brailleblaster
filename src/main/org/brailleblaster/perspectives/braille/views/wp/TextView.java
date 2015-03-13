@@ -1481,7 +1481,7 @@ public class TextView extends WPView {
 			recordEvent(e, false);
 		}
 		else {
-			manager.dispatch(Message.createSelectionMessage(view.getTextRange(e.start, e.length) , selection.getSelectionStart(), selection.getSelectionEnd()));
+			manager.dispatch(Message.createSelectionMessage(e.replacedText, view.getTextRange(e.start, e.length) , selection.getSelectionStart(), selection.getSelectionEnd()));
 		}
 		
 		setSelection(-1, -1);

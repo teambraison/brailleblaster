@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.brailleblaster.settings.ui;
 
 import java.util.function.Consumer;
@@ -17,25 +12,26 @@ import org.eclipse.swt.widgets.Label;
 
 /**
  * Useful utilities for creating the SWT UI
+ *
  * @author lblakey
  */
-public final class SettingsUIUtils {
+final class SettingsUIUtils {
 	private SettingsUIUtils() {
 	}
-	
-	public static void setGridData(Control c){
+
+	public static void setGridData(Control c) {
 		GridData gridData = new GridData();
-        gridData.horizontalAlignment = GridData.FILL;
-        gridData.verticalAlignment = GridData.FILL;
-        gridData.grabExcessHorizontalSpace = true;
-        c.setLayoutData(gridData);
+		gridData.horizontalAlignment = GridData.FILL;
+		gridData.verticalAlignment = GridData.FILL;
+		gridData.grabExcessHorizontalSpace = true;
+		c.setLayoutData(gridData);
 	}
-	
+
 	public static void setGridDataGroup(Group group) {
 		setGridData(group);
-		((GridData)group.getLayoutData()).grabExcessVerticalSpace = true;
+		((GridData) group.getLayoutData()).grabExcessVerticalSpace = true;
 	}
-	
+
 	/**
 	 * Generate a standard label
 	 *
@@ -49,8 +45,7 @@ public final class SettingsUIUtils {
 		setGridData(label);
 		return label;
 	}
-	
-	
+
 	public static SelectionListener makeSelectedListener(Consumer<SelectionEvent> function) {
 		return new SelectionAdapter() {
 			@Override

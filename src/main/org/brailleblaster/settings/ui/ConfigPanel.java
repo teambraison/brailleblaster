@@ -1,21 +1,15 @@
 package org.brailleblaster.settings.ui;
 
 import java.io.IOException;
-import java.util.HashMap;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.settings.SettingsManager;
-import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
 import org.brailleblaster.utd.config.UTDConfig;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -23,8 +17,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.slf4j.Logger;
@@ -96,16 +88,16 @@ public class ConfigPanel {
 				//Only save if setting was changed
 				if (pageProperties.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
-				if(pageNumTab.updateEngine(engine))
+				if (pageNumTab.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
-				if(styleDefsTab.updateEngine(engine))
+				if (styleDefsTab.updateEngine(engine))
 					UTDConfig.saveStyleDefinitions(sm.getUserPageSettingsFile(), engine.getStyleDefinitions());
 			} catch (IOException e) {
 				log.debug("Encountered exception when saving UTD", e);
 				new Notify("Cannot save UTD, see log " + ExceptionUtils.getMessage(e));
 			}
 		}
-		
+
 		close();
 		m.refresh();
 	}

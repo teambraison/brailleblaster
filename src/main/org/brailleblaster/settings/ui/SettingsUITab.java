@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.brailleblaster.settings.ui;
 
 import org.brailleblaster.utd.UTDTranslationEngine;
@@ -11,7 +6,7 @@ import org.brailleblaster.utd.UTDTranslationEngine;
  *
  * @author lblakey
  */
-public interface SettingsUITab {
+interface SettingsUITab {
 	/**
 	 * Validate tab data
 	 * @return NULL if no errors, i18n key of error message if there is an error

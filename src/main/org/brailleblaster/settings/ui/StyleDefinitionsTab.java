@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.brailleblaster.settings.ui;
 
 import java.lang.reflect.Field;
@@ -42,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lblakey
  */
-public class StyleDefinitionsTab implements SettingsUITab {
+class StyleDefinitionsTab implements SettingsUITab {
 	private static final Style STYLE_DEFAULT = new Style();
 	private static final Map<String, Field> STYLE_FIELDS;
 

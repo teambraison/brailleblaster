@@ -336,10 +336,14 @@ public abstract class ViewInitializer {
 	public void addElementToSection(MapList list, TextMapElement t, int index){
 		int sectionIndex;
 		//if index is list size then element is appended and not inserted
-		if(index == list.size())
-			sectionIndex = findSectionIndex(list.get(index - 1));
+		if(!list.empty()){
+			if(index == list.size())
+				sectionIndex = findSectionIndex(list.get(index - 1));
+			else
+				sectionIndex = findSectionIndex(list.get(index));
+		}
 		else
-			sectionIndex = findSectionIndex(list.get(index));
+			sectionIndex = 0;
 		
 		if(sectionIndex != -1){
 			SectionElement section = sectionList.get(sectionIndex);

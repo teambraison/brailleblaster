@@ -70,6 +70,7 @@ import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.SelectionHandler;
 import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
@@ -439,6 +440,9 @@ public class Manager extends Controller {
 			case UPDATE:
 				handleUpdate(message);
 				break;
+			case SELECTION:
+				handleSelection(message);
+				break;
 			case INSERT_NODE:
 				handleInsertNode(message);
 				break;
@@ -641,6 +645,11 @@ public class Manager extends Controller {
 	private void handleUpdate(Message message){
 		TextUpdateHandler tuh = new TextUpdateHandler(this, vi, list);
 		tuh.updateText(message);
+	}
+	
+	private void handleSelection(Message message){
+		SelectionHandler sh = new SelectionHandler(this, vi, list);
+		sh.removeSelection(message);
 	}
 	
 	private void handleInsertNode(Message m){

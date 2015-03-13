@@ -76,6 +76,7 @@ import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
+import org.brailleblaster.tpages.TPagesDialog;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
@@ -126,7 +127,9 @@ public class Manager extends Controller {
 	private MapList list;
 	private QueueManager queueManager;
 	SearchDialog srch = null;
+	TPagesDialog tpDialog = null;
 	private Vector<String> ignoreList = new Vector<String>();
+	private String lastTPage;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -324,6 +327,11 @@ public class Manager extends Controller {
 			srch.openWithPreviousValues();
 		}
 
+	}
+	
+	public void tPages(){
+		tpDialog = new TPagesDialog(wp.getShell(), SWT.NONE, this);
+		tpDialog.open();
 	}
 	
 	public void fileSave(){	
@@ -676,6 +684,10 @@ public class Manager extends Controller {
 			
 	    text.refreshStyle(list.getCurrent());
 	    braille.refreshStyle(list.getCurrent());
+	}
+	
+	public void insertTPage(Element tPageRoot){
+		
 	}
 	
 	private void handleMergeElement(Message message){
@@ -1509,6 +1521,14 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public String getLastTPage() {
+		return lastTPage;
+	}
+
+	public void setLastTPage(String lastTPage) {
+		this.lastTPage = lastTPage;
+	}
+
 	public void addUndoEvent(EventFrame f){
 		queueManager.addUndoEvent(f);
 	}

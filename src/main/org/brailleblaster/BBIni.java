@@ -547,11 +547,12 @@ public final class BBIni {
 	}
 	
 	/**
-	 * Try to get file from users program data folder first and then try global program data
+	 * Try to get file from users program data folder first and then try 
+	 * global program data, throwing an exception if not found
 	 * @param pathSuffixParts
 	 * @return A file that exists or throws an Exception
 	 */
-	public static File getAutoProgramDataFile(String... pathSuffixParts) {
+	public static File loadAutoProgramDataFile(String... pathSuffixParts) {
 		File file = new File(getUserProgramDataPath(pathSuffixParts));
 		if(file.exists())
 			return file;

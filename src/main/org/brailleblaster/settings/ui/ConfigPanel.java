@@ -42,10 +42,9 @@ public class ConfigPanel {
 		folder = new TabFolder(shell, SWT.NONE);
 		setFormLayout(folder, 0, 100, 0, 94);
 		
-		final HashMap<String, String> settingsCopy = sm.getMapClone();
 		PageSettings currentPageSettings = m.getDocument().getEngine().getPageSettings();
 		pageProperties = new PagePropertiesTab(folder, currentPageSettings);
-		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
+//		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
 		pageNumTab = new PageNumbersTab(folder, currentPageSettings);
 		styleDefsTab = new StyleDefinitionsTab(folder, m);
 		
@@ -74,7 +73,7 @@ public class ConfigPanel {
 		cancelButton.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				sm.close();
+				close();
 			}	
 		});
 		
@@ -90,7 +89,7 @@ public class ConfigPanel {
 		shell.addListener(SWT.Close, new Listener(){
 			@Override
 			public void handleEvent(Event e) {
-				sm.close();
+				close();
 			}		
 		});
 		

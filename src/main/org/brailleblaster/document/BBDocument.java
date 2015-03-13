@@ -60,8 +60,8 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
+import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
-import org.brailleblaster.utd.config.XMLConfigHandler;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -69,6 +69,7 @@ import org.liblouis.LibLouisUTDML;
 
 
 public class BBDocument {
+	private static final Logger log = LoggerFactory.getLogger(BBDocument.class);
 	private static final Map<FileTypes, List<String>> SUPPORTED_FILE_TYPES;
 	static {
 		Map<FileTypes, List<String>> temp = new EnumMap<FileTypes, List<String>>(FileTypes.class);
@@ -88,22 +89,20 @@ public class BBDocument {
 	private ArrayList<String>mistranslationList;
 	private String systemId;
 	private String publicId;
-	protected SettingsManager sm;
+	protected final SettingsManager sm;
 	protected SemanticFileHandler semHandler;
 	protected LocaleHandler lh;
 	protected final UTDTranslationEngine engine;
-	protected final XMLConfigHandler utdConfig;
 	
 	//Style TODO: Once this class is unit tested absorb the other constructors
 	private BBDocument(Controller dm, boolean unused) {
 		this.dm = dm;
+		this.sm = new SettingsManager();
 		
 		try { 
 			//Style TODO: Somehow automagically load the correct config
-			utdConfig = new XMLConfigHandler();
-			engine = utdConfig.loadEngine(new File("utd-config/utdengine.xml"));
-			engine.setStyleDefinitions(utdConfig.loadStyleDefinitions(new File("utd-config/styleDefs.xml")));
-			utdConfig.loadMappings(engine, new File("utd-config"), "nimas");
+			engine = new UTDTranslationEngine();
+			sm.loadEngine(engine, dm.getCurrentConfig());
 		} catch(Exception e) {
 			throw new RuntimeException("Could not initialize UTD", e);
 		}
@@ -118,7 +117,6 @@ public class BBDocument {
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
-		sm = new SettingsManager(dm.getCurrentConfig());
 		engine.getBrailleSettings().setMainTranslationTable(BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouis" + BBIni.getFileSep() + "tables" + BBIni.getFileSep() +  "en-us-g2.ctb");
 		engine.getBrailleSettings().setUseAsciiBraille(true);
 	}
@@ -134,7 +132,6 @@ public class BBDocument {
 		missingSemanticsList = new ArrayList<String>();
 		mistranslationList = new ArrayList<String>();
 		semHandler = new SemanticFileHandler(dm.getCurrentConfig());
-		sm = new SettingsManager(dm.getCurrentConfig());
 	}
 	
 	/** Public method for beginning the translation process of a file
@@ -408,9 +405,11 @@ public class BBDocument {
 			semFile = "semanticFiles "+ semHandler.getDefaultSemanticsFiles() + "," + BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(fileName) + ".sem" + "\n";
 		}
 		
-		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n" + sm.getSettings(), 0);
-		deleteFile(inFile);
-		return result;
+//		boolean result = lutdml.translateFile (config, inFile, filePath, logFile, semFile + "formatFor brf\n" + sm.getSettings(), 0);
+//		deleteFile(inFile);
+//		return result;
+		log.debug("Attempting to run liblouisutdml", new Exception());
+		return false;
 	}
 	
 	/**
@@ -594,7 +593,7 @@ public class BBDocument {
 	 */
 	public void resetBBDocument(String config){
 		deleteDOM();
-		sm = new SettingsManager(config);
+		sm.changeMappings(engine, config);
 		semHandler.resetSemanticHandler(config);
 	}
 	
@@ -649,7 +648,12 @@ public class BBDocument {
 	}
 	
 	public int getLinesPerPage(){
-		return sm.getLinesPerPage();
+		PageSettings pageSettings = engine.getPageSettings();
+		return pageSettings.getUnitConverter().calculateLinesPerPage(
+				pageSettings.getPaperHeight(), 
+				pageSettings.getTopMargin(), 
+				pageSettings.getBottomMargin());
+		//return sm.getLinesPerPage();
 	}
 	
 	public UTDTranslationEngine getEngine() {

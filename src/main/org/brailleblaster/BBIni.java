@@ -41,6 +41,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
@@ -461,8 +462,14 @@ public final class BBIni {
 		return nativeLibraryPath;
 	}
 
-	public static String getProgramDataPath() {
-		return programDataPath;
+	/**
+	 * Path to program read-only settings
+	 * @param pathSuffixParts Optional folders/files to append to path, joined with 
+	 * {@see #getFileSep() }
+	 * @return 
+	 */
+	public static String getProgramDataPath(String... pathSuffixParts) {
+		return programDataPath + makePathSuffix(pathSuffixParts);
 	}
 
 	public static String getHelpDocsPath() {
@@ -477,8 +484,14 @@ public final class BBIni {
 		return nativeLibrarySuffix;
 	}
 
-	public static String getUserProgramDataPath() {
-		return userProgramDataPath;
+	/**
+	 * Path to user-specific settings
+	 * @param pathSuffixParts Optional folders/files to append to path, joined with 
+	 * {@see #getFileSep() }
+	 * @return 
+	 */
+	public static String getUserProgramDataPath(String... pathSuffixParts) {
+		return userProgramDataPath + makePathSuffix(pathSuffixParts);
 	}
 
 	public static String getTempFilesPath() {
@@ -531,5 +544,31 @@ public final class BBIni {
 
 	public static String getAutoConfigSettings() {
 		return autoConfigSettings;
+	}
+	
+	/**
+	 * Try to get file from users program data folder first and then try global program data
+	 * @param pathSuffixParts
+	 * @return A file that exists or throws an Exception
+	 */
+	public static File getAutoProgramDataFile(String... pathSuffixParts) {
+		File file = new File(getUserProgramDataPath(pathSuffixParts));
+		if(file.exists())
+			return file;
+		file = new File(getProgramDataPath(pathSuffixParts));
+		if(file.exists())
+			return file;
+		throw new RuntimeException("Cannot find file " + makePathSuffix(pathSuffixParts));
+	}
+	
+	/**
+	 * Generate a valid path suffix if needed
+	 * @param pathSuffixParts
+	 * @return 
+	 */
+	private static String makePathSuffix(String... pathSuffixParts) {
+		if(pathSuffixParts.length == 0)
+			return "";
+		return getFileSep() + StringUtils.join(pathSuffixParts, getFileSep());
 	}
 }

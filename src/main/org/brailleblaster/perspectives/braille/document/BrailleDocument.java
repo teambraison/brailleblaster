@@ -166,12 +166,14 @@ public class BrailleDocument extends BBDocument {
 	 * @return the length of the original braille text, used to update offsets of list
 	 */
 	private int changeBrailleNodes(TextMapElement t, Message message){
-		Document d = getStringTranslation(t, (String)message.getValue("newText"));
+		findAndRemoveBrailleElement(t.parentElement());
+		Nodes nodes = engine.translate(t.parentElement());
+	//	Document d = getStringTranslation(t, (String)message.getValue("newText"));
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
-		Element brlParent = ((Element)d.getRootElement().getChild(0));
-		Element e = findAndRemoveBrailleElement(brlParent);
+		//Element brlParent = (Element)nodes.get(0).getChild(1);
+		//Element e = findAndRemoveBrailleElement(brlParent);
 
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
@@ -185,14 +187,15 @@ public class BrailleDocument extends BBDocument {
 		}
 		logger.info("Original Braille Node Value:\n" + logString);
 			
-		Element parent = t.parentElement();
-		Element child = (Element)t.brailleList.getFirst().n.getParent();
-		while(!child.getParent().equals(parent)){
-			child = (Element)child.getParent();
-		}
-		parent.replaceChild(child, e);	
+	//	Element parent = t.parentElement();
+	//	Element child = (Element)t.brailleList.getFirst().n.getParent();
+	//	while(!child.getParent().equals(parent)){
+	//		child = (Element)child.getParent();
+	//	}
+		//parent.replaceChild(child, e);	
 		t.brailleList.clear();
 		
+		Element e = (Element)nodes.get(0).getChild(1); 
 		boolean first = true;
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){

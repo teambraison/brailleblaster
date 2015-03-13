@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lblakey
  */
-public class PagePropertiesTab {
+public class PagePropertiesTab implements SettingsUITab {
 	private static final Logger log = LoggerFactory.getLogger(PagePropertiesTab.class);
 	private static final DecimalFormat NUMBER_FORMATTER = new DecimalFormat("###.##");
 	private final List<Page> standardPages;
@@ -146,7 +146,7 @@ public class PagePropertiesTab {
 
 		//----Add listeners----
 		//When the user selects a page from the drop down, fill out the width, height, cells, and lines boxes
-		pageTypes.addSelectionListener(makeSelectedListener((e) -> onStandardPageSelected()));
+		pageTypes.addSelectionListener(SettingsUIUtils.makeSelectedListener((e) -> onStandardPageSelected()));
 
 		//Size fields
 		//When a user types a digit, adjust cells, lines and page combo
@@ -174,7 +174,7 @@ public class PagePropertiesTab {
 				() -> marginRightBox.getText(), marginWidth.andThen((v) -> marginRight = v), (e) -> calculateCellsLinesAndUpdate()));
 
 		//Margin unit suffixes
-		SelectionListener marginUnitChangedListener = makeSelectedListener((e) -> onMarginUnitSelected());
+		SelectionListener marginUnitChangedListener = SettingsUIUtils.makeSelectedListener((e) -> onMarginUnitSelected());
 		regionalButton.addSelectionListener(marginUnitChangedListener);
 		cellsLinesButton.addSelectionListener(marginUnitChangedListener);
 
@@ -327,6 +327,7 @@ public class PagePropertiesTab {
 				|| marginBottomBox.getText().isEmpty();
 	}
 
+	@Override
 	public String validate() {
 		//TODO: This is set in the advanced tab
 //		if (Integer.valueOf(cellsBox.getText()) < Integer.parseInt(settingsMap.get("minCellsPerLine")))
@@ -340,17 +341,13 @@ public class PagePropertiesTab {
 		if (pageHeight < 0 || pageWidth < 0 || pageLines < 0 || pageCells < 0 
 				|| marginTop < 0 || marginBottom < 0 || marginLeft < 0 || marginRight < 0)
 			return "settingsBelowZero";
-		return "SUCCESS";
+		return null;
 	}
 
-	/**
-	 * When all data is validated, this is called to change the actual values
-	 *
-	 * @param engine
-	 */
-	public void updateEngine(UTDTranslationEngine engine) {
+	@Override
+	public boolean updateEngine(UTDTranslationEngine engine) {
 		PageSettings pageSettings = engine.getPageSettings();
-		
+		return false;
 
 		//margin*Box: 
 		// if (regionalButton.getSelection()) getStringValue(t) else df.format(sm.calcHeightFromLines(getDoubleValue(t)))
@@ -414,15 +411,6 @@ public class PagePropertiesTab {
 				double value = Double.parseDouble(rawValue);
 				setParsedValue.applyAsDouble(value);
 				function.accept(e);
-			}
-		};
-	}
-
-	private static SelectionListener makeSelectedListener(Consumer<SelectionEvent> function) {
-		return new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent se) {
-				function.accept(se);
 			}
 		};
 	}

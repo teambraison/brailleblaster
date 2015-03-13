@@ -8,6 +8,11 @@ package org.brailleblaster.louisutdml;
 public class LiblouisutdmlException extends RuntimeException
 {
 
+/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 public LiblouisutdmlException ()
 {
 super();

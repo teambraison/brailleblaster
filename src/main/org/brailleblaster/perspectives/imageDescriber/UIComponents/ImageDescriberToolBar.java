@@ -31,9 +31,7 @@
 package org.brailleblaster.perspectives.imageDescriber.UIComponents;
 
 import org.brailleblaster.BBIni;
-import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.imageDescriber.ImageDescriberController;
-import org.brailleblaster.util.ImageHelper;
 import org.brailleblaster.wordprocessor.BBToolBar;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.SWT;
@@ -43,7 +41,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 public class ImageDescriberToolBar extends BBToolBar {
@@ -71,7 +68,7 @@ public class ImageDescriberToolBar extends BBToolBar {
 				}
 				else if(filePath != null){
 					if(((ImageDescriberController)currentEditor).canReuseTab())
-						((ImageDescriberController)currentEditor).openDocument(filePath);
+						((ImageDescriberController)currentEditor).reuseTab(filePath);
 					else
 						wp.addDocumentManager(filePath);
 				}

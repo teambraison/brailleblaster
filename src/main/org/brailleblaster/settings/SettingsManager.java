@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Manages loading and saving of UTD
+ *
  * @author lblakey
  */
 public class SettingsManager {
@@ -18,15 +19,15 @@ public class SettingsManager {
 	private static final String STYLE_DEFS_NAME = "styleDefs.xml";
 	private static final String BRAILLE_SETTINGS_NAME = "brailleSettings.xml";
 	private static final String PAGE_SETTINGS_NAME = "pageSettings.xml";
-	
-	public SettingsManager(){
+
+	public SettingsManager() {
 	}
-	
+
 	public void changeMappings(UTDTranslationEngine engine, String config) {
 		try {
 			//Given nimas.cfg first then later setDefault is called with epub.cfg
-			log.debug("setting config {}", config, new RuntimeException());
-			
+			log.debug("setting config {}", config, new RuntimeException("Who called me?!"));
+
 			//TODO: Weird since files are split
 			//TODO: Hardcoded nimas
 			File file = BBIni.loadAutoProgramDataFile("utd", "nimas.actionMap.xml");
@@ -35,9 +36,9 @@ public class SettingsManager {
 			throw new RuntimeException("Could not load UTD mappings", ex);
 		}
 	}
-	
+
 	public void loadEngine(UTDTranslationEngine engine, String config) {
-		try { 
+		try {
 			//Style TODO: Somehow automagically load the correct config
 			engine.setPageSettings(
 					UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, PAGE_SETTINGS_NAME)));
@@ -45,24 +46,23 @@ public class SettingsManager {
 					UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, BRAILLE_SETTINGS_NAME)));
 			engine.setStyleDefinitions(
 					UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile(UTD_FOLDER, STYLE_DEFS_NAME)));
-			
+
 			changeMappings(engine, config);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Could not initialize UTD", e);
 		}
 	}
-	
+
 	public File getUserPageSettingsFile() {
 		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, PAGE_SETTINGS_NAME));
 	}
-	
+
 	public File getUserBrailleSettingsFile() {
 		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, BRAILLE_SETTINGS_NAME));
 	}
-	
+
 	public File getUserStyleDefinitionsFile() {
 		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, STYLE_DEFS_NAME));
 	}
-	
-	
+
 }

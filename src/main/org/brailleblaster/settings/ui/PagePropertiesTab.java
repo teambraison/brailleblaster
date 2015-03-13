@@ -15,8 +15,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -34,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author lblakey
  */
-public class PagePropertiesTab implements SettingsUITab {
+class PagePropertiesTab implements SettingsUITab {
 	private static final Logger log = LoggerFactory.getLogger(PagePropertiesTab.class);
 	private static final DecimalFormat NUMBER_FORMATTER = new DecimalFormat("###.##");
 	private final List<Page> standardPages;
@@ -52,7 +50,7 @@ public class PagePropertiesTab implements SettingsUITab {
 	 */
 	private double pageHeight, pageWidth, pageCells, pageLines, marginTop, marginBottom, marginLeft, marginRight;
 
-	public PagePropertiesTab(TabFolder folder, PageSettings pageSettings) {
+	PagePropertiesTab(TabFolder folder, PageSettings pageSettings) {
 		//---Init---
 		this.unitConverter = pageSettings.getUnitConverter();
 		boolean metric = unitConverter.isMetric();
@@ -338,7 +336,7 @@ public class PagePropertiesTab implements SettingsUITab {
 			return "incorrectMarginWidth";
 		if (marginTop + marginBottom + unitConverter.calculateLinesHeight(pageLines) >= pageHeight)
 			return "incorrectMarginHeight";
-		if (pageHeight < 0 || pageWidth < 0 || pageLines < 0 || pageCells < 0 
+		if (pageHeight < 0 || pageWidth < 0 || pageLines < 0 || pageCells < 0
 				|| marginTop < 0 || marginBottom < 0 || marginLeft < 0 || marginRight < 0)
 			return "settingsBelowZero";
 		return null;

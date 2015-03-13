@@ -5,7 +5,6 @@ import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.PageSettings.NumberLocation;
 import org.brailleblaster.utd.UTDTranslationEngine;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -16,11 +15,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class PageNumbersTab implements SettingsUITab {
+class PageNumbersTab implements SettingsUITab {
 	private final LocaleHandler lh = new LocaleHandler();
 	private final Combo continueCombo, interpointCombo, printCombo;
 
-	public PageNumbersTab(TabFolder folder, PageSettings pageSettingsDefault) {
+	PageNumbersTab(TabFolder folder, PageSettings pageSettingsDefault) {
 		super();
 		TabItem item = new TabItem(folder, 0);
 		item.setText(lh.localValue("pageNumbers"));
@@ -47,7 +46,7 @@ public class PageNumbersTab implements SettingsUITab {
 		cpGroup.setLayout(new GridLayout(2, true));
 		cpGroup.setText(lh.localValue("continue"));
 		SettingsUIUtils.setGridDataGroup(cpGroup);
-		
+
 		addLabel(cpGroup, "Continue Pages");
 		continueCombo = new Combo(cpGroup, SWT.READ_ONLY);
 		continueCombo.add("No");
@@ -58,24 +57,24 @@ public class PageNumbersTab implements SettingsUITab {
 			continueCombo.setText("No");
 		setGridData(continueCombo);
 	}
-	
+
 	@Override
 	public String validate() {
 		return null;
 	}
-	
+
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
 		return false;
 	}
-	
+
 	public void updateEngine(PageSettings pageSettingsNew) {
 		NumberLocation interpoint = NumberLocation.valueOf(interpointCombo.getText());
 		pageSettingsNew.setInterpoint(interpoint);
-		
+
 		NumberLocation print = NumberLocation.valueOf(printCombo.getText());
 		pageSettingsNew.setPrintPages(print);
-		
+
 		boolean continueVal = continueCombo.getText().equals("Yes");
 		pageSettingsNew.setContinuePages(continueVal);
 	}

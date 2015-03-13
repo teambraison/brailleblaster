@@ -279,7 +279,7 @@ public class MapList extends LinkedList<TextMapElement>{
 	 * 
 	 */
 	public void checkList(){
-		if(this.currentIndex != -1){
+		if(this.currentIndex != -1 && !(size() == 1 && get(0).end == 0)){
 			int index = this.currentIndex;
 			int next = index + 1;
 			int previous = index - 1;
@@ -526,7 +526,7 @@ public class MapList extends LinkedList<TextMapElement>{
 		
 		int countDown = index -  1;
 		int countUp = index + 1;
-		while(countDown >= 0 && doc.getParent(this.get(countDown).n, ignoreInlineElement).equals(parent)){
+		while(countDown >= 0 && get(countDown).parentElement() != null && doc.getParent(this.get(countDown).n, ignoreInlineElement).equals(parent)){
 			list.add(0, this.get(countDown));
 			countDown--;
 		}

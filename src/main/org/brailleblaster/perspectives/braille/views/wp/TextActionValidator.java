@@ -27,6 +27,12 @@ public class TextActionValidator {
 			else if(selectionStart  == currentEnd && selectionLength == 1 && selectionStart + selectionLength == nextStart)
 				return false;
 		}
+		else if(selectionLength > 0){
+			TextMapElement t = manager.getElementInRange(selectionStart); 
+			if( (t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && selectionStart == t.end && selectionLength == 1)
+				return false;
+		}
+		
 		return true;
 	}
 	
@@ -39,6 +45,11 @@ public class TextActionValidator {
 			else if(selectionStart >= currentStart && selectionStart < currentEnd && selectionLength <= (currentEnd - selectionStart))
 				return false;
 			else if(view.getSelectionRanges()[1] == 0 || (selectionStart >= currentStart && selectionStart <= currentEnd ))
+				return false;
+		}
+		else if(selectionLength > 0){
+			TextMapElement t = manager.getElementInRange(selectionStart); 
+			if( (t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && selectionStart == t.end && selectionLength == 1)
 				return false;
 		}
 		return true;
@@ -58,6 +69,11 @@ public class TextActionValidator {
 		}
 		else if(selectionLength <= 0 && manager.inPrintPageRange(view.getCaretOffset() + 1) || (selectionLength <= 0 && (manager.getElementInRange(view.getCaretOffset() + 1) instanceof BrlOnlyMapElement)))
 			return false;
+		else if(selectionLength > 0){
+			TextMapElement t = manager.getElementInRange(selectionStart); 
+			if( (t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && selectionStart == t.end && selectionLength == 1)
+				return false;
+		}
 		
 		return true;
 	}
@@ -76,6 +92,11 @@ public class TextActionValidator {
 		}
 		else if(selectionLength <= 0 && manager.inPrintPageRange(view.getCaretOffset() - 1) || (selectionLength <= 0 && (manager.getElementInRange(view.getCaretOffset() - 1) instanceof BrlOnlyMapElement)))
 			return false;
+		else if(selectionLength > 0){
+			TextMapElement t = manager.getElementInRange(selectionStart); 
+			if( (t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && selectionStart == t.end && selectionLength == 1)
+				return false;
+		}
 		
 		return true;
 	}
@@ -91,6 +112,11 @@ public class TextActionValidator {
 			else if(selectionStart >= currentStart && selectionStart < currentEnd && selectionLength <= (currentEnd - selectionStart))
 				return false;
 			else if(selectionStart >= currentStart && selectionStart <= currentEnd)
+				return false;
+		}
+		else if(selectionLength > 0){
+			TextMapElement t = manager.getElementInRange(selectionStart); 
+			if( (t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && selectionStart == t.end && selectionLength == 1)
 				return false;
 		}
 		

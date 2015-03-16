@@ -133,4 +133,12 @@ public abstract class Handler {
 			return false;
 	}
 	
+	protected boolean readOnly(TextMapElement t){
+		return t instanceof BrlOnlyMapElement || t instanceof PageMapElement;
+	}
+	
+	protected boolean readOnly(Element e){
+		String sem = getSemanticAttribute(e);	
+		return sem.equals("boxline") || sem.equals("pagenum") || sem.equals("fullBox") || sem.equals("bottomBox");
+	}	
 }

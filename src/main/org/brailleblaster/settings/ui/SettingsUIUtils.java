@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 final class SettingsUIUtils {
 	private static final Logger log = LoggerFactory.getLogger(SettingsUIUtils.class);
+
 	private SettingsUIUtils() {
 	}
 
@@ -35,22 +36,26 @@ final class SettingsUIUtils {
 		setGridData(group);
 		((GridData) group.getLayoutData()).grabExcessVerticalSpace = true;
 	}
-	
+
 	/**
 	 * If the value is different from the getter, update the object with the setter.
+	 *
 	 * @param <V>
 	 * @param getter
 	 * @param setter
 	 * @param value
 	 * @param updateFlag
-	 * @return 
+	 * @return
 	 */
 	public static <V> boolean updateObject(Supplier<V> getter, Consumer<V> setter, V value, boolean updateFlag) {
-		if(!getter.get().equals(value)) {
+		if (value == null)
+			throw new RuntimeException("value");
+		V getterValue = getter.get();
+		if (getterValue == null || !getterValue.equals(value)) {
 			//log.debug("updateObject updated old {} new {} updated {}", getter.get(), value, updateFlag, new RuntimeException());
 			setter.accept(value);
 			return true;
-		} else if (updateFlag) 
+		} else if (updateFlag)
 			//Value didn't need updating but still need to pass on flag
 			return true;
 		return false;

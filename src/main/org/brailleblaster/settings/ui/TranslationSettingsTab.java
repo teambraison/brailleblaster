@@ -1,223 +1,229 @@
 package org.brailleblaster.settings.ui;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.io.FileInputStream;
+import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.ParsingException;
-import nu.xom.ValidityException;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import org.apache.commons.lang3.StringUtils;
 
 import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
-import org.brailleblaster.settings.SettingsManager;
-import org.brailleblaster.settings.Table;
-import org.brailleblaster.settings.TranslationConfiguration;
+import org.brailleblaster.utd.BrailleSettings;
+import org.brailleblaster.utd.UTDTranslationEngine;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class TranslationSettingsTab {
-	private static final String transConPath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + "languageConfigurations.xml";
-	private HashMap<String, String>settingsMap;
-	TranslationConfiguration [] transCon;
-	TabItem item;
-	Composite composite; 
-	Group langGroup, typeGroup, computerGroup; 
-	Label langLabel, typeLabel, computerLabel, mathLabel;
-	Combo languageCombo, typeCombo, computerCombo, mathCombo;
-	Button math;
-	LocaleHandler lh;
-	TranslationSettingsTab(TabFolder folder, SettingsManager ppm, final HashMap<String, String>tempSettingsMap){
-		lh = new LocaleHandler();
-		settingsMap = tempSettingsMap;
-		item = new TabItem(folder, 0);	
-		item.setText(lh.localValue("translationSettings"));
-		
-		composite = new Composite(folder, 0);
-		composite.setLayout(new FillLayout(SWT.VERTICAL));
-		item.setControl(composite);
-		
-		langGroup = new Group(composite, 0);
+class TranslationSettingsTab implements SettingsUITab {
+	private static final Logger log = LoggerFactory.getLogger(TranslationSettingsTab.class);
+	private static final String transConPath = BBIni.getProgramDataPath("liblouisutdml", "lbu_files", "languageConfigurations.xml");
+	private final XMLConfiguration config;
+	private final LocaleHandler lh = new LocaleHandler();
+	private final Composite parent;
+	private final Combo languageCombo, litteraryCombo, computerCombo;
+
+	TranslationSettingsTab(TabFolder folder, BrailleSettings brailleSettings) {
+		TabItem tab = new TabItem(folder, 0);
+		tab.setText(lh.localValue("translationSettings"));
+
+		parent = new Composite(folder, 0);
+		parent.setLayout(new FillLayout(SWT.VERTICAL));
+		tab.setControl(parent);
+
+		//---Add widgets---
+		//Language
+		Group langGroup = new Group(parent, 0);
 		langGroup.setLayout(new GridLayout(2, true));
 		langGroup.setText(lh.localValue("selectLanguage"));
-		langLabel = new Label(langGroup, 0);
-		langLabel.setText("Languages");
-		SettingsUIUtils.setGridData(langLabel);
+
+		SettingsUIUtils.addLabel(langGroup, "Languages");
 		languageCombo = new Combo(langGroup, SWT.READ_ONLY);
 		SettingsUIUtils.setGridData(languageCombo);
-		
-		typeGroup = new Group(composite, 0);
+
+		//Litterary Braille type
+		Group typeGroup = new Group(parent, 0);
 		typeGroup.setLayout(new GridLayout(2, true));
 		typeGroup.setText(lh.localValue("selectType"));
-		
-		typeLabel = new Label(typeGroup, 0);
-		typeLabel.setText(lh.localValue("brailleType"));
-		SettingsUIUtils.setGridData(typeLabel);
-		typeCombo = new Combo(typeGroup, SWT.READ_ONLY);
-		SettingsUIUtils.setGridData(typeCombo);
-		
-		computerGroup = new Group(composite,0);
+
+		SettingsUIUtils.addLabel(typeGroup, lh.localValue("brailleType"));
+		litteraryCombo = new Combo(typeGroup, SWT.READ_ONLY);
+		SettingsUIUtils.setGridData(litteraryCombo);
+
+		//Computer braille
+		Group computerGroup = new Group(parent, 0);
 		computerGroup.setText(lh.localValue("selectComputerBraille"));
 		computerGroup.setLayout(new GridLayout(2, true));
-		
-		computerLabel = new Label(computerGroup, 0);
-		computerLabel.setText(lh.localValue("brailleType"));
-		SettingsUIUtils.setGridData(computerLabel);
-		
+
+		SettingsUIUtils.addLabel(computerGroup, lh.localValue("brailleType"));
 		computerCombo = new Combo(computerGroup, SWT.READ_ONLY);
 		SettingsUIUtils.setGridData(computerCombo);
-		
-		
-		transCon = loadTranslationConfigurations();
-		loadView();
-		setDefaults();
-		addListeners();
-	}
-	
-	private void addListeners(){
-		typeCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				settingsMap.put("literaryTextTable", getTableFile(transCon[languageCombo.getSelectionIndex()].getTableList(), typeCombo));
-				settingsMap.put("mathtextTable", getTableFile(transCon[languageCombo.getSelectionIndex()].getTableList(), typeCombo));
-			}	
-		});
-		
-		computerCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				settingsMap.put("compbrlTable", getTableFile(transCon[languageCombo.getSelectionIndex()].getCompBrailleList(),computerCombo));
-			}
-		});
-		
-		languageCombo.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				typeCombo.removeAll();
-				computerCombo.removeAll();
-				int index = languageCombo.getSelectionIndex();
-				populateCombo(transCon[index].getTableList(), typeCombo);
-				populateCombo(transCon[index].getCompBrailleList(), computerCombo);
-				settingsMap.put("mathexprTable", transCon[index].getMathTable());
-			}
-		});
-	}
-	
-	private String getTableFile(ArrayList<Table>list, Combo c){
-		return list.get(c.getSelectionIndex()).getTableFile();
-	}
-	
-	private void loadView(){
-		for(int i = 0; i < transCon.length; i++){
-			if(transCon[i].getLocale() != null)
-				languageCombo.add(transCon[i].getLanguage() + "(" + transCon[i].getLocale() + ")");
-			else
-				languageCombo.add(transCon[i].getLanguage());
+
+		//--Add listeners--
+		languageCombo.addSelectionListener(SettingsUIUtils.makeSelectedListener((e) -> onLanguageChange()));
+
+		//---Set data---
+		config = loadConfiguration();
+
+		for (XMLEntry entry : config.entries)
+			languageCombo.add(entry.getComboName());
+
+		XMLEntry userEntry = config.findEntryByLocale(brailleSettings.getLocale());
+		log.debug("Setting locale to " + userEntry.locale);
+		languageCombo.setText(userEntry.getComboName());
+		onLanguageChange();
+
+		log.debug("user lit table {}", brailleSettings.getMainTranslationTable());
+		log.debug("computer table {}", brailleSettings.getComputerBrailleTable());
+		if (StringUtils.isNotBlank(brailleSettings.getMainTranslationTable())) {
+			String userLitteraryTable = new File(brailleSettings.getMainTranslationTable()).getName();
+			XMLTable table = userEntry.literaryBraille.stream()
+					.filter((v) -> v.fileName.equals(userLitteraryTable))
+					.findAny()
+					.orElseThrow(() -> new RuntimeException("Config uses unknown litterary table" + userLitteraryTable));
+			litteraryCombo.setText(table.name);
+		}
+
+		if (StringUtils.isNotBlank(brailleSettings.getComputerBrailleTable())) {
+			String userComputerTable = new File(brailleSettings.getComputerBrailleTable()).getName();
+			XMLTable table = userEntry.computerBraille.stream()
+					.filter((v) -> v.fileName.equals(userComputerTable))
+					.findAny()
+					.orElseThrow(() -> new RuntimeException("Config uses unknown computer table" + userComputerTable));
+			computerCombo.setText(table.name);
 		}
 	}
-	
-	private void setDefaults(){
-		if(settingsMap.containsKey("literaryTextTable"))
-			findConfiguration(settingsMap.get("literaryTextTable"));
-		else 
-			checkLocale();
+
+	public void onLanguageChange() {
+		litteraryCombo.removeAll();
+		computerCombo.removeAll();
+
+		XMLEntry entry = config.entries.get(languageCombo.getSelectionIndex());
+		for (XMLTable curTable : entry.literaryBraille)
+			litteraryCombo.add(curTable.name);
+		for (XMLTable curTable : entry.computerBraille)
+			computerCombo.add(curTable.name);
 	}
-	
-	private void findConfiguration(String table){
-		boolean found = false;
-		for(int i = 0; i < transCon.length && !found; i++){
-			for(int j = 0; j < transCon[i].getTableList().size() && !found; j++){
-				if(transCon[i].getTableList().get(j).getTableFile().equals(table)){
-					int index = i;
-					populateCombo(transCon[index].getTableList(), typeCombo);
-					populateCombo(transCon[index].getCompBrailleList(), computerCombo);
-					languageCombo.select(i);
-					typeCombo.select(j);
-					if(settingsMap.containsKey("compbrlTable"))
-						setCompBrailleCombo(transCon[index], settingsMap.get("compbrlTable"));
-					
-					found = true;
-					break;
+
+	@Override
+	public String validate() {
+		log.debug("validate");
+		if (litteraryCombo.getSelectionIndex() == -1)
+			return "Must select litterary braille type";
+		if (computerCombo.getSelectionIndex() == -1)
+			return "Must select computer braille type";
+		log.debug("success");
+		return null;
+	}
+
+	@Override
+	public boolean updateEngine(UTDTranslationEngine engine) {
+		BrailleSettings settings = engine.getBrailleSettings();
+		boolean updated = false;
+		XMLEntry selected = config.entries.get(languageCombo.getSelectionIndex());
+
+		updated = SettingsUIUtils.updateObject(settings::getMainTranslationTable, settings::setMainTranslationTable,
+				selected.literaryBraille.get(litteraryCombo.getSelectionIndex()).fileName, updated);
+		updated = SettingsUIUtils.updateObject(settings::getComputerBrailleTable, settings::setComputerBrailleTable,
+				selected.computerBraille.get(computerCombo.getSelectionIndex()).fileName, updated);
+		updated = SettingsUIUtils.updateObject(settings::getMathTable, settings::setMathTable,
+				selected.math.fileName, updated);
+
+		return updated;
+	}
+
+	private static XMLConfiguration loadConfiguration() {
+		XMLStreamReader inputXml = null;
+		try (FileInputStream input = new FileInputStream(transConPath)) {
+			JAXBContext jc = JAXBContext.newInstance(XMLConfiguration.class);
+			Unmarshaller unmarshaller = jc.createUnmarshaller();
+			XMLInputFactory xif = XMLInputFactory.newInstance();
+			inputXml = xif.createXMLStreamReader(input);
+			JAXBElement<XMLConfiguration> result = unmarshaller.unmarshal(inputXml, XMLConfiguration.class);
+			return result.getValue();
+		} catch (Exception e) {
+			throw new RuntimeException("Cannot load settings from file " + transConPath, e);
+		} finally {
+			if (inputXml != null) {
+				try {
+					inputXml.close();
+				} catch (XMLStreamException ex) {
+					throw new RuntimeException("Could not close XML", ex);
 				}
 			}
 		}
 	}
-	
-	private void populateCombo(ArrayList<Table>list, Combo c){
-		for(int i = 0; i < list.size(); i++)
-			c.add(list.get(i).getTableName());
-	}
-	
-	private void setCompBrailleCombo(TranslationConfiguration tc, String table){
-		for(int i = 0; i < tc.getCompBrailleList().size(); i++){
-			if(tc.getCompBrailleList().get(i).getTableFile().equals(table)){
-				computerCombo.select(i);
-				break;
-			}
+
+	@XmlRootElement(name = "configurations")
+	@XmlAccessorType(XmlAccessType.FIELD)
+	private static class XMLConfiguration {
+		@XmlElement(name = "entry")
+		public List<XMLEntry> entries;
+
+		public XMLEntry findEntryByLocale(String locale) {
+			return entries.stream()
+					.filter((entry) -> entry.locale.equals(locale))
+					.findFirst()
+					.orElseThrow(() -> new RuntimeException("unknown locale '" + locale + "'"));
 		}
 	}
-	
-	private void checkLocale(){
-		String locale = Locale.getDefault().getCountry();
-		for(int i = 0; i < transCon.length; i++){
-			if(transCon[i].getLocale().equals(locale)){
-				languageCombo.select(i);
-			}
+
+	private static class XMLEntry {
+		public String locale;
+		public String language;
+		@XmlElementWrapper(name = "literaryBraille")
+		@XmlElement(name = "table")
+		public List<XMLTable> literaryBraille;
+		@XmlElementWrapper(name = "computerBraille")
+		@XmlElement(name = "table")
+		public List<XMLTable> computerBraille;
+		public XMLMath math;
+
+		public String getComboName() {
+			return language + " (" + locale + ")";
 		}
 	}
-	
-	private TranslationConfiguration[] loadTranslationConfigurations(){
-		Document doc = buildDOM();
-		Element root = doc.getRootElement();
-		int count = root.getChildElements().size();
-		TranslationConfiguration [] temp = new TranslationConfiguration[count];
-		
-		for(int i = 0; i < count; i++){
-			temp[i] = new TranslationConfiguration(root.getChildElements().get(i));
+
+	private static class XMLTable {
+		public String name;
+		public String fileName;
+
+		public XMLTable(String name, String fileName) {
+			this.name = name;
+			this.fileName = fileName;
 		}
-		
-		return temp;
-	}
-	
-	private Document buildDOM(){
-		File f = new File(transConPath);
-		Builder builder  = new Builder();
-		
-		try {
-			Document d = builder.build(f);
-			return d;
-		} catch (ValidityException e) {
-			e.printStackTrace();
-		} catch (ParsingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		public XMLTable() {
 		}
-		
-		return null;
 	}
-	
-	public boolean validate(){
-		if(typeCombo.getSelectionIndex() != -1 && computerCombo.getSelectionIndex() != -1)
-			return true;
-		else
-			return false;
+
+	private static class XMLMath {
+		public String fileName;
+
+		public XMLMath(String fileName) {
+			this.fileName = fileName;
+		}
+
+		public XMLMath() {
+		}
+
 	}
 }

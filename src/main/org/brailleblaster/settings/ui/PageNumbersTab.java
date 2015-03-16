@@ -4,7 +4,6 @@ import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
 import org.brailleblaster.utd.properties.PageNumberPosition;
-import org.brailleblaster.utd.properties.PageNumberType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
@@ -84,10 +83,6 @@ class PageNumbersTab implements SettingsUITab {
 				continuePagesCombo.getText().equals("Yes"), updated);
 
 		return updated;
-	}
-
-	private static boolean isComboYes(Combo combo) {
-		return combo.getText().equals("Yes");
 	}
 
 	private static Combo makeNumberPositionCombo(Composite parent, PageNumberPosition defaultValue) {

@@ -333,9 +333,9 @@ class PagePropertiesTab implements SettingsUITab {
 
 	@Override
 	public String validate() {
-		if (marginRight + marginLeft + unitConverter.calculateWidthFromCells((int) pageCells, brailleCell) >= pageWidth)
+		if (marginRight + marginLeft + unitConverter.calculateWidthFromCells((int) pageCells, brailleCell) > pageWidth)
 			return "incorrectMarginWidth";
-		if (marginTop + marginBottom + unitConverter.calculateWidthFromCells((int) pageLines, brailleCell) >= pageHeight)
+		if (marginTop + marginBottom + unitConverter.calculateWidthFromCells((int) pageLines, brailleCell) > pageHeight)
 			return "incorrectMarginHeight";
 		if (pageHeight < 0 || pageWidth < 0 || pageLines < 0 || pageCells < 0
 				|| marginTop < 0 || marginBottom < 0 || marginLeft < 0 || marginRight < 0)

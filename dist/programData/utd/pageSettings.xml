@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <pageSettings>
-	<!-- Margin and Height based on liblouisutdml epub.cfg -->
-	<paperHeight>11</paperHeight>
-	<paperWidth>11.5</paperWidth>
-	<topMargin>0.5</topMargin>
-	<bottomMargin>0.5</bottomMargin>
-	<leftMargin>1</leftMargin>
-	<rightMargin>0.5</rightMargin>
+	<!-- Margin and Height based on liblouisutdml epub.cfg converted to metric -->
+    <paperHeight>279.4</paperHeight>
+    <paperWidth>292.1</paperWidth>
+	<topMargin>12.7</topMargin>
+	<bottomMargin>12.7</bottomMargin>
+	<leftMargin>25.4</leftMargin>
+	<rightMargin>12.7</rightMargin>
         
 	<begPageNum>1</begPageNum>
 	<beginningPageNumber>1</beginningPageNumber>

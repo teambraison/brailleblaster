@@ -54,8 +54,8 @@ class StyleDefinitionsTab implements SettingsUITab {
 
 	private static final Logger log = LoggerFactory.getLogger(StyleDefinitionsTab.class);
 	private final LocaleHandler lh = new LocaleHandler();
-	private final Map<String, Control> styleFieldToControlMap = new HashMap<String, Control>();
-	private final List<StyleLevel> styleLevels = new ArrayList<StyleLevel>();
+	private final Map<String, Control> styleFieldToControlMap = new HashMap<>();
+	private final List<StyleLevel> styleLevels = new ArrayList<>();
 	private final Composite parent;
 	private final Group groupSelect;
 

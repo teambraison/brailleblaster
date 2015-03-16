@@ -5,13 +5,10 @@ import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.PageSettings.NumberLocation;
 import org.brailleblaster.utd.UTDTranslationEngine;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
@@ -20,7 +17,6 @@ class PageNumbersTab implements SettingsUITab {
 	private final Combo continueCombo, interpointCombo, printCombo;
 
 	PageNumbersTab(TabFolder folder, PageSettings pageSettingsDefault) {
-		super();
 		TabItem item = new TabItem(folder, 0);
 		item.setText(lh.localValue("pageNumbers"));
 
@@ -35,10 +31,10 @@ class PageNumbersTab implements SettingsUITab {
 		pageNumGroup.setText("Page Numbers");
 		SettingsUIUtils.setGridDataGroup(pageNumGroup);
 
-		addLabel(pageNumGroup, "Braille Interpoint Page Number Location");
+		SettingsUIUtils.addLabel(pageNumGroup, "Braille Interpoint Page Number Location");
 		interpointCombo = makeNumberPositionCombo(pageNumGroup, pageSettingsDefault.getInterpoint());
 
-		addLabel(pageNumGroup, "Continuation Symbols Print Page Number Location");
+		SettingsUIUtils.addLabel(pageNumGroup, "Continuation Symbols Print Page Number Location");
 		printCombo = makeNumberPositionCombo(pageNumGroup, pageSettingsDefault.getPrintPages());
 
 		//Continue pages
@@ -47,7 +43,7 @@ class PageNumbersTab implements SettingsUITab {
 		cpGroup.setText(lh.localValue("continue"));
 		SettingsUIUtils.setGridDataGroup(cpGroup);
 
-		addLabel(cpGroup, "Continue Pages");
+		SettingsUIUtils.addLabel(cpGroup, "Continue Pages");
 		continueCombo = new Combo(cpGroup, SWT.READ_ONLY);
 		continueCombo.add("No");
 		continueCombo.add("Yes");
@@ -55,28 +51,28 @@ class PageNumbersTab implements SettingsUITab {
 			continueCombo.setText("Yes");
 		else
 			continueCombo.setText("No");
-		setGridData(continueCombo);
+		SettingsUIUtils.setGridData(continueCombo);
 	}
 
 	@Override
 	public String validate() {
+		//No validation needed as there is only Combos with a fixed set of values
 		return null;
 	}
 
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
-		return false;
-	}
+		PageSettings pageSettings = engine.getPageSettings();
+		boolean updated = false;
 
-	public void updateEngine(PageSettings pageSettingsNew) {
-		NumberLocation interpoint = NumberLocation.valueOf(interpointCombo.getText());
-		pageSettingsNew.setInterpoint(interpoint);
+		updated = SettingsUIUtils.updateObject(pageSettings::getInterpoint, pageSettings::setInterpoint,
+				NumberLocation.valueOf(interpointCombo.getText()), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getPrintPages, pageSettings::setPrintPages,
+				NumberLocation.valueOf(printCombo.getText()), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::isContinuePages, pageSettings::setContinuePages,
+				continueCombo.getText().equals("Yes"), updated);
 
-		NumberLocation print = NumberLocation.valueOf(printCombo.getText());
-		pageSettingsNew.setPrintPages(print);
-
-		boolean continueVal = continueCombo.getText().equals("Yes");
-		pageSettingsNew.setContinuePages(continueVal);
+		return updated;
 	}
 
 	private static Combo makeNumberPositionCombo(Composite parent, NumberLocation defaultValue) {
@@ -86,22 +82,7 @@ class PageNumbersTab implements SettingsUITab {
 			combo.add(curLoc.name());
 		combo.setText(defaultValue.name());
 
-		setGridData(combo);
+		SettingsUIUtils.setGridData(combo);
 		return combo;
-	}
-
-	private static Label addLabel(Composite parent, String text) {
-		Label label = new Label(parent, 0);
-		label.setText(text);
-		setGridData(label);
-		return label;
-	}
-
-	private static void setGridData(Control c) {
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		c.setLayoutData(gridData);
 	}
 }

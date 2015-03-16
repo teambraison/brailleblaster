@@ -45,7 +45,7 @@ public class ConfigPanel {
 		setFormLayout(folder, 0, 100, 0, 94);
 
 		//TODO: Port translationSettings once Michael says how it maps to UTD
-		pageProperties = new PagePropertiesTab(folder, engine.getPageSettings());
+		pageProperties = new PagePropertiesTab(folder, engine);
 		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
 		pageNumTab = new PageNumbersTab(folder, engine.getPageSettings());
 		styleDefsTab = new StyleDefinitionsTab(folder, m);

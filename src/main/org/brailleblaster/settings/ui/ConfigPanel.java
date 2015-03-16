@@ -85,6 +85,7 @@ public class ConfigPanel {
 			new Notify(lh.localValue(errorStr));
 		else {
 			try {
+				sm.createUserUTDFolder();
 				//Only save if setting was changed
 				if (pageProperties.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());

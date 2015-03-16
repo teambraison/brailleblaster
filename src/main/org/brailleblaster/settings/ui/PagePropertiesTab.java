@@ -46,7 +46,7 @@ class PagePropertiesTab implements SettingsUITab {
 	private final String unitName, unitSuffix;
 	private boolean marginLocalUnit = true;
 	/**
-	 * Internal representation always in local units (inch/mm).
+	 * Internal representation always in local units (inch or mm).
 	 */
 	private double pageHeight, pageWidth, pageCells, pageLines, marginTop, marginBottom, marginLeft, marginRight;
 
@@ -183,21 +183,22 @@ class PagePropertiesTab implements SettingsUITab {
 
 		//Page size
 		if (pageSettings.getPaperHeight() != 0 && pageSettings.getPaperWidth() != 0) {
-			//User has set their own settings
-			pageHeight = pageSettings.getPaperHeight();
-			pageWidth = pageSettings.getPaperWidth();
+			//User has set their own settings stored in their own units
+			pageHeight = unitConverter.mmToLocal(pageSettings.getPaperHeight());
+			pageWidth = unitConverter.mmToLocal(pageSettings.getPaperWidth());
 
 		} else {
 			//TODO: assume the first one? 
+			//Page handles unit conversions
 			Page defaultPage = standardPages.get(0);
 			pageHeight = defaultPage.height;
 			pageWidth = defaultPage.width;
 		}
 
-		marginTop = pageSettings.getTopMargin();
-		marginBottom = pageSettings.getBottomMargin();
-		marginLeft = pageSettings.getLeftMargin();
-		marginRight = pageSettings.getRightMargin();
+		marginTop = unitConverter.mmToLocal(pageSettings.getTopMargin());
+		marginBottom = unitConverter.mmToLocal(pageSettings.getBottomMargin());
+		marginLeft = unitConverter.mmToLocal(pageSettings.getLeftMargin());
+		marginRight = unitConverter.mmToLocal(pageSettings.getRightMargin());
 
 		calculateCellsLinesAndUpdate();
 	}
@@ -223,10 +224,10 @@ class PagePropertiesTab implements SettingsUITab {
 		setTextIfDifferent(linesBox, pageLines);
 		setTextIfDifferent(cellsBox, pageCells);
 
-		setTextIfDifferent(marginTopBox, marginLocalUnit ? marginTop : unitConverter.calculateLinesInHeight(marginTop));
-		setTextIfDifferent(marginBottomBox, marginLocalUnit ? marginBottom : unitConverter.calculateLinesInHeight(marginBottom));
-		setTextIfDifferent(marginLeftBox, marginLocalUnit ? marginLeft : unitConverter.calculateCellsInWidth(marginLeft));
-		setTextIfDifferent(marginRightBox, marginLocalUnit ? marginRight : unitConverter.calculateCellsInWidth(marginRight));
+		setTextIfDifferent(marginTopBox, marginTop);
+		setTextIfDifferent(marginBottomBox, marginBottom);
+		setTextIfDifferent(marginLeftBox, marginLeft);
+		setTextIfDifferent(marginRightBox, marginRight);
 	}
 
 	/**
@@ -327,11 +328,6 @@ class PagePropertiesTab implements SettingsUITab {
 
 	@Override
 	public String validate() {
-		//TODO: This is set in the advanced tab
-//		if (Integer.valueOf(cellsBox.getText()) < Integer.parseInt(settingsMap.get("minCellsPerLine")))
-//			return "invalidSettingsCells";
-//		else if (Integer.valueOf(linesBox.getText()) < Integer.parseInt(settingsMap.get("minLinesPerPage")))
-//			return "invalidSettingsLines";		
 		if (marginRight + marginLeft + unitConverter.calculateCellsWidth(pageCells) >= pageWidth)
 			return "incorrectMarginWidth";
 		if (marginTop + marginBottom + unitConverter.calculateLinesHeight(pageLines) >= pageHeight)
@@ -345,35 +341,22 @@ class PagePropertiesTab implements SettingsUITab {
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
 		PageSettings pageSettings = engine.getPageSettings();
-		return false;
-
-		//margin*Box: 
-		// if (regionalButton.getSelection()) getStringValue(t) else df.format(sm.calcHeightFromLines(getDoubleValue(t)))
-		//"topMargin"
-		//"bottomMargin"
-		// if (regionalButton.getSelection()) getStringValue(t) else df.format(sm.calcWidthFromCells(getDoubleValue(t)))
-		//"leftMargin"
-		//"rightMargin"
-		//"paperWidth"
-		//"paperHeight"
-//		PageSettings pageSettings = engine.getPageSettings();
-//		PageUnitConverter converter = pageSettings.getUnitConverter();
-//		
-//		pageSettings.setPaperHeight(converter.localToMM(Double.parseDouble(heightBox.getText())));
-//		pageSettings.setPaperHeight(converter.localToMM(Double.parseDouble(widthBox.getText())));
-//		if(regionalButton.getSelection()) {
-//			//All fields are in local units
-//			pageSettings.setTopMargin(converter.localToMM(Double.parseDouble(marginTopBox.getText())));
-//			pageSettings.setBottomMargin(converter.localToMM(Double.parseDouble(marginBottomBox.getText())));
-//			pageSettings.setLeftMargin(converter.localToMM(Double.parseDouble(marginLeftBox.getText())));
-//			pageSettings.setRightMargin(converter.localToMM(Double.parseDouble(marginRightBox.getText())));
-//		} else {
-//			//All fields are in cell units
-//			pageSettings.setTopMargin(converter.calculateLinesPerPage(Double.parseDouble(marginTopBox.getText())));
-//			pageSettings.setBottomMargin(converter.calculateLinesPerPage(Double.parseDouble(marginBottomBox.getText())));
-//			pageSettings.setLeftMargin(converter.calculateCellsPerInch(Double.parseDouble(marginLeftBox.getText())));
-//			pageSettings.setRightMargin(converter.calculateCellsPerInch(Double.parseDouble(marginRightBox.getText())));
-//		}
+		boolean updated = false;
+		
+		updated = SettingsUIUtils.updateObject(pageSettings::getPaperHeight, pageSettings::setPaperHeight, 
+				unitConverter.localToMM(pageHeight), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getPaperWidth, pageSettings::setPaperWidth, 
+				unitConverter.localToMM(pageWidth), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getTopMargin, pageSettings::setTopMargin, 
+				unitConverter.localToMM(marginTop), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getBottomMargin, pageSettings::setBottomMargin, 
+				unitConverter.localToMM(marginBottom), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getLeftMargin, pageSettings::setLeftMargin, 
+				unitConverter.localToMM(marginLeft), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getRightMargin, pageSettings::setRightMargin, 
+				unitConverter.localToMM(marginRight), updated);
+		
+		return updated;
 	}
 
 	/**

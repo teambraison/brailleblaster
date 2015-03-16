@@ -4,7 +4,7 @@ import org.brailleblaster.utd.utils.PageUnitConverter;
 
 class Page {
 	String type;
-	double width, height, mmWidth, mmHeight;
+	double width, height;
 
 	public Page(String type, double width, double height, boolean convertToMM) {
 		this.type = type;

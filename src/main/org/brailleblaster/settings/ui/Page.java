@@ -1,6 +1,6 @@
 package org.brailleblaster.settings.ui;
 
-import org.brailleblaster.utd.utils.PageUnitConverter;
+import org.brailleblaster.utd.utils.UnitConverter;
 
 class Page {
 	String type;
@@ -8,8 +8,8 @@ class Page {
 
 	public Page(String type, double width, double height, boolean convertToMM) {
 		this.type = type;
-		this.width = convertToMM ? PageUnitConverter.inchesToMM(width) : width;
-		this.height = convertToMM ? PageUnitConverter.inchesToMM(height) : height;
+		this.width = convertToMM ? UnitConverter.inchesToMM(width) : width;
+		this.height = convertToMM ? UnitConverter.inchesToMM(height) : height;
 	}
 
 	@Override

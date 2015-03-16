@@ -87,12 +87,9 @@ class TranslationSettingsTab implements SettingsUITab {
 			languageCombo.add(entry.getComboName());
 
 		XMLEntry userEntry = config.findEntryByLocale(brailleSettings.getLocale());
-		log.debug("Setting locale to " + userEntry.locale);
 		languageCombo.setText(userEntry.getComboName());
 		onLanguageChange();
 
-		log.debug("user lit table {}", brailleSettings.getMainTranslationTable());
-		log.debug("computer table {}", brailleSettings.getComputerBrailleTable());
 		if (StringUtils.isNotBlank(brailleSettings.getMainTranslationTable())) {
 			String userLitteraryTable = new File(brailleSettings.getMainTranslationTable()).getName();
 			XMLTable table = userEntry.literaryBraille.stream()

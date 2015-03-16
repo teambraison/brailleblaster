@@ -83,9 +83,9 @@ class StyleDefinitionsTab implements SettingsUITab {
 		groupStyle.setLayout(new GridLayout(2, true));
 		SettingsUIUtils.setGridDataGroup(groupStyle);
 
-		//TODO: This temporarily uses the Java field name, in the future when the Style object API stabilizies give pretty names
 		for (String curField : STYLE_FIELDS.keySet()) {
 			Label fieldLabel = new Label(groupStyle, 0);
+			//TODO: Give pretty name to label instead of Java field name
 			fieldLabel.setText(curField);
 			SettingsUIUtils.setGridData(fieldLabel);
 
@@ -187,10 +187,12 @@ class StyleDefinitionsTab implements SettingsUITab {
 		}
 	}
 	
+	@Override
 	public String validate() {
 		return null;
 	}
 	
+	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
 		return false;
 	}

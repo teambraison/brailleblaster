@@ -363,7 +363,7 @@ public abstract class WPView extends AbstractView implements BBView {
 				statusBarText += " Alignment: Right" + " | ";
 		}
 		
-		if(manager.getCurrent() != null){
+		if(manager.getCurrent() != null && manager.getCurrent().parentElement() != null){
 			String styleName;
 			if(manager.getCurrent() instanceof PageMapElement){
 				styleName = "Print Page";

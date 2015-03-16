@@ -141,6 +141,16 @@ public class Message {
 		return m;
 	}
 	
+	public static Message createSelectionMessage(String replacedText, String replacementText, int start, int end){
+		Message m = new Message(BBEvent.SELECTION);	
+		m.put("replacedText", replacedText);
+		m.put("replacementText", replacementText);
+		m.put("start", start);
+		m.put("end", end);
+		
+		return m;
+	}
+	
 	public static Message createUpdateStatusbarMessage(String line){
 		Message m = new Message(BBEvent.UPDATE_STATUSBAR);
 		m.put("line", line);

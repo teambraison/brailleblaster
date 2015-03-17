@@ -1,0 +1,12 @@
+syntax: glob
+classes
+dist/**/*.jar
+dist/native/**/*.dll
+dist/native/**/*.dylib
+dist/native/**/*.so
+nbproject/*
+Resources/*
+bin/*
+.project
+.classpath
+.settings

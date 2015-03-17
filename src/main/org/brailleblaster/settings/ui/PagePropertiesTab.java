@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.utd.BrailleSettings;
 import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
 import org.brailleblaster.utd.properties.BrailleCellType;
@@ -42,7 +43,7 @@ class PagePropertiesTab implements SettingsUITab {
 	private final Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox,
 			marginRightBox, marginBottomBox;
 	private final Label marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
-	private final Combo pageTypes;
+	private final Combo pageTypes, cellType;
 	private final Button regionalButton, cellsLinesButton;
 	private final String unitName, unitSuffix;
 	private boolean marginLocalUnit = true;
@@ -82,7 +83,7 @@ class PagePropertiesTab implements SettingsUITab {
 		SettingsUIUtils.setGridDataGroup(pageGroup);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("pageSize"));
-		pageTypes = new Combo(pageGroup, SWT.NONE);
+		pageTypes = new Combo(pageGroup, SWT.READ_ONLY);
 		SettingsUIUtils.setGridData(pageTypes);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("width") + unitSuffix);
@@ -94,6 +95,10 @@ class PagePropertiesTab implements SettingsUITab {
 		heightBox = new Text(pageGroup, SWT.BORDER);
 		addDoubleFilter(heightBox, false);
 		SettingsUIUtils.setGridData(heightBox);
+		
+		SettingsUIUtils.addLabel(pageGroup, "Braille Cell Type");
+		cellType = new Combo(pageGroup, SWT.READ_ONLY);
+		SettingsUIUtils.setGridData(cellType);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("linesPerPage"));
 		linesBox = new Text(pageGroup, SWT.BORDER);
@@ -155,6 +160,9 @@ class PagePropertiesTab implements SettingsUITab {
 		heightBox.addKeyListener(makeFieldListener(
 				() -> heightBox.getText(), (v) -> pageHeight = v, (e) -> calculateCellsLinesAndUpdate()));
 
+		//Braille Cell Type 
+		cellType.addSelectionListener(SettingsUIUtils.makeSelectedListener((e) -> onCellTypeChange()));
+		
 		//Cell fields
 		cellsBox.addKeyListener(makeFieldListener(
 				() -> cellsBox.getText(), (v) -> pageCells = v, (e) -> onCellLinesChange()));
@@ -184,6 +192,11 @@ class PagePropertiesTab implements SettingsUITab {
 		//Pages drop down box
 		for (Page curPage : standardPages)
 			pageTypes.add(curPage.toString());
+		
+		for (BrailleCellType curType : BrailleCellType.values())
+			cellType.add(curType.name());
+		brailleCell = engine.getBrailleSettings().getCellType();
+		cellType.setText(brailleCell.name());
 
 		//Page size
 		PageSettings pageSettings = engine.getPageSettings();
@@ -271,6 +284,12 @@ class PagePropertiesTab implements SettingsUITab {
 		if (pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
 			pageTypes.remove(pageTypes.getItemCount() - 1);
 	}
+	
+	private void onCellTypeChange() {
+		brailleCell = BrailleCellType.valueOf(cellType.getText());
+		onMarginUnitSelected();
+		calculateCellsLinesAndUpdate();
+	}
 
 	/**
 	 * When cells or lines change, adjust bottom and right margins to make room
@@ -346,8 +365,11 @@ class PagePropertiesTab implements SettingsUITab {
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
 		PageSettings pageSettings = engine.getPageSettings();
+		BrailleSettings brailleSettings = engine.getBrailleSettings();
 		boolean updated = false;
 
+		updated = SettingsUIUtils.updateObject(brailleSettings::getCellType, brailleSettings::setCellType,
+				brailleCell, updated);
 		updated = SettingsUIUtils.updateObject(pageSettings::getPaperHeight, pageSettings::setPaperHeight,
 				unitConverter.localUnitsToMM(pageHeight), updated);
 		updated = SettingsUIUtils.updateObject(pageSettings::getPaperWidth, pageSettings::setPaperWidth,

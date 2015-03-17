@@ -25,8 +25,11 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BrailleDocument extends BBDocument {
+	private static final Logger log = LoggerFactory.getLogger(BrailleDocument.class);
 	private int idCount = -1;
 	private BBSemanticsTable table;
 	
@@ -166,12 +169,14 @@ public class BrailleDocument extends BBDocument {
 	 * @return the length of the original braille text, used to update offsets of list
 	 */
 	private int changeBrailleNodes(TextMapElement t, Message message){
-		Document d = getStringTranslation(t, (String)message.getValue("newText"));
+		findAndRemoveBrailleElement(t.parentElement());
+		Nodes nodes = engine.translate(t.parentElement());
+	//	Document d = getStringTranslation(t, (String)message.getValue("newText"));
 		int total = 0;
 		int startOffset = 0;
 		String insertionString = "";
-		Element brlParent = ((Element)d.getRootElement().getChild(0));
-		Element e = findAndRemoveBrailleElement(brlParent);
+		//Element brlParent = (Element)nodes.get(0).getChild(1);
+		//Element e = findAndRemoveBrailleElement(brlParent);
 
 		startOffset = t.brailleList.getFirst().start;
 		String logString = "";
@@ -185,14 +190,15 @@ public class BrailleDocument extends BBDocument {
 		}
 		logger.info("Original Braille Node Value:\n" + logString);
 			
-		Element parent = t.parentElement();
-		Element child = (Element)t.brailleList.getFirst().n.getParent();
-		while(!child.getParent().equals(parent)){
-			child = (Element)child.getParent();
-		}
-		parent.replaceChild(child, e);	
+	//	Element parent = t.parentElement();
+	//	Element child = (Element)t.brailleList.getFirst().n.getParent();
+	//	while(!child.getParent().equals(parent)){
+	//		child = (Element)child.getParent();
+	//	}
+		//parent.replaceChild(child, e);	
 		t.brailleList.clear();
 		
+		Element e = (Element)nodes.get(0).getChild(1); 
 		boolean first = true;
 		for(int i = 0; i < e.getChildCount(); i++){
 			if(e.getChild(i) instanceof Text){
@@ -465,13 +471,15 @@ public class BrailleDocument extends BBDocument {
 				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
 			
 			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
-			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
-				return outlength[0];
-			}
-			else {
-				System.out.println("An error occurred while translating");
-				return -1;
-			}
+//			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
+//				return outlength[0];
+//			}
+//			else {
+//				System.out.println("An error occurred while translating");
+//				return -1;
+//			}
+			log.debug("TODO: Attempting to translate with libutdml, use UTD", new RuntimeException());
+			return -1;
 		} 
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -889,6 +897,39 @@ public class BrailleDocument extends BBDocument {
 		return mergedElement;
 	}
 
+	public void addTPage(Element tPageRoot){
+		addNamespace(tPageRoot);
+		Element fmNode = findFrontMatter(doc.getRootElement());
+		
+		if(fmNode!=null){
+			fmNode.insertChild(tPageRoot,0);
+		}		
+	}
+	
+	public void editTPage(Element newTPage, Element prevTPage){
+		addNamespace(newTPage);
+		Element fmNode = findFrontMatter(doc.getRootElement());
+		
+		if(fmNode!=null){
+			fmNode.removeChild(prevTPage);
+			fmNode.insertChild(newTPage, 0);
+		}
+	}
+	
+	private Element findFrontMatter(Element parent){
+		Element returnElement = null;
+		Elements children = parent.getChildElements();
+		for(int i = 0; i < children.size(); i++){
+			if(children.get(i).getLocalName().equalsIgnoreCase("frontmatter")){
+				returnElement = children.get(i);
+				break;
+			} else {
+				returnElement = findFrontMatter(children.get(i));
+			}
+		}
+		return returnElement;
+	}
+	
 	public void addID(Element e){
 		idCount++;
 		e.addAttribute(new Attribute("id", BBIni.getInstanceID() + "_" + idCount));

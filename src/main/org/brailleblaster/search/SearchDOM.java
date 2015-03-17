@@ -84,6 +84,10 @@ public class SearchDOM extends Dialog {
 	int oldCursorPos;
 	int oldTopIndex;
 	int numberReplaceAlls;
+	int nodeParent;
+	int nodeChild;
+	int TMEIndex;
+	int indexOfSearch;
 
 	public SearchDOM(Shell parent, int style, Manager brailleViewController,
 			MapList list) {
@@ -634,33 +638,37 @@ public class SearchDOM extends Dialog {
 		Document doc = man.getDoc();
 		String search = searchCombo.getText();
 		XPathContext context = null;
-		Nodes nodes = (Nodes) doc
-				.query(String.format("//*[text()[contains(.,'%s')]]", search),
-						context);
-		System.out.println("node name " + nodes.get(0).toString());
+		Nodes nodes = (Nodes) doc.query(String.format
+				("//*[text()[contains(.,'%s')]][not(ancestor-or-self::brl)]", search),context);
+		for (int i = 0; i < nodes.size(); i++) {
+			System.out.println("node "+(i+1)+" " + nodes.get(i).toString());
+		}
+
 		ArrayList<Node> nodeList = new ArrayList<Node>();
 		for (int i = 0; i < nodes.size(); i++) {
 			for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
-				if (!nodes.get(i).getChild(j).toString()
-						.equals("[nu.xom.Element: brl]"))
 					nodeList.add(nodes.get(i).getChild(j));
 			}
 		}
-		System.out.println("nodeList" + nodeList.toString());
+//		System.out.println("nodeList" + nodeList.toString()+ " node list size "+nodeList.size());
 		System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+
 		if (nodes.size() > 0) {
-			Node node = nodes.get(0).getChild(0);
-			int TMEIndex = maplist.findNodeIndex(node, 0);
+
+			Node node = nodes.get(nodeParent).getChild(nodeChild);
+			int currentTMEIndex = maplist.findNodeIndex(node, (TMEIndex));
 			maplist.setCurrent(TMEIndex);
 			TextMapElement t = maplist.get(TMEIndex);
-			System.out.println(maplist.getCurrent().parentElement()
-					.query("//text"));
 			tv.view.setCaretOffset(maplist.getCurrent().start);
 			tv.view.setTopIndex(maplist.getCurrent().start);
 
-			int indexOfSearch = view.indexOf(search,0);
+			int currentIndexOfSearch = view.indexOf(search,indexOfSearch+1);
 			tv.view.setSelection(indexOfSearch,indexOfSearch+search.length());
 			System.out.println("NODE INDEX " + TMEIndex);
+			nodeParent++;
+			nodeChild++;
+			TMEIndex = currentTMEIndex;
+			indexOfSearch = currentIndexOfSearch;
 			return true;
 		}
 		return false;

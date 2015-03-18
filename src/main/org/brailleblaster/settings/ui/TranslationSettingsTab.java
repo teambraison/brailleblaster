@@ -86,27 +86,27 @@ class TranslationSettingsTab implements SettingsUITab {
 		for (XMLEntry entry : config.entries)
 			languageCombo.add(entry.getComboName());
 
-		XMLEntry userEntry = config.findEntryByLocale(brailleSettings.getLocale());
-		languageCombo.setText(userEntry.getComboName());
-		onLanguageChange();
-
-		if (StringUtils.isNotBlank(brailleSettings.getMainTranslationTable())) {
-			String userLitteraryTable = new File(brailleSettings.getMainTranslationTable()).getName();
-			XMLTable table = userEntry.literaryBraille.stream()
-					.filter((v) -> v.fileName.equals(userLitteraryTable))
-					.findAny()
-					.orElseThrow(() -> new RuntimeException("Config uses unknown litterary table" + userLitteraryTable));
-			litteraryCombo.setText(table.name);
-		}
-
-		if (StringUtils.isNotBlank(brailleSettings.getComputerBrailleTable())) {
-			String userComputerTable = new File(brailleSettings.getComputerBrailleTable()).getName();
-			XMLTable table = userEntry.computerBraille.stream()
-					.filter((v) -> v.fileName.equals(userComputerTable))
-					.findAny()
-					.orElseThrow(() -> new RuntimeException("Config uses unknown computer table" + userComputerTable));
-			computerCombo.setText(table.name);
-		}
+//		XMLEntry userEntry = config.findEntryByLocale(brailleSettings.getLocale());
+//		languageCombo.setText(userEntry.getComboName());
+//		onLanguageChange();
+//
+//		if (StringUtils.isNotBlank(brailleSettings.getMainTranslationTable())) {
+//			String userLitteraryTable = new File(brailleSettings.getMainTranslationTable()).getName();
+//			XMLTable table = userEntry.literaryBraille.stream()
+//					.filter((v) -> v.fileName.equals(userLitteraryTable))
+//					.findAny()
+//					.orElseThrow(() -> new RuntimeException("Config uses unknown litterary table" + userLitteraryTable));
+//			litteraryCombo.setText(table.name);
+//		}
+//
+//		if (StringUtils.isNotBlank(brailleSettings.getComputerBrailleTable())) {
+//			String userComputerTable = new File(brailleSettings.getComputerBrailleTable()).getName();
+//			XMLTable table = userEntry.computerBraille.stream()
+//					.filter((v) -> v.fileName.equals(userComputerTable))
+//					.findAny()
+//					.orElseThrow(() -> new RuntimeException("Config uses unknown computer table" + userComputerTable));
+//			computerCombo.setText(table.name);
+//		}
 	}
 
 	public void onLanguageChange() {

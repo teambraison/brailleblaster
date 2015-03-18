@@ -84,17 +84,19 @@ public class SearchDOM extends Dialog {
 	int oldCursorPos;
 	int oldTopIndex;
 	int numberReplaceAlls;
-	int nodeParent;
-	int nodeChild;
+//	int nodeParentIndex;
+//	int nodeChildIndex;
 	int TMEIndex;
 	int indexOfSearch;
+	String currentSearch;
+	Nodes nodes;
+	ArrayList<Node> matches = new ArrayList<>();
 
 	public SearchDOM(Shell parent, int style, Manager brailleViewController,
 			MapList list) {
 		super(parent, style);
 		setText("SWT Dialog");
 		man = brailleViewController;
-		// maplist = new MapList(man);
 		this.maplist = list;
 	}
 
@@ -629,49 +631,104 @@ public class SearchDOM extends Dialog {
 
 	public boolean find() {
 
+		/*
+		 * XPath tries!! .query(String.format("//*[text()[contains(.,'%s')]]",
+		 * search), context);
+		 * 
+		 * doc.query(String.format
+		 * ("//*[text()[contains(.,'%s')]][not(ancestor-or-self::brl)]",
+		 * search),context);
+		 * 
+		 * doc.query(String.format(
+		 * "//*[text()[contains(.,'%s')]][not(ancestor-or-self::[node()[name() == 'brl']])]"
+		 * , search), context);
+		 */
+		if (!isNewSearch()) {
+			// if they are searching for the same word, continue putting the
+			// next instance in the view
+			putFoundInView();
+			return true;
+		} else {
+			// else fill the array list of parent nodes that match the search
+			// word
+			Document doc = man.getDoc();
+			String search = searchCombo.getText();
+			String namespace = doc.getRootElement().getNamespaceURI();
+			XPathContext context2 = new XPathContext("brl", namespace);
+			XPathContext context = null;
+			System.out.println(namespace);
+			nodes = doc
+					.query(String
+							.format("//*[text()[contains(.,'%s')]][not(ancestor-or-self::brl)]",
+									search), context).get(0).query("/Text");
+			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+			if (nodes.size() > 0) {
+				for (int i = 0; i < nodes.size(); i++) {
+					for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
+						System.out.println("node " + (i + 1) + " "
+								+ nodes.get(i).getChild(j).toString());
+						matches.add(nodes.get(i).getChild(j));
+					}
+
+				}
+				return true;
+			}
+			return false;
+		}
+
+	}
+
+	public void putFoundInView() {
+
 		TextView tv = man.getText();
 		String view = tv.view.getText();
-		/*
-		 * .query(String.format("//*[text()[contains(.,'%s')]]", search),
-		 * context);
-		 */
-		Document doc = man.getDoc();
-		String search = searchCombo.getText();
-		XPathContext context = null;
-		Nodes nodes = (Nodes) doc.query(String.format
-				("//*[text()[contains(.,'%s')]][not(ancestor-or-self::brl)]", search),context);
-		for (int i = 0; i < nodes.size(); i++) {
-			System.out.println("node "+(i+1)+" " + nodes.get(i).toString());
+		currentSearch = searchCombo.getText();
+		
+		for (int j = 0; j < matches.size(); j++) {
+		Node node = matches.get(j);
+		int currentTMEIndex = maplist.findNodeIndex(node, (TMEIndex));
+		if (currentTMEIndex != -1)
+			maplist.setCurrent(currentTMEIndex);
+		tv.view.setCaretOffset(maplist.getCurrent().start);
+		tv.view.setTopIndex(view.indexOf(currentSearch));
+
+		int currentIndexOfSearch = view.indexOf(currentSearch, indexOfSearch);
+		tv.view.setSelection(currentIndexOfSearch, currentIndexOfSearch
+				+ currentSearch.length());
+		System.out.println("NODE INDEX " + TMEIndex);
+
+//		if (nodes.size() - 1 <= nodeParentIndex) {
+//			nodeParentIndex++;
+//		}
+//		if (nodes.get(nodeParentIndex).getChildCount() - 1 <= nodeChildIndex) {
+//			nodeChildIndex++;
+//		}
+		TMEIndex = currentTMEIndex + 1;
+		indexOfSearch = currentIndexOfSearch + 1;
+//		isWrap()
 		}
+	}
 
-		ArrayList<Node> nodeList = new ArrayList<Node>();
-		for (int i = 0; i < nodes.size(); i++) {
-			for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
-					nodeList.add(nodes.get(i).getChild(j));
-			}
-		}
-//		System.out.println("nodeList" + nodeList.toString()+ " node list size "+nodeList.size());
-		System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+//	public void isWrap() {
+//		if (nodeParentIndex >= nodes.size() - 1) {
+//			nodeParentIndex = 0;
+//			nodeChildIndex = 0;
+//			TMEIndex = 0;
+//			indexOfSearch = 0;
+//		}
+//	}
 
-		if (nodes.size() > 0) {
-
-			Node node = nodes.get(nodeParent).getChild(nodeChild);
-			int currentTMEIndex = maplist.findNodeIndex(node, (TMEIndex));
-			maplist.setCurrent(TMEIndex);
-			TextMapElement t = maplist.get(TMEIndex);
-			tv.view.setCaretOffset(maplist.getCurrent().start);
-			tv.view.setTopIndex(maplist.getCurrent().start);
-
-			int currentIndexOfSearch = view.indexOf(search,indexOfSearch+1);
-			tv.view.setSelection(indexOfSearch,indexOfSearch+search.length());
-			System.out.println("NODE INDEX " + TMEIndex);
-			nodeParent++;
-			nodeChild++;
-			TMEIndex = currentTMEIndex;
-			indexOfSearch = currentIndexOfSearch;
+	public boolean isNewSearch() {
+		if (!searchCombo.getText().equals(currentSearch)) {
+//			nodeParentIndex = 0;
+//			nodeChildIndex = 0;
+			TMEIndex = 0;
+			indexOfSearch = 0;
+			currentSearch = searchCombo.getText();
 			return true;
 		}
 		return false;
+
 	}
 
 	private void setPanelSize() {

@@ -81,6 +81,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem displayedGraphicItem;
 	MenuItem tableItem;
 	MenuItem insertTRItem;
+	MenuItem insertTPagesItem;
 	MenuItem brlFormatItem;
 	MenuItem showTranslationTemplatesItem;
 	MenuItem showFormatTemplatesItem;
@@ -728,6 +729,14 @@ public class BrailleMenu extends BBMenu{
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					currentEditor.insertTranscriberNote();
+				}
+			});
+			insertTPagesItem = new MenuItem(insertMenu, SWT.PUSH);
+			insertTPagesItem.setText("Transcriber-Generated Pages...");
+			insertTPagesItem.addSelectionListener(new SelectionAdapter(){
+				@Override
+				public void widgetSelected(SelectionEvent e){
+					currentEditor.tPages();
 				}
 			});
 			/*

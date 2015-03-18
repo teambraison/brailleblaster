@@ -169,8 +169,11 @@ public class FontManager {
 			setDaisyFont();
 	}	
 	
-	public Font getFont(){
-		return daisyFont;
+	public Font getFont( boolean simBraille){
+		if(simBraille)
+			return simBrailleFont;
+		else
+			return daisyFont;
 	}
 	
 	private void setSimBraille(){

@@ -70,12 +70,14 @@ import org.brailleblaster.perspectives.braille.stylers.BoxlineHandler;
 import org.brailleblaster.perspectives.braille.stylers.InsertElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.MergeElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.RemoveElementHandler;
+import org.brailleblaster.perspectives.braille.stylers.SelectionHandler;
 import org.brailleblaster.perspectives.braille.stylers.SplitElementHandler;
 import org.brailleblaster.perspectives.braille.stylers.HideActionHandler;
 import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
+import org.brailleblaster.tpages.TPagesDialog;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.tree.BBTree;
@@ -126,7 +128,9 @@ public class Manager extends Controller {
 	private MapList list;
 	private QueueManager queueManager;
 	SearchDialog srch = null;
+	TPagesDialog tpDialog = null;
 	private Vector<String> ignoreList = new Vector<String>();
+	private String lastTPage;
 	
 	//Constructor that sets things up for a new document.
 	public Manager(WPManager wp, String docName) {
@@ -326,6 +330,11 @@ public class Manager extends Controller {
 
 	}
 	
+	public void tPages(){
+		tpDialog = new TPagesDialog(wp.getShell(), SWT.NONE, this);
+		tpDialog.open();
+	}
+	
 	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 
 		// different save methods.
@@ -438,6 +447,9 @@ public class Manager extends Controller {
 				break;
 			case UPDATE:
 				handleUpdate(message);
+				break;
+			case SELECTION:
+				handleSelection(message);
 				break;
 			case INSERT_NODE:
 				handleInsertNode(message);
@@ -643,6 +655,11 @@ public class Manager extends Controller {
 		tuh.updateText(message);
 	}
 	
+	private void handleSelection(Message message){
+		SelectionHandler sh = new SelectionHandler(this, vi, list);
+		sh.removeSelection(message);
+	}
+	
 	private void handleInsertNode(Message m){
 		if(m.getValue("split").equals(true)){
 			SplitElementHandler splitter = new SplitElementHandler(this, vi, list);
@@ -676,6 +693,10 @@ public class Manager extends Controller {
 			
 	    text.refreshStyle(list.getCurrent());
 	    braille.refreshStyle(list.getCurrent());
+	}
+	
+	public void insertTPage(Element tPageRoot){
+		
 	}
 	
 	private void handleMergeElement(Message message){
@@ -1509,6 +1530,14 @@ public class Manager extends Controller {
 			return null;
 	}
 	
+	public String getLastTPage() {
+		return lastTPage;
+	}
+
+	public void setLastTPage(String lastTPage) {
+		this.lastTPage = lastTPage;
+	}
+
 	public void addUndoEvent(EventFrame f){
 		queueManager.addUndoEvent(f);
 	}

@@ -11,7 +11,7 @@
 			<style>
 				<name>nestedStackStyle</name>
 				<leftMargin>2</leftMargin>
-				<format>CENTERED</format>
+				<align>CENTERED</align>
 			</style>
 		</styleStack>
 		<styleStack>
@@ -19,12 +19,12 @@
 			<style>
 				<name>nestedStackStyle2</name>
 				<leftMargin>2</leftMargin>
-				<format>CENTERED</format>
+				<align>CENTERED</align>
 			</style>
 			<style>
 				<name>nestedStackStyle2-2</name>
 				<leftMargin>2</leftMargin>
-				<format>CENTERED</format>
+				<align>CENTERED</align>
 			</style>
 		</styleStack>
 	</styleStack>
@@ -43,7 +43,7 @@
 		<name>document</name>
 		<leftMargin>0</leftMargin>
 		<firstLineIndent>0</firstLineIndent>
-		<format>LEFT_JUSTIFIED</format>
+		<align>COLUMN_LEFT</align>
 	</style>
 	<style>
 		<name>fullBox</name>
@@ -52,7 +52,7 @@
 		<name>centered Heading</name>
 		<linesBefore>1</linesBefore>
 		<linesAfter>1</linesAfter>
-		<format>CENTERED</format>
+		<align>CENTERED</align>
 	</style>
 	<style>
 		<name>cell 5 heading</name>
@@ -83,7 +83,7 @@
 	</style>
 	<style>
 		<name>matrix</name>
-		<format>ALIGN_COLUMNS_LEFT</format>
+		<align>COLUMN_LEFT</align>
 	</style>
 	<style>
 		<name>middleBox</name>

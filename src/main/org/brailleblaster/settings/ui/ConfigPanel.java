@@ -29,7 +29,7 @@ public class ConfigPanel {
 	private final SettingsManager sm;
 	private final Manager m;
 	private final Shell shell;
-	private final SettingsUITab pageProperties, pageNumTab, styleDefsTab;
+	private final SettingsUITab pageProperties, translationTab, pageNumTab, styleDefsTab;
 
 //	TranslationSettingsTab translationSettings;
 	public ConfigPanel(final SettingsManager sm, final Manager m) {
@@ -45,8 +45,8 @@ public class ConfigPanel {
 		setFormLayout(folder, 0, 100, 0, 94);
 
 		//TODO: Port translationSettings once Michael says how it maps to UTD
-		pageProperties = new PagePropertiesTab(folder, engine.getPageSettings());
-//		translationSettings = new TranslationSettingsTab(folder, sm, settingsCopy);
+		pageProperties = new PagePropertiesTab(folder, engine);
+		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
 		pageNumTab = new PageNumbersTab(folder, engine.getPageSettings());
 		styleDefsTab = new StyleDefinitionsTab(folder, m);
 
@@ -77,29 +77,35 @@ public class ConfigPanel {
 
 	private void saveConfig() {
 		String errorStr = null;
-		//This will validate each tab and fail fast
-		if ((errorStr = pageProperties.validate()) != null
-				//				&& (errorStr = translationSettings.validate()) != null
-				&& (errorStr = pageNumTab.validate()) != null
-				&& (errorStr = styleDefsTab.validate()) != null)
+		//This will validate each tab, not using && due to short-circut evaluation
+		if ((errorStr = pageProperties.validate()) != null)
+			new Notify(lh.localValue(errorStr));
+		else if ((errorStr = translationTab.validate()) != null)
+			new Notify(lh.localValue(errorStr));
+		else if ((errorStr = pageNumTab.validate()) != null)
+			new Notify(lh.localValue(errorStr));
+		else if ((errorStr = styleDefsTab.validate()) != null)
 			new Notify(lh.localValue(errorStr));
 		else {
 			try {
+				sm.createUserUTDFolder();
 				//Only save if setting was changed
 				if (pageProperties.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
+				if (translationTab.updateEngine(engine))
+					UTDConfig.saveBrailleSettings(sm.getUserBrailleSettingsFile(), engine.getBrailleSettings());
 				if (pageNumTab.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
 				if (styleDefsTab.updateEngine(engine))
 					UTDConfig.saveStyleDefinitions(sm.getUserPageSettingsFile(), engine.getStyleDefinitions());
+
+				close();
+				m.refresh();
 			} catch (IOException e) {
 				log.debug("Encountered exception when saving UTD", e);
 				new Notify("Cannot save UTD, see log " + ExceptionUtils.getMessage(e));
 			}
 		}
-
-		close();
-		m.refresh();
 	}
 
 	private void setFormLayout(Control c, int left, int right, int top, int bottom) {

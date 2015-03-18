@@ -53,6 +53,12 @@ public class SettingsManager {
 		}
 	}
 
+	public void createUserUTDFolder() {
+		File location = new File(BBIni.getUserProgramDataPath(UTD_FOLDER));
+		if (!location.exists())
+			location.mkdir();
+	}
+
 	public File getUserPageSettingsFile() {
 		return new File(BBIni.getUserProgramDataPath(UTD_FOLDER, PAGE_SETTINGS_NAME));
 	}

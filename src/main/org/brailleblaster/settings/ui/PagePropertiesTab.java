@@ -8,9 +8,11 @@ import java.util.function.Consumer;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.Supplier;
 import org.brailleblaster.localization.LocaleHandler;
+import org.brailleblaster.utd.BrailleSettings;
 import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
-import org.brailleblaster.utd.utils.PageUnitConverter;
+import org.brailleblaster.utd.properties.BrailleCellType;
+import org.brailleblaster.utd.utils.UnitConverter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -35,24 +37,25 @@ import org.slf4j.LoggerFactory;
 class PagePropertiesTab implements SettingsUITab {
 	private static final Logger log = LoggerFactory.getLogger(PagePropertiesTab.class);
 	private static final DecimalFormat NUMBER_FORMATTER = new DecimalFormat("###.##");
+	private final UnitConverter unitConverter = new UnitConverter();
 	private final List<Page> standardPages;
-	private final PageUnitConverter unitConverter;
 	private final LocaleHandler lh = new LocaleHandler();
 	private final Text widthBox, heightBox, linesBox, cellsBox, marginTopBox, marginLeftBox,
 			marginRightBox, marginBottomBox;
 	private final Label marginTopLabel, marginBottomLabel, marginLeftLabel, marginRightLabel;
-	private final Combo pageTypes;
+	private final Combo pageTypes, cellType;
 	private final Button regionalButton, cellsLinesButton;
 	private final String unitName, unitSuffix;
 	private boolean marginLocalUnit = true;
 	/**
-	 * Internal representation always in local units (inch/mm).
+	 * Internal representation always in local units (inch or mm).
 	 */
 	private double pageHeight, pageWidth, pageCells, pageLines, marginTop, marginBottom, marginLeft, marginRight;
+	private BrailleCellType brailleCell;
 
-	PagePropertiesTab(TabFolder folder, PageSettings pageSettings) {
+	PagePropertiesTab(TabFolder folder, UTDTranslationEngine engine) {
 		//---Init---
-		this.unitConverter = pageSettings.getUnitConverter();
+		brailleCell = engine.getBrailleSettings().getCellType();
 		boolean metric = unitConverter.isMetric();
 		unitName = metric ? "mm" : "in";
 		unitSuffix = " (" + unitName + ")";
@@ -80,7 +83,7 @@ class PagePropertiesTab implements SettingsUITab {
 		SettingsUIUtils.setGridDataGroup(pageGroup);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("pageSize"));
-		pageTypes = new Combo(pageGroup, SWT.NONE);
+		pageTypes = new Combo(pageGroup, SWT.READ_ONLY);
 		SettingsUIUtils.setGridData(pageTypes);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("width") + unitSuffix);
@@ -92,6 +95,10 @@ class PagePropertiesTab implements SettingsUITab {
 		heightBox = new Text(pageGroup, SWT.BORDER);
 		addDoubleFilter(heightBox, false);
 		SettingsUIUtils.setGridData(heightBox);
+		
+		SettingsUIUtils.addLabel(pageGroup, "Braille Cell Type");
+		cellType = new Combo(pageGroup, SWT.READ_ONLY);
+		SettingsUIUtils.setGridData(cellType);
 
 		SettingsUIUtils.addLabel(pageGroup, lh.localValue("linesPerPage"));
 		linesBox = new Text(pageGroup, SWT.BORDER);
@@ -153,6 +160,9 @@ class PagePropertiesTab implements SettingsUITab {
 		heightBox.addKeyListener(makeFieldListener(
 				() -> heightBox.getText(), (v) -> pageHeight = v, (e) -> calculateCellsLinesAndUpdate()));
 
+		//Braille Cell Type 
+		cellType.addSelectionListener(SettingsUIUtils.makeSelectedListener((e) -> onCellTypeChange()));
+		
 		//Cell fields
 		cellsBox.addKeyListener(makeFieldListener(
 				() -> cellsBox.getText(), (v) -> pageCells = v, (e) -> onCellLinesChange()));
@@ -160,8 +170,10 @@ class PagePropertiesTab implements SettingsUITab {
 				() -> linesBox.getText(), (v) -> pageLines = v, (e) -> onCellLinesChange()));
 
 		//Update cells/line and lines/page when margins change
-		DoubleUnaryOperator marginHeight = (v) -> marginLocalUnit ? v : unitConverter.calculateLinesHeight(v);
-		DoubleUnaryOperator marginWidth = (v) -> marginLocalUnit ? v : unitConverter.calculateCellsWidth(v);
+		DoubleUnaryOperator marginHeight
+				= (v) -> marginLocalUnit ? v : unitConverter.calculateHeightFromLines((int) v, brailleCell);
+		DoubleUnaryOperator marginWidth
+				= (v) -> marginLocalUnit ? v : unitConverter.calculateWidthFromCells((int) v, brailleCell);
 		marginTopBox.addKeyListener(makeFieldListener(
 				() -> marginTopBox.getText(), marginHeight.andThen((v) -> marginTop = v), (e) -> calculateCellsLinesAndUpdate()));
 		marginBottomBox.addKeyListener(makeFieldListener(
@@ -180,24 +192,31 @@ class PagePropertiesTab implements SettingsUITab {
 		//Pages drop down box
 		for (Page curPage : standardPages)
 			pageTypes.add(curPage.toString());
+		
+		for (BrailleCellType curType : BrailleCellType.values())
+			cellType.add(curType.name());
+		brailleCell = engine.getBrailleSettings().getCellType();
+		cellType.setText(brailleCell.name());
 
 		//Page size
+		PageSettings pageSettings = engine.getPageSettings();
 		if (pageSettings.getPaperHeight() != 0 && pageSettings.getPaperWidth() != 0) {
-			//User has set their own settings
-			pageHeight = pageSettings.getPaperHeight();
-			pageWidth = pageSettings.getPaperWidth();
+			//User has set their own settings stored in their own units
+			pageHeight = unitConverter.mmToLocalUnits(pageSettings.getPaperHeight());
+			pageWidth = unitConverter.mmToLocalUnits(pageSettings.getPaperWidth());
 
 		} else {
 			//TODO: assume the first one? 
+			//Page handles unit conversions
 			Page defaultPage = standardPages.get(0);
 			pageHeight = defaultPage.height;
 			pageWidth = defaultPage.width;
 		}
 
-		marginTop = pageSettings.getTopMargin();
-		marginBottom = pageSettings.getBottomMargin();
-		marginLeft = pageSettings.getLeftMargin();
-		marginRight = pageSettings.getRightMargin();
+		marginTop = unitConverter.mmToLocalUnits(pageSettings.getTopMargin());
+		marginBottom = unitConverter.mmToLocalUnits(pageSettings.getBottomMargin());
+		marginLeft = unitConverter.mmToLocalUnits(pageSettings.getLeftMargin());
+		marginRight = unitConverter.mmToLocalUnits(pageSettings.getRightMargin());
 
 		calculateCellsLinesAndUpdate();
 	}
@@ -223,10 +242,10 @@ class PagePropertiesTab implements SettingsUITab {
 		setTextIfDifferent(linesBox, pageLines);
 		setTextIfDifferent(cellsBox, pageCells);
 
-		setTextIfDifferent(marginTopBox, marginLocalUnit ? marginTop : unitConverter.calculateLinesInHeight(marginTop));
-		setTextIfDifferent(marginBottomBox, marginLocalUnit ? marginBottom : unitConverter.calculateLinesInHeight(marginBottom));
-		setTextIfDifferent(marginLeftBox, marginLocalUnit ? marginLeft : unitConverter.calculateCellsInWidth(marginLeft));
-		setTextIfDifferent(marginRightBox, marginLocalUnit ? marginRight : unitConverter.calculateCellsInWidth(marginRight));
+		setTextIfDifferent(marginTopBox, marginLocalUnit ? marginTop : unitConverter.calculateLinesFromHeight(marginTop, brailleCell));
+		setTextIfDifferent(marginBottomBox, marginLocalUnit ? marginBottom : unitConverter.calculateLinesFromHeight(marginBottom, brailleCell));
+		setTextIfDifferent(marginLeftBox, marginLocalUnit ? marginLeft : unitConverter.calculateCellsFromWidth(marginLeft, brailleCell));
+		setTextIfDifferent(marginRightBox, marginLocalUnit ? marginRight : unitConverter.calculateCellsFromWidth(marginRight, brailleCell));
 	}
 
 	/**
@@ -248,8 +267,8 @@ class PagePropertiesTab implements SettingsUITab {
 	 * Recalculate page cells and page lines
 	 */
 	private void calculateCellsLinesAndUpdate() {
-		pageCells = unitConverter.calculateCellsPerLine(pageWidth, marginLeft, marginRight);
-		pageLines = unitConverter.calculateLinesPerPage(pageHeight, marginTop, marginBottom);
+		pageCells = unitConverter.calculateCellsFromWidth(pageWidth - marginLeft - marginRight, brailleCell);
+		pageLines = unitConverter.calculateLinesFromHeight(pageHeight - marginTop - marginBottom, brailleCell);
 		updateFields();
 	}
 
@@ -265,13 +284,19 @@ class PagePropertiesTab implements SettingsUITab {
 		if (pageTypes.getItem(pageTypes.getItemCount() - 1).equals(lh.localValue("custom")))
 			pageTypes.remove(pageTypes.getItemCount() - 1);
 	}
+	
+	private void onCellTypeChange() {
+		brailleCell = BrailleCellType.valueOf(cellType.getText());
+		onMarginUnitSelected();
+		calculateCellsLinesAndUpdate();
+	}
 
 	/**
 	 * When cells or lines change, adjust bottom and right margins to make room
 	 */
 	private void onCellLinesChange() {
-		marginBottom = pageHeight - marginTop - unitConverter.calculateLinesHeight(pageLines);
-		marginRight = pageWidth - marginLeft - unitConverter.calculateCellsWidth(pageCells);
+		marginBottom = pageHeight - marginTop - unitConverter.calculateHeightFromLines((int) pageLines, brailleCell);
+		marginRight = pageWidth - marginLeft - unitConverter.calculateWidthFromCells((int) pageCells, brailleCell);
 		updateFields();
 	}
 
@@ -327,14 +352,9 @@ class PagePropertiesTab implements SettingsUITab {
 
 	@Override
 	public String validate() {
-		//TODO: This is set in the advanced tab
-//		if (Integer.valueOf(cellsBox.getText()) < Integer.parseInt(settingsMap.get("minCellsPerLine")))
-//			return "invalidSettingsCells";
-//		else if (Integer.valueOf(linesBox.getText()) < Integer.parseInt(settingsMap.get("minLinesPerPage")))
-//			return "invalidSettingsLines";		
-		if (marginRight + marginLeft + unitConverter.calculateCellsWidth(pageCells) >= pageWidth)
+		if (marginRight + marginLeft + unitConverter.calculateWidthFromCells((int) pageCells, brailleCell) > pageWidth)
 			return "incorrectMarginWidth";
-		if (marginTop + marginBottom + unitConverter.calculateLinesHeight(pageLines) >= pageHeight)
+		if (marginTop + marginBottom + unitConverter.calculateWidthFromCells((int) pageLines, brailleCell) > pageHeight)
 			return "incorrectMarginHeight";
 		if (pageHeight < 0 || pageWidth < 0 || pageLines < 0 || pageCells < 0
 				|| marginTop < 0 || marginBottom < 0 || marginLeft < 0 || marginRight < 0)
@@ -345,35 +365,25 @@ class PagePropertiesTab implements SettingsUITab {
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
 		PageSettings pageSettings = engine.getPageSettings();
-		return false;
+		BrailleSettings brailleSettings = engine.getBrailleSettings();
+		boolean updated = false;
 
-		//margin*Box: 
-		// if (regionalButton.getSelection()) getStringValue(t) else df.format(sm.calcHeightFromLines(getDoubleValue(t)))
-		//"topMargin"
-		//"bottomMargin"
-		// if (regionalButton.getSelection()) getStringValue(t) else df.format(sm.calcWidthFromCells(getDoubleValue(t)))
-		//"leftMargin"
-		//"rightMargin"
-		//"paperWidth"
-		//"paperHeight"
-//		PageSettings pageSettings = engine.getPageSettings();
-//		PageUnitConverter converter = pageSettings.getUnitConverter();
-//		
-//		pageSettings.setPaperHeight(converter.localToMM(Double.parseDouble(heightBox.getText())));
-//		pageSettings.setPaperHeight(converter.localToMM(Double.parseDouble(widthBox.getText())));
-//		if(regionalButton.getSelection()) {
-//			//All fields are in local units
-//			pageSettings.setTopMargin(converter.localToMM(Double.parseDouble(marginTopBox.getText())));
-//			pageSettings.setBottomMargin(converter.localToMM(Double.parseDouble(marginBottomBox.getText())));
-//			pageSettings.setLeftMargin(converter.localToMM(Double.parseDouble(marginLeftBox.getText())));
-//			pageSettings.setRightMargin(converter.localToMM(Double.parseDouble(marginRightBox.getText())));
-//		} else {
-//			//All fields are in cell units
-//			pageSettings.setTopMargin(converter.calculateLinesPerPage(Double.parseDouble(marginTopBox.getText())));
-//			pageSettings.setBottomMargin(converter.calculateLinesPerPage(Double.parseDouble(marginBottomBox.getText())));
-//			pageSettings.setLeftMargin(converter.calculateCellsPerInch(Double.parseDouble(marginLeftBox.getText())));
-//			pageSettings.setRightMargin(converter.calculateCellsPerInch(Double.parseDouble(marginRightBox.getText())));
-//		}
+		updated = SettingsUIUtils.updateObject(brailleSettings::getCellType, brailleSettings::setCellType,
+				brailleCell, updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getPaperHeight, pageSettings::setPaperHeight,
+				unitConverter.localUnitsToMM(pageHeight), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getPaperWidth, pageSettings::setPaperWidth,
+				unitConverter.localUnitsToMM(pageWidth), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getTopMargin, pageSettings::setTopMargin,
+				unitConverter.localUnitsToMM(marginTop), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getBottomMargin, pageSettings::setBottomMargin,
+				unitConverter.localUnitsToMM(marginBottom), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getLeftMargin, pageSettings::setLeftMargin,
+				unitConverter.localUnitsToMM(marginLeft), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getRightMargin, pageSettings::setRightMargin,
+				unitConverter.localUnitsToMM(marginRight), updated);
+
+		return updated;
 	}
 
 	/**

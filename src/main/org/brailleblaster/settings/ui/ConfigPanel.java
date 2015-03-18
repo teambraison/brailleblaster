@@ -48,7 +48,7 @@ public class ConfigPanel {
 		pageProperties = new PagePropertiesTab(folder, engine);
 		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
 		pageNumTab = new PageNumbersTab(folder, engine.getPageSettings());
-		styleDefsTab = new StyleDefinitionsTab(folder, m);
+		styleDefsTab = new StyleDefinitionsTab(this, folder, m);
 
 		Button okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));
@@ -68,8 +68,7 @@ public class ConfigPanel {
 		shell.addListener(SWT.Close, (e) -> close());
 
 		//Autosize shell based on what the internal elements require
-		Point size = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		shell.setSize(size);
+		resize();
 
 		//Show the window
 		shell.open();
@@ -125,5 +124,11 @@ public class ConfigPanel {
 
 	public void close() {
 		shell.dispose();
+	}
+	
+	public void resize() {
+		log.debug("Shell resize");
+		Point size = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		shell.setSize(size);
 	}
 }

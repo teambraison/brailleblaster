@@ -1,0 +1,19 @@
+<configuration>
+  <define name="logPath" class="org.brailleblaster.logback.LogFileFinder"/>
+  <appender name="bbFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${logPath}/bb.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${logPath}/bb_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>5MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="all">
+    <appender-ref ref="bbFileAppender"/>
+  </root>
+</configuration>

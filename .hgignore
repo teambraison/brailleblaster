@@ -10,3 +10,5 @@ bin/*
 .project
 .classpath
 .settings
+build
+.gradle

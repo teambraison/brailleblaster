@@ -1,0 +1,69 @@
+buildscript {
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-Xlint"
+	}
+}
+apply plugin: 'java'
+apply plugin: 'findbugs'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'maven'
+
+//Java config
+//Limit fallout of gradle changeover by keeping existing directory locations
+sourceSets {
+    main {
+        java {
+            srcDir 'src/java'
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
+}
+compileJava {
+	source = 'src/java'
+}
+libsDirName = "../dist"
+
+sourceCompatibility = 8
+buildscript {
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << "-Xlint"
+	}
+}
+mainClassName = 'org.brailleblaster.Main'
+
+//Project config
+group = 'org.brailleblaster'
+
+
+
+//Dependencies
+repositories {
+	mavenCentral()
+	maven {
+		url 'https://swt-repo.googlecode.com/svn/repo/'
+	}
+	mavenLocal()
+}
+
+
+
+dependencies {
+	compile group: 'org.brailleblaster', name: 'utd', version: '1.0-SNAPSHOT', changing: true
+	compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.2'
+	compile group: 'org.eclipse.swt', name: 'org.eclipse.swt.win32.win32.x86_64', version: '4.4'
+	compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
+	compile group: 'commons-io', name: 'commons-io', version: '2.4'
+	//This pulls in most of the deps
+	compile group: 'net.sourceforge.jeuclid', name: 'jeuclid-swt', version: '3.1.9'
+}
+
+//Findbugs
+tasks.withType(FindBugs) {
+	reports {
+		xml.enabled = false
+		html.enabled = true
+	}
+}

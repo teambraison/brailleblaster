@@ -84,8 +84,8 @@ public class SearchDOM extends Dialog {
 	int oldCursorPos;
 	int oldTopIndex;
 	int numberReplaceAlls;
-//	int nodeParentIndex;
-//	int nodeChildIndex;
+	int nodeParentIndex;
+	int nodeChildIndex;
 	int TMEIndex;
 	int indexOfSearch;
 	String currentSearch;
@@ -643,12 +643,12 @@ public class SearchDOM extends Dialog {
 		 * "//*[text()[contains(.,'%s')]][not(ancestor-or-self::[node()[name() == 'brl']])]"
 		 * , search), context);
 		 */
-		if (!isNewSearch()) {
-			// if they are searching for the same word, continue putting the
-			// next instance in the view
-			putFoundInView();
-			return true;
-		} else {
+//		if (!isNewSearch()) {
+//			// if they are searching for the same word, continue putting the
+//			// next instance in the view
+//			putFoundInView();
+//			return true;
+//		} else {
 			// else fill the array list of parent nodes that match the search
 			// word
 			Document doc = man.getDoc();
@@ -656,25 +656,29 @@ public class SearchDOM extends Dialog {
 			String namespace = doc.getRootElement().getNamespaceURI();
 			XPathContext context2 = new XPathContext("brl", namespace);
 			XPathContext context = null;
-			System.out.println(namespace);
-			nodes = doc
-					.query(String
-							.format("//*[text()[contains(.,'%s')]][not(ancestor-or-self::brl)]",
-									search), context).get(0).query("/Text");
-			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+			 System.out.println(namespace);
+			nodes = doc.query(
+					String.format("//*[child::/child::text()[contains(.,'%s')][name([contains(Text)])]]", search),
+					context);
+			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size()
+					+ nodes.get(0).toString());
 			if (nodes.size() > 0) {
 				for (int i = 0; i < nodes.size(); i++) {
-					for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
-						System.out.println("node " + (i + 1) + " "
-								+ nodes.get(i).getChild(j).toString());
-						matches.add(nodes.get(i).getChild(j));
-					}
-
+					// for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
+					// System.out.println("node " + (i + 1) + " "
+					// + nodes.get(i).getChild(j).toString());
+					// if (nodes.get(i).toString().contains(search))
+					System.out.println(nodes.get(i).toString() + "child count "
+							+ nodes.get(i).getChildCount());
+					matches.add(nodes.get(i));
+					// System.out.println(matches.toString());
+					// }
 				}
-				return true;
 			}
-			return false;
-		}
+				return true;
+//			}
+//			return false;
+//		}
 
 	}
 
@@ -683,12 +687,10 @@ public class SearchDOM extends Dialog {
 		TextView tv = man.getText();
 		String view = tv.view.getText();
 		currentSearch = searchCombo.getText();
-		
-		for (int j = 0; j < matches.size(); j++) {
-		Node node = matches.get(j);
-		int currentTMEIndex = maplist.findNodeIndex(node, (TMEIndex));
-		if (currentTMEIndex != -1)
-			maplist.setCurrent(currentTMEIndex);
+
+		Node node = matches.get(nodeParentIndex).getChild(nodeChildIndex);
+		int currentTMEIndex = maplist.findNodeIndex(node.getChild(nodeParentIndex), (TMEIndex));
+		maplist.setCurrent(currentTMEIndex);
 		tv.view.setCaretOffset(maplist.getCurrent().start);
 		tv.view.setTopIndex(view.indexOf(currentSearch));
 
@@ -697,31 +699,31 @@ public class SearchDOM extends Dialog {
 				+ currentSearch.length());
 		System.out.println("NODE INDEX " + TMEIndex);
 
-//		if (nodes.size() - 1 <= nodeParentIndex) {
-//			nodeParentIndex++;
-//		}
-//		if (nodes.get(nodeParentIndex).getChildCount() - 1 <= nodeChildIndex) {
-//			nodeChildIndex++;
-//		}
+		if (matches.size() - 1 <= nodeParentIndex) {
+			nodeParentIndex++;
+		}
+		if (nodes.get(nodeParentIndex).getChildCount() - 1 <= nodeChildIndex) {
+			nodeChildIndex++;
+		}
 		TMEIndex = currentTMEIndex + 1;
 		indexOfSearch = currentIndexOfSearch + 1;
-//		isWrap()
-		}
+		// isWrap()
+
 	}
 
-//	public void isWrap() {
-//		if (nodeParentIndex >= nodes.size() - 1) {
-//			nodeParentIndex = 0;
-//			nodeChildIndex = 0;
-//			TMEIndex = 0;
-//			indexOfSearch = 0;
-//		}
-//	}
+	// public void isWrap() {
+	// if (nodeParentIndex >= nodes.size() - 1) {
+	// nodeParentIndex = 0;
+	// nodeChildIndex = 0;
+	// TMEIndex = 0;
+	// indexOfSearch = 0;
+	// }
+	// }
 
 	public boolean isNewSearch() {
 		if (!searchCombo.getText().equals(currentSearch)) {
-//			nodeParentIndex = 0;
-//			nodeChildIndex = 0;
+			nodeParentIndex = 0;
+			nodeChildIndex = 0;
 			TMEIndex = 0;
 			indexOfSearch = 0;
 			currentSearch = searchCombo.getText();

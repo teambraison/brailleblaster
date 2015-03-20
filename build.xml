@@ -26,12 +26,12 @@
 		<javac srcdir="${srcdir}" destdir="${builddir}"
 			debug="yes"
 			includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
-			<classpath refid="allJars.path" maxParentLevels="99"/>
+			<classpath refid="allJars.path"/>
 		</javac>
 	</target>
 	
 	<target name="dist" depends="compile">
-		<manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar">
+		<manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar" maxParentLevels="99">
 			<classpath refid="allJars.path"/>
 		</manifestclasspath>
 		<jar jarfile="${distdir}/brailleblaster.jar"
@@ -68,7 +68,7 @@
 	<target name="swtbot" depends="dist">
 		<echo>SWTBot test</echo>
 		<java dir="${eclipse.home}" fork="true" logError="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
-			<classpath maxParentLevels="99">
+			<classpath>
 				<fileset dir="${eclipse.home}/plugins">
 					<include name="org.eclipse.equinox.launcher_*.jar"/>
 				</fileset>

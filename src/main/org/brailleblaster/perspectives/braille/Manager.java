@@ -638,7 +638,7 @@ public class Manager extends Controller {
 	}
 	
 	private void handleTextDeletion(Message message){
-		WhiteSpaceHandler wsp = new WhiteSpaceHandler(this, list);
+		WhiteSpaceHandler wsp = new WhiteSpaceHandler(this, vi, list);
 		wsp.removeWhitespace(message);
 	}
 	

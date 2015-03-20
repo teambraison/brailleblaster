@@ -8,22 +8,20 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class WhiteSpaceHandler {
+public class WhiteSpaceHandler extends Handler {
 
-	Manager manager;
 	TextView text;
 	BrailleView braille;
-	MapList list;
 	EventFrame eventFrame;
 	
-	public WhiteSpaceHandler(Manager manager, MapList list){
-		this.manager = manager;
+	public WhiteSpaceHandler(Manager manager, ViewInitializer vi, MapList list) {
+		super(manager, vi, list);
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
-		this.list = list;
 	}
 	
 	public void removeWhitespace(Message message){

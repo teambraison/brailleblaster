@@ -85,12 +85,15 @@ public class InsertElementHandler extends Handler{
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
 			else
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-			
-			if(list.size() - 1 != ev.getListIndex() + 1)
-				list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
 		
-			text.insertLineBreak(ev.getTextOffset());
-			braille.insertLineBreak(ev.getBrailleOffset());
+			if(list.get(ev.getListIndex() + 1).start == ev.getTextOffset()){
+				text.insertLineBreak(ev.getTextOffset());
+				braille.insertLineBreak(ev.getBrailleOffset());
+			
+				if(list.size() - 1 != ev.getListIndex() + 1)
+					list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
+			}
+			
 			tree.rebuildTree(ev.getTreeIndex());
 		}
 		else {

@@ -139,8 +139,6 @@ public class StyleHandler extends Handler{
 				frame.addEvent(event);
 			}
 		}
-		
-		text.clearSelection();
 	}
 	
 	private Element parentStyle(TextMapElement current, Message message) {

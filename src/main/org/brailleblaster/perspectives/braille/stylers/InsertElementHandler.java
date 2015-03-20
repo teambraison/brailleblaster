@@ -53,7 +53,13 @@ public class InsertElementHandler extends Handler{
 			insertElement(ev);
 			frame.addEvent(new ModelEvent(EventTypes.Delete, ev.getParent().getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 		}
-		manager.addRedoEvent(frame);
+		
+		if(manager.peekRedoEvent() != null && manager.peekRedoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!frame.empty())
+				manager.peekRedoEvent().addEvent(manager.peekRedoEvent().size() - 1,frame.pop());
+		}
+		else
+			manager.addRedoEvent(frame);
 	}
 	
 	public void redoInsert(EventFrame f){

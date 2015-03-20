@@ -63,7 +63,6 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.Notify;
 import org.liblouis.LibLouisUTDML;
 
 

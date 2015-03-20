@@ -31,7 +31,12 @@ public class RemoveElementHandler extends Handler{
 		
 		findRemovalMethod(m);
 		
-		manager.addUndoEvent(eventFrame);
+		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!eventFrame.empty())
+				manager.peekUndoEvent().addEvent(manager.peekUndoEvent().size() - 1,eventFrame.pop());
+		}
+		else
+			manager.addUndoEvent(eventFrame);
 	}
 	
 	public void removeNode(EventFrame frame){
@@ -56,7 +61,13 @@ public class RemoveElementHandler extends Handler{
 		
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
-		manager.addUndoEvent(eventFrame);
+		
+		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!eventFrame.empty())
+				manager.peekUndoEvent().addEvent(manager.peekUndoEvent().size() - 1,eventFrame.pop());
+		}
+		else
+			manager.addUndoEvent(eventFrame);
 	}
 	
 	public void undoInsert(EventFrame frame){

@@ -1,14 +1,9 @@
 package org.brailleblaster.settings.ui;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.lang3.BooleanUtils;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.utd.IStyle;
@@ -22,8 +17,6 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -37,38 +30,36 @@ import org.slf4j.LoggerFactory;
  */
 class StyleDefinitionsTab implements SettingsUITab {
 	private static final Logger log = LoggerFactory.getLogger(StyleDefinitionsTab.class);
+	private static final Style DEFAULT_STYLE = new Style();
 	private final LocaleHandler lh = new LocaleHandler();
 	private final List<IStyle> newStyles = new ArrayList<>();
-	private final List<StyleLevel> styleLevels = new ArrayList<>();
-	private final Composite parent;
-	private final ConfigPanel configPanel;
-	private final Group groupSelect;
+	private IStyle selectedStyle;
 	private final Text fieldName;
 	private final Spinner fieldLinesBefore, fieldLinesAfter, fieldLeftMargin, fieldRightMargin,
 			fieldFirstLineIndent, fieldSkipPages, fieldOrphanControl, fieldLineSpacing;
-	private final Combo fieldAlign, fieldFormat, fieldTranslation, fieldPageSide, fieldBrailleNumFormat;
-	private final Button fieldSkipNumberLines, fieldNewPageBefore, fieldNewPageAfter, fieldDontSplit,
+	private final Combo styleCombo, fieldAlign, fieldFormat, fieldTranslation, fieldPageSide, fieldBrailleNumFormat;
+	private final Combo fieldSkipNumberLines, fieldNewPageBefore, fieldNewPageAfter, fieldDontSplit,
 			fieldKeepWithNext, fieldKeepwithPrevious;
-	private IStyle selectedStyle;
 
-	StyleDefinitionsTab(ConfigPanel configPanel, TabFolder folder, Manager manager) {
-		this.configPanel = configPanel;
+	StyleDefinitionsTab(TabFolder folder, Manager manager) {
 		newStyles.addAll(manager.getDocument().getEngine().getStyleDefinitions().getStyles());
 
 		TabItem item = new TabItem(folder, 0);
 		item.setText(lh.localValue("styleDefsTab"));
 
-		parent = new Composite(folder, 0);
+		Composite parent = new Composite(folder, 0);
 		parent.setLayout(new GridLayout(1, true));
 		item.setControl(parent);
 
 		//Top part where user selects which style and/or style stack
-		groupSelect = new Group(parent, 0);
+		Group groupSelect = new Group(parent, 0);
 		groupSelect.setText(lh.localValue("styleDefsTab.headerSelect"));
-		groupSelect.setLayout(new GridLayout(1, true));
+		groupSelect.setLayout(new GridLayout(2, true));
 		SettingsUIUtils.setGridDataGroup(groupSelect);
 
-		styleLevels.add(new StyleLevel(groupSelect, newStyles));
+		SettingsUIUtils.addLabel(groupSelect, "Select Style");
+		styleCombo = new Combo(groupSelect, SWT.READ_ONLY);
+		SettingsUIUtils.setGridData(styleCombo);
 
 		//Fields for currently selected style
 		Group groupStyle = new Group(parent, 0);
@@ -78,6 +69,8 @@ class StyleDefinitionsTab implements SettingsUITab {
 
 		SettingsUIUtils.addLabel(groupStyle, "Name");
 		fieldName = new Text(groupStyle, 0);
+		fieldName.setText("");
+		SettingsUIUtils.setGridData(fieldName);
 
 		SettingsUIUtils.addLabel(groupStyle, "Lines Before");
 		fieldLinesBefore = new Spinner(groupStyle, 0);
@@ -95,7 +88,7 @@ class StyleDefinitionsTab implements SettingsUITab {
 		fieldFirstLineIndent = new Spinner(groupStyle, 0);
 
 		SettingsUIUtils.addLabel(groupStyle, "Skip Number Lines");
-		fieldSkipNumberLines = makeEnabledCheckbox(groupStyle);
+		fieldSkipNumberLines = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "Skip Pages");
 		fieldSkipPages = new Spinner(groupStyle, 0);
@@ -110,10 +103,10 @@ class StyleDefinitionsTab implements SettingsUITab {
 		fieldTranslation = makeCombo(groupStyle, IStyle.Translation.values());
 
 		SettingsUIUtils.addLabel(groupStyle, "New Page Before");
-		fieldNewPageBefore = makeEnabledCheckbox(groupStyle);
+		fieldNewPageBefore = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "New Page After");
-		fieldNewPageAfter = makeEnabledCheckbox(groupStyle);
+		fieldNewPageAfter = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "Page Side");
 		fieldPageSide = makeCombo(groupStyle, IStyle.PageSide.values());
@@ -122,19 +115,27 @@ class StyleDefinitionsTab implements SettingsUITab {
 		fieldBrailleNumFormat = makeCombo(groupStyle, IStyle.BraillePageNumberFormat.values());
 
 		SettingsUIUtils.addLabel(groupStyle, "Don't Split");
-		fieldDontSplit = makeEnabledCheckbox(groupStyle);
+		fieldDontSplit = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "Keep with Next");
-		fieldKeepWithNext = makeEnabledCheckbox(groupStyle);
+		fieldKeepWithNext = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "Keep with Previous");
-		fieldKeepwithPrevious = makeEnabledCheckbox(groupStyle);
+		fieldKeepwithPrevious = makeYesNoCombo(groupStyle);
 
 		SettingsUIUtils.addLabel(groupStyle, "Orphan Control");
 		fieldOrphanControl = new Spinner(groupStyle, 0);
 
 		SettingsUIUtils.addLabel(groupStyle, "Line Spacing");
 		fieldLineSpacing = new Spinner(groupStyle, 0);
+
+		//------Listeners-------
+		styleCombo.addSelectionListener(SettingsUIUtils.makeSelectedListener((e) -> onStyleSelect()));
+
+		//------Set styler data-----------
+		for (IStyle style : newStyles) {
+			styleCombo.add(style.getName());
+		}
 
 		setStyleFieldsEnabled(false);
 	}
@@ -192,54 +193,63 @@ class StyleDefinitionsTab implements SettingsUITab {
 			((Combo) control).select(0);
 		else if (control instanceof Text)
 			((Text) control).setText("");
-		else if (control instanceof Button)
-			((Button) control).setSelection(false);
 		else
 			throw new UnsupportedOperationException("Unknown control " + control.getClass());
 	}
 
-	private void onStyleSelect(IStyle curStyle, StyleLevel level) {
-		this.selectedStyle = curStyle;
-		//log.debug("style level {} total {}", styleLevels.indexOf(level), styleLevels.size() - 1);
-		while (styleLevels.indexOf(level) < styleLevels.size() - 1) {
-			//Eg level->level(changed)->level, need to remove last level
-			//log.debug("while style level {} total {}", styleLevels.indexOf(level), styleLevels.size() - 1);
-			StyleLevel curLevel = styleLevels.get(styleLevels.size() - 1);
-			curLevel.dispose();
-			styleLevels.remove(curLevel);
-			parent.layout();
-			configPanel.resize();
-		}
+	private void onStyleSelect() {
+		selectedStyle = newStyles.get(styleCombo.getSelectionIndex());
+		if (!(selectedStyle instanceof Style))
+			throw new UnsupportedOperationException("Unknown style " + selectedStyle.getClass());
 
-		if (curStyle instanceof StyleStack) {
-			styleLevels.add(new StyleLevel(groupSelect, (StyleStack) curStyle));
-			setStyleFieldsEnabled(false);
-			parent.layout();
-			configPanel.resize();
-		} else if (curStyle instanceof Style) {
-			fieldName.setText(curStyle.getName());
-			fieldLinesBefore.setSelection(curStyle.getLinesBefore());
-			fieldLinesAfter.setSelection(curStyle.getLinesAfter());
-			fieldLeftMargin.setSelection(defaultInt(curStyle.getLeftMargin()));
-			fieldRightMargin.setSelection(defaultInt(curStyle.getRightMargin()));
-			fieldFirstLineIndent.setSelection(defaultInt(curStyle.getFirstLineIndent()));
-			fieldSkipNumberLines.setSelection(curStyle.isSkipNumberLines());
-			fieldSkipPages.setSelection(curStyle.getSkipPages());
-			fieldAlign.setText(curStyle.getAlign().name());
-			fieldFormat.setText(curStyle.getFormat().name());
-			fieldTranslation.setText(curStyle.getTranslation().name());
-			fieldNewPageBefore.setSelection(curStyle.isNewPageBefore());
-			fieldNewPageAfter.setSelection(curStyle.isNewPageAfter());
-			fieldPageSide.setText(curStyle.getPageSide().name());
-			fieldBrailleNumFormat.setText(curStyle.getBraillePageNumberFormat().name());
-			fieldDontSplit.setSelection(curStyle.isDontSplit());
-			fieldKeepWithNext.setSelection(curStyle.isKeepWithNext());
-			fieldKeepwithPrevious.setSelection(curStyle.isKeepWithPrevious());
-			fieldOrphanControl.setSelection(curStyle.getOrphanControl());
-			fieldLineSpacing.setSelection(curStyle.getLineSpacing());
-			setStyleFieldsEnabled(true);
-		} else {
-			throw new UnsupportedOperationException("Unknown style " + curStyle.getClass());
+		updateField((s) -> s.getName(), fieldName);
+		updateField((s) -> s.getLinesBefore(), fieldLinesBefore);
+		updateField((s) -> s.getLinesAfter(), fieldLinesAfter);
+		updateField((s) -> s.getLeftMargin(), fieldLeftMargin);
+		updateField((s) -> s.getRightMargin(), fieldRightMargin);
+		updateField((s) -> s.getFirstLineIndent(), fieldFirstLineIndent);
+		updateField((s) -> s.isSkipNumberLines(), fieldSkipNumberLines);
+		updateField((s) -> s.getSkipPages(), fieldSkipPages);
+		updateField((s) -> s.getAlign(), fieldAlign);
+		updateField((s) -> s.getFormat(), fieldFormat);
+		updateField((s) -> s.getTranslation(), fieldTranslation);
+		updateField((s) -> s.isNewPageBefore(), fieldNewPageBefore);
+		updateField((s) -> s.isNewPageAfter(), fieldNewPageAfter);
+		updateField((s) -> s.getPageSide(), fieldPageSide);
+		updateField((s) -> s.getBraillePageNumberFormat(), fieldBrailleNumFormat);
+		updateField((s) -> s.isDontSplit(), fieldDontSplit);
+		updateField((s) -> s.isKeepWithNext(), fieldKeepWithNext);
+		updateField((s) -> s.isKeepWithPrevious(), fieldKeepwithPrevious);
+		updateField((s) -> s.getOrphanControl(), fieldOrphanControl);
+		updateField((s) -> s.getLineSpacing(), fieldLineSpacing);
+
+		setStyleFieldsEnabled(true);
+	}
+
+	private <V> void updateField(Function<IStyle, V> styleGetter, Control control) {
+		V oldStyleValue = styleGetter.apply(DEFAULT_STYLE);
+		V newStyleValue = styleGetter.apply(selectedStyle);
+		if (newStyleValue == null)
+			setStyleFieldEmpty(control);
+		else if (newStyleValue.equals(oldStyleValue))
+			setStyleFieldEmpty(control);
+		else {
+			//Put a real value into the field
+			if (control instanceof Spinner)
+				((Spinner) control).setSelection((Integer) newStyleValue);
+			else if (control instanceof Combo && newStyleValue instanceof Boolean) {
+				Combo combo = (Combo) control;
+				if ((Boolean) newStyleValue)
+					combo.setText("Yes");
+				else
+					combo.setText("No");
+			} else if (control instanceof Combo && newStyleValue instanceof Enum) {
+				Enum newStyleValueEnum = (Enum) newStyleValue;
+				((Combo) control).setText(newStyleValueEnum.name());
+			} else if (control instanceof Text)
+				((Text) control).setText((String) newStyleValue);
+			else
+				throw new UnsupportedOperationException("Unknown control " + control.getClass());
 		}
 	}
 
@@ -255,55 +265,24 @@ class StyleDefinitionsTab implements SettingsUITab {
 
 	private static Combo makeCombo(Composite parent, Enum<?>[] enumValues) {
 		Combo combo = new Combo(parent, SWT.READ_ONLY);
+		combo.add("");
 		for (Object curEnumValue : enumValues)
 			combo.add(curEnumValue.toString());
 		SettingsUIUtils.setGridData(combo);
 		return combo;
 	}
 
-	private static Button makeEnabledCheckbox(Composite parent) {
-		Button button = new Button(parent, SWT.CHECK);
-		button.setText("Enabled");
-		SettingsUIUtils.setGridData(button);
-		return button;
+	private static Combo makeYesNoCombo(Composite parent) {
+		Combo combo = new Combo(parent, SWT.READ_ONLY);
+		combo.add("");
+		combo.add("Yes");
+		combo.add("No");
+
+		SettingsUIUtils.setGridData(combo);
+		return combo;
 	}
-	
+
 	private static int defaultInt(Integer someInteger) {
 		return someInteger == null ? 0 : someInteger;
-	}
-
-	private class StyleLevel {
-		private final Composite container;
-		private final Label label;
-		private final Combo combo;
-		private final Map<String, IStyle> nameToStyle = new HashMap<>();
-
-		public StyleLevel(Composite wrapperContainer, Collection<IStyle> styleList) {
-			container = new Composite(wrapperContainer, 0);
-			container.setLayout(new GridLayout(2, true));
-			SettingsUIUtils.setGridData(container);
-
-			label = new Label(container, 0);
-			if (styleList instanceof StyleStack)
-				label.setText("Select SubStyle");
-			else
-				label.setText("Select Style");
-			SettingsUIUtils.setGridData(label);
-
-			combo = new Combo(container, SWT.READ_ONLY);
-			SettingsUIUtils.setGridData(combo);
-			for (IStyle style : styleList) {
-				nameToStyle.put(style.getName(), style);
-				combo.add(style.getName());
-			}
-
-			combo.addSelectionListener(SettingsUIUtils.makeSelectedListener(
-					(e) -> onStyleSelect(nameToStyle.get(combo.getText()), StyleLevel.this)
-			));
-		}
-
-		public void dispose() {
-			container.dispose();
-		}
 	}
 }

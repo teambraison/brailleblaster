@@ -49,7 +49,7 @@
     
 	<target name="install-swtbot">
 		<echo>SWTBot install</echo>
-		<java dir="${eclipse.home}" fork="true" logError="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
+		<java dir="${eclipse.home}" fork="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
 			<classpath>
 				<fileset dir="${eclipse.home}/plugins">
 					<include name="org.eclipse.equinox.launcher_*.jar"/>
@@ -67,7 +67,7 @@
 	
 	<target name="swtbot" depends="dist">
 		<echo>SWTBot test</echo>
-		<java dir="${eclipse.home}" fork="true" logError="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
+		<java dir="${eclipse.home}" fork="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
 			<classpath>
 				<fileset dir="${eclipse.home}/plugins">
 					<include name="org.eclipse.equinox.launcher_*.jar"/>
@@ -78,9 +78,7 @@
 					<exclude name="utd/xml-apis-1.4.01.jar"/>
 					<exclude name="jeuclid/xml-apis-ext.jar"/>
 				</fileset>
-				<fileset dir="${eclipse.home}/plugins">
-					<include name="org.eclipse.equinox.launcher_*.jar"/>
-				</fileset>
+				<pathelement path="${builddir}"/>
 			</classpath>
 			<jvmarg line="-Xms256M -Xmx768M -XX:MaxPermSize=512M"/>
 			<arg line="-application org.eclipse.swtbot.eclipse.junit.headless.swtbottestapplication"/>

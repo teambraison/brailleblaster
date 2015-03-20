@@ -63,7 +63,6 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
-import org.brailleblaster.util.Notify;
 import org.liblouis.LibLouisUTDML;
 
 
@@ -232,26 +231,26 @@ public class BBDocument {
 			return true;
 		} 
 		catch(ConnectException e){
-			new Notify(lh.localValue("connectionError"));
+			dm.notify(lh.localValue("connectionError"));
 			e.printStackTrace();
 			logger.error("Connections Error", e);
 			return false;
 		}
 		catch(UnknownHostException e){
-			new Notify(lh.localValue("connectionError"));
+			dm.notify(lh.localValue("unknownHostError"));
 			e.printStackTrace();
 			logger.error("Unknown Host Error", e);
 			return false;
 		}
 		catch (ParsingException e) {
-			new Notify(lh.localValue("processingProb") + fileName + "\n" + lh.localValue("seeTrace"));
+			dm.notify(lh.localValue("processingProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			new CheckLiblouisutdmlLog().displayLog();
 			e.printStackTrace();
 			logger.error("Parse Error", e);
 			return false;
 		} 
 		catch (IOException e) {
-			new Notify (lh.localValue("ioProb") + fileName + "\n" + lh.localValue("seeTrace"));
+			dm.notify(lh.localValue("ioProb") + fileName + "\n" + lh.localValue("seeTrace"));
 			e.printStackTrace();
 			logger.error("IO Error", e);
 			return false;

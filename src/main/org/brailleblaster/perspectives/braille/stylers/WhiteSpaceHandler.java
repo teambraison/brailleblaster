@@ -98,25 +98,28 @@ public class WhiteSpaceHandler extends Handler {
 		int pos  = text.view.getCaretOffset();
 		if(list.getCurrent().end == offset){
 			text.setCurrentElement(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
-			
+			refreshStylesHelper(list.getCurrent());
+						
 			text.setCurrentElement(list.get(list.getCurrentIndex() + 1).start);
-			text.refreshStyle(list.get(list.getCurrentIndex()));
-			braille.refreshStyle(list.get(list.getCurrentIndex()));
+			refreshStylesHelper(list.get(list.getCurrentIndex()));
 		}
 		else {
 			text.setCurrentElement(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
+			refreshStylesHelper(list.getCurrent());
 			
 			text.setCurrentElement(list.get(list.getCurrentIndex() - 1).start);
-			text.refreshStyle(list.get(list.getCurrentIndex()));
-			braille.refreshStyle(list.get(list.getCurrentIndex()));
+			refreshStylesHelper(list.get(list.getCurrentIndex()));
 		}
 		
 		text.view.setCaretOffset(pos);
 		text.setCurrentElement(pos);
+	}
+	
+	private void refreshStylesHelper(TextMapElement t){
+		if(!readOnly(t)){
+			text.refreshStyle(t);
+			braille.refreshStyle(t);
+		}
 	}
 	
 	private void removeWhitespace(ViewEvent ev){

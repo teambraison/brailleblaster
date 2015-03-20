@@ -1541,12 +1541,4 @@ public class Manager extends Controller {
 	public EventFrame peekRedoEvent(){
 		return queueManager.peekRedoEvent();
 	}
-
-	/** Creates a Notify class alert box if debugging is not active
-	 * @param notify : String to be used in an alert box, should already be localized
-	 */
-	public void notify(String notify){
-		if(!BBIni.debugging())
-			new Notify(notify);
-	}
 }

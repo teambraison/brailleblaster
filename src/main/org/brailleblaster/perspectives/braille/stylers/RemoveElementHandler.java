@@ -31,7 +31,12 @@ public class RemoveElementHandler extends Handler{
 		
 		findRemovalMethod(m);
 		
-		manager.addUndoEvent(eventFrame);
+		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!eventFrame.empty())
+				manager.peekUndoEvent().addEvent(manager.peekUndoEvent().size() - 1,eventFrame.pop());
+		}
+		else
+			manager.addUndoEvent(eventFrame);
 	}
 	
 	public void removeNode(EventFrame frame){
@@ -45,7 +50,7 @@ public class RemoveElementHandler extends Handler{
 			
 			findRemovalMethod(m);
 		
-			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
+			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex())) && ev.getListIndex() <= list.size() - 1 && list.get(ev.getListIndex()).start != ev.getTextOffset()){
 				text.replaceTextRange(ev.getTextOffset(), 1, "");
 				braille.replaceTextRange(ev.getBrailleOffset(), 1, "");
 				list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);
@@ -56,7 +61,13 @@ public class RemoveElementHandler extends Handler{
 		
 			manager.dispatch(Message.createUpdateCursorsMessage(Sender.TREE));
 		}
-		manager.addUndoEvent(eventFrame);
+		
+		if(manager.peekUndoEvent() != null && manager.peekUndoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!eventFrame.empty())
+				manager.peekUndoEvent().addEvent(manager.peekUndoEvent().size() - 1,eventFrame.pop());
+		}
+		else
+			manager.addUndoEvent(eventFrame);
 	}
 	
 	public void undoInsert(EventFrame frame){

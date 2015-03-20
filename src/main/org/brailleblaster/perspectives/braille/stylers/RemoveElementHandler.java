@@ -45,7 +45,7 @@ public class RemoveElementHandler extends Handler{
 			
 			findRemovalMethod(m);
 		
-			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex()))){
+			if(ev.getNode() instanceof Element && isBlockElement(list.get(ev.getListIndex())) && ev.getListIndex() <= list.size() - 1 && list.get(ev.getListIndex()).start != ev.getTextOffset()){
 				text.replaceTextRange(ev.getTextOffset(), 1, "");
 				braille.replaceTextRange(ev.getBrailleOffset(), 1, "");
 				list.shiftOffsetsFromIndex(ev.getListIndex(), -1, -1);

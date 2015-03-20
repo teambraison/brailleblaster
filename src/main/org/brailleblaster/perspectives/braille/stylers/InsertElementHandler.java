@@ -141,7 +141,7 @@ public class InsertElementHandler extends Handler{
 	
 	private void insertInList(ArrayList<TextMapElement>elList, int index, int textOffset, int brailleOffset){
 		for(int i = 0; i < elList.size(); i++, index++){
-			list.add(index, elList.get(i));
+			vi.addElementToSection(list, elList.get(i), index);
 			list.get(index).setOffsets(textOffset, textOffset);
 			for(int j = 0; j < list.get(index).brailleList.size(); j++)
 				list.get(index).brailleList.get(j).setOffsets(brailleOffset, brailleOffset);

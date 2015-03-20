@@ -26,7 +26,7 @@
 		<javac srcdir="${srcdir}" destdir="${builddir}"
 			debug="yes"
 			includeantruntime="false" source="1.6" target="1.6" encoding="utf-8">
-			<classpath refid="allJars.path"/>
+			<classpath refid="allJars.path" maxParentLevels="99"/>
 		</javac>
 	</target>
 	
@@ -68,7 +68,7 @@
 	<target name="swtbot" depends="dist">
 		<echo>SWTBot test</echo>
 		<java dir="${eclipse.home}" fork="true" logError="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
-			<classpath>
+			<classpath maxParentLevels="99">
 				<fileset dir="${eclipse.home}/plugins">
 					<include name="org.eclipse.equinox.launcher_*.jar"/>
 				</fileset>

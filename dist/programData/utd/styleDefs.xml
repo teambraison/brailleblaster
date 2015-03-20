@@ -1,33 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?><StyleDefinitions>
-	<styleStack>
-		<stackName>testStack</stackName>
-		<style>
-			<name>stackStyle</name>
-			<skipNumberLines>true</skipNumberLines>
-			<orphanControl>65</orphanControl>
-		</style>
-		<styleStack>
-			<stackName>testNestedStack</stackName>
-			<style>
-				<name>nestedStackStyle</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-		</styleStack>
-		<styleStack>
-			<stackName>testNestedStack2</stackName>
-			<style>
-				<name>nestedStackStyle2</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-			<style>
-				<name>nestedStackStyle2-2</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-		</styleStack>
-	</styleStack>
 	<style>
 		<name>bottomBox</name>
 	</style>

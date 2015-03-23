@@ -100,12 +100,6 @@
 		</repository>
 	</repositories>
 	
-	
-	<properties>
-		<!-- Needed as <classpath> xml doesn't allow appending -->
-		<exec.args>-classpath %classpath;programData/lang/;programData/settings/ org.brailleblaster.Main</exec.args>
-	</properties>
-	
 	<build>
 		<!--
 			Limit fallout of maven port by using old directory locations
@@ -141,26 +135,32 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.3.2</version>
 				<configuration>
-					<!--exec:exec-->
-					<executable>java</executable>
-					<environmentVariables>
-						<BBLASTER_WORK>${basedir}\dist</BBLASTER_WORK>
-					</environmentVariables>
+					<!-- TODO: Needed to load liblouisutdml, might be able to remove later -->
 					<classpathScope>compile</classpathScope>
+					<!-- Something in the XML parsing uses relative paths -->
 					<workingDirectory>${basedir}\dist</workingDirectory>
 					
-					<!-- exec:java - will not work due to requiring dirs on boot classpath -->
+					<!--exec:exec-->
+					<executable>java</executable>
+					<arguments>
+						<argument>-classpath</argument>
+						<classpath/>
+						<argument>-Dlogback.configurationFile=programData/settings/logback.xml</argument>
+						<argument>-DBBLASTER_WORK=${basedir}\dist</argument>
+						<argument>org.brailleblaster.Main</argument>
+					</arguments>
+					
+					<!-- exec:java - Cannot use until working directory doesn't need to be changed -->
 					<!--
 					<mainClass>org.brailleblaster.Main</mainClass>
-					<classpathScope>compile</classpathScope>
-					<additionalClasspathElements>
-						<element>programData/lang/</element>
-						<element>programData/settings/</element>
-					</additionalClasspathElements>
 					<systemProperties>
 						<systemProperty>
 							<key>BBLASTER_WORK</key>
 							<value>${basedir}\dist</value>
+						</systemProperty>
+						<systemProperty>
+							<key>logback.configurationFile</key>
+							<value>programData/settings/logback.xml</value>
 						</systemProperty>
 					</systemProperties>
 					-->

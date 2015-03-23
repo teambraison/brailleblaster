@@ -133,7 +133,7 @@
 					<workingDirectory>${basedir}\dist</workingDirectory>
 					
 					<!--exec:exec-->
-					<executable>java</executable>
+					<executable>${env.JAVA_HOME}\bin\java</executable>
 					<arguments>
 						<argument>-classpath</argument>
 						<classpath/>

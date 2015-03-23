@@ -239,12 +239,12 @@ public class BrailleView extends WPView {
 	public void setBraille(TextMapElement t, MapList list, int index){
 		setListenerLock(true);
 		for(int i = 0; i < t.brailleList.size(); i++){
-			Styles style = stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
-			Styles prevStyle;
-			if(list.size() > 1 && index != 0 &&  list.get(index - 1).n!=null)
-				prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
-			else
-				prevStyle = null;
+			//Styles style = stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
+			//Styles prevStyle;
+			//if(list.size() > 1 && index != 0 &&  list.get(index - 1).n!=null)
+				//prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
+			//else
+				//prevStyle = null;
 		
 			String textBefore = "";
 			String text = t.brailleList.get(i).n.getValue();
@@ -261,7 +261,7 @@ public class BrailleView extends WPView {
 			view.append(textBefore + text);
 		
 			
-			handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
+			//handleStyle(prevStyle, style, t.brailleList.get(i).n, t.parentElement());
 		
 			t.brailleList.get(i).setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 			total += spaceBeforeText + textLength + spaceAfterText;
@@ -679,9 +679,9 @@ public class BrailleView extends WPView {
 	}
 	
 	public void updateBraille(TextMapElement t, Message message){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+	//	Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		int total = (Integer)message.getValue("brailleLength");
-		int margin = 0;
+//		int margin = 0;
 		int pos = view.getCaretOffset();
 		System.out.println("Value: " + t.value());
 		String insertionString = (String)message.getValue("newBrailleText");
@@ -697,20 +697,20 @@ public class BrailleView extends WPView {
 			removeIndicator();
 			addIndicator();
 
-			if(style.contains(StylesType.format) && t.brailleList.size() > 0)
-				setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
+	//		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
+	//			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
 			
 			//reset margin in case it is not applied
 			if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
 				handleLineWrap(t.brailleList.getFirst().start, insertionString, 0, false);
 			
-			if(style.contains(StylesType.leftMargin)) {
-				margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-				handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
-			}
+	//		if(style.contains(StylesType.leftMargin)) {
+	///			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+	//			handleLineWrap(t.brailleList.getFirst().start, insertionString, margin, style.contains(StylesType.firstLineIndent));
+	//		}
 				
-			if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent)&& insertionString.length() > 0)
-				setFirstLineIndent(t.brailleList.getFirst().start, style);
+	//		if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent)&& insertionString.length() > 0)
+	//			setFirstLineIndent(t.brailleList.getFirst().start, style);
 			view.setCaretOffset(pos);
 			setListenerLock(false);	
 		}

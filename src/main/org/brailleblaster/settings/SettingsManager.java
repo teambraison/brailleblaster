@@ -39,6 +39,11 @@ public class SettingsManager {
 
 	public void loadEngine(UTDTranslationEngine engine, String config) {
 		try {
+			//Set liblouis table paths if not set by user
+			if(engine.getBrailleTranslator().getDataPath() == null)
+				engine.getBrailleTranslator().setDataPath(BBIni.getProgramDataPath("liblouis", "tables"));
+			
+			
 			//Style TODO: Somehow automagically load the correct config
 			engine.setPageSettings(
 					UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, PAGE_SETTINGS_NAME)));

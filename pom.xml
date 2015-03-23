@@ -22,14 +22,6 @@
 			<artifactId>utd</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		<!-- TODO: Eventually remove liblouisutdml -->
-		<dependency>
-			<groupId>liblouisutdml</groupId>
-			<artifactId>liblouisutdml</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/dist/lib/jliblouisutdml.jar</systemPath>
-		</dependency>
 		
 		<!-- Slf4j for logging -->
 		<dependency>
@@ -136,8 +128,6 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.3.2</version>
 				<configuration>
-					<!-- TODO: Needed to load liblouisutdml, might be able to remove later -->
-					<classpathScope>compile</classpathScope>
 					<!-- TODO: Something in the XML parsing uses relative paths -->
 					<workingDirectory>${basedir}\dist</workingDirectory>
 					

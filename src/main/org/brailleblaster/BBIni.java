@@ -48,9 +48,6 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-//import org.liblouis.LibLouis;
-//import org.liblouis.LibLouisUTDML;
-import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -320,13 +317,13 @@ public final class BBIni {
 			}
 		}
 		// Access log level settings
-		String logLevel = props.getProperty("logLevel");
+//		String logLevel = props.getProperty("logLevel");
 		
 		//If logLevel does not exist, make it
-		if (logLevel == null){
-			props.setProperty("logLevel", "" + LogLevel.ERROR);
-			logLevel = "" + LogLevel.ERROR;
-		}
+//		if (logLevel == null){
+//			props.setProperty("logLevel", "" + LogLevel.ERROR);
+//			logLevel = "" + LogLevel.ERROR;
+//		}
 		
 		try {
 		//	LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);

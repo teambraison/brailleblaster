@@ -19,7 +19,7 @@ public class QueueManager {
 	public void addUndoEvent(EventFrame f){
 		if(undoQueue.empty()){
 			f.setId(FIRST_ITEM_ID);
-			if(!redoQueue.empty() && !swapFrame)
+			if(!redoQueue.empty() && !swapFrame )
 				redoQueue.clear();
 		}
 		else{

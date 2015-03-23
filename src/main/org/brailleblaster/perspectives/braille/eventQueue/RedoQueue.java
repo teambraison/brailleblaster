@@ -59,7 +59,7 @@ public class RedoQueue extends EventQueue{
 					s.redoStyle(frame);
 					break;
 				case Whitespace:
-					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
+					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, vi, list);
 					wsh.redoDelete(frame);
 					break;
 				default:

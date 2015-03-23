@@ -53,7 +53,13 @@ public class InsertElementHandler extends Handler{
 			insertElement(ev);
 			frame.addEvent(new ModelEvent(EventTypes.Delete, ev.getParent().getChild(ev.getParentIndex()), vi.getStartIndex(), ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset(), tree.getItemPath()));
 		}
-		manager.addRedoEvent(frame);
+		
+		if(manager.peekRedoEvent() != null && manager.peekRedoEvent().get(0).getEventType().equals(EventTypes.Whitespace)){
+			while(!frame.empty())
+				manager.peekRedoEvent().addEvent(manager.peekRedoEvent().size() - 1,frame.pop());
+		}
+		else
+			manager.addRedoEvent(frame);
 	}
 	
 	public void redoInsert(EventFrame f){
@@ -85,12 +91,15 @@ public class InsertElementHandler extends Handler{
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset() + 1, ev.getBrailleOffset() + 1);
 			else
 				insertInList(elList, ev.getListIndex(), ev.getTextOffset(), ev.getBrailleOffset());
-			
-			if(list.size() - 1 != ev.getListIndex() + 1)
-				list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
 		
-			text.insertLineBreak(ev.getTextOffset());
-			braille.insertLineBreak(ev.getBrailleOffset());
+			if(list.get(ev.getListIndex() + 1).start == ev.getTextOffset()){
+				text.insertLineBreak(ev.getTextOffset());
+				braille.insertLineBreak(ev.getBrailleOffset());
+			
+				if(list.size() - 1 != ev.getListIndex() + 1)
+					list.shiftOffsetsFromIndex(ev.getListIndex() + 1, 1, 1);
+			}
+			
 			tree.rebuildTree(ev.getTreeIndex());
 		}
 		else {
@@ -141,7 +150,7 @@ public class InsertElementHandler extends Handler{
 	
 	private void insertInList(ArrayList<TextMapElement>elList, int index, int textOffset, int brailleOffset){
 		for(int i = 0; i < elList.size(); i++, index++){
-			list.add(index, elList.get(i));
+			vi.addElementToSection(list, elList.get(i), index);
 			list.get(index).setOffsets(textOffset, textOffset);
 			for(int j = 0; j < list.get(index).brailleList.size(); j++)
 				list.get(index).brailleList.get(j).setOffsets(brailleOffset, brailleOffset);

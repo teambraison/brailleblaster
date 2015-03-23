@@ -41,14 +41,15 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.liblouis.LibLouis;
-import org.liblouis.LibLouisUTDML;
+//import org.liblouis.LibLouis;
+//import org.liblouis.LibLouisUTDML;
 import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +82,6 @@ public final class BBIni {
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
 	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
-	//private static final String productName = "BrailleBlaster ND";
-	//private static final String BBVersion = "0.07 Alpha";
-	//private static final String releaseDate = "October, 31, 2014";
 	
 	private static String productName;
 	private static String BBVersion;
@@ -331,16 +329,14 @@ public final class BBIni {
 		}
 		
 		try {
-			LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
-			LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR); 
-			LibLouis.getInstance().setLogLevel(Integer.parseInt(logLevel));
-			org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
-			LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
-			LibLouisUTDML.getInstance().registerLogCallback(
-					louisutdmlLogHandler);
-			LibLouisUTDML.initialize(programDataPath, tempFilesPath,
-					"liblouisutdml.log");
-			liblouisutdmlVersion = LibLouisUTDML.getInstance().version();
+		//	LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
+		//	LibLouisUTDML.getInstance().setLogLevel(LogLevel.ERROR);
+	//		LibLouis.getInstance().setLogLevel(Integer.parseInt(logLevel));
+		//	org.brailleblaster.louisutdml.LogHandler louisutdmlLogHandler = new org.brailleblaster.louisutdml.LogHandler();
+		//	LibLouis.getInstance().registerLogCallback(louisutdmlLogHandler);
+		//	LibLouisUTDML.getInstance().registerLogCallback(louisutdmlLogHandler);
+		//	LibLouisUTDML.initialize(programDataPath, tempFilesPath,"liblouisutdml.log");
+		//	liblouisutdmlVersion = LibLouisUTDML.getInstance().version();
 			hLiblouisutdml = true;
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();
@@ -469,8 +465,14 @@ public final class BBIni {
 		return nativeLibraryPath;
 	}
 
-	public static String getProgramDataPath() {
-		return programDataPath;
+	/**
+	 * Path to program read-only settings
+	 * @param pathSuffixParts Optional folders/files to append to path, joined with 
+	 * {@see #getFileSep() }
+	 * @return 
+	 */
+	public static String getProgramDataPath(String... pathSuffixParts) {
+		return programDataPath + makePathSuffix(pathSuffixParts);
 	}
 
 	public static String getHelpDocsPath() {
@@ -485,8 +487,14 @@ public final class BBIni {
 		return nativeLibrarySuffix;
 	}
 
-	public static String getUserProgramDataPath() {
-		return userProgramDataPath;
+	/**
+	 * Path to user-specific settings
+	 * @param pathSuffixParts Optional folders/files to append to path, joined with 
+	 * {@see #getFileSep() }
+	 * @return 
+	 */
+	public static String getUserProgramDataPath(String... pathSuffixParts) {
+		return userProgramDataPath + makePathSuffix(pathSuffixParts);
 	}
 
 	public static String getTempFilesPath() {
@@ -539,5 +547,32 @@ public final class BBIni {
 
 	public static String getAutoConfigSettings() {
 		return autoConfigSettings;
+	}
+	
+	/**
+	 * Try to get file from users program data folder first and then try 
+	 * global program data, throwing an exception if not found
+	 * @param pathSuffixParts
+	 * @return A file that exists or throws an Exception
+	 */
+	public static File loadAutoProgramDataFile(String... pathSuffixParts) {
+		File file = new File(getUserProgramDataPath(pathSuffixParts));
+		if(file.exists())
+			return file;
+		file = new File(getProgramDataPath(pathSuffixParts));
+		if(file.exists())
+			return file;
+		throw new RuntimeException("Cannot find file " + makePathSuffix(pathSuffixParts));
+	}
+	
+	/**
+	 * Generate a valid path suffix if needed
+	 * @param pathSuffixParts
+	 * @return 
+	 */
+	private static String makePathSuffix(String... pathSuffixParts) {
+		if(pathSuffixParts.length == 0)
+			return "";
+		return getFileSep() + StringUtils.join(pathSuffixParts, getFileSep());
 	}
 }

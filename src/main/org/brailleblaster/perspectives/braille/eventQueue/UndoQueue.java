@@ -58,7 +58,7 @@ public class UndoQueue extends EventQueue {
 					sh.undoStyle(frame);
 					break;
 				case Whitespace:
-					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, list);
+					WhiteSpaceHandler wsh = new WhiteSpaceHandler(manager, vi, list);
 					wsh.undoDelete(frame);
 					break;
 				default:

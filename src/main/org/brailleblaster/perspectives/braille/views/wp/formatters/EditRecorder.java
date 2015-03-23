@@ -122,13 +122,6 @@ public class EditRecorder {
 		createEvent(wordStart, wordEnd, recordedText);
 	}
 	
-	private String insertBreak(String text){
-		if(BBIni.getPlatformName().equals("win32"))
-			return text + "\r\n";
-		else
-			return text + "\n";
-	}
-	
 	public void recordLine(String currentLine, int currentLineNumber){
 		this.currentLine = currentLine;
 		this.currentLineNumber = currentLineNumber;
@@ -143,7 +136,7 @@ public class EditRecorder {
 		if(firstLine != lastLine){
 			do{
 				firstLine++;
-				currentLine = insertBreak(currentLine);
+				currentLine += "\n";
 				currentLine += text.view.getLine(firstLine);
 			} while(firstLine < lastLine);
 		}

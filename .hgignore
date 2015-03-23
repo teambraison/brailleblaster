@@ -11,3 +11,4 @@ bin/*
 .classpath
 .settings
 target
+dist/programData/liblouis/tables/*

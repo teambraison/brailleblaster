@@ -62,6 +62,7 @@ import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
 import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
+import org.brailleblaster.utd.utils.UnitConverter;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.util.Notify;
@@ -648,12 +649,8 @@ public class BBDocument {
 	}
 	
 	public int getLinesPerPage(){
-		PageSettings pageSettings = engine.getPageSettings();
-		return pageSettings.getUnitConverter().calculateLinesPerPage(
-				pageSettings.getPaperHeight(), 
-				pageSettings.getTopMargin(), 
-				pageSettings.getBottomMargin());
-		//return sm.getLinesPerPage();
+		double heightMM = engine.getPageSettings().getDrawableHeight();
+		return engine.getBrailleSettings().getCellType().linesFromHeight(heightMM);
 	}
 	
 	public UTDTranslationEngine getEngine() {

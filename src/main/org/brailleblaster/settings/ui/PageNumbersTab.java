@@ -2,25 +2,21 @@ package org.brailleblaster.settings.ui;
 
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.utd.PageSettings;
-import org.brailleblaster.utd.PageSettings.NumberLocation;
 import org.brailleblaster.utd.UTDTranslationEngine;
+import org.brailleblaster.utd.properties.PageNumberPosition;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 class PageNumbersTab implements SettingsUITab {
 	private final LocaleHandler lh = new LocaleHandler();
-	private final Combo continueCombo, interpointCombo, printCombo;
+	private final Combo interpointCombo, brailleNumCombo, printNumCombo, continueSymbolsCombo, continuePagesCombo;
 
 	PageNumbersTab(TabFolder folder, PageSettings pageSettingsDefault) {
-		super();
 		TabItem item = new TabItem(folder, 0);
 		item.setText(lh.localValue("pageNumbers"));
 
@@ -29,79 +25,88 @@ class PageNumbersTab implements SettingsUITab {
 		parent.setLayout(new GridLayout(1, true));
 		item.setControl(parent);
 
-		//Braille interpoint and continuation symbols
-		Group pageNumGroup = new Group(parent, 0);
-		pageNumGroup.setLayout(new GridLayout(2, true));
-		pageNumGroup.setText("Page Numbers");
-		SettingsUIUtils.setGridDataGroup(pageNumGroup);
+		//Braille group
+		Group brailleGroup = new Group(parent, 0);
+		brailleGroup.setLayout(new GridLayout(2, true));
+		brailleGroup.setText(lh.localValue("braille"));
+		SettingsUIUtils.setGridDataGroup(brailleGroup);
 
-		addLabel(pageNumGroup, "Braille Interpoint Page Number Location");
-		interpointCombo = makeNumberPositionCombo(pageNumGroup, pageSettingsDefault.getInterpoint());
+		SettingsUIUtils.addLabel(brailleGroup, "Interpoint");
+		interpointCombo = makeYesNoCombo(brailleGroup, pageSettingsDefault.getInterpoint());
 
-		addLabel(pageNumGroup, "Continuation Symbols Print Page Number Location");
-		printCombo = makeNumberPositionCombo(pageNumGroup, pageSettingsDefault.getPrintPages());
+		SettingsUIUtils.addLabel(brailleGroup, "Braille Page Number Location");
+		brailleNumCombo = makeNumberPositionCombo(brailleGroup, pageSettingsDefault.getBraillePageNumberAt());
 
-		//Continue pages
+		//Print group
+		Group printGroup = new Group(parent, 0);
+		printGroup.setLayout(new GridLayout(2, true));
+		printGroup.setText(lh.localValue("print"));
+		SettingsUIUtils.setGridDataGroup(printGroup);
+
+		SettingsUIUtils.addLabel(printGroup, "Print Page Number Location");
+		printNumCombo = makeNumberPositionCombo(printGroup, pageSettingsDefault.getPrintPageNumberAt());
+
+		SettingsUIUtils.addLabel(printGroup, "Continuation Symbols For Print Pages");
+		continueSymbolsCombo = makeYesNoCombo(printGroup, pageSettingsDefault.isPrintPageNumberRange());
+
+		//Continue pages group
 		Group cpGroup = new Group(parent, 0);
 		cpGroup.setLayout(new GridLayout(2, true));
 		cpGroup.setText(lh.localValue("continue"));
 		SettingsUIUtils.setGridDataGroup(cpGroup);
 
-		addLabel(cpGroup, "Continue Pages");
-		continueCombo = new Combo(cpGroup, SWT.READ_ONLY);
-		continueCombo.add("No");
-		continueCombo.add("Yes");
-		if (pageSettingsDefault.isContinuePages())
-			continueCombo.setText("Yes");
-		else
-			continueCombo.setText("No");
-		setGridData(continueCombo);
+		SettingsUIUtils.addLabel(cpGroup, "Continue Pages");
+		continuePagesCombo = makeYesNoCombo(cpGroup, pageSettingsDefault.isContinuePages());
+		SettingsUIUtils.setGridData(continuePagesCombo);
 	}
 
 	@Override
 	public String validate() {
+		//No validation needed as there is only Combos with a fixed set of values
 		return null;
 	}
 
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
-		return false;
+		PageSettings pageSettings = engine.getPageSettings();
+		boolean updated = false;
+
+		updated = SettingsUIUtils.updateObject(pageSettings::getInterpoint, pageSettings::setInterpoint,
+				interpointCombo.getText().equals("Yes"), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getBraillePageNumberAt, pageSettings::setBraillePageNumberAt,
+				PageNumberPosition.valueOf(brailleNumCombo.getText()), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::getPrintPageNumberAt, pageSettings::setPrintPageNumberAt,
+				PageNumberPosition.valueOf(printNumCombo.getText()), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::isPrintPageNumberRange, pageSettings::setPrintPageNumberRange,
+				continueSymbolsCombo.getText().equals("Yes"), updated);
+		updated = SettingsUIUtils.updateObject(pageSettings::isContinuePages, pageSettings::setContinuePages,
+				continuePagesCombo.getText().equals("Yes"), updated);
+
+		return updated;
 	}
 
-	public void updateEngine(PageSettings pageSettingsNew) {
-		NumberLocation interpoint = NumberLocation.valueOf(interpointCombo.getText());
-		pageSettingsNew.setInterpoint(interpoint);
-
-		NumberLocation print = NumberLocation.valueOf(printCombo.getText());
-		pageSettingsNew.setPrintPages(print);
-
-		boolean continueVal = continueCombo.getText().equals("Yes");
-		pageSettingsNew.setContinuePages(continueVal);
-	}
-
-	private static Combo makeNumberPositionCombo(Composite parent, NumberLocation defaultValue) {
+	private static Combo makeNumberPositionCombo(Composite parent, PageNumberPosition defaultValue) {
 		Combo combo = new Combo(parent, SWT.READ_ONLY);
 
-		for (NumberLocation curLoc : NumberLocation.values())
+		for (PageNumberPosition curLoc : PageNumberPosition.values())
 			combo.add(curLoc.name());
 		combo.setText(defaultValue.name());
 
-		setGridData(combo);
+		SettingsUIUtils.setGridData(combo);
 		return combo;
 	}
 
-	private static Label addLabel(Composite parent, String text) {
-		Label label = new Label(parent, 0);
-		label.setText(text);
-		setGridData(label);
-		return label;
-	}
+	private static Combo makeYesNoCombo(Composite parent, boolean defaultValue) {
+		Combo combo = new Combo(parent, SWT.READ_ONLY);
+		combo.add("Yes");
+		combo.add("No");
 
-	private static void setGridData(Control c) {
-		GridData gridData = new GridData();
-		gridData.horizontalAlignment = GridData.FILL;
-		gridData.verticalAlignment = GridData.FILL;
-		gridData.grabExcessHorizontalSpace = true;
-		c.setLayoutData(gridData);
+		if (defaultValue)
+			combo.setText("Yes");
+		else
+			combo.setText("No");
+
+		SettingsUIUtils.setGridData(combo);
+		return combo;
 	}
 }

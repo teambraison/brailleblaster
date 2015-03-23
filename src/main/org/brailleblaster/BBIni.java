@@ -365,6 +365,9 @@ public final class BBIni {
 		// Option to use an environment variable (mostly for testing
 		// withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
+		if(StringUtils.isBlank(url))
+			url = System.getProperty("BBLASTER_WORK");
+		
 
 		if (url != null) {
 			if (BBIni.getPlatformName().equals("cocoa")

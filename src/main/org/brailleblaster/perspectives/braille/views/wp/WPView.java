@@ -14,6 +14,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.utd.IStyle.Align;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -310,9 +311,19 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param end : end offset
 	 * @param style : style object
 	 */
-	protected void setAlignment(int start, int end, Styles style){
+	protected void setAlignment(int start, int end, Align alignment){
 		int startLine = view.getLineAtOffset(start);
-		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
+		switch(alignment){
+		case RIGHT:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.RIGHT);
+			break;
+		case CENTERED:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.CENTER);
+			break;
+		default:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.LEFT);
+			break;
+		}	
 	}
 	
 	/** Sets alignment using the swt constant value for alignment

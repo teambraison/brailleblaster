@@ -367,10 +367,9 @@ public class BrailleView extends WPView {
 		
 		if(isFirst && style.getFirstLineIndent() != 0)
 			setFirstLineIndent(spaceBeforeText + total, style.getFirstLineIndent(), style.getLeftMargin());
+		
+		setAlignment(spaceBeforeText + total, spaceBeforeText + total + n.getValue().length(), style.getAlign());
 /*					
-				case format:
-					setAlignment(spaceBeforeText + total, spaceBeforeText + total + n.getValue().length(), style);
-					break;	
 				case emphasis:
 			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
 					 break;
@@ -441,9 +440,9 @@ public class BrailleView extends WPView {
 					insertBefore(end, textBefore);
 					offset = spaces - length;
 					break;
-				case format:
-					setAlignment(start, end, style);
-					break;
+	//			case format:
+	//				setAlignment(start, end, style);
+	//				break;
 	//			case firstLineIndent:
 	//				if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
 	//					setFirstLineIndent(start, style);
@@ -704,10 +703,10 @@ public class BrailleView extends WPView {
 		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
 		String text = view.getTextRange(t.brailleList.getFirst().start, t.brailleList.getLast().end - t.brailleList.getFirst().start);
 		int margin = 0;
-		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
-			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
-		else
-			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, SWT.LEFT);
+//		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
+//			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
+//		else
+//			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, SWT.LEFT);
 		
 		//reset margin in case it is not applied
 		if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
@@ -876,8 +875,8 @@ public class BrailleView extends WPView {
 //		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
 //			setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start,start + n.getValue().length(),style);
+//		if(style.contains(StylesType.format))
+//			setAlignment(start,start + n.getValue().length(),style);
 		
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -930,8 +929,8 @@ public class BrailleView extends WPView {
 //		if(isFirst && style.contains(StylesType.firstLineIndent))
 //			setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
+//		if(style.contains(StylesType.format))
+//			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
 		
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -988,8 +987,8 @@ public class BrailleView extends WPView {
 //		if(isFirst && style.contains(StylesType.firstLineIndent))
 //			setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
+//		if(style.contains(StylesType.format))
+//			setAlignment(start + linesBefore,start + b.n.getValue().length(),style);
 		
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -1106,8 +1105,8 @@ public class BrailleView extends WPView {
 	//			if(isFirst && style.contains(StylesType.firstLineIndent))
 	//				setFirstLineIndent(t.brailleList.getFirst().start, style);
 		
-				if(style.contains(StylesType.format))
-					setAlignment(start,start + b.n.getValue().length(),style);
+	//			if(style.contains(StylesType.format))
+	//				setAlignment(start,start + b.n.getValue().length(),style);
 		
 				view.setCaretOffset(originalPosition);
 		}

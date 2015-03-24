@@ -582,9 +582,9 @@ public class SearchDOM extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				replaceAllShell.setVisible(false);
 				display.sleep();
-			}// widgetSelected
+			}
 
-		});// selectionListener
+		});
 		replaceAllShell.pack(true);
 		replaceAllShell.open();
 
@@ -608,16 +608,25 @@ public class SearchDOM extends Dialog {
 				"//text()[contains(.,'%s')][not(ancestor::dtb:brl)]",
 				currentSearch), context);
 		if (nodes.size() > 0) {
-			for (int i = 0; i < nodes.size(); i++) {
-//				System.out.println(nodes.get(i));
-				for (int j = 0; j < nodes.get(i).getChildCount(); j++)
-//					System.out.println(nodes.get(i).getChild(j).toString());
-						firstTextNodes.add(nodes.get(i).getChild(j));
-			}
+			getNodeIndices(nodes);
+//			for (int i = 0; i < nodes.size(); i++) {
+//				for (int j = 0; j < nodes.get(i).getChildCount(); j++)
+//						firstTextNodes.add(nodes.get(i).getChild(j));
+//			}
 			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
 			return true;
 		}
 		return false;
+	}
+	
+	public void getNodeIndices(Nodes nodes) {
+		ArrayList<Integer> nodeArray = new ArrayList<>();
+		for (int i = 0; i < nodes.size(); i++) {
+//			for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
+				nodeArray.add(maplist.findNodeIndex(nodes.get(i), 0));
+//			}
+		}
+		System.out.println("nodeArray "+nodeArray.toString());
 	}
 
 	public void putFoundInView() {
@@ -626,8 +635,8 @@ public class SearchDOM extends Dialog {
 		String view = tv.view.getText();
 		
 		System.out.println(nodes.get(k).toString());
-		int currentTMEIndex = maplist.findNodeIndex(nodes.get(k).getChild(b),
-				(TMEIndex));
+		int currentTMEIndex = maplist.findNodeIndex(nodes.get(5),
+				(6));
 		maplist.setCurrent(currentTMEIndex);
 		tv.view.setCaretOffset(maplist.getCurrent().start);
 		tv.view.setTopIndex(view.indexOf(currentSearch));
@@ -639,20 +648,6 @@ public class SearchDOM extends Dialog {
 			indexOfSearch++;
 		TMEIndex = currentTMEIndex + 1;
 		indexOfSearch = currentIndexOfSearch + 1;
-		k++;
-		b++;
-		if (k>=firstTextNodes.size()-1) {
-			System.out.println("END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			TMEIndex =0;
-			indexOfSearch=0;
-			k=0;
-		}
-		if (b>=firstTextNodes.get(k).getChildCount()) {
-			System.out.println("END!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-			TMEIndex =0;
-			indexOfSearch=0;
-			b=0;
-		}
 
 	}
 

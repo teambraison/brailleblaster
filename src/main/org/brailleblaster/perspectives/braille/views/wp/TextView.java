@@ -883,10 +883,10 @@ public class TextView extends WPView {
 				 resetStyleRange(range);		
 		}
 		
-		if(style.contains(StylesType.format))
-			setAlignment(currentStart, currentEnd, style);
-		else
-			setAlignment(currentStart, currentEnd, SWT.LEFT);
+//		if(style.contains(StylesType.format))
+//			setAlignment(currentStart, currentEnd, style);
+//		else
+//			setAlignment(currentStart, currentEnd, SWT.LEFT);
 	}
 	
 	public void removeMathML(Message m){
@@ -921,8 +921,8 @@ public class TextView extends WPView {
 	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(n) && style.contains(StylesType.firstLineIndent))
 	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + n.getValue().length(), style);
+	//	if(style.contains(StylesType.format))
+	//		setAlignment(start, start + n.getValue().length(), style);
 		
 		if(style.contains(StylesType.emphasis))
 			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -979,8 +979,8 @@ public class TextView extends WPView {
 	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + t.n.getValue().length(), style);
+//		if(style.contains(StylesType.format))
+//			setAlignment(start, start + t.n.getValue().length(), style);
 		
 		if(style.contains(StylesType.emphasis))
 			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -1037,8 +1037,8 @@ public class TextView extends WPView {
 	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + t.n.getValue().length(), style);
+	//	if(style.contains(StylesType.format))
+	//		setAlignment(start, start + t.n.getValue().length(), style);
 		
 		if(style.contains(StylesType.emphasis))
 			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -1138,8 +1138,8 @@ public class TextView extends WPView {
 //			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 //				setFirstLineIndent(start, style);
 		
-			if(style.contains(StylesType.format))
-				setAlignment(start, start + t.n.getValue().length(), style);
+//			if(style.contains(StylesType.format))
+//				setAlignment(start, start + t.n.getValue().length(), style);
 		
 			if(style.contains(StylesType.emphasis))
 				setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -1331,19 +1331,18 @@ public class TextView extends WPView {
 		if(isFirst && style.getFirstLineIndent() != 0)
 			setFirstLineIndent(spaceBeforeText + total, style.getFirstLineIndent(), style.getLeftMargin());
 	
+		setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style.getAlign());	
+		
 		/*	
-				case format:
-					setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style);
-					break;	
-				case emphasis:
-					setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
-					break;
-				case leftMargin:
-					if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), style.contains(StylesType.firstLineIndent));
-					else
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
-					break;
+			case emphasis:
+				setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
+				break;
+			case leftMargin:
+				if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
+					handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), style.contains(StylesType.firstLineIndent));
+				else
+					handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
+				break;
 		}
 		*/
 	}
@@ -1772,9 +1771,9 @@ public class TextView extends WPView {
 					linesAfterOffset = spaces - length;
 					m.put("linesAfterOffset", linesAfterOffset);
 					break;
-				case format:
-					setAlignment(start, end, style);	
-					break;
+//				case format:
+//					setAlignment(start, end, style);	
+//					break;
 //				case firstLineIndent:
 //					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
 //						setFirstLineIndent(start, style);

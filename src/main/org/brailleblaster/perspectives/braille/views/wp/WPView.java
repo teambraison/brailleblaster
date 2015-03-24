@@ -28,7 +28,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 
 public abstract class WPView extends AbstractView implements BBView {
-	protected final String MOVE_TO = "moveTO";
+	protected final String MOVE_TO = "moveTo";
 	protected final String NEW_PAGE = "newPage";
 	
 	protected BBSemanticsTable stylesTable;

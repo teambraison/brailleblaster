@@ -86,6 +86,7 @@ public class BrailleMenu extends BBMenu{
 	MenuItem showTranslationTemplatesItem;
 	MenuItem showFormatTemplatesItem;
 	MenuItem changeSettingsItem;
+	MenuItem tocItem;
 	
 	public BrailleMenu(final WPManager wp, final Manager editor) {
 		super(wp);
@@ -737,6 +738,14 @@ public class BrailleMenu extends BBMenu{
 				@Override
 				public void widgetSelected(SelectionEvent e){
 					currentEditor.tPages();
+				}
+			});
+			tocItem = new MenuItem(insertMenu, SWT.PUSH);
+			tocItem.setText("Generate/Update TOC");
+			tocItem.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					currentEditor.tableOfContents();
 				}
 			});
 			/*

@@ -16,6 +16,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
+import org.brailleblaster.perspectives.braille.views.wp.WPView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -44,6 +45,7 @@ public class SearchDOM extends Dialog {
 	MapList maplist;
 	TextMapElement textMap;
 	TextView tv;
+	WPView wp;
 
 	// Variables for the search dialog
 	protected Object result;
@@ -88,9 +90,10 @@ public class SearchDOM extends Dialog {
 	int indexOfSearch;
 	String currentSearch;
 	Nodes nodes;
-	ArrayList<Node> firstTextNodes = new ArrayList<>();
-	int k = 0;
-	int b=0;
+//	ArrayList<Node> firstTextNodes = new ArrayList<>();
+//	int k = 0;
+//	int b=0;
+	ArrayList<Integer> nodeArray = new ArrayList<>();
 
 	public SearchDOM(Shell parent, int style, Manager brailleViewController,
 			MapList list) {
@@ -597,65 +600,55 @@ public class SearchDOM extends Dialog {
 	}
 
 	public boolean find() {
-		k=0;
-		b=0;
 		Document doc = man.getDoc();
 		currentSearch = searchCombo.getText();
 		String nameSpace = doc.getRootElement().getNamespaceURI();
 
 		XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 		nodes = doc.query(String.format(
-				"//text()[contains(.,'%s')][not(ancestor::dtb:brl)]",
+				"//text()[contains(.,'%s')][not(ancestor-or-self::dtb:brl)]",
 				currentSearch), context);
 		if (nodes.size() > 0) {
-			getNodeIndices(nodes);
-//			for (int i = 0; i < nodes.size(); i++) {
-//				for (int j = 0; j < nodes.get(i).getChildCount(); j++)
-//						firstTextNodes.add(nodes.get(i).getChild(j));
-//			}
-			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+			for (int i = 0; i < nodes.size(); i++) {
+				getNodeIndices(nodes.get(i));
+			}
+//			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
+//			System.out.println("nodeArray "+nodeArray.toString());
 			return true;
 		}
 		return false;
 	}
 	
-	public void getNodeIndices(Nodes nodes) {
-		ArrayList<Integer> nodeArray = new ArrayList<>();
-		for (int i = 0; i < nodes.size(); i++) {
-//			for (int j = 0; j < nodes.get(i).getChildCount(); j++) {
-				nodeArray.add(maplist.findNodeIndex(nodes.get(i), 0));
-//			}
-		}
-		System.out.println("nodeArray "+nodeArray.toString());
+	public void getNodeIndices(Node node) {
+
+			int index = maplist.findNodeIndex(node, 0);
+			if (index != -1) {
+				nodeArray.add(index);
+			}
+			else {
+			man.incrementView();
+			getNodeIndices(node);
+			}
+
 	}
 
 	public void putFoundInView() {
 
 		TextView tv = man.getText();
 		String view = tv.view.getText();
-		
-		System.out.println(nodes.get(k).toString());
-		int currentTMEIndex = maplist.findNodeIndex(nodes.get(5),
-				(6));
-		maplist.setCurrent(currentTMEIndex);
-		tv.view.setCaretOffset(maplist.getCurrent().start);
+		tv.view.setCaretOffset(nodeArray.get(indexOfSearch));
 		tv.view.setTopIndex(view.indexOf(currentSearch));
 
 		int currentIndexOfSearch = view.indexOf(currentSearch, indexOfSearch);
 		tv.view.setSelection(currentIndexOfSearch, currentIndexOfSearch
 				+ currentSearch.length());
-		if (indexOfSearch <= firstTextNodes.size())
-			indexOfSearch++;
-		TMEIndex = currentTMEIndex + 1;
-		indexOfSearch = currentIndexOfSearch + 1;
+		indexOfSearch++;
 
 	}
 
 	public boolean isNewSearch() {
 		if (!searchCombo.getText().equals(currentSearch)) {
-			TMEIndex = 0;
-			indexOfSearch = 0;
-			currentSearch = searchCombo.getText();
+			
 			return true;
 		}
 		return false;

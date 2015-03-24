@@ -711,14 +711,14 @@ public class TextView extends WPView {
 		Element brl = (Element)math.getParent().getChild(index + 1);
 		
 		if(brl.getChild(0) instanceof Element){
-			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
-				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+			if(((Element)brl.getChild(0)).getLocalName().equals(NEW_PAGE)){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals(MOVE_TO)){
 					view.append("\n");
 					total++;
 				}
 			}
 			else {
-				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+				if(((Element)brl.getChild(0)).getLocalName().equals(MOVE_TO)){
 					view.append("\n");
 					total++;
 				}
@@ -732,11 +732,11 @@ public class TextView extends WPView {
 		handleStyle(prevStyle, style, math, " ");
 		
 		for(int i = 1; i < brl.getChildCount(); i++){
-			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO) && !(brl.getChild(0) instanceof Element)){
 				view.append("\n");
 				length++;
 			}
-			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO)){
 				view.append("\n");
 				length++;
 			}	
@@ -766,15 +766,15 @@ public class TextView extends WPView {
 		Element brl = (Element)math.getParent().getChild(index + 1);
 		
 		if(brl.getChild(0) instanceof Element){
-			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
-				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+			if(((Element)brl.getChild(0)).getLocalName().equals(NEW_PAGE)){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals(MOVE_TO)){
 					view.insert("\n");
 					total++;
 					view.setCaretOffset(total);
 				}
 			}
 			else {
-				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+				if(((Element)brl.getChild(0)).getLocalName().equals(MOVE_TO)){
 					view.insert("\n");
 					total++;
 					view.setCaretOffset(total);
@@ -793,12 +793,12 @@ public class TextView extends WPView {
 			view.setCaretOffset(view.getCaretOffset() + spaceBeforeText);
 		
 		for(int i = 1; i < brl.getChildCount(); i++){
-			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO) && !(brl.getChild(0) instanceof Element)){
 				view.insert("\n");
 				length++;
 				view.setCaretOffset(view.getCaretOffset() + 1);
 			}
-			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO)){
 				view.insert("\n");
 				length++;
 				view.setCaretOffset(view.getCaretOffset() + 1);
@@ -1160,7 +1160,7 @@ public class TextView extends WPView {
 				if(indexes != null){
 					for(int i = 0; i < brl.getChildCount(); i++){
 						if(isText(brl.getChild(i))){
-							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals(MOVE_TO)){
 								String brltext = brl.getChild(i).getValue();						
 								totalLength += brltext.length();
 								end = indexes[totalLength - 1];
@@ -1244,7 +1244,7 @@ public class TextView extends WPView {
 				if(indexes != null){
 					for(int i = 0; i < brl.getChildCount(); i++){
 						if(isText(brl.getChild(i))){
-							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals(MOVE_TO)){
 								String brltext = brl.getChild(i).getValue();						
 								totalLength += brltext.length();
 								end = indexes[totalLength - 1];

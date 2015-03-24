@@ -386,6 +386,7 @@ public class Manager extends Controller {
 	private void initializeAllViews(String fileName, String filePath, String configSettings){
 		try{
 			if(document.startDocument(filePath, arch.getCurrentConfig(), configSettings)){
+				System.out.println(document.getRootElement().toXML());
 				checkSemanticsTable();
 				containerSash.setRedraw(false);
 				text.view.setWordWrap(false);

@@ -46,6 +46,9 @@ import org.brailleblaster.wordprocessor.WPManager;
  * control directly to the word processor. If there are arguments it passes them
  * first to BBIni and then to Subcommands. It will do more processing as the
  * project develops.
+ * 
+ * Note on Mac to initialize SWT properly you must pass -XstartOnFirstThread or
+ * you will get "SWTException: Invalid Thread Access"
  */
 public class Main {
 	public static void main(String[] args) {

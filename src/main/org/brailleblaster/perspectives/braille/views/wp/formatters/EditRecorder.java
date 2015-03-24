@@ -1,6 +1,5 @@
 package org.brailleblaster.perspectives.braille.views.wp.formatters;
 
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.eventQueue.EventFrame;
 import org.brailleblaster.perspectives.braille.eventQueue.EventTypes;
@@ -130,16 +129,10 @@ public class EditRecorder {
 	public void recordLine(int start, int end){
 		int firstLine = text.view.getLineAtOffset(start);
 		int lastLine = text.view.getLineAtOffset(end);
-		
+		int firstOffset = text.view.getOffsetAtLine(firstLine);
+		int lastOffset = text.view.getOffsetAtLine(lastLine) + text.view.getLine(lastLine).length();
 		currentLineNumber = firstLine;
-		currentLine = text.view.getLine(firstLine);
-		if(firstLine != lastLine){
-			do{
-				firstLine++;
-				currentLine += "\n";
-				currentLine += text.view.getLine(firstLine);
-			} while(firstLine < lastLine);
-		}
+		currentLine = text.view.getTextRange(firstOffset, lastOffset - firstOffset);
 	}
 	
 	public String getCurrentLine(){

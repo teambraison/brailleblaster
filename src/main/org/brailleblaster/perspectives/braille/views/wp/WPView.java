@@ -281,8 +281,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setLinesBefore(int start, Styles style){
-		String textBefore = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesBefore)),'\n');
+	protected void setLinesBefore(int start, int linesBefore){
+		String textBefore = makeInsertionString(linesBefore,'\n');
 		insertBefore(start, textBefore);
 	}
 	
@@ -290,8 +290,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setLinesAfter(int start, Styles style){
-		String textAfter = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesAfter)), '\n');
+	protected void setLinesAfter(int start, int linesAfter){
+		String textAfter = makeInsertionString(linesAfter, '\n');
 		insertAfter(start, textAfter);
 	}
 	
@@ -299,14 +299,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	* @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setFirstLineIndent(int start, Styles style){
-		int margin = 0;
-		int indentSpaces = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
-		
-		if(style.contains(StylesType.leftMargin)){
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			indentSpaces = margin + indentSpaces; 
-		}
+	protected void setFirstLineIndent(int start, int indent, int margin){
+		int indentSpaces = indent + margin;
 		int startLine = view.getLineAtOffset(start);
 		view.setLineIndent(startLine, 1, indentSpaces * charWidth);
 	}

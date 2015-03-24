@@ -369,19 +369,13 @@ public class BrailleView extends WPView {
 			setFirstLineIndent(spaceBeforeText + total, style.getFirstLineIndent(), style.getLeftMargin());
 		
 		setAlignment(spaceBeforeText + total, spaceBeforeText + total + n.getValue().length(), style.getAlign());
-/*					
-				case emphasis:
-			//		 setFontRange(this.total, this.spaceBeforeText + n.getValue().length(), Integer.valueOf(entry.getValue()));
-					 break;
-				case leftMargin:
-					if(followsNewLine(n)){
-						if(isFirst && !style.contains(StylesType.firstLineIndent))
-							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf((String)entry.getValue()) * charWidth));
-						else if(!isFirst)
-							view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, (Integer.valueOf((String)entry.getValue()) * charWidth));
-					}
-					break;
-		*/
+					
+		if(followsNewLine(n)){
+			if(isFirst && style.getFirstLineIndent() == 0)
+				view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, style.getLeftMargin() * charWidth);
+			else if(!isFirst)
+				view.setLineIndent(view.getLineAtOffset(spaceBeforeText + total), 1, style.getLeftMargin() * charWidth);
+		}
 	}
 	
 	public void adjustStyle(Message m, ArrayList<TextMapElement>list){

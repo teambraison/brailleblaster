@@ -1331,20 +1331,17 @@ public class TextView extends WPView {
 		if(isFirst && style.getFirstLineIndent() != 0)
 			setFirstLineIndent(spaceBeforeText + total, style.getFirstLineIndent(), style.getLeftMargin());
 	
-		setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style.getAlign());	
-		
+		setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style.getAlign());			
 		/*	
-			case emphasis:
-				setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
-				break;
-			case leftMargin:
-				if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
-					handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), style.contains(StylesType.firstLineIndent));
-				else
-					handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
-				break;
-		}
+		case emphasis:
+			setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
+			break;
 		*/
+		
+		if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
+			handleLineWrap(spaceBeforeText + total, viewText, style.getLeftMargin(), style.getFirstLineIndent() != 0);
+		else
+			handleLineWrap(spaceBeforeText + total, viewText, style.getLeftMargin(), false);
 	}
 	
 	private void handleTextEdit(ExtendedModifyEvent e){

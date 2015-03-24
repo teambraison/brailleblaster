@@ -337,7 +337,7 @@ public class BrailleView extends WPView {
 		Element parent = (Element)n.getParent();
 		int index = parent.indexOf(n);
 		if(index > 0){
-			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline"))
+			if(((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO))
 				return true;
 		}
 		
@@ -556,7 +556,7 @@ public class BrailleView extends WPView {
 		int index = parent.indexOf(n);
 		
 		if(index > 0 && isElement(parent.getChild(index - 1))){
-			if(((Element)parent.getChild(index - 1)).getLocalName().equals("newline"))
+			if(((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO))
 				return true;
 		}
 		return false;
@@ -568,11 +568,11 @@ public class BrailleView extends WPView {
 		
 		if(parent.getAttribute("modifiers") != null){
 			if(parent.indexOf(n)  < 3 && parent.getChild(0) instanceof Element){
-				if(parent.indexOf(n) == 1 && ((Element)parent.getChild(0)).getLocalName().equals("newline")){
+				if(parent.indexOf(n) == 1 && ((Element)parent.getChild(0)).getLocalName().equals(MOVE_TO)){
 					return isFirstElement((Element)parent.getParent().getChild(parent.getParent().indexOf(parent) - 1));
 				}
-				else if(parent.indexOf(n) == 2 && ((Element)parent.getChild(0)).getLocalName().equals("newpage")){
-					if(parent.getChild(1) instanceof Element && ((Element)parent.getChild(1)).getLocalName().equals("newline"))
+				else if(parent.indexOf(n) == 2 && ((Element)parent.getChild(0)).getLocalName().equals(NEW_PAGE)){
+					if(parent.getChild(1) instanceof Element && ((Element)parent.getChild(1)).getLocalName().equals(MOVE_TO))
 						return isFirstElement((Element)parent.getParent().getChild(parent.getParent().indexOf(parent) - 1));
 					else
 						return false;
@@ -872,7 +872,7 @@ public class BrailleView extends WPView {
 		
 		setListenerLock(true);
 		view.setCaretOffset(pos);
-		if(index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline") && t.brailleList.size() > 0){
+		if(index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO) && t.brailleList.size() > 0){
 			view.insert("\n");
 			start++;
 			view.setCaretOffset(pos + 1);
@@ -913,7 +913,7 @@ public class BrailleView extends WPView {
 		view.setCaretOffset(pos);
 		
 		//checks for newline element before text node if not at the beginning of a block element
-		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO)){
 			view.insert("\n" + b.n.getValue());
 			lineBreaks++;
 			view.setCaretOffset(pos + 1);
@@ -967,7 +967,7 @@ public class BrailleView extends WPView {
 		view.setCaretOffset(pos);
 		
 		//checks for newline element before text node if not at the beginning of a block element
-		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+		if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO)){
 			view.insert("\n" + b.n.getValue());
 			lineBreaks++;
 			view.setCaretOffset(pos + 1);
@@ -1073,7 +1073,7 @@ public class BrailleView extends WPView {
 		}
 		else {
 			//checks for newline element before text node if not at the beginning of a block element
-			if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
+			if(!(t instanceof BrlOnlyMapElement || t instanceof PageMapElement) && t.brailleList.indexOf(b) > 0 && index > 0 && isElement(parent.getChild(index - 1)) && ((Element)parent.getChild(index - 1)).getLocalName().equals(MOVE_TO)){
 				view.insert("\n" + b.n.getValue());
 				lineBreaks++;
 				view.setCaretOffset(pos + 1);

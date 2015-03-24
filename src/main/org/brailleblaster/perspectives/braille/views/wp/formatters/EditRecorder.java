@@ -23,34 +23,38 @@ public class EditRecorder {
 	
 	public void recordEditEvent(Message m){
 		ExtendedModifyEvent e = (ExtendedModifyEvent)m.getValue("event");
+		if(e.replacedText.length() > 0 || currentLine.length() == 0){
+			recordSelectionEdit(e);
+		}
+		else {
+			int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
+			int offset = e.start - lineStart;	
+			int index = offset;
+			String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));	
 		
-		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
-		int offset = e.start - lineStart;	
-		int index = offset;
-		String lineText = text.view.getLine(text.view.getLineAtOffset(e.start));	
+			while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
+				index++;
 		
-		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
-			index++;
+			int wordEnd = index; 
+			index = offset;
 		
-		int wordEnd = index; 
-		index = offset;
+			if(isBlankSpace(text.view.getTextRange(e.start, e.length)))
+				index--;
 		
-		if(isBlankSpace(text.view.getTextRange(e.start, e.length)))
-			index--;
+			while(index > 0 && lineText.charAt(index) != ' ')
+				index--;
 		
-		while(index > 0 && lineText.charAt(index) != ' ')
-			index--;
+			int wordStart = index;
 		
-		int wordStart = index;
+			//handles case where char is space
+			if(wordStart == wordEnd && e.length == 1)
+				wordEnd++;
 		
-		//handles case where char is space
-		if(wordStart == wordEnd && e.length == 1)
-			wordEnd++;
-		
-		String recordedText = lineText.substring(wordStart, offset) + e.replacedText + lineText.substring(offset + e.length, wordEnd);
-		wordStart = lineStart + wordStart;
-		wordEnd = lineStart + wordEnd;
-		createEvent(wordStart, wordEnd, recordedText);
+			String recordedText = lineText.substring(wordStart, offset) + e.replacedText + lineText.substring(offset + e.length, wordEnd);
+			wordStart = lineStart + wordStart;
+			wordEnd = lineStart + wordEnd;
+			createEvent(wordStart, wordEnd, recordedText);
+		}
 	}
 	
 	public void recordDeleteEvent(Message m){
@@ -86,6 +90,37 @@ public class EditRecorder {
 		}
 	}
 	
+	private void recordSelectionEdit(ExtendedModifyEvent e){
+		int lineStart = text.view.getOffsetAtLine(text.view.getLineAtOffset(e.start));
+		int offset = e.start - lineStart;	
+		int index = offset;
+		recordLine(e.start, e.start + e.length);
+		String lineText = currentLine;	
+		
+		while(index < lineText.length() && (lineText.charAt(index) != ' ' || index < (offset + e.length)))
+			index++;
+	
+		int wordEnd = index; 
+		index = offset;
+	
+		if(isBlankSpace(text.view.getTextRange(e.start, e.length)))
+			index--;
+	
+		while(index > 0 && lineText.charAt(index) != ' ')
+			index--;
+	
+		int wordStart = index;
+	
+		//handles case where char is space
+		if(wordStart == wordEnd && e.length == 1)
+			wordEnd++;
+	
+		String recordedText = lineText.substring(wordStart, offset) + e.replacedText + lineText.substring(offset + e.length, wordEnd);
+		wordStart = lineStart + wordStart;
+		wordEnd = lineStart + wordEnd;
+		createEvent(wordStart, wordEnd, recordedText);
+	}
+	
 	public void recordLine(String currentLine, int currentLineNumber){
 		this.currentLine = currentLine;
 		this.currentLineNumber = currentLineNumber;
@@ -94,16 +129,10 @@ public class EditRecorder {
 	public void recordLine(int start, int end){
 		int firstLine = text.view.getLineAtOffset(start);
 		int lastLine = text.view.getLineAtOffset(end);
-		
+		int firstOffset = text.view.getOffsetAtLine(firstLine);
+		int lastOffset = text.view.getOffsetAtLine(lastLine) + text.view.getLine(lastLine).length();
 		currentLineNumber = firstLine;
-		currentLine = text.view.getLine(firstLine);
-		if(firstLine != lastLine){
-			do{
-				firstLine++;
-				currentLine += "\n";
-				currentLine += text.view.getLine(firstLine);
-			} while(firstLine < lastLine);
-		}
+		currentLine = text.view.getTextRange(firstOffset, lastOffset - firstOffset);
 	}
 	
 	public String getCurrentLine(){

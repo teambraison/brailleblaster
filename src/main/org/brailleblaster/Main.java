@@ -1,8 +1,8 @@
 /* BrailleBlaster Braille Transcription Application
  *
  * Copyright (C) 2014
-* American Printing House for the Blind, Inc. www.aph.org
-* and
+ * American Printing House for the Blind, Inc. www.aph.org
+ * and
  * ViewPlus Technologies, Inc. www.viewplus.com
  * and
  * Abilitiessoft, Inc. www.abilitiessoft.com
@@ -30,10 +30,12 @@
  *
  * Maintained by Keith Creasy <kcreasy@aph.org>, Project Manager
  */
-
 package org.brailleblaster;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -45,23 +47,84 @@ import org.brailleblaster.wordprocessor.WPManager;
  * first to BBIni and then to Subcommands. It will do more processing as the
  * project develops.
  */
-
 public class Main {
-	public static void main(String[] args) {	
+	public static void main(String[] args) {
 		BBIni.initialize(args);
-		
+
 		if (BBIni.haveSubcommands()) {
 			new Subcommands(args);
-		} 
-		else {
+		} else {
 			new WPManager(null);
 		}
 
 		if (BBIni.haveLiblouisutdml()) {
-	//		LibLouisUTDML louisutdml = LibLouisUTDML.getInstance();
-	//		louisutdml.free();
+			//		LibLouisUTDML louisutdml = LibLouisUTDML.getInstance();
+			//		louisutdml.free();
 			FileUtils fu = new FileUtils();
 			fu.deleteDirectory(new File(BBIni.getTempFilesPath()));
+		}
+	}
+
+	/**
+	 * Loads SWT by generating platform-specific JAR name and adding to the classpath.
+	 * Needed as different bit versions of the same OS overwrite each others libraries
+	 */
+	public static void initSWT() {
+		//Attempt to guess the filename
+		String jvmArch = System.getProperty("os.arch").toLowerCase();
+		String swtFileUi;
+		String swtFileOs;
+		String swtFileArch = "x" + (jvmArch.contains("64") ? "86_64" : "86");
+		String osName = System.getProperty("os.name").toLowerCase();
+		if (osName.contains("win")) {
+			swtFileUi = "win32";
+			swtFileOs = "win32";
+		} else if (osName.contains("mac")) {
+			swtFileUi = "cocoa";
+			swtFileOs = "macosx";
+			//32-bit jar doesn't have arch for some reason
+			if (swtFileArch.equals("x86"))
+				swtFileArch = "";
+		} else if (osName.contains("linux")) {
+			swtFileUi = "gtk";
+			swtFileOs = "linux";
+		} else
+			throw new SWTLoadFailed("Unknown os " + osName + ", arch " + swtFileArch);
+		String swtFileName = "org.eclipse.swt."
+				+ swtFileUi
+				+ "."
+				+ swtFileOs
+				+ "."
+				+ swtFileArch
+				+ ".jar";
+
+		//Verify
+		File swtFile = new File(BBIni.getProgramDataPath("..", "lib", swtFileName)).getAbsoluteFile();
+		if (!swtFile.exists())
+			throw new SWTLoadFailed("Cannot find SWT jar at " + swtFile);
+		System.out.println("Attempting to load SWT jar " + swtFile);
+
+		//Load
+		try {
+			URL url = swtFile.toURI().toURL();
+			URLClassLoader urlClassLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+			Class<?> urlClass = URLClassLoader.class;
+			Method method = urlClass.getDeclaredMethod("addURL", new Class<?>[]{URL.class});
+			method.setAccessible(true);
+			method.invoke(urlClassLoader, new Object[]{url});
+		} catch (Exception e) {
+			throw new SWTLoadFailed("Could not add SWT to classpath", e);
+		}
+		System.out.println("loaded");
+	}
+
+	private static class SWTLoadFailed extends RuntimeException {
+		private SWTLoadFailed(String xiMessage) {
+			super(xiMessage);
+		}
+
+		public SWTLoadFailed(String message, Throwable cause) {
+			super(message, cause);
 		}
 	}
 }

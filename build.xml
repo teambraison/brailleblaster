@@ -13,6 +13,9 @@
     </target>
     
     <path id="allJars.path">
+        <fileset dir="${eclipse.home}/plugins">
+            <include name="*.jar"/>
+        </fileset>
         <fileset dir="${classpath}">
             <include name="**/*.jar"/>
         </fileset>
@@ -28,7 +31,7 @@
 	</target>
 	
 	<target name="dist" depends="compile">
-		<manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar">
+		<manifestclasspath property="jar.classpath" jarfile="${distdir}/brailleblaster.jar" maxParentLevels="99">
 			<classpath refid="allJars.path"/>
 		</manifestclasspath>
 		<jar jarfile="${distdir}/brailleblaster.jar"
@@ -44,6 +47,47 @@
 		</jar>
 	</target>
     
+	<target name="install-swtbot">
+		<echo>SWTBot install</echo>
+		<java dir="${eclipse.home}" fork="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
+			<classpath>
+				<fileset dir="${eclipse.home}/plugins">
+					<include name="org.eclipse.equinox.launcher_*.jar"/>
+				</fileset>
+			</classpath>
+			<jvmarg line="-Xms256M -Xmx768M -XX:MaxPermSize=512M"/>
+			<arg line="-application org.eclipse.equinox.p2.director"/>
+			<arg line="-noSplash"/>
+			<arg line="-repository  http://download.eclipse.org/technology/swtbot/releases/latest"/>
+			<arg line="-installIUs org.eclipse.swtbot.feature.group,org.eclipse.swtbot.eclipse.core,org.eclipse.swtbot.eclipse.test.junit.feature.group"/>
+			<arg line="-consoleLog"/>
+			<arg line="-debug"/>
+		</java>
+	</target>
+	
+	<target name="swtbot" depends="dist">
+		<echo>SWTBot test</echo>
+		<java dir="${eclipse.home}" fork="true" classname="org.eclipse.core.launcher.Main" failonerror="true">
+			<classpath>
+				<fileset dir="${eclipse.home}/plugins">
+					<include name="org.eclipse.equinox.launcher_*.jar"/>
+				</fileset>
+				<fileset dir="${classpath}">
+					<include name="**/*.jar"/>
+					<exclude name="utd/xercesImpl-2.11.0.jar"/>
+					<exclude name="utd/xml-apis-1.4.01.jar"/>
+					<exclude name="jeuclid/xml-apis-ext.jar"/>
+				</fileset>
+				<pathelement path="${builddir}"/>
+			</classpath>
+			<jvmarg line="-Xms256M -Xmx768M -XX:MaxPermSize=512M"/>
+			<arg line="-application org.eclipse.swtbot.eclipse.junit.headless.swtbottestapplication"/>
+			<arg line="-className org.brailleblaster.unitTests.AllSelectionTests"/>
+			<arg line="-data ${builddir}/eclipseworkspace"/>
+			<arg line="-consoleLog"/>
+			<arg line="-debug"/>
+		</java>
+	</target>
 	
     <target name="clean">
         <description>Deletes class folder so that next build is clean.  Is not part of main build and is a seperate task</description>

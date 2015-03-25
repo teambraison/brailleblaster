@@ -239,10 +239,10 @@ public class BrailleView extends WPView {
 	
 	public void setBraille(TextMapElement t, MapList list, int index){
 		setListenerLock(true);
-		IStyle style = manager.getDocument().getEngine().getStyle(t.n);//stylesTable.makeStylesElement(t.parentElement(), t.brailleList.get(i).n);
+		IStyle style = getStyle(t.n);
 		IStyle prevStyle;
 		if(list.size() > 1 && index != 0 &&  list.get(index - 1).n!=null)
-			prevStyle = manager.getDocument().getEngine().getStyle(list.get(index - 1).n);//stylesTable.makeStylesElement(list.get(index - 1).parentElement(),list.get(index - 1).n);
+			prevStyle = getStyle(list.get(index - 1).n);
 		else
 			prevStyle = null;
 		
@@ -251,9 +251,8 @@ public class BrailleView extends WPView {
 			String text = t.brailleList.get(i).n.getValue();
 			int textLength = text.length();		
 	
-			if(insertNewLine(t.brailleList.get(i).n)){
-				textBefore = "\n";
-				
+			if(!isFirst(t.brailleList.get(i).n) && insertNewLine(t.brailleList.get(i).n)){
+				textBefore = "\n";			
 				spaceBeforeText++;
 			}		
 		
@@ -262,7 +261,6 @@ public class BrailleView extends WPView {
 		
 			t.brailleList.get(i).setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 			total += spaceBeforeText + textLength + spaceAfterText;
-			
 		
 			spaceBeforeText = 0;
 			spaceAfterText = 0;

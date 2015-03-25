@@ -141,7 +141,7 @@ class TranslationSettingsTab implements SettingsUITab {
 				selected.literaryBraille.get(litteraryCombo.getSelectionIndex()).fileName, updated);
 		updated = SettingsUIUtils.updateObject(settings::getComputerBrailleTable, settings::setComputerBrailleTable,
 				selected.computerBraille.get(computerCombo.getSelectionIndex()).fileName, updated);
-		updated = SettingsUIUtils.updateObject(settings::getMathTable, settings::setMathTable,
+		updated = SettingsUIUtils.updateObject(settings::getMathTextTable, settings::setMathTextTable,
 				selected.math.fileName, updated);
 
 		return updated;

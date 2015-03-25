@@ -36,6 +36,7 @@ package org.brailleblaster.perspectives.braille;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -1224,6 +1225,22 @@ public class Manager extends Controller {
 		}
 		
 		return -1;
+	}
+	
+	public int [] getNodeIndexAllSections(Node n) {
+		int startIndex =0;
+		for (int i = 0; i < vi.getSectionList().size(); i++) {
+			int nodeBySection = vi.getSectionList().get(i).getList().findNodeIndex(n, startIndex);
+			if (nodeBySection != -1) {
+				int [] found = {i,nodeBySection};
+				return found;
+			}
+		}
+		return null;
+	}
+	
+	public MapList resetSection(int sectionNumber) {
+		return vi.resetViews(sectionNumber);
 	}
 	
 	public int getSection(Node n){

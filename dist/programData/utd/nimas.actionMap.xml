@@ -5,63 +5,63 @@
     </namespaces>
 	<namespaces/>
     <entry>
-        <matcher nodeName="dsy:strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <matcher nodeName="strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.BoldAction"/>
     </entry>
     <entry>
-        <matcher nodeName="dsy:em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <matcher nodeName="em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:p" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="p" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h1" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h1" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h2" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h2" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h3" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h3" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h4" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h4" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h5" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h5" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:h6" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="h6" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:hd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="hd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:li" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="li" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:td" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="td" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:th" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="th" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:caption" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="caption" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 	<entry>
-<matcher nodeName="dsy:pagenum" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+<matcher nodeName="pagenum" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry>
 </actionMap>

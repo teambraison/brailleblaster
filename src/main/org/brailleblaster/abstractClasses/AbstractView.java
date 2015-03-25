@@ -36,12 +36,13 @@ import nu.xom.Text;
 
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.messages.Message;
+import org.brailleblaster.utd.IStyle;
+import org.brailleblaster.utd.actions.IAction;
 import org.eclipse.swt.custom.SashForm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractView {
-	public boolean hasFocus = false;
 	public boolean hasChanged = false;
 	protected int total;
 	protected int spaceBeforeText, spaceAfterText;
@@ -153,6 +154,14 @@ public abstract class AbstractView {
 	 */
 	public void setTotal(int total){
 		this.total = total;
+	}
+	
+	protected IAction getAction(Node n){
+		return manager.getDocument().getEngine().getActionMap().findValue(n);	
+	}
+	
+	protected IStyle getStyle(Node n){
+		return manager.getDocument().getEngine().getStyle(n);
 	}
 	
 	protected abstract void setViewData(Message message);

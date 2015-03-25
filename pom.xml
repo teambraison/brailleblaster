@@ -253,6 +253,7 @@
 							<artifactSet>
 								<excludes>
 									<exclude>org.eclipse.swt</exclude>
+									<exclude>org.bitbucket.mwhapples:jlouis:zip:tables</exclude>
 								</excludes>
 							</artifactSet>
 						</configuration>

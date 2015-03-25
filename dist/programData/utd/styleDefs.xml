@@ -9,20 +9,21 @@
 			<firstLineIndent>0</firstLineIndent>
 			<skipNumberLines>no</skipNumberLines>
 			<skipPages>0</skipPages>
-			<align>left</align>
-<format>normal</format>
-			<translation>contracted</translation>
+			<align>LEFT</align>
+<format>NORMAL</format>
+			<translation>CONTRACTED</translation>
 			<newPageBefore>no</newPageBefore>
 			<newPageAfter>no</newPageAfter>
-			<pageSide>auto</pageSide>
-			<braillePageNumberFormat>normal</braillePageNumberFormat>
+			<pageSide>AUTO</pageSide>
+			<braillePageNumberFormat>NORMAL</braillePageNumberFormat>
 			<dontSplit>no</dontSplit>
 			<keepWithNext>no</keepWithNext>
 			<keepWithPrevious>no</keepWithPrevious>
 			<orphanControl>0</orphanControl>
 			<lineSpacing>1</lineSpacing>
+			<!-- 
 			<StartSeperator />
-			<EndSeperator />
+			<EndSeperator /> -->
 	</style>
 	<style>
 		<name>bodytext</name>

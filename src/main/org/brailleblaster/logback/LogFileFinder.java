@@ -2,18 +2,19 @@ package org.brailleblaster.logback;
 
 import java.io.File;
 
-import org.eclipse.swt.SWT;
-
 import ch.qos.logback.core.PropertyDefinerBase;
 import ch.qos.logback.core.spi.PropertyDefiner;
+import org.brailleblaster.BBIni;
 
 public class LogFileFinder extends PropertyDefinerBase implements PropertyDefiner {
 
-	private File logPath;
+	private final File logPath;
 	public LogFileFinder() {		
-		File bbHome = new File(System.getProperty("user.home"), ".brlblst");
-		if (SWT.getPlatform().equals("win32")) {
+		File bbHome;
+		if (BBIni.isWindows()) {
 			bbHome = new File(System.getenv("APPDATA"), "brlblst");
+		} else {
+			bbHome = new File(System.getProperty("user.home"), ".brlblst");
 		}
 		logPath = new File(bbHome, "log");
 		if (!logPath.exists()) {

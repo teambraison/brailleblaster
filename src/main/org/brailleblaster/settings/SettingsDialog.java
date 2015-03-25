@@ -60,7 +60,6 @@ import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Level;
 
-import org.liblouis.LibLouis;
 
 /** This class works closely with classes in the louisutdml package to 
 chose the correct liblouisutdml configuration file and other user 
@@ -155,7 +154,6 @@ public class SettingsDialog {
 					newLevel = Level.ERROR_INT;
 				}
 				rootLogger.setLevel(Level.toLevel(newLevel));
-				LibLouis.getInstance().setLogLevel(newLevel);
 				setProperty("logLevel", "" + newLevel);
 				storeProperty();
 				dialog.close();

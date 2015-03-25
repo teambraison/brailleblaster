@@ -1,20 +1,67 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <actionMap>
-<!--    <namespaces>
-        <namespace prefix="xhtml" uri="http://www.w3.org/555555/xhtml"/>
-    </namespaces>-->
+    <namespaces>
+        <namespace prefix="dsy" uri="http://www.daisy.org/z3986/2005/dtbook/"/>
+    </namespaces>
 	<namespaces/>
     <entry>
-        <matcher nodeName="strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <matcher nodeName="dsy:strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.BoldAction"/>
     </entry>
     <entry>
-        <matcher nodeName="em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <matcher nodeName="dsy:em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
         <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
     </entry>
-	<!-- Cannot find underline element in dtd documentation
-    <entry>
-        <matcher expression="//p" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
-        <action type="org.brailleblaster.utd.actions.GenericAction"/>
-    </entry> -->
+	<entry>
+<matcher nodeName="dsy:p" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h1" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h2" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h3" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h4" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h5" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:h6" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:hd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:li" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:td" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:th" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:caption" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="dsy:pagenum" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
 </actionMap>

@@ -10,6 +10,7 @@ import org.brailleblaster.utd.IStyle;
 import org.brailleblaster.utd.Style;
 import org.brailleblaster.utd.StyleStack;
 import org.brailleblaster.utd.UTDTranslationEngine;
+import org.brailleblaster.utd.properties.PageNumberType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -112,7 +113,7 @@ class StyleDefinitionsTab implements SettingsUITab {
 		fieldPageSide = makeCombo(groupStyle, IStyle.PageSide.values());
 
 		SettingsUIUtils.addLabel(groupStyle, "Braille Page Number Format");
-		fieldBrailleNumFormat = makeCombo(groupStyle, IStyle.BraillePageNumberFormat.values());
+		fieldBrailleNumFormat = makeCombo(groupStyle, PageNumberType.values());
 
 		SettingsUIUtils.addLabel(groupStyle, "Don't Split");
 		fieldDontSplit = makeYesNoCombo(groupStyle);

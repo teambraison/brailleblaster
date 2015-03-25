@@ -32,6 +32,7 @@
  */
 package org.brailleblaster;
 
+import com.sun.jna.Platform;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -39,6 +40,8 @@ import java.net.URLClassLoader;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import org.liblouis.LibLouisUTDML;
 
 /**
@@ -51,6 +54,7 @@ import org.brailleblaster.wordprocessor.WPManager;
  * you will get "SWTException: Invalid Thread Access"
  */
 public class Main {
+	private static final Logger log = LoggerFactory.getLogger(Main.class);
 	public static void main(String[] args) {
 		BBIni.initialize(args);
 
@@ -74,10 +78,9 @@ public class Main {
 	 */
 	public static void initSWT() {
 		//Attempt to guess the filename
-		String jvmArch = System.getProperty("os.arch").toLowerCase();
 		String swtFileUi;
 		String swtFileOs;
-		String swtFileArch = "x" + (jvmArch.contains("64") ? "86_64" : "86");
+		String swtFileArch = "x" + (Platform.is64Bit() ? "86_64" : "86");
 		String osName = System.getProperty("os.name").toLowerCase();
 		if (osName.contains("win")) {
 			swtFileUi = "win32";
@@ -105,7 +108,7 @@ public class Main {
 		File swtFile = new File(BBIni.getProgramDataPath("..", "lib", swtFileName)).getAbsoluteFile();
 		if (!swtFile.exists())
 			throw new SWTLoadFailed("Cannot find SWT jar at " + swtFile);
-		System.out.println("Attempting to load SWT jar " + swtFile);
+		log.debug("Attempting to load SWT jar " + swtFile);
 
 		//Load
 		try {
@@ -118,7 +121,7 @@ public class Main {
 		} catch (Exception e) {
 			throw new SWTLoadFailed("Could not add SWT to classpath", e);
 		}
-		System.out.println("loaded");
+		log.debug("SWT Successfully loaded");
 	}
 
 	private static class SWTLoadFailed extends RuntimeException {

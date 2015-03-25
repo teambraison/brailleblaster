@@ -14,7 +14,7 @@
     </entry>
 	<!-- Cannot find underline element in dtd documentation
     <entry>
-        <matcher expression="//p" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
-        <action type="org.brailleblaster.utd.actions.GenericAction"/>
+        <matcher expression="self::p" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
     </entry> -->
 </actionMap>

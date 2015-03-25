@@ -48,9 +48,6 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-//import org.liblouis.LibLouis;
-//import org.liblouis.LibLouisUTDML;
-import org.liblouis.LogLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +73,11 @@ public final class BBIni {
 			bbini = new BBIni(args);
 		return bbini;
 	}
-
+	private static final String platformNameJava = System.getProperty("os.name").toLowerCase();
 	private static boolean debug = false;
 	private static String debugFilePath, debugSavePath;
 	private static boolean gotGui = true;
 	private static boolean multipleSubcommands = false;
-	private final static Logger logger = LoggerFactory.getLogger(BBIni.class);
 	
 	private static String productName;
 	private static String BBVersion;
@@ -117,7 +113,6 @@ public final class BBIni {
 	private BBIni(String[] args) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
-		platformName = SWT.getPlatform();
 		Main m = new Main();
 		brailleblasterPath = getBrailleblasterPath(m);
 		fileSep = System.getProperty("file.separator");
@@ -125,10 +120,10 @@ public final class BBIni {
 		String BBHome;
 		programDataPath = brailleblasterPath + fileSep + "programData";
 		helpDocsPath = brailleblasterPath + fileSep + "helpDocs";
-		if (platformName.equals("win32")) {
+		if (isWindows()) {
 			BBHome = System.getenv("APPDATA") + fileSep + BBID;
 			nativeLibrarySuffix = ".dll";
-		} else if (platformName.equals("cocoa")) {
+		} else if (isMac()) {
 			BBHome = userHome + fileSep + "." + BBID;
 			nativeLibrarySuffix = ".dylib";
 		} else {
@@ -152,6 +147,11 @@ public final class BBIni {
 		}
 		propManager = new PropertyFileManager(userSettings);
 
+		//Init SWT
+		Main.initSWT();
+		platformName = SWT.getPlatform();
+		SWT.isLoadable();
+		
 		// Receive about.properties
 		aboutProject = programDataPath + fileSep + "settings" + fileSep + "about.properties" ;
 
@@ -320,13 +320,13 @@ public final class BBIni {
 			}
 		}
 		// Access log level settings
-		String logLevel = props.getProperty("logLevel");
+//		String logLevel = props.getProperty("logLevel");
 		
 		//If logLevel does not exist, make it
-		if (logLevel == null){
-			props.setProperty("logLevel", "" + LogLevel.ERROR);
-			logLevel = "" + LogLevel.ERROR;
-		}
+//		if (logLevel == null){
+//			props.setProperty("logLevel", "" + LogLevel.ERROR);
+//			logLevel = "" + LogLevel.ERROR;
+//		}
 		
 		try {
 		//	LibLouisUTDML.loadLibrary(nativeLibraryPath, nativeLibrarySuffix);
@@ -340,9 +340,9 @@ public final class BBIni {
 			hLiblouisutdml = true;
 		} catch (UnsatisfiedLinkError e) {
 			e.printStackTrace();
-			logger.error("Problem with liblouisutdml library", e);
+			//logger.error("Problem with liblouisutdml library", e);
 		} catch (Exception e) {
-			logger.warn("This shouldn't happen", e);
+			//logger.warn("This shouldn't happen", e);
 		}
 	}
 
@@ -361,24 +361,24 @@ public final class BBIni {
 		// Option to use an environment variable (mostly for testing
 		// withEclipse)
 		String url = System.getenv("BBLASTER_WORK");
+		if(StringUtils.isBlank(url))
+			url = System.getProperty("BBLASTER_WORK");
+		
 
 		if (url != null) {
-			if (BBIni.getPlatformName().equals("cocoa")
-					|| BBIni.getPlatformName().equals("gtk"))
-				url = "file://" + url;
-			else
-				url = "file:/" + url;
-		} else {
-			url = classToUse
-					.getClass()
-					.getResource(
-							"/"
-									+ classToUse.getClass().getName()
-											.replaceAll("\\.", "/") + ".class")
-					.toString();
-			url = url.substring(url.indexOf("file")).replaceFirst(
-					"/[^/]+\\.jar!.*$", "/");
+//			if (BBIni.getPlatformName().equals("cocoa")
+//					|| BBIni.getPlatformName().equals("gtk"))
+//				url = "file://" + url;
+//			else
+//				url = "file:/" + url;
+			return new File(url).getAbsolutePath();
 		}
+		
+		url = classToUse.getClass().getResource(
+			"/"	+ classToUse.getClass().getName().replaceAll("\\.", "/") + ".class"
+		).toString();
+		url = url.substring(url.indexOf("file")).replaceFirst(
+			"/[^/]+\\.jar!.*$", "/");
 
 		try {
 			File dir = new File(new URL(url).toURI());
@@ -544,6 +544,20 @@ public final class BBIni {
 
 	public static String getAutoConfigSettings() {
 		return autoConfigSettings;
+	}
+	
+	public static boolean isWindows() {
+		return (platformNameJava.contains("win"));
+	}
+ 
+	public static boolean isMac() {
+		return (platformNameJava.contains("mac"));
+	}
+ 
+	public static boolean isUnix() { 
+		return (platformNameJava.contains("nix") 
+				|| platformNameJava.contains("nux") 
+				|| platformNameJava.contains("aix"));
 	}
 	
 	/**

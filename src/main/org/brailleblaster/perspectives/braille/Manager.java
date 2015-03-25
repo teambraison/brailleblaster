@@ -77,6 +77,7 @@ import org.brailleblaster.perspectives.braille.stylers.StyleHandler;
 import org.brailleblaster.perspectives.braille.stylers.TextUpdateHandler;
 import org.brailleblaster.perspectives.braille.stylers.WhiteSpaceHandler;
 import org.brailleblaster.search.*;
+import org.brailleblaster.toc.TOCDialog;
 import org.brailleblaster.tpages.TPagesDialog;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewFactory;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
@@ -129,6 +130,7 @@ public class Manager extends Controller {
 	private QueueManager queueManager;
 	SearchDialog srch = null;
 	TPagesDialog tpDialog = null;
+	TOCDialog tocDialog = null;
 	private Vector<String> ignoreList = new Vector<String>();
 	private String lastTPage;
 	
@@ -333,6 +335,12 @@ public class Manager extends Controller {
 	public void tPages(){
 		tpDialog = new TPagesDialog(wp.getShell(), SWT.NONE, this);
 		tpDialog.open();
+	}
+	
+	public void tableOfContents() {
+		//document.
+		tocDialog = new TOCDialog(wp.getShell(), SWT.NONE, this, document);
+		tocDialog.open();
 	}
 	
 	public void fileSave(){	

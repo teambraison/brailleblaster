@@ -132,11 +132,11 @@ public class TextUpdateHandler extends Handler {
 	//	if(emptyNode)
 	//		manager.getDocument().insertEmptyBrailleNode(block, nodeIndexes);
 		
-		System.out.println(block.toXML());
 		int length = repopulateRange(block, startIndex);
 		elList = getListRange(startIndex, length);
 		setViews(elList, startIndex, textOffset, brailleOffset, false);
 		tree.rebuildTree(indexes);
+		list.setCurrent(list.getCurrentIndex());
 		list.checkList();
 	}
 	

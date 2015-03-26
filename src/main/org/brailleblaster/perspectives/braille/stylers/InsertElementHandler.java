@@ -197,6 +197,7 @@ public class InsertElementHandler extends Handler{
 		braille.insertLineBreak(list.getCurrent().brailleList.getLast().end);
 		tree.newTreeItem(list.get(newItemIndex), index, 1);
 		TextMapElement t = list.get(newItemIndex);
+		braille.refreshStyle(t);
 		frame.addEvent(new ModelEvent(EventTypes.Insert, t.parentElement(), vi.getStartIndex(), newItemIndex, t.start, t.brailleList.getFirst().start, tree.getItemPath()));
 	}
 	

@@ -120,7 +120,7 @@ public class WebViewController extends Controller {
 		{
 			isEpub=false;
 			
-			currentPath=((NimasArchiver)arch).wrtieToDisk(index);
+			currentPath=((NimasArchiver)arch).writeToDisk(index);
 			//Converter c= new Converter((NimasArchiver)arch);
 			str=copyFile(currentPath);
 		}

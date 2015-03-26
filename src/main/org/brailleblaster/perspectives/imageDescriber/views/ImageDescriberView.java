@@ -120,7 +120,7 @@ public class ImageDescriberView {
 			// the new spine file. Nimas.
 			if( (idd.getArchiver() instanceof NimasArchiver) ) {
 				if( oldPath.compareTo(newPath) != 0)
-					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+					((NimasArchiver)(idd.getArchiver())).writeToDisk( idd.getArchiver().getCurSpineIdx() );
 			}
 			
 			// If the page needs to move/change, update.
@@ -163,7 +163,7 @@ public class ImageDescriberView {
 				// the new spine file. Nimas.
 				if( (idd.getArchiver() instanceof NimasArchiver) )
 					if( oldPath.compareTo(newPath) != 0)
-						((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+						((NimasArchiver)(idd.getArchiver())).writeToDisk( idd.getArchiver().getCurSpineIdx() );
 				
 				// If the page needs to move/change, update.
 				// Otherwise, don't move the page yet.
@@ -281,7 +281,7 @@ public class ImageDescriberView {
 						curSpineIdx = numSpineFiles - 1;
 					
 					// Write the new file.
-					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+					((NimasArchiver)(idd.getArchiver())).writeToDisk( curSpineIdx );
 					
 				} // if( (idd.getArchiver() instanceof NimasArchiver) )
 				
@@ -331,7 +331,7 @@ public class ImageDescriberView {
 						curSpineIdx = numSpineFiles - 1;
 					
 					// Write the new file.
-					((NimasArchiver)(idd.getArchiver())).wrtieToDisk( curSpineIdx );
+					((NimasArchiver)(idd.getArchiver())).writeToDisk( curSpineIdx );
 					
 				} // if( (idd.getArchiver() instanceof NimasArchiver) )
 				
@@ -625,7 +625,7 @@ public class ImageDescriberView {
 	    			// Create html version if it doesn't already exist.
     				if(htmlFile.exists() == false) {
     	    			// Write the section to disc.
-    	    			((NimasArchiver)(idd.getArchiver())).wrtieToDisk( idd.getArchiver().getCurSpineIdx() );
+    	    			((NimasArchiver)(idd.getArchiver())).writeToDisk( idd.getArchiver().getCurSpineIdx() );
 	    				try { FileUtils.copyFile( xmlFile, htmlFile ); }
 	    				catch (IOException e) { e.printStackTrace(); }
 		    			// Add this file path to our temp list so it will get deleted later.

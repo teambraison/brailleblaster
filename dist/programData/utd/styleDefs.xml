@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-	<StyleDefinitions>
-		<style>
-			<name>document</name>
-			<linesBefore>0</linesBefore>
-			<linesAfter>0</linesAfter>
-			<leftMargin>0</leftMargin>
-			<rightMargin>0</rightMargin>
-			<firstLineIndent>0</firstLineIndent>
-			<skipNumberLines>no</skipNumberLines>
-			<skipPages>0</skipPages>
-			<align>LEFT</align>
-<format>NORMAL</format>
-			<translation>CONTRACTED</translation>
-			<newPageBefore>no</newPageBefore>
-			<newPageAfter>no</newPageAfter>
-			<pageSide>AUTO</pageSide>
-			<braillePageNumberFormat>NORMAL</braillePageNumberFormat>
-			<dontSplit>no</dontSplit>
-			<keepWithNext>no</keepWithNext>
-			<keepWithPrevious>no</keepWithPrevious>
-			<orphanControl>0</orphanControl>
-			<lineSpacing>1</lineSpacing>
-			<!-- 
-			<StartSeperator />
-			<EndSeperator /> -->
-	</style>
+<StyleDefinitions>
+	<defaultStyle>
+		<name>document</name>
+		<linesBefore>0</linesBefore>
+		<linesAfter>0</linesAfter>
+		<leftMargin>0</leftMargin>
+		<rightMargin>0</rightMargin>
+		<firstLineIndent>0</firstLineIndent>
+		<skipNumberLines>no</skipNumberLines>
+		<skipPages>0</skipPages>
+		<align>LEFT</align>
+		<format>NORMAL</format>
+		<translation>CONTRACTED</translation>
+		<newPageBefore>no</newPageBefore>
+		<newPageAfter>no</newPageAfter>
+		<pageSide>AUTO</pageSide>
+		<braillePageNumberFormat>NORMAL</braillePageNumberFormat>
+		<dontSplit>no</dontSplit>
+		<keepWithNext>no</keepWithNext>
+		<keepWithPrevious>no</keepWithPrevious>
+		<orphanControl>0</orphanControl>
+		<lineSpacing>1</lineSpacing>
+		<StartSeperator/>
+		<EndSeperator/>
+	</defaultStyle>
 	<style>
 		<name>bodytext</name>
 		<firstLineIndent>2</firstLineIndent>

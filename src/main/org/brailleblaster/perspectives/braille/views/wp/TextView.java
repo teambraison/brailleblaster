@@ -892,7 +892,7 @@ public class TextView extends WPView {
 	}
 	
 	public void insertText(ViewInitializer vi, MapList list, int listIndex, int start, Node n){
-		Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+		IStyle style = getStyle(n);
 		String reformattedText =  appendToView(n, false);
 		setListenerLock(true);
 		int originalPosition = view.getCaretOffset();
@@ -903,16 +903,16 @@ public class TextView extends WPView {
 		int margin = 0;
 		
 		//reset margin in case it is not applied
-		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
-			handleLineWrap(start, reformattedText, 0, false);
+	//	if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+	//		handleLineWrap(start, reformattedText, 0, false);
 				
-		if(style.contains(StylesType.leftMargin)) {
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
-		}
+	//	if(style.contains(StylesType.leftMargin)) {
+	//		margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+	//		handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+	//	}
 					
-	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(n) && style.contains(StylesType.firstLineIndent))
-	//		setFirstLineIndent(start, style);
+		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(n) && style.getFirstLineIndent() != 0)
+			setFirstLineIndent(start, style.getFirstLineIndent(), style.getLeftMargin());
 		
 	//	if(style.contains(StylesType.format))
 	//		setAlignment(start, start + n.getValue().length(), style);

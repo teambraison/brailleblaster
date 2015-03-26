@@ -838,7 +838,7 @@ public class BrailleView extends WPView {
 	}
 	
 	public void insert(TextMapElement t, Node n, int pos){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		IStyle style = getStyle(t.n);
 		int margin = 0;
 		int originalPosition = view.getCaretOffset();
 		Element parent = (Element)n.getParent();
@@ -856,16 +856,16 @@ public class BrailleView extends WPView {
 		t.brailleList.add(new BrailleMapElement(start, start + n.getValue().length(), n));
 		
 		//reset margin in case it is not applied
-		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
-			handleLineWrap(t.brailleList.getLast().start, n.getValue(), 0, false);
+//		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+//			handleLineWrap(t.brailleList.getLast().start, n.getValue(), 0, false);
 				
-		if(style.contains(StylesType.leftMargin)) {
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(t.brailleList.getLast().start, n.getValue(), margin, false);
-		}
+//		if(style.contains(StylesType.leftMargin)) {
+//			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//			handleLineWrap(t.brailleList.getLast().start, n.getValue(), margin, false);
+//		}
 					
-//		if(isFirst(n) && style.contains(StylesType.firstLineIndent))
-//			setFirstLineIndent(t.brailleList.getFirst().start, style);
+		if(isFirst(n) && style.getFirstLineIndent() != 0)
+			setFirstLineIndent(t.brailleList.getFirst().start, style.getFirstLineIndent(), style.getLeftMargin());
 		
 //		if(style.contains(StylesType.format))
 //			setAlignment(start,start + n.getValue().length(),style);

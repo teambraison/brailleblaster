@@ -169,7 +169,6 @@
 						<argument>-classpath</argument>
 						<classpath/>
 						<argument>-Dlogback.configurationFile=programData/settings/logback.xml</argument>
-						<argument>-DBBLASTER_WORK=${basedir}\dist</argument>
 						<argument>org.brailleblaster.Main</argument>
 					</arguments>
 					

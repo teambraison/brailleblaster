@@ -36,13 +36,13 @@ import org.eclipse.swt.custom.TextChangeListener;
 
 public abstract class AbstractContent implements StyledTextContent {
 
-private StyledTextContent baseContent;
+//private StyledTextContent baseContent;
 
 public AbstractContent() {
 }
 
 public AbstractContent (final StyledText styledText) {
-baseContent = styledText.getContent();
+//baseContent = styledText.getContent();
 styledText.setContent(this);
 }
 

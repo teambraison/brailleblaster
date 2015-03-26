@@ -8,22 +8,20 @@ import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.BrailleView;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
 
-public class WhiteSpaceHandler {
+public class WhiteSpaceHandler extends Handler {
 
-	Manager manager;
 	TextView text;
 	BrailleView braille;
-	MapList list;
 	EventFrame eventFrame;
 	
-	public WhiteSpaceHandler(Manager manager, MapList list){
-		this.manager = manager;
+	public WhiteSpaceHandler(Manager manager, ViewInitializer vi, MapList list) {
+		super(manager, vi, list);
 		this.text = manager.getText();
 		this.braille = manager.getBraille();
-		this.list = list;
 	}
 	
 	public void removeWhitespace(Message message){
@@ -100,25 +98,28 @@ public class WhiteSpaceHandler {
 		int pos  = text.view.getCaretOffset();
 		if(list.getCurrent().end == offset){
 			text.setCurrentElement(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
-			
+			refreshStylesHelper(list.getCurrent());
+						
 			text.setCurrentElement(list.get(list.getCurrentIndex() + 1).start);
-			text.refreshStyle(list.get(list.getCurrentIndex()));
-			braille.refreshStyle(list.get(list.getCurrentIndex()));
+			refreshStylesHelper(list.get(list.getCurrentIndex()));
 		}
 		else {
 			text.setCurrentElement(list.getCurrent().start);
-			text.refreshStyle(list.getCurrent());
-			braille.refreshStyle(list.getCurrent());
+			refreshStylesHelper(list.getCurrent());
 			
 			text.setCurrentElement(list.get(list.getCurrentIndex() - 1).start);
-			text.refreshStyle(list.get(list.getCurrentIndex()));
-			braille.refreshStyle(list.get(list.getCurrentIndex()));
+			refreshStylesHelper(list.get(list.getCurrentIndex()));
 		}
 		
 		text.view.setCaretOffset(pos);
 		text.setCurrentElement(pos);
+	}
+	
+	private void refreshStylesHelper(TextMapElement t){
+		if(!readOnly(t)){
+			text.refreshStyle(t);
+			braille.refreshStyle(t);
+		}
 	}
 	
 	private void removeWhitespace(ViewEvent ev){

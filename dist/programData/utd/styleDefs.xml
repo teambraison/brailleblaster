@@ -1,33 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?><StyleDefinitions>
-	<styleStack>
-		<stackName>testStack</stackName>
+<?xml version="1.0" encoding="UTF-8"?>
+	<StyleDefinitions>
 		<style>
-			<name>stackStyle</name>
-			<skipNumberLines>true</skipNumberLines>
-			<orphanControl>65</orphanControl>
-		</style>
-		<styleStack>
-			<stackName>testNestedStack</stackName>
-			<style>
-				<name>nestedStackStyle</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-		</styleStack>
-		<styleStack>
-			<stackName>testNestedStack2</stackName>
-			<style>
-				<name>nestedStackStyle2</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-			<style>
-				<name>nestedStackStyle2-2</name>
-				<leftMargin>2</leftMargin>
-				<align>CENTERED</align>
-			</style>
-		</styleStack>
-	</styleStack>
+			<name>document</name>
+			<linesBefore>0</linesBefore>
+			<linesAfter>0</linesAfter>
+			<leftMargin>0</leftMargin>
+			<rightMargin>0</rightMargin>
+			<firstLineIndent>0</firstLineIndent>
+			<skipNumberLines>no</skipNumberLines>
+			<skipPages>0</skipPages>
+			<align>LEFT</align>
+<format>NORMAL</format>
+			<translation>CONTRACTED</translation>
+			<newPageBefore>no</newPageBefore>
+			<newPageAfter>no</newPageAfter>
+			<pageSide>AUTO</pageSide>
+			<braillePageNumberFormat>NORMAL</braillePageNumberFormat>
+			<dontSplit>no</dontSplit>
+			<keepWithNext>no</keepWithNext>
+			<keepWithPrevious>no</keepWithPrevious>
+			<orphanControl>0</orphanControl>
+			<lineSpacing>1</lineSpacing>
+			<!-- 
+			<StartSeperator />
+			<EndSeperator /> -->
+	</style>
+	<style>
+		<name>bodytext</name>
+		<firstLineIndent>2</firstLineIndent>
+	</style>
 	<style>
 		<name>bottomBox</name>
 	</style>
@@ -38,12 +39,6 @@
 		<name>caption</name>
 		<leftMargin>4</leftMargin>
 		<firstLineIndent>2</firstLineIndent>
-	</style>
-	<style>
-		<name>document</name>
-		<leftMargin>0</leftMargin>
-		<firstLineIndent>0</firstLineIndent>
-		<align>COLUMN_LEFT</align>
 	</style>
 	<style>
 		<name>fullBox</name>
@@ -90,10 +85,6 @@
 	</style>
 	<style>
 		<name>none</name>
-	</style>
-	<style>
-		<name>bodytext</name>
-		<firstLineIndent>2</firstLineIndent>
 	</style>
 	<style>
 		<name>quotation</name>

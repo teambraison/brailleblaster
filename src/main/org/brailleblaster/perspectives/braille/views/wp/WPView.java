@@ -14,6 +14,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.utd.IStyle.Align;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
@@ -27,6 +28,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 
 public abstract class WPView extends AbstractView implements BBView {
+	protected final String MOVE_TO = "moveTo";
+	protected final String NEW_PAGE = "newPage";
+	
 	protected BBSemanticsTable stylesTable;
 	protected static int currentAlignment;
 	public static int currentLine;
@@ -278,8 +282,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setLinesBefore(int start, Styles style){
-		String textBefore = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesBefore)),'\n');
+	protected void setLinesBefore(int start, int linesBefore){
+		String textBefore = makeInsertionString(linesBefore,'\n');
 		insertBefore(start, textBefore);
 	}
 	
@@ -287,8 +291,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setLinesAfter(int start, Styles style){
-		String textAfter = makeInsertionString(Integer.valueOf((String)style.get(StylesType.linesAfter)), '\n');
+	protected void setLinesAfter(int start, int linesAfter){
+		String textAfter = makeInsertionString(linesAfter, '\n');
 		insertAfter(start, textAfter);
 	}
 	
@@ -296,14 +300,8 @@ public abstract class WPView extends AbstractView implements BBView {
 	* @param start : start position
 	 * @param style : Java object representing liblouisutdml style
 	 */
-	protected void setFirstLineIndent(int start, Styles style){
-		int margin = 0;
-		int indentSpaces = Integer.valueOf((String)style.get(StylesType.firstLineIndent));
-		
-		if(style.contains(StylesType.leftMargin)){
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			indentSpaces = margin + indentSpaces; 
-		}
+	protected void setFirstLineIndent(int start, int indent, int margin){
+		int indentSpaces = indent + margin;
 		int startLine = view.getLineAtOffset(start);
 		view.setLineIndent(startLine, 1, indentSpaces * charWidth);
 	}
@@ -313,9 +311,19 @@ public abstract class WPView extends AbstractView implements BBView {
 	 * @param end : end offset
 	 * @param style : style object
 	 */
-	protected void setAlignment(int start, int end, Styles style){
+	protected void setAlignment(int start, int end, Align alignment){
 		int startLine = view.getLineAtOffset(start);
-		view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  Integer.valueOf((String)style.get(StylesType.format)));	
+		switch(alignment){
+		case RIGHT:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.RIGHT);
+			break;
+		case CENTERED:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.CENTER);
+			break;
+		default:
+			view.setLineAlignment(startLine, getLineNumber(start, view.getTextRange(start, (end - start))),  SWT.LEFT);
+			break;
+		}	
 	}
 	
 	/** Sets alignment using the swt constant value for alignment

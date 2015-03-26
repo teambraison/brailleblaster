@@ -11,6 +11,7 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.EPub3Archiver;
 import org.brailleblaster.util.FileUtils;
+import org.brailleblaster.util.Notify;
 import org.brailleblaster.util.PropertyFileManager;
 import org.brailleblaster.wordprocessor.WPManager;
 import org.eclipse.swt.widgets.TabItem;
@@ -179,5 +180,13 @@ public abstract class Controller implements DocumentManager{
 			ext = fn.substring(dot + 1);
 		}
 		return ext;
+	}
+	
+	/** Creates a Notify class alert box if debugging is not active
+	 * @param notify : String to be used in an alert box, should already be localized
+	 */
+	public void notify(String notify){
+		if(!BBIni.debugging())
+			new Notify(notify);
 	}
 }

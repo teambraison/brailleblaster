@@ -48,7 +48,7 @@ public class ConfigPanel {
 		pageProperties = new PagePropertiesTab(folder, engine);
 		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
 		pageNumTab = new PageNumbersTab(folder, engine.getPageSettings());
-		styleDefsTab = new StyleDefinitionsTab(this, folder, m);
+		styleDefsTab = new StyleDefinitionsTab(folder, m);
 
 		Button okButton = new Button(shell, SWT.PUSH);
 		okButton.setText(lh.localValue(lh.localValue("buttonOk")));

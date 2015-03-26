@@ -2,9 +2,10 @@ package org.brailleblaster.perspectives.braille.document;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+//import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import nu.xom.Attribute;
 import nu.xom.Builder;
@@ -25,11 +26,11 @@ import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.eclipse.swt.SWT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 public class BrailleDocument extends BBDocument {
-	private static final Logger log = LoggerFactory.getLogger(BrailleDocument.class);
+	//private static final Logger log = LoggerFactory.getLogger(BrailleDocument.class);
 	private int idCount = -1;
 	private BBSemanticsTable table;
 	
@@ -75,30 +76,17 @@ public class BrailleDocument extends BBDocument {
 	 * @param message : Message containing pertinent information for the given procedure
 	 */
 	private void updateNode(MapList list, Message message){
-		int total = 0;
 		String text = (String)message.getValue("newText");
 		text = text.replace("\n", "").replace("\r", "");
 		message.put("newText", text);
 		calculateDifference(list.getCurrent().n.getValue(), text, message);
 		changeTextNode(list.getCurrent().n, text);
 		
-		if(text.equals("") || isWhitespace(text)){
-			total = insertEmptyBrailleNode(list.getCurrent(), list.getNextBrailleOffset(list.getCurrentIndex()), message);
-		}
-		else if(list.getCurrent().brailleList.size() > 0){
-			total = changeBrailleNodes(list.getCurrent(), message);
-		}
-		else {
-			if(list.size() > 1 && list.getCurrentIndex() < list.size() - 1)
-				insertBrailleNode(message, list.getCurrent(), list.get(list.getCurrentIndex() + 1).brailleList.getFirst().start, text);
-			else {
-				if(list.getCurrentIndex() > 0)
-					insertBrailleNode(message, list.getCurrent(), list.get(list.getCurrentIndex() - 1).brailleList.getLast().end + 1, text);
-				else
-					insertBrailleNode(message, list.getCurrent(), 0, text);
-			}
-		}
-		message.put("brailleLength", total);
+		Node block = engine.findTranslationBlock(list.getCurrent().n);
+		findAndRemoveBrailleElement((Element)block);
+		Nodes nodes = engine.translate(block);
+		block.getParent().replaceChild(block, nodes.get(0));
+		message.put("Element", nodes.get(0));
 	}
 	
 	/** Inserts an Element into the DOM.  This is used for inserting transcribers notes, paragraphs when a user hits enter, etc.
@@ -163,145 +151,21 @@ public class BrailleDocument extends BBDocument {
 		temp.setValue(text);
 	}
 	
-	/** Updates a braile node after text node has been updated
-	 * @param t : TextMapElement to have braille re-translated
-	 * @param message : message containing offset values
-	 * @return the length of the original braille text, used to update offsets of list
-	 */
-	private int changeBrailleNodes(TextMapElement t, Message message){
-		findAndRemoveBrailleElement(t.parentElement());
-		Nodes nodes = engine.translate(t.parentElement());
-	//	Document d = getStringTranslation(t, (String)message.getValue("newText"));
-		int total = 0;
-		int startOffset = 0;
-		String insertionString = "";
-		//Element brlParent = (Element)nodes.get(0).getChild(1);
-		//Element e = findAndRemoveBrailleElement(brlParent);
-
-		startOffset = t.brailleList.getFirst().start;
-		String logString = "";
-		
-		for(int i = 0; i < t.brailleList.size(); i++){
-			total += t.brailleList.get(i).end - t.brailleList.get(i).start;
-			if(afterNewlineElement(t.brailleList.get(i).n) && i > 0){
-				total++;
-			}
-			logString += t.brailleList.get(i).n.getValue() + "\n";
-		}
-		logger.info("Original Braille Node Value:\n" + logString);
-			
-	//	Element parent = t.parentElement();
-	//	Element child = (Element)t.brailleList.getFirst().n.getParent();
-	//	while(!child.getParent().equals(parent)){
-	//		child = (Element)child.getParent();
-	//	}
-		//parent.replaceChild(child, e);	
-		t.brailleList.clear();
-		
-		Element e = (Element)nodes.get(0).getChild(1); 
-		boolean first = true;
-		for(int i = 0; i < e.getChildCount(); i++){
-			if(e.getChild(i) instanceof Text){
-				if(afterNewlineElement(e.getChild(i)) && !first){
-					insertionString += "\n";
-					startOffset++;
-				}
-				t.brailleList.add(new BrailleMapElement(startOffset, startOffset + e.getChild(i).getValue().length(),e.getChild(i)));
-				startOffset += e.getChild(i).getValue().length();
-				insertionString += t.brailleList.getLast().n.getValue();
-				first =false;
-			}
-		}	
-			
-		logger.info("New Braille Node Value:\n" + insertionString);
-		message.put("newBrailleText", insertionString);
-		message.put("newBrailleLength", insertionString.length());
-		return total;
-	}
-	
 	/** Handles special cases when a node is updated and contains no text or is all spaces.
 	 * @param t : TextMap to insert braille node.
 	 * @param offset : Next braille offset
 	 * @param message : message to contain offset information after update
 	 * @return : returns the original length prior to update
 	 */
-	private int insertEmptyBrailleNode(TextMapElement t, int offset, Message message){
-		int startOffset = -1;	
+	public void insertEmptyBrailleNode(Element parent, LinkedList<Integer>nodeIndexes){
 		Element e = new Element("brl", this.doc.getRootElement().getNamespaceURI());
 		Text textNode = new Text("");
-		e.appendChild(textNode);
-		
-		int total = 0;
-		String logString = "";
-		
-		if(t.brailleList.size() > 0){
-			startOffset = t.brailleList.getFirst().start;
-		
-			boolean first = true;
-			for(int i = 0; i < t.brailleList.size(); i++){
-				total += t.brailleList.get(i).n.getValue().length();
-				logString += t.brailleList.get(i).n.getValue() + "\n";
-				if(afterNewlineElement(t.brailleList.get(i).n) && !first){
-					total++;
-				}
-				first = false;
-			}
-		}
-		logger.info("Original Braille Node Value:\n" + logString);
-		
-		Element parent = t.parentElement();
-		if(t.brailleList.size() > 0){
-			Element child = (Element)t.brailleList.getFirst().n.getParent();
-			while(!child.getParent().equals(parent)){
-				child = (Element)child.getParent();
-			};
-			parent.replaceChild(child, e);	
-		}
-		else {
-			t.parentElement().appendChild(e);
-		}
-	
-		t.brailleList.clear();
-		t.brailleList.add(new BrailleMapElement(startOffset, startOffset + textNode.getValue().length(),textNode));
-		logger.info("New Braille Node Value:\n" + textNode.getValue());
-		message.put("newBrailleText", textNode.getValue());
-		message.put("newBrailleLength", textNode.getValue().length());
-		return total;
-	}
-	
-	/** Inserts a braille node if existing text does not have a braille node
-	 * @param m : message to contain offset info
-	 * @param t : TextMapElement to insert braille
-	 * @param startingOffset : offset position
-	 * @param text : Text to translate
-	 */
-	private void insertBrailleNode(Message m, TextMapElement t, int startingOffset, String text){
-		Document d = getStringTranslation(t, text);
-		Element brlParent = ((Element)d.getRootElement().getChild(0));
-		Element e = findAndRemoveBrailleElement(brlParent);
-		String insertionString = "";
+		e.appendChild(textNode);		
 
-		t.parentElement().appendChild(e);
-		int newOffset = startingOffset;
-		
-		boolean first = true;
-		for(int i = 0; i < e.getChildCount(); i++){
-			if(e.getChild(i) instanceof Text){
-				if(afterNewlineElement(e.getChild(i)) && !first){
-					insertionString += "\n";
-					newOffset++;
-				}
-				
-				t.brailleList.add(new BrailleMapElement(newOffset, newOffset + e.getChild(i).getValue().length(), e.getChild(i)));
-				newOffset += e.getChild(i).getValue().length();
-				insertionString += t.brailleList.getLast().n.getValue();
-				first = false;
-			}
-		}
-		
-		m.put("newBrailleText", insertionString);
-		m.put("brailleLength", 0);
-		m.put("newBrailleLength", insertionString.length());
+ 		while(nodeIndexes.size() > 1)
+     		parent = (Element)e.getChild(nodeIndexes.remove());
+ 		
+ 		parent.insertChild(e, nodeIndexes.remove() + 1);
 	}
 	
 	private void removeNode(MapList list, Message message){
@@ -455,22 +319,22 @@ public class BrailleDocument extends BBDocument {
 	 * @return size of string, liblouisutdml returns -1 if it failed to translate
 	 */
 	private int translateString(String text, byte[] outbuffer) {
-		String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
-		String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
+	//	String logFile = BBIni.getLogFilesPath() + BBIni.getFileSep() + BBIni.getInstanceID() + BBIni.getFileSep() + "liblouisutdml.log";	
+	//	String preferenceFile = fu.findInProgramData ("liblouisutdml" + BBIni.getFileSep() + "lbu_files" + BBIni.getFileSep() + dm.getCurrentConfig());
 		
-		byte[] inbuffer;
-		try {
-			inbuffer = text.getBytes("UTF-8");
-			int [] outlength = new int[1];
-			outlength[0] = text.length() * 10;
+//		byte[] inbuffer;
+//		try {
+//			inbuffer = text.getBytes("UTF-8");
+//			int [] outlength = new int[1];
+//			outlength[0] = text.length() * 10;
 			
-			String semPath;
-			if(dm.getWorkingPath() == null)
-				semPath =  BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
-			else 
-				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
+//			String semPath;
+//			if(dm.getWorkingPath() == null)
+//				semPath =  BBIni.getTempFilesPath() + BBIni.getFileSep() + "outFile.utd";
+//			else 
+//				semPath = BBIni.getTempFilesPath() + BBIni.getFileSep() + fu.getFileName(dm.getWorkingPath()) + ".xml";
 			
-			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
+//			String configSettings = "formatFor utd\n mode notUC\n printPages no\n" + semHandler.getSemanticsConfigSetting(semPath);
 //			if(lutdml.translateString(preferenceFile, inbuffer, outbuffer, outlength, logFile, configSettings + sm.getSettings(), 0)){
 //				return outlength[0];
 //			}
@@ -478,14 +342,14 @@ public class BrailleDocument extends BBDocument {
 //				System.out.println("An error occurred while translating");
 //				return -1;
 //			}
-			log.debug("TODO: Attempting to translate with libutdml, use UTD", new RuntimeException());
+//			log.debug("TODO: Attempting to translate with libutdml, use UTD", new RuntimeException());
+//			return -1;
+//		} 
+//		catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//			logger.error("Unsupported Encoding Exception", e);
 			return -1;
-		} 
-		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			logger.error("Unsupported Encoding Exception", e);
-			return -1;
-		}	
+//		}	
 	}
 	
 	/** Translates text contents of an element and children
@@ -531,33 +395,6 @@ public class BrailleDocument extends BBDocument {
 		Elements els = e.getChildElements();
 		for(int i = 0; i <els.size(); i++){
 			if(!els.get(i).getLocalName().equals("brl")){
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	/** Checks whether text is entirely whitespace
-	 * @param text : text to check
-	 * @return true if all whitespace, false if not
-	 */
-	private boolean isWhitespace(String text){
-		if (text.trim().length() > 0) 
-			return false;
-		
-		return true;
-	}
-	
-	/**  Checks whether a node in brl elements follows a newline element
-	 * @param n : node to check
-	 * @return true if following a newline element, false if not
-	 */
-	private boolean afterNewlineElement(Node n){
-		Element parent = (Element)n.getParent();
-		int index = parent.indexOf(n);
-		if(parent.indexOf(n) > 0){
-			if(parent.getChild(index - 1) instanceof Element && ((Element)parent.getChild(index - 1)).getLocalName().equals("newline")){
 				return true;
 			}
 		}
@@ -767,9 +604,7 @@ public class BrailleDocument extends BBDocument {
 	public Element getParent(Node n, boolean ignoreInlineElement){
 		Element parent = (Element)n.getParent();
 		if(ignoreInlineElement){
-			while(attributeExists(parent, "semantics") && parent.getAttribute("semantics").getValue().contains("action")){
-				parent = (Element)parent.getParent();
-			}
+			parent = (Element)engine.findTranslationBlock(n);
 		}
 		
 		return parent;

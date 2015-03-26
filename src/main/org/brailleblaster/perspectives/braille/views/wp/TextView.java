@@ -51,7 +51,6 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.utd.IStyle;
-import org.brailleblaster.utd.actions.IAction;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -654,7 +653,7 @@ public class TextView extends WPView {
 		IStyle prevStyle = null;
 		if(!list.empty() && index != 0 && list.get(index - 1).n != null)
 			prevStyle = getStyle(list.get(index - 1).n);
-		
+	
 		String newText = appendToView(t.n, true);
 		int textLength = newText.length();
 		view.append(newText);
@@ -809,7 +808,7 @@ public class TextView extends WPView {
 	
 	public void reformatText(Node n, Message message, Manager dm){
 		String reformattedText;
-	//	Styles style = stylesTable.makeStylesElement((Element)n.getParent(), n);
+		IStyle style = getStyle(n);
 //		int margin = 0;
 		int currentStart = stateObj.getCurrentStart();
 		int currentEnd = stateObj.getCurrentEnd();
@@ -831,8 +830,8 @@ public class TextView extends WPView {
 //			handleLineWrap(currentStart, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 //		}
 		
-//		if(isFirst(n) && style.contains(StylesType.firstLineIndent) && reformattedText.length() > 0)
-//			setFirstLineIndent(currentStart, style);
+		if(isFirst(n) && style.getFirstLineIndent() != 0 && reformattedText.length() > 0)
+			setFirstLineIndent(currentStart, style.getFirstLineIndent(), style.getLeftMargin());
 		
 //		if(style.contains(StylesType.emphasis))
 //			setFontStyleRange(currentStart, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -859,10 +858,10 @@ public class TextView extends WPView {
 		Styles style = stylesTable.makeStylesElement((Element)t.parentElement(), t.n);
 		String text = view.getTextRange(t.start, t.end - t.start);
 		int margin = 0;
-		if(style.contains(StylesType.leftMargin)){
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
-		}
+//		if(style.contains(StylesType.leftMargin)){
+	//		margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
+//		}
 		
 //		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent))
 //			setFirstLineIndent(t.start, style);
@@ -1039,7 +1038,7 @@ public class TextView extends WPView {
 		setListenerLock(false);
 	}
 	public void resetSelectionElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t, boolean format){
-		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		IStyle style = getStyle(t.n);
 		String reformattedText;
 		setListenerLock(true);
 		if(t instanceof BrlOnlyMapElement || t instanceof PageMapElement)
@@ -1096,36 +1095,36 @@ public class TextView extends WPView {
 			int margin = 0;		
 			
 			if(format){
-				WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
-				int linesBefore = 0;
-				int linesAfter = 0;
-				if(isFirst){
-					linesBefore = wsp.setLinesBefore(t, start, style);
-					list.shiftOffsetsFromIndex(listIndex, linesBefore, 0);
-				}
-				if(isLast){
-					linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
-					list.shiftOffsetsFromIndex(listIndex + 1, linesAfter, 0);
-				}
-				t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
-				m.put("textLength", 0);
-				m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
-				start += linesBefore;
+	//			WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+	//			int linesBefore = 0;
+	//			int linesAfter = 0;
+		//		if(isFirst){
+		//			linesBefore = wsp.setLinesBefore(t, start, style);
+		//			list.shiftOffsetsFromIndex(listIndex, linesBefore, 0);
+		//		}
+		//		if(isLast){
+			//		linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+		//			list.shiftOffsetsFromIndex(listIndex + 1, linesAfter, 0);
+		//		}
+		//		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
+		//		m.put("textLength", 0);
+		//		m.put("textOffset", reformattedText.length() + linesBefore + linesAfter + start);
+		//		start += linesBefore;
 			}
-			else {
+	//		else {
 				t.setOffsets(start, start + reformattedText.length());
 				m.put("textLength", 0);
 				m.put("textOffset", reformattedText.length() + start);
-			}
+	//		}
 			
 			//reset margin in case it is not applied
-			if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
-				handleLineWrap(start, reformattedText, 0, false);
+	//		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+	//			handleLineWrap(start, reformattedText, 0, false);
 				
-			if(style.contains(StylesType.leftMargin)) {
-				margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-				handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
-			}
+//			if(style.contains(StylesType.leftMargin)) {
+//				margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//				handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+//			}
 					
 //			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 //				setFirstLineIndent(start, style);

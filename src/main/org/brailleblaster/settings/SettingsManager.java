@@ -46,7 +46,7 @@ public class SettingsManager {
 					UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, BRAILLE_SETTINGS_NAME)));
 			engine.setStyleDefinitions(
 					UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile(UTD_FOLDER, STYLE_DEFS_NAME)));
-			
+
 			changeMappings(engine, config);
 		} catch (Exception e) {
 			throw new RuntimeException("Could not initialize UTD", e);

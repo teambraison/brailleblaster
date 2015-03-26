@@ -29,9 +29,9 @@ public class ConfigPanel {
 	private final SettingsManager sm;
 	private final Manager m;
 	private final Shell shell;
-	private final SettingsUITab pageProperties, translationTab, pageNumTab, styleDefsTab;
-
-//	TranslationSettingsTab translationSettings;
+	private final SettingsUITab pageProperties, pageNumTab, styleDefsTab;
+//	private final SettingsUITab translationTab;
+	
 	public ConfigPanel(final SettingsManager sm, final Manager m) {
 		this.engine = m.getDocument().getEngine();
 		this.sm = sm;
@@ -46,7 +46,7 @@ public class ConfigPanel {
 
 		//TODO: Port translationSettings once Michael says how it maps to UTD
 		pageProperties = new PagePropertiesTab(folder, engine);
-		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
+//		translationTab = new TranslationSettingsTab(folder, engine.getBrailleSettings());
 		pageNumTab = new PageNumbersTab(folder, engine.getPageSettings());
 		styleDefsTab = new StyleDefinitionsTab(folder, m);
 
@@ -79,8 +79,8 @@ public class ConfigPanel {
 		//This will validate each tab, not using && due to short-circut evaluation
 		if ((errorStr = pageProperties.validate()) != null)
 			new Notify(lh.localValue(errorStr));
-		else if ((errorStr = translationTab.validate()) != null)
-			new Notify(lh.localValue(errorStr));
+//		else if ((errorStr = translationTab.validate()) != null)
+//			new Notify(lh.localValue(errorStr));
 		else if ((errorStr = pageNumTab.validate()) != null)
 			new Notify(lh.localValue(errorStr));
 		else if ((errorStr = styleDefsTab.validate()) != null)
@@ -91,8 +91,8 @@ public class ConfigPanel {
 				//Only save if setting was changed
 				if (pageProperties.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
-				if (translationTab.updateEngine(engine))
-					UTDConfig.saveBrailleSettings(sm.getUserBrailleSettingsFile(), engine.getBrailleSettings());
+//				if (translationTab.updateEngine(engine))
+//					UTDConfig.saveBrailleSettings(sm.getUserBrailleSettingsFile(), engine.getBrailleSettings());
 				if (pageNumTab.updateEngine(engine))
 					UTDConfig.savePageSettings(sm.getUserPageSettingsFile(), engine.getPageSettings());
 				if (styleDefsTab.updateEngine(engine))

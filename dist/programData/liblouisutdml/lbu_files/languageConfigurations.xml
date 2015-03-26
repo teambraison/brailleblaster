@@ -1,0 +1,72 @@
+<configurations>
+	<entry>
+		<locale>US</locale>
+		<language>English</language>
+		<literaryBraille>
+			<table>
+				<name>Uncontracted</name>
+				<fileName>en-us-g1.ctb</fileName>
+			</table>
+			<table>
+				<name>Uncontracted UEB</name>
+				<fileName>en-ueb-g1.ctb</fileName>
+			</table>
+			<table>
+				<name>Contracted</name>
+				<fileName>en-us-g2.ctb</fileName>
+			</table>
+			<table>
+				<name>Contracted UEB</name>
+				<fileName>en-ueb-g2.ctb</fileName>
+			</table>
+		</literaryBraille>
+		<computerBraille>
+			<table>
+				<name>Computer Braille</name>
+				<fileName>en-us-compbrl.ctb</fileName>
+			</table>
+			<table>
+				<name>Computer Braille (6 Dot)</name>
+				<fileName>en-us-comp6.ctb</fileName>
+			</table>
+			<table>
+				<name>Computer Braille (8 dot)</name>
+				<fileName>en-us-comp8.ctb</fileName>
+			</table>
+		</computerBraille>
+		<math>
+			<fileName>nemeth.ctb</fileName>
+		</math>
+	</entry>
+	<entry>
+		<locale>GB</locale>
+		<language>English</language>
+		<literaryBraille>
+			<table>
+				<name>Uncontracted</name>
+				<fileName>en-gb-g1.utb</fileName>
+			</table>
+			<table>
+				<name>Contracted</name>
+				<fileName>en-GB-g2.ctb</fileName>
+			</table>
+			<table>
+				<name>Uncontracted UEB</name>
+				<fileName>UEBC-g1.utb</fileName>
+			</table>
+			<table>
+				<name>Contracted UEB</name>
+				<fileName>UEBC-g2.ctb</fileName>
+			</table>
+		</literaryBraille>
+		<computerBraille>
+			<table>
+				<name>Computer Braille(8 Dot)</name>
+				<fileName>en-gb-comp8.ctb</fileName>
+			</table>
+		</computerBraille>
+		<math>
+			<fileName>ukmaths.ctb</fileName>
+		</math>
+	</entry>
+</configurations>

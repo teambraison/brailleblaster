@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<actionMap>
+    <namespaces>
+        <namespace prefix="dsy" uri="http://www.daisy.org/z3986/2005/dtbook/"/>
+    </namespaces>
+	<entry>
+        <matcher expression="//dsy:book" type="org.brailleblaster.utd.matchers.XPathMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+	</entry>
+	<entry>
+        <matcher nodeName="strong" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.BoldAction"/>
+    </entry>
+	<entry>
+        <matcher nodeName="cite" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.BoldAction"/>
+    </entry>
+    <entry>
+        <matcher nodeName="em" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
+    </entry>
+    <entry>
+        <matcher nodeName="dfn" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
+    </entry>
+    <entry>
+        <matcher nodeName="kbd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.ItalicsAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="p" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h1" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h2" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h3" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h4" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h5" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="h6" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="hd" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="bridgehead" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="title" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="author" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="li" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="td" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="th" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="caption" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.GenericBlockAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="pagenum" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.PageAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="code" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.CompBRLAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="docauthor" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.SkipAction"/>
+    </entry>
+	<entry>
+<matcher nodeName="doctitle" type="org.brailleblaster.utd.matchers.NodeNameMatcher"/>
+        <action type="org.brailleblaster.utd.actions.SkipAction"/>
+    </entry>
+</actionMap>

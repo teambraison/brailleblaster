@@ -100,7 +100,7 @@ public class BBDocument {
 			engine = new UTDTranslationEngine();
 			sm.loadEngine(engine, dm.getCurrentConfig());
 		} catch(Exception e) {
-			throw new RuntimeException("Could not initialize UTD", e);
+			throw new RuntimeException("Failed to initialize UTD engine", e);
 		}
 	}
 	

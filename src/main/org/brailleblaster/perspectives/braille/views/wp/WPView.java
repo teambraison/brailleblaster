@@ -415,7 +415,7 @@ public abstract class WPView extends AbstractView implements BBView {
 	}
 	
 	/** Checks if status bar should be updated
-	 * @param sender : Enumeration signifiy which view, text, braille or tree, is sending the message
+	 * @param sender : Enumeration signify which view, text, braille or tree, is sending the message
 	 */
 	public void checkStatusBar(Sender sender){
 		if(!getLock()){

@@ -232,8 +232,7 @@ public class BBDocument {
 		File file = new File (fileName);
 		Builder parser = new Builder();
 		try {
-			this.doc = parser.build (file);
-			removeBraillePageNumber();		
+			this.doc = parser.build (file);	
 			return true;
 		} 
 		catch(ConnectException e){
@@ -359,26 +358,6 @@ public class BBDocument {
 	 */
 	public Document getDOM(){
 		return doc;
-	}
-	
-	/** LiblouisUTDML adds a brl element that functions as a control character to the end of each document.
-	 *  This element does not follow the conventions of other brl elements and has proved problematic.  
-	 *  This method removes that character following a translation.  
-	 */
-	private void removeBraillePageNumber(){
-		Elements e = this.doc.getRootElement().getChildElements();
-		
-		for(int i = 0; i < e.size(); i++){
-			if(attributeExists(e.get(i), "semantics") && e.get(i).getAttributeValue("semantics").equals("style,document")){
-				Elements els = e.get(i).getChildElements();
-				for(int j = 0; j < els.size(); j++){
-					if(els.get(j).getLocalName().equals("brl")){
-						int index = e.get(i).indexOf(els.get(j));
-						e.get(i).removeChild(index);
-					}
-				}
-			}
-		}
 	}
 	
 	/** Method used to create and output a brf file when a user saves or for display in the braille preview

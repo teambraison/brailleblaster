@@ -37,9 +37,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
@@ -48,8 +45,6 @@ import org.brailleblaster.util.PropertyFileManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Determine and set initial conditions. This class takes care of most platform
@@ -68,9 +63,9 @@ public final class BBIni {
 	/**
 	 * Calls a private constructor, making this class a singleton.
 	 */
-	public static BBIni initialize(String[] args) {
+	public static BBIni initialize(String[] args, File bbPath) {
 		if (bbini == null || BBIni.debugging())
-			bbini = new BBIni(args);
+			bbini = new BBIni(args, bbPath);
 		return bbini;
 	}
 	private static final String platformNameJava = System.getProperty("os.name").toLowerCase();
@@ -110,11 +105,11 @@ public final class BBIni {
 
 	private static String liblouisutdmlVersion;
 
-	private BBIni(String[] args) {
+	private BBIni(String[] args, File bbPath) {
 		long seconds = System.currentTimeMillis() / 1000;
 		instanceId = Long.toString(seconds, 32);
-		Main m = new Main();
-		brailleblasterPath = getBrailleblasterPath(m);
+		brailleblasterPath = bbPath.getAbsolutePath();
+		platformName = SWT.getPlatform();
 		fileSep = System.getProperty("file.separator");
 		String userHome = System.getProperty("user.home");
 		String BBHome;
@@ -147,11 +142,6 @@ public final class BBIni {
 		}
 		propManager = new PropertyFileManager(userSettings);
 
-		//Init SWT
-		Main.initSWT();
-		platformName = SWT.getPlatform();
-		SWT.isLoadable();
-		
 		// Receive about.properties
 		aboutProject = programDataPath + fileSep + "settings" + fileSep + "about.properties" ;
 
@@ -357,40 +347,7 @@ public final class BBIni {
 		return result;
 	}
 
-	private String getBrailleblasterPath(Object classToUse) {
-		// Option to use an environment variable (mostly for testing
-		// withEclipse)
-		String url = System.getenv("BBLASTER_WORK");
-		if(StringUtils.isBlank(url))
-			url = System.getProperty("BBLASTER_WORK");
-		
 
-		if (url != null) {
-//			if (BBIni.getPlatformName().equals("cocoa")
-//					|| BBIni.getPlatformName().equals("gtk"))
-//				url = "file://" + url;
-//			else
-//				url = "file:/" + url;
-			return new File(url).getAbsolutePath();
-		}
-		
-		url = classToUse.getClass().getResource(
-			"/"	+ classToUse.getClass().getName().replaceAll("\\.", "/") + ".class"
-		).toString();
-		url = url.substring(url.indexOf("file")).replaceFirst(
-			"/[^/]+\\.jar!.*$", "/");
-
-		try {
-			File dir = new File(new URL(url).toURI());
-			url = dir.getAbsolutePath();
-		} catch (MalformedURLException mue) {
-			url = null;
-		} catch (URISyntaxException ue) {
-			url = null;
-		}
-
-		return url;
-	}
 
 	private void makeUserProgramData() {
 		String basePath = userProgramDataPath + fileSep;

@@ -35,8 +35,11 @@ package org.brailleblaster;
 import com.sun.jna.Platform;
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import org.apache.commons.lang3.StringUtils;
 
 import org.brailleblaster.util.FileUtils;
 import org.brailleblaster.wordprocessor.WPManager;
@@ -49,14 +52,21 @@ import org.slf4j.LoggerFactory;
  * control directly to the word processor. If there are arguments it passes them
  * first to BBIni and then to Subcommands. It will do more processing as the
  * project develops.
- * 
+ *
  * Note on Mac to initialize SWT properly you must pass -XstartOnFirstThread or
  * you will get "SWTException: Invalid Thread Access"
  */
 public class Main {
 	private static final Logger log = LoggerFactory.getLogger(Main.class);
+
 	public static void main(String[] args) {
-		BBIni.initialize(args);
+		System.out.println("before");
+		File bbPath = getBrailleblasterPath();
+		System.out.println("after");
+		System.out.println("BrailleBlaster path: " + bbPath);
+		
+		initSWT(bbPath);
+		BBIni.initialize(args, bbPath);
 
 		if (BBIni.haveSubcommands()) {
 			new Subcommands(args);
@@ -73,10 +83,63 @@ public class Main {
 	}
 
 	/**
+	 * Find the programData folder, needed very early in initialization to 
+	 * automatically load required resources
+	 * @param classToUse
+	 * @return 
+	 */
+	private static File getBrailleblasterPath() {
+		// Option to use an environment variable (mostly for testing
+		// withEclipse)
+		String url = System.getenv("BBLASTER_WORK");
+		if (StringUtils.isBlank(url))
+			url = System.getProperty("BBLASTER_WORK");
+
+		if (url != null) {
+//			if (BBIni.getPlatformName().equals("cocoa")
+//					|| BBIni.getPlatformName().equals("gtk"))
+//				url = "file://" + url;
+//			else
+//				url = "file:/" + url;
+			return new File(url).getAbsoluteFile();
+		}
+
+		//Attempt to find the programData folder
+		String knownFile = "programData/settings/about.properties";
+		File file;
+
+		//Developer, working directory = project root
+		file = new File("dist", knownFile);
+		if (file.exists()) {
+			return new File("dist").getAbsoluteFile();
+		}
+
+		//User, working directory = dist/ folder
+		file = new File(knownFile);
+		if (file.exists()) {
+			return new File("").getAbsoluteFile();
+		}
+
+		//Origional BB code, not sure what this does
+		url = Main.class.getClass().getResource(
+				"/" + Main.class.getClass().getName().replaceAll("\\.", "/") + ".class"
+		).toString();
+		url = url.substring(url.indexOf("file")).replaceFirst(
+				"/[^/]+\\.jar!.*$", "/");
+
+		try {
+			File dir = new File(new URL(url).toURI());
+			return dir.getAbsoluteFile();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to find path with url " + url, e);
+		}
+	}
+
+	/**
 	 * Loads SWT by generating platform-specific JAR name and adding to the classpath.
 	 * Needed as different bit versions of the same OS overwrite each others libraries
 	 */
-	public static void initSWT() {
+	public static void initSWT(File bbPath) {
 		//Attempt to guess the filename
 		String swtFileUi;
 		String swtFileOs;
@@ -105,7 +168,7 @@ public class Main {
 				+ ".jar";
 
 		//Verify
-		File swtFile = new File(BBIni.getProgramDataPath("..", "lib", swtFileName)).getAbsoluteFile();
+		File swtFile = new File(bbPath, "lib/" + swtFileName).getAbsoluteFile();
 		if (!swtFile.exists())
 			throw new SWTLoadFailed("Cannot find SWT jar at " + swtFile);
 		log.debug("Attempting to load SWT jar " + swtFile);

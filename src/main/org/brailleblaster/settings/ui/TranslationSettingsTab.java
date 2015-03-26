@@ -122,29 +122,30 @@ class TranslationSettingsTab implements SettingsUITab {
 
 	@Override
 	public String validate() {
-		log.debug("validate");
-		if (litteraryCombo.getSelectionIndex() == -1)
-			return "Must select litterary braille type";
-		if (computerCombo.getSelectionIndex() == -1)
-			return "Must select computer braille type";
-		log.debug("success");
+//		log.debug("validate");
+//		if (litteraryCombo.getSelectionIndex() == -1)
+//			return "Must select litterary braille type";
+//		if (computerCombo.getSelectionIndex() == -1)
+//			return "Must select computer braille type";
+//		log.debug("success");
 		return null;
 	}
 
 	@Override
 	public boolean updateEngine(UTDTranslationEngine engine) {
-		BrailleSettings settings = engine.getBrailleSettings();
-		boolean updated = false;
-		XMLEntry selected = config.entries.get(languageCombo.getSelectionIndex());
-
-		updated = SettingsUIUtils.updateObject(settings::getMainTranslationTable, settings::setMainTranslationTable,
-				selected.literaryBraille.get(litteraryCombo.getSelectionIndex()).fileName, updated);
-		updated = SettingsUIUtils.updateObject(settings::getComputerBrailleTable, settings::setComputerBrailleTable,
-				selected.computerBraille.get(computerCombo.getSelectionIndex()).fileName, updated);
-		updated = SettingsUIUtils.updateObject(settings::getMathTextTable, settings::setMathTextTable,
-				selected.math.fileName, updated);
-
-		return updated;
+//		BrailleSettings settings = engine.getBrailleSettings();
+//		boolean updated = false;
+//		XMLEntry selected = config.entries.get(languageCombo.getSelectionIndex());
+//
+//		updated = SettingsUIUtils.updateObject(settings::getMainTranslationTable, settings::setMainTranslationTable,
+//				selected.literaryBraille.get(litteraryCombo.getSelectionIndex()).fileName, updated);
+//		updated = SettingsUIUtils.updateObject(settings::getComputerBrailleTable, settings::setComputerBrailleTable,
+//				selected.computerBraille.get(computerCombo.getSelectionIndex()).fileName, updated);
+//		updated = SettingsUIUtils.updateObject(settings::getMathTextTable, settings::setMathTextTable,
+//				selected.math.fileName, updated);
+//
+//		return updated;
+		return false;
 	}
 
 	private static XMLConfiguration loadConfiguration() {

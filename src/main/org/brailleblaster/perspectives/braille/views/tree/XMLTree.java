@@ -682,6 +682,7 @@ public class XMLTree extends TreeView {
 			TreeItem deletedItem = this.findElementInTree(root, elList.get(i));
 			deletedItem.dispose();
 		}
+		
 		if(mapList.size() == 0){
 			depopulateItemChildren(parent);
 			buildTreeFromElement(getTreeItemData(parent).element);

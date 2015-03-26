@@ -929,7 +929,7 @@ public class BrailleView extends WPView {
 	}
 	
 	public void mergeElement(Message m, MapList list, TextMapElement t, BrailleMapElement b, int pos){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		IStyle style = getStyle(t.n);
 		boolean isFirst = t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isFirst(b.n); 
 		boolean isLast =  t instanceof PageMapElement || t instanceof BrlOnlyMapElement || isLast(b.n);
 		int margin = 0;
@@ -953,14 +953,14 @@ public class BrailleView extends WPView {
 		b.setOffsets(lineBreaks + start, lineBreaks + start + b.n.getValue().length());
 		list.shiftOffsetsFromIndex(list.indexOf(t) + 1, 0, b.n.getValue().length() + lineBreaks);
 		
-		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+	//	WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
 		int linesBefore = 0;
-		if(isFirst)
-			linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
+	//	if(isFirst)
+	//		linesBefore = wsp.setLinesBeforeBraille(t, b, lineBreaks + start, style);
 		
 		int linesAfter = 0;
-		if(isLast)
-			linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
+	//	if(isLast)
+	//		linesAfter = wsp.setLinesAfterBraille(t, b, lineBreaks + start + b.n.getValue().length() + linesBefore, style);
 		
 		
 		b.setOffsets(lineBreaks + linesBefore + start, lineBreaks + start + b.n.getValue().length() + linesBefore);
@@ -968,13 +968,13 @@ public class BrailleView extends WPView {
 		m.put("brailleOffset", start + b.n.getValue().length() + linesBefore + linesAfter + lineBreaks);
 		
 		//reset margin in case it is not applied
-		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
-			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
+//		if(t.brailleList.getLast().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getLast().start)))
+//			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), 0, false);
 				
-		if(style.contains(StylesType.leftMargin)) {
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
-		}
+//		if(style.contains(StylesType.leftMargin)) {
+//			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+	//		handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
+//		}
 					
 //		if(isFirst && style.contains(StylesType.firstLineIndent))
 //			setFirstLineIndent(t.brailleList.getFirst().start, style);

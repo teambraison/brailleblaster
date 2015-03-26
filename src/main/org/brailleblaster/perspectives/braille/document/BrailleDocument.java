@@ -358,15 +358,8 @@ public class BrailleDocument extends BBDocument {
 	 */
 	public Element translateElement(Element e){
 		removeBraille(e);
-		//removeSemantics(e);
-		//Document d;
-		
-		//String xml = getXMLString(e.toXML().toString());
-		//d = getXML(xml);
-		//Element parent = d.getRootElement();
 		Nodes nodes = engine.translate(e);
 		Element transElement =  (Element)nodes.get(0);
-		//addNamespace(transElement);
 		return transElement;
 	}
 	

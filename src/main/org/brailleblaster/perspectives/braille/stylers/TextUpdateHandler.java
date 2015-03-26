@@ -127,11 +127,11 @@ public class TextUpdateHandler extends Handler {
 		block = (Element)message.getValue("Element");
 		clearViews(elList, startIndex, diff);
 		for(int i = 0; i < elList.size(); i++)
-			list.remove(elList.get(i));
-		
+			list.remove(elList.get(i));	
+
 	//	if(emptyNode)
 	//		manager.getDocument().insertEmptyBrailleNode(block, nodeIndexes);
-		
+
 		int length = repopulateRange(block, startIndex);
 		elList = getListRange(startIndex, length);
 		setViews(elList, startIndex, textOffset, brailleOffset, false);

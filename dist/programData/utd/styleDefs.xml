@@ -19,10 +19,10 @@
 		<dontSplit>no</dontSplit>
 		<keepWithNext>no</keepWithNext>
 		<keepWithPrevious>no</keepWithPrevious>
-		<orphanControl>0</orphanControl>
+		<orphanControl>1</orphanControl>
 		<lineSpacing>1</lineSpacing>
-		<StartSeperator/>
-		<EndSeperator/>
+		<startSeparator/>
+		<endSeparator/>
 	</defaultStyle>
 	<style>
 		<name>bodytext</name>
@@ -68,12 +68,12 @@
 	<style>
 		<name>line</name>
 		<leftMargin>2</leftMargin>
-		<firstLineIndent>-2</firstLineIndent>
+<!--		<firstLineIndent>-2</firstLineIndent>-->
 	</style>
 	<style>
 		<name>list</name>
 		<leftMargin>2</leftMargin>
-		<firstLineIndent>-2</firstLineIndent>
+<!--		<firstLineIndent>-2</firstLineIndent>-->
 	</style>
 	<style>
 		<name>matrix</name>

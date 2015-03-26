@@ -984,7 +984,7 @@ public class TextView extends WPView {
 	public void mergeElement(Message m, ViewInitializer vi, MapList list, int listIndex, int start, TextMapElement t){
 		int linesBefore = 0;
 		int linesAfter = 0;
-		Styles style = stylesTable.makeStylesElement((Element)t.n.getParent(), t.n);
+		IStyle style = getStyle(t.n); 
 		String reformattedText;
 		if(t instanceof BrlOnlyMapElement)
 			reformattedText = t.getText();
@@ -1005,13 +1005,13 @@ public class TextView extends WPView {
 		
 		int margin = 0;
 		
-		WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
+	//	WhiteSpaceManager wsp = new WhiteSpaceManager(manager, this, list);
 		
-		if(isFirst)
-			linesBefore = wsp.setLinesBefore(t, start, style);	
+	//	if(isFirst)
+	//		linesBefore = wsp.setLinesBefore(t, start, style);	
 		
-		if(isLast)
-			linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
+	//	if(isLast)
+	//		linesAfter = wsp.setLinesAfter(t, start + reformattedText.length() + linesBefore, style);
 		
 		t.setOffsets(start + linesBefore, linesBefore + start + reformattedText.length());
 		m.put("textLength", linesBefore + linesAfter);
@@ -1019,13 +1019,13 @@ public class TextView extends WPView {
 		
 		start += linesBefore;
 		//reset margin in case it is not applied
-		if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
-			handleLineWrap(start, reformattedText, 0, false);
+	//	if(start == view.getOffsetAtLine(view.getLineAtOffset(start)))
+	//		handleLineWrap(start, reformattedText, 0, false);
 				
-		if(style.contains(StylesType.leftMargin)) {
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
-		}
+	//	if(style.contains(StylesType.leftMargin)) {
+	//		margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+	//		handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
+	//	}
 					
 	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
 	//		setFirstLineIndent(start, style);
@@ -1508,7 +1508,7 @@ public class TextView extends WPView {
 	private boolean isFirstElement(Element child){
 		Element parent = (Element)child.getParent();
 		
-		while(parent.getAttributeValue("semantics").contains("action")){
+		while(!(getAction(parent) instanceof GenericAction)){
 			if(parent.indexOf(child) != 0)
 				return false;
 			

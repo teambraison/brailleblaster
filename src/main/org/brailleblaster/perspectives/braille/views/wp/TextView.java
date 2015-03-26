@@ -50,6 +50,8 @@ import org.brailleblaster.perspectives.braille.messages.Sender;
 import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
+import org.brailleblaster.utd.IStyle;
+import org.brailleblaster.utd.actions.IAction;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -648,19 +650,16 @@ public class TextView extends WPView {
 	}
 	
 	public void setText(TextMapElement t, MapList list, int index){
-		//Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
-		//Styles prevStyle;
-		//if(list.size() > 0 && index != 0 && list.get(index - 1).n != null)
-		//	prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
-		//else
-		//	prevStyle = null;
+		IStyle style = getStyle(t.n);  
+		IStyle prevStyle = null;
+		if(!list.empty() && index != 0 && list.get(index - 1).n != null)
+			prevStyle = getStyle(list.get(index - 1).n);
 		
 		String newText = appendToView(t.n, true);
 		int textLength = newText.length();
-
 		view.append(newText);
-		//if(!(t instanceof PageMapElement))
-		//	handleStyle(prevStyle, style, t.n, newText);
+		if(!(t instanceof PageMapElement))
+			handleStyle(prevStyle, style, t.n, newText);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + total + textLength);
 		total += spaceBeforeText + textLength + spaceAfterText;
@@ -673,12 +672,10 @@ public class TextView extends WPView {
 	
 	public void prependText(TextMapElement t, MapList list, int index){
 		setListenerLock(true);
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
-		Styles prevStyle;
+		IStyle style = getStyle(t.n);
+		IStyle prevStyle = null;
 		if(list.size() > 0 && index != 0)
-			prevStyle = stylesTable.makeStylesElement(list.get(index - 1).parentElement(), list.get(index - 1).n);
-		else
-			prevStyle = null;
+			prevStyle = getStyle(list.get(index - 1).n);
 		
 		String newText = insertToView(t.n, true);
 		int textLength = newText.length();
@@ -698,27 +695,25 @@ public class TextView extends WPView {
 	
 	public void setMathML(MapList list, TextMapElement t){
 		Element math = (Element)t.n;
-		Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
-		Styles prevStyle;
 		int length = 1;
 		
-		if(list.size() > 0)
-			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
-		else
-			prevStyle = null;
+	//	Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
+	//	Styles prevStyle = null;	
+	//	if(list.size() > 0)
+	//		prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
 		
 		int index = math.getParent().indexOf(math);
 		Element brl = (Element)math.getParent().getChild(index + 1);
 		
 		if(brl.getChild(0) instanceof Element){
-			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
-				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+			if(((Element)brl.getChild(0)).getLocalName().equals(NEW_PAGE)){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals(MOVE_TO)){
 					view.append("\n");
 					total++;
 				}
 			}
 			else {
-				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+				if(((Element)brl.getChild(0)).getLocalName().equals(MOVE_TO)){
 					view.append("\n");
 					total++;
 				}
@@ -729,21 +724,21 @@ public class TextView extends WPView {
 		view.append(" ");
 
 		setImageStyleRange(image, total, length);
-		handleStyle(prevStyle, style, math, " ");
+	//	handleStyle(prevStyle, style, math, " ");
 		
 		for(int i = 1; i < brl.getChildCount(); i++){
-			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO) && !(brl.getChild(0) instanceof Element)){
 				view.append("\n");
 				length++;
 			}
-			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO)){
 				view.append("\n");
 				length++;
 			}	
 		}
 
-		StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
-		setFontStyleRange(s.start, length, s);
+	//	StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
+	//	setFontStyleRange(s.start, length, s);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText);
 		total += spaceBeforeText + length + spaceAfterText;
@@ -753,28 +748,26 @@ public class TextView extends WPView {
 	
 	public void prependMathML(MapList list, TextMapElement t){
 		Element math = (Element)t.n;
-		Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
-		Styles prevStyle;
 		int length = 1;
 		
-		if(list.size() > 0)
-			prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
-		else
-			prevStyle = null;
+	//	Styles style = stylesTable.makeStylesElement((Element)math.getParent(), math);
+	//	Styles prevStyle = null;		
+	//	if(list.size() > 0)
+	//		prevStyle = stylesTable.makeStylesElement(list.getLast().parentElement(),list.getLast().n);
 		
 		int index = math.getParent().indexOf(math);
 		Element brl = (Element)math.getParent().getChild(index + 1);
 		
 		if(brl.getChild(0) instanceof Element){
-			if(((Element)brl.getChild(0)).getLocalName().equals("newpage")){
-				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals("newline")){
+			if(((Element)brl.getChild(0)).getLocalName().equals(NEW_PAGE)){
+				if(brl.getChild(1) instanceof Element && ((Element)brl.getChild(1)).getLocalName().equals(MOVE_TO)){
 					view.insert("\n");
 					total++;
 					view.setCaretOffset(total);
 				}
 			}
 			else {
-				if(((Element)brl.getChild(0)).getLocalName().equals("newline")){
+				if(((Element)brl.getChild(0)).getLocalName().equals(MOVE_TO)){
 					view.insert("\n");
 					total++;
 					view.setCaretOffset(total);
@@ -787,26 +780,26 @@ public class TextView extends WPView {
 		view.setCaretOffset(total + 1);
 		
 		setImageStyleRange(image, total, length);
-		handleStyle(prevStyle, style, math, " ");
+	//	handleStyle(prevStyle, style, math, " ");
 		
 		if(spaceBeforeText > 0)
 			view.setCaretOffset(view.getCaretOffset() + spaceBeforeText);
 		
 		for(int i = 1; i < brl.getChildCount(); i++){
-			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline") && !(brl.getChild(0) instanceof Element)){
+			if(i == 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO) && !(brl.getChild(0) instanceof Element)){
 				view.insert("\n");
 				length++;
 				view.setCaretOffset(view.getCaretOffset() + 1);
 			}
-			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals("newline")){
+			else if(i > 1 && brl.getChild(i) instanceof Element && ((Element)brl.getChild(i)).getLocalName().equals(MOVE_TO)){
 				view.insert("\n");
 				length++;
 				view.setCaretOffset(view.getCaretOffset() + 1);
 			}	
 		}
 		
-		StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
-		setFontStyleRange(s.start, length, s);
+	//	StyleRange s = view.getStyleRangeAtOffset(spaceBeforeText + total);
+	//	setFontStyleRange(s.start, length, s);
 		
 		t.setOffsets(spaceBeforeText + total, spaceBeforeText + (total + length) + spaceAfterText);
 		total += spaceBeforeText + length + spaceAfterText;
@@ -871,21 +864,21 @@ public class TextView extends WPView {
 			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
 		}
 		
-		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent))
-			setFirstLineIndent(t.start, style);
+//		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent))
+//			setFirstLineIndent(t.start, style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(t.start, text.length(), (StyleRange)style.get(StylesType.emphasis));
-		else {
-			StyleRange range = getStyleRange();
-			if(range != null)
-				 resetStyleRange(range);		
-		}
+	//	if(style.contains(StylesType.emphasis))
+	//		setFontStyleRange(t.start, text.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	else {
+	//		StyleRange range = getStyleRange();
+	//		if(range != null)
+	//			 resetStyleRange(range);		
+	//	}
 		
-		if(style.contains(StylesType.format))
-			setAlignment(currentStart, currentEnd, style);
-		else
-			setAlignment(currentStart, currentEnd, SWT.LEFT);
+//		if(style.contains(StylesType.format))
+//			setAlignment(currentStart, currentEnd, style);
+//		else
+//			setAlignment(currentStart, currentEnd, SWT.LEFT);
 	}
 	
 	public void removeMathML(Message m){
@@ -917,14 +910,14 @@ public class TextView extends WPView {
 			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 		}
 					
-		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(n) && style.contains(StylesType.firstLineIndent))
-			setFirstLineIndent(start, style);
+	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst(n) && style.contains(StylesType.firstLineIndent))
+	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + n.getValue().length(), style);
+	//	if(style.contains(StylesType.format))
+	//		setAlignment(start, start + n.getValue().length(), style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	if(style.contains(StylesType.emphasis))
+	//		setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -975,14 +968,14 @@ public class TextView extends WPView {
 			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 		}
 					
-		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
-			setFirstLineIndent(start, style);
+	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + t.n.getValue().length(), style);
+//		if(style.contains(StylesType.format))
+//			setAlignment(start, start + t.n.getValue().length(), style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	if(style.contains(StylesType.emphasis))
+	//		setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -1033,14 +1026,14 @@ public class TextView extends WPView {
 			handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 		}
 					
-		if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
-			setFirstLineIndent(start, style);
+	//	if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+	//		setFirstLineIndent(start, style);
 		
-		if(style.contains(StylesType.format))
-			setAlignment(start, start + t.n.getValue().length(), style);
+	//	if(style.contains(StylesType.format))
+	//		setAlignment(start, start + t.n.getValue().length(), style);
 		
-		if(style.contains(StylesType.emphasis))
-			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//	if(style.contains(StylesType.emphasis))
+	//		setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -1134,14 +1127,14 @@ public class TextView extends WPView {
 				handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 			}
 					
-			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
-				setFirstLineIndent(start, style);
+//			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
+//				setFirstLineIndent(start, style);
 		
-			if(style.contains(StylesType.format))
-				setAlignment(start, start + t.n.getValue().length(), style);
+//			if(style.contains(StylesType.format))
+//				setAlignment(start, start + t.n.getValue().length(), style);
 		
-			if(style.contains(StylesType.emphasis))
-				setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
+	//		if(style.contains(StylesType.emphasis))
+	//			setFontStyleRange(start, reformattedText.length(), (StyleRange)style.get(StylesType.emphasis));
 		}
 		view.setCaretOffset(originalPosition);
 		setListenerLock(false);
@@ -1160,15 +1153,15 @@ public class TextView extends WPView {
 				if(indexes != null){
 					for(int i = 0; i < brl.getChildCount(); i++){
 						if(isText(brl.getChild(i))){
-							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals(MOVE_TO)){
 								String brltext = brl.getChild(i).getValue();						
 								totalLength += brltext.length();
 								end = indexes[totalLength - 1];
 								if(totalLength == indexes.length){
 									if(start == 0 && append){
-										view.append("\n");
+			//							view.append("\n");
 										text.append(n.getValue().substring(start));
-										spaceBeforeText++;
+			//							spaceBeforeText++;
 									}
 									else if(start == 0){
 										text.append(n.getValue().substring(start));
@@ -1180,9 +1173,9 @@ public class TextView extends WPView {
 								else{
 								    end += indexes[totalLength] - end;
 									if(start == 0 && append){
-										view.append("\n");
+			//							view.append("\n");
 										text.append(n.getValue().substring(start, end));
-										spaceBeforeText++;
+			//							spaceBeforeText++;
 									}
 									else if(start == 0){
 										text.append(n.getValue().substring(start, end));
@@ -1210,9 +1203,9 @@ public class TextView extends WPView {
 					}
 				}
 				else if(append){
-					view.append("\n");
+	//				view.append("\n");
 					text.append(n.getValue());
-					spaceBeforeText++;
+	//				spaceBeforeText++;
 				}
 				else {
 					text.append(n.getValue());
@@ -1244,7 +1237,7 @@ public class TextView extends WPView {
 				if(indexes != null){
 					for(int i = 0; i < brl.getChildCount(); i++){
 						if(isText(brl.getChild(i))){
-							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals("newline")){
+							if(i > 0 && ((Element)brl.getChild(i - 1)).getLocalName().equals(MOVE_TO)){
 								String brltext = brl.getChild(i).getValue();						
 								totalLength += brltext.length();
 								end = indexes[totalLength - 1];
@@ -1318,44 +1311,26 @@ public class TextView extends WPView {
 		return text.toString();
 	}
 	
-	private void handleStyle(Styles prevStyle, Styles style, Node n, String viewText){
+	private void handleStyle(IStyle prevStyle, IStyle style, Node n, String viewText){
 		boolean isFirst = isFirst(n);
 		
-		for (Entry<StylesType, Object> entry : style.getEntrySet()) {
-			switch(entry.getKey()){
-				case linesBefore:
-					if(isFirst && (prevStyle == null || !prevStyle.contains(StylesType.linesAfter)))
-						setLinesBefore(total + spaceBeforeText, style);
-					break;
-				case linesAfter:
-					if(isLast(n))
-						setLinesAfter(spaceBeforeText + total + viewText.length(), style);
-					break;
-				case firstLineIndent: 
-					if(isFirst && (Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin)))
-						setFirstLineIndent(spaceBeforeText + total, style);
-					break;
-				case format:
-					setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style);
-					break;	
-				case emphasis:
-					setFontStyleRange(total, spaceBeforeText + viewText.length(), (StyleRange)entry.getValue());
-					break;
-				case leftMargin:
-					if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), style.contains(StylesType.firstLineIndent));
-					else
-						handleLineWrap(spaceBeforeText + total, viewText, Integer.valueOf((String)entry.getValue()), false);
-					break;
-				case name:
-					break;
-				case topBoxline:
-				case bottomBoxline:
-					break;
-				default:
-					System.out.println(entry.getKey());
-			}
-		}
+		if(isFirst && (prevStyle == null || prevStyle.getLinesAfter() == 0))
+			setLinesBefore(total + spaceBeforeText, style.getLinesBefore());
+		
+		if(isLast(n))
+			setLinesAfter(spaceBeforeText + total + viewText.length(), style.getLinesAfter());
+		
+		if(isFirst && style.getFirstLineIndent() != 0)
+			setFirstLineIndent(spaceBeforeText + total, style.getFirstLineIndent(), style.getLeftMargin());
+	
+		setAlignment(spaceBeforeText + total, spaceBeforeText + total + viewText.length(), style.getAlign());
+		
+		//setFontStyleRange(total, spaceBeforeText + viewText.length(), style);
+		
+		if(isFirst || (!isFirst && view.getLineAtOffset(spaceBeforeText + total) == view.getLineAtOffset(total)))
+			handleLineWrap(spaceBeforeText + total, viewText, style.getLeftMargin(), style.getFirstLineIndent() != 0);
+		else
+			handleLineWrap(spaceBeforeText + total, viewText, style.getLeftMargin(), false);
 	}
 	
 	private void handleTextEdit(ExtendedModifyEvent e){
@@ -1703,8 +1678,8 @@ public class TextView extends WPView {
 	private void checkStyleRange(StyleRange range){
 		int currentStart = stateObj.getCurrentStart();
 		int currentEnd = stateObj.getCurrentEnd();
-		if(range != null)
-			setFontStyleRange(currentStart, currentEnd - currentStart, range);
+	//	if(range != null)
+	//		setFontStyleRange(currentStart, currentEnd - currentStart, range);
 	}
 	
 	private void setSelection(int start, int length){
@@ -1733,7 +1708,7 @@ public class TextView extends WPView {
 		//Reset indent, alignment, and emphasis
 		view.setLineIndent(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), 0);
 		view.setLineAlignment(view.getLineAtOffset(start), getLineNumber(start, view.getTextRange(start, (end - start))), SWT.LEFT);
-		setFontStyleRange(start, end - start, new StyleRange());
+	//	setFontStyleRange(start, end - start, new StyleRange());
 		
 		if(!style.contains(StylesType.linesBefore) && previousStyle.contains(StylesType.linesBefore))
 			removeLinesBefore(m);
@@ -1782,13 +1757,13 @@ public class TextView extends WPView {
 					linesAfterOffset = spaces - length;
 					m.put("linesAfterOffset", linesAfterOffset);
 					break;
-				case format:
-					setAlignment(start, end, style);	
-					break;
-				case firstLineIndent:
-					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
-						setFirstLineIndent(start, style);
-					break;
+//				case format:
+//					setAlignment(start, end, style);	
+//					break;
+//				case firstLineIndent:
+//					if(Integer.valueOf((String)entry.getValue()) > 0 || style.contains(StylesType.leftMargin))
+//						setFirstLineIndent(start, style);
+//					break;
 				case leftMargin:
 					if(style.contains(StylesType.firstLineIndent))
 						handleLineWrap(start, view.getTextRange(start, (end - start)), Integer.valueOf((String)entry.getValue()), true);
@@ -1803,9 +1778,9 @@ public class TextView extends WPView {
 			
 			//inline elements may have different emphasis, so all must be check seperately 
 			for(int i = 0; i < list.size(); i++){
-				Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
-				if(nodeStyle.contains(StylesType.emphasis))
-					setFontStyleRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), (StyleRange)nodeStyle.get(StylesType.emphasis));
+	//			Styles nodeStyle = stylesTable.makeStylesElement(list.get(i).parentElement(), list.get(i).n);
+	//			if(nodeStyle.contains(StylesType.emphasis))
+	//				setFontStyleRange(list.get(i).start + offset, (list.get(i).end + offset) - (list.get(i).start + offset), (StyleRange)nodeStyle.get(StylesType.emphasis));
 			}
 		}
 		setListenerLock(false);

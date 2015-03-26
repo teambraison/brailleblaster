@@ -13,6 +13,7 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.utd.actions.SkipAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.FocusEvent;
@@ -237,7 +238,7 @@ public class XMLTree extends TreeView {
 		Elements els = e.getChildElements();
 	
 		for(int i = 0; i < els.size(); i++){
-			if(!els.get(i).getLocalName().equals("brl") && manager.getDocument().attributeExists(els.get(i), "semantics") && !els.get(i).getAttributeValue("semantics").contains("skip")){
+			if( !els.get(i).getLocalName().equals("brl") && !(getAction(els.get(i)) instanceof SkipAction)){
 				TreeItem temp = new TreeItem(item, 0);
 				temp.setText(els.get(i).getLocalName());
 				TreeItemData data = new TreeItemData(els.get(i));

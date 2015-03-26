@@ -59,8 +59,6 @@ import org.slf4j.LoggerFactory;
  * you will get "SWTException: Invalid Thread Access"
  */
 public class Main {
-	private static final Logger log = LoggerFactory.getLogger(Main.class);
-
 	public static void main(String[] args) {
 		File bbPath = getBrailleblasterPath();
 		System.out.println("BrailleBlaster path: " + bbPath);
@@ -134,6 +132,10 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Point logback to its configuration file in programData/settings
+	 * @param bbPath 
+	 */
 	public static void initLogback(File bbPath) {
 		if(System.getProperty("logback.configurationFile") != null)
 			//User passed explicit config, logback will pick it up automatically
@@ -141,6 +143,7 @@ public class Main {
 		
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		try {
+			context.reset();
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(context);
 			File logbackConf = new File(bbPath, "programData/settings/logback.xml");
@@ -160,6 +163,8 @@ public class Main {
 	 * Needed as different bit versions of the same OS overwrite each others libraries
 	 */
 	public static void initSWT(File bbPath) {
+		//Logback should be inited at this point
+		Logger log = LoggerFactory.getLogger(Main.class);
 		//Attempt to guess the filename
 		String swtFileUi;
 		String swtFileOs;

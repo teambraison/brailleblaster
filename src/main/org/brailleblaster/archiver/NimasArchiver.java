@@ -93,7 +93,7 @@ public class NimasArchiver extends Archiver {
 		// faster in certain perspectives.
 
 		// Write the first file to disk.
-		wrtieToDisk(0);
+		writeToDisk(0);
 	}
 	
 	@Override
@@ -288,7 +288,7 @@ public class NimasArchiver extends Archiver {
 	// chunked document to disk using the specified index.
 	public void resetThenWrite(int idx) {
 		resetDuplicatePathList();
-		wrtieToDisk(idx);
+		writeToDisk(idx);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////////
@@ -303,7 +303,7 @@ public class NimasArchiver extends Archiver {
 	 * @param index
 	 * @return
 	 */
-	public String wrtieToDisk(int index){
+	public String writeToDisk(int index){
 		// Build string path.
 		String outPath = workingDocPath.substring(0, workingDocPath.lastIndexOf(BBIni.getFileSep())) + BBIni.getFileSep() + Integer.toString(index) + ".xml";
 		if( !(allPaths.contains(Integer.toString(index))) ){
@@ -329,31 +329,28 @@ public class NimasArchiver extends Archiver {
      * Get partition nimas book
      * @return ArrayList of Document which each entry of an array includes a nimas book
      */
-	public Document manageNimas(int index)
-	{
+	public Document manageNimas (int index) {
 		 Document currentDoc =null;
 		//Read xml template
 		String sourcePath = BBIni.getProgramDataPath() + BBIni.getFileSep() + "xmlTemplates" + BBIni.getFileSep() + "nimasTemplate.xml";
 		File temp = new File(sourcePath);
 		//get all level1 element
-		Nodes allNode=getLevel1();
+		Nodes allNode = getLevel1();
 		
 		// Store the number of files we would create if we 
 		// ran through all of the indices.
 		numPotentialFiles = allNode.size();
 		
-		if (index<allNode.size()){
-			Node node=allNode.get(index);
-			currentDoc=breakDocument(temp,node);
+		if (index < allNode.size()) {
+			Node node = allNode.get(index);
+			currentDoc = breakDocument(temp,node);
 		}
 		
 		// Get the number of <img> elements.
-		if(getImgCountList().size() == 0)
-		{
+		if(getImgCountList().size() == 0) {
 			// Go through every <level1> element, and count the 
 			// images.
-			for(int curLvl1 = 0; curLvl1 < allNode.size(); curLvl1++)
-			{
+			for(int curLvl1 = 0; curLvl1 < allNode.size(); curLvl1++) {
 				// Add the count.
 				Node nd = allNode.get(curLvl1);
 				addToNumImgsList( new Document((Element)nd.copy()), curLvl1);
@@ -367,8 +364,7 @@ public class NimasArchiver extends Archiver {
 				}
 			}
 		}
-		
-		
+
 		return currentDoc;
 	}
 
@@ -381,7 +377,7 @@ public class NimasArchiver extends Archiver {
 	Document createDocument(File tempfile)
 	{
 		Logger logger = LoggerFactory.getLogger(NimasArchiver.class);
-		Document tempDoc=new Document(new Element("root"));
+		Document tempDoc = new Document(new Element("root"));
 		try{
 			XMLReader xmlreader = XMLReaderFactory.createXMLReader();
 			Resolver res = new Resolver();
@@ -407,30 +403,29 @@ public class NimasArchiver extends Archiver {
 		
 		return tempDoc;
 	}
+	
 	/**
 	 * Create Namespase and get context
 	 * @param doc
 	 * @return context of document
 	 */
-	nu.xom.XPathContext getConetxt(Document doc)
-	{
+	nu.xom.XPathContext getContext(Document doc) {
 		// Namespace and context.
 		String nameSpace = doc.getRootElement().getNamespaceURI();
 		nu.xom.XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 		return context;
-
 	}
+	
 	/***
 	 * Get Node by using xpath
-	 * @param qeuery
+	 * @param query
 	 * @param doc
 	 * @param context
 	 * @return
 	 */
-	Nodes getXpath (String qeuery, Document doc,nu.xom.XPathContext context ) {
-		return doc.query(qeuery,context);
+	Nodes getXpath (String query, Document doc, nu.xom.XPathContext context ) {
+		return doc.query(query,context);
 	}
-
 
     /***
      * Get partition nimas book
@@ -449,7 +444,6 @@ public class NimasArchiver extends Archiver {
 		}
 		
 		return allDocs;
-		
 	}
 
 	
@@ -458,9 +452,9 @@ public class NimasArchiver extends Archiver {
 	 * @param addedNode
 	 * @return small nimas document
 	 */
-	Document breakDocument(File temp,Node addedNode){
-		Document tempDoc=createDocument(temp);
-		nu.xom.XPathContext contextTemp=getConetxt(tempDoc);
+	Document breakDocument(File temp,Node addedNode) {
+		Document tempDoc = createDocument(temp);
+		nu.xom.XPathContext contextTemp = getContext(tempDoc);
 		Nodes frontmatter = getXpath ("//dtb:frontmatter", tempDoc ,contextTemp );
 		Nodes bodymatter = getXpath ("//dtb:bodymatter", tempDoc ,contextTemp );
 		Nodes rearmatter = getXpath ("//dtb:rearmatter", tempDoc ,contextTemp );
@@ -481,21 +475,21 @@ public class NimasArchiver extends Archiver {
 			rear.appendChild(addedNode);
 		return tempDoc;
 
-	}
+	}  
+	
 	/***
 	 * Get All level1 in current nimas file
 	 * @return
 	 */
-	Nodes getLevel1(){
+	Nodes getLevel1() {
 		//Read current nimas file
-		File file=new File(workingDocPath);
+		File file = new File(workingDocPath);
 		//create a document
 		Document nimasDocument = createDocument(file);
 		//get context
-		nu.xom.XPathContext context= getConetxt(nimasDocument);
+		nu.xom.XPathContext context = getContext(nimasDocument);
 		// get all level one elements
 		Nodes levelOnes=getXpath ("//dtb:level1", nimasDocument ,context );
 		return levelOnes;
-
 	}
 } // class NimasArchiver

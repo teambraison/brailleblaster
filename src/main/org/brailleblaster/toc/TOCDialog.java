@@ -21,10 +21,12 @@ import nu.xom.Document;
 import nu.xom.Node;
 import nu.xom.XPathContext;
 
+/**
+ *  This handles the Update/Generate TOC option under the Insert Menu.
+ *  
+ *  @author Rezylle Milallos
+ */
 public class TOCDialog extends Dialog {
-	/**
-	 * 
-	 */
 	private Manager manager;
 	private Shell shlTOC;
 	protected Object result;

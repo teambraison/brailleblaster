@@ -51,6 +51,7 @@ import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.EditRecorder;
 import org.brailleblaster.perspectives.braille.views.wp.formatters.WhiteSpaceManager;
 import org.brailleblaster.utd.IStyle;
+import org.brailleblaster.utd.actions.GenericAction;
 import org.brailleblaster.util.Notify;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CaretEvent;
@@ -855,16 +856,17 @@ public class TextView extends WPView {
 	public void refreshStyle(TextMapElement t){
 		int currentStart = stateObj.getCurrentStart();
 		int currentEnd = stateObj.getCurrentEnd();
-		Styles style = stylesTable.makeStylesElement((Element)t.parentElement(), t.n);
-		String text = view.getTextRange(t.start, t.end - t.start);
 		int margin = 0;
+		IStyle style = getStyle(t.n);
+		String text = view.getTextRange(t.start, t.end - t.start);
+	
 //		if(style.contains(StylesType.leftMargin)){
 	//		margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
 //			handleLineWrap(currentStart, text, margin, style.contains(StylesType.firstLineIndent));
 //		}
 		
-//		if(isFirst(t.n) && style.contains(StylesType.firstLineIndent))
-//			setFirstLineIndent(t.start, style);
+		if(isFirst(t.n) && style.getFirstLineIndent() != 0)
+			setFirstLineIndent(t.start, style.getFirstLineIndent(), style.getLeftMargin());
 		
 	//	if(style.contains(StylesType.emphasis))
 	//		setFontStyleRange(t.start, text.length(), (StyleRange)style.get(StylesType.emphasis));
@@ -1126,8 +1128,8 @@ public class TextView extends WPView {
 //				handleLineWrap(start, reformattedText, margin, style.contains(StylesType.firstLineIndent));
 //			}
 					
-//			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.contains(StylesType.firstLineIndent))
-//				setFirstLineIndent(start, style);
+			if(!(list.get(listIndex) instanceof BrlOnlyMapElement) && isFirst && style.getFirstLineIndent() != 0)
+				setFirstLineIndent(start, style.getFirstLineIndent(), style.getLeftMargin());
 		
 //			if(style.contains(StylesType.format))
 //				setAlignment(start, start + t.n.getValue().length(), style);
@@ -1493,7 +1495,7 @@ public class TextView extends WPView {
 		Element parent = (Element)n.getParent();
 		
 		if(parent.indexOf(n) == 0){
-			if(parent.getAttributeValue("semantics").contains("action"))
+			if(!(getAction(parent) instanceof GenericAction))
 				return isFirstElement(parent);
 			else 
 				return true;
@@ -1899,6 +1901,7 @@ public class TextView extends WPView {
 				
 		setListenerLock(false);
 		setCurrent(view.getCaretOffset());
+		refreshStyle(currentElement);
 	}	
 	
 	@Override

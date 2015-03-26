@@ -13,6 +13,9 @@ import org.brailleblaster.perspectives.braille.mapping.elements.PageMapElement;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.messages.Message;
 import org.brailleblaster.perspectives.braille.messages.Sender;
+import org.brailleblaster.utd.actions.GenericAction;
+import org.brailleblaster.utd.actions.IAction;
+import org.brailleblaster.utd.actions.PageAction;
 import org.brailleblaster.utd.actions.SkipAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
@@ -201,8 +204,11 @@ public class XMLTree extends TreeView {
 	@Override
 	public void newTreeItem(TextMapElement t, int index, int offset){
 		Element parentElement = t.parentElement();
-		while(parentElement.getAttributeValue("semantics").contains("action")  && !parentElement.getAttributeValue("semantics").contains("pagenum")){
+		IAction action = getAction(parentElement);
+		
+		while(!(action instanceof GenericAction) && !(action instanceof PageAction)){
 			parentElement = (Element)parentElement.getParent();
+			action = getAction(parentElement);
 		}
 		
 		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());
@@ -217,8 +223,11 @@ public class XMLTree extends TreeView {
 	
 	public void newTreeItem(ArrayList<TextMapElement>list, int index, int offset){
 		Element parentElement = (Element)list.get(0).parentElement();
-		while(parentElement.getAttributeValue("semantics").contains("action") && !parentElement.getAttributeValue("semantics").contains("pagenum")){
+		IAction action = getAction(parentElement);
+		
+		while(!(action instanceof GenericAction) && !(action instanceof PageAction)){
 			parentElement = (Element)parentElement.getParent();
+			action = getAction(parentElement);
 		}
 		
 		TreeItem parent = findElementInTree(root, (Element)parentElement.getParent());

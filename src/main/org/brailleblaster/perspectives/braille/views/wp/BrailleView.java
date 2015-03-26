@@ -691,25 +691,26 @@ public class BrailleView extends WPView {
 	}
 	
 	public void refreshStyle(TextMapElement t){
-		Styles style = stylesTable.makeStylesElement(t.parentElement(), t.n);
+		IStyle style = getStyle(t.n); 
 		String text = view.getTextRange(t.brailleList.getFirst().start, t.brailleList.getLast().end - t.brailleList.getFirst().start);
 		int margin = 0;
+		
 //		if(style.contains(StylesType.format) && t.brailleList.size() > 0)
 //			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, style);
 //		else
 //			setAlignment(t.brailleList.getFirst().start, t.brailleList.getLast().end, SWT.LEFT);
 		
 		//reset margin in case it is not applied
-		if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
-			handleLineWrap(t.brailleList.getFirst().start, text, 0, false);
+//		if(t.brailleList.getFirst().start == view.getOffsetAtLine(view.getLineAtOffset(t.brailleList.getFirst().start)))
+//			handleLineWrap(t.brailleList.getFirst().start, text, 0, false);
 		
-		if(style.contains(StylesType.leftMargin)) {
-			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
-			handleLineWrap(t.brailleList.getFirst().start, text, margin, style.contains(StylesType.firstLineIndent));
-		}
+//		if(style.contains(StylesType.leftMargin)) {
+//			margin = Integer.valueOf((String)style.get(StylesType.leftMargin));
+//			handleLineWrap(t.brailleList.getFirst().start, text, margin, style.contains(StylesType.firstLineIndent));
+//		}
 			
-	//	if(isFirst(t.brailleList.getFirst().n) && style.contains(StylesType.firstLineIndent))
-	//		setFirstLineIndent(t.brailleList.getFirst().start, style);
+		if(isFirst(t.brailleList.getFirst().n) && style.getFirstLineIndent() != 0)
+			setFirstLineIndent(t.brailleList.getFirst().start, style.getFirstLineIndent(), style.getLeftMargin());
 	}
 	
 	public void removeMathML(TextMapElement t){
@@ -1093,8 +1094,8 @@ public class BrailleView extends WPView {
 //					handleLineWrap(t.brailleList.getLast().start, b.n.getValue(), margin, false);
 //				}
 					
-	//			if(isFirst && style.contains(StylesType.firstLineIndent))
-	//				setFirstLineIndent(t.brailleList.getFirst().start, style);
+				if(isFirst && style.getFirstLineIndent() != 0)
+					setFirstLineIndent(t.brailleList.getFirst().start, style.getFirstLineIndent(), style.getLeftMargin());
 		
 	//			if(style.contains(StylesType.format))
 	//				setAlignment(start,start + b.n.getValue().length(),style);

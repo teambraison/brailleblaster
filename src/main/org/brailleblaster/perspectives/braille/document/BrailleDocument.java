@@ -916,6 +916,11 @@ public class BrailleDocument extends BBDocument {
 		}
 	}
 	
+	public void addTest(Element e) {
+		addNamespace(e);
+		doc.getRootElement().appendChild(e);;
+	}
+	
 	private Element findFrontMatter(Element parent){
 		Element returnElement = null;
 		Elements children = parent.getChildElements();

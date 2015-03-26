@@ -32,11 +32,13 @@
  */
 package org.brailleblaster;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import com.sun.jna.Platform;
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -60,11 +62,10 @@ public class Main {
 	private static final Logger log = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
-		System.out.println("before");
 		File bbPath = getBrailleblasterPath();
-		System.out.println("after");
 		System.out.println("BrailleBlaster path: " + bbPath);
-		
+
+		initLogback(bbPath);
 		initSWT(bbPath);
 		BBIni.initialize(args, bbPath);
 
@@ -83,18 +84,16 @@ public class Main {
 	}
 
 	/**
-	 * Find the programData folder, needed very early in initialization to 
+	 * Find the programData folder, needed very early in initialization to
 	 * automatically load required resources
-	 * @param classToUse
-	 * @return 
+	 * @return
 	 */
-	private static File getBrailleblasterPath() {
+	public static File getBrailleblasterPath() {
 		// Option to use an environment variable (mostly for testing
-		// withEclipse)
+		// with Eclipse)
 		String url = System.getenv("BBLASTER_WORK");
 		if (StringUtils.isBlank(url))
 			url = System.getProperty("BBLASTER_WORK");
-
 		if (url != null) {
 //			if (BBIni.getPlatformName().equals("cocoa")
 //					|| BBIni.getPlatformName().equals("gtk"))
@@ -133,6 +132,27 @@ public class Main {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to find path with url " + url, e);
 		}
+	}
+
+	public static void initLogback(File bbPath) {
+		if(System.getProperty("logback.configurationFile") != null)
+			//User passed explicit config, logback will pick it up automatically
+			return;
+		
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		try {
+			JoranConfigurator configurator = new JoranConfigurator();
+			configurator.setContext(context);
+			File logbackConf = new File(bbPath, "programData/settings/logback.xml");
+			System.out.println("Logback conf: " + logbackConf);
+			configurator.doConfigure(logbackConf);
+		} catch (JoranException je) {
+			// StatusPrinter will handle this
+		} catch (Exception ex) {
+			ex.printStackTrace(); // Just in case, so we see a stacktrace
+		}
+		// Internal status data is printed in case of warnings or errors.
+		StatusPrinter.printInCaseOfErrorsOrWarnings(context); 
 	}
 
 	/**

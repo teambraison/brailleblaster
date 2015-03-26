@@ -168,7 +168,6 @@
 					<arguments>
 						<argument>-classpath</argument>
 						<classpath/>
-						<argument>-Dlogback.configurationFile=programData/settings/logback.xml</argument>
 						<argument>org.brailleblaster.Main</argument>
 					</arguments>
 					

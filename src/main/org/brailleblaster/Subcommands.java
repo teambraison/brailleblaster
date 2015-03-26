@@ -35,7 +35,6 @@ package org.brailleblaster;
 
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.wordprocessor.WPManager;
-import org.liblouis.LibLouisUTDML;
 
 import java.io.Console;
 
@@ -57,7 +56,7 @@ import java.util.Arrays;
 
 class Subcommands {
 	private final static Logger logger = LoggerFactory.getLogger(Subcommands.class);
-	private LibLouisUTDML louisutdml;
+	//private LibLouisUTDML louisutdml;
 	private CheckLiblouisutdmlLog lbuLog = new CheckLiblouisutdmlLog();
 	private String subcommand;
 	private String[] subArgs;
@@ -67,7 +66,7 @@ class Subcommands {
 			logger.error("The Braille translation facility is absent.");
 		}
 		// ParseCommandLine.getInstance().parseCommand (args);
-		louisutdml = LibLouisUTDML.getInstance();
+		//louisutdml = LibLouisUTDML.getInstance();
 		int i = 0;
 		while (i < args.length) {
 			if (args[i].charAt(0) != '-') {
@@ -137,7 +136,7 @@ class Subcommands {
 	 * any.
 	 */
 	private void doTranslate() {
-		louisutdml.file2brl(subArgs);
+		//louisutdml.file2brl(subArgs);
 		lbuLog.showLog();
 	}
 
@@ -156,7 +155,7 @@ class Subcommands {
 			System.out.println("Embosser name not supplied. Exiting.");
 			return;
 		}
-		louisutdml.file2brl(subArgs);
+		//louisutdml.file2brl(subArgs);
 		File translatedFile = new File(transOut);
 		try {
 			PrinterDevice embosser = new PrinterDevice(embosserName, true);
@@ -176,7 +175,7 @@ class Subcommands {
 		if (subArgs.length > 1) {
 			logFile = subArgs[1];
 		}
-		louisutdml.checkTable(subArgs[0], logFile, 0);
+		//louisutdml.checkTable(subArgs[0], logFile, 0);
 		lbuLog.showLog();
 	}
 

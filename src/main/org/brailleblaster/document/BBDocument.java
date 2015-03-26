@@ -60,12 +60,9 @@ import org.brailleblaster.BBIni;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
 import org.brailleblaster.settings.SettingsManager;
-import org.brailleblaster.utd.PageSettings;
 import org.brailleblaster.utd.UTDTranslationEngine;
-import org.brailleblaster.utd.utils.UnitConverter;
 import org.brailleblaster.util.CheckLiblouisutdmlLog;
 import org.brailleblaster.util.FileUtils;
-import org.liblouis.LibLouisUTDML;
 
 
 public class BBDocument {
@@ -82,7 +79,6 @@ public class BBDocument {
 	protected Controller dm;
 	protected Document doc;
 	private static String fileSep = BBIni.getFileSep();
-	protected LibLouisUTDML lutdml = LibLouisUTDML.getInstance();
 	protected FileUtils fu = new FileUtils();
 	protected static Logger logger = LoggerFactory.getLogger(BBDocument.class);
 	private ArrayList<String>missingSemanticsList;
@@ -104,7 +100,7 @@ public class BBDocument {
 			engine = new UTDTranslationEngine();
 			sm.loadEngine(engine, dm.getCurrentConfig());
 		} catch(Exception e) {
-			throw new RuntimeException("Could not initialize UTD", e);
+			throw new RuntimeException("Failed to initialize UTD engine", e);
 		}
 	}
 	

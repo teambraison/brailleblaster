@@ -32,9 +32,13 @@
  
 package org.brailleblaster.localization;
 
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import org.brailleblaster.BBIni;
 import org.brailleblaster.util.Notify;
 
 /**
@@ -55,9 +59,19 @@ private LocalizationBase () {}
  * Set the locale to the user's Default locale. 
  */
 static Locale setLocale () {
-locale = Locale.getDefault();
-bundle = ResourceBundle.getBundle(BUNDLEPATH, locale);
-return locale;
+	try {	
+		locale = Locale.getDefault();
+	
+		//Load from file instead of classpath
+		File file = new File(BBIni.getProgramDataPath() + BBIni.getFileSep() + "lang");
+		URL[] urls = new URL[]{file.toURI().toURL()};
+		ClassLoader loader = new URLClassLoader(urls);
+		
+		bundle = ResourceBundle.getBundle(BUNDLEPATH, locale, loader);
+		return locale;
+	} catch (Exception ex) {
+		throw new RuntimeException("Cannot load locale", ex);
+	}
 }
 
 /**

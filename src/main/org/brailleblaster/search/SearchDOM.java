@@ -1,16 +1,11 @@
 package org.brailleblaster.search;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 
 import nu.xom.Document;
-import nu.xom.Element;
 import nu.xom.Node;
 import nu.xom.Nodes;
 import nu.xom.XPathContext;
@@ -18,9 +13,7 @@ import nu.xom.XPathContext;
 import org.brailleblaster.perspectives.braille.Manager;
 import org.brailleblaster.perspectives.braille.mapping.elements.TextMapElement;
 import org.brailleblaster.perspectives.braille.mapping.maps.MapList;
-import org.brailleblaster.perspectives.braille.viewInitializer.ViewInitializer;
 import org.brailleblaster.perspectives.braille.views.wp.TextView;
-import org.brailleblaster.perspectives.braille.views.wp.WPView;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -49,6 +42,8 @@ public class SearchDOM extends Dialog {
 	MapList maplist;
 	TextMapElement textMap;
 	TextView tv;
+
+	SearchDialog sd;
 
 	// Variables for the search dialog
 	protected Object result;
@@ -87,13 +82,16 @@ public class SearchDOM extends Dialog {
 	String currentSearch;
 	Nodes nodes;
 	ArrayList<Integer> sectionArray = new ArrayList<>();
-	ArrayList<Integer> textIndexArray = new ArrayList<>();
-	HashMap<Node, HashMap<Integer, Integer>> nodeMap = new HashMap<>();
+	ArrayList<Integer> visitedArray = new ArrayList<>();
 	int indexOfSearchForView;
 	int indexOfNode;
 	int textIndex;
 	int totalWords;
-	private Integer sectionIndex;
+	private int sectionIndex;
+	boolean found;
+	private int startCharIndex;
+	private int endCharIndex;
+	private int numberOfLoops;
 
 	public SearchDOM(Shell parent, int style, Manager brailleViewController,
 			MapList list) {
@@ -376,17 +374,45 @@ public class SearchDOM extends Dialog {
 		findBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				nodeMap = new HashMap<>();
-				textIndexArray = new ArrayList<>();
-				sectionArray = new ArrayList<>();
-				indexOfSearchForView =0;
-				textIndex=0;
-				if (find()) {
-//					putFoundInView();
-				}
-				else
+				// nodeMap = new HashMap<>();
+				// if (isNewSearch()) {
+				// textIndexArray = new ArrayList<>();
+				// sectionArray = new ArrayList<>();
+				// indexOfSearchForView = 0;
+				// textIndex = 0;
+				// totalWords = 0;
+				found = find();
+				// }
+				if (found == true) {
+					putFoundInView();
+				} else
 					createErrorMessage();
-
+				// if (find()) {
+				// numberOfLoops = 0;
+				//
+				// if (searchDirection == SCH_FORWARD) {
+				// if (searchWrap == SCH_WRAP_ON) {
+				// if (!findFwdWrap())
+				// createErrorMessage();
+				// }// if findFwdWrap
+				// else {
+				// if (!findFwdNoWrap())
+				// createErrorMessage();
+				// }// else findFwdNoWrap
+				// }// if searchForward
+				// else {
+				// if (searchWrap == SCH_WRAP_ON) {
+				// if (!findBackWrap())
+				// createErrorMessage();
+				// }// if findBwdWrap
+				// else {
+				// if (!findBackNoWrap())
+				// createErrorMessage();
+				// }// else findBwdNoWrap
+				// }// else searchBackward
+				// } else {
+				// createErrorMessage();
+				// }
 			}
 
 		});
@@ -409,19 +435,16 @@ public class SearchDOM extends Dialog {
 				if (isNewSearch()) {
 					indexOfNode = 0;
 					indexOfSearchForView = 0;
-					if (find()) {
-//						putFoundInView();
-						man.getText().copyAndPaste(replaceCombo.getText(),
-								textIndex, textIndex + currentSearch.length());
-					} else {
-						createErrorMessage();
-					}
-				} else {
-//					putFoundInView();
+				}
+				if (find()) {
+					// putFoundInView();
 					man.getText().copyAndPaste(replaceCombo.getText(),
 							textIndex, textIndex + currentSearch.length());
+				} else {
+					createErrorMessage();
 				}
 			}
+
 		});
 
 		Button replaceAllBtn = new Button(shlFindreplace, SWT.NONE);
@@ -438,7 +461,7 @@ public class SearchDOM extends Dialog {
 					indexOfSearchForView = 0;
 					if (find()) {
 						do {
-//							putFoundInView();
+							// putFoundInView();
 							man.getText().copyAndPaste(replaceCombo.getText(),
 									textIndex,
 									textIndex + currentSearch.length());
@@ -450,7 +473,7 @@ public class SearchDOM extends Dialog {
 					}
 				} else {
 					do {
-//						putFoundInView();
+						// putFoundInView();
 						man.getText().copyAndPaste(replaceCombo.getText(),
 								textIndex, textIndex + currentSearch.length());
 						numberReplaceAlls++;
@@ -471,6 +494,15 @@ public class SearchDOM extends Dialog {
 			}
 		});
 		shlFindreplace.pack(true);
+	}
+
+	private void setPanelSize() {
+		Monitor primary = shlFindreplace.getDisplay().getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		int x = (bounds.width / 2) - ((bounds.width / 4) / 2);
+		int y = (bounds.height / 2) - ((bounds.height / 2) / 2);
+		shlFindreplace.setSize(bounds.width / 3, (int) (bounds.height / 1.5));
+		shlFindreplace.setLocation(x * 2, y);
 	}
 
 	public void createErrorMessage() {
@@ -560,103 +592,243 @@ public class SearchDOM extends Dialog {
 		currentSearch = searchCombo.getText();
 		XPathContext context = new nu.xom.XPathContext("dtb", nameSpace);
 		if (searchCaseSensitive == SCH_CASE_OFF) {
-			nodes = doc.query(String.format("//text()[contains (.,'%s')]"
-					+ "[not(ancestor::dtb:brl)]", currentSearch), context);
-		} else {
 			currentSearch = currentSearch.toLowerCase();
 			nodes = doc
 					.query(String
 							.format("//text()[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'),'%s')]"
 									+ "[not(ancestor::dtb:brl)]", currentSearch),
 							context);
+		} else {
+			nodes = doc.query(String.format("//text()[contains (.,'%s')]"
+					+ "[not(ancestor::dtb:brl)]", currentSearch), context);
 		}
 
 		if (nodes.size() > 0) {
 			for (int i = 0; i < nodes.size(); i++) {
 				getNodeIndices(nodes.get(i));
 			}
-			Collections.sort(sectionArray);
-			System.out.println("sectionArray size "+sectionArray.size());
-			System.out.println();
+			System.out.println("sectionArray " + sectionArray.toString());
+			System.out.println("sectionArray size " + sectionArray.size());
 			System.out.println("NUMBER OF NODES WITH MATCH " + nodes.size());
-			getAllTextIndices();
-			System.out.println("textIndexArray "+textIndexArray.toString());
+			System.out.println();
 			return true;
 		}
 		return false;
 	}
 
 	public void getNodeIndices(Node node) {
-		HashMap<Integer, Integer> indexMap = new HashMap<>();
 		int[] completeIndex = man.getNodeIndexAllSections(node);
-		int section = completeIndex[0];
-		if (!sectionArray.contains(section))
-			sectionArray.add(section);
-		indexMap.put(completeIndex[0], completeIndex[1]);
-		nodeMap.put(node, indexMap);
-	}
+		if (completeIndex != null) {
+			int section = completeIndex[0];
+			if (!sectionArray.contains(section)) {
+				sectionArray.add(section);
+				visitedArray.add(0);
+				Collections.sort(sectionArray);
+			}
 
-	public void getAllTextIndices() {
-
-		sectionIndex = sectionArray.get(0);
-		for (int j = 0; j < sectionArray.size(); j++) {
-			if (sectionIndex != 0) {
-			man.resetSection(sectionArray.get(j));
-			}
-			TextView tv = man.getText();
-			String view;
-			if (searchCaseSensitive == SCH_CASE_OFF) {
-				view = tv.view.getText();
-			} else {
-				view = tv.view.getText().toLowerCase();
-				currentSearch = currentSearch.toLowerCase();
-			}
-			textIndex = view.indexOf(currentSearch, indexOfSearchForView);
-			while (textIndex != -1) {
-				textIndexArray.add(textIndex);
-				indexOfSearchForView = textIndex + 1;
-				textIndex = view.indexOf(currentSearch, indexOfSearchForView);
-			}
 		}
 	}
-//
-//	public void putFoundInView() {
-//
-//		TextView tv = man.getText();
-//		String view;
-//		if (searchCaseSensitive == SCH_CASE_OFF) {
-//			view = tv.view.getText();
-//		} else {
-//			view = tv.view.getText().toLowerCase();
-//			currentSearch = currentSearch.toLowerCase();
-//		}
-//
-//		textIndex = view.indexOf(currentSearch, indexOfSearchForView);
-//		if (textIndex != -1) {
-//			tv.view.setTopIndex(textIndex);
-//			tv.view.setSelection(textIndex, textIndex + currentSearch.length());
-//			indexOfSearchForView = textIndex + 1;
-//		}
-//	}
+
+	public void putFoundInView() {
+		if (searchDirection == SCH_FORWARD) {
+			if (searchWrap == SCH_WRAP_ON) {
+				if (!findForward() && sectionArray.size() > 0) {
+					man.resetSection(getNextSection());
+					findForward();
+				} else
+					findForward();
+			} else {
+				if (!findForward()) {
+					if (getNextSection() == -1)
+						createErrorMessage();
+					else
+						man.resetSection(getNextSection());
+				}
+			}
+		} else {
+			if (searchWrap == SCH_WRAP_ON) {
+				if (!findBackNoWrap())
+					man.resetSection(getNextSection());
+			} else {
+				if (sectionIndex != sectionArray.size() - 1)
+					man.resetSection(getNextSection());
+				else
+					createErrorMessage();
+			}
+		}
+
+	}
+
+	public int getNextSection() {
+
+		if (searchDirection == SCH_FORWARD) {
+			for (int i = 0; i < visitedArray.size(); i++) {
+				if (visitedArray.get(i) == 0) {
+					visitedArray.set(i, 1);
+					return sectionArray.get(i);
+				}
+			}
+		} else {
+			for (int i = visitedArray.size(); i > 0; i--) {
+				if (visitedArray.get(i) == 0) {
+					visitedArray.set(i, 1);
+					return sectionArray.get(i);
+				}
+			}
+		}
+		return -1;
+	}
 
 	public boolean isNewSearch() {
 		if (!searchCombo.getText().equals(currentSearch)) {
 			return true;
 		}
 		return false;
-
 	}
 
-	private void setPanelSize() {
-		Monitor primary = shlFindreplace.getDisplay().getPrimaryMonitor();
-		Rectangle bounds = primary.getBounds();
-		int x = (bounds.width / 2) - ((bounds.width / 4) / 2);
-		int y = (bounds.height / 2) - ((bounds.height / 2) / 2);
-		shlFindreplace.setSize(bounds.width / 3, (int) (bounds.height / 1.5));
-		shlFindreplace.setLocation(x * 2, y);
+	public boolean findForward() {
+
+		TextView tv = man.getText();
+		String textStr = tv.view.getText();
+		String findMeStr = currentSearch;
+		int numChars = textStr.length();
+
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		if (findMeStr.length() > numChars)
+			return false;
+
+		startCharIndex = tv.view.getCaretOffset();
+		endCharIndex = startCharIndex + findMeStr.length();
+
+		while (startCharIndex < numChars && endCharIndex < (numChars + 1)) {
+			String curViewSnippet = textStr.substring(startCharIndex,
+					endCharIndex);
+
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			if (curViewSnippet.matches(findMeStr) == true) {
+
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					if (startCharIndex - 1 >= 0)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+				}
+
+				if (haveAmatch == true) {
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+					return true;
+				}
+			}
+			startCharIndex++;
+			endCharIndex++;
+		}
+		return false;
 	}
 
-} // class SearchDialog...
+	public boolean findBackNoWrap() {
+		// /////////////////////////////////////////////////////////////////
+		// Searches document for string in our combo box.
+		// Returns true if one was found.
+		// Grab text view.
+		TextView tv = man.getText();
+
+		String textStr = tv.view.getText();
+
+		// Are there any characters in the text view? If there
+		// are no characters, we probably don't have a document
+		// loaded yet.
+		if (tv.view.getCharCount() == 0)
+			return false;
+
+		// Grab search string.
+		String findMeStr = searchCombo.getText();
+
+		// Get number of characters in text view.
+		int numChars = textStr.length();
+
+		// If the search string is larger than the total number of
+		// characters in the view, don't bother.
+		if (findMeStr.length() > numChars)
+			return false;
+
+		// If there is selection text, that means we're still looking at
+		// what we found earlier. Move past it.
+		if (tv.view.getSelectionText().length() == findMeStr.length())
+			tv.view.setCaretOffset(startCharIndex);
+
+		// Get current cursor position.
+		endCharIndex = tv.view.getCaretOffset();
+		startCharIndex = endCharIndex - findMeStr.length();
+
+		// Scour the view for the search string.
+		while (startCharIndex >= 0 && endCharIndex > 0) {
+			// Get current snippet of text we're testing.
+			String curViewSnippet = textStr.substring(startCharIndex,
+					endCharIndex);
+
+			// Should we be checking case sensitive version?
+			if (searchCaseSensitive == SCH_CASE_OFF) {
+				curViewSnippet = curViewSnippet.toLowerCase();
+				findMeStr = findMeStr.toLowerCase();
+			}
+
+			// Compare the two strings. Is there a match?
+			if (curViewSnippet.matches(findMeStr) == true) {
+				// Whole word?
+				boolean haveAmatch = true;
+				if (searchWholeWord == SCH_WHOLE_ON) {
+					// "^[\pL\pN]*$";
+					if (startCharIndex - 1 >= 0)
+						if (textStr.substring(startCharIndex - 1,
+								startCharIndex).matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+					if (endCharIndex + 1 < numChars)
+						if (textStr.substring(endCharIndex, endCharIndex + 1)
+								.matches("^[\\pL\\pN]*$") == true)
+							haveAmatch = false;
+
+				} // if( searchWholeWord...
+
+				// Update view if we have a match.
+				if (haveAmatch == true) {
+					// Set cursor and view to point to search string we
+					// found.
+					tv.view.setSelection(startCharIndex, endCharIndex);
+					tv.view.setTopIndex(tv.view.getLineAtOffset(startCharIndex));
+					// foundStr = tv.view.getSelectionText();
+
+					// Found it; break.
+					return true;
+
+				} // if( haveAmatch = true)
+
+			} // if( curViewSnippet...
+
+			// Move back a character.
+			startCharIndex--;
+			endCharIndex--;
+
+		} // while( startCharIndex...
+
+		// If for some reason we get here, couldn't find a matching string.
+		return false;
+
+	}// findBackNoWrap
+
+} // class SearchDOM
+
 /*
  * XPath tries!! .query(String.format("//*[text()[contains(.,'%s')]]", search),
  * context);
@@ -711,3 +883,98 @@ public class SearchDOM extends Dialog {
  * man.getText().setCursorOffset(oldCursorPos); } while (find() == true);
  * replaceAllMessage(); } else { createErrorMessage(); } }
  */
+// TextView tv = man.getText();
+// String view;
+// if (searchCaseSensitive == SCH_CASE_OFF) {
+// view = tv.view.getText().toLowerCase();
+// currentSearch = currentSearch.toLowerCase();
+// } else {
+// view = tv.view.getText();
+// }
+// if (searchDirection == SCH_BACKWARD) {
+// sectionIndex = sectionArray.size();
+// indexOfSearchForView = view.length();
+// }
+// if (searchDirection == SCH_FORWARD) {
+// textIndex = view.indexOf(currentSearch, indexOfSearchForView);
+// if (textIndex != -1) {
+// tv.view.setTopIndex(textIndex);
+// tv.view.setSelection(textIndex,
+// textIndex + currentSearch.length());
+// indexOfSearchForView = textIndex + 1;
+// } else {
+// if (searchWrap == SCH_WRAP_OFF) {
+// if (sectionIndex < sectionArray.size()) {
+// sectionIndex++;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// }
+// } else {
+// if (sectionIndex < sectionArray.size()) {
+// sectionIndex++;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// } else {
+// sectionIndex = 0;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// }
+// }
+// }
+// } else {
+//
+// textIndex = view.lastIndexOf(currentSearch, indexOfSearchForView);
+//
+// if (textIndex != -1) {
+// tv.view.setTopIndex(textIndex);
+// tv.view.setSelection(textIndex,
+// textIndex + currentSearch.length());
+// indexOfSearchForView = textIndex - 1;
+// } else {
+// if (searchWrap == SCH_WRAP_OFF) {
+// if (sectionIndex >= 0) {
+// sectionIndex--;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// }
+// } else {
+// if (sectionIndex > 0) {
+// sectionIndex--;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// } else {
+// sectionIndex = 0;
+// indexOfSearchForView = 0;
+// man.resetSection(sectionArray.get(sectionIndex));
+// putFoundInView();
+// }
+// }
+// }
+// }
+// }
+//
+// public void getAllTextIndices() {
+//
+// for (int j = 0; j < sectionArray.size(); j++) {
+// TextView tv = man.getText();
+// String view;
+// if (searchCaseSensitive == SCH_CASE_OFF) {
+// view = tv.view.getText().toLowerCase();
+// currentSearch = currentSearch.toLowerCase();
+// } else {
+// view = tv.view.getText();
+// }
+// textIndex = view.indexOf(currentSearch, indexOfSearchForView);
+// while (textIndex != -1) {
+// textIndexArray.add(textIndex);
+// indexOfSearchForView = textIndex + 1;
+// textIndex = view.indexOf(currentSearch, indexOfSearchForView);
+// }
+// man.resetSection(sectionArray.get(j));
+// }
+// }

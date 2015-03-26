@@ -51,6 +51,7 @@ import nu.xom.Text;
 import org.brailleblaster.BBIni;
 import org.brailleblaster.archiver.Archiver;
 import org.brailleblaster.archiver.ArchiverFactory;
+import org.brailleblaster.document.BBDocument;
 import org.brailleblaster.embossers.EmbossersManager;
 import org.brailleblaster.localization.LocaleHandler;
 import org.brailleblaster.perspectives.Controller;
@@ -338,10 +339,10 @@ public class Manager extends Controller {
 	}
 	
 	public void tableOfContents() {
-		//document.
-		tocDialog = new TOCDialog(wp.getShell(), SWT.NONE, this, document);
+		tocDialog = new TOCDialog(wp.getShell(), SWT.NONE, this, document.getDOM());
 		tocDialog.open();
 	}
+	
 	
 	public void fileSave(){	
 		// Borrowed from Save As function. Different document types require 

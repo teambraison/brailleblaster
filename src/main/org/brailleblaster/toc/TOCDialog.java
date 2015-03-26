@@ -1,14 +1,5 @@
 package org.brailleblaster.toc;
 
-
-import java.io.IOException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import nu.xom.converters.DOMConverter;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -17,22 +8,18 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Monitor;
-import org.brailleblaster.BBIni;
 import org.brailleblaster.perspectives.braille.Manager;
-import org.brailleblaster.perspectives.braille.document.BrailleDocument;
 import org.brailleblaster.utd.TableOfContents;
 import org.eclipse.swt.widgets.Shell;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
+
+import nu.xom.Document;
+import nu.xom.Node;
+import nu.xom.XPathContext;
 
 public class TOCDialog extends Dialog {
 	/**
@@ -48,21 +35,17 @@ public class TOCDialog extends Dialog {
 	Document document = null;
 	Node location = null;
 	
-	public TOCDialog(Shell parent, int style, Manager brailleView, BrailleDocument doc) {
+	public TOCDialog(Shell parent, int style, Manager brailleView, Document doc) {
 		super(parent, style);
 		setText(title);
 		manager = brailleView;
-		
-		try {
-			DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			DOMImplementation impl = dBuilder.getDOMImplementation();
-			document = DOMConverter.convert(doc.getDOM(), impl);
-			//document = document.getOwnerDocument();
-			//document = dBuilder.parse(getClass().getResourceAsStream(BBIni.getProgramDataPath()));
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		
+		document = doc;
+	}
+	
+	public XPathContext getContext(Document doc) {
+		String namespace = doc.getRootElement().getNamespaceURI();
+		XPathContext context = new XPathContext("dtb", namespace);
+		return context;
 	}
 
 	public Object open() {
@@ -120,6 +103,7 @@ public class TOCDialog extends Dialog {
 		genGrp.setLayout(new RowLayout(SWT.VERTICAL));
 		genGrp.setText("Location");
 		
+		//Default location
 		Button pLocRadioBtn = new Button(genGrp, SWT.RADIO);
 		pLocRadioBtn.setText("End of p-pages");
 		pLocRadioBtn.setSelection(true);
@@ -128,7 +112,7 @@ public class TOCDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				keyword = "generate";
 				//retrieve p node
-				//location = null;
+				location = null;
 			}
 		});
 
@@ -140,7 +124,7 @@ public class TOCDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				keyword = "generate";
 				//retrieve t node
-				//location = null;
+				location = null;
 			}
 		});
 		
@@ -151,7 +135,7 @@ public class TOCDialog extends Dialog {
 			public void widgetSelected(SelectionEvent e) {
 				keyword = "generate";
 				//base location on another button
-				//location = null;
+				location = null;
 			}
 		});
 		
@@ -180,9 +164,11 @@ public class TOCDialog extends Dialog {
 		confirmBtn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				//toc.applyTOC(keyword, document, location);
+				toc.applyTOC(keyword, document, location);
+				manager.refresh();
 				dialog.open();
 				shlTOC.close();
+				
 			}
 		});
 		
@@ -193,6 +179,7 @@ public class TOCDialog extends Dialog {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				shlTOC.close();
+				//manager.refresh();
 			}
 		});
 		
@@ -210,9 +197,6 @@ public class TOCDialog extends Dialog {
 		shlTOC.setLocation(x, y);
 	}
 	
-	private void callTOC(String keyword, Document document, Node location) {
-		toc.applyTOC(keyword, document, location);
-	}
 }
 
 

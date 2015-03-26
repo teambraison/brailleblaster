@@ -37,25 +37,20 @@ public class SettingsManager {
 		}
 	}
 
-	public void loadEngine(UTDTranslationEngine engine, String config) {
-		try {
-			//Set liblouis table paths if not set by user
-			if(engine.getBrailleTranslator().getDataPath() == null)
-				engine.getBrailleTranslator().setDataPath(BBIni.getProgramDataPath("liblouis", "tables"));
-			
-			
-			//Style TODO: Somehow automagically load the correct config
-			engine.setPageSettings(
-					UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, PAGE_SETTINGS_NAME)));
-			engine.setBrailleSettings(
-					UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, BRAILLE_SETTINGS_NAME)));
-			engine.setStyleDefinitions(
-					UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile(UTD_FOLDER, STYLE_DEFS_NAME)));
-			
-			changeMappings(engine, config);
-		} catch (Exception e) {
-			throw new RuntimeException("Could not initialize UTD", e);
-		}
+	public void loadEngine(UTDTranslationEngine engine, String config) throws IOException {
+		//Set liblouis table paths if not set by user
+		if(engine.getBrailleTranslator().getDataPath() == null)
+			engine.getBrailleTranslator().setDataPath(BBIni.getProgramDataPath("liblouis", "tables"));
+				
+		//Style TODO: Somehow automagically load the correct config
+		engine.setPageSettings(
+				UTDConfig.loadPageSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, PAGE_SETTINGS_NAME)));
+		engine.setBrailleSettings(
+				UTDConfig.loadBrailleSettings(BBIni.loadAutoProgramDataFile(UTD_FOLDER, BRAILLE_SETTINGS_NAME)));
+		engine.setStyleDefinitions(
+				UTDConfig.loadStyleDefinitions(BBIni.loadAutoProgramDataFile(UTD_FOLDER, STYLE_DEFS_NAME)));
+		
+		changeMappings(engine, config);
 	}
 
 	public void createUserUTDFolder() {
